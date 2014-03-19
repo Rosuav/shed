@@ -33,7 +33,17 @@ int main(int argc,array(string) argv)
 				array(string) stat=Process.run("git diff --cached --stat")->stdout/"\n";
 				if (sizeof(stat)>1 && has_prefix(stat[1]," 1 file changed") && sscanf(stat[0]," %s |",string fn) && fn && fn!="") //One-file commits have a summary on line 2.
 				{
-					array(string) log=Process.run(({"git","log","--shortstat","--full-diff","-10","--oneline",fn}))->stdout/"\n";
+					//To speed up the search:
+					//$ git config rosuav.log-search.limit N
+					//where N is some number of commits. This will cause failure if this branch of
+					//this repo has not had that many commits yet (or to be more precise, if HEAD
+					//doesn't have that many {grand,}parents).
+					//Is there a standard for this kind of configuration??? I'm using top-level name
+					//"rosuav" to try to avoid collisions.
+					array(string) args=({"git","log","--shortstat","--full-diff","-10","--oneline"});
+					int limit=(int)Process.run(({"git","config","--get","rosuav.log-search.limit"}))->stdout;
+					if (limit) args+=({"HEAD~"+limit+".."});
+					array(string) log=Process.run(args+({fn}))->stdout/"\n";
 					mapping(string:int) tagcnt=([]);
 					for (int i=0;i<sizeof(log)-1;i+=2) //log should be pairs of lines: ({commit + summary, shortstat}) repeated.
 						if (has_prefix(log[i+1]," 1 file changed")) //Ignore commits that changed any other file
