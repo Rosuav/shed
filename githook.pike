@@ -38,8 +38,6 @@ int main(int argc,array(string) argv)
 					//where N is some number of commits. This will cause failure if this branch of
 					//this repo has not had that many commits yet (or to be more precise, if HEAD
 					//doesn't have that many {grand,}parents).
-					//Is there a standard for this kind of configuration??? I'm using top-level name
-					//"rosuav" to try to avoid collisions.
 					array(string) args=({"git","log","--shortstat","--full-diff","-10","--oneline"});
 					int limit=(int)Process.run(({"git","config","--get","rosuav.log-search.limit"}))->stdout;
 					if (limit) args+=({"HEAD~"+limit+".."});
