@@ -10,7 +10,7 @@ TODO: More explanation, thanks!
 2) Short-hand fixup: edit a single file and create a commit with a message of
 "f" (eg "git commit -amf") and the message will be expanded to "fixup!" and the
 most recent unpushed commit message that affects this file. Good with git's
-interactive rebase. Assumes you're on branch 'master'.
+interactive rebase.
 */
 
 int main(int argc,array(string) argv)
@@ -75,8 +75,9 @@ int main(int argc,array(string) argv)
 				if (sizeof(stat)>1 && has_prefix(stat[1]," 1 file changed") && sscanf(stat[0]," %s |",string fn) && fn && fn!="") //As above
 				{
 					//Bound the search to unpushed changes only.
-					//NOTE: Assumes, for simplicity, that you're on master. TOmaybeDO: Look up the actual remote branch.
-					array(string) log=Process.run(({"git","log","origin/master..","--shortstat","--full-diff","-1","--oneline",fn}))->stdout/"\n";
+					string branch=String.trim_all_whites(Process.run(({"git","symbolic-ref","--short","-q","HEAD"}))->stdout);
+					if (branch=="") exit(1,"Shortcut fixup commits work only on a branch.\n");
+					array(string) log=Process.run(({"git","log","origin/"+branch+"..","--shortstat","--full-diff","-1","--oneline",fn}))->stdout/"\n";
 					if (sizeof(log)>1)
 					{
 						sscanf(log[0],"%*s %s",string msg);
