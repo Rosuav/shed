@@ -40,5 +40,5 @@ int main(int argc,array(string) argv)
 	if (argc<2) exit(0,"Usage: %s sourcedir\n\nWill process sourcedir and create a maildir tree in the current directory.\n",argv[0]);
 	process(argv[1],"");
 	Stdio.append_file("courierimapsubscribed.new",subs);
-	write("Copying complete. To automatically subscribe, append the contents\nof courierimapsubscribed.new to courierimapsubscribed in the mail directory.\n",subs);
+	write("Copying complete. To automatically subscribe, append the contents\nof courierimapsubscribed.new to courierimapsubscribed in the mail directory.\n");
 }
