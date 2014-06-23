@@ -3,21 +3,24 @@ int r=0,g=255,b=255;
 Image.Image genfractal(float x1,float x2,float y1,float y2,int xres,int yres)
 {
 	Image.Image img=Image.Image(xres,yres);
-	for (int xpos=0;xpos<xres;++xpos) for (int ypos=0;ypos<yres;++ypos)
+	for (int ypos=0;ypos<yres;++ypos)
 	{
-		float x=(x2-x1)*xpos/xres+x1, y=(y2-y1)*ypos/yres+y1;
-		float cx=x,cy=y; //For a Mandelbrot set, the mutation point is the point itself. For a Julia set, it's a fixed vector.
-		for (int i=0;i<30;++i)
+		for (int xpos=0;xpos<xres;++xpos)
 		{
-			[x,y]=({x*x-y*y + cx,2*x*y + cy});
-			if (x*x+y*y > 4)
+			float x=(x2-x1)*xpos/xres+x1, y=(y2-y1)*ypos/yres+y1;
+			float cx=x,cy=y; //For a Mandelbrot set, the mutation point is the point itself. For a Julia set, it's a fixed vector.
+			for (int i=0;i<30;++i)
 			{
-				//img->setpixel(xpos,ypos,colors[i]);
-				img->setpixel(xpos,ypos,r*i/30,g*i/30,b*i/30);
-				break;
+				[x,y]=({x*x-y*y + cx,2*x*y + cy});
+				if (x*x+y*y > 4)
+				{
+					//img->setpixel(xpos,ypos,colors[i]);
+					img->setpixel(xpos,ypos,r*i/30,g*i/30,b*i/30);
+					break;
+				}
 			}
+			//If we flow past the end, assume we're inside the set and leave the pixel black.
 		}
-		//If we flow past the end, assume we're inside the set and leave the pixel black.
 	}
 	return img;
 }
