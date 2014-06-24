@@ -28,14 +28,25 @@ Image.Image genfractal(float x1,float x2,float y1,float y2,int xres,int yres)
 object gimg;
 void zoom(float x1,float x2,float y1,float y2,int xres,int yres)
 {
-	float xc=(x2+x1)/2,yc=(y2+y1)/2; //Center is the average
-	float xs=(x2-x1)/2,ys=(y2-y1)/2; //Size is half the diff
 	while (1)
 	{
 		Image.Image img;
-		write("Generated at size %f,%f in %fs\n",xs,ys,gauge {img=genfractal(xc-xs,xc+xs,yc-ys,yc+ys,xres,yres);});
+		write("Generated at %f,%f-%f,%f in %fs\n",x1,y1,x2,y2,gauge {img=genfractal(x1,x2,y1,y2,xres,yres);});
 		gimg->set_from_image(GTK2.GdkImage(0,img));
-		xs*=0.95; ys*=0.95;
+		mapping pos=gimg->get_pointer();
+		int x=pos->x,y=pos->y;
+		mapping sz=gimg->size_request();
+		int w=sz->width,h=sz->height;
+		float xfr=0.5,yfr=0.5; //Fractions between 0.0 and 1.0 indicating zoom position
+		if (x>=0 && y>=0 && x<w && y<h) {xfr=(float)x/w; yfr=(float)y/h;} //If mouse is within field, zoom on mouse.
+		float xpos=(x2-x1)*xfr,ypos=(y2-y1)*yfr; //Positions within the range covered
+		write("pos: %f,%f = %f,%f\n",xfr,yfr,xpos,ypos);
+		x1 = xpos - (xpos-x1) * .95;
+		x2 = xpos + (x2-xpos) * .95;
+		x1=xpos*.95+x1*.05; x2=xpos*.95+x2*.05;
+		y1=ypos*.95+y1*.05; y2=ypos*.95+y2*.05;
+		//x1*=.95; x2*=.95; y1*=.95; y2*=.95;
+		write("pos: %f,%f = %f,%f\n",xfr,yfr,(x2-x1)*xfr,(y2-y1)*yfr);
 	}
 }
 
