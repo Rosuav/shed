@@ -17,6 +17,23 @@ The constraints are:
    used by exactly two words.)
 
 Letter availabilities: 9 2 2 4 12 2 3 2 9 1 1 4 2 6 8 2 1 6 4 6 4 2 2 1 2 1
+
+Found a 5x5 grid!
+
+      a    
+      b   d
+      a   a
+      n m n
+   aardvark
+      oaring
+discernible
+      enlist
+   smidgens
+       l g 
+       o   
+       r   
+       y   
+
 */
 
 int size,mode;
