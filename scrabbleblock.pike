@@ -123,7 +123,7 @@ int main(int argc,array(int) argv)
 	size=(int)argv[1]; mode=(int)argv[2];
 	if (size<2 || mode<0 || mode>3) exit(0,"Usage: pike %s N M\nN is size of block, eg 3 for 3x3. M is 0, 1, 2, 3 for which mode to check.\n",argv[0]);
 	//SimpleRegexp doesn't handle ^[a-z]{n,}$ so we do it as n copies of [a-z] with the last one modified by a +.
-	words=Regexp.SimpleRegexp("^"+"[a-z]"*(size+1)+"+$")->match(Stdio.read_file("/usr/share/dict/words")/"\n");
+	words=Regexp.SimpleRegexp("^"+"[a-z]"*(size+2)+"+$")->match(Stdio.read_file("/usr/share/dict/words")/"\n");
 	write("%d words.\n",sizeof(words));
 	grid=({"."*size})*size;
 	fullwords=({({""})*size,({""})*size});
