@@ -49,6 +49,7 @@ void place_word(int vert,int pos)
 	if (pos>=size)
 	{
 		//Grid is solved!
+		function write=({write,Stdio.File("scrabbleblock.log","wac")->write}); //Log to file and to stdout
 		write("\n\nSOLVED! %f seconds.\n",tm->peek());
 		array(string) left=({""})*size,right=({""})*size;
 		foreach (fullwords[0];int pos;string word)
@@ -82,7 +83,7 @@ void place_word(int vert,int pos)
 		for (int i=0;i<size;++i)
 			write("%"+indent+"s%s%s\n",left[i],grid[i],right[i]);
 		write("%{"+" "*indent+"%s\n%}",below);
-		exit(0);
+		return;
 	}
 	//write("Attempting to place a %s word at pos %d\n",({"horizontal","vertical"})[vert],pos);
 	//Do we have letters before the word (whichway==1) or after (0)?
