@@ -44,7 +44,7 @@ int main(int argc,array(string) argv)
 					array(string) log=Process.run(args+({fn}))->stdout/"\n";
 					mapping(string:int) tagcnt=([]);
 					for (int i=0;i<sizeof(log)-1;i+=2) //log should be pairs of lines: ({commit + summary, shortstat}) repeated.
-						if (has_prefix(log[i+1]," 1 file changed")) //Ignore commits that changed any other file
+						if (has_prefix(log[i+1]-"s"," 1 file changed")) //Ignore commits that changed any other file
 							if (sscanf(log[i],"%*s %s: %s",string tag,string msg) && msg) tagcnt[String.trim_all_whites(tag-"squash!"-"fixup!")]++;
 					switch (sizeof(tagcnt))
 					{
@@ -72,7 +72,7 @@ int main(int argc,array(string) argv)
 			if (String.trim_all_whites(msg)=="f")
 			{
 				array(string) stat=Process.run("git diff --cached --stat")->stdout/"\n";
-				if (sizeof(stat)>1 && has_prefix(stat[1]," 1 file changed") && sscanf(stat[0]," %s |",string fn) && fn && fn!="") //As above
+				if (sizeof(stat)>1 && has_prefix(stat[1]-"s"," 1 file changed") && sscanf(stat[0]," %s |",string fn) && fn && fn!="") //As above
 				{
 					//Bound the search to unpushed changes only.
 					string branch=String.trim_all_whites(Process.run(({"git","symbolic-ref","--short","-q","HEAD"}))->stdout);
