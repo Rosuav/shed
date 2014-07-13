@@ -31,7 +31,7 @@ int main(int argc,array(string) argv)
 			if (argc<4 && has_prefix(String.trim_all_whites(msg),"#"))
 			{
 				array(string) stat=Process.run("git diff --cached --stat")->stdout/"\n";
-				if (sizeof(stat)>1 && has_prefix(stat[1]," 1 file changed") && sscanf(stat[0]," %s |",string fn) && fn && fn!="") //One-file commits have a summary on line 2.
+				if (sizeof(stat)>1 && has_prefix(stat[1]-"s"," 1 file changed") && sscanf(stat[0]," %s |",string fn) && fn && fn!="") //One-file commits have a summary on line 2.
 				{
 					//To speed up the search:
 					//$ git config rosuav.log-search.limit N
