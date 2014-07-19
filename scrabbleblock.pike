@@ -83,7 +83,8 @@ void place_word(int vert,int pos)
 		for (int i=0;i<size;++i)
 			write("%"+indent+"s%s%s\n",left[i],grid[i],right[i]);
 		write("%{"+" "*indent+"%s\n%}",below);
-		return;
+		words-=fullwords[0]+fullwords[1]; //Remove all words used, to give more interesting multiple results
+		throw("Restart");
 	}
 	//write("Attempting to place a %s word at pos %d\n",({"horizontal","vertical"})[vert],pos);
 	//Do we have letters before the word (whichway==1) or after (0)?
@@ -127,5 +128,5 @@ int main(int argc,array(int) argv)
 	write("%d words.\n",sizeof(words));
 	grid=({"."*size})*size;
 	fullwords=({({""})*size,({""})*size});
-	place_word(0,0);
+	while (catch {place_word(0,0);}=="Restart");
 }
