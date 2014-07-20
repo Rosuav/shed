@@ -128,5 +128,9 @@ int main(int argc,array(int) argv)
 	write("%d words.\n",sizeof(words));
 	grid=({"."*size})*size;
 	fullwords=({({""})*size,({""})*size});
-	while (catch {place_word(0,0);}=="Restart");
+	while (1)
+	{
+		mixed ex=catch {place_word(0,0);};
+		if (ex!="Restart") throw(ex);
+	}
 }
