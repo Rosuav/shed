@@ -42,6 +42,7 @@ array(int) letters=({9,2,2,4,12,2,3,2,9,1,1,4,2,6,8,2,1,6,4,6,4,2,2,1,2,1});
 array(string) grid;
 array(array(string)) fullwords;
 System.Timer tm=System.Timer();
+int bailingout;
 
 //Place a word, horizontally or vertically, in position pos
 void place_word(int vert,int pos)
@@ -84,7 +85,7 @@ void place_word(int vert,int pos)
 			write("%"+indent+"s%s%s\n",left[i],grid[i],right[i]);
 		write("%{"+" "*indent+"%s\n%}",below);
 		words-=fullwords[0]+fullwords[1]; //Remove all words used, to give more interesting multiple results
-		throw("Restart");
+		bailingout=1;
 	}
 	//write("Attempting to place a %s word at pos %d\n",({"horizontal","vertical"})[vert],pos);
 	//Do we have letters before the word (whichway==1) or after (0)?
@@ -112,6 +113,7 @@ void place_word(int vert,int pos)
 		place_word(!vert,pos+vert);
 		//Nope, didn't work. Reinstate letters.
 		letters=prevltrs;
+		if (bailingout) break;
 	}
 	//Since this didn't terminate, this search failed. Remove what we've placed.
 	if (vert) foreach (pat;int i;int ch) grid[i][pos]=ch;
@@ -125,12 +127,13 @@ int main(int argc,array(int) argv)
 	if (size<2 || mode<0 || mode>3) exit(0,"Usage: pike %s N M\nN is size of block, eg 3 for 3x3. M is 0, 1, 2, 3 for which mode to check.\n",argv[0]);
 	//SimpleRegexp doesn't handle ^[a-z]{n,}$ so we do it as n copies of [a-z] with the last one modified by a +.
 	words=Regexp.SimpleRegexp("^"+"[a-z]"*(size+2)+"+$")->match(Stdio.read_file("/usr/share/dict/words")/"\n");
+	grid=({"."*size})*size;
+	fullwords=({({""})*size,({""})*size});
 	while (1)
 	{
 		write("%d words.\n",sizeof(words));
-		grid=({"."*size})*size;
-		fullwords=({({""})*size,({""})*size});
-		mixed ex=catch {place_word(0,0);};
-		if (ex!="Restart") throw(ex);
+		place_word(0,0);
+		if (!bailingout) break;
+		bailingout=0;
 	}
 }
