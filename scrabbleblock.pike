@@ -86,6 +86,7 @@ void place_word(int vert,int pos)
 		write("%{"+" "*indent+"%s\n%}",below);
 		words-=fullwords[0]+fullwords[1]; //Remove all words used, to give more interesting multiple results
 		bailingout=1;
+		return;
 	}
 	//write("Attempting to place a %s word at pos %d\n",({"horizontal","vertical"})[vert],pos);
 	//Do we have letters before the word (whichway==1) or after (0)?
