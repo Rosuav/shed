@@ -34,6 +34,7 @@ void zoom(float x1,float x2,float y1,float y2,int xres,int yres)
 		Image.Image img;
 		float tm=gauge {img=genfractal(x1,x2,y1,y2,xres,yres,iter);};
 		write("Generated at (%f,%f)-(%f,%f) %d in %fs\n",x1,y1,x2,y2,iter,tm);
+		gimg->get_parent()->set_title(sprintf("Mandelbrot: %d iter in %fs\n",iter,tm));
 		if (tm>10.0) iter-=5; else if (tm<4.0) iter+=5;
 		gimg->set_from_image(GTK2.GdkImage(0,img));
 		mapping pos=gimg->get_pointer();
