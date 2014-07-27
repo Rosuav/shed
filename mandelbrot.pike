@@ -39,7 +39,7 @@ void zoom(float x1,float x2,float y1,float y2,int xres,int yres)
 		int w=sz->width,h=sz->height;
 		float xfr=0.5,yfr=0.5; //Fractions between 0.0 and 1.0 indicating zoom position
 		if (x>=0 && y>=0 && x<w && y<h) {xfr=(float)x/w; yfr=(float)y/h;} //If mouse is within field, zoom on mouse.
-		float xpos=(x2-x1)*xfr,ypos=(y2-y1)*yfr; //Positions within the range covered
+		float xpos=x1+(x2-x1)*xfr,ypos=y1+(y2-y1)*yfr; //Positions within the range covered
 		write("pos: %f,%f = %f,%f\n",xfr,yfr,xpos,ypos);
 		x1 = xpos - (xpos-x1) * .95;
 		x2 = xpos + (x2-xpos) * .95;
