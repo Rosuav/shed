@@ -1,6 +1,6 @@
 array colors=values(Image.Color); //Snapshot the arbitrary order so it's consistent within a given run
 int r=0,g=255,b=255;
-Image.Image genfractal(float x1,float x2,float y1,float y2,int xres,int yres)
+Image.Image genfractal(float x1,float x2,float y1,float y2,int xres,int yres,int iter)
 {
 	Image.Image img=Image.Image(xres,yres);
 	for (int ypos=0;ypos<yres;++ypos)
@@ -9,13 +9,13 @@ Image.Image genfractal(float x1,float x2,float y1,float y2,int xres,int yres)
 		{
 			float x=(x2-x1)*xpos/xres+x1, y=(y2-y1)*ypos/yres+y1;
 			float cx=x,cy=y; //For a Mandelbrot set, the mutation point is the point itself. For a Julia set, it's a fixed vector.
-			for (int i=0;i<30;++i)
+			for (int i=0;i<iter;++i)
 			{
 				[x,y]=({x*x-y*y + cx,2*x*y + cy});
 				if (x*x+y*y > 4)
 				{
 					//img->setpixel(xpos,ypos,colors[i]);
-					img->setpixel(xpos,ypos,r*i/30,g*i/30,b*i/30);
+					img->setpixel(xpos,ypos,r*i/iter,g*i/iter,b*i/iter);
 					break;
 				}
 			}
@@ -28,10 +28,13 @@ Image.Image genfractal(float x1,float x2,float y1,float y2,int xres,int yres)
 object gimg;
 void zoom(float x1,float x2,float y1,float y2,int xres,int yres)
 {
+	int iter=20;
 	while (1)
 	{
 		Image.Image img;
-		write("Generated at %f,%f-%f,%f in %fs\n",x1,y1,x2,y2,gauge {img=genfractal(x1,x2,y1,y2,xres,yres);});
+		float tm=gauge {img=genfractal(x1,x2,y1,y2,xres,yres,iter);};
+		write("Generated at (%f,%f)-(%f,%f) %d in %fs\n",x1,y1,x2,y2,iter,tm);
+		if (tm>10.0) iter-=5; else if (tm<4.0) iter+=5;
 		gimg->set_from_image(GTK2.GdkImage(0,img));
 		mapping pos=gimg->get_pointer();
 		int x=pos->x,y=pos->y;
