@@ -3,8 +3,7 @@
 //Is there a standard command to do this???
 //Not smart enough to handle escaped special characters.
 //Also not smart enough to cope with file names that themselves contain special
-//chars, so they'll be re-globbed. This can only cause false positives with *
-//and ?, but with [], it might result in misrecognition.
+//chars, so they'll be re-globbed. This may cause false positives.
 
 array(string) globexpand(string path,array(string) parts)
 {
@@ -18,7 +17,7 @@ array(string) globexpand(string path,array(string) parts)
 int main(int argc,array(string) argv)
 {
 	array(string|array(string)) args=argv[1..];
-	foreach (args;int i;string arg) if (has_value(arg,'?') || has_value(arg,'*') || has_value(arg,'['))
+	foreach (args;int i;string arg) if (has_value(arg,'?') || has_value(arg,'*'))
 		args[i]=globexpand(0,explode_path(arg));
 	Process.exec(@Array.flatten(args));
 }
