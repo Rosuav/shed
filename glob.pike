@@ -1,3 +1,4 @@
+#!/usr/bin/env pike
 //Expand globs and execute a command
 //Is there a standard command to do this???
 //Not smart enough to handle escaped special characters.
