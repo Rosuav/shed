@@ -7,7 +7,7 @@
 
 array(string) globexpand(string path,array(string) parts)
 {
-	array(string) dir=glob(parts[0],get_dir(path));
+	array(string) dir=sort(glob(parts[0],get_dir(path)));
 	if (!sizeof(dir)) dir=({parts[0]}); //If nothing, expand to self. (Handles a leading slash, too.)
 	dir=combine_path(path||"",dir[*]);
 	if (sizeof(parts)==1) return dir; //Last part! Return what we have.
