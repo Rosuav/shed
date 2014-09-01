@@ -1,0 +1,3 @@
+cur=`git rev-parse HEAD`
+git pull "$@"
+gitk --select-commit=$cur
