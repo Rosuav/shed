@@ -6,6 +6,7 @@ int main(int argc,array(string) argv)
 {
 	Stdio.File out = Stdio.File("./stdout","wct"), err = Stdio.File("./stderr","wct");
 	//Begin code cribbed from Process.run() - this could actually *use* Process.run() if stdout/stderr functions were supported
+	//(They are in Pike 8.1, but not in 8.0 or 7.8, so this doesn't dare make use of the feature.)
 	Stdio.File mystdout = Stdio.File(), mystderr = Stdio.File();
 	object p=Process.create_process(argv[1..],(["stdout":mystdout->pipe(),"stderr":mystderr->pipe()]));
 	Pike.SmallBackend backend = Pike.SmallBackend();
