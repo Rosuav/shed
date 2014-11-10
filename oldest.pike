@@ -26,10 +26,10 @@ int main(int argc,array(string) argv)
 		status("Checking "+fn+"...");
 		array(string) lines=Process.run(({"git","blame","--porcelain",fn}))->stdout/"\n";
 		if (lines[-1]=="") lines=lines[..<1];
-		string curhash; int curblock; int startline;
+		string curhash; int curblock; int startline; int finalline;
 		for (int i=0;i<sizeof(lines);++i) //Don't directly iterate over lines - we may need to snag more lines during the loop
 		{
-			sscanf(lines[i],"%[0-9a-f] %d %d %d",string hash,int origline,int finalline,int blocksize);
+			sscanf(lines[i],"%[0-9a-f] %d %d %d",string hash,int origline,finalline,int blocksize);
 			if (lines[i+1][0]!='\t')
 			{
 				mapping metadata=([]);
@@ -52,6 +52,7 @@ int main(int argc,array(string) argv)
 			}
 			curblock+=commits[hash]->age;
 		}
+		if (curblock>oldest) {oldest=curblock; olddesc=sprintf("%s:%d\n%[0]s:%d\n%dish lines from %s authored %s",fn,startline,finalline-1,finalline-startline,curhash,ctime((int)commits[curhash]["author-time"]));}
 	}
 	status("");
 	write("Largest/oldest block:\n%s\n",olddesc||"(none!)");
