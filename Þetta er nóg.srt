@@ -8,12 +8,12 @@ The snow glows white on the mountain tonight,
 Sjá snjóinn glitra á fjallinu í nótt
 See the snow sparkle on the mountain tonight
 
-00:00:17,000 --> 00:00:19,500
+00:00:17,000 --> 00:00:20,000
 not a footprint to be seen
 Ekkert fótspor hér að sjá
 No footprints here to see
 
-00:00:20,000 --> 00:00:23,500
+00:00:20,500 --> 00:00:23,500
 A kingdom of isolation,
 Eitt einsemdar konungsríki
 A kingdom of isolation
@@ -58,22 +58,22 @@ Let it go, let it go!
 Þetta er nóg, þetta er nóg
 This is enough, this is enough
 
-00:01:02,000 --> 00:01:05,000
+00:01:02,000 --> 00:01:06,000
 Can't hold it back any more!
 Get ei lengur haldið í mér
 Can't hold it in any more
 
-00:01:05,500 --> 00:01:09,000
+00:01:06,000 --> 00:01:09,500
 Let it go, let it go!
 Þetta er nóg, þetta er nóg
 This is enough, this is enough
 
-00:01:09,000 --> 00:01:12,500
+00:01:09,500 --> 00:01:13,000
 Turn away and slam the door!
 Ég sný burt og skelli á eftir mér
 I turn away and slam the door
 
-00:01:13,000 --> 00:01:19,500
+00:01:13,500 --> 00:01:19,500
 I don't care what they're going to say
 Mig varðar ei Hvað þau segja við því
 I don't care What they'll say about that
@@ -98,17 +98,17 @@ Makes everything seem small
 Gerir allt svo ofursmátt
 Makes everything so small
 
-00:01:37,500 --> 00:01:40,500
+00:01:37,500 --> 00:01:41,000
 And the fears that once controlled me
 Og hræðslan sem hafði tökin
 And the fear that once had the control
 
-00:01:40,500 --> 00:01:44,500
+00:01:41,000 --> 00:01:45,000
 Can't get to me at all!
 Virðist missa allan mátt
 Seems to lose all its power
 
-00:01:45,000 --> 00:01:49,000
+00:01:45,500 --> 00:01:49,000
 It's time to see what I can do
 Ég þarf að sjá hvað ég get gert
 I have to see what I can do
@@ -158,7 +158,7 @@ Let the storm rage on...
 Látið geysa storm
 Let a storm rage on
 
-00:02:33,000 --> 00:02:39,000
+00:02:32,500 --> 00:02:39,000
 My power flurries through the air and to the ground
 Minn máttur þyrlast gegnum loftið niðrá jörð
 My power swirls through the air down to the ground
@@ -208,12 +208,12 @@ That perfect girl is gone
 Þessi þæga stelpa fór
 This pleasing girl is gone
 
-00:03:16,000 --> 00:03:24,000
+00:03:16,000 --> 00:03:24,500
 Here I stand in the light of day
 Hér ég stend Ein um bjartan dag
 Here I stand Alone on a bright day
 
-00:03:24,000 --> 00:03:30,000
+00:03:24,500 --> 00:03:30,000
 Let the storm rage on!
 Látið geysa storm
 Let a storm rage on
