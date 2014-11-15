@@ -1,0 +1,66 @@
+With PiTiVi, using avimux/jpegenc/twolame is a good way to make a playable file. It is a tad large though.
+
+Converting a PiTiVi file (.xptv) into an avconv command line:
+* Find the <source> tag, which has a filename attribute
+* Further down, there'll be two streams, which specify in_point and media_duration
+* Assuming they're equal values for the two streams, in_point is the start (in ns) and the other is length (ditto).
+
+
+$ avconv -i /video/source_file.ext -ss h:mm:ss[.sss] -t h:mm:ss[.sss] output_file.mkv
+The second time is duration, not stop time, be careful.
+Always use mkv output; avconv is capable of producing other formats, but quality seems best with MKV.
+
+avconv -i /video/Disney/Frozen\ 2013\ 720p\ HDRIP\ x264\ AC3\ TiTAN.mkv -ss 0:31:10 -t 0:03:36 LetItGo.mkv
+avconv -i /video/Disney/Frozen\ 2013\ 720p\ HDRIP\ x264\ AC3\ TiTAN.mkv -ss 0:08:18 -t 0:03:19 DoYouWannaBuildASnowman.mkv
+avconv -i /video/Disney/Frozen\ 2013\ 720p\ HDRIP\ x264\ AC3\ TiTAN.mkv -ss 0:47:36 -t 103 Summer.mkv
+avconv -i /video/Disney/Frozen\ 2013\ 720p\ HDRIP\ x264\ AC3\ TiTAN.mkv -ss 0:13:21 -t 0:03:41.750 ForTheFirstTimeInForever.mkv
+avconv -i /video/Disney/TANGLED\ \[2010\]\ \(Eng\,Fin\ Audio\)\ DVD\ Rip\ Xvid\ \[StB\].avi -ss 0:37:32 -t 0:03:14 -map 0:v -map 0:a:1 IveGotADream.mkv
+avconv -i /video/Disney/Disney\ Classic\ -\ 01\ -\ Snow\ White\ and\ the\ Seven\ Dwarfs.avi -ss 0:52:18 -t 0:04:25 "Snow White - Silly Song.mkv"
+avconv -i /video/Disney/Chitty\ Chitty\ Bang\ Bang.avi -ss 1:31:24.750 -t 0:02:43.500 "Chitty - Success.mkv"
+avconv -i /video/Disney/Frozen\ 2013\ 720p\ HDRIP\ x264\ AC3\ TiTAN.mkv -ss 0:55:46 -t 0:02:03 "Frozen - First Time In Forever reprise.mkv"
+avconv -i /video/Disney/beauty\ and\ the\ beast-the\ enchanted\ christmas.mp4 -ss 681.345 -t 140.279 "BatB - Belle's Story.mkv"
+avconv -i /video/Anastasia\ 2-disc/ANASTASIA_SPECIAL_disc\ 1.avi -ss 1035.394 -t 156.239 OnceUponADecember.mkv 
+avconv -i /video/Anastasia\ 2-disc/ANASTASIA_SPECIAL_disc\ 1.avi -ss 4997.474 -t 124.875 AtTheBeginning.mkv 
+avconv -i /video/Anastasia\ 2-disc/ANASTASIA_SPECIAL_disc\ 1.avi -ss 728.099 -t 162.991 JourneyToThePast.mkv 
+avconv -i /video/Disney/Disney\ Classic\ -\ 30\ -\ Beauty\ And\ The\ Beast.avi -ss 1161.245 -t 59.277 BelleWantsDnD.mkv 
+avconv -i /video/Disney/Disney\ Classic\ -\ 30\ -\ Beauty\ And\ The\ Beast.avi -ss 1596.515 -t 157.998 Gaston.mkv 
+avconv -i /video/Disney/Disney\ Classic\ -\ 30\ -\ Beauty\ And\ The\ Beast.avi -ss 165.238 -t 305.955 Bonjour.mkv 
+avconv -i /video/Disney/Disney\ Classic\ -\ 30\ -\ Beauty\ And\ The\ Beast.avi -ss 1789.737 -t 15.134 WillYouHelpMe.mkv 
+avconv -i /video/Disney/Disney\ Classic\ -\ 30\ -\ Beauty\ And\ The\ Beast.avi -ss 2294.587 -t 218.582 BeOurGuest.mkv 
+avconv -i /video/Disney/Disney\ Classic\ -\ 30\ -\ Beauty\ And\ The\ Beast.avi -ss 2728.241 -t 45.824 AngrySysadmin.mkv 
+avconv -i /video/Disney/Disney\ Classic\ -\ 30\ -\ Beauty\ And\ The\ Beast.avi -ss 4256.066 -t 346.937 BatBBattle.mkv 
+(Not a clip) avconv -i /video/Disney/TANGLED\ \[2010\]\ \(Eng\,Fin\ Audio\)\ DVD\ Rip\ Xvid\ \[StB\].avi -map 0:v:0 -map 0:a:1 Tangled-en.mkv
+(Not a clip) cat /video/PhantomOpera/VIDEO_TS/VTS_04_[1234].VOB|avconv -i - -map 0:v:0 -map 0:a:1 PhantomOpera.mkv
+cat /video/PhantomOpera/VIDEO_TS/VTS_04_[1234].VOB|avconv -i - -map 0:v:0 -map 0:a:1 -ss 0:16:51 -t 205 "Phantom - Think of Me.mkv"
+cat /video/PhantomOpera/VIDEO_TS/VTS_04_[1234].VOB|avconv -i - -map 0:v:0 -map 0:a:1 -ss 0:23:10.500 -t 99.500 "Phantom - Angel of Music.mkv"
+cat /video/PhantomOpera/VIDEO_TS/VTS_04_[1234].VOB|avconv -i - -map 0:v:0 -map 0:a:1 -ss 1:29:04 -t 290 "Phantom - Cemetery.mkv"
+cat /video/PhantomOpera/VIDEO_TS/VTS_04_[1234].VOB|avconv -i - -map 0:v:0 -map 0:a:1 -ss 0:23:10.500 -t 99.500 "Phantom - Angel of Music.mkv"
+cat /video/PhantomOpera/VIDEO_TS/VTS_04_[1234].VOB|avconv -i - -map 0:v:0 -map 0:a:1 -ss 0:29:42 -t 205 "Phantom - Music of the Night.mkv"
+avconv -i /video/Disney/Frozen\ 2013\ 720p\ HDRIP\ x264\ AC3\ TiTAN.mkv -ss 0:1:53 -t 90 "Frozen - Frozen Heart.mkv"
+avconv -i /video/Disney/Fantasia.avi -ss 0:04:00 -t 576 "Fantasia - 01 Toccata and Fugue.mkv"
+avconv -i /video/Disney/Fantasia.avi -ss 0:14:18 -t 868 "Fantasia - 02 Nutcracker.mkv"
+avconv -i /video/Disney/Fantasia.avi -ss 0:29:48 -t 559 "Fantasia - 03 Sorcerer's Apprentice.mkv"
+avconv -i /video/Disney/Fantasia.avi -ss 1:13:42 -t 1346 "Fantasia - 04 Pastoral.mkv"
+avconv -i /video/Disney/Fantasia.avi -ss 1:37:00 -t 737 "Fantasia - 05 Dance of the Hours.mkv"
+avconv -i /video/Disney/Frozen\ 2013\ 720p\ HDRIP\ x264\ AC3\ TiTAN.mkv -ss 1:31:31.6 -t 61.4 "Frozen - Triumphant finale.mkv"
+cat /video/Gasvic/2011Thespis/VIDEO_TS/VTS_01_[1-5].VOB|avconv -i - -ss 0:51:01 -t 109 "Thespis - Act I Finale.mkv"
+avconv -i /video/Disney/1964\ -\ Mary\ Poppins.avi -ss 1:24:13.750 -t 224 "Mary Poppins - Tuppence a Bag.mkv"
+vlc -I rc dvdsimple:///dev/sr0@1 --sout "#standard{access=file,mux=ps,dst=SoundOfMusic.mpeg"
+avconv -i /video/Anastasia\ 2-disc/ANASTASIA_SPECIAL_disc\ 1.avi -ss 0:6:49 -t 174 "Anastasia - Have you heard.mkv"
+avconv -i /video/Disney/TANGLED\ \[2010\]\ \(Eng\,Fin\ Audio\)\ DVD\ Rip\ Xvid\ \[StB\].avi -ss 1:04:15 -t 202 -map 0:v -map 0:a:1 "Tangled - All those days.mkv"
+cat /video/Buxton/2009/Legal\ Fiction/VIDEO_TS/VTS_01_[1-4].VOB|avconv -i - -ss 0:47:30 -t 255.400 "ButAGirl - The Lost Chord.mkv"
+avconv -i /video/Sound\ of\ Music.mkv -ss 0:2:32.660 -t 112 "SoM - The Sound of Music.mkv"
+avconv -i /video/Sound\ of\ Music.mkv -ss 0:54:55 -t 318.750 "SoM - Do Re Mi.mkv"
+avconv -i /video/Sound\ of\ Music.mkv -ss 1:21:29 -t 129 "SoM - Edelweiss.mkv"
+avconv -i /video/Sound\ of\ Music.mkv -ss 2:30:02 -t 117 "SoM - Edelweiss (reprise).mkv"
+avconv -i /video/SoM-commentary.mkv -ss 0:2:32.660 -t 112 "SoM Audio - The Sound of Music.mkv"
+avconv -i /video/SoM-commentary.mkv -ss 0:54:55 -t 318.750 "SoM Audio - Do Re Mi.mkv"
+avconv -i /video/SoM-commentary.mkv -ss 1:21:29 -t 129 "SoM Audio - Edelweiss.mkv"
+avconv -i /video/SoM-commentary.mkv -ss 2:30:02 -t 117 "SoM Audio - Edelweiss (reprise).mkv"
+avconv -i /video/Clips/Frozen\ -\ Let\ It\ Go.mkv -i ../Downloads/Various.Artists-Frozen.OST-2013.320kbps-FF/223\ -\ Let\ It\ Go\ \(Instrumental\ Karaoke\ -\ Idina\ Version\).mp3 -map 1:a:0 -map 0:v:0 -t 0:3:36 "Frozen - Let It Go (instrumental).mkv"
+avconv -i /video/Clips/Frozen\ -\ Let\ It\ Go.mkv -i ../Downloads/Various.Artists-Frozen.OST-2013.320kbps-FF/105\ -\ Let\ It\ Go.mp3 -map 1:a:0 -map 0:v:0 -t 0:3:36 "Frozen - Let It Go (OST).mkv"
+avconv -itsoffset -1.600 -i /video/Clips/Frozen\ -\ For\ The\ First\ Time\ In\ Forever.mkv -i ../Downloads/Various.Artists-Frozen.OST-2013.320kbps-FF/224\ -\ For\ The\ First\ Time\ In\ Forever\ \(Instrumental\ Karaoke\).mp3 -map 1:a:0 -map 0:v:0 -t 0:3:40.150 "Frozen - For The First Time In Forever (instrumental).mkv"
+avconv -i /video/Clips/Frozen\ -\ Summer.mkv -ss 1.6 -i ../Downloads/Various.Artists-Frozen.OST-2013.320kbps-FF/226\ -\ In\ Summer\ \(Instrumental\ Karaoke\).mp3 -map 1:a:0 -map 0:v:0 -t 103 "Frozen - Summer (instrumental).mkv"
+rosuav@sikorsky:~/tmp/BDMV/STREAM$ cat 00879.m2ts 0088[0-7]* |avconv -i - -c copy "/home/rosuav/Videos/Frozen in full HD.mkv"
+avconv -i Bulgarian-hXdUECDWKmA.mp4 -itsoffset 1.5 -i ~/Downloads/Let\ It\ Go\ \(The\ Complete\ Set\)\ \(From\ Frozen\)\ YG/CD1/03.\ Слагам\ Край\ \(Bulgarian\ Version\).mp3 -map 0:v -map 1:a:0 -map_metadata:s:a:0 0 -c copy Bulgarian-hXdUECDWKmA.mkv
+avconv -i /video/Clips/Frozen\ -\ Let\ It\ Go.mkv -i ../../Downloads/Let\ It\ Go\ \(The\ Complete\ Set\)\ \(From\ Frozen\)\ YG/CD1/17* -i ../../shed/*ett* -map 0:v -map 1:a:0 -map 2:s -c copy "Icelandic-mWNB5vrF8W4.mkv"
