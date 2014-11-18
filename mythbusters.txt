@@ -748,7 +748,6 @@ Can duct tape be used to build a bridge?
 Can duct tape be used to fix a car?
 Can duct tape be used to hold a car in place?
 Can duct tape be used to stop a car going 60 miles per hour?
-'''Note''': This is a special episode.
 
 2010-9 Waterslide Wipeout.mkv
 Can a person be launched 115 feet into a kiddie pool from a giant waterslide?
@@ -775,7 +774,7 @@ Is it possible to fool a dog trained to sniff out contraband?
 2010-13 Storm Chasing Myths.mkv
 Are the Storm Chasers' vehicles fit to withstand force 5 tornado speeds?
 Is it possible to build a personal tornado protection device?
-'''Note''': This is a special episode. It is a crossover episode with Storm Chasers and is dedicated to honorary MythBuster Sanjay Singh.
+ It is a crossover episode with Storm Chasers and is dedicated to honorary MythBuster Sanjay Singh.
 
 2010-14 Cold Feet.mkv
 When you get Cold Feet, do you really get cold feet?
@@ -864,7 +863,6 @@ Can a fishing reel catch fire with a fast enough fish on the line?
 
 2011-SP1 Planes, Trains, and Automobiles.mkv
 The MythBusters discuss 12 favorite myths involving forms of transportation.
-'''Note''': This is a special episode.
 
 2011-10 Let There be Light.mkv
 Can mirrors be used to reflect sunlight and illuminate a tomb, as depicted in ''The Mummy''?
@@ -902,11 +900,9 @@ Can truck bedliner withstand a car crash, a dog bite, and an explosion?
 
 2011-SP2 Location, Location, Location.mkv
 The MythBusters discuss 12 favorite locations they have used for testing myths in the past.
-'''Note''': This is a special episode.
 
 2011-SP3 Wet and Wild.mkv
 The MythBusters count down their 12 favorite water-based myths from prior episodes.
-'''Note''': This is a special episode.
 
 2011-18 Wheel of Mythfortune.mkv
 Is it possible to re-inflate a flat tire and re-seat it on its rim by spraying in engine starting fluid and igniting it?
@@ -961,7 +957,6 @@ Can you eat a spoonful of cinnamon without drinking water?
 Which will fall faster, a sixpack of light beer or regular beer?
 Can a bullet from a .50 caliber Desert Eagle pistol not penetrate 25 watermelons?
 Can a van loaded with leaking containers of flammable gases explode when it receives a signal from its keyless remote?
-'''Note''': This is a special episode.
 
 2012-9 Bubble Pack Plunge.mkv
 Can you survive a 35 ft fall while covered in bubble wrap?
@@ -986,7 +981,6 @@ Can firing a bullet into the side of an airplane at altitude cause a large amoun
 
 2012-SP2 Jawsome Shark Special.mkv
 Adam and Jamie count down their 25 favorite shark-related myths.
-'''Note''': This is a special episode.
 
 2012-12 Titanic Survival.mkv
 Could Jack have survived with Rose in the ending of ''Titanic''?
@@ -1023,7 +1017,6 @@ Have the Chinese invented the world's fastest way to cook popcorn?
 
 2012-SP3 Explosions A to Z.mkv
 The Build Team goes through the alphabet highlighting some of the show's 752 detonations and counting.
-'''Note''': This is a special episode.
 
 2013-1 JATO Rocket Car: Mission Accomplished?.mkv
 This episode retests "Jet-Assisted Chevy", their first ever myth.
@@ -1060,7 +1053,7 @@ Can hypermilling techniques really double your car's fuel efficiency?
 
 2013-8 Duct Tape Canyon.mkv
 Can Adam and Jamie cross the canyon and reach civilization using only basic supplies, duct tape, and bubble wrap?
-'''Note''': This is a special episode. It was used to promote  ''Skywire Live''.
+ It was used to promote  ''Skywire Live''.
 
 2013-9 Painting with Explosives-Bifurcated Boat.mkv
 Can Adam's Snowflake or Jamie's death sphere paint a room with a boom?
