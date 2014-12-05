@@ -1,6 +1,6 @@
 int main(int argc,array(string) argv)
 {
-	if (argc<3) exit(1,"USAGE: %s time command [args...]\nExecutes command at time.\n",argv[0]);
+	if (argc<3) exit(1,"USAGE: %s time command [args...]\nExecutes command at time, with tick-down display.\n",argv[0]);
 	sscanf(argv[1],"%d:%d",int hr,int min);
 	while (1)
 	{
