@@ -103,7 +103,7 @@ int main(int argc,array(string) argv)
 		srtmode && "Trans",srtmode && (trans=GTK2.Entry()),
 		srtmode && (next=GTK2.Button("_Next")->set_use_underline(1)),0,
 	})))->show_all()->signal_connect("destroy",lambda() {exit(0);});
-	if (lang)
+	if (lang!="Latin")
 	{
 		roman->signal_connect("changed",update,({other,r2c}));
 		other->signal_connect("changed",update,({roman,c2r}));
