@@ -67,34 +67,53 @@ string c2r(string input)
 }
 //End from Python transliterate module
 
+//Translate "a\'" into "á" - specifically, translate "\'" into U+0301.
+//Likewise "\`" becomes U+0300 (grave), "\," becomes U+0327 (cedilla),
+//"\^" becomes U+0302 (circumflex), and others can be added easily.
+//(Note that these are single backslashes, the above examples are not
+//code snippets. In code, double the backslashes.)
+string diacriticals(string input)
+{
+	while (sscanf(input,"%s\\%1['`,^]%s",string before,string marker,string after) && after)
+		input=sprintf("%s%c%s",before,(["'":0x0301,"`":0x0300,",":0x0327,"^":0x0302])[marker],after);
+	return input;
+}
+
 void update(object self,array args)
 {
 	[object other,function translit]=args;
 	string txt=translit(self->get_text());
-	if (txt!=other->get_text()) other->set_text(txt);
+	if (other) {if (txt!=other->get_text()) other->set_text(txt);}
+	else {if (txt!=self->get_text()) self->set_text(txt);} //Self-translation only
 }
 
 int main(int argc,array(string) argv)
 {
-	GTK2.Entry roman,cyrillic;
+	GTK2.setup_gtk();
+	GTK2.Entry roman,other=GTK2.Entry();
 	GTK2.Entry original,trans;
 	GTK2.Button next;
-	GTK2.setup_gtk();
 	int srtmode=(argc>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
-	GTK2.Window(0)->set_title("Cyrillic transliteration")->add(two_column(({
+	string lang="Cyrillic";
+	if (argc>1 && (<"Latin","Cyrillic">)[argv[1]]) lang=argv[1];
+	GTK2.Window(0)->set_title(lang+" transliteration")->add(two_column(({
 		srtmode && "Original",srtmode && (original=GTK2.Entry()),
-		"Cyrillic",cyrillic=GTK2.Entry(),
+		lang!="Latin" && lang,lang!="Latin" && other,
 		"Roman",roman=GTK2.Entry(),
 		srtmode && "Trans",srtmode && (trans=GTK2.Entry()),
 		srtmode && (next=GTK2.Button("_Next")->set_use_underline(1)),0,
 	})))->show_all()->signal_connect("destroy",lambda() {exit(0);});
-	roman->signal_connect("changed",update,({cyrillic,r2c}));
-	cyrillic->signal_connect("changed",update,({roman,c2r}));
+	if (lang)
+	{
+		roman->signal_connect("changed",update,({other,r2c}));
+		other->signal_connect("changed",update,({roman,c2r}));
+	}
+	else roman->signal_connect("changed",update,({0,diacriticals}));
 	if (next) next->signal_connect("clicked",lambda() {
 		string data=utf8_to_string(Stdio.read_file(argv[1]));
 		string orig=original->get_text();
 		if (orig!="" && sscanf(data,"%s"+orig+"\n\n%s",string before,string after)==2)
-			Stdio.write_file(argv[1],string_to_utf8(data=sprintf("%s%s\n%s\n%s\n%s\n\n%s",before,orig,cyrillic->get_text(),roman->get_text(),trans->get_text(),after)));
+			Stdio.write_file(argv[1],string_to_utf8(data=sprintf("%s%{%s\n%}\n%s",before,({orig,other->get_text(),roman->get_text(),trans->get_text()})-({""}),after)));
 		original->set_text(""); //In case we find nothing
 		foreach (data/"\n\n",string paragraph) if (sizeof(paragraph/"\n")==2)
 		{
@@ -102,9 +121,7 @@ int main(int argc,array(string) argv)
 			original->set_text((paragraph/"\n")[1]);
 			break;
 		}
-		cyrillic->set_text("");
-		roman->set_text("");
-		trans->set_text("");
+		({other, roman, trans})->set_text("");
 		roman->grab_focus();
 	});
 	return -1;
