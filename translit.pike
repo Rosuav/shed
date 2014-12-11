@@ -54,7 +54,7 @@ mapping preprocess_c2r=mkmapping(@Array.columns(preprocess,({1,2})));
 string r2c(string input)
 {
 	return replace(replace(input,preprocess_r2c),
-		"abvgdezijklmnoprstufh’y'ABVGDEZIJKLMNOPRSTUFH'Y'"/1,
+		"abvgdezijklmnoprstufh’y’ABVGDEZIJKLMNOPRSTUFH'Y'"/1,
 		"абвгдезийклмнопрстуфхъыьАБВГДЕЗИЙКЛМНОПРСТУФХЪЫЬ"/1,
 	);
 }
@@ -79,8 +79,8 @@ int main()
 	GTK2.Entry roman,cyrillic;
 	GTK2.setup_gtk();
 	GTK2.Window(0)->set_title("Cyrillic transliteration")->add(two_column(({
-		"Roman",roman=GTK2.Entry(),
 		"Cyrillic",cyrillic=GTK2.Entry(),
+		"Roman",roman=GTK2.Entry(),
 	})))->show_all()->signal_connect("destroy",lambda() {exit(0);});
 	roman->signal_connect("changed",update,({cyrillic,r2c}));
 	cyrillic->signal_connect("changed",update,({roman,c2r}));
