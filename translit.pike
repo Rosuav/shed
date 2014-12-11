@@ -93,9 +93,9 @@ int main(int argc,array(string) argv)
 	GTK2.Entry roman,other=GTK2.Entry();
 	GTK2.Entry original,trans;
 	GTK2.Button next;
-	int srtmode=(argc>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
 	string lang="Cyrillic";
-	if (argc>1 && (<"Latin","Cyrillic">)[argv[1]]) lang=argv[1];
+	if (argc>1 && (<"Latin","Cyrillic">)[argv[1]]) argv-=({lang=argv[1]});
+	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
 	GTK2.Window(0)->set_title(lang+" transliteration")->add(two_column(({
 		srtmode && "Original",srtmode && (original=GTK2.Entry()),
 		lang!="Latin" && lang,lang!="Latin" && other,
