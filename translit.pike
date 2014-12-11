@@ -77,12 +77,43 @@ void update(object self,array args)
 int main()
 {
 	GTK2.Entry roman,cyrillic;
+	GTK2.Entry original,trans;
+	GTK2.Button next;
 	GTK2.setup_gtk();
 	GTK2.Window(0)->set_title("Cyrillic transliteration")->add(two_column(({
+		"Original",original=GTK2.Entry(),
 		"Cyrillic",cyrillic=GTK2.Entry(),
 		"Roman",roman=GTK2.Entry(),
+		"Trans",trans=GTK2.Entry(),
+		next=GTK2.Button("_Next")->set_use_underline(1),0,
 	})))->show_all()->signal_connect("destroy",lambda() {exit(0);});
 	roman->signal_connect("changed",update,({cyrillic,r2c}));
 	cyrillic->signal_connect("changed",update,({roman,c2r}));
+	next->signal_connect("clicked",lambda() {
+		string fn="../LetItTrans/"+glob("Bulgarian*.srt",get_dir("../LetItTrans"))[0];
+		string data=utf8_to_string(Stdio.read_file(fn));
+		string orig=original->get_text();
+		//Hack: If orig=="", ensure that this fails and goes through to the else.
+		sscanf(data*(orig!=""),"%s"+orig+"\n\n%s\n%s\n%s",string before,string ts,string neworig,string after);
+		if (neworig)
+		{
+			Stdio.write_file(fn,string_to_utf8(sprintf("%s%s\n%s\n%s\n%s\n\n%s\n%s\n%s",before,orig,cyrillic->get_text(),roman->get_text(),trans->get_text(),ts,neworig,after)));
+			original->set_text(neworig);
+		}
+		else
+		{
+			original->set_text(""); //In case we find nothing
+			foreach (data/"\n\n",string paragraph) if (sizeof(paragraph/"\n")==2)
+			{
+				//The first two-line paragraph ought to be the next one needing doing.
+				original->set_text((paragraph/"\n")[1]);
+				break;
+			}
+		}
+		cyrillic->set_text("");
+		roman->set_text("");
+		trans->set_text("");
+		roman->grab_focus();
+	});
 	return -1;
 }
