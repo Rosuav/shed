@@ -93,22 +93,14 @@ int main(int argc,array(string) argv)
 	if (next) next->signal_connect("clicked",lambda() {
 		string data=utf8_to_string(Stdio.read_file(argv[1]));
 		string orig=original->get_text();
-		//Hack: If orig=="", ensure that this fails and goes through to the else.
-		sscanf(data*(orig!=""),"%s"+orig+"\n\n%s\n%s\n%s",string before,string ts,string neworig,string after);
-		if (neworig)
+		if (orig!="" && sscanf(data,"%s"+orig+"\n\n%s",string before,string after)==2)
+			Stdio.write_file(argv[1],string_to_utf8(data=sprintf("%s%s\n%s\n%s\n%s\n\n%s",before,orig,cyrillic->get_text(),roman->get_text(),trans->get_text(),after)));
+		original->set_text(""); //In case we find nothing
+		foreach (data/"\n\n",string paragraph) if (sizeof(paragraph/"\n")==2)
 		{
-			Stdio.write_file(argv[1],string_to_utf8(sprintf("%s%s\n%s\n%s\n%s\n\n%s\n%s\n%s",before,orig,cyrillic->get_text(),roman->get_text(),trans->get_text(),ts,neworig,after)));
-			original->set_text(neworig);
-		}
-		else
-		{
-			original->set_text(""); //In case we find nothing
-			foreach (data/"\n\n",string paragraph) if (sizeof(paragraph/"\n")==2)
-			{
-				//The first two-line paragraph ought to be the next one needing doing.
-				original->set_text((paragraph/"\n")[1]);
-				break;
-			}
+			//The first two-line paragraph ought to be the next one needing doing.
+			original->set_text((paragraph/"\n")[1]);
+			break;
 		}
 		cyrillic->set_text("");
 		roman->set_text("");
