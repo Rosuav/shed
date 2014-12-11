@@ -76,7 +76,7 @@ string diacriticals(string input)
 {
 	while (sscanf(input,"%s\\%1['`,^]%s",string before,string marker,string after) && after)
 		input=sprintf("%s%c%s",before,(["'":0x0301,"`":0x0300,",":0x0327,"^":0x0302])[marker],after);
-	return input;
+	return Unicode.normalize(input,"NFC"); //Attempt to compose characters as much as possible - some applications have issues with combining characters
 }
 
 void update(object self,array args)
