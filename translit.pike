@@ -49,12 +49,12 @@ array preprocess=({
 	"Ja Я Â"
 })[*]/" ";
 //I'm doing it this way just because it's cool and I almost never have an excuse to use Array.columns :)
-mapping preprocess_r2c=mkmapping(@Array.columns(preprocess,({0,1})))+mkmapping(@Array.columns(preprocess,({2,1})));
+mapping preprocess_r2c=mkmapping(@Array.columns(preprocess,({0,1})))+mkmapping(@Array.columns(preprocess,({2,1})))+(["'":"’","\"":"″"]);
 mapping preprocess_c2r=mkmapping(@Array.columns(preprocess,({1,2})));
 string r2c(string input)
 {
 	return replace(replace(input,preprocess_r2c),
-		"abvgdezijklmnoprstufh’y’ABVGDEZIJKLMNOPRSTUFH'Y'"/1,
+		"abvgdezijklmnoprstufh″y’ABVGDEZIJKLMNOPRSTUFH″Y’"/1,
 		"абвгдезийклмнопрстуфхъыьАБВГДЕЗИЙКЛМНОПРСТУФХЪЫЬ"/1,
 	);
 }
@@ -62,7 +62,7 @@ string c2r(string input)
 {
 	return replace(replace(input,preprocess_c2r),
 		"абвгдезийклмнопрстуфхъыьАБВГДЕЗИЙКЛМНОПРСТУФХЪЫЬ"/1,
-		"abvgdezijklmnoprstufh’y’ABVGDEZIJKLMNOPRSTUFH’Y’"/1,
+		"abvgdezijklmnoprstufh″y’ABVGDEZIJKLMNOPRSTUFH″Y’"/1,
 	);
 }
 //End from Python transliterate module
