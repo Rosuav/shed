@@ -113,15 +113,24 @@ int main(int argc,array(string) argv)
 	}
 	else roman->signal_connect("changed",update,({0,diacriticals}));
 	if (next) next->signal_connect("clicked",lambda() {
-		string data=utf8_to_string(Stdio.read_file(argv[1]));
+		array(string) data=utf8_to_string(Stdio.read_file(argv[1]))/"\n\n";
 		string orig=original->get_text();
-		if (orig!="" && sscanf(data,"%s"+orig+"\n\n%s",string before,string after)==2)
-			Stdio.write_file(argv[1],string_to_utf8(data=sprintf("%s%{%s\n%}\n%s",before,({orig,other->get_text(),roman->get_text(),trans->get_text()})-({""}),after)));
 		original->set_text(""); //In case we find nothing
-		foreach (data/"\n\n",string paragraph) if (sizeof(paragraph/"\n")==2)
+		foreach (data;int i;string paragraph) if (sizeof(paragraph/"\n"-({""}))==2)
 		{
-			//The first two-line paragraph ought to be the next one needing doing.
-			original->set_text((paragraph/"\n")[1]);
+			//Two-line paragraphs need translations entered. If the first one we see
+			//has the same text as the 'Original' field, and we have data entered,
+			//patch in the new content.
+			string english=(paragraph/"\n")[1];
+			if (orig!="" && orig==english)
+			{
+				data[i]=sprintf("%s%{\n%s%}",String.trim_all_whites(paragraph),({other->get_text(),roman->get_text(),trans->get_text()})-({""}));
+				Stdio.write_file(argv[1],string_to_utf8(String.trim_all_whites(data*"\n\n")+"\n"));
+				continue;
+			}
+			//The first two-line paragraph, ignoring any we're patching in, ought
+			//to be the next one needing translation.
+			original->set_text(english);
 			break;
 		}
 		({other, roman, trans})->set_text("");
