@@ -67,14 +67,13 @@ string c2r(string input)
 }
 //End from Python transliterate module
 
-//Translate "a\'" into "á" - specifically, translate "\'" into U+0301.
-//Likewise "\`" becomes U+0300 (grave), "\," becomes U+0327 (cedilla),
-//"\^" becomes U+0302 (circumflex), and others can be added easily.
+//Translate "a\'" into "á" - specifically, translate "\'" into U+0301,
+//and then attempt Unicode NFC normalization. Other escapes similarly.
 //(Note that these are single backslashes, the above examples are not
 //code snippets. In code, double the backslashes.)
 string diacriticals(string input)
 {
-	mapping map=(["!":0x00A1,"?":0x00BF,"`":0x0300,"'":0x0301,"^":0x0302,"~":0x0303,",":0x0327]);
+	mapping map=(["!":0x00A1,"?":0x00BF,"`":0x0300,"'":0x0301,"^":0x0302,"~":0x0303,"o":0x030A,",":0x0327]);
 	//Note that if caret chanced to come first, it would break the sscanf pattern. So
 	//we put it last, just to be on the safe side.
 	while (sscanf(input,"%s\\%1["+indices(map)*""-"^"+"^]%s",string before,string marker,string after) && after)
