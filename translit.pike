@@ -74,8 +74,11 @@ string c2r(string input)
 //code snippets. In code, double the backslashes.)
 string diacriticals(string input)
 {
-	while (sscanf(input,"%s\\%1['`,^]%s",string before,string marker,string after) && after)
-		input=sprintf("%s%c%s",before,(["'":0x0301,"`":0x0300,",":0x0327,"^":0x0302])[marker],after);
+	mapping map=(["'":0x0301,"`":0x0300,",":0x0327,"^":0x0302,"!":0x00A1,"?":0x00BF]);
+	//Note that if caret chanced to come first, it would break the sscanf pattern. So
+	//we put it last, just to be on the safe side.
+	while (sscanf(input,"%s\\%1["+indices(map)*""-"^"+"^]%s",string before,string marker,string after) && after)
+		input=sprintf("%s%c%s",before,map[marker],after);
 	return Unicode.normalize(input,"NFC"); //Attempt to compose characters as much as possible - some applications have issues with combining characters
 }
 
