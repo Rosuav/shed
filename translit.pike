@@ -73,7 +73,7 @@ string c2r(string input)
 //code snippets. In code, double the backslashes.)
 string diacriticals(string input)
 {
-	mapping map=(["\\!":"\u00A1","\\?":"\u00BF","\\`":"\u0300","\\'":"\u0301","\\^":"\u0302","\\~":"\u0303","\\\"":"\u0308","\\o":"\u030A","\\,":"\u0327"]);
+	mapping map=(["\\!":"\u00A1","\\?":"\u00BF","\\`":"\u0300","\\'":"\u0301","\\^":"\u0302","\\~":"\u0303","\\\"":"\u0308","\\o":"\u030A","\\,":"\u0327","o\\e":"ø","a\\e":"æ"]);
 	input=replace(input,map);
 	return Unicode.normalize(input,"NFC"); //Attempt to compose characters as much as possible - some applications have issues with combining characters
 }
