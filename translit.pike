@@ -91,7 +91,7 @@ int main(int argc,array(string) argv)
 	GTK2.setup_gtk();
 	GTK2.Entry roman,other=GTK2.Entry();
 	GTK2.Entry original,trans;
-	GTK2.Button next;
+	GTK2.Button next,pause;
 	string lang="Cyrillic";
 	if (argc>1 && (<"Latin","Cyrillic">)[argv[1]]) argv-=({lang=argv[1]});
 	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
@@ -100,7 +100,7 @@ int main(int argc,array(string) argv)
 		lang!="Latin" && lang,lang!="Latin" && other,
 		"Roman",roman=GTK2.Entry(),
 		srtmode && "Trans",srtmode && (trans=GTK2.Entry()),
-		srtmode && (next=GTK2.Button("_Next")->set_use_underline(1)),0,
+		srtmode && (GTK2.HbuttonBox()->add(pause=GTK2.Button("_Pause")->set_use_underline(1))->add(next=GTK2.Button("_Next")->set_use_underline(1))),0,
 	})))->show_all()->signal_connect("destroy",lambda() {exit(0);});
 	if (lang!="Latin")
 	{
@@ -131,6 +131,15 @@ int main(int argc,array(string) argv)
 		}
 		({other, roman, trans})->set_text("");
 		roman->grab_focus();
+	});
+	Stdio.File vlc;
+	if (pause) pause->signal_connect("clicked",lambda() {
+		if (!vlc) catch
+		{
+			(vlc=Stdio.File())->connect("localhost",4212);
+			vlc->write("admin\n");
+		};
+		if (catch {vlc->write("pause\n");}) vlc=0; //Note that the "pause" command toggles paused status, but if you want an explicit "unpause" command, that's there too ("play").
 	});
 	return -1;
 }
