@@ -51,21 +51,14 @@ array preprocess=({
 //I'm doing it this way just because it's cool and I almost never have an excuse to use Array.columns :)
 mapping preprocess_r2c=mkmapping(@Array.columns(preprocess,({0,1})))+mkmapping(@Array.columns(preprocess,({2,1})))+(["'":"’","\"":"″"]);
 mapping preprocess_c2r=mkmapping(@Array.columns(preprocess,({1,2})));
-string r2c(string input)
-{
-	return replace(replace(input,preprocess_r2c),
-		"abvgdezijklmnoprstufh″y’ABVGDEZIJKLMNOPRSTUFH″Y’"/1,
-		"абвгдезийклмнопрстуфхъыьАБВГДЕЗИЙКЛМНОПРСТУФХЪЫЬ"/1,
-	);
-}
-string c2r(string input)
-{
-	return replace(replace(input,preprocess_c2r),
-		"абвгдезийклмнопрстуфхъыьАБВГДЕЗИЙКЛМНОПРСТУФХЪЫЬ"/1,
-		"abvgdezijklmnoprstufh″y’ABVGDEZIJKLMNOPRSTUFH″Y’"/1,
-	);
-}
+constant latin  ="abvgdezijklmnoprstufh″y’ABVGDEZIJKLMNOPRSTUFH″Y’";
+constant russian="абвгдезийклмнопрстуфхъыьАБВГДЕЗИЙКЛМНОПРСТУФХЪЫЬ";
+constant serbian="абвгдезијклмнопрстуфхъыьАБВГДЕЗИЈКЛМНОПРСТУФХЪЫЬ"; //TODO: Check if this is the right translation table
 //End from Python transliterate module
+string Latin_to_Russian(string input) {return replace(replace(input,preprocess_r2c),latin/1,russian/1);}
+string Russian_to_Latin(string input) {return replace(replace(input,preprocess_c2r),russian/1,latin/1);}
+string Latin_to_Serbian(string input) {return replace(replace(input,preprocess_r2c),latin/1,serbian/1);}
+string Serbian_to_Latin(string input) {return replace(replace(input,preprocess_c2r),serbian/1,latin/1);}
 
 //Translate "a\'" into "á" - specifically, translate "\'" into U+0301,
 //and then attempt Unicode NFC normalization. Other escapes similarly.
@@ -96,8 +89,8 @@ int main(int argc,array(string) argv)
 	GTK2.Entry roman,other=GTK2.Entry();
 	GTK2.Entry original,trans;
 	GTK2.Button next,pause;
-	string lang="Cyrillic";
-	if (argc>1 && (<"Latin","Cyrillic">)[argv[1]]) argv-=({lang=argv[1]});
+	string lang="Russian";
+	if (argc>1 && (<"Latin","Russian","Serbian">)[argv[1]]) argv-=({lang=argv[1]});
 	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
 	GTK2.Window(0)->set_title(lang+" transliteration")->add(two_column(({
 		srtmode && "Original",srtmode && (original=GTK2.Entry()),
@@ -108,8 +101,8 @@ int main(int argc,array(string) argv)
 	})))->show_all()->signal_connect("destroy",lambda() {exit(0);});
 	if (lang!="Latin")
 	{
-		roman->signal_connect("changed",update,({other,r2c}));
-		other->signal_connect("changed",update,({roman,c2r}));
+		roman->signal_connect("changed",update,({other,this["Latin_to_"+lang]}));
+		other->signal_connect("changed",update,({roman,this[lang+"_to_Latin"]}));
 	}
 	else roman->signal_connect("changed",update,({0,diacriticals}));
 	if (next) next->signal_connect("clicked",lambda() {
