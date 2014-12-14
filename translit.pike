@@ -68,7 +68,7 @@ string Ukrainian_to_Latin(string input) {return replace(replace(input,preprocess
 void create()
 {
 	foreach (preprocess,array(string) set)
-		foreach (set[2..],string alias) preprocess_r2c[alias]=set[0];
+		foreach (set[1..],string alias) preprocess_r2c[alias]=set[0];
 }
 
 //Translate "a\'" into "á" - specifically, translate "\'" into U+0301,
