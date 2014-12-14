@@ -51,6 +51,7 @@ array preprocess=({
 	"Ю Û Ju Yu",
 	"Я Â Ja Ya",
 	"є ye je", //Possibly only for Ukrainian? I can't find a canonical one-character representation in ISO-9 (which is for Russian).
+	"х kh", "Х Kh", //Ditto??
 })[*]/" ";
 mapping preprocess_r2c=(["'":"’","\"":"″"]); //The rest is done in create() - not main() as this may be imported by other scripts
 mapping preprocess_c2r=mkmapping(@Array.columns(preprocess,({0,1})));
