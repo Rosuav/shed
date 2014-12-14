@@ -33,24 +33,26 @@ GTK2.Table two_column(array(string|GTK2.Widget) contents) {return GTK2Table(cont
 //diacritical forms come from passing the Cyrillic letters through the
 //"Unicode to ISO-9" mode of http://www.convertcyrillic.com/Convert.aspx
 array preprocess=({
-	"zh ж ž",
-	"ts ц c",
-	"ch ч č",
-	"sh ш š",
-	"sch щ ŝ",
-	"ju ю û",
-	"ja я â",
-	"Zh Ж Ž",
-	"Ts Ц C",
-	"Ch Ч Č",
-	"Sh Ш Š",
-	"Sch Щ Ŝ",
-	"Ju Ю Û",
-	"Ja Я Â"
+	//Cyrillic, then canonical Latin, then aliases for the Latin.
+	//The aliases will be the easiest to type, but will be replaced
+	//prior to output with the canonical character.
+	"ж ž zh",
+	"ц c ts",
+	"ч č ch",
+	"ш š sh",
+	"щ ŝ sch",
+	"ю û ju",
+	"я â ja",
+	"Ж Ž Zh",
+	"Ц C Ts",
+	"Ч Č Ch",
+	"Ш Š Sh",
+	"Щ Ŝ Sch",
+	"Ю Û Ju",
+	"Я Â Ja"
 })[*]/" ";
-//I'm doing it this way just because it's cool and I almost never have an excuse to use Array.columns :)
-mapping preprocess_r2c=mkmapping(@Array.columns(preprocess,({0,1})))+mkmapping(@Array.columns(preprocess,({2,1})))+(["'":"’","\"":"″"]);
-mapping preprocess_c2r=mkmapping(@Array.columns(preprocess,({1,2})));
+mapping preprocess_r2c=(["'":"’","\"":"″"]); //The rest is done in create() - not main() as this may be imported by other scripts
+mapping preprocess_c2r=mkmapping(@Array.columns(preprocess,({0,1})));
 constant latin  ="abvgdezijklmnoprstufh″y’ABVGDEZIJKLMNOPRSTUFH″Y’";
 constant russian="абвгдезийклмнопрстуфхъыьАБВГДЕЗИЙКЛМНОПРСТУФХЪЫЬ";
 //End from Python transliterate module
@@ -62,6 +64,12 @@ string Latin_to_Serbian(string input)   {return replace(replace(input,preprocess
 string Serbian_to_Latin(string input)   {return replace(replace(input,preprocess_c2r),serbian/1,latin/1);}
 string Latin_to_Ukrainian(string input) {return replace(replace(input,preprocess_r2c),latin/1,ukraine/1);}
 string Ukrainian_to_Latin(string input) {return replace(replace(input,preprocess_c2r),ukraine/1,latin/1);}
+
+void create()
+{
+	foreach (preprocess,array(string) set)
+		foreach (set[2..],string alias) preprocess_r2c[alias]=set[0];
+}
 
 //Translate "a\'" into "á" - specifically, translate "\'" into U+0301,
 //and then attempt Unicode NFC normalization. Other escapes similarly.
