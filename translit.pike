@@ -54,11 +54,14 @@ mapping preprocess_c2r=mkmapping(@Array.columns(preprocess,({1,2})));
 constant latin  ="abvgdezijklmnoprstufh″y’ABVGDEZIJKLMNOPRSTUFH″Y’";
 constant russian="абвгдезийклмнопрстуфхъыьАБВГДЕЗИЙКЛМНОПРСТУФХЪЫЬ";
 constant serbian="абвгдезијклмнопрстуфхъыьАБВГДЕЗИЈКЛМНОПРСТУФХЪЫЬ"; //TODO: Check if this is the right translation table
+constant ukraine="абвґдезійклмнопрстуфгъиьАБВҐДЕЗІЙКЛМНОПРСТУФГЪИЬ"; //(fudging the variable name for alignment)
 //End from Python transliterate module
-string Latin_to_Russian(string input) {return replace(replace(input,preprocess_r2c),latin/1,russian/1);}
-string Russian_to_Latin(string input) {return replace(replace(input,preprocess_c2r),russian/1,latin/1);}
-string Latin_to_Serbian(string input) {return replace(replace(input,preprocess_r2c),latin/1,serbian/1);}
-string Serbian_to_Latin(string input) {return replace(replace(input,preprocess_c2r),serbian/1,latin/1);}
+string Latin_to_Russian(string input)   {return replace(replace(input,preprocess_r2c),latin/1,russian/1);}
+string Russian_to_Latin(string input)   {return replace(replace(input,preprocess_c2r),russian/1,latin/1);}
+string Latin_to_Serbian(string input)   {return replace(replace(input,preprocess_r2c),latin/1,serbian/1);}
+string Serbian_to_Latin(string input)   {return replace(replace(input,preprocess_c2r),serbian/1,latin/1);}
+string Latin_to_Ukrainian(string input) {return replace(replace(input,preprocess_r2c),latin/1,ukraine/1);}
+string Ukrainian_to_Latin(string input) {return replace(replace(input,preprocess_c2r),ukraine/1,latin/1);}
 
 //Translate "a\'" into "á" - specifically, translate "\'" into U+0301,
 //and then attempt Unicode NFC normalization. Other escapes similarly.
@@ -90,7 +93,7 @@ int main(int argc,array(string) argv)
 	GTK2.Entry original,trans;
 	GTK2.Button next,pause;
 	string lang="Russian";
-	if (argc>1 && (<"Latin","Russian","Serbian">)[argv[1]]) argv-=({lang=argv[1]});
+	if (argc>1 && (<"Latin","Russian","Serbian","Ukrainian">)[argv[1]]) argv-=({lang=argv[1]});
 	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
 	GTK2.Window(0)->set_title(lang+" transliteration")->add(two_column(({
 		srtmode && "Original",srtmode && (original=GTK2.Entry()),
