@@ -53,9 +53,9 @@ mapping preprocess_r2c=mkmapping(@Array.columns(preprocess,({0,1})))+mkmapping(@
 mapping preprocess_c2r=mkmapping(@Array.columns(preprocess,({1,2})));
 constant latin  ="abvgdezijklmnoprstufh″y’ABVGDEZIJKLMNOPRSTUFH″Y’";
 constant russian="абвгдезийклмнопрстуфхъыьАБВГДЕЗИЙКЛМНОПРСТУФХЪЫЬ";
+//End from Python transliterate module
 constant serbian="абвгдезијклмнопрстуфхъыьАБВГДЕЗИЈКЛМНОПРСТУФХЪЫЬ"; //TODO: Check if this is the right translation table
 constant ukraine="абвґдезійклмнопрстуфгъиьАБВҐДЕЗІЙКЛМНОПРСТУФГЪИЬ"; //(fudging the variable name for alignment)
-//End from Python transliterate module
 string Latin_to_Russian(string input)   {return replace(replace(input,preprocess_r2c),latin/1,russian/1);}
 string Russian_to_Latin(string input)   {return replace(replace(input,preprocess_c2r),russian/1,latin/1);}
 string Latin_to_Serbian(string input)   {return replace(replace(input,preprocess_r2c),latin/1,serbian/1);}
