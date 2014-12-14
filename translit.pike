@@ -63,7 +63,7 @@ string Serbian_to_Latin(string input)   {return replace(replace(input,preprocess
 string Latin_to_Ukrainian(string input) {return replace(replace(input,preprocess_r2c),latin/1,ukraine/1);}
 string Ukrainian_to_Latin(string input) {return replace(replace(input,preprocess_c2r),ukraine/1,latin/1);}
 
-//Translate "a\'" into "á" - specifically, translate "\'" into U+0301,
+//Translate "a\'" into "á" - specifically, translate "\'" into U+0301,
 //and then attempt Unicode NFC normalization. Other escapes similarly.
 //(Note that these are single backslashes, the above examples are not
 //code snippets. In code, double the backslashes.)
