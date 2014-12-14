@@ -41,15 +41,15 @@ array preprocess=({
 	"ч č ch",
 	"ш š sh",
 	"щ ŝ sch",
-	"ю û ju",
-	"я â ja",
+	"ю û ju yu",
+	"я â ja ya",
 	"Ж Ž Zh",
 	"Ц C Ts",
 	"Ч Č Ch",
 	"Ш Š Sh",
 	"Щ Ŝ Sch",
-	"Ю Û Ju",
-	"Я Â Ja"
+	"Ю Û Ju Yu",
+	"Я Â Ja Ya"
 })[*]/" ";
 mapping preprocess_r2c=(["'":"’","\"":"″"]); //The rest is done in create() - not main() as this may be imported by other scripts
 mapping preprocess_c2r=mkmapping(@Array.columns(preprocess,({0,1})));
