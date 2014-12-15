@@ -95,8 +95,8 @@ array hangul_translation=({
 	//Mode 2: Final consonants
 	mkmapping(
 		//There are duplicates in the table :( I have no idea how to enter these reliably.
-		"k	k1	n	t	l	m	p	t1	t2	ng	t3	t4	k2	t5	p1	t6"/"	",
-		"\u11a8	\u11a9	\u11ab	\u11ae	\u11af	\u11b7	\u11b8	\u11b9	\u11ba	\u11bb	\u11bc	\u11be	\u11bf	\u11c0	\u11c1	\u11c2"/"	"
+		"k	k1	n	t	l	m	p	t1	t2	ng	t3	j	t4	k2	t5	p1	t6"/"	",
+		"\u11a8	\u11a9	\u11ab	\u11ae	\u11af	\u11b7	\u11b8	\u11b9	\u11ba	\u11bb	\u11bc	\u11bd	\u11be	\u11bf	\u11c0	\u11c1	\u11c2"/"	"
 	),
 });
 string Latin_to_Korean(string input)
