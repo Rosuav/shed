@@ -15,7 +15,7 @@ int main(int argc,array(string) argv)
 	//The first file is the one that creates the final output. All other
 	//files are simply merged into the nearest slot based on start time.
 	//Also: That is one serious line of code. I'm not sure this is *good* code, but it's impressive how much automap will do for you.
-	[array(array(string)) output,array(array(array(string))) inputs]=Array.shift((utf8_to_string(String.trim_all_whites(Stdio.read_file(files[*])[*])[*])[*]/"\n\n")[*][*]/"\n");
+	[array(array(string)) output,array(array(array(string))) inputs]=Array.shift((String.trim_all_whites(utf8_to_string(Stdio.read_file(files[*])[*])[*])[*]/"\n\n")[*][*]/"\n");
 	//Trim off any index markers. We can re-add them later if they're wanted.
 	foreach (output;int i;array(string) lines) if (lines[0]==(string)(int)lines[0]) output[i]=lines[1..];
 	foreach (inputs,array(array(string)) input)
