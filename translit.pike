@@ -120,10 +120,14 @@ string Latin_to_Korean(string input)
 				input=vowels[<0..]+input;
 				vowels=vowels[..<1];
 			}
-			//output+="[*"+vowels+"]";
-			output+=hangul_translation[1][vowels];
-			state=2; //Now looking for a final consonant.
-			continue;
+			if (hangul_translation[1][vowels])
+			{
+				//output+="[*"+vowels+"]";
+				output+=hangul_translation[1][vowels];
+				state=2; //Now looking for a final consonant.
+				continue;
+			}
+			//Else we may have an incomplete vowel definition (still being typed in), which can be carried through unchanged for now.
 		}
 		sscanf(input,"%[gkndtrmbpsjchl0-9]%s",string consonants,input); //Hack: Include digits to allow round-tripping
 		if (consonants!="")
