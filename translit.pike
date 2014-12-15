@@ -139,9 +139,15 @@ string Latin_to_Korean(string input)
 				consonants=consonants[..<1];
 			}
 			//output+="["+state+consonants+"]";
-			output+=hangul_translation[state][consonants]||""; //If we look for a final consonant that doesn't exist, put no character out ( ||"" ), and change state so we go looking for an initial instead.
-			state=!state; //If this was the initial consonant [0], look for a vowel [1]; if the final [2], look for the next initial [0]. :)
-			continue;
+			if (state || consonants!="")
+			{
+				//If we look for a final consonant that doesn't exist, put no character out ( ||"" ), and change state so we go looking for an initial instead.
+				//But if we had been looking for an initial, and it doesn't exist, then just skip the character and move on.
+				//This isn't perfect, but it should allow interactive typing to result in at least something, even with only the first half of a two-letter sequence.
+				output+=hangul_translation[state][consonants]||"";
+				state=!state; //If this was the initial consonant [0], look for a vowel [1]; if the final [2], look for the next initial [0]. :)
+				continue;
+			}
 		}
 		//The next character isn't a recognized syllable character, so carry it through unchanged.
 		output+=input[..0]; input=input[1..];
