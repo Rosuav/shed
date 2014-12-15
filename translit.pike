@@ -196,6 +196,7 @@ int main(int argc,array(string) argv)
 		srtmode && "Trans",srtmode && (trans=GTK2.Entry()),
 		srtmode && (GTK2.HbuttonBox()->add(pause=GTK2.Button("_Pause")->set_use_underline(1))->add(next=GTK2.Button("_Next")->set_use_underline(1))),0,
 	})))->show_all()->signal_connect("destroy",lambda() {exit(0);});
+	(({original, other, roman, trans})-({0}))->modify_font(GTK2.PangoFontDescription("Sans 18"));
 	if (lang!="Latin")
 	{
 		roman->signal_connect("changed",update,({other,this["Latin_to_"+lang]}));
