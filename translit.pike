@@ -73,6 +73,86 @@ void create()
 		foreach (set[1..],string alias) preprocess_r2c[alias]=set[0];
 }
 
+//Korean romanization is positionally-influenced.
+//There are three blocks in Unicode which are useful here:
+//U+1100 to U+1112: initial consonants
+//U+1161 to U+1175: vowels
+//U+11A8 to U+11C2: final consonants (but not all of them are used(??))
+//Currently, the code assumes that a trailing consonant is followed by the
+//end of a syllable. Any non-alphabetic character also ends a syllable, so
+//hyphenation can help here.
+array hangul_translation=({
+	//Mode 0: Initial consonants
+	mkmapping(
+		"g	kk	n	d	tt	r	m	b	pp	s	ss		j	jj	ch	k	t	p	h"/"	",
+		"\u1100	\u1101	\u1102	\u1103	\u1104	\u1105	\u1106	\u1107	\u1108	\u1109	\u110a	\u110b	\u110c	\u110d	\u110e	\u110f	\u1110	\u1111	\u1112"/"	"
+	),
+	//Mode 1: Vowels
+	mkmapping(
+		"a	ae	ya	yae	eo	e	yeo	ye	o	wa	wae	oe	yo	u	wo	we	wi	yu	eu	ui	i"/"	",
+		"\u1161	\u1162	\u1163	\u1164	\u1165	\u1166	\u1167	\u1168	\u1169	\u116a	\u116b	\u116c	\u116d	\u116e	\u116f	\u1170	\u1171	\u1172	\u1173	\u1174	\u1175"/"	"
+	),
+	//Mode 2: Final consonants
+	mkmapping(
+		//There are duplicates in the table :( I have no idea how to enter these reliably.
+		"k	k1	n	t	l	m	p	t1	t2	ng	t3	t4	k2	t5	p1	t6"/"	",
+		"\u11a8	\u11a9	\u11ab	\u11ae	\u11af	\u11b7	\u11b8	\u11b9	\u11ba	\u11bb	\u11bc	\u11be	\u11bf	\u11c0	\u11c1	\u11c2"/"	"
+	),
+});
+string Latin_to_Korean(string input)
+{
+	//Representational ambiguities can be resolved by dividing syllables.
+	//In the keyed-in form, this is done with a slash; in both output forms,
+	//a zero-width space is used instead.
+	input=replace(input,"/","\u200b");
+	string output="";
+	int state=0;
+	while (input!="")
+	{
+		sscanf(input,"%[aeiouyw]%s",string vowels,input);
+		if (vowels!="")
+		{
+			//if (state==2) output+="-"; //Presumably there's no final consonant on this syllable.
+			if (state!=1) output+=hangul_translation[0][""]; //Implicit initial consonant.
+			//if (state==0) output+="[c0-]"; //Implicit initial consonant.
+			while (vowels!="" && !hangul_translation[1][vowels]) //Take the longest prefix that has a translation entry
+			{
+				input=vowels[<0..]+input;
+				vowels=vowels[..<1];
+			}
+			//output+="[*"+vowels+"]";
+			output+=hangul_translation[1][vowels];
+			state=2; //Now looking for a final consonant.
+			continue;
+		}
+		sscanf(input,"%[gkndtrmbpsjchl0-9]%s",string consonants,input); //Hack: Include digits to allow round-tripping
+		if (consonants!="")
+		{
+			if (state==1) state=2; //Huh? No vowel? Dunno what to do there.
+			while (consonants!="" && !hangul_translation[state][consonants])
+			{
+				input=consonants[<0..]+input;
+				consonants=consonants[..<1];
+			}
+			//output+="["+state+consonants+"]";
+			output+=hangul_translation[state][consonants]||""; //If we look for a final consonant that doesn't exist, put no character out ( ||"" ), and change state so we go looking for an initial instead.
+			state=!state; //If this was the initial consonant [0], look for a vowel [1]; if the final [2], look for the next initial [0]. :)
+			continue;
+		}
+		//The next character isn't a recognized syllable character, so carry it through unchanged.
+		output+=input[..0]; input=input[1..];
+		state=0; //After any punctuation, we're looking for the beginning of a new syllable.
+	}
+	return Unicode.normalize(output,"NFC"); //If all goes well, this should remove all the separate pieces and replace everything with precombined syllables.
+}
+
+mapping hangul_reverse=mkmapping(`+(@values(hangul_translation[*])),`+(@indices(hangul_translation[*]))); //This ought to be constant. Hrm.
+string Korean_to_Latin(string input)
+{
+	input=Unicode.normalize(input,"NFD"); //Crack the syllables up into parts
+	return replace(input,hangul_reverse); //The reverse translation is pretty straight-forward, yay!
+}
+
 //Translate "a\'" into "á" - specifically, translate "\'" into U+0301,
 //and then attempt Unicode NFC normalization. Other escapes similarly.
 //(Note that these are single backslashes, the above examples are not
@@ -103,7 +183,7 @@ int main(int argc,array(string) argv)
 	GTK2.Entry original,trans;
 	GTK2.Button next,pause;
 	string lang="Russian";
-	if (argc>1 && (<"Latin","Russian","Serbian","Ukrainian">)[argv[1]]) argv-=({lang=argv[1]});
+	if (argc>1 && (<"Latin","Russian","Serbian","Ukrainian","Korean">)[argv[1]]) argv-=({lang=argv[1]});
 	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
 	GTK2.Window(0)->set_title(lang+" transliteration")->add(two_column(({
 		srtmode && "Original",srtmode && (original=GTK2.Entry()),
