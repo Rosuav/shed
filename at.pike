@@ -8,6 +8,13 @@ int main(int argc,array(string) argv)
 		mapping tm=localtime(time());
 		int cur=tm->hour*3600+tm->min*60+tm->sec;
 		int secs=(hr*3600+min*60) - cur;
+		//Note that the effect of these two conditions is that times past midnight
+		//work as expected, but the script depends on waking up within the last
+		//minute of the delay. If anything goes wrong with the sleep at that last
+		//minute, an extra day will be added on. This is not considered to be a
+		//particularly serious scenario, as this script - unlike the more common
+		//scheduling tools - is designed for human interactive use, not unattended
+		//automation, and should not have to cope with all those issues.
 		if (secs<0) secs+=86400;
 		if (secs<=60)
 		{
