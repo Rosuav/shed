@@ -66,3 +66,5 @@ avconv -i Bulgarian-hXdUECDWKmA.mp4 -itsoffset 1.5 -i ~/Downloads/Let\ It\ Go\ \
 avconv -i /video/Clips/Frozen\ -\ Let\ It\ Go.mkv -i ../../Downloads/Let\ It\ Go\ \(The\ Complete\ Set\)\ \(From\ Frozen\)\ YG/CD1/17* -i ../../shed/*ett* -map 0:v -map 1:a:0 -map 2:s -c copy "Icelandic-mWNB5vrF8W4.mkv"
 avconv -i 25\ languages\ Behind\ The\ Mic-BS0T8Cd4UhA.mp4 -i ../../shed/25_lang.srt -c copy 25\ languages\ Behind\ The\ Mic-BS0T8Cd4UhA.mkv
 avconv -i /video/Clips/Frozen\ -\ Let\ It\ Go.mkv -i ../Downloads/Let\ It\ Go\ \(The\ Complete\ Set\)\ \(From\ Frozen\)\ YG/CD2/09* -i "../shed/Отпусти и забудь.srt" -map 0:v -map 1:a:0 -map 2:s -c copy "Russian.mkv"
+# Replacing the one that make_video.pike produces - alternate video stream
+avconv -i ../Videos/Hye\ Na\ Park\ -\ Da\ Ea-Joe\ \(from\ \'Frozen\'\)\ \(In-Studio\ Version\)-mPWdz7-2Vb4.mp4 -itsoffset 0.25 -i Audio/CD[12]/*Korean* -i Korean\ -\ 다\ 잊어.srt -map 0:v -map 1:a:0 -map 2:s -c copy Korean\ -\ 다\ 잊어.mkv
