@@ -175,6 +175,7 @@ string diacriticals(string input)
 	//Possibly it'd be worth taking \" for that, but then what would be better for U+0308?
 	mapping map=(["\\!":"\u00A1","\\?":"\u00BF","o\\e":"ø","a\\e":"æ","s\\s":"ß",
 		"\\`":"\u0300","\\'":"\u0301","\\^":"\u0302","\\~":"\u0303","\\@":"\u0306","\\\"":"\u0308","\\o":"\u030A","\\:":"\u030B","\\,":"\u0327",
+		"I\\.":"İ","i\\.":"ı", //Note that these are, in a way, reversed; I\. adds a dot, but i\. removes one.
 	]);
 	input=replace(input,map);
 	return Unicode.normalize(input,"NFC"); //Attempt to compose characters as much as possible - some applications have issues with combining characters
