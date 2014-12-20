@@ -22,7 +22,8 @@ int main(int argc,array(string) argv)
 			sleep(secs);
 			exit(Process.create_process(argv[2..])->wait()); //It's either that or exece() and simulate path searching. This does an execp() family call.
 		}
-		write("Sleeping %02d:%02d until %02d:%02d \r",secs/60,secs%60,hr,min);
+		if (secs>=3600) write("Sleeping %d:%02d:%02d until %02d:%02d \r",secs/3600,(secs/60)%60,secs%60,hr,min);
+		else write("Sleeping %02d:%02d until %02d:%02d  \r",secs/60,secs%60,hr,min);
 		sleep(secs%60 || 60); //Try to get the "time to launch" to an exact number of minutes
 	}
 }
