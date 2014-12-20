@@ -181,6 +181,23 @@ string diacriticals(string input)
 	return Unicode.normalize(input,"NFC"); //Attempt to compose characters as much as possible - some applications have issues with combining characters
 }
 
+string Latin_to_ElderFuthark(string input)
+{
+	return replace(input,([
+		"f":"ᚠ","u":"ᚢ","þ":"ᚦ","a":"ᚨ","r":"ᚱ","k":"ᚲ","g":"ᚷ","w":"ᚹ","h":"ᚻ","n":"ᚾ","i":"ᛇ","th":"ᚦ",
+		"j":"ᛃ","p":"ᛈ","z":"ᛉ","s":"ᛊ","t":"ᛏ","b":"ᛒ","e":"ᛖ","m":"ᛗ","l":"ᛚ","o":"ᛟ","d":"ᛞ","ng":"ᛝ","ŋ":"ᛝ",
+	]));
+}
+
+string ElderFuthark_to_Latin(string input)
+{
+	return replace(input,([
+		"ᛇ":"i","ᚲ":"k","ᛃ":"j","ᛞ":"d","ᚱ":"r","ᚦ":"th","ᛏ":"t","ᚷ":"g","ᚠ":"f","ᛈ":"p","ᚾ":"n","ᛟ":"o",
+		"ᛒ":"b","ᚦ":"þ","ᚨ":"a","ᛚ":"l","ᛊ":"s","ᚻ":"h","ᛝ":"ŋ","ᚢ":"u","ᛖ":"e","ᛉ":"z","ᚹ":"w","ᛗ":"m",
+		"ᚺ":"h","ᛜ":"ŋ","ᛁ":"i",
+	]));
+}
+
 void update(object self,array args)
 {
 	[object other,function translit]=args;
@@ -196,7 +213,7 @@ int main(int argc,array(string) argv)
 	GTK2.Entry original,trans;
 	GTK2.Button next,pause;
 	string lang="Russian";
-	if (argc>1 && (<"Latin","Russian","Serbian","Ukrainian","Korean">)[argv[1]]) argv-=({lang=argv[1]});
+	if (argc>1 && (<"Latin","Russian","Serbian","Ukrainian","Korean","ElderFuthark">)[argv[1]]) argv-=({lang=argv[1]});
 	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
 	GTK2.Window(0)->set_title(lang+" transliteration")->add(two_column(({
 		srtmode && "Original",srtmode && (original=GTK2.Entry()),
