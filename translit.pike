@@ -198,6 +198,19 @@ string ElderFuthark_to_Latin(string input)
 	]));
 }
 
+//Seems to be flawed, needs checking against a template.
+string Latin_to_Greek(string input)
+{
+	return replace(replace(input,(["ch":"χ","Ch":"Χ","CH":"Χ","th":"θ","Th":"Θ","TH":"Θ","ps":"ψ","Ps":"Ψ","PS":"Ψ"])),
+		"avdefghiklmnoprstuwxyzABDEFGHIKLMNOPRSTUWXYZ"/1,"αβδεφγηικλμνοπρστθωξυζΑVΔΕΦΓΗΙΚΛΜΝΟΠΡΣΤΘΩΞΥΖ"/1);
+}
+
+string Greek_to_Latin(string input)
+{
+	return replace(replace(input,"αβδεφγηικλμνοπρστθωξυζΑΒΔΕΦΓΗΙΚΛΜΝΟΠΡΣΤΘΩΞΥΖ"/1,"avdefghiklmnoprstuwxyzAVDEFGHIKLMNOPRSTUWXYZ"/1),
+		(["χ":"ch","Χ":"Ch","θ":"th","Θ":"Th","ψ":"ps","Ψ":"Ps"]));
+}
+
 void update(object self,array args)
 {
 	[object other,function translit]=args;
@@ -213,7 +226,7 @@ int main(int argc,array(string) argv)
 	GTK2.Entry original,trans;
 	GTK2.Button next,pause;
 	string lang="Russian";
-	if (argc>1 && (<"Latin","Russian","Serbian","Ukrainian","Korean","ElderFuthark">)[argv[1]]) argv-=({lang=argv[1]});
+	if (argc>1 && (<"Latin","Russian","Serbian","Ukrainian","Korean","ElderFuthark","Greek">)[argv[1]]) argv-=({lang=argv[1]});
 	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
 	GTK2.Window(0)->set_title(lang+" transliteration")->add(two_column(({
 		srtmode && "Original",srtmode && (original=GTK2.Entry()),
