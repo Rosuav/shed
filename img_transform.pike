@@ -31,6 +31,7 @@ Image.Image update_image()
 	foreach (({"autocrop","grey","mirrorx","mirrory"}),string func)
 		if (w["xfrm_"+func]->get_active()) img=img[func]();
 	if (w->xfrm_threshold->get_active()) img=img->threshold((int)w->threshold_val->get_value());
+	if (w->xfrm_edgedetect->get_active()) img=img->apply_matrix(({({1, 1,1}),({1,-8,1}),({1, 1,1})})); //Per the apply_matrix docs
 	//Add more transformations here
 	w->img->set_from_image(GTK2.GdkImage(0,img));
 	return img;
@@ -83,6 +84,7 @@ int main()
 			->pack_start(w->xfrm_threshold=GTK2.CheckButton("Threshold"),0,0,0)
 			->add(w->threshold_val=GTK2.Hscale(0.0,255.0,1.0)->set_value_pos(GTK2.POS_LEFT))
 		)
+		->add(w->xfrm_edgedetect=GTK2.CheckButton("Edge detect (via apply_matrix)"))
 		//Add new transformations here
 		->add(w->img=GTK2.Image())
 		->add(GTK2.Hbox(0,10)
