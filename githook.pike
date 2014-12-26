@@ -5,12 +5,26 @@ Run this script from your top-level git directory and it'll install itself. Then
 it provides two services:
 
 1) One-file commits can be tagged to show what file/module they're working on.
-TODO: More explanation, thanks!
+The first time you do such a commit, identify the file with a tag, followed by
+a colon - for example, "githook: New script" - and then all subsequent commits
+for that file will have the "githook:" part prefilled. (Note that this doesn't
+work with 'git gui', which appears to skip the prepare-commit-msg hook.) Having
+multiple files with the same tag allows them all to be part of a conceptual
+module, although the hook won't recognize any multi-file commits, even if the
+files would all have used the same tag separately.
+
+NOTE: This search can take a long time; it scans backward through potentially
+the entire history of this branch of the repository. To bound the search to N
+commits back from the current HEAD:
+$ git config rosuav.log-search.limit N
+This can be set globally or per-repository. If the bound is set too low, files
+which have not been edited in a long time may not be detected as having tags
+set, and will be treated as brand new again.
 
 2) Short-hand fixup: edit a single file and create a commit with a message of
 "f" (eg "git commit -amf") and the message will be expanded to "fixup!" and the
 most recent unpushed commit message that affects this file. Good with git's
-interactive rebase.
+interactive rebase, especially with git config rebase.autosquash enabled.
 */
 
 int main(int argc,array(string) argv)
