@@ -28,7 +28,8 @@ Image.Image update_image()
 {
 	Image.Image img=orig_image;
 	//Perform all appropriate transformations
-	if (w->xfrm_grey->get_active()) img=img->grey();
+	foreach (({"grey","mirrorx","mirrory"}),string func)
+		if (w["xfrm_"+func]->get_active()) img=img[func]();
 	if (w->xfrm_threshold->get_active()) img=img->threshold((int)w->threshold_val->get_value());
 	//Add more transformations here
 	w->img->set_from_image(GTK2.GdkImage(0,img));
@@ -73,6 +74,10 @@ int main()
 		)
 		//Begin transformations
 		->add(w->xfrm_grey=GTK2.CheckButton("Greyscale"))
+		->add(GTK2.Hbox(0,10)
+			->add(w->xfrm_mirrorx=GTK2.CheckButton("Mirror horiz"))
+			->add(w->xfrm_mirrory=GTK2.CheckButton("Mirror vert"))
+		)
 		->add(GTK2.Hbox(0,10)
 			->pack_start(w->xfrm_threshold=GTK2.CheckButton("Threshold"),0,0,0)
 			->add(w->threshold_val=GTK2.Hscale(0.0,255.0,1.0)->set_value_pos(GTK2.POS_LEFT))
