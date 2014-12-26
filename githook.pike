@@ -53,9 +53,14 @@ int main(int argc,array(string) argv)
 					//this repo has not had that many commits yet (or to be more precise, if HEAD
 					//doesn't have that many {grand,}parents).
 					array(string) args=({"git","log","--shortstat","--full-diff","-10","--oneline"});
-					int limit=(int)Process.run(({"git","config","--get","rosuav.log-search.limit"}))->stdout;
-					if (limit) args+=({"HEAD~"+limit+".."});
-					array(string) log=Process.run(args+({fn}))->stdout/"\n";
+					array(string) log;
+					if (int limit=(int)Process.run(({"git","config","--get","rosuav.log-search.limit"}))->stdout)
+					{
+						mapping rc=Process.run(args+({"HEAD~"+limit+"..",fn}));
+						if (!rc->exitcode) log=rc->stdout/"\n";
+						//If this fails, try again without the limit.
+					}
+					if (!log) log=Process.run(args+({fn}))->stdout/"\n"; //If this one fails, though, just work with no lines (ie no tags).
 					mapping(string:int) tagcnt=([]);
 					for (int i=0;i<sizeof(log)-1;i+=2) //log should be pairs of lines: ({commit + summary, shortstat}) repeated.
 						if (has_prefix(log[i+1]-"s"," 1 file changed")) //Ignore commits that changed any other file
