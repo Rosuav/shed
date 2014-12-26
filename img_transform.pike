@@ -28,7 +28,7 @@ Image.Image update_image()
 {
 	Image.Image img=orig_image;
 	//Perform all appropriate transformations
-	foreach (({"grey","mirrorx","mirrory"}),string func)
+	foreach (({"autocrop","grey","mirrorx","mirrory"}),string func)
 		if (w["xfrm_"+func]->get_active()) img=img[func]();
 	if (w->xfrm_threshold->get_active()) img=img->threshold((int)w->threshold_val->get_value());
 	//Add more transformations here
@@ -73,6 +73,7 @@ int main()
 			->add(w->open=GTK2.FileChooserButton("Open image",GTK2.FILE_CHOOSER_ACTION_OPEN))
 		)
 		//Begin transformations
+		->add(w->xfrm_autocrop=GTK2.CheckButton("Crop off any border"))
 		->add(w->xfrm_grey=GTK2.CheckButton("Greyscale"))
 		->add(GTK2.Hbox(0,10)
 			->add(w->xfrm_mirrorx=GTK2.CheckButton("Mirror horiz"))
