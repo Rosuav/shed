@@ -243,7 +243,7 @@ What caused a plane to be shredded?
 Can a fire be started by rubbing sticks together, with a bullet, or with ice?
 
 /2006-3 Archimedes Death Ray.mkv
-Can an array of bronze mirrors can set a wooden ship on fire?
+Can an array of bronze mirrors set a wooden ship on fire?
 '''Note''': This was the first appearance of "Mythtern" Jess Nelson.
 
 /2006-4 Helium Football.mkv
@@ -356,7 +356,7 @@ Can vodka help to ease the pain of a jellyfish sting?
 /2006-SP2 Holiday Special.mkv
 Can a falling frozen turkey break a person's foot or kill a pet?
 Can a turkey be cooked by exposing it to a radar/microwave transmitter antenna?
-Do various methods work keeping the needles of a Cristmas tree from falling off?
+Do various methods work keeping the needles of a Christmas tree from falling off?
 Can a holiday-themed Rube Goldberg machine be built within a week's time?
  This was the first episode to air the new opening sequence and to film in high definition.
 
@@ -1049,7 +1049,7 @@ Can survive a jump from a high-rise building with a parachute made from a hotel 
 
 /2013-7 Hypermiling-Crash Cushions.mkv
 Could a guy sandwiched between two big guys in the backseat of a car survive the car being T-boned by a truck, as seen in ''Headhunters''?
-Can hypermilling techniques really double your car's fuel efficiency?
+Can hypermiling techniques really double your car's fuel efficiency?
 
 /2013-8 Duct Tape Canyon.mkv
 Can Adam and Jamie cross the canyon and reach civilization using only basic supplies, duct tape, and bubble wrap?
@@ -1152,4 +1152,27 @@ For journeys less than 400 miles, is driving faster than flying?
 Is the method used for boarding planes by most airlines inefficient?
 Can you make an untraceable bullet out of teeth?
 '''Note''': This episode marked the final appearance of Kari Byron, Grant Imahara, and Tory Belleci on the US schedule.
+
+/2015-1 ''The Simpsons'' Special.mkv
+Will a cherry bomb dropped in a school toilet make others act like geysers?
+Will placing someone between a wrecking ball and a building protect the building?
+
+/2015-2 The Busters of the Lost Myths.mkv
+<!-- '''Myths tested''':
+ -->
+
+/2015-3 The A-Team Special.mkv
+<!-- '''Myths tested''':
+ -->
+
+/2015-4 Video Games Special.mkv
+<!-- '''Myths tested''':
+ -->
+
+/2015-5 Transformers.mkv
+Can a car be changed into a motorcycle?
+
+/2015-6 San Francisco Drift.mkv
+<!-- '''Myths tested''':
+ -->
 
