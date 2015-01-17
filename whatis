@@ -1,0 +1,28 @@
+#!/usr/local/bin/pike
+//Identify one or more processes by showing their working directories and
+//command lines. May need to be run with root privileges.
+//In many simple cases, this will reconstruct a plausible shell prompt and
+//command line that might have been used to start the process. Note that
+//chrooting is not guaranteed to be shown reliably or accurately.
+
+int main(int argc,array(string) argv)
+{
+	string hostname=gethostname();
+	sscanf(hostname,"%s.",hostname); //If we have a multi-part hostname, just abbreviate it.
+	foreach (argv[1..],string arg) if (int pid=(int)arg)
+	{
+		string proc="/proc/"+pid+"/";
+		string cwd=readlink(proc+"cwd");
+		string root=readlink(proc+"root");
+		sscanf(Stdio.read_file(proc+"status"),"%*s\nUid:%d",int uid); //I don't care about the other four UIDs
+		array pw=getpwuid(uid);
+		//Running from home dir? Show it as ~ instead of the explicit path.
+		//Likewise for subdirectories. But if home is /home/foo and cwd is /home/foobar,
+		//don't show ~bar - that would be wrong.
+		if (cwd==pw[5]) cwd="~";
+		if (has_prefix(cwd,pw[5]+"/")) cwd="~"+cwd[sizeof(pw[5])..];
+		array(string) args=Stdio.read_file(proc+"cmdline")/"\0";
+		if (root!="/") args=({"chroot",root})+args;
+		write("%s@%s:%s%c%{ %s%}\n",pw[0],hostname,cwd,uid?'$':'#',Process.sh_quote(args[*]));
+	}
+}
