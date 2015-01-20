@@ -54,17 +54,31 @@ int main()
 	GTK2.setup_gtk();
 	multiset(string) dirs=(<>); //Prevent duplicates
 	win->ls=GTK2.ListStore(({"string","string"}));
+	string lastfile=""; int lastcount,lastidx; //File count and numerically greatest file name for the last directory seen, ignoring subdirectories
 	foreach ((Process.run(({"lsar",base}))->stdout/"\n")[1..],string l)
 	{
 		if (l=="") continue;
-		l=explode_path(l)[1];
-		if (dirs[l]) continue;
+		array parts=explode_path(l);
+		l=parts[1];
+		if (!dirs[l])
+		{
+			//New directory.
+			object iter=win->ls->append();
+			win->ls->set_value(iter,0,l);
+			if (object stat=file_stat(sprintf("/video/BluRayDisney/%s.mkv",l))) win->ls->set_value(iter,1,ctime(stat->mtime)[..<1]);
+			lastfile=""; lastcount=0; lastidx=-1;
+		}
 		dirs[l]=1;
-		object iter=win->ls->append();
-		win->ls->set_value(iter,0,l);
-		if (object stat=file_stat(sprintf("/video/BluRayDisney/%s.mkv",l))) win->ls->set_value(iter,1,ctime(stat->mtime)[..<1]);
+		string ext=parts[-1][<3..];
+		int x=0;
+		if (ext==".rar" || (sscanf(ext,".r%d",x) && ext==sprintf(".r%02d",x))) //Looks like a RAR part!
+		{
+			if (x>lastidx) {lastfile=parts[-1]; lastidx=x;}
+			lastcount++;
+		}
 	}
 	if (!sizeof(dirs)) exit(0,"No directories found.\n");
+	write("Last dir: %d files ending %O\n",lastcount,lastfile);
 	win->mw=GTK2.Window(0)->set_title("UnDoubleRAR")->add(GTK2.Vbox(0,0)
 		->add(win->list=GTK2.TreeView(win->ls)
 			->append_column(GTK2.TreeViewColumn("File to extract",GTK2.CellRendererText(),"text",0))
@@ -76,4 +90,3 @@ int main()
 	foreach (indices(this),string fn) if (sscanf(fn,"%s_%s",string obj,string sig) && win[obj] && sig) win[obj]->signal_connect(sig,this[fn]);
 	return -1;
 }
-
