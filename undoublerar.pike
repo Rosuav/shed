@@ -34,7 +34,7 @@ void extract_clicked()
 			write("Extracted!\n");
 			array(string) files=glob("*.mkv",get_dir());
 			if (!sizeof(files)) exit(1,"Couldn't find an mkv in the output!\n"); //And leave the temp dir there.
-			string outfn=combine_path(cwd,kwd+".mkv");
+			string outfn=kwd+".mkv";
 			mv(files[0],outfn);
 			Process.create_process(({"scp",outfn,"netbios@huix:BluRayDisney/"}))->wait();
 			rm(outfn);
