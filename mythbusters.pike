@@ -8,7 +8,7 @@ TODO: Should this actually parse wiki markup, instead of depending on heaps of f
 
 int main()
 {
-	Stdio.File out=Stdio.File("mythbusters.txt","wct");
+	Stdio.File out=Stdio.File("_mythbusters.txt","wct");
 	for (int year=2003;;++year)
 	{
 		write("Fetching %d... ",year);
@@ -37,6 +37,6 @@ int main()
 	}
 	write("No such page found - all done.\n");
 	out->close();
-	Process.create_process(({"git","commit","mythbusters.txt","-mUpdate Mythbusters from Wikipedia"}))->wait();
-	Process.create_process(({"scp","mythbusters.txt","netbios@huix:Mythbusters/00index.txt"}))->wait();
+	Process.create_process(({"git","commit","_mythbusters.txt","-mUpdate Mythbusters from Wikipedia"}))->wait();
+	Process.create_process(({"scp","_mythbusters.txt","netbios@huix:Mythbusters/00index.txt"}))->wait();
 }
