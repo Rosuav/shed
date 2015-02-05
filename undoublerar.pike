@@ -79,12 +79,15 @@ int main()
 	}
 	if (!sizeof(dirs)) exit(0,"No directories found.\n");
 	write("Last dir: %d files ending %O\n",lastcount,lastfile);
-	win->mw=GTK2.Window(0)->set_title("UnDoubleRAR")->add(GTK2.Vbox(0,0)
-		->add(win->list=GTK2.TreeView(win->ls)
-			->append_column(GTK2.TreeViewColumn("File to extract",GTK2.CellRendererText(),"text",0))
-			->append_column(GTK2.TreeViewColumn("On Huix?",GTK2.CellRendererText(),"text",1))
+	win->mw=GTK2.Window(0)->set_default_size(0,400)->set_title("UnDoubleRAR")->add(GTK2.Vbox(0,0)
+		->add(GTK2.ScrolledWindow()
+			->set_policy(GTK2.POLICY_NEVER,GTK2.POLICY_AUTOMATIC)
+			->add(win->list=GTK2.TreeView(win->ls)
+				->append_column(GTK2.TreeViewColumn("File to extract",GTK2.CellRendererText(),"text",0))
+				->append_column(GTK2.TreeViewColumn("On Huix?",GTK2.CellRendererText(),"text",1))
+			)
 		)
-		->add(GTK2.HbuttonBox()->add(win->extract=GTK2.Button("Extract")))
+		->pack_start(GTK2.HbuttonBox()->add(win->extract=GTK2.Button("Extract")),0,0,0)
 	)->show_all();
 	win->sel=win->list->get_selection();
 	foreach (indices(this),string fn) if (sscanf(fn,"%s_%s",string obj,string sig) && win[obj] && sig) win[obj]->signal_connect(sig,this[fn]);
