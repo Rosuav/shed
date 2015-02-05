@@ -55,6 +55,7 @@ int main()
 	multiset(string) dirs=(<>); //Prevent duplicates
 	win->ls=GTK2.ListStore(({"string","string"}));
 	string lastfile=""; int lastcount,lastidx; //File count and numerically greatest file name for the last directory seen, ignoring subdirectories
+	object selectme;
 	foreach ((Process.run(({"lsar",base}))->stdout/"\n")[1..],string l)
 	{
 		if (l=="") continue;
@@ -66,6 +67,7 @@ int main()
 			object iter=win->ls->append();
 			win->ls->set_value(iter,0,l);
 			if (object stat=file_stat(sprintf("/video/BluRayDisney/%s.mkv",l))) win->ls->set_value(iter,1,ctime(stat->mtime)[..<1]);
+			else if (!selectme) selectme=iter; //Select the first one that 
 			lastfile=""; lastcount=0; lastidx=-1;
 		}
 		dirs[l]=1;
@@ -90,6 +92,7 @@ int main()
 		->pack_start(GTK2.HbuttonBox()->add(win->extract=GTK2.Button("Extract")),0,0,0)
 	)->show_all();
 	win->sel=win->list->get_selection();
+	if (selectme) win->list->set_cursor(win->ls->get_path(selectme));
 	foreach (indices(this),string fn) if (sscanf(fn,"%s_%s",string obj,string sig) && win[obj] && sig) win[obj]->signal_connect(sig,this[fn]);
 	return -1;
 }
