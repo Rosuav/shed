@@ -89,7 +89,7 @@ int main()
 				->append_column(GTK2.TreeViewColumn("On Huix?",GTK2.CellRendererText(),"text",1))
 			)
 		)
-		->pack_start(GTK2.HbuttonBox()->add(win->extract=GTK2.Button("Extract")),0,0,0)
+		->pack_start(GTK2.HbuttonBox()->add(win->extract=GTK2.Button("_Extract")->set_use_underline(1)),0,0,0)
 	)->show_all();
 	win->sel=win->list->get_selection();
 	if (selectme) win->list->set_cursor(win->ls->get_path(selectme));
