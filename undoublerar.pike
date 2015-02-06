@@ -81,7 +81,7 @@ int main()
 	}
 	if (!sizeof(dirs)) exit(0,"No directories found.\n");
 	write("Last dir: %d files ending %O\n",lastcount,lastfile);
-	win->mw=GTK2.Window(0)->set_default_size(0,400)->set_title("UnDoubleRAR")->add(GTK2.Vbox(0,0)
+	win->mw=GTK2.Window(0)->set_default_size(0,500)->set_title("UnDoubleRAR")->add(GTK2.Vbox(0,0)
 		->add(GTK2.ScrolledWindow()
 			->set_policy(GTK2.POLICY_NEVER,GTK2.POLICY_AUTOMATIC)
 			->add(win->list=GTK2.TreeView(win->ls)
