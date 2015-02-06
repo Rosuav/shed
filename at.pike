@@ -22,7 +22,12 @@ int main(int argc,array(string) argv)
 		{
 			write("Sleeping %d seconds until %02d:%02d\n",secs,hr,min);
 			sleep(secs);
-			exit(Process.create_process(argv[2..])->wait()); //It's either that or exece() and simulate path searching. This does an execp() family call.
+			//Try an exec first. If that succeeds, great! But it doesn't search paths (it's not
+			//execp() family), so it'll fail if the full path isn't provided.
+			exece(argv[2],argv[3..]);
+			//Fall back on launching a subprocess. This *does* do an execp() family call, so you
+			//can say "pike at 14:55 vlc Music/Alice.mp3" and it'll find /usr/bin/vlc to execute.
+			exit(Process.create_process(argv[2..])->wait());
 		}
 		if (secs>=3600) write("Sleeping %d:%02d:%02d until %02d:%02d \r",secs/3600,(secs/60)%60,secs%60,hr,min);
 		else write("Sleeping %02d:%02d until %02d:%02d  \r",secs/60,secs%60,hr,min);
