@@ -1,3 +1,5 @@
+#!/usr/local/bin/pike
+
 int main(int argc,array(string) argv)
 {
 	if (argc<3) exit(1,"USAGE: %s time command [args...]\nExecutes command at time, with tick-down display.\n",argv[0]);
