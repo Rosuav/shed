@@ -3,6 +3,7 @@
 int main()
 {
 	object tottm=System.Timer();
+	int totwritten=0;
 	for (int i=1;i<20;++i) //Cap it at 20 to prevent a degenerate state
 	{
 		object tm=System.Timer();
@@ -27,9 +28,10 @@ int main()
 		out->close();
 		if (file_stat(fn)->size!=written) werror("\e[1;33mFile is %d bytes long but we wrote %d bytes!!\e[0m\n",file_stat(fn)->size,written);
 		if (stderr=="Bad index\n") break;
-		float t=tm->peek(); written/=1048576;
+		float t=tm->peek(); written/=1048576; totwritten+=written;
 		write("Section %d: %dMB in %fs - %f MB/s\n",i,written,t,written/t);
 	}
-	write("Finished in %f seconds.\n",tottm->peek());
+	float t=tottm->peek();
+	write("Fetched %dMB in in %f seconds, avg throughput %f MB/s.\n",totwritten,t,totwritten/t);
 }
 
