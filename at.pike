@@ -27,6 +27,9 @@ int main(int argc,array(string) argv)
 			exece(argv[2],argv[3..]);
 			//Fall back on launching a subprocess. This *does* do an execp() family call, so you
 			//can say "pike at 14:55 vlc Music/Alice.mp3" and it'll find /usr/bin/vlc to execute.
+			//Note that if we absolutely had to exec here (if we promised to maintain the PID,
+			//for instance), we could probably shell out to /usr/bin/which on the first arg and
+			//then retry the exec. But it's probably not worth it.
 			exit(Process.create_process(argv[2..])->wait());
 		}
 		if (secs>=3600) write("Sleeping %d:%02d:%02d until %02d:%02d \r",secs/3600,(secs/60)%60,secs%60,hr,min);
