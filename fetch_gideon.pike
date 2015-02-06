@@ -1,6 +1,6 @@
 #!/usr/local/bin/pike
 
-int main()
+void run_backup()
 {
 	object tottm=System.Timer();
 	int totwritten=0;
@@ -35,3 +35,9 @@ int main()
 	write("Fetched %dMB in in %f seconds, avg throughput %f MB/s.\n",totwritten,t,totwritten/t);
 }
 
+int main(int argc,array(string) argv)
+{
+	if (argc>1 && argv[1]=="now") run_backup();
+	//Handball back and forth with at.pike to reschedule ourselves.
+	exece(combine_path(@explode_path(__FILE__)[..<1],"at.pike"),({"5:00",argv[0],"now"}));
+}
