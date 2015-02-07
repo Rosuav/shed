@@ -60,6 +60,7 @@ int main()
 	{
 		if (l=="") continue;
 		array parts=explode_path(l);
+		if (has_suffix(parts[-1],".nfo")) continue; //Ignore the nfo files and just look for the others. Deals with the "DIRFIX" extra directory for The Rescuers.
 		l=parts[1];
 		if (!dirs[l])
 		{
