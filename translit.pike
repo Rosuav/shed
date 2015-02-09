@@ -174,7 +174,8 @@ string diacriticals(string input)
 	//to indicate the long forms of vowels with umlauts.) I've no idea what would make sense.
 	//Possibly it'd be worth taking \" for that, but then what would be better for U+0308?
 	mapping map=(["\\!":"\u00A1","\\?":"\u00BF","o\\e":"ø","a\\e":"æ","s\\s":"ß",
-		"\\`":"\u0300","\\'":"\u0301","\\^":"\u0302","\\~":"\u0303","\\@":"\u0306","\\\"":"\u0308","\\o":"\u030A","\\:":"\u030B","\\,":"\u0327",
+		"\\`":"\u0300","\\'":"\u0301","\\^":"\u0302","\\~":"\u0303","\\-":"\u0304","\\@":"\u0306","\\\"":"\u0308",
+		"\\o":"\u030A","\\:":"\u030B","\\,":"\u0327",
 		"I\\.":"İ","i\\.":"ı", //Note that these are, in a way, reversed; I\. adds a dot, but i\. removes one.
 	]);
 	input=replace(input,map);
@@ -198,17 +199,39 @@ string ElderFuthark_to_Latin(string input)
 	]));
 }
 
-//Seems to be flawed, needs checking against a template.
+//ELOT transliteration from https://en.wikipedia.org/wiki/Romanization_of_Greek#Modern_Greek
+//Keying Eta (Ηη) is done as "i\-", which requires a complex set of steps. First, the \- becomes
+//U+0304 (Macron), and the i becomes U+03B9 (Iota); then NFC normalization combines those two
+//into U+1FD1 (Iota with macron). The reverse transformation decomposes that to U+03B9 U+0304,
+//then translates U+03B9 into i, then recomposes into U+012B "i with macron"; then a repeated
+//forward transformation converts that into η (Eta), which reversibly translates back to U+012B.
+//A similar multi-step transformation is required to key Omega (Ωω), done as "o\-", except that
+//there's no combined form. It's a mess, and has gone through several iterations of editing, and
+//I'm not 100% sure that all the code matches what I'm trying to do here; some of it may even be
+//completely redundant (in some iterations, I wasn't decomposing on reverse transformation, for
+//instance, and that may have required some translations that now aren't necessary). It seems to
+//work now, so I'm sticking with it.
+object medial_s=Regexp.PCRE.Widestring("s+[a-zψΨ]");
+string medial_sigma(string x) {return "σ"*(sizeof(x)-1)+x[<0..];}
 string Latin_to_Greek(string input)
 {
-	return replace(replace(input,(["ch":"χ","Ch":"Χ","CH":"Χ","th":"θ","Th":"Θ","TH":"Θ","ps":"ψ","Ps":"Ψ","PS":"Ψ"])),
-		"avdefghiklmnoprstuwxyzABDEFGHIKLMNOPRSTUWXYZ"/1,"αβδεφγηικλμνοπρστθωξυζΑVΔΕΦΓΗΙΚΛΜΝΟΠΡΣΤΘΩΞΥΖ"/1);
+	//Note that these are six separate steps, which must be done in strict order or stuff breaks - probably with the medial sigma.
+	//1) Unicode decomposition - break out any diacriticals into separate combining characters.
+	//2) Convert ps into ψ, so the s doesn't get translated in step 3.
+	//3) Convert "s followed by letter" into medial sigma. For this, "letter" means a-z and ψ; note that this means diacriticals on an s will break it.
+	//4) Convert the two-letter forms, as some of them could be parsed as individual letters too.
+	//5) Convert the single letters.
+	//6) Convert diacritical notation, and recombine characters.
+	//All in very strict order or it won't work!
+	return diacriticals(replace(replace(medial_s->replace(replace(Unicode.normalize(input,"NFD"),(["ps":"ψ","Ps":"Ψ","PS":"Ψ"])),medial_sigma),
+			(["ch":"χ","Ch":"Χ","CH":"Χ","th":"θ","Th":"Θ","TH":"Θ","O\u0304":"Ω","o\u0304":"ω","I\u0304":"Η","i\u0304":"η"])
+		),"AaVvGgDdEeZzIiKkLlMmNnXxOoPpRrSsTtYyFfhṓ"/1,"ΑαΒβΓγΔδΕεΖζΙιΚκΛλΜμΝνΞξΟοΠπΡρΣςΤτΥυΦφ῾ώ"/1));
 }
 
 string Greek_to_Latin(string input)
 {
-	return replace(replace(input,"αβδεφγηικλμνοπρστθωξυζΑΒΔΕΦΓΗΙΚΛΜΝΟΠΡΣΤΘΩΞΥΖ"/1,"avdefghiklmnoprstuwxyzAVDEFGHIKLMNOPRSTUWXYZ"/1),
-		(["χ":"ch","Χ":"Ch","θ":"th","Θ":"Th","ψ":"ps","Ψ":"Ps"]));
+	return Unicode.normalize(replace(replace(Unicode.normalize(input,"NFD"),"ΑαΒβΓγΔδΕεΖζΗηΙιΚκΛλΜμΝνΞξΟοΠπΡρΣςΤτΥυΦφΩωσῙῑ῾ώ"/1,"AaVvGgDdEeZzĪīIiKkLlMmNnXxOoPpRrSsTtYyFfŌōsĪīhṓ"/1),
+		(["χ":"ch","Χ":"Ch","θ":"th","Θ":"Th","ψ":"ps","Ψ":"Ps","ή":"ī\u0301"])),"NFC");
 }
 
 void update(object self,array args)
