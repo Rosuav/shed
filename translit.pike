@@ -259,32 +259,47 @@ int main(int argc,array(string) argv)
 		srtmode && (GTK2.HbuttonBox()->add(pause=GTK2.Button("_Pause")->set_use_underline(1))->add(next=GTK2.Button("_Next")->set_use_underline(1))),0,
 	})))->show_all()->signal_connect("destroy",lambda() {exit(0);});
 	(({original, other, roman, trans})-({0}))->modify_font(GTK2.PangoFontDescription("Sans 18"));
+	function latin_to,to_latin;
 	if (lang!="Latin")
 	{
-		roman->signal_connect("changed",update,({other,this["Latin_to_"+lang]}));
-		other->signal_connect("changed",update,({roman,this[lang+"_to_Latin"]}));
+		roman->signal_connect("changed",update,({other,latin_to=this["Latin_to_"+lang]}));
+		other->signal_connect("changed",update,({roman,to_latin=this[lang+"_to_Latin"]}));
 	}
 	else roman->signal_connect("changed",update,({0,diacriticals}));
 	if (next) next->signal_connect("clicked",lambda() {
 		array(string) data=utf8_to_string(Stdio.read_file(argv[1]))/"\n\n";
 		string orig=original->get_text();
 		original->set_text(""); //In case we find nothing
-		foreach (data;int i;string paragraph) if (sizeof(paragraph/"\n"-({""}))==2)
+		foreach (data;int i;string paragraph)
 		{
-			//Two-line paragraphs need translations entered. If the first one we see
-			//has the same text as the 'Original' field, and we have data entered,
-			//patch in the new content.
-			string english=(paragraph/"\n")[1];
-			if (orig!="" && orig==english)
+			array lines=paragraph/"\n"-({""});
+			if (sizeof(lines)==2)
 			{
-				data[i]=sprintf("%s%{\n%s%}",String.trim_all_whites(paragraph),({other->get_text(),roman->get_text(),trans->get_text()})-({""}));
-				Stdio.write_file(argv[1],string_to_utf8(String.trim_all_whites(data*"\n\n")+"\n"));
-				continue;
+				//Two-line paragraphs need translations entered. If the first one we see
+				//has the same text as the 'Original' field, and we have data entered,
+				//patch in the new content.
+				string english=(paragraph/"\n")[1];
+				if (orig!="" && orig==english)
+				{
+					data[i]=sprintf("%s%{\n%s%}",String.trim_all_whites(paragraph),({other->get_text(),roman->get_text(),trans->get_text()})-({""}));
+					Stdio.write_file(argv[1],string_to_utf8(String.trim_all_whites(data*"\n\n")+"\n"));
+					continue;
+				}
+				//The first two-line paragraph, ignoring any we're patching in, ought
+				//to be the next one needing translation.
+				original->set_text(english);
+				break;
 			}
-			//The first two-line paragraph, ignoring any we're patching in, ought
-			//to be the next one needing translation.
-			original->set_text(english);
-			break;
+			else if (sizeof(lines)==5 && latin_to && to_latin)
+			{
+				//Five-line paragraph. Verify its two-way transliterations.
+				//The lines will be Timing, English, Other, Roman, Translation.
+				if (lines[2]!=latin_to(lines[3]) || lines[3]!=to_latin(lines[2]))
+				{
+					//Something's wrong. We're going to spam the screen a lot with these, unless the job's all done.
+					write("Mismatched:\n%{%s\n%}",string_to_utf8(lines[*]));
+				}
+			}
 		}
 		({other, roman, trans})->set_text("");
 		roman->grab_focus();
