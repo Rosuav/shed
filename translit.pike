@@ -175,7 +175,7 @@ string diacriticals(string input)
 	//Possibly it'd be worth taking \" for that, but then what would be better for U+0308?
 	mapping map=(["\\!":"\u00A1","\\?":"\u00BF","o\\e":"ø","a\\e":"æ","s\\s":"ß",
 		"\\`":"\u0300","\\'":"\u0301","\\^":"\u0302","\\~":"\u0303","\\-":"\u0304","\\@":"\u0306","\\\"":"\u0308",
-		"\\o":"\u030A","\\:":"\u030B","\\,":"\u0327",
+		"\\o":"\u030A","\\:":"\u030B","\\v":"\u030C","\\,":"\u0327","d\\-":"đ","d\u0304":"đ","D\\-":"Đ","D\u0304":"Đ",
 		"I\\.":"İ","i\\.":"ı", //Note that these are, in a way, reversed; I\. adds a dot, but i\. removes one.
 	]);
 	input=replace(input,map);
