@@ -174,7 +174,7 @@ string diacriticals(string input)
 	//to indicate the long forms of vowels with umlauts.) I've no idea what would make sense.
 	//Possibly it'd be worth taking \" for that, but then what would be better for U+0308?
 	mapping map=(["\\!":"\u00A1","\\?":"\u00BF","o\\e":"ø","a\\e":"æ","s\\s":"ß",
-		"\\`":"\u0300","\\'":"\u0301","\\^":"\u0302","\\~":"\u0303","\\-":"\u0304","\\@":"\u0306","\\\"":"\u0308",
+		"\\`":"\u0300","\\'":"\u0301","\\^":"\u0302","\\~":"\u0303","\\-":"\u0304","\\@":"\u0306","\\.":"\u0307","\\\"":"\u0308",
 		"\\o":"\u030A","\\:":"\u030B","\\v":"\u030C","\\,":"\u0327","\\k":"\u0328","d\\-":"đ","d\u0304":"đ","D\\-":"Đ","D\u0304":"Đ",
 		"I\\.":"İ","i\\.":"ı", //Note that these are, in a way, reversed; I\. adds a dot, but i\. removes one.
 	]);
