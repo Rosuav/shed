@@ -237,6 +237,50 @@ string Greek_to_Latin(string input)
 		(["χ":"ch","Χ":"Ch","θ":"th","Θ":"Th","ψ":"ps","Ψ":"Ps","ή":"ī\u0301"])),"NFC");
 }
 
+//Implements the Hebrew Academy 2006 transliteration: https://en.wikipedia.org/wiki/Romanization_of_Hebrew
+//with the modifications (from the 1953 standard) that waw/vav (ו) is transliterated w, to avoid collision
+//with bet/vet (ב) on v, and likewise kuf (ק) is transliterated q, to avoid collision with kaph (כּ) on k.
+//Also, but this time borrowing from the Common Israeli transliteration, chet (ח) can be keyboarded as
+//"ch", but in its return form, it will be represented properly as "ẖ". Also, for input stability, kaf is
+//transliterated only as kk; a lone k is not transformed - add an h for chaf, or a second k for kaf.
+//I'm not sure how "shin plus dagesh" (שּׁ) ought to be transliterated. Currently, it would be "sh.".
+//Also, the standard transliterations for sin (שׂ) all say "s", which has already been assigned to represent
+//samech (ס); my best help here is ISO 259, which represents it as ś (s with acute), so I'm keying it as
+//"s'" and translating that into "ś". Its dagesh form is keyed as either "s'." or "s's'", and shows "śś".
+//And tav (ת) snags "t", so tet (ט) gets "t'" and a reverse transformation of "ṭ" from ISO 259.
+//As the shin dot (שׁ) is optional, I am accepting it and discarding it - shin without dot (ש) is "sh".
+//Note that the Hebrew, being written right-to-left, doesn't align with the Latin, written left-to-right.
+//It's still helpful to have these two constants, as they're used by both translation functions.
+//Hack: I'm using back-tick for ayin rather than apostrophe, to ensure reversibility.
+constant h2l_hebrew="אבּגדהוזחתילמנסעפקרט";
+constant h2l_latin ="'v.gdhwzẖtylmns`fqrṭ";
+//For code simplicity's sake, convert double letters to dot notation (the dot becomes U+056C DAGESH in the above string).
+//Should I just regex convert ([a-z])\1 into \1\. ?
+constant h2l_twoletter=(["b":"v.","gg":"g.","dd":"d.","ww":"w.","zz":"z.","tt":"t.","yy":"y.","kh":"כ","kk":"כּ",
+	"ll":"l.","mm":"m.","nn":"n.","ss":"s.","p":"f.","ts":"צ","qq":"q.","rr":"r.","sh":"ש","ś":"שׂ"]);
+string Latin_to_Hebrew(string input)
+{
+	//Note that the ch transformation here is NOT included in h2l_twoletter - it shouldn't be reverse-transformed.
+	input = replace(replace(replace(replace(lower_case(input),(["ch":"ẖ","s'":"ś"])),(["śś":"ś.","ṭṭ":"ṭ."])),h2l_twoletter),h2l_latin/1,h2l_hebrew/1);
+	foreach (input;int pos;int ch) if (has_value("כמנפצ",ch))
+	{
+		//Convert to the final form of the letter, if it's not followed by another letter.
+		int ch;
+		if (pos<sizeof(input)-2 && input[pos+1]=='\u05BC') ch=input[pos+2]; //If there's a dagesh, look for the next letter
+		else if (pos<sizeof(input)-1) ch=input[pos+1];
+		//else leave it on 0, which works - end-of-string is not a Hebrew letter
+		if (ch<'\u05D0' || ch>'\u05EA')
+			input[pos]--; //All the final forms immediately precede their corresponding medial forms.
+	}
+	return input;
+}
+
+string Hebrew_to_Latin(string input)
+{
+	return replace(replace(replace(replace(input,(["ך":"כ","ם":"מ","ן":"נ","ף":"פ","ץ":"צ"])), //Convert final form to the corresponding medial
+		h2l_hebrew/1,h2l_latin/1),values(h2l_twoletter),indices(h2l_twoletter)),(["ś.":"śś","ṭ.":"ṭṭ","שׁ":"sh","kh.":"kk"]));
+}
+
 void update(object self,array args)
 {
 	[object other,function translit]=args;
@@ -245,6 +289,7 @@ void update(object self,array args)
 	else {if (txt!=self->get_text()) self->set_text(txt);} //Self-translation only
 }
 
+constant Latin_to_Latin = 1;
 int main(int argc,array(string) argv)
 {
 	GTK2.setup_gtk();
@@ -252,7 +297,7 @@ int main(int argc,array(string) argv)
 	GTK2.Entry original,trans;
 	GTK2.Button next,pause;
 	string lang="Russian";
-	if (argc>1 && (<"Latin","Russian","Serbian","Ukrainian","Korean","ElderFuthark","Greek">)[argv[1]]) argv-=({lang=argv[1]});
+	if (argc>1 && this["Latin_to_"+argv[1]]) argv-=({lang=argv[1]});
 	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
 	GTK2.Window(0)->set_title(lang+" transliteration")->add(two_column(({
 		srtmode && "Original",srtmode && (original=GTK2.Entry()),
