@@ -6,16 +6,14 @@ TODO: More wiki-to-text translations, as appropriate
 TODO: Should this actually parse wiki markup, instead of depending on heaps of formatting details?
 */
 
-int main()
+Stdio.File out=Stdio.File("_mythbusters.txt","wct");
+
+void fetch(int year,string url)
 {
-	Stdio.File out=Stdio.File("_mythbusters.txt","wct");
-	for (int year=2003;;++year)
-	{
-		write("Fetching %d... ",year);
-		string data=Protocols.HTTP.get_url_data("http://en.wikipedia.org/w/index.php?title=MythBusters_("+year+"_season)&action=raw");
-		if (!data) break;
+		string data=Protocols.HTTP.get_url_data(url);
+		if (!data) return;
 		sscanf(data,"%*s<onlyinclude>%s</onlyinclude>",string body);
-		if (!body) break; //All we care about is the stuff transcluded into the main page - not the episode details. If there is no such section, it's probably a redirect or something.
+		if (!body) return; //All we care about is the stuff transcluded into the main page - not the episode details. If there is no such section, it's probably a redirect or something.
 		int count=0;
 		while (sscanf(body,"%*s{{Episode list\n|%s\n}}%s",string ep,body))
 		{
@@ -34,6 +32,15 @@ int main()
 			++count;
 		}
 		write("%d episodes.\n",count);
+}
+
+int main()
+{
+	fetch(2003,"http://en.wikipedia.org/w/index.php?title=List_of_MythBusters_pilot_episodes&action=raw"); //Hack: Grab the pilot episodes and count them as 2003, same as the first actual year (they count as specials)
+	for (int year=2003;;++year)
+	{
+		write("Fetching %d... ",year);
+		fetch(year,"http://en.wikipedia.org/w/index.php?title=MythBusters_("+year+"_season)&action=raw");
 	}
 	write("No such page found - all done.\n");
 	out->close();
