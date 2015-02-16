@@ -7,13 +7,16 @@ if len(sys.argv) < 2:
 
 infn = sys.argv[1]
 outfn = infn[:-3] + "txt"
-marker = b"Waverley Historical Society Inc\r"
+markers = [b"Waverley Historical Society Inc\r", b"Minutes of Committee Meeting"]
 
 with open(infn, "rb") as f: data = f.read()
-parts = data.split(marker, 1)
+parts = []
+for marker in markers:
+	parts = data.split(marker, 1)
+	if len(parts) == 2: break # leaving 'marker' set appropriately
 if len(parts) < 2:
-	print("File lacks the marker, which currently is:")
-	print(repr(marker))
+	print("File lacks any known marker, which currently are:")
+	print(repr(markers))
 	print("Manual work will be needed, sorry!")
 	sys.exit(0)
 
