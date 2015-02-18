@@ -14,6 +14,7 @@ import time
 import socket
 import win32file
 import win32con
+import ntsecuritycon
 
 path_to_watch = "."
 HOST = "10.0.2.2" # The default IP for the host computer in a VirtualBox NAT network
@@ -54,23 +55,40 @@ while "moar files":
 
 		# I hate sleeping :( But the notification comes through as soon
 		# as the file is created, and it might not yet be readable.
-		# Possibly attempting to open the file with exclusive locking
-		# would notify us of the failure, but I don't know how to do
-		# that from Python.
-		time.sleep(1)
+		# So we start with a short delay, then probe the file, and back
+		# off until we succeed. Hopefully, this will be sufficient.
+		# If the file isn't readable after the delay sequence is done,
+		# it'll simply be left in the directory and never removed. You
+		# can manually force it to be rechecked by moving it out and in
+		# again, and as long as it's being moved within a drive, that
+		# should be sufficiently quick as to be safe.
+		for delay in (.1, 1, 5):
+			time.sleep(delay)
+			try:
+				handle = win32file.CreateFile(
+					fn,
+					ntsecuritycon.FILE_GENERIC_READ,
+					0, None, win32con.OPEN_EXISTING, 0, None
+				)
+			except win32file.error as exc:
+				if exc.winerror == 32: continue # Keep waiting
+				else: raise
 
-		with open(fn, "rb") as f:
+			# If we get here, we should have a file open for reading.
+			# So now, and only now, we establish a link to the server.
 			sock = socket.create_connection((HOST, PORT))
 
 			basename = os.path.split(fn)[-1]
 			sock.send(basename.encode("UTF-8") + b"\n")
 
 			while "moar bytes":
-				chunk = f.read(8192)
-				if not chunk: break
+				err, chunk = win32file.ReadFile(handle, 8192)
+				if err or not chunk: break
 				sock.send(chunk)
 
 			sock.close()
+			win32file.CloseHandle(handle)
+			break # No more sleeping needed!
 
 		# Delete the file when sent. Remove this line if not wanted.
 		os.remove(fn)
