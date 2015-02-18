@@ -63,12 +63,7 @@ while "moar files":
 			sock = socket.create_connection((HOST, PORT))
 
 			basename = os.path.split(fn)[-1]
-			if not isinstance(basename, bytes):
-				# Python 3: the file name is a Unicode string.
-				basename = basename.encode("UTF-8")
-			# Else probably Python 2. Assume (hope) that the file name is
-			# already suitably encoded.
-			sock.send(basename + b"\n")
+			sock.send(basename.encode("UTF-8") + b"\n")
 
 			while "moar bytes":
 				chunk = f.read(8192)
