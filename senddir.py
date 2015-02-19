@@ -78,6 +78,7 @@ while "moar files":
 			# So now, and only now, we establish a link to the server.
 			if file=="T-888": # Terminator!
 				# Don't send this to the server - terminate everything here instead.
+				win32file.CloseHandle(handle)
 				break
 			sock = socket.create_connection((HOST, PORT))
 
