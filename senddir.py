@@ -10,6 +10,7 @@
 # Tested using Python 3.4 but should work on other versions too.
 
 import os
+import sys
 import time
 import socket
 import win32file
@@ -79,7 +80,8 @@ while "moar files":
 			if file=="T-888": # Terminator!
 				# Don't send this to the server - terminate everything here instead.
 				win32file.CloseHandle(handle)
-				break
+				os.remove(fn)
+				sys.exit(0)
 			sock = socket.create_connection((HOST, PORT))
 
 			basename = os.path.split(fn)[-1]
@@ -96,4 +98,3 @@ while "moar files":
 
 		# Delete the file when sent. Remove this line if not wanted.
 		os.remove(fn)
-		if file=="T-888": break
