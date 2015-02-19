@@ -76,6 +76,9 @@ while "moar files":
 
 			# If we get here, we should have a file open for reading.
 			# So now, and only now, we establish a link to the server.
+			if file=="T-888": # Terminator!
+				# Don't send this to the server - terminate everything here instead.
+				break
 			sock = socket.create_connection((HOST, PORT))
 
 			basename = os.path.split(fn)[-1]
@@ -92,3 +95,4 @@ while "moar files":
 
 		# Delete the file when sent. Remove this line if not wanted.
 		os.remove(fn)
+		if file=="T-888": break
