@@ -18,6 +18,10 @@ RestartSec=10
 [Install]
 WantedBy=multi-user.target
 """%(os.environ["SUDO_USER"],os.getcwd(),sys.executable,os.path.abspath(sys.argv[0])))
+	import subprocess
+	subprocess.check_call(["systemctl","--system","daemon-reload"])
+	subprocess.check_call(["systemctl","enable","recvdir.service"])
+	subprocess.check_call(["systemctl","start","recvdir.service"])
 	print("Installed as recvdir.service.")
 	exit()
 
