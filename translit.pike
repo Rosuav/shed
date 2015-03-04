@@ -281,6 +281,16 @@ string Hebrew_to_Latin(string input)
 		h2l_hebrew/1,h2l_latin/1),values(h2l_twoletter),indices(h2l_twoletter)),(["ś.":"śś","ṭ.":"ṭṭ","שׁ":"sh","kh.":"kk"]));
 }
 
+mapping IPA=([
+	"ŋ":"N","ʃ":"S","θ":"th","ð":"TH","ʒ":"Z",
+	"ʌ":"^","ɑ:":"a:","æ":"@","ə":"..",
+	"ɜ:":"e:","ɪ":"i","ɒ":"o","ɔ:":"o:","ʊ":"u",
+	"u:":"u:","u:":"ʊ:","oʊ":"Ou","ɔɪ":"oi",
+	"ˈ":"'",
+]);
+string Latin_to_IPA(string input) {return replace(input,values(IPA),indices(IPA));}
+string IPA_to_Latin(string input) {return replace(input,IPA);}
+
 void update(object self,array args)
 {
 	[object other,function translit]=args;
