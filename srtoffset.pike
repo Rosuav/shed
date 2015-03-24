@@ -17,7 +17,10 @@ int main(int argc,array(string) argv)
 	[string infn,string delay,string outfn]=argv[1..3];
 	int offset=srt2ms(replace(delay,".",",")); //Allow a dot instead of a comma
 	array(array(string)) input=(String.trim_all_whites(utf8_to_string(Stdio.read_file(infn)))/"\n\n")[*]/"\n";
-	foreach (input,array(string) lines)
+	foreach (input;int i;array(string) lines)
+	{
+		if (lines[0]==(string)(int)lines[0]) input[i]=lines=lines[1..]; //Trim off any index markers
 		lines[0]=srttime((srt2ms((lines[0]/" --> ")[*])[*]+offset)[*])*" --> ";
+	}
 	Stdio.write_file(outfn,string_to_utf8(input[*]*"\n"*"\n\n"+"\n"));
 }
