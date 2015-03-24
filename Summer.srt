@@ -74,10 +74,13 @@ The hot and the cold are both so intense
 Put them together It just makes sense
 
 00:01:07,920 --> 00:01:10,159
-Winter's a good time To stay in and cuddle
+Winter's a good time to stay in and cuddle
 
-00:01:10,160 --> 00:01:12,203
+00:01:10,160 --> 00:01:11,703
 But put me in summer and I'll be a...
+
+00:01:12,000 --> 00:01:13,000
+<i>(puddle?)</i>
 
 00:01:13,320 --> 00:01:15,079
 Happy snowman!
