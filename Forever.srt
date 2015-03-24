@@ -34,11 +34,8 @@ But wow! Am I so ready for this change!
 00:00:35,330 --> 00:00:39,899
 'Cause for the first time in forever
 
-00:00:40,090 --> 00:00:41,689
-There'll be music
-
-00:00:41,690 --> 00:00:44,609
-There'll be light
+00:00:40,090 --> 00:00:44,609
+There'll be music, there'll be light
 
 00:00:44,610 --> 00:00:49,052
 For the first time in forever
@@ -121,11 +118,8 @@ Don't let them in
 00:02:23,450 --> 00:02:25,652
 Don't let them see
 
-00:02:25,930 --> 00:02:27,409
-Be the good girl
-
-00:02:27,410 --> 00:02:29,180
-You always have to be
+00:02:25,930 --> 00:02:29,180
+Be the good girl you always have to be
 
 00:02:31,010 --> 00:02:34,501
 Conceal, don't feel
@@ -133,11 +127,8 @@ Conceal, don't feel
 00:02:34,650 --> 00:02:36,693
 Put on a show
 
-00:02:37,090 --> 00:02:38,369
-Make one wrong move
-
-00:02:38,370 --> 00:02:41,141
-And everyone will know
+00:02:37,090 --> 00:02:41,141
+Make one wrong move and everyone will know
 
 00:02:42,330 --> 00:02:44,969
 But it's only for today
