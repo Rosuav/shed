@@ -44,6 +44,10 @@ int main(int argc,array(string) argv)
 			string msg=Stdio.File(argv[1])->read();
 			if (argc<4 && has_prefix(String.trim_all_whites(msg),"#"))
 			{
+				//NOTE: The diff shows paths relative to the repository root, but 'git log' below works with
+				//paths relative to the current directory. When this is run as a git hook, the cwd always
+				//appears to be the repo root, but I don't know that this is guaranteed. I can't find it in
+				//the docs anywhere, for instance; but it does seem likely and logical.
 				array(string) stat=Process.run("git diff --cached --stat")->stdout/"\n";
 				if (sizeof(stat)>1 && has_prefix(stat[1]-"s"," 1 file changed") && sscanf(stat[0]," %s |",string fn) && fn && fn!="") //One-file commits have a summary on line 2.
 				{
