@@ -51,6 +51,26 @@ int main(int argc,array(string) argv)
 				array(string) stat=Process.run("git diff --cached --stat")->stdout/"\n";
 				if (sizeof(stat)>1 && has_prefix(stat[1]-"s"," 1 file changed") && sscanf(stat[0]," %s |",string fn) && fn && fn!="") //One-file commits have a summary on line 2.
 				{
+					//Two hacks for CJAPrivate repo
+					if (int use_hacks=(int)Process.run(({"git","config","--get","rosuav.log-search.use-hacks"}))->stdout)
+					{
+						//Hack 1: "Other" invoices are most likely to be this particular job
+						if (has_prefix(fn,"Other/Inv")) {Stdio.write_file(argv[1],"Work for MikeILL\n"+msg); return 0;}
+						if (has_prefix(fn,"Thinkful/Inv"))
+						{
+							string comment;
+							foreach (Process.run(({"git","diff","-U0","--cached"}))->stdout/"\n",string line)
+							{
+								if (sscanf(line,"+%*d\t%s%*[\t]%f\t%f",string c,float hours,float dollars)==5)
+								{
+									if (hours*use_hacks!=dollars) exit(1,"Hours doesn't match dollars - maybe tweak the hook for flexibility?");
+									comment=c;
+								}
+							}
+							if (comment) {Stdio.write_file(argv[1],comment+"\n"+msg); return 0;}
+						}
+						return 1;
+					}
 					//To speed up the search:
 					//$ git config rosuav.log-search.limit N
 					//where N is some number of commits. This will cause failure if this branch of
