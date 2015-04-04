@@ -56,6 +56,7 @@ int main(int argc,array(string) argv)
 					{
 						//Hack 1: "Other" invoices are most likely to be this particular job
 						if (has_prefix(fn,"Other/Inv")) {Stdio.write_file(argv[1],"Work for MikeILL\n"+msg); return 0;}
+						//Hack 2: Thinkful invoices usually get simple additions of single lines.
 						if (has_prefix(fn,"Thinkful/Inv"))
 						{
 							string comment;
