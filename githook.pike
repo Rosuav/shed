@@ -70,7 +70,6 @@ int main(int argc,array(string) argv)
 							}
 							if (comment) {Stdio.write_file(argv[1],comment+"\n"+msg); return 0;}
 						}
-						return 1;
 					}
 					//To speed up the search:
 					//$ git config rosuav.log-search.limit N
