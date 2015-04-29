@@ -70,3 +70,4 @@ avconv -i /video/Clips/Frozen\ -\ Let\ It\ Go.mkv -i ../Downloads/Let\ It\ Go\ \
 avconv -i ../Videos/Hye\ Na\ Park\ -\ Da\ Ea-Joe\ \(from\ \'Frozen\'\)\ \(In-Studio\ Version\)-mPWdz7-2Vb4.mp4 -itsoffset 0.25 -i Audio/CD[12]/*Korean* -i Korean\ -\ 다\ 잊어.srt -map 0:v -map 1:a:0 -map 2:s -c copy Korean\ -\ 다\ 잊어.mkv
 avconv -i /video/BluRayDisney/Tangled.2010.PROPER.1080p.BluRay.x264-CiNEFiLE.mkv -ss 2347 -t 203 -map 0:v -map 0:a "Tangled HD - I've Got A Dream.mkv"
 avconv -i /video/The.Dam.Busters.1955.BluRay.FS.720p.H264.mp4 -ss 0:50:26 -t 0:01:50 DambustingSpots.mkv
+avconv -i /video/Disney/Disney\ Classic\ -\ 33\ -\ Pocahontas.avi -ss 0:12:24 -t 0:2:11 -c copy "Just around the river-bend.mp3"
