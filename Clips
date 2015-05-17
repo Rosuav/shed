@@ -16,7 +16,7 @@ avconv -i /video/Disney/Frozen\ 2013\ 720p\ HDRIP\ x264\ AC3\ TiTAN.mkv -ss 0:47
 avconv -i /video/Disney/Frozen\ 2013\ 720p\ HDRIP\ x264\ AC3\ TiTAN.mkv -ss 0:13:21 -t 0:03:41.750 ForTheFirstTimeInForever.mkv
 avconv -i /video/Disney/TANGLED\ \[2010\]\ \(Eng\,Fin\ Audio\)\ DVD\ Rip\ Xvid\ \[StB\].avi -ss 0:37:32 -t 0:03:14 -map 0:v -map 0:a:1 IveGotADream.mkv
 avconv -i /video/Disney/Disney\ Classic\ -\ 01\ -\ Snow\ White\ and\ the\ Seven\ Dwarfs.avi -ss 0:52:18 -t 0:04:25 "Snow White - Silly Song.mkv"
-avconv -i /video/Disney/Chitty\ Chitty\ Bang\ Bang.avi -ss 1:31:24.750 -t 0:02:43.500 "Chitty - Success.mkv"
+avconv -i /video/Disney/Chitty\ Chitty\ Bang\ Bang.avi -ss 1:31:24.750 -t 0:02:43.500 -vf crop=720:320:0:130 "Chitty - Success.mkv"
 avconv -i /video/Disney/Frozen\ 2013\ 720p\ HDRIP\ x264\ AC3\ TiTAN.mkv -ss 0:55:46 -t 0:02:03 "Frozen - First Time In Forever reprise.mkv"
 avconv -i /video/Disney/beauty\ and\ the\ beast-the\ enchanted\ christmas.mp4 -ss 681.345 -t 140.279 "BatB - Belle's Story.mkv"
 avconv -i /video/Anastasia\ 2-disc/ANASTASIA_SPECIAL_disc\ 1.avi -ss 1035.394 -t 156.239 OnceUponADecember.mkv 
