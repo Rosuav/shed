@@ -25,7 +25,6 @@ int main(int argc,array(string) argv)
 		sscanf(base,"looney.tunes.%s.19",base);
 		sscanf(base,"%*02d - %s",base);
 		base=replace(base,({".",":","'"}),({" ","",""}));
-		write("%O\n",base);
 		string target;
 		foreach (files,string f) if (lower_case(array_sscanf(f,"%*d - %s.mkv")[0])-":"-"'"==base)
 		{
@@ -34,6 +33,7 @@ int main(int argc,array(string) argv)
 		}
 		if (target)
 		{
+			if (file_stat("/video/LooneyTunes/"+target)) {werror("Target already exists: %O\n",target); continue;}
 			//write("Transform %O into %O\n",fn,target); continue;
 			if (has_suffix(fn,".mkv"))
 			{
