@@ -127,7 +127,6 @@ Keywords: $Beans
 /1936 - Porky's Pet.mkv
 /1936 - I Love to Singa.mkv
 Score: 2/10
-Keywords: $
 
 /1936 - Porky the Rainmaker.mkv
 /1936 - Sunday Go to Meetin' Time.mkv
@@ -141,7 +140,6 @@ Keywords: $
 /1936 - Little Beau Porky.mkv
 /1936 - The Coo-Coo Nut Grove.mkv
 Score: 3/10
-Keywords: $
 
 /1936 - The Village Smithy.mkv
 /1936 - Porky in the Northwoods.mkv
@@ -164,7 +162,6 @@ Keywords: $Porky
 
 /1937 - She Was an Acrobat's Daughter.mkv
 Score: 3/10
-Keywords: $
 
 /1937 - Porky's Duck Hunt.mkv
 /1937 - Ain't We Got Fun.mkv
@@ -183,7 +180,6 @@ Keywords: $
 /1937 - Get Rich Quick Porky.mkv
 /1937 - Speaking of the Weather.mkv
 Score: 3/10
-Keywords: $
 
 /1937 - Porky's Garden.mkv
 /1937 - Dog Daze.mkv
@@ -195,7 +191,6 @@ Keywords: $
 /1937 - Porky's Double Trouble.mkv
 /1937 - The Woods Are Full of Cuckoos.mkv
 Score: 3/10
-Keywords: $
 
 /1937 - Porky's Hero Agency.mkv
 /1937 - September in the Rain.mkv
@@ -220,7 +215,6 @@ Keywords: $Daffy
 /1938 - Porky the Fireman.mkv
 /1938 - Katnip Kollege.mkv
 Score: 2/10
-Keywords: $
 
 /1938 - Porky's Party.mkv
 Score: 3/10
@@ -228,7 +222,6 @@ Keywords: $Porky
 
 /1938 - Have You Got Any Castles?.mkv
 Score: 1/10
-Keywords: $
 
 /1938 - Love and Curses.mkv
 /1938 - Porky's Spring Planting.mkv
@@ -315,7 +308,6 @@ Keywords: $Porky
 /1939 - Sniffles and the Bookworm.mkv
 /1939 - The Film Fan.mkv
 Score: 3/10
-Keywords: $
 
 /1939 - Screwball Football.mkv
 /1939 - The Curious Puppy.mkv
@@ -380,7 +372,6 @@ Keywords: $Bugs $Cecil
 /1941 - Porky's Bear Facts.mkv
 /1941 - Goofy Groceries.mkv
 Score: 3/10
-Keywords: $
 
 /1941 - Toy Trouble.mkv
 /1941 - Porky's Preview.mkv
@@ -389,7 +380,6 @@ Keywords: $
 /1941 - Farm Frolics.mkv
 /1941 - Hollywood Steps Out.mkv
 Score: 1/10
-Keywords: $
 
 /1941 - A Coy Decoy.mkv
 /1941 - Hiawatha's Rabbit Hunt.mkv
@@ -456,11 +446,9 @@ Keywords: $Bugs $Elmer
 /1942 - Fox Pop.mkv
 /1942 - The Dover Boys.mkv
 Score: 1/10
-Keywords: $
 
 /1942 - The Hep Cat.mkv
 Score: 2/10
-Keywords: $
 
 /1942 - The Sheepish Wolf.mkv
 /1942 - The Daffy Duckeroo.mkv
@@ -527,7 +515,6 @@ Keywords: $Bugs
 /1943 - Daffy the Commando.mkv
 /1943 - An Itch in Time.mkv
 Score: 4/10
-Keywords: $
 
 /1943 - Puss N' Booty.mkv
 /1944 - Little Red Riding Rabbit.mkv
@@ -544,7 +531,6 @@ Keywords: $Bugs
 /1944 - Bugs Bunny Nips the Nips.mkv
 /1944 - The Swooner Crooner.mkv
 Score: 3/10
-Keywords: $
 
 /1944 - Russian Rhapsody.mkv
 /1944 - Duck Soup to Nuts.mkv
@@ -598,7 +584,6 @@ Keywords: $Bugs $Sam
 /1945 - Ain't That Ducky.mkv
 /1945 - A Gruesome Twosome.mkv
 Score: 3/10
-Keywords: $
 
 /1945 - A Tale of Two Mice.mkv
 /1945 - Wagon Heels.mkv
@@ -616,7 +601,6 @@ Keywords: $Bugs
 /1945 - Nasty Quacks.mkv
 /1946 - Book Revue.mkv
 Score: 1/10
-Keywords: $
 
 /1946 - Baseball Bugs.mkv
 Score: 7/10
@@ -816,7 +800,6 @@ Keywords: $Bugs
 
 /1949 - Mouse Wreckers.mkv
 Score: 6/10
-Keywords: $
 
 /1949 - High Diving Hare.mkv
 Score: 8/10
@@ -894,7 +877,6 @@ Keywords: $Bugs
 /1950 - Strife With Father.mkv
 /1950 - The Hypo-Chondri-Cat.mkv
 Score: 5/10
-Keywords: $
 
 /1950 - Big House Bunny.mkv
 Score: 8/10
@@ -967,7 +949,6 @@ Keywords: $Bugs
 /1951 - A Hound For Trouble.mkv
 /1951 - Early to Bet.mkv
 Score: 4/10
-Keywords: $
 
 /1951 - Rabbit Fire.mkv
 Score: 9/10
@@ -990,7 +971,6 @@ Keywords: $Porky
 /1951 - His Hare-Raising Tale.mkv
 /1951 - Cheese Chasers.mkv
 Score: 4/10
-Keywords: $
 
 /1951 - Lovelorn Leghorn.mkv
 /1951 - Tweety's S.O.S..mkv
@@ -1003,7 +983,6 @@ Keywords: $Bugs $Sam
 
 /1951 - A Bear For Punishment.mkv
 Score: 2/10
-Keywords: $
 
 /1951 - Sleepy-Time Possum.mkv
 /1951 - Drip-Along Daffy.mkv
@@ -1023,7 +1002,6 @@ Keywords: $Tweety $Sylvester
 /1952 - Operation: Rabbit.mkv
 /1952 - Feed the Kitty.mkv
 Score: 5/10
-Keywords: $
 
 /1952 - Gift Wrapped.mkv
 Score: 7/10
@@ -1140,7 +1118,6 @@ Keywords: $Bugs $Daffy $Elmer $Trilogy
 /1954 - Wild Wife.mkv
 /1954 - No Barking.mkv
 Score: 5/10
-Keywords: $
 
 /1954 - Bugs and Thugs.mkv
 Score: 8/10
@@ -1219,7 +1196,6 @@ Keywords: $Bugs $Elmer
 
 /1955 - Lumber Jerks.mkv
 Score: 4/10
-Keywords: $
 
 /1955 - This is a Life?.mkv
 /1955 - Double or Mutton.mkv
@@ -1249,7 +1225,6 @@ Keywords: $Roadrunner $Coyote
 /1955 - Pappy's Puppy.mkv
 /1955 - One Froggy Evening.mkv
 Score: 2/10
-Keywords: $
 
 /1956 - Bugs Bonnets.mkv
 Score: 7/10
@@ -1304,7 +1279,6 @@ Keywords: $Roadrunner $Coyote
 /1956 - Two Crows From Tacos.mkv
 /1956 - The Honey-Mousers.mkv
 Score: 3/10
-Keywords: $
 
 /1956 - To Hare is Human.mkv
 Score: 8/10
@@ -1312,7 +1286,6 @@ Keywords: $Bugs $Coyote
 
 /1957 - The Three Little Bops.mkv
 Score: 2/10
-Keywords: $
 
 /1957 - Tweet Zoo.mkv
 /1957 - Scrambled Aches.mkv
@@ -1335,7 +1308,6 @@ Keywords: $Bugs $Taz
 /1957 - Piker's Peak.mkv
 /1957 - Steal Wool.mkv
 Score: 6/10
-Keywords: $
 
 /1957 - Boston Quackie.mkv
 /1957 - What's Opera, Doc?.mkv
@@ -1404,7 +1376,6 @@ Keywords: $Bugs
 /1959 - Trick or Tweet.mkv
 /1959 - The Mouse That Jack Built.mkv
 Score: 3/10
-Keywords: $
 
 /1959 - Apes of Wrath.mkv
 /1959 - Hot Rod and Reel.mkv
