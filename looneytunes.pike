@@ -38,7 +38,7 @@ int main(int argc,array(string) argv)
 			if (has_suffix(fn,".mkv"))
 			{
 				//Simple: directly copy or rename the file.
-				if (has_prefix(fn,"/video/")) Process.create_process(({"ssh","huix","sudo","mv",fn,"/video/LooneyTunes/"+sh_quote(target)}))->wait();
+				if (has_prefix(fn,"/video/")) Process.create_process(({"ssh","huix","sudo","mv",sh_quote(fn),"/video/LooneyTunes/"+sh_quote(target)}))->wait();
 				else Process.create_process(({"scp",fn,"netbios@huix:LooneyTunes/"+sh_quote(target)}))->wait();
 			}
 			else
