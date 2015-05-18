@@ -64,8 +64,8 @@ int main(int argc,array(string) argv)
 	mapping(string:string) decanonicalize=([]);
 	foreach (Stdio.read_file("LooneyTunes.txt")/"\n",string fn)
 	{
-		if (!has_prefix(fn,"/")) continue;
-		string canon=canonicalize(fn[1..]);
+		if (!sscanf(fn,"/%s",fn)) continue;
+		string canon=canonicalize(fn);
 		//if (decanonicalize[canon]) exit(1,"Canonicalization collision on %O: %O and %O\n",canon,decanonicalize[canon],fn); //Raise immediate error on collision, or...
 		if (decanonicalize[canon]) fn="! Collision !"; //... just record the problem (throw error only if we try to use this)
 		decanonicalize[canon]=fn;
