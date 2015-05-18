@@ -35,13 +35,16 @@ int main(int argc,array(string) argv)
 	}
 	//Lift the modified sh_quote() from a similar script
 	function sh_quote=((object)"rename.pike")->sh_quote;
+	int verbose=0,nerfed=0;
 	foreach (argv[1..],string fn)
 	{
+		if (fn=="-v") {verbose=1; continue;}
+		if (fn=="-n") {nerfed=1; continue;}
 		if (string target=decanonicalize[canonicalize(explode_path(fn)[-1])])
 		{
 			if (target=="! Collision !") exit(1,"Ambiguous canonicalization on %O\n",fn);
-			if (file_stat("/video/LooneyTunes/"+target)) {/*werror("Target already exists: %O\n",target);*/ continue;}
-			//write("Transform %O into %O\n",fn,target); continue;
+			if (file_stat("/video/LooneyTunes/"+target)) {if (verbose) write("Target already exists: %O\n",target); continue;}
+			if (nerfed) {write("Transform %O into %O\n",fn,target); continue;}
 			if (has_suffix(fn,".mkv"))
 			{
 				//Simple: directly copy or rename the file.
