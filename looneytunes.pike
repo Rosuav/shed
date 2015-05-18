@@ -7,6 +7,7 @@ string canonicalize(string fn)
 	sscanf(fn,"bugs bunny %s",fn);
 	sscanf(fn,"%*d%s",fn);
 	sscanf(String.trim_all_whites(fn),"the %s",fn);
+	sscanf(String.trim_all_whites(fn),"a %s",fn);
 	fn=replace(fn,":',?!-. "/1,"");
 	return fn;
 }
