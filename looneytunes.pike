@@ -19,11 +19,10 @@ int main(int argc,array(string) argv)
 	{
 		string base=lower_case(explode_path(fn)[-1]);
 		//Clean up the file name as much as possible
-		sscanf(base,"%s.avi",base);
-		sscanf(base,"%s.mkv",base);
-		sscanf(base,"%s.mp4",base);
+		if ((<"avi","mkv","mp4","mpg","mpeg">)[(base/".")[-1]]) base=(base/".")[..<1]*"."; //Trim known file extensions
 		sscanf(base,"looney.tunes.%s.19",base);
-		sscanf(base,"%*02d - %s",base);
+		sscanf(base,"bugs bunny %s",base);
+		sscanf(base,"%*d - %s",base);
 		constant strip=":',!. "/1;
 		base=replace(base,strip,"");
 		string target;
