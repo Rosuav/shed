@@ -1,7 +1,7 @@
 string canonicalize(string fn)
 {
 	fn=lower_case(fn);
-	if ((<"avi","mkv","mp4","mpg","mpeg">)[(fn/".")[-1]]) fn=(fn/".")[..<1]*"."; //Trim known file extensions
+	if ((<"avi","mkv","mp4","mpg","mpeg","flv">)[(fn/".")[-1]]) fn=(fn/".")[..<1]*"."; //Trim known file extensions
 	sscanf(fn,"looney.tunes.%s.19",fn);
 	fn=replace(fn," - "," ");
 	sscanf(fn,"bugs bunny %s",fn);
