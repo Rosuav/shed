@@ -24,9 +24,10 @@ int main(int argc,array(string) argv)
 		sscanf(base,"%s.mp4",base);
 		sscanf(base,"looney.tunes.%s.19",base);
 		sscanf(base,"%*02d - %s",base);
-		base=replace(base,({".",":","'"}),({" ","",""}));
+		constant strip=":',!. "/1;
+		base=replace(base,strip,"");
 		string target;
-		foreach (files,string f) if (lower_case(array_sscanf(f,"%*d - %s.mkv")[0])-":"-"'"==base)
+		foreach (files,string f) if (lower_case(replace(array_sscanf(f,"%*d - %s.mkv")[0],strip,""))==base)
 		{
 			if (target) {werror("Ambiguous: %O could be %O or %O\n",fn,target,f); target=0; break;}
 			target=f;
