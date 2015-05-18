@@ -1,3 +1,15 @@
+string canonicalize(string fn)
+{
+	fn=lower_case(fn);
+	if ((<"avi","mkv","mp4","mpg","mpeg">)[(fn/".")[-1]]) fn=(fn/".")[..<1]*"."; //Trim known file extensions
+	sscanf(fn,"looney.tunes.%s.19",fn);
+	fn=replace(fn," - "," ");
+	sscanf(fn,"bugs bunny %s",fn);
+	sscanf(fn,"%*d%s",fn);
+	fn=replace(fn,":',?!-. "/1,"");
+	return fn;
+}
+
 int main(int argc,array(string) argv)
 {
 	if (argc>1 && argv[1]=="index")
@@ -12,29 +24,20 @@ int main(int argc,array(string) argv)
 		write("Index rebuilt.\n");
 		return 0;
 	}
-	array(string) files=array_sscanf(Stdio.read_file("LooneyTunes.txt"),"%*s\n\n%{/%s\n%}")[0]*({ });
+	mapping(string:string) decanonicalize=([]);
+	foreach (array_sscanf(Stdio.read_file("LooneyTunes.txt"),"%*s\n\n%{/%s\n%}")[0],[string fn])
+	{
+		string canon=canonicalize(fn);
+		if (decanonicalize[canon]) exit(1,"Canonicalization collision on %O: %O and %O\n",canon,decanonicalize[canon],fn);
+		decanonicalize[canon]=fn;
+	}
 	//Lift the modified sh_quote() from a similar script
 	function sh_quote=((object)"rename.pike")->sh_quote;
 	foreach (argv[1..],string fn)
 	{
-		string base=lower_case(explode_path(fn)[-1]);
-		//Clean up the file name as much as possible
-		if ((<"avi","mkv","mp4","mpg","mpeg">)[(base/".")[-1]]) base=(base/".")[..<1]*"."; //Trim known file extensions
-		sscanf(base,"looney.tunes.%s.19",base);
-		base=replace(base," - "," ");
-		sscanf(base,"bugs bunny %s",base);
-		sscanf(base,"%*d%s",base);
-		constant strip=":',!. "/1;
-		base=replace(base,strip,"");
-		string target;
-		foreach (files,string f) if (lower_case(replace(array_sscanf(f,"%*d - %s.mkv")[0],strip,""))==base)
+		if (string target=decanonicalize[canonicalize(explode_path(fn)[-1])])
 		{
-			if (target) {werror("Ambiguous: %O could be %O or %O\n",fn,target,f); target=0; break;}
-			target=f;
-		}
-		if (target)
-		{
-			if (file_stat("/video/LooneyTunes/"+target)) {werror("Target already exists: %O\n",target); continue;}
+			if (file_stat("/video/LooneyTunes/"+target)) {/*werror("Target already exists: %O\n",target);*/ continue;}
 			//write("Transform %O into %O\n",fn,target); continue;
 			if (has_suffix(fn,".mkv"))
 			{
