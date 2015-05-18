@@ -56,7 +56,9 @@ int main(int argc,array(string) argv)
 			if (!has_prefix(fn,year)) exit(1,"Error: File name %O does not match year %O\n",fn,year);
 			if (canonicalize(title)!=canon) exit(1,"Error: File name %O does not match title %O\n",fn,title);
 			if (file_stat("/video/LooneyTunes/"+fn)) avail=({ }); //If we have the file, we don't care about its old availabilities on Windows.
-			outdata+=sprintf("Score: %d/10\nKeywords:%{ $%s%}\n%{File name [%d]: %s\n%}\n",quality,keywords/", ",avail);
+			outdata+=sprintf("Score: %d/10\n",quality);
+			if (keywords!="") outdata+=sprintf("Keywords:%{ $%s%}\n",keywords/", ");
+			outdata+=sprintf("%{File name [%d]: %s\n%}\n",avail);
 		}
 		Stdio.write_file("LooneyTunes.txt",outdata);
 		return 0;
