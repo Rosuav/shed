@@ -21,8 +21,9 @@ int main(int argc,array(string) argv)
 		//Clean up the file name as much as possible
 		if ((<"avi","mkv","mp4","mpg","mpeg">)[(base/".")[-1]]) base=(base/".")[..<1]*"."; //Trim known file extensions
 		sscanf(base,"looney.tunes.%s.19",base);
+		base=replace(base," - "," ");
 		sscanf(base,"bugs bunny %s",base);
-		sscanf(base,"%*d - %s",base);
+		sscanf(base,"%*d%s",base);
 		constant strip=":',!. "/1;
 		base=replace(base,strip,"");
 		string target;
