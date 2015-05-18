@@ -46,7 +46,7 @@ int main(int argc,array(string) argv)
 			{
 				//Currently wrong format. First avconv it, then copy it.
 				Process.create_process(({"avconv","-i",fn,target}))->wait();
-				Process.create_process(({"scp",target,"netbios@huix:LooneyTunes/"}))->wait();
+				Process.create_process(({"scp","./"+target,"netbios@huix:LooneyTunes/"}))->wait();
 				rm(target);
 			}
 		}
