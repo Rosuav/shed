@@ -29,7 +29,8 @@ int main(int argc,array(string) argv)
 	foreach (array_sscanf(Stdio.read_file("LooneyTunes.txt"),"%*s\n\n%{/%s\n%}")[0],[string fn])
 	{
 		string canon=canonicalize(fn);
-		if (decanonicalize[canon]) exit(1,"Canonicalization collision on %O: %O and %O\n",canon,decanonicalize[canon],fn);
+		//if (decanonicalize[canon]) exit(1,"Canonicalization collision on %O: %O and %O\n",canon,decanonicalize[canon],fn); //Raise immediate error on collision, or...
+		if (decanonicalize[canon]) fn="! Collision !"; //... just record the problem (throw error only if we try to use this)
 		decanonicalize[canon]=fn;
 	}
 	//Lift the modified sh_quote() from a similar script
@@ -38,6 +39,7 @@ int main(int argc,array(string) argv)
 	{
 		if (string target=decanonicalize[canonicalize(explode_path(fn)[-1])])
 		{
+			if (target=="! Collision !") exit(1,"Ambiguous canonicalization on %O\n",fn);
 			if (file_stat("/video/LooneyTunes/"+target)) {/*werror("Target already exists: %O\n",target);*/ continue;}
 			//write("Transform %O into %O\n",fn,target); continue;
 			if (has_suffix(fn,".mkv"))
