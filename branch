@@ -1,0 +1,2 @@
+git fetch upstream master:master
+git checkout -b "$1" master
