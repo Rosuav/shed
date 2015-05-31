@@ -72,3 +72,4 @@ avconv -i /video/BluRayDisney/Tangled.2010.PROPER.1080p.BluRay.x264-CiNEFiLE.mkv
 avconv -i /video/The.Dam.Busters.1955.BluRay.FS.720p.H264.mp4 -ss 0:50:26 -t 0:01:50 DambustingSpots.mkv
 avconv -i /video/Disney/Disney\ Classic\ -\ 33\ -\ Pocahontas.avi -ss 0:12:24 -t 0:2:11 -c copy "Just around the river-bend.mp3"
 (Not a clip) avconv -i /video/BluRayDisney/Tangled.2010.PROPER.1080p.BluRay.x264-CiNEFiLE.mkv -s 544x320 -map 0:v -map 0:a Tangled-en.mkv
+avconv -i Anastasia\ -\ Once\ Upon\ A\ December\ Flemish\ \(Lyrics\)-tknUjV7e_Ec.mp4 -c:s copy -vf crop=872:488:204:116 "Anastasia - Once Upon A December - Flemish.mkv"
