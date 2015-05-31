@@ -1,6 +1,5 @@
 mapping(string:object) w=([]);
-object orig=Image.PNG.decode(Stdio.read_file("postcard.png"));
-object scaled=orig->scale(0.5);
+object orig,scaled;
 
 int x,y;
 void sig_win_destroy()
@@ -19,8 +18,10 @@ void sig_evbox_motion_notify_event(object self,object ev)
 	w->img->set_from_image(GTK2.GdkImage(0,lines));
 }
 
-int main()
+int main(int argc,array(string) argv)
 {
+	orig=Image.PNG.decode(Stdio.read_file(argv[1]));
+	scaled=orig; //scaled=orig->scale(0.5);
 	GTK2.setup_gtk();
 	w->win=GTK2.Window(0)->set_title("Image crop")
 		->add(w->evbox=GTK2.EventBox()->add(w->img=GTK2.Image()))
