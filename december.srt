@@ -1,134 +1,136 @@
+1
 00:00:05,000 --> 00:00:10,000
 English
 Flemish from http://youtu.be/tknUjV7e_Ec
 [Google Translate back to English]
 
+2
 00:00:11,000 --> 00:00:12,100
 This place
 Deze zaal
 [This hall]
 
-2
+3
 00:00:13,500 --> 00:00:14,100
 It's...
 Als...
 [If so ...]
 
-3
+4
 00:00:14,900 --> 00:00:16,700
 It's like a memory from a dream.
 Als een herinnering uit een droom
 [As a reminder of a dream]
 
-4
+5
 00:00:21,500 --> 00:00:23,500
 Dancing bears
 Witte zwaan
 [White swan]
 
-5
+6
 00:00:23,900 --> 00:00:25,900
 Painted wings
 Goud omringd
 [Gold surrounded]
 
-6
+7
 00:00:26,600 --> 00:00:31,100
 Things I almost remember
 En nog steeds in mijn dromen
 [And still in my dreams]
 
-7
+8
 00:00:31,600 --> 00:00:36,300
 And a song someone sings
 Klinkt een lied iemand zingt
 [Sounds a song someone sings]
 
-8
+9
 00:00:36,600 --> 00:00:41,200
 Once upon a December
 Dat december zal komen
 [That December, will come]
 
-9
+10
 00:00:41,700 --> 00:00:46,300
 Someone holds me safe and warm
 Houd me vast, zo word ik warm
 [Hold me tight, so I'll be warm]
 
-10
+11
 00:00:46,800 --> 00:00:51,500
 Horses prance through a silver storm
 Bijna neem jij mij bij de arm
 [Nearly you take me by the arm]
 
-11
+12
 00:00:51,700 --> 00:00:56,400
 Figures dancing gracefully
 Wals ik als beginneling
 [I waltz as beginner]
 
-12
+13
 00:00:56,500 --> 00:01:00,900
 Across my memory
 Door mij herrinering
 [In my memory]
 
-13
+14
 00:01:30,500 --> 00:01:35,000
 Someone holds me safe and warm
 Houd me vast, zo word ik warm
 [Hold me tight, so I'll be warm]
 
-14
+15
 00:01:35,300 --> 00:01:39,800
 Horces prance through a silver storm
 Bijna neem jij mij bij de arm
 [Nearly you take me by the arm]
 
-15
+16
 00:01:40,000 --> 00:01:44,300
 Figures dancing gracefully
 Wals ik als beginneling
 [I waltz as beginner]
 
-16
+17
 00:01:44,500 --> 00:01:49,600
 Across my memory
 Door mij herrinering
 [In my memory]
 
-17
+18
 00:01:49,800 --> 00:01:54,100
 Far away, long ago
 Geen verdriet, alles blinkt
 [No sorrow, everything shines]
 
-18
+19
 00:01:54,500 --> 00:01:59,400
 Glowing dim as an ember
 En nogsteeds in mijn dromen
 [And still in my dreams]
 
-19
+20
 00:01:59,600 --> 00:02:04,000
 Things my heart used to know
 Klinkt een lied iemand zingt
 [Sounds a song someone sings]
 
-20
+21
 00:02:04,300 --> 00:02:11,000
 Things it yearns to remember
 'T blijven vage fantomen
 [They remain vague phantoms]
 
-21
+22
 00:02:11,200 --> 00:02:19,000
 And a song someone sings
 Ik zie niet wie er zingt
 [I do not see who sings]
 
-22
+23
 00:02:22,000 --> 00:02:34,000
 Once upon a December!
 Dat december zal komen
