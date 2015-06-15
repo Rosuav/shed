@@ -16,9 +16,11 @@ int main()
 	//Okay. Whatever. We should now have a private key, capable of creating signatures, and a
 	//public key, capable of verifying them. And the decoder object required nothing but the
 	//test_key.pub one-liner, albeit with some strange rewrapping done.
-	string msg="Hello, world!";
+	string msg="Hello, world! - "*16;
 	string sig=priv->pkcs_sign(msg,Crypto.SHA256);
 	if (!priv->pkcs_verify(msg,Crypto.SHA256,sig)) exit(1,"FAIL: Can't decode even with the original key!\n");
-	if (!pub->pkcs_verify(msg,Crypto.SHA256,sig)) exit(1,"FAIL: Unable to decode with public key\n");
-	write("Test successful.\n");
+	//This saturates one CPU core for a while - on my system, about two seconds (roughly 5K decodes per second).
+	constant tries=10000;
+	float tm=gauge {for (int i=0;i<tries;++i) if (!pub->pkcs_verify(msg,Crypto.SHA256,sig)) exit(1,"FAIL: Unable to decode with public key\n");};
+	write("Test successful: %f verifications/second.\n",tries/tm);
 }
