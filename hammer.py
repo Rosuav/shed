@@ -29,3 +29,5 @@ with conn, conn.cursor() as cur:
 		print("Statistics may be invalid.")
 
 print("Completed %d transactions in %f seconds: %f tps" % (ok, tm, ok/tm))
+with conn, conn.cursor() as cur:
+	cur.execute("drop table if exists hammer")
