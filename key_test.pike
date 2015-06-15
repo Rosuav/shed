@@ -16,6 +16,9 @@ int main()
 	//Okay. Whatever. We should now have a private key, capable of creating signatures, and a
 	//public key, capable of verifying them. And the decoder object required nothing but the
 	//test_key.pub one-liner, albeit with some strange rewrapping done.
+
+	//Note that a 256-byte message is the quickest we can do (one block), but longer messages
+	//aren't all that much slower. A 16-block message is maybe 10% slower than a 1-block.
 	string msg="Hello, world! - "*16;
 	string sig=priv->pkcs_sign(msg,Crypto.SHA256);
 	if (!priv->pkcs_verify(msg,Crypto.SHA256,sig)) exit(1,"FAIL: Can't decode even with the original key!\n");
