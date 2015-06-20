@@ -291,6 +291,21 @@ mapping IPA=([
 string Latin_to_IPA(string input) {return replace(input,values(IPA),indices(IPA));}
 string IPA_to_Latin(string input) {return replace(input,IPA);}
 
+//The six main Braille dots are numbered down the columns (7 and 8 are underneath).
+//Dot patterns translate easily into Unicode codepoints. U+2800 as the base value, plus
+//the values for the dots (1, 2, 4, 8, 16, 32), and you have your character.
+//Hack: I'm using upper-case letters to include the 'emphasis' mark. Not sure if that's
+//properly fair. Also, punctuation is not currently handled.
+array englishbraille=({
+	1,12,14,145,15,124,1245,125,24,245, //a-j
+	13,123,134,1345,135,1234,12345,1235,234,2345, //k-t
+	136,1236,2456,1346,13456,1356, //u-z (including w, which is allocated a separate slot normally)
+});
+array braillechars=lambda(int code) {int ret=0x2800; while (code) {ret+=1<<(code%10-1); code/=10;} return sprintf("%c",ret);}(englishbraille[*]);
+mapping Braille=mkmapping("abcdefghijklmnopqrstuvwxyz"/1,braillechars) + mkmapping("ABCDEFGHIJKLMNOPQRSTUVWXYZ"/1,"\u2828"+braillechars[*]);
+string Latin_to_Braille(string input) {return replace(input,Braille);}
+string Braille_to_Latin(string input) {return replace(input,values(Braille),indices(Braille));}
+
 void update(object self,array args)
 {
 	[object other,function translit]=args;
