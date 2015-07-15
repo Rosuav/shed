@@ -34,6 +34,14 @@ int main(int argc,array(string) argv)
 	int pos=0;
 	array(string) files=({ });
 	array(string) combineme=({ });
+
+	//Start by getting the video dimensions.
+	array(int) video_dimensions;
+	string info=Process.run(avconv)->stderr;
+	sscanf(info,"%*sVideo: %s\n",string vid);
+	foreach (vid/", ", string attr) if (sscanf(attr,"%dx%d",int x,int y) && attr==sprintf("%dx%d",x,y)) video_dimensions=({x,y});
+	if (!video_dimensions) exit(1,"Unable to calculate video dimensions!\n");
+
 	foreach (argv[2..<1];int idx;string image)
 	{
 		sscanf(image,"%d:%d=%s",int start,int len,string fn);
@@ -46,7 +54,14 @@ int main(int argc,array(string) argv)
 	Process.create_process(avconv)->wait();
 	foreach (files;int idx;string fn)
 	{
-		Process.create_process(({"avconv","-i",sprintf("part%dB.mkv",idx),"-i",fn,"-filter_complex","overlay","partD.mkv"}))->wait();
+		Image.Image img=Image.decode(Stdio.read_file(fn));
+		if (!img) write("Unable to parse image to decode: %O\n",fn);
+		float xscale=(float)(video_dimensions[0])/img->xsize();
+		float yscale=(float)(video_dimensions[1])/img->ysize();
+		img = img->scale(min(xscale,yscale)); //This will result in an image that's either exactly right, or too small.
+		img = img->copy(0, 0, video_dimensions[0]-1, video_dimensions[1]-1);
+		Stdio.write_file("partD.png", Image.PNG.encode(img));
+		Process.create_process(({"avconv","-i",sprintf("part%dB.mkv",idx),"-i","partD.png","-filter_complex","overlay","partD.mkv"}))->wait();
 		Process.create_process(({"avconv","-i","partD.mkv",sprintf("part%dB.ts",idx)}))->wait();
 		rm("partD.mkv");
 	}
