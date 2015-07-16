@@ -61,9 +61,7 @@ int main(int argc,array(string) argv)
 		img = img->scale(min(xscale,yscale)); //This will result in an image that's either exactly right, or too small.
 		img = img->copy(0, 0, video_dimensions[0]-1, video_dimensions[1]-1);
 		Stdio.write_file("partD.png", Image.PNG.encode(img));
-		Process.create_process(({"avconv","-i",sprintf("part%dB.mkv",idx),"-i","partD.png","-filter_complex","overlay","partD.mkv"}))->wait();
-		Process.create_process(({"avconv","-i","partD.mkv",sprintf("part%dB.ts",idx)}))->wait();
-		rm("partD.mkv");
+		Process.create_process(({"avconv","-i",sprintf("part%dB.mkv",idx),"-i","partD.png","-filter_complex","overlay","-c:v","libx264","partD.ts"}))->wait();
 	}
 	rm(output);
 	multirun(({"avconv","-i","-","-c","copy",output}),combineme,(["callback":cleanup]));
