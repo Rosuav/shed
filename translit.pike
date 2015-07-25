@@ -339,6 +339,8 @@ int main(int argc,array(string) argv)
 		other->signal_connect("changed",update,({roman,to_latin=this[lang+"_to_Latin"]}));
 	}
 	else roman->signal_connect("changed",update,({0,diacriticals}));
+	int start=0;
+	if (argc>2 && sscanf(argv[2],"%d:%d:%d,%d",int hr,int min,int sec,int ms)==4) start=hr*3600000+min*60000+sec*1000+ms;
 	if (next) next->signal_connect("clicked",lambda() {
 		array(string) data=utf8_to_string(Stdio.read_file(argv[1]))/"\n\n";
 		string orig=original->get_text();
@@ -347,6 +349,7 @@ int main(int argc,array(string) argv)
 		foreach (data;int i;string paragraph)
 		{
 			array lines=paragraph/"\n"-({""});
+			if (sscanf(lines[0],"%d:%d:%d,%d",int hr,int min,int sec,int ms)==4 && hr*3600000+min*60000+sec*1000+ms < start) continue;
 			if (sizeof(lines)==2 || sizeof(lines)==3)
 			{
 				//Two-line paragraphs need translations entered. If the first one we see
