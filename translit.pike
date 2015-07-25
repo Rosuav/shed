@@ -343,14 +343,17 @@ int main(int argc,array(string) argv)
 		array(string) data=utf8_to_string(Stdio.read_file(argv[1]))/"\n\n";
 		string orig=original->get_text();
 		original->set_text(""); //In case we find nothing
+		string kept_roman;
 		foreach (data;int i;string paragraph)
 		{
 			array lines=paragraph/"\n"-({""});
-			if (sizeof(lines)==2)
+			if (sizeof(lines)==2 || sizeof(lines)==3)
 			{
 				//Two-line paragraphs need translations entered. If the first one we see
 				//has the same text as the 'Original' field, and we have data entered,
 				//patch in the new content.
+				//Likewise, three-line paragraphs have one-way translations and need the
+				//reverse. Show the one we do have, and allow entry of the other.
 				string english=(paragraph/"\n")[1];
 				if (orig!="" && orig==english)
 				{
@@ -361,6 +364,7 @@ int main(int argc,array(string) argv)
 				//The first two-line paragraph, ignoring any we're patching in, ought
 				//to be the next one needing translation.
 				original->set_text(english);
+				if (sizeof(lines)==3) kept_roman=lines[2];
 				break;
 			}
 			else if (sizeof(lines)==5 && latin_to && to_latin)
@@ -375,7 +379,8 @@ int main(int argc,array(string) argv)
 			}
 		}
 		({other, roman, trans})->set_text("");
-		roman->grab_focus();
+		if (kept_roman) {roman->set_text(kept_roman); trans->grab_focus();}
+		else roman->grab_focus();
 	});
 	Stdio.File vlc;
 	if (pause) pause->signal_connect("clicked",lambda() {
