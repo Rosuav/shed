@@ -357,6 +357,7 @@ int main(int argc,array(string) argv)
 				string english=(paragraph/"\n")[1];
 				if (orig!="" && orig==english)
 				{
+					if (sizeof(lines)==3) paragraph=lines[..1]*"\n"; //Permit the one-way translation to be overwritten
 					data[i]=sprintf("%s%{\n%s%}",String.trim_all_whites(paragraph),({other->get_text(),roman->get_text(),trans->get_text()})-({""}));
 					Stdio.write_file(argv[1],string_to_utf8(String.trim_all_whites(data*"\n\n")+"\n"));
 					continue;
