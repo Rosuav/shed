@@ -361,7 +361,15 @@ int main(int argc,array(string) argv)
 				if (orig!="" && orig==english)
 				{
 					if (sizeof(lines)==3) paragraph=lines[..1]*"\n"; //Permit the one-way translation to be overwritten
-					data[i]=sprintf("%s%{\n%s%}",String.trim_all_whites(paragraph),({other->get_text(),roman->get_text(),trans->get_text()})-({""}));
+					//If the base value is italicized, italicize all of the others too (unless they already are)
+					string o=other->get_text(),r=roman->get_text(),t=trans->get_text();
+					if (has_prefix(english,"<i>"))
+					{
+						if (o!="" && !has_prefix(o,"<i>")) o="<i>"+o+"</i>";
+						if (r!="" && !has_prefix(r,"<i>")) r="<i>"+r+"</i>";
+						if (t!="" && !has_prefix(t,"<i>")) t="<i>"+t+"</i>";
+					}
+					data[i]=sprintf("%s%{\n%s%}",String.trim_all_whites(paragraph),({o,r,t})-({""}));
 					Stdio.write_file(argv[1],string_to_utf8(String.trim_all_whites(data*"\n\n")+"\n"));
 					continue;
 				}
