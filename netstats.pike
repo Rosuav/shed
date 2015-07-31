@@ -10,12 +10,12 @@ int main()
 		foreach (Process.run(({"iptables","-nvxL"}))->stdout/"\n",string line)
 		{
 			if (line=="") continue;
-			if (sscanf(line,"Chain %s (policy %*[A-Z] %*d packets, %d bytes)",string ch,int bytes))
+			if (sscanf(line,"Chain %s (policy %*[A-Z] %*d packets, %s bytes)",string ch,string bytes))
 			{
 				chain=ch;
 				info[chain]=bytes;
 				if (lastinfo[chain]) write("%12f/s %s\n",((int)bytes-(int)lastinfo[chain])/tm,chain);
-				else write("New: %12d %s\n",bytes,chain);
+				else write("New: %12s %s\n",bytes,chain);
 				continue;
 			}
 			if (has_prefix(String.trim_all_whites(line),"pkts")) continue; //Column headings - ignore
