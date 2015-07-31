@@ -12,10 +12,13 @@ int main()
 			if (line=="") continue;
 			if (sscanf(line,"Chain %s (policy %*[A-Z] %*d packets, %s bytes)",string ch,string bytes))
 			{
+				if (info[chain])
+				{
+					if (lastinfo[chain]) write("%12f/s %s\n",((int)info[chain]-(int)lastinfo[chain])/tm,chain);
+					else write("New: %12s %s\n",info[chain],chain);
+				}
 				chain=ch;
 				info[chain]=bytes;
-				if (lastinfo[chain]) write("%12f/s %s\n",((int)bytes-(int)lastinfo[chain])/tm,chain);
-				else write("New: %12s %s\n",bytes,chain);
 				continue;
 			}
 			if (has_prefix(String.trim_all_whites(line),"pkts")) continue; //Column headings - ignore
@@ -36,6 +39,11 @@ int main()
 			info[desc]=bytes; //Retain the string so we can easily distinguish absence from a value of "0"
 			if (lastinfo[desc]) write("%12f/s %s\n",((int)bytes-(int)lastinfo[desc])/tm,desc);
 			else write("New: %12s %s\n",bytes,desc);
+		}
+		if (info[chain])
+		{
+			if (lastinfo[chain]) write("%12f/s %s\n",((int)info[chain]-(int)lastinfo[chain])/tm,chain);
+			else write("New: %12s %s\n",info[chain],chain);
 		}
 		lastinfo=info;
 		write("\n");
