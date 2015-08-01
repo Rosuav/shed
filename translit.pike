@@ -320,7 +320,7 @@ int main(int argc,array(string) argv)
 	GTK2.setup_gtk();
 	GTK2.Entry roman,other=GTK2.Entry();
 	GTK2.Entry original,trans;
-	GTK2.Button next,pause;
+	GTK2.Button next,skip,pause;
 	string lang="Latin";
 	if (argc>1 && this["Latin_to_"+argv[1]]) argv-=({lang=argv[1]});
 	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
@@ -329,7 +329,7 @@ int main(int argc,array(string) argv)
 		lang!="Latin" && lang,lang!="Latin" && other,
 		"Roman",roman=GTK2.Entry()->set_width_chars(50),
 		srtmode && "Trans",srtmode && (trans=GTK2.Entry()),
-		srtmode && (GTK2.HbuttonBox()->add(pause=GTK2.Button("_Pause")->set_use_underline(1))->add(next=GTK2.Button("_Next")->set_use_underline(1))),0,
+		srtmode && (GTK2.HbuttonBox()->add(pause=GTK2.Button("_Pause")->set_use_underline(1))->add(skip=GTK2.Button("_Skip")->set_use_underline(1))->add(next=GTK2.Button("_Next")->set_use_underline(1))),0,
 	})))->show_all()->signal_connect("destroy",lambda() {exit(0);});
 	(({original, other, roman, trans})-({0}))->modify_font(GTK2.PangoFontDescription("Sans 18"));
 	function latin_to,to_latin;
@@ -341,6 +341,7 @@ int main(int argc,array(string) argv)
 	else roman->signal_connect("changed",update,({0,diacriticals}));
 	int start=0;
 	if (argc>2 && sscanf(argv[2],"%d:%d:%d,%d",int hr,int min,int sec,int ms)==4) start=hr*3600000+min*60000+sec*1000+ms;
+	int lastpos=0;
 	if (next) next->signal_connect("clicked",lambda() {
 		array(string) data=utf8_to_string(Stdio.read_file(argv[1]))/"\n\n";
 		string orig=original->get_text();
@@ -349,7 +350,7 @@ int main(int argc,array(string) argv)
 		foreach (data;int i;string paragraph)
 		{
 			array lines=paragraph/"\n"-({""});
-			if (sscanf(lines[0],"%d:%d:%d,%d",int hr,int min,int sec,int ms)==4 && hr*3600000+min*60000+sec*1000+ms < start) continue;
+			if (sscanf(lines[0],"%d:%d:%d,%d",int hr,int min,int sec,int ms)==4 && (lastpos=hr*3600000+min*60000+sec*1000+ms) < start) continue;
 			if (sizeof(lines)==2 || sizeof(lines)==3)
 			{
 				//Two-line paragraphs need translations entered. If the first one we see
@@ -394,6 +395,7 @@ int main(int argc,array(string) argv)
 		if (kept_roman) {roman->set_text(kept_roman); trans->grab_focus();}
 		else roman->grab_focus();
 	});
+	if (skip) skip->signal_connect("clicked",lambda() {start=lastpos+1; next->clicked();});
 	Stdio.File vlc;
 	if (pause) pause->signal_connect("clicked",lambda() {
 		if (!vlc) catch
