@@ -25,7 +25,8 @@ void check(string dir)
 	if (!sizeof(get_dir("../"+dir))) {write("Removing empty directory from parent: %O\n",dir); rm("../"+dir);}
 }
 
-int main()
+int main(int argc,array(string) argv)
 {
-	check(".");
+	if (argc<2 || argv[1]=="") check(".");
+	else check(argv[1]);
 }
