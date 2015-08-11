@@ -4,7 +4,9 @@ int main(int argc,array(string) argv)
 {
 	if (argc<2) exit(0,"USAGE: %s filename\n",argv[0]);
 	string data=Stdio.read_file(argv[1]);
-	sscanf(Process.run(({"chardet"}),(["stdin":data]))->stdout,"<stdin>: %s with confidence",string enc);
+	string enc;
+	if (argc>2) enc=argv[2];
+	else sscanf(Process.run(({"chardet"}),(["stdin":data]))->stdout,"<stdin>: %s with confidence",enc);
 	string txt=Charset.decoder(enc)->feed(data)->drain();
 	Stdio.File send=Stdio.File(),recv=send->pipe();
 	send->write("Detected encoding: %s\n\n",enc);
