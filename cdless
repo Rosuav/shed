@@ -1,4 +1,12 @@
 #!/usr/local/bin/pike
+/*
+Simple way to quickly eyeball a text file in an unknown encoding.
+
+Calls on chardet(1) to make an educated guess as to what encoding seems most
+likely, then decodes the file using that, and pipes it into less(1). If the
+selected encoding is incorrect, it can be quickly overridden with a second
+argument. The original file is not mutated in any way.
+*/
 
 int main(int argc,array(string) argv)
 {
