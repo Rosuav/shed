@@ -9,7 +9,7 @@ int main(int argc,array(string) argv)
 	else sscanf(Process.run(({"chardet"}),(["stdin":data]))->stdout,"<stdin>: %s with confidence",enc);
 	string txt=Charset.decoder(enc)->feed(data)->drain();
 	Stdio.File send=Stdio.File(),recv=send->pipe();
-	send->write("Detected encoding: %s\n\n",enc);
+	send->write("Selected encoding: %s\n\n",enc);
 	send->write(string_to_utf8(txt)); send->close();
 	Process.create_process(({"less"}),(["stdin":recv]))->wait();
 }
