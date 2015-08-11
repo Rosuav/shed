@@ -1,0 +1,13 @@
+#!/usr/local/bin/pike
+
+int main(int argc,array(string) argv)
+{
+	if (argc<2) exit(0,"USAGE: %s filename\n",argv[0]);
+	string data=Stdio.read_file(argv[1]);
+	sscanf(Process.run(({"chardet"}),(["stdin":data]))->stdout,"<stdin>: %s with confidence",string enc);
+	string txt=Charset.decoder(enc)->feed(data)->drain();
+	Stdio.File send=Stdio.File(),recv=send->pipe();
+	send->write("Detected encoding: %s\n\n",enc);
+	send->write(string_to_utf8(txt)); send->close();
+	Process.create_process(({"less"}),(["stdin":recv]))->wait();
+}
