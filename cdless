@@ -2,7 +2,7 @@
 
 int main(int argc,array(string) argv)
 {
-	if (argc<2) exit(0,"USAGE: %s filename\n",argv[0]);
+	if (argc<2) exit(0,"USAGE: %s filename [encoding]\n",argv[0]);
 	string data=Stdio.read_file(argv[1]);
 	string enc;
 	if (argc>2) enc=argv[2];
