@@ -13,8 +13,16 @@ int main(int argc,array(string) argv)
 	if (argc<2) exit(0,"USAGE: %s filename [encoding]\n",argv[0]);
 	string data=Stdio.read_file(argv[1]);
 	string enc;
-	if (argc>2) enc=argv[2];
-	else sscanf(Process.run(({"chardet"}),(["stdin":data]))->stdout,"<stdin>: %s with confidence",enc);
+	if (argc>2 && lower_case(argv[2])!="win") enc=argv[2];
+	else
+	{
+		sscanf(Process.run(({"chardet"}),(["stdin":data]))->stdout,"<stdin>: %s with confidence",enc);
+		//Hack: The pseudo-encoding "win" means "detect the encoding, but translate ISO-8859 into Windows code pages".
+		//Note that not all of these codepages are supersets of the corresponding ISO-8859 character sets, so this
+		//is not something you'd do by default. But if chardet's choice leaves some unexpected characters around, you
+		//can try switching out to a similar codepage - particularly if it's likely that the file came from Windows.
+		if (argc>2 && sscanf(enc,"ISO-8859-%d",int iso) && iso<10) enc = ({0,"1252","1250",0,0,0,0,"1253","1255","1254"})[iso] || enc;
+	}
 	string txt=Charset.decoder(enc)->feed(data)->drain();
 	Stdio.File send=Stdio.File(),recv=send->pipe();
 	send->write("Selected encoding: %s\n\n",enc);
