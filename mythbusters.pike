@@ -11,8 +11,13 @@ Stdio.File out=Stdio.File("_mythbusters.txt","wct");
 int fetch(int year,string url)
 {
 	write("Fetching %d... ",year);
+	#ifdef USE_INTERNAL_CONNECTION
 	string data=Protocols.HTTP.get_url_data(url);
 	if (!data) return 0;
+	#else
+	string data=Process.run(({"wget",url,"-qO-"}))->stdout;
+	if (data=="") return 0;
+	#endif
 	sscanf(data,"%*s<onlyinclude>%s</onlyinclude>",string body);
 	if (!body) return 0; //All we care about is the stuff transcluded into the main page - not the episode details. If there is no such section, it's probably a redirect or something.
 	int count=0;
