@@ -267,7 +267,7 @@ Can a football fly farther if it is filled with helium?
 Is it possible for a human to catch a bullet in his teeth?
 
 /2006-5 Franklin's Kite.mkv
-Did Benjamin Franklin fly a kite in a storm, and would he have been killed by the electrical current?
+Did Benjamin Franklin fly a kite in a storm, and would he have been killed by the electric current?
 Are various flatulence myths true?
 
 /2006-6 Cell Phones on Planes.mkv
@@ -1195,8 +1195,36 @@ Can a bicycle be modified to operate on both land and water?
 Can you turn a corner faster by drifting than with conventional driving methods?
 Can you drift into a parallel parking space without hitting the adjacent cars or the curb?
 
-/2015-7 Supernatural Shooters.mkv
+/2015-7 Blow It Out the Water.mkv
+Can a boat be blown out of the water without destroying it?
+Is it possible to mount a remote-controlled machine gun in a car trunk and use it to kill a roomful of people from outside a house, as seen in the finale of ''Breaking Bad''?
+'''Note''': ''Breaking Bad'' creator Vince Gilligan makes a guest appearance.
+
+/2015-8 Flights of Fantasy.mkv
+Is the Lockheed U-2 really harder to fly and land safely than any other plane currently in use?
+Can a drone's propellers injure a person?
+
+/2015-9 Accidental Ammo.mkv
+Can a stone shot from a lawn mower have the same force as a bullet shot from a .357 Magnum?
+Can a pane of glass falling cut a person fully in half?
+
+/2015-10 Dangerous Driving.mkv
+Is it safe to call someone using hands-free technology while operating a vehicle?
+How easy is it to drive a vehicle in reverse at high speed?
+
+/2015-11 Supernatural Shooters.mkv
 Can you shoot bullets from between your fingers by putting your hand in a fire as seen in ''Shoot 'Em Up''?
 Can a hitman track a target behind a wall and shoot it through the wall?
-'''Note''': the actor Jonathan Banks of Breaking Bad was a special guest in this episode.
+'''Note''': Actor Jonathan Banks of ''Breaking Bad'' was a special guest in this episode.
+
+/2015-12 Unfinished Business.mkv
+<!--'''Myths tested''':
+-->
+
+/2015-13 MythBusters vs. Jaws.mkv
+The myth "Exploding Scuba Tank" is revisited.
+
+/2015-14 ''Star Wars'': The Myths Strike Back.mkv
+Is it possible for people to dive out of the way of incoming Stormtrooper shots?
+'''Note''': This is a ''Star Wars'' themed episode.
 
