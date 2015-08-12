@@ -43,5 +43,5 @@ int main()
 	write("No such page found - all done.\n");
 	out->close();
 	Process.create_process(({"git","commit","_mythbusters.txt","-mUpdate Mythbusters from Wikipedia"}))->wait();
-	Process.create_process(({"scp","_mythbusters.txt","netbios@huix:Mythbusters/00index.txt"}))->wait();
+	Process.create_process(({"scp","_mythbusters.txt","huix:/video/Mythbusters/00index.txt"}))->wait();
 }
