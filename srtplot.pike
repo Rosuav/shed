@@ -27,7 +27,7 @@ int main(int argc,array(string) argv)
 		float expected=avg*(i+1);
 		float actual=(float)srt2ms(lines[0]);
 		data[i]=(expected-actual)/avg;
-		diff[i]=data[i]-data[i-1];
+		diff[i]=data[i]-data[i-1]; //Note that when i is 0, data[i-1] looks at the last element of a freshly allocate()d array, which will be 0.
 		srtpos[i]=(lines[0]/" --> ")[0]; if (sizeof(lines)>1) srtpos[i]+=" "+lines[1];
 		if (data[i]>peak) {peak=data[i]; peakpos=srtpos[i];}
 		if (data[i]<trough) {trough=data[i]; troughpos=srtpos[i];}
