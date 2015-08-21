@@ -26,6 +26,10 @@ int main(int argc,array(string) argv)
 	//Decoding "UTF-8 with BOM" is as simple as decoding UTF-8 and stripping the BOM.
 	//(Don't skip the decode and encode, incidentally. I want to get an error thrown if it's invalid UTF-8.)
 	if (enc=="UTF-8-SIG" && has_prefix(data,"\xef\xbb\xbf")) {enc="UTF-8"; data=data[3..];}
+	//chardet picks MacCyrillic for a number of Arabic documents.
+	//Since we don't have a decoder for MacCyrillic anyway, let's
+	//second-guess the detection and pick the Windows Arabic cp.
+	if (enc=="MacCyrillic") enc="1256";
 	string txt=Charset.decoder(enc)->feed(data)->drain();
 	Stdio.File send=Stdio.File(),recv=send->pipe();
 	send->write("Selected encoding: %s\n\n",enc);
