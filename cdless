@@ -33,6 +33,7 @@ int main(int argc,array(string) argv)
 	string txt=Charset.decoder(enc)->feed(data)->drain();
 	Stdio.File send=Stdio.File(),recv=send->pipe();
 	send->write("Selected encoding: %s\n\n",enc);
+	object proc=Process.create_process(({"less"}),(["stdin":recv]));
 	send->write(string_to_utf8(txt)); send->close();
-	Process.create_process(({"less"}),(["stdin":recv]))->wait();
+	proc->wait();
 }
