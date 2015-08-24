@@ -3,8 +3,14 @@
 //from all its inputs based on the lowest (string-based) start time.
 int main(int argc,array(string) argv)
 {
-	array(string) files=argv[1..<1];
-	string outfn=argv[-1];
+	array(string) files=({ });
+	mapping(string:string) opt=([]);
+	foreach (argv[1..],string arg)
+		if (sscanf(arg,"--%s=%s",string key,string val)) opt[key]=val;
+		else if (sscanf(arg,"--%s",string key)) opt[key]="1";
+		else files+=({arg});
+
+	string outfn=files[-1]; files=files[..<1];
 	if (sizeof(files)<2) exit(0,"USAGE: pike %s input1.srt input2.srt [input3.srt...] output.srt\nAttempts to 'zip' the inputs into the output.\n");
 	write("Combining to %s:\n%{\t%s\n%}",outfn,files);
 	array(array(string)) inputs=String.trim_all_whites(utf8_to_string(Stdio.read_file(files[*])[*])[*])[*]/"\n\n";
@@ -18,6 +24,7 @@ int main(int argc,array(string) argv)
 		foreach (inputs;int i;array(string) inp) if (sizeof(inp) && inp[0]<best) {first=i; best=inp[0];}
 		if (first==-1) break; //All arrays are empty - we're done!
 		inputs[first]=inputs[first][1..];
-		out->write("%d\n%s\n\n",++idx,string_to_utf8(best));
+		if (opt->index) out->write("%d\n",++idx);
+		out->write("%s\n\n",string_to_utf8(best));
 	}
 }
