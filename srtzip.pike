@@ -25,6 +25,7 @@ int main(int argc,array(string) argv)
 		if (first==-1) break; //All arrays are empty - we're done!
 		inputs[first]=inputs[first][1..];
 		if (opt->index) out->write("%d\n",++idx);
+		if (opt->filenames) best+="\n"+files[first];
 		out->write("%s\n\n",string_to_utf8(best));
 	}
 }
