@@ -26,6 +26,12 @@ int main(int argc,array(string) argv)
 		inputs[first]=inputs[first][1..];
 		if (opt->index) out->write("%d\n",++idx);
 		if (opt->filenames) best+="\n"+files[first];
+		if (opt->reposition && first<8)
+		{
+			//When possible, position the subtitle entries according to which file they came from.
+			sscanf(best,"%s\n%s",string hdr,string info);
+			best=sprintf("%s\n{\\an%c}%s",hdr,"284673195"[first],info);
+		}
 		out->write("%s\n\n",string_to_utf8(best));
 	}
 }
