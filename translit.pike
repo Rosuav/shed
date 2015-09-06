@@ -358,7 +358,7 @@ int main(int argc,array(string) argv)
 	{
 		GTK2.ListStore ls=GTK2.ListStore(({"string","string"}));
 		GTK2.EntryCompletion compl=GTK2.EntryCompletion()->set_model(ls)->set_text_column(0)->set_minimum_key_length(0);
-		object r=GTK2.CellRendererText();
+		object r=GTK2.CellRendererText((["scale":1.75]));
 		compl->pack_end(r,1)->add_attribute(r,"text",1);
 		roman->signal_connect("changed",comp,ls); comp(roman,ls);
 		roman->set_completion(compl);
