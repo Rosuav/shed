@@ -164,6 +164,20 @@ string Korean_to_Latin(string input)
 	return replace(input,hangul_reverse); //The reverse translation is pretty straight-forward, yay!
 }
 
+void Korean_completion(object ef,object ls)
+{
+	string txt=ef->get_text();
+	string last_syllable=Korean_to_Latin(Latin_to_Korean(txt)[<0..]);
+	int state=0; //Want: Initial consonant
+	sscanf(last_syllable,"%[gkndtrmbpsjchl]%[aeiouyw]%s",string initial,string vowel,string trail);
+	if ((initial=="" && vowel=="") || trail!="") last_syllable=""; //We have a complete syllable, or no syllable at all. Start from scratch.
+	else if (vowel=="") state=1; //Lead consonant only. Look for a vowel.
+	else state=2; //Lead consonant and vowel. Look for a final consonant.
+	ls->clear();
+	foreach (sort(indices(hangul_translation[state])),string ltr)
+		ls->set_row(ls->append(),({last_syllable+ltr,Latin_to_Korean(last_syllable+ltr)}));
+}
+
 //Translate "a\'" into "á" - specifically, translate "\'" into U+0301,
 //and then attempt Unicode NFC normalization. Other escapes similarly.
 //(Note that these are single backslashes, the above examples are not
@@ -340,6 +354,15 @@ int main(int argc,array(string) argv)
 		other->signal_connect("changed",update,({roman,to_latin=this[lang+"_to_Latin"]}));
 	}
 	else roman->signal_connect("changed",update,({0,diacriticals}));
+	if (function comp=this[lang+"_completion"])
+	{
+		GTK2.ListStore ls=GTK2.ListStore(({"string","string"}));
+		GTK2.EntryCompletion compl=GTK2.EntryCompletion()->set_model(ls)->set_text_column(0)->set_minimum_key_length(0);
+		object r=GTK2.CellRendererText();
+		compl->pack_end(r,1)->add_attribute(r,"text",1);
+		roman->signal_connect("changed",comp,ls); comp(roman,ls);
+		roman->set_completion(compl);
+	}
 	int start=0;
 	if (argc>2 && sscanf(argv[2],"%d:%d:%d,%d",int hr,int min,int sec,int ms)==4) start=hr*3600000+min*60000+sec*1000+ms;
 	int lastpos=0;
