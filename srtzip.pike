@@ -1,6 +1,8 @@
 //Combine a series of .srt files into one, interleaving as required.
 //Unlike srtmerge, this has no concept of "primary", and simply takes
 //from all its inputs based on the lowest (string-based) start time.
+
+//This file is also invoked from FrozenOST's build.pike.
 int main(int argc,array(string) argv)
 {
 	array(string) files=({ });
