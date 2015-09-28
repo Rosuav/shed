@@ -165,6 +165,8 @@ string Korean_to_Latin(string input)
 	return replace(input,hangul_reverse); //The reverse translation is pretty straight-forward, yay!
 }
 
+//TODO: Rewrite this into a "builder" rather than tab completion. It's not really working
+//the way I want it to, and I doubt it ever truly will.
 void Korean_completion(object ef,object ls)
 {
 	string txt=ef->get_text();
