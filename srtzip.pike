@@ -15,7 +15,7 @@ int main(int argc,array(string) argv)
 	if (!opt->clobber && file_stat(outfn)) exit(0,"Refusing to clobber %s\n",outfn);
 	write("Combining to %s:\n%{\t%s\n%}",outfn,files);
 	array(array(string)) inputs=String.trim_all_whites(utf8_to_string(Stdio.read_file(files[*])[*])[*])[*]/"\n\n";
-	//Trim off all index markers. We can re-add them later if they're wanted.
+	//Trim off all index markers. We re-add them later if --index was passed.
 	foreach (inputs,array(string) inp) foreach (inp;int i;string para) if (sscanf(para,"%*d\n%s",string newpara)==2) inp[i]=newpara;
 	Stdio.File out=Stdio.File(outfn,"wct");
 	int idx=0;
