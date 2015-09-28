@@ -75,7 +75,8 @@ void create()
 }
 
 //Korean romanization is positionally-influenced.
-//There are three blocks in Unicode which are useful here:
+//There are three blocks in Unicode which are useful here; we don't need to
+//go straight to the syllable codepoints, but instead use the components:
 //U+1100 to U+1112: initial consonants
 //U+1161 to U+1175: vowels
 //U+11A8 to U+11C2: final consonants (but not all of them are used(??))
