@@ -104,7 +104,8 @@ string Latin_to_Korean(string input)
 {
 	//Representational ambiguities can be resolved by dividing syllables.
 	//In the keyed-in form, this is done with a slash; in both output forms,
-	//a zero-width space is used instead.
+	//a zero-width space is used instead. TODO: Use something else... but
+	//what?
 	input=replace(input,"/","\u200b");
 	string output="";
 	int state=0;
