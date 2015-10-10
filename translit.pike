@@ -340,8 +340,24 @@ int main(int argc,array(string) argv)
 	GTK2.Entry roman,other=GTK2.Entry();
 	GTK2.Entry original,trans;
 	GTK2.Button next,skip,pause;
-	string lang="Latin";
-	if (argc>1 && this["Latin_to_"+argv[1]]) argv-=({lang=argv[1]});
+	string lang="Latin",initialtext;
+	if (argc>1) catch
+	{
+		if (this["Latin_to_"+argv[1]]) argv-=({lang=argv[1]});
+		else if (argv[1]!=utf8_to_string(argv[1]) && !file_stat(argv[1]))
+		{
+			string txt=utf8_to_string(argv[1]);
+			//Non-ASCII text provided and not a file name. Try all the
+			//transliterators until one transforms it, and guess that
+			//that one is most likely the language to use. Note that
+			//this can't distinguish between similar languages, eg all
+			//the Cyrillics, so it's going to pick the first.
+			foreach (glob("*_to_Latin",indices(this)),string func) catch
+			{
+				if (this[func](txt)!=txt) {lang=(func/"_")[0]; initialtext=txt; argv=argv[1..];} //Good enough!
+			};
+		}
+	};
 	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
 	GTK2.Window(0)->set_title(lang+" transliteration")->add(two_column(({
 		srtmode && "Original",srtmode && (original=GTK2.Entry()),
@@ -356,6 +372,7 @@ int main(int argc,array(string) argv)
 	{
 		roman->signal_connect("changed",update,({other,latin_to=this["Latin_to_"+lang]}));
 		other->signal_connect("changed",update,({roman,to_latin=this[lang+"_to_Latin"]}));
+		if (initialtext) other->set_text(initialtext);
 	}
 	else roman->signal_connect("changed",update,({0,diacriticals}));
 	if (function comp=this[lang+"_completion"])
