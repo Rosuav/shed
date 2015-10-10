@@ -354,7 +354,7 @@ int main(int argc,array(string) argv)
 			//the Cyrillics, so it's going to pick the first.
 			foreach (glob("*_to_Latin",indices(this)),string func) catch
 			{
-				if (this[func](txt)!=txt) {lang=(func/"_")[0]; initialtext=txt; argv=argv[1..];} //Good enough!
+				if (this[func](txt)!=txt) {lang=(func/"_")[0]; initialtext=txt; argv=({argv[0]})+argv[2..];} //Good enough!
 			};
 		}
 	};
