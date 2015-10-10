@@ -385,7 +385,7 @@ int main(int argc,array(string) argv)
 		roman->set_completion(compl);
 	}
 	int start=0;
-	if (argc>2 && sscanf(argv[2],"%d:%d:%d,%d",int hr,int min,int sec,int ms)==4) start=hr*3600000+min*60000+sec*1000+ms;
+	if (sizeof(argv)>2 && sscanf(argv[2],"%d:%d:%d,%d",int hr,int min,int sec,int ms)==4) start=hr*3600000+min*60000+sec*1000+ms;
 	int lastpos=0;
 	if (next) next->signal_connect("clicked",lambda() {
 		array(string) data=utf8_to_string(Stdio.read_file(argv[1]))/"\n\n";
