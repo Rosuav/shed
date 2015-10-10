@@ -346,7 +346,7 @@ int main(int argc,array(string) argv)
 		if (this["Latin_to_"+argv[1]]) argv-=({lang=argv[1]});
 		else if (argv[1]!=utf8_to_string(argv[1]) && !file_stat(argv[1]))
 		{
-			string txt=utf8_to_string(argv[1]);
+			string txt=utf8_to_string(argv[1..]*" ");
 			//Non-ASCII text provided and not a file name. Try all the
 			//transliterators until one transforms it, and guess that
 			//that one is most likely the language to use. Note that
@@ -354,7 +354,7 @@ int main(int argc,array(string) argv)
 			//the Cyrillics, so it's going to pick the first.
 			foreach (glob("*_to_Latin",indices(this)),string func) catch
 			{
-				if (this[func](txt)!=txt) {lang=(func/"_")[0]; initialtext=txt; argv=({argv[0]})+argv[2..];} //Good enough!
+				if (this[func](txt)!=txt) {lang=(func/"_")[0]; initialtext=txt; argv=argv[..0];} //Good enough!
 			};
 		}
 	};
