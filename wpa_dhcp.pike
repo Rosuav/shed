@@ -1,3 +1,4 @@
+#!/usr/bin/env pike
 //Monitor 'wpa_cli status' and log with timestamp every time change networks
 //Also forces a DHCP recheck each time.
 
