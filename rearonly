@@ -1,0 +1,3 @@
+# Grab the rear speakers (channels 5 and 6) from a 5.1 surround sound source
+# in any format that avconv can read
+avconv -i $1 -f aiff pipe: | sox -t aiff - $2 remix 5v2 6v2
