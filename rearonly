@@ -1,3 +1,7 @@
 # Grab the rear speakers (channels 5 and 6) from a 5.1 surround sound source
 # in any format that avconv can read
 avconv -i "$1" -f aiff pipe: | sox -t aiff - "$2" remix 5v2 6v2
+
+# Example usage: Grab the rear channels of every .ac3 file that's in 5.1,
+# and save them all to a separate directory.
+# for fn in *.ac3; do avconv -i "$fn" 2>&1 |grep -q 5\\.1 && ~/shed/rearonly "$fn" "../tmp/$fn.wav"; done
