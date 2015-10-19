@@ -56,7 +56,7 @@ void update()
 	add_data("speeds",((array(float))Process.run(({"cpufreq-info",freqmode,a[*]})[*])->stdout)[*]/1000);
 
 	//Load average (cores don't apply here)
-	add_data("loads",array_sscanf(Stdio.read_file("/proc/loadavg"),"%f %f %f"));
+	add_data("loads",System.getloadavg());
 }
 
 int main()
