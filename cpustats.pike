@@ -25,6 +25,8 @@ array(int) lastusage;
 array(array(float)) usages;
 array(array(float)) loads=({ ({0.0})*HIST_LENGTH }) * 3;
 
+string freqmode=getuid() ? "-fc" : "-wc"; //If we're running as root, get the hardware frequency
+
 void add_data(string kwd,array(float) data)
 {
 	array(array(float)) stats=this[kwd];
@@ -51,7 +53,7 @@ void update()
 	//CPU frequency (uses usage[] for core count)
 	if (!speeds) speeds=({({minspd/1000.0})*HIST_LENGTH})*sizeof(usage) + ({({maxspd/1000.0}),({minspd/1000.0})*HIST_LENGTH});
 	array a=(array(string))enumerate(sizeof(usage));
-	add_data("speeds",((array(float))Process.run(({"cpufreq-info","-fc",a[*]})[*])->stdout)[*]/1000);
+	add_data("speeds",((array(float))Process.run(({"cpufreq-info",freqmode,a[*]})[*])->stdout)[*]/1000);
 
 	//Load average (cores don't apply here)
 	add_data("loads",array_sscanf(Stdio.read_file("/proc/loadavg"),"%f %f %f"));
