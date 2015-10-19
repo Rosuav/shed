@@ -29,8 +29,7 @@ void update()
 	//CPU frequency (currently just looks at your first CPU)
 	int spd=(int)Process.run(({"cpufreq-info","-f"}))->stdout;
 	speeds=speeds[1..]+({spd/1000.0});
-	//Image.Image img=Graphics.Graph.line((["data":({speeds,({maxspd/1000.0}),({minspd/1000.0})*sizeof(speeds)}),"xsize":800,"ysize":600]));
-	//win->img->set_from_image(GTK2.GdkImage(0,img));
+	win->freq->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":({speeds,({maxspd/1000.0}),({minspd/1000.0})*sizeof(speeds)}),"xsize":1200,"ysize":400]))));
 
 	//Usage stats. This requires getting "since boot" stats periodically and differencing.
 	array(int) usage=getstats();
@@ -46,8 +45,7 @@ void update()
 		usages = ({ ({0.0})*sizeof(speeds) }) * sizeof(usage);
 	}
 	lastusage=usage;
-	Image.Image img=Graphics.Graph.line((["data":usages+({({100.0})}),"xsize":800,"ysize":600]));
-	win->img->set_from_image(GTK2.GdkImage(0,img));
+	win->usage->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":usages+({({100.0})}),"xsize":1200,"ysize":400]))));
 }
 
 int main()
@@ -55,7 +53,10 @@ int main()
 	sscanf(Process.run(({"cpufreq-info","-l"}))->stdout,"%d %d",minspd,maxspd);
 	speeds=({minspd/1000.0})*100;
 	GTK2.setup_gtk();
-	win->mainwindow=GTK2.Window(0)->set_title("CPU speed")->add(win->img=GTK2.Image(GTK2.GdkImage(0,Image.Image(800,600))))->show_all()->signal_connect("destroy",lambda() {exit(0);});
+	win->mainwindow=GTK2.Window(0)->set_title("CPU speed")->add(GTK2.Vbox(10,0)
+		->add(GTK2.Frame("Frequency (MHz)")->add(win->freq =GTK2.Image(GTK2.GdkImage(0,Image.Image(1,1)))))
+		->add(GTK2.Frame("Usage")->add(win->usage=GTK2.Image(GTK2.GdkImage(0,Image.Image(1,1)))))
+	)->show_all()->signal_connect("destroy",lambda() {exit(0);});
 	update();
 	return -1;
 }
