@@ -51,7 +51,7 @@ void update()
 	lastusage=usage;
 
 	//CPU frequency (uses usage[] for core count)
-	if (!speeds) speeds=({({minspd/1000.0})*HIST_LENGTH})*sizeof(usage) + ({({maxspd/1000.0}),({minspd/1000.0})*HIST_LENGTH});
+	if (!speeds) speeds=({({minspd/1000.0})*HIST_LENGTH})*sizeof(usage) + ({({minspd/1000.0})*HIST_LENGTH,({maxspd/1000.0})});
 	array a=(array(string))enumerate(sizeof(usage));
 	add_data("speeds",((array(float))Process.run(({"cpufreq-info",freqmode,a[*]})[*])->stdout)[*]/1000);
 
