@@ -25,6 +25,13 @@ array(int) lastusage;
 array(array(float)) usages;
 array(array(float)) loads=({ ({0.0})*HIST_LENGTH }) * 3;
 
+void add_data(string kwd,array(float) data)
+{
+	array(array(float)) stats=this[kwd];
+	foreach (data;int i;float d) stats[i]=stats[i][1..]+({d});
+	win[kwd]->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":stats,"xsize":GRAPH_WIDTH,"ysize":GRAPH_HEIGHT]))));
+}
+
 void update()
 {
 	call_out(update,1);
@@ -32,32 +39,22 @@ void update()
 	//Usage stats. This requires getting "since boot" stats periodically and differencing.
 	array(int) usage=getstats();
 	if (lastusage)
-	{
-		array(float) load=(usage[*]-lastusage[*])[*]/tm->get();
-		foreach (usages;int i;array u)
-			usages[i]=u[1..]+({load[i]});
-	}
+		add_data("usages",(usage[*]-lastusage[*])[*]/tm->get());
 	else
 	{
 		//Initialize the array of arrays based on the number of CPU cores we have
-		usages = ({ ({0.0})*HIST_LENGTH }) * sizeof(usage);
+		usages = ({ ({0.0})*HIST_LENGTH }) * sizeof(usage) + ({({100.0})});
+		add_data("usages",({ })); //Force the graph to be drawn, even though we don't have useful data yet.
 	}
 	lastusage=usage;
-	win->usage->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":usages+({({100.0})}),"xsize":GRAPH_WIDTH,"ysize":GRAPH_HEIGHT]))));
 
 	//CPU frequency (uses usage[] for core count)
-	if (!speeds) speeds=({({minspd/1000.0})*HIST_LENGTH})*sizeof(usage);
-	foreach (speeds;int i;array s)
-	{
-		int spd=(int)Process.run(({"cpufreq-info","-fc",(string)i}))->stdout;
-		speeds[i]=s[1..]+({spd/1000.0});
-	}
-	win->freq->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":speeds+({({maxspd/1000.0}),({minspd/1000.0})*sizeof(speeds)}),"xsize":GRAPH_WIDTH,"ysize":GRAPH_HEIGHT]))));
+	if (!speeds) speeds=({({minspd/1000.0})*HIST_LENGTH})*sizeof(usage) + ({({maxspd/1000.0}),({minspd/1000.0})*HIST_LENGTH});
+	array a=(array(string))enumerate(sizeof(usage));
+	add_data("speeds",((array(float))Process.run(({"cpufreq-info","-fc",a[*]})[*])->stdout)[*]/1000);
 
 	//Load average (cores don't apply here)
-	foreach (array_sscanf(Stdio.read_file("/proc/loadavg"),"%f %f %f");int i;float l)
-		loads[i]=loads[i][1..]+({l});
-	win->load->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":loads,"xsize":GRAPH_WIDTH,"ysize":GRAPH_HEIGHT]))));
+	add_data("loads",array_sscanf(Stdio.read_file("/proc/loadavg"),"%f %f %f"));
 }
 
 int main()
@@ -65,9 +62,9 @@ int main()
 	sscanf(Process.run(({"cpufreq-info","-l"}))->stdout,"%d %d",minspd,maxspd);
 	GTK2.setup_gtk();
 	win->mainwindow=GTK2.Window(0)->set_title("CPU speed")->add(GTK2.Vbox(10,0)
-		->add(GTK2.Frame("Frequency (MHz)")->add(win->freq=GTK2.Image(GTK2.GdkImage(0,Image.Image(1,1)))))
-		->add(GTK2.Frame("Usage")->add(win->usage=GTK2.Image(GTK2.GdkImage(0,Image.Image(1,1)))))
-		->add(GTK2.Frame("Load average")->add(win->load=GTK2.Image(GTK2.GdkImage(0,Image.Image(1,1)))))
+		->add(GTK2.Frame("Frequency (MHz)")->add(win->speeds=GTK2.Image(GTK2.GdkImage(0,Image.Image(1,1)))))
+		->add(GTK2.Frame("Usage")->add(win->usages=GTK2.Image(GTK2.GdkImage(0,Image.Image(1,1)))))
+		->add(GTK2.Frame("Load average")->add(win->loads=GTK2.Image(GTK2.GdkImage(0,Image.Image(1,1)))))
 	)->show_all()->signal_connect("destroy",lambda() {exit(0);});
 	update();
 	return -1;
