@@ -4,6 +4,9 @@ TODO: Additional CPU utilization graphs, in parallel
 * /proc/stat for CPU usage (prolly best to just sum the components: user, nice, sys, [idle], iowait, irq, softirq)
 */
 
+//Number of history entries to save
+#define HIST_LENGTH 100
+
 //Tweak this to tweak what gets counted as "usage"
 int usage(int user,int nice,int sys,int idle,int iowait,int irq,int softirq) {return user+nice+sys+iowait+irq+softirq;}
 
@@ -15,7 +18,7 @@ array(int) getstats()
 	return stats;
 }
 
-array(float) speeds;
+array(array(float)) speeds;
 int minspd,maxspd;
 mapping(string:mixed) win=([]);
 System.Timer tm=System.Timer();
@@ -37,21 +40,24 @@ void update()
 	else
 	{
 		//Initialize the array of arrays based on the number of CPU cores we have
-		usages = ({ ({0.0})*sizeof(speeds) }) * sizeof(usage);
+		usages = ({ ({0.0})*HIST_LENGTH }) * sizeof(usage);
 	}
 	lastusage=usage;
 	win->usage->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":usages+({({100.0})}),"xsize":1200,"ysize":400]))));
 
-	//CPU frequency (currently just looks at your first CPU)
-	int spd=(int)Process.run(({"cpufreq-info","-f"}))->stdout;
-	speeds=speeds[1..]+({spd/1000.0});
-	win->freq->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":({speeds,({maxspd/1000.0}),({minspd/1000.0})*sizeof(speeds)}),"xsize":1200,"ysize":400]))));
+	//CPU frequency (uses usage[] for core count)
+	if (!speeds) speeds=({({minspd/1000.0})*HIST_LENGTH})*sizeof(usage);
+	foreach (speeds;int i;array s)
+	{
+		int spd=(int)Process.run(({"cpufreq-info","-fc",(string)i}))->stdout;
+		speeds[i]=s[1..]+({spd/1000.0});
+	}
+	win->freq->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":speeds+({({maxspd/1000.0}),({minspd/1000.0})*sizeof(speeds)}),"xsize":1200,"ysize":400]))));
 }
 
 int main()
 {
 	sscanf(Process.run(({"cpufreq-info","-l"}))->stdout,"%d %d",minspd,maxspd);
-	speeds=({minspd/1000.0})*100;
 	GTK2.setup_gtk();
 	win->mainwindow=GTK2.Window(0)->set_title("CPU speed")->add(GTK2.Vbox(10,0)
 		->add(GTK2.Frame("Frequency (MHz)")->add(win->freq =GTK2.Image(GTK2.GdkImage(0,Image.Image(1,1)))))
