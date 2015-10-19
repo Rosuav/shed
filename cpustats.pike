@@ -3,8 +3,8 @@
 //Number of history entries to save
 #define HIST_LENGTH 100
 //Display dimensions
-#define GRAPH_WIDTH 900
-#define GRAPH_HEIGHT 300
+#define GRAPH_WIDTH 600
+#define GRAPH_HEIGHT 200
 
 //Tweak this to tweak what gets counted as "usage"
 int usage(int user,int nice,int sys,int idle,int iowait,int irq,int softirq) {return user+nice+sys+iowait+irq+softirq;}
