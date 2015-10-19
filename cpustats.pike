@@ -29,7 +29,7 @@ void add_data(string kwd,array(float) data)
 {
 	array(array(float)) stats=this[kwd];
 	foreach (data;int i;float d) stats[i]=stats[i][1..]+({d});
-	win[kwd]->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":stats,"xsize":GRAPH_WIDTH,"ysize":GRAPH_HEIGHT]))));
+	win[kwd]->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":stats,"xsize":GRAPH_WIDTH,"ysize":GRAPH_HEIGHT,"horgrid":1]))));
 }
 
 void update()
