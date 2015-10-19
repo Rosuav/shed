@@ -67,8 +67,8 @@ int main()
 	sscanf(Process.run(({"cpufreq-info","-l"}))->stdout,"%d %d",minspd,maxspd);
 	GTK2.setup_gtk();
 	win->mainwindow=GTK2.Window(0)->set_title("CPU speed")->add(GTK2.Vbox(10,0)
-		->add(GTK2.Frame("Frequency (MHz)")->add(win->speeds=GTK2.Image(GTK2.GdkImage(0,Image.Image(1,1)))))
 		->add(GTK2.Frame("Usage")->add(win->usages=GTK2.Image(GTK2.GdkImage(0,Image.Image(1,1)))))
+		->add(GTK2.Frame("Frequency (MHz)")->add(win->speeds=GTK2.Image(GTK2.GdkImage(0,Image.Image(1,1)))))
 		->add(GTK2.Frame("Load average")->add(win->loads=GTK2.Image(GTK2.GdkImage(0,Image.Image(1,1)))))
 	)->show_all()->signal_connect("destroy",lambda() {exit(0);});
 	update();
