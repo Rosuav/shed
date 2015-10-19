@@ -26,11 +26,6 @@ void update()
 {
 	call_out(update,1);
 
-	//CPU frequency (currently just looks at your first CPU)
-	int spd=(int)Process.run(({"cpufreq-info","-f"}))->stdout;
-	speeds=speeds[1..]+({spd/1000.0});
-	win->freq->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":({speeds,({maxspd/1000.0}),({minspd/1000.0})*sizeof(speeds)}),"xsize":1200,"ysize":400]))));
-
 	//Usage stats. This requires getting "since boot" stats periodically and differencing.
 	array(int) usage=getstats();
 	if (lastusage)
@@ -46,6 +41,11 @@ void update()
 	}
 	lastusage=usage;
 	win->usage->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":usages+({({100.0})}),"xsize":1200,"ysize":400]))));
+
+	//CPU frequency (currently just looks at your first CPU)
+	int spd=(int)Process.run(({"cpufreq-info","-f"}))->stdout;
+	speeds=speeds[1..]+({spd/1000.0});
+	win->freq->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":({speeds,({maxspd/1000.0}),({minspd/1000.0})*sizeof(speeds)}),"xsize":1200,"ysize":400]))));
 }
 
 int main()
