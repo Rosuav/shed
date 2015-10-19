@@ -28,6 +28,7 @@ int fetch(int year,string url)
 		sscanf(info->Title||"","[[%*s|%s]]",string title);
 		string myths=info->ShortSummary||""; sscanf(myths,"'''Myths tested''':%s",myths);
 		while (sscanf(myths,"%s[[%s]]%s",string before,string link,string after)==3) myths=before+(link/"|")[-1]+after;
+		while (sscanf(myths,"%s<ref%s</ref>%s",string before,string ref,string after)==3) myths=before+after; //Strip references completely
 		myths-="'''Note''': This was a special episode."; //We really don't need that tag repeated everywhere...
 		myths-="'''Note''': This is a special episode."; //Nor this form of it...
 		out->write("/%d-%s %s.mkv\n%s\n\n",
