@@ -26,12 +26,13 @@ array(array(float)) usages;
 array(array(float)) loads=({ ({0.0})*HIST_LENGTH }) * 3;
 
 string freqmode=getuid() ? "-fc" : "-wc"; //If we're running as root, get the hardware frequency
+int skipdraw;
 
 void add_data(string kwd,array(float) data)
 {
 	array(array(float)) stats=this[kwd];
 	foreach (data;int i;float d) stats[i]=stats[i][1..]+({d});
-	win[kwd]->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":stats,"xsize":GRAPH_WIDTH,"ysize":GRAPH_HEIGHT,"horgrid":1]))));
+	if (!skipdraw) win[kwd]->set_from_image(GTK2.GdkImage(0,Graphics.Graph.line((["data":stats,"xsize":GRAPH_WIDTH,"ysize":GRAPH_HEIGHT,"horgrid":1]))));
 }
 
 void update()
@@ -57,6 +58,8 @@ void update()
 
 	//Load average (cores don't apply here)
 	add_data("loads",System.getloadavg());
+
+	if (++skipdraw>=3) skipdraw=0; //Draw only every so often - in between, save a bit of graphics effort
 }
 
 int main()
