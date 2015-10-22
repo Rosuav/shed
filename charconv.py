@@ -6,7 +6,11 @@ if len(sys.argv)==2:
 	with open(sys.argv[1], "rb") as f: data=f.read(1024)
 	# Assuming an ASCII-compatible encoding, take the first paragraph.
 	data = data.replace(b"\r",b"").split(b"\n\n")[0]
-	encodings = [None, "Western European", "Central European", "South European", "North European", "Cyrillic", "Arabic", "Greek", "Hebrew", "Turkish", "Nordic", "Thai", "(Devanagari)", "Baltic Rim", "Celtic", "Latin-9", "South-Eastern European"]
+	encodings = [None,
+		"Western European", "Central European", "South European", "North European", "Cyrillic",
+		"Arabic", "Greek", "Hebrew", "Turkish", "Nordic", "Thai", "(Devanagari)", "Baltic Rim",
+		"Celtic", "Latin-9", "South-Eastern European"
+	]
 	for enc, name in enumerate(encodings):
 		try: print("ISO-8859-%d - %s:\n%s\n"%(enc,name,data.decode("iso-8859-"+str(enc))))
 		except UnicodeDecodeError: pass # A thrown error means it's almost certainly not that encoding, so don't display it
