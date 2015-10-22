@@ -43,15 +43,15 @@ array preprocess=({
 	"щ ŝ sch",
 	"ю û ju yu",
 	"я â ja ya",
-	"Ж Ž Zh",
-	"Ц C Ts",
-	"Ч Č Ch",
-	"Ш Š Sh",
-	"Щ Ŝ Sch",
-	"Ю Û Ju Yu",
-	"Я Â Ja Ya",
+	"Ж Ž Zh ZH",
+	"Ц C Ts TS",
+	"Ч Č Ch CH",
+	"Ш Š Sh SH",
+	"Щ Ŝ Sch SCH",
+	"Ю Û Ju Yu JU YU",
+	"Я Â Ja Ya JA YA",
 	"є ye je", //Possibly only for Ukrainian? I can't find a canonical one-character representation in ISO-9 (which is for Russian).
-	"х kh", "Х Kh", //Ditto??
+	"х kh", "Х Kh KH", //Ditto??
 	"Э È E`","э è e`", //Used only in Russian and Belarusian; Е is more common (keyed as E).
 })[*]/" ";
 mapping preprocess_r2c=(["'":"’","\"":"″"]); //The rest is done in create() - not main() as this may be imported by other scripts
