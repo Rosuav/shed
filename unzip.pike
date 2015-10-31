@@ -3,6 +3,8 @@ Mainly exists as an experiment in streaming Gz, Stdio.Buffer, System.Memory, etc
 It does, however, appear capable of unzipping certain (possibly malformed) files that unzip(1) won't.
 */
 
+//Derived from the version in Gypsum/plugins/update.pike, but uses Stdio.Buffer to reduce RAM usage.
+
 //Unzip the specified data (should be exactly what could be read from/written to a .zip file)
 //and call the callback for each file, with the file name, contents, and the provided arg.
 //Note that content errors will be thrown, but previously-parsed content has already been
