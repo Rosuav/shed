@@ -1,4 +1,4 @@
-#!/usr/local/bin/pike
+#!/usr/bin/env pike
 //Identify one or more processes by showing their working directories and
 //command lines. May need to be run with root privileges.
 //In many simple cases, this will reconstruct a plausible shell prompt and
