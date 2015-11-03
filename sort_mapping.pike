@@ -1,11 +1,21 @@
-class sort_mapping(mapping(mixed:mixed) base)
+/* Mapping iterator that yields results in order
+
+Usage:
+foreach (sort_mapping(some_mapping); key; value)
+
+To sort by values rather than keys:
+foreach (sort_mapping(some_mapping, 1); key; value)
+
+This is really a "two-array iterator", actually.
+*/
+class sort_mapping(mapping(mixed:mixed) base, int|void valueorder)
 {
 	array(mixed) i, v;
 	int pos = 0, top;
 	void create()
 	{
 		i = indices(base); v = values(base); top = sizeof(base);
-		sort(i, v);
+		if (valueorder) sort(v, i); else sort(i, v);
 	}
 
 	bool first() {pos = 0; return top > 0;}
@@ -25,6 +35,7 @@ class sort_mapping(mapping(mixed:mixed) base)
 	this_program `+=(int steps) {pos += max(steps, -pos); return this;}
 }
 
+//Demo of sort_mapping
 int main()
 {
 	mapping(string:mapping(string:int)) movements=([]);
