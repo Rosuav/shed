@@ -1,14 +1,14 @@
-/* Mapping iterator that yields results in order
+/* Key/value iterator that yields results in order
 
 Usage:
-foreach (sort_mapping(some_mapping); key; value)
+foreach (SortIterator(some_mapping); key; value)
 
 To sort by values rather than keys:
-foreach (sort_mapping(some_mapping, 1); key; value)
+foreach (SortIterator(some_mapping, 1); key; value)
 
 This is really a "two-array iterator", actually.
 */
-class sort_mapping(mapping(mixed:mixed) base, int|void valueorder)
+class SortIterator(mixed base, int|void valueorder)
 {
 	array(mixed) i, v;
 	int pos = 0, top;
@@ -267,7 +267,7 @@ Rosuav withdrew purified focus crystal on Nov  2 06:05.
 		person[verb]++;
 	}
 	write("%20s %8s %8s\n","Person","Cloudy","Clear");
-	foreach (sort_mapping(movements);string subj;mapping info)
+	foreach (SortIterator(movements);string subj;mapping info)
 	{
 		string cloudy="",clear="";
 		if (info->stored) cloudy+="+"+info->stored;
