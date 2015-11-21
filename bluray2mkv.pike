@@ -12,8 +12,8 @@ void multirun(array(string) cmd,array(string) inputs,mapping modifiers)
 }
 
 int nextidx=0;
-string target;
-array(string) input;
+string|array(string) target;
+array(string) input,originput;
 array(string) audio=({"0"});
 string mountpoint;
 
@@ -50,8 +50,10 @@ void spawnnext(object|void proc)
 	if (!ok) exit(0);
 	int wid=Stdio.stdin->tcgetattr()->columns || 80;
 	write("-"*(wid-1)+"\nStarting part %d\n"+"-"*(wid-1)+"\n",nextidx);
-	string dest=sprintf("%s%d.mkv",target,nextidx++);
-	if (has_suffix(target,".mkv")) {dest=target; target=0;} //Hack: Doing just one output. Signal that this is the last.
+	string dest;
+	if (arrayp(target)) [dest,target]=Array.shift(target);
+	else dest=sprintf("%s%d.mkv",target,nextidx);
+	++nextidx;
 	rm(dest);
 	multirun(({"avconv","-i","-","-c","copy","-map","0:v","-map","0:a:"+audiotrack,"-map","0:s",dest}),inputs[*]+".m2ts",(["callback":spawnnext]));
 }
@@ -60,11 +62,12 @@ int main(int argc,array(string) argv)
 {
 	if (argc==2)
 	{
-		foreach (automount,[string fn,array(string) lang,array(string) parts]) if (has_value(lang,argv[1]))
+		foreach (automount,[string fn,array(string) lang,array(string) parts]) if (fn==argv[1] || has_value(lang,argv[1]))
 		{
 			nextidx=search(lang,argv[1]);
-			input=parts;
-			target=getcwd()+"/"+argv[1]+".mkv";
+			originput=parts;
+			if (nextidx>-1) target=({getcwd()+"/"+argv[1]+".mkv"});
+			else {nextidx=0; target=sprintf(getcwd()+"/%s.mkv",lang[*]);}
 			mountpoint="/tmp/"+fn;
 			mkdir(mountpoint);
 			Process.create_process(({"sudo","mount",System.get_home()+"/"+fn,mountpoint}))->wait();
