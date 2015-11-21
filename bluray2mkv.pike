@@ -21,19 +21,21 @@ array automount=({
 	({"lazers-frozen3d-bd.iso",({"English","French","Latin American Spanish"}),"-a0/2/3 00877 00895/00896/00897 00898 00899/00900/00901 00902 00903/00904/00905 00906 00907/00908/00909 00910 00911/00912/00911 00913"/" "}),
 	//I have four audio tracks but only three pictures. Ah well... guess the Turkish can go with the English images.
 	({"ret-frozen-bd.iso",({"English 2","Italian","German","Turkish"}),"-a0/1/2/3 00879 00880/00889/00894 00881 00882/00890/00895 00883 00884/00891/00896 00885 00886/00892/00943 00887"/" "}),
-	({"INSIDE_OUT_3D.iso",({"IO-English","IO-French","IO-Italian"}),"-a0/5/6/7 -s0/1/2/3 00301/00347/00348"/" "}),
+	//Inside Out has a lot more text on the screen. Same problem with lack of Dutch and Flemish text, though.
+	({"INSIDE_OUT_3D.iso",({"IO-English","IO-French","IO-Italian","IO-Dutch","IO-Flemish"}),"-a0/5/6/4/7 00300 00301/00347/00348 00302 00303/00349/00350 00304 00305/00351/00352 00306 00307/00353/00354 00308 00309 00310 00311/00357/00358 00312 00313/00359/00360 00314 00315/00361/00362 00316 00317/00363/00364 00318 00319/00365/00366 00320 00321/00367/00368 00322 00323/00369/00370 00324 00325/00371/00372 00326 00327/00373/00374 00328 00329/00375/00376 00330 00332 00333/00379/00380 00334 00335/00381/00382 00336 00337/00383/00384 00338 00339/00385/00386 00340 00341/00387/00388 00342 00343/00389/00390 00344 00345/00391/00392"/" "}),
 });
 
 void spawnnext(object|void proc)
 {
 	if (proc) {closeme->close(); proc->wait(); destruct(proc);} //Close all files and reap the child
-	if (!target)
+	if (target==({ }))
 	{
 		cd(System.get_home());
 		Process.create_process(({"sudo","umount",mountpoint}))->wait();
 		rm(mountpoint);
 		exit(0);
 	}
+	if (originput) input=originput+({ });
 	if (has_prefix(input[0],"-a")) {audio=input[0][2..]/"/"; input=input[1..];}
 	array(string) inputs=allocate(sizeof(input));
 	int ok=0;
