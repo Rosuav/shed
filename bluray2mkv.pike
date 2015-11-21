@@ -21,6 +21,7 @@ array automount=({
 	({"lazers-frozen3d-bd.iso",({"English","French","Latin American Spanish"}),"-a0/2/3 00877 00895/00896/00897 00898 00899/00900/00901 00902 00903/00904/00905 00906 00907/00908/00909 00910 00911/00912/00911 00913"/" "}),
 	//I have four audio tracks but only three pictures. Ah well... guess the Turkish can go with the English images.
 	({"ret-frozen-bd.iso",({"English 2","Italian","German","Turkish"}),"-a0/1/2/3 00879 00880/00889/00894 00881 00882/00890/00895 00883 00884/00891/00896 00885 00886/00892/00943 00887"/" "}),
+	({"INSIDE_OUT_3D.iso",({"IO-English","IO-French","IO-Italian"}),"-a0/5/6/7 -s0/1/2/3 00301/00347/00348"/" "}),
 });
 
 void spawnnext(object|void proc)
@@ -52,7 +53,7 @@ void spawnnext(object|void proc)
 	string dest=sprintf("%s%d.mkv",target,nextidx++);
 	if (has_suffix(target,".mkv")) {dest=target; target=0;} //Hack: Doing just one output. Signal that this is the last.
 	rm(dest);
-	multirun(({"avconv","-i","-","-c","copy","-map","0:v","-map","0:a:"+audiotrack,dest}),inputs[*]+".m2ts",(["callback":spawnnext]));
+	multirun(({"avconv","-i","-","-c","copy","-map","0:v","-map","0:a:"+audiotrack,"-map","0:s",dest}),inputs[*]+".m2ts",(["callback":spawnnext]));
 }
 
 int main(int argc,array(string) argv)
