@@ -57,7 +57,7 @@ void spawnnext(object|void proc)
 	else dest=sprintf("%s%d.mkv",target,nextidx);
 	++nextidx;
 	rm(dest);
-	multirun(({"avconv","-i","-","-c","copy","-map","0:v","-map","0:a:"+audiotrack,"-map","0:s",dest}),inputs[*]+".m2ts",(["callback":spawnnext]));
+	multirun(({"avconv","-i","-","-c:s","copy","-map","0:v","-map","0:a:"+audiotrack,"-map","0:s",dest}),inputs[*]+".m2ts",(["callback":spawnnext]));
 }
 
 int main(int argc,array(string) argv)
