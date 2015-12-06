@@ -35,6 +35,7 @@ int main()
 				inf[String.trim_all_whites(var)]=String.trim_all_whites(val)-"'";
 		string oldname=sprintf("audio_%02d.wav",i);
 		string newname=format("%02{Tracknumber} %{Tracktitle}."+fmt,inf);
+		newname = replace(newname, "/", "-"); //Can't have a slash in a file name. Hyphens are probably just as useful though.
 		write("audio_%02d.wav -> %s\n",i,newname);
 		if (fmt=="wav") mv(oldname,newname); //Simple: Rename
 		else {Process.create_process(({"avconv","-i",oldname,newname}))->wait(); rm(oldname);}
