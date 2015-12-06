@@ -25,6 +25,8 @@ constant fmt="ogg";
 int main()
 {
 	Process.create_process(({"icedax","-D/dev/sr0","-B","-L1"}))->wait();
+	rm("audio.cddb");
+	rm("audio.cdindex");
 	for (int i=1;;++i)
 	{
 		string data=Stdio.read_file(sprintf("audio_%02d.inf",i));
@@ -41,6 +43,4 @@ int main()
 		else {Process.create_process(({"avconv","-i",oldname,newname}))->wait(); rm(oldname);}
 		rm(sprintf("audio_%02d.inf",i));
 	}
-	rm("audio.cddb");
-	rm("audio.cdindex");
 }
