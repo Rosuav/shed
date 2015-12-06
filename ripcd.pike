@@ -19,6 +19,9 @@ string format(string template,mapping(string:string) data)
 	return sprintf(fmt+template,@args);
 }
 
+//Output format. If not "wav", will avconv the files to this format.
+constant fmt="ogg";
+
 int main()
 {
 	Process.create_process(({"icedax","-D/dev/sr0","-B","-L1"}))->wait();
@@ -30,9 +33,11 @@ int main()
 		foreach (data/"\n",string l)
 			if (sscanf(l,"%s=%s",string var,string val) && val && val!="" && var!="" && var[0]!='#')
 				inf[String.trim_all_whites(var)]=String.trim_all_whites(val)-"'";
-		string newname=format("%02{Tracknumber} %{Tracktitle}.wav",inf);
+		string oldname=sprintf("audio_%02d.wav",i);
+		string newname=format("%02{Tracknumber} %{Tracktitle}."+fmt,inf);
 		write("audio_%02d.wav -> %s\n",i,newname);
-		mv(sprintf("audio_%02d.wav",i),newname);
+		if (fmt=="wav") mv(oldname,newname); //Simple: Rename
+		else {Process.create_process(({"avconv","-i",oldname,newname}))->wait(); rm(oldname);}
 		rm(sprintf("audio_%02d.inf",i));
 	}
 	rm("audio.cddb");
