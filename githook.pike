@@ -71,7 +71,7 @@ int main(int argc,array(string) argv)
 							if (comment) {Stdio.write_file(argv[1],comment+"\n"+msg); return 0;}
 						}
 					}
-					//To speed up the search:
+					//To speed up the search on large repositories:
 					//$ git config rosuav.log-search.limit N
 					//where N is some number of commits. This will cause failure if this branch of
 					//this repo has not had that many commits yet (or to be more precise, if HEAD
