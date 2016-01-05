@@ -17,7 +17,7 @@ GTK2.Label info;
 
 void load_users()
 {
-	while (1)
+	while (1) catch
 	{
 		mapping data = Standards.JSON.decode_utf8(Protocols.HTTP.get_url_data(url));
 		string output = sprintf("%d viewers", data->chatter_count);
@@ -29,7 +29,7 @@ void load_users()
 		}
 		info->set_text(output);
 		sleep(delay);
-	}
+	};
 }
 
 int main(int argc, array(string) argv)
