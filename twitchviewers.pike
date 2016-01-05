@@ -1,3 +1,12 @@
+/*
+Fire this up for your channel thus:
+
+pike twitchviewers YourUserName
+
+It'll show a little display of the currently-watching viewers, updated every 10ish seconds (or add
+another argument to adjust update frequency). This can be loaded into OBS with window capture, or
+simply left on screen as a ticking display.
+*/
 string username = "rosuav";
 int delay = 10;
 string url;
