@@ -31,6 +31,11 @@ void load_users()
 	};
 }
 
+void drag(object self,object ev)
+{
+	self->begin_move_drag(ev->button,ev->x_root,ev->y_root,ev->time);
+}
+
 int main(int argc, array(string) argv)
 {
 	if (argc<2) exit(1, "USAGE: pike %s username [delay]\nWill display the current viewers for username's channel\nUpdates every delay seconds - default 10.\n");
@@ -38,11 +43,13 @@ int main(int argc, array(string) argv)
 	string username = argv[1];
 	if (argc>2) delay = (int)argv[2] || 10;
 	url = sprintf("http://tmi.twitch.tv/group/user/%s/chatters", lower_case(username));
-	GTK2.Window((["resizable": 0, "title": "Viewers on " + username + "'s stream", "decorated": 0]))
+	object win = GTK2.Window((["resizable": 0, "title": "Viewers on " + username + "'s stream", "decorated": 0]))
 		->add(info=GTK2.Label("Loading...")->modify_fg(GTK2.STATE_NORMAL, GTK2.GdkColor(255, 255, 255)))
 		->modify_bg(GTK2.STATE_NORMAL, GTK2.GdkColor(0, 0, 0))
 		->show_all()
-		->signal_connect("destroy", lambda() {exit(0);});
+		->add_events(GTK2.GDK_BUTTON_PRESS_MASK);
+	win->signal_connect("destroy", lambda() {exit(0);});
+	win->signal_connect("button_press_event", drag);
 	Thread.Thread(load_users);
 	return -1;
 }
