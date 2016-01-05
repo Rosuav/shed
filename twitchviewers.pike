@@ -6,6 +6,9 @@ pike twitchviewers YourUserName
 It'll show a little display of the currently-watching viewers, updated every 10ish seconds (or add
 another argument to adjust update frequency). This can be loaded into OBS with window capture, or
 simply left on screen as a ticking display.
+
+The information displayed is completely public, so this needs no authentication or stream key. You
+can monitor your own viewers, or anyone else's... why you'd want to I can't say, but go ahead :)
 */
 string username;
 int delay = 10;
