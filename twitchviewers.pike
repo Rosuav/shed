@@ -7,7 +7,7 @@ It'll show a little display of the currently-watching viewers, updated every 10i
 another argument to adjust update frequency). This can be loaded into OBS with window capture, or
 simply left on screen as a ticking display.
 */
-string username = "rosuav";
+string username;
 int delay = 10;
 string url;
 GTK2.Label info;
