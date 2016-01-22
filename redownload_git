@@ -1,0 +1,15 @@
+#!/bin/sh
+URL=`git config remote.origin.url`
+echo Will blow away your .git directory and redownload from:
+echo $URL
+echo "If that doesn't look like a good URL, do NOT continue! "
+[ "$1" != "confirm" ] && { echo To continue: $0 confirm; exit; }
+mv .git/config .temp_git_config
+mv .git/hooks .temp_git_hooks
+rm -rf .git
+git clone --bare $URL .git
+mv .temp_git_config .git/config
+mv .temp_git_hooks .git/hooks
+git fetch
+git add .
+git status
