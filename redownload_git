@@ -1,4 +1,10 @@
 #!/bin/sh
+echo "This script repairs a damaged git repository by completely redownloading"
+echo "it from your origin. Your configuration and hooks are kept; everything"
+echo "else is destroyed and replaced. Very effective in the simple case where a"
+echo "single upstream is used. Possibly not as effective if there are multiple,"
+echo "as it will download only from the one named 'origin'."
+echo
 URL=`git config remote.origin.url`
 echo Will blow away your .git directory and redownload from:
 echo $URL
