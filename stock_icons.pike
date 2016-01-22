@@ -18,7 +18,7 @@ GTK2.Table GTK2Table(array(array(string|GTK2.Widget)) contents,mapping|void labe
 
 void iconclick(object self,int which,object ev,int arg)
 {
-	write("Icon click! %O %d %O\n",self,which,ev);
+	write("Icon click! %O %d %O\n",self,which,(mapping)ev);
 }
 
 int main()
