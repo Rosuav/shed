@@ -1,6 +1,7 @@
 void iconclick(object self,int which,object ev,int arg)
 {
 	write("Icon click! %O %d %O\n",self,which,(mapping)ev);
+	self->set_icon_from_pixbuf(GTK2.ENTRY_ICON_SECONDARY,0);
 }
 
 int main()
