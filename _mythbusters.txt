@@ -757,8 +757,8 @@ Are some types of people more tolerant to pain?
 Can a BBQ propane tank heat up enough in a fire to launch through a garage roof like a rocket?
 
 /2010-7 Mythssion Control.mkv
-Revisit for "Knock Your Socks Off"
-A claim from "Compact Compact Supersized" is tested.
+A revisit of the myth "Knock Your Socks Off".
+Is the force exerted between two cars crashing into each other at 50 mph the same as a single car hitting a wall at 50 mph?
 
 /2010-8 Duct Tape Hour 2.mkv
 Can duct tape be used to build a bridge?
@@ -805,7 +805,7 @@ Do humans really only use 10% of their brain?
 Did the Greeks create an arrow machine gun that offered the speed, distance and precision that modern machine guns do?
 Is driving while tired as bad as, or worse than, driving while tipsy?
 
-/2010-17 MiniMyth Madness.mkv
+/2010-17 Mini Myth Madness.mkv
 Can a scuba diver wear a tuxedo underneath his drysuit, go underwater, resurface, strip off his scuba gear, and be able to present the tuxedo perfectly?
 Can a car's tire pressure affect its fuel efficiency?
 Can a laptop stop a bullet from point-blank range?
@@ -881,7 +881,7 @@ Can a fishing reel catch fire with a fast enough fish on the line?
 /2011-SP1 Planes, Trains, and Automobiles.mkv
 The MythBusters discuss 12 favorite myths involving forms of transportation.
 
-/2011-10 Let There be Light.mkv
+/2011-10 Let There Be Light.mkv
 Can mirrors be used to reflect sunlight and illuminate a tomb, as depicted in ''The Mummy''?
 Can a runaway car be safely stopped if another driver pulls in front and slows down?
 
@@ -1072,7 +1072,7 @@ Can hypermiling techniques really double your car's fuel efficiency?
 Can Adam and Jamie cross the canyon and reach civilization using only basic supplies, duct tape, and bubble wrap?
  It was used to promote  ''Skywire Live''.
 
-/2013-9 Painting with Explosives-Bifurcated Boat.mkv
+/2013-9 Painting With Explosives-Bifurcated Boat.mkv
 Can Adam's Snowflake or Jamie's death sphere paint a room with a boom?
 Can a bifurcated boat be split in two by a channel marker?
 
@@ -1174,17 +1174,17 @@ Can you make an untraceable bullet out of teeth?
 Will a cherry bomb dropped in a school toilet make others act like geysers?
 Will placing someone between a wrecking ball and a building protect the building?
 
-/2015-2 The Busters of the Lost Myths.mkv
+/2015-2 ''Indiana Jones'' Special.mkv
 Could Indiana Jones have outrun a battery of wall-mounted dart launchers?
 Can you use a whip to disarm or neutralize an enemy with a gun?
 Does the tip of a whip break the sound barrier?
 Can you use a whip to swing safely across a chasm?
 
-/2015-3 ''The A-Team'' Special.mkv
+/2015-3 ''A-Team'' Special.mkv
 Can you build a propane-powered log cannon to shoot planks at enemies?
 Can you safely disable a pursuing car by blasting a manhole cover upward into it?
 
-/2015-4 Video Games Special.mkv
+/2015-4 Video Game Special.mkv
 Can you easily carry and deploy a large variety of weapons, as in ''Doom''?
 Can you easily slice through large amounts of thrown fruit, as in ''Fruit Ninja''?
 
@@ -1196,7 +1196,7 @@ Can a bicycle be modified to operate on both land and water?
 Can you turn a corner faster by drifting than with conventional driving methods?
 Can you drift into a parallel parking space without hitting the adjacent cars or the curb?
 
-/2015-7 Blow It Out the Water.mkv
+/2015-7 Blow It Out of the Water.mkv
 Can a boat be blown out of the water without destroying it?
 Is it possible to mount a remote-controlled machine gun in a car trunk and use it to kill a roomful of people from outside a house, as seen in the finale of ''Breaking Bad''?
 '''Note''': ''Breaking Bad'' creator Vince Gilligan makes a guest appearance.
@@ -1230,7 +1230,7 @@ The myth "Exploding Scuba Tank" is revisited.
 Will the sound of orcas drive sharks away?
 Will the smell of a dead shark drive living ones away?
 
-/2015-14 ''Star Wars'': The Myths Strike Back.mkv
+/2015-14 ''Star Wars'' 2.mkv
 Is it possible for people to dive out of the way of incoming Stormtrooper shots?
 Does a combatant on the higher ground have a significant advantage over his opposition?
 '''Note''': This is a ''Star Wars'' themed episode.
@@ -1246,8 +1246,8 @@ Can you safely cross a minefield in a hovercraft?
 Will a steam-filled railroad tank car collapse in on itself as it cools?
 
 /2016-4 Cooking Chaos.mkv
-<!--'''Myths tested''':
--->
+Can you instantly cook shrimp by firing them through clouds of flour, eggs, bread crumbs, and fire?
+Can you use an underwater explosion to juice the inside of a fruit without damaging the skin?
 
 /2016-5 Driven to Destruction.mkv
 <!--'''Myths tested''':
