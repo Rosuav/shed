@@ -6,8 +6,8 @@ is a quote from, or occasionally a comment about, either Jaya Ballard or Chandra
 Nalaar. Who said which?
 
 [Recreate or rerandomize by removing the quotes, and running this:]
+
     sed -ne '1,/The Quotes/d' -e'/^[^=-]/p' Jaya-vs-Chandra.md|sort -R|sed 's/^/* /' >>Jaya-vs-Chandra-quiz.md
-[Requires GNU sed.]
 
 The Quotes
 ==========
