@@ -72,6 +72,12 @@ The Quotes
 "Walls? What walls?"
 - Jaya Ballard (Word of Blasting)
 
+"I asked if they wanted to do things the easy way. I meant easy for me."
+- Chandra Nalaar (Chandra's Fury - M13)
+
+"They started it."
+- Chandra Nalaar (Chandra's Fury - Magic Origins)
+
 [CENSORED] never believed in using her "inside voice".
 - Chandra Nalaar (Chandra's Outrage)
 
@@ -81,14 +87,17 @@ The Quotes
 "'Utterly' is my favorite way to destroy something."
 - Chandra Nalaar (Craterize)
 
+"Well, this got out of hand."
+- Chandra (Fiery Impulse)
+
 "You're in luck. I brought enough to share."
 - Chandra Nalaar (Flames of the Firebrand)
 
 "Spontaneous combustion is a myth. If you burst into flame, someone wanted you to."
-- Chandra Nalaar (Incinerate)
+- Chandra Nalaar (Incinerate - M12)
 
 "Who said there are no assurances in life? I assure you this is going to hurt."
-- Chandra Nalaar (Incinerate - Duel Decks)
+- Chandra Nalaar (Incinerate - Jace vs Chandra)
 
 "Those who wish to invade [CENSORED], please take it up with my servant."
 - Chandra Nalaar (Inferno Elemental)
