@@ -72,7 +72,7 @@ The Quotes
 "Walls? What walls?"
 - Jaya Ballard (Word of Blasting)
 
-<CENSORED> never believed in using her "inside voice".
+[CENSORED] never believed in using her "inside voice".
 - Chandra Nalaar (Chandra's Outrage)
 
 "Which do you think is the better deterrent: a moat of water or one of fire?"
@@ -87,7 +87,7 @@ The Quotes
 "Spontaneous combustion is a myth. If you burst into flame, someone wanted you to."
 - Chandra Nalaar (Incinerate)
 
-"Those who wish to invade <CENSORED>, please take it up with my servant."
+"Those who wish to invade [CENSORED], please take it up with my servant."
 - Chandra Nalaar (Inferno Elemental)
 
 "Lighting a fire needs kindling and heat. You be the kindling. I'll bring the heat."
@@ -99,7 +99,7 @@ The Quotes
 "I like it here. You always get a little more for your mana."
 - Chandra Nalaar (Rumbling Aftershocks)
 
-After the fourth time <CENSORED> left a place engulfed in flames, she decided to just go ahead and make it her thing.
+After the fourth time [CENSORED] left a place engulfed in flames, she decided to just go ahead and make it her thing.
 - Chandra Nalaar (Seal of Fire)
 
 "The land here seems to go out of its way to kill you."

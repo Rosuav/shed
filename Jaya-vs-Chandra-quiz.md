@@ -26,7 +26,7 @@ The Quotes
 * "And /I/ say north is where I /want/ it to be!"
 * "Oh, no - not /you/ again?!"
 * "Once great literature - now great litter."
-* "Those who wish to invade <CENSORED>, please take it up with my servant."
+* "Those who wish to invade [CENSORED], please take it up with my servant."
 * "The only 'art' these beasts possess is the art of noise!"
 * "Eenie, meenie, minie, moe... oh, why not all of them?"
 * "Just the thing for those pesky water mages."
@@ -34,13 +34,13 @@ The Quotes
 * "Who needs the sun when you've got me around?"
 * "Spontaneous combustion is a myth. If you burst into flame, someone wanted you to."
 * "Frankly, destruction is best left to professionals."
-* After the fourth time <CENSORED> left a place engulfed in flames, she decided to just go ahead and make it her thing.
+* After the fourth time [CENSORED] left a place engulfed in flames, she decided to just go ahead and make it her thing.
 * "Anybody want some... /toast/?"
 * "Leaves more room for the big ones to fight in, you know."
 * "If you'd been there, you would've run from that deer, too!"
 * "That's a lotta nuggets."
 * "I strive for elegance and speed in my work."
 * "Overkill? This isn't a game of Kick-the-Ouphe!"
-* <CENSORED> never believed in using her "inside voice".
+* [CENSORED] never believed in using her "inside voice".
 * "Walls? What walls?"
 * "Which do you think is the better deterrent: a moat of water or one of fire?"
