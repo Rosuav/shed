@@ -380,7 +380,7 @@ Can a holiday-themed Rube Goldberg machine be built within a week's time?
 Is it possible to survive a 22,000-foot fall using the blast from a 1000-pound bomb to break the fall?
 Is electricity saved by switching off the lights when leaving a room?
 
-/2007-1 Hindenburg Mystery.mkv
+/2007-1 Hindenberg Mystery.mkv
 Was the Hindenburg disaster actually caused by the doping compound with which the LZ 129 Hindenburg was painted?
 Can running in a zig-zag line save a person from a crocodile?
 
@@ -623,7 +623,7 @@ Will a car dropped from 4,000 feet fall faster than a speeding car?
 Is the compact conundrum of a two-truck head-on collision a myth?
 '''Note''': This was a double-length special episode.
 
-/2009-2 Alaska Special 2.mkv
+/2009-2 Alaska Special.mkv
 Is Pykrete really tougher than ice?
 Is Pykrete bulletproof?
 Is Pykrete durable enough to make a boat out of?
@@ -1250,8 +1250,8 @@ Can you instantly cook shrimp by firing them through clouds of flour, eggs, brea
 Can you use an underwater explosion to juice the inside of a fruit without damaging the skin?
 
 /2016-5 Driven to Destruction.mkv
-<!--'''Myths tested''':
--->
+Can you flatten a car with explosives?
+Can you use a household vacuum cleaner to lift a car?
 
 /2016-6 Volunteer Special.mkv
 <!--'''Myths tested''':
