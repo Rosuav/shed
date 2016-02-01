@@ -87,6 +87,9 @@ The Quotes
 "Spontaneous combustion is a myth. If you burst into flame, someone wanted you to."
 - Chandra Nalaar (Incinerate)
 
+"Who said there are no assurances in life? I assure you this is going to hurt."
+- Chandra Nalaar (Incinerate - Duel Decks)
+
 "Those who wish to invade [CENSORED], please take it up with my servant."
 - Chandra Nalaar (Inferno Elemental)
 
