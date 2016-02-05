@@ -26,12 +26,16 @@ array middles = "1 1 4 5 6 7"/" ";
 
 int main()
 {
-	if (0)
+	if (5)
 	{
 		//Sanity check(s)
 		mapping counts=([]);
 		foreach (corners+edges,array set) foreach (set,string square) counts[square[1..]]++;
-		write("Should be all sixes: %O\n",counts);
+		write("Position counts: %O\n",counts);
+		counts=([]);
+		foreach (corners+edges+({middles}),array set) foreach (set,string square) counts[square[..0]]++;
+		write("Digit counts: %O\n",counts);
+		write("Should be all sixes, Cox & Box style.\n");
 		return 0;
 	}
 }
