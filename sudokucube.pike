@@ -26,7 +26,12 @@ array middles = "1 1 4 5 6 7"/" ";
 
 int main()
 {
-	mapping counts=([]);
-	foreach (corners+edges,array set) foreach (set,string square) counts[square[1..]]++;
-	write("%O\n",counts);
+	if (0)
+	{
+		//Sanity check(s)
+		mapping counts=([]);
+		foreach (corners+edges,array set) foreach (set,string square) counts[square[1..]]++;
+		write("Should be all sixes: %O\n",counts);
+		return 0;
+	}
 }
