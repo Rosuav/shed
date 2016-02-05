@@ -1,6 +1,6 @@
 /* Sudoku cube solver... I hope.
 
-Each square is correctly placed for one possible position:
+Each square is correctly oriented for one possible position:
 +---+---+---+
 | 1 | 2 | 3 |
 +---+---+---+
