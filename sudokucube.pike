@@ -24,6 +24,24 @@ array corners = ("49,63,91 57,41,23 11,31,73 13,31,73 57,77,89 59,97,99 11,69,87
 array edges = ("36,98 72,96 36,74 32,68 24,42 82,92 16,24 56,84 64,86 38,44 28,88 28,52"/" ")[*]/",";
 array middles = "1 1 4 5 6 7"/" ";
 
+//Recursively attempt to add to a solution
+//Returns 0 if nothing could be done.
+array solve(array state,array corners,array edges)
+{
+	int nextpos = sizeof(state); if (nextpos>=5) ++nextpos;
+	if (nextpos >= 10) return state;
+	nextpos += '0'; //Use the character for convenience
+	array search = (nextpos&1) ? corners : edges;
+	foreach (search, array cube) foreach (cube, string square)
+	{
+		if (square[1] != nextpos) continue; //Exclusion: Wrong orientation
+		if (has_value(state[0], square[..0])) continue; //Exclusion: Already got one.
+		array st = state+({cube}); st[0]+=square[..0];
+		array sol = solve(st, corners-({cube}), edges-({cube}));
+		if (sol) return sol;
+	}
+}
+
 int main()
 {
 	if (0)
@@ -38,4 +56,5 @@ int main()
 		write("Should be all sixes, Cox & Box style.\n");
 		return 0;
 	}
+	write("%O\n",solve(({"5"}),corners,edges));
 }
