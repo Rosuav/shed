@@ -26,7 +26,7 @@ array middles = "1 1 4 5 6 7"/" ";
 
 int main()
 {
-	if (5)
+	if (0)
 	{
 		//Sanity check(s)
 		mapping counts=([]);
