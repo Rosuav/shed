@@ -68,9 +68,15 @@ int main()
 		object iter=ls->append();
 		foreach (info; int i; string cell) ls->set_value(iter, i, cell);
 	}
+	object list = win->list = GTK2.TreeView(ls);
+	if (sizeof(info_table) > 15)
+	{
+		list = GTK2.ScrolledWindow()->add(list);
+		list->set_size_request(600,300);
+	}
 	win->mainwindow=GTK2.Window(0)->set_title("Register with new network")
 		->add(GTK2.Vbox(0,10)
-			->add(win->list=GTK2.TreeView(ls))
+			->add(list)
 			->pack_start(GTK2.Hbox(0,0)
 				->pack_start(GTK2.Label("Passphrase (if encrypted):"),0,0,0)
 				->add(win->passphrase=GTK2.Entry())
