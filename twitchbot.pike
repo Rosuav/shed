@@ -30,7 +30,7 @@ void generic(mixed ... args) {write("generic: %O\n",args);}
 int main()
 {
 	irc = Protocols.IRC.Client("irc.twitch.tv", ([
-		"user": "rosuav",
+		"nick": "Rosuav",
 		"pass": "oauth:<put twitch oauth password here>",
 		"realname": "Chris Angelico",
 		"channel_program": channel_notif,
