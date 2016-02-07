@@ -13,7 +13,7 @@ class channel_notif
 {
 	inherit Protocols.IRC.Channel;
 	void not_join(object who) {write("not_join: %s %O\n",name,who);}
-	void not_part(object who,string message,object executor) {write("not_part: %s %O\n",name,wgo);}
+	void not_part(object who,string message,object executor) {write("not_part: %s %O\n",name,who);}
 	void not_message(object person,string msg)
 	{
 		if (sscanf(msg, "\1ACTION %s\1", string slashme)) msg = person->nick+" "+slashme;
