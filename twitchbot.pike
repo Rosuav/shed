@@ -2,9 +2,11 @@ object irc;
 
 void message(object person,string msg,string to)
 {
+	if (sscanf(msg, "\1ACTION %s\1", string slashme)) msg = person->nick+" "+slashme;
+	else msg = person->nick+": "+msg;
 	string pfx=sprintf("[%s] ",to);
 	int wid = Stdio.stdin->tcgetattr()->columns - sizeof(pfx);
-	write("%*s%-=*s\n",sizeof(pfx),pfx,wid,person->nick+": "+msg);
+	write("%*s%-=*s\n",sizeof(pfx),pfx,wid,msg);
 }
 
 int main()
