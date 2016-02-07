@@ -1,13 +1,30 @@
+/* Chat bot for Twitch.tv
+See API docs:
+https://github.com/justintv/Twitch-API/blob/master/IRC.md
+
+To make this work, get yourself an oauth key here:
+http://twitchapps.com/tmi/
+and change your user and realname accordingly.
+*/
+
 object irc;
 
-void message(object person,string msg,string to)
+class channel_notif
 {
-	if (sscanf(msg, "\1ACTION %s\1", string slashme)) msg = person->nick+" "+slashme;
-	else msg = person->nick+": "+msg;
-	string pfx=sprintf("[%s] ",to);
-	int wid = Stdio.stdin->tcgetattr()->columns - sizeof(pfx);
-	write("%*s%-=*s\n",sizeof(pfx),pfx,wid,msg);
+	inherit Protocols.IRC.Channel;
+	void not_join(object who) {write("not_join: %s %O\n",name,who);}
+	void not_part(object who,string message,object executor) {write("not_part: %s %O\n",name,wgo);}
+	void not_message(object person,string msg)
+	{
+		if (sscanf(msg, "\1ACTION %s\1", string slashme)) msg = person->nick+" "+slashme;
+		else msg = person->nick+": "+msg;
+		string pfx=sprintf("[%s] ",name);
+		int wid = Stdio.stdin->tcgetattr()->columns - sizeof(pfx);
+		write("%*s%-=*s\n",sizeof(pfx),pfx,wid,msg);
+	}
 }
+
+void generic(mixed ... args) {write("generic: %O\n",args);}
 
 int main()
 {
@@ -15,10 +32,12 @@ int main()
 		"user": "rosuav",
 		"pass": "oauth:<put twitch oauth password here>",
 		"realname": "Chris Angelico",
-		"privmsg_notify": message,
+		"channel_program": channel_notif,
+		//"generic_notify": generic,
 	]));
-	write("%O %O\n",irc,indices(irc));
-	irc->cmd->join("#cookingfornoobs");
+	irc->cmd->cap("REQ","twitch.tv/membership");
+	irc->join_channel("#rosuav");
+	irc->join_channel("#ellalune");
+	//irc->send_message("#rosuav","Test");
 	return -1;
-	//irc->send_message("#cookingfornoobs","");
 }
