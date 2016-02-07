@@ -12,8 +12,8 @@ object irc;
 class channel_notif
 {
 	inherit Protocols.IRC.Channel;
-	void not_join(object who) {write("not_join: %s %O\n",name,who);}
-	void not_part(object who,string message,object executor) {write("not_part: %s %O\n",name,who);}
+	void not_join(object who) {write("Join %s: %s\n",name,who->nick);}
+	void not_part(object who,string message,object executor) {write("Part %s: %s\n",name,who->nick);}
 	void not_message(object person,string msg)
 	{
 		if (msg == "!hello") irc->send_message(name, "Hello, "+person->nick+"!");
