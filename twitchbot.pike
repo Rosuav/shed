@@ -17,6 +17,7 @@ class channel_notif
 	void not_message(object person,string msg)
 	{
 		if (msg == "!hello") irc->send_message(name, "Hello, "+person->nick+"!");
+		if (msg == "!hostthis") irc->send_message("#"+person->nick, "/host "+name[1..]);
 		if (sscanf(msg, "\1ACTION %s\1", string slashme)) msg = person->nick+" "+slashme;
 		else msg = person->nick+": "+msg;
 		string pfx=sprintf("[%s] ",name);
@@ -39,6 +40,7 @@ int main()
 	irc->cmd->cap("REQ","twitch.tv/membership");
 	irc->join_channel("#rosuav");
 	irc->join_channel("#ellalune");
+	irc->join_channel("#lara_cr");
 	//irc->send_message("#rosuav","Test");
 	return -1;
 }
