@@ -40,17 +40,39 @@ void generic(mixed ... args) {write("generic: %O\n",args);}
 
 int main()
 {
-	irc = Protocols.IRC.Client("irc.twitch.tv", ([
-		"nick": "Rosuav",
-		"pass": "oauth:<put twitch oauth password here>",
-		"realname": "Chris Angelico",
-		"channel_program": channel_notif,
-		//"generic_notify": generic,
-	]));
+	if (!file_stat("twitchbot_config.txt"))
+	{
+		Stdio.write_file("twitchbot_config.txt",#"# twitchbot.pike config file
+# Basic names
+nick: <bot nickname here>
+realname: <bot real name here>
+# Get an OAuth2 key here: 
+pass: <password>
+# List the channels you want to monitor. Only these channels will
+# be logged, and commands will be noticed only if they're in one
+# of these channels. Any number of channels can be specified.
+channels: rosuav ellalune lara_cr cookingfornoobs
+");
+	}
+	mapping config = ([]);
+	array(string) channels = ({ });
+	foreach (Stdio.read_file("twitchbot_config.txt")/"\n", string l)
+	{
+		l = String.trim_all_whites(l);
+		if (l=="" || l[0]=='#') continue;
+		sscanf(l, "%s: %s", string key, string val); if (!val) continue;
+		if (key=="channels") channels += "#" + (val/" ")[*];
+		else config[key] = val;
+	}
+	if (config->pass[0] == '<')
+	{
+		write("Edit twitchbot_config.txt to make this bot work!\n");
+		return 0;
+	}
+	config->channel_program = channel_notif;
+	irc = Protocols.IRC.Client("irc.twitch.tv", config);
 	irc->cmd->cap("REQ","twitch.tv/membership");
-	irc->join_channel("#rosuav");
-	irc->join_channel("#ellalune");
-	irc->join_channel("#lara_cr");
+	irc->join_channel(channels[*]);
 	Stdio.stdin->set_buffer_mode(Stdio.Buffer(),0);
 	Stdio.stdin->set_read_callback(reply);
 	return -1;
