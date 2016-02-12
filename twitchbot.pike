@@ -37,7 +37,14 @@ void reply(object stdin, Stdio.Buffer buf)
 {
 	if (!lastchan) return;
 	while (string line=buf->match("%s\n")) //Will usually happen exactly once, but if you type before lastchan is set, it might loop
-		irc->send_message(lastchan, line);
+	{
+		if (sscanf(line, "/join %s", string chan))
+		{
+			write("%%% Joining #"+chan+"\n");
+			irc->join_channel("#"+chan);
+		}
+		else irc->send_message(lastchan, line);
+	}
 }
 
 void generic(mixed ... args) {write("generic: %O\n",args);}
