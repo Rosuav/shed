@@ -16,7 +16,7 @@ class channel_notif
 {
 	inherit Protocols.IRC.Channel;
 	string color;
-	void create() {color = sprintf("\e[1;3%dm", nextcolor=(nextcolor+1)%15);}
+	void create() {if (++nextcolor>7) nextcolor=1; color = sprintf("\e[1;3%dm", nextcolor);}
 
 	void not_join(object who) {write("%sJoin %s: %s\e[0m\n",color,name,who->nick);}
 	void not_part(object who,string message,object executor) {write("%sPart %s: %s\e[0m\n",color,name,who->nick);}
