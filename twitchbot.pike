@@ -37,19 +37,20 @@ void reply(object stdin, Stdio.Buffer buf)
 {
 	if (!lastchan) return;
 	while (string line=buf->match("%s\n")) //Will usually happen exactly once, but if you type before lastchan is set, it might loop
-	{
-		if (sscanf(line, "/join %s", string chan))
-		{
-			write("%%% Joining #"+chan+"\n");
-			irc->join_channel("#"+chan);
-		}
-		else irc->send_message(lastchan, line);
-	}
+		execcommand(line);
 }
 
-void generic(mixed ... args) {write("generic: %O\n",args);}
+void execcommand(string line)
+{
+	if (sscanf(line, "/join %s", string chan))
+	{
+		write("%%% Joining #"+chan+"\n");
+		irc->join_channel("#"+chan);
+	}
+	else irc->send_message(lastchan, line);
+}
 
-int main()
+int main(int argc,array(string) argv)
 {
 	if (!file_stat("twitchbot_config.txt"))
 	{
@@ -86,5 +87,14 @@ channels: rosuav ellalune lara_cr cookingfornoobs
 	irc->join_channel(channels[*]);
 	Stdio.stdin->set_buffer_mode(Stdio.Buffer(),0);
 	Stdio.stdin->set_read_callback(reply);
+	if (has_value(argv,"--gui"))
+	{
+		GTK2.setup_gtk(argv);
+		object ef=GTK2.Entry()->set_width_chars(40)->set_activates_default(1);
+		object btn=GTK2.Button()->set_size_request(0,0)->set_flags(GTK2.CAN_DEFAULT);
+		btn->signal_connect("clicked",lambda() {execcommand(ef->get_text()); ef->set_text("");});
+		GTK2.Window(0)->add(GTK2.Vbox(0,0)->add(ef)->pack_end(btn,0,0,0))->set_title("Twitch Bot")->show_all();
+		btn->grab_default();
+	}
 	return -1;
 }
