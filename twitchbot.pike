@@ -10,12 +10,16 @@ and change your user and realname accordingly.
 object irc;
 
 string lastchan;
+int nextcolor;
 
 class channel_notif
 {
 	inherit Protocols.IRC.Channel;
-	void not_join(object who) {write("Join %s: %s\n",name,who->nick);}
-	void not_part(object who,string message,object executor) {write("Part %s: %s\n",name,who->nick);}
+	string color;
+	void create() {color = sprintf("\e[1;3%dm", nextcolor=(nextcolor+1)%15);}
+
+	void not_join(object who) {write("%sJoin %s: %s\e[0m\n",color,name,who->nick);}
+	void not_part(object who,string message,object executor) {write("%sPart %s: %s\e[0m\n",color,name,who->nick);}
 	void not_message(object person,string msg)
 	{
 		lastchan = name;
@@ -25,7 +29,7 @@ class channel_notif
 		else msg = person->nick+": "+msg;
 		string pfx=sprintf("[%s] ",name);
 		int wid = Stdio.stdin->tcgetattr()->columns - sizeof(pfx);
-		write("%*s%-=*s\n",sizeof(pfx),pfx,wid,msg);
+		write("%s%s\e[0m", color, sprintf("%*s%-=*s\n",sizeof(pfx),pfx,wid,msg));
 	}
 }
 
