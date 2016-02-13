@@ -33,7 +33,7 @@ class channel_notif
 	}
 }
 
-void reply(object stdin, Stdio.Buffer buf)
+void console(object stdin, Stdio.Buffer buf)
 {
 	while (string line=buf->match("%s\n")) //Will usually happen exactly once, but if you type before lastchan is set, it might loop
 		execcommand(line);
@@ -90,7 +90,7 @@ channels: rosuav ellalune lara_cr cookingfornoobs
 	irc->cmd->cap("REQ","twitch.tv/membership");
 	irc->join_channel(channels[*]);
 	Stdio.stdin->set_buffer_mode(Stdio.Buffer(),0);
-	Stdio.stdin->set_read_callback(reply);
+	Stdio.stdin->set_read_callback(console);
 	if (has_value(argv,"--gui"))
 	{
 		GTK2.setup_gtk(argv);
