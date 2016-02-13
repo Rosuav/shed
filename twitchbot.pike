@@ -47,6 +47,11 @@ void execcommand(string line)
 		write("%%% Joining #"+chan+"\n");
 		irc->join_channel("#"+chan);
 	}
+	else if (sscanf(line, "/part %s", string chan))
+	{
+		write("%%% Parting #"+chan+"\n");
+		irc->part_channel("#"+chan);
+	}
 	else irc->send_message(lastchan, line);
 }
 
