@@ -35,7 +35,6 @@ class channel_notif
 
 void reply(object stdin, Stdio.Buffer buf)
 {
-	if (!lastchan) return;
 	while (string line=buf->match("%s\n")) //Will usually happen exactly once, but if you type before lastchan is set, it might loop
 		execcommand(line);
 }
@@ -52,7 +51,7 @@ void execcommand(string line)
 		write("%%% Parting #"+chan+"\n");
 		irc->part_channel("#"+chan);
 	}
-	else irc->send_message(lastchan, line);
+	else if (lastchan) irc->send_message(lastchan, line);
 }
 
 int main(int argc,array(string) argv)
