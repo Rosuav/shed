@@ -25,6 +25,15 @@ class channel_notif
 		lastchan = name;
 		if (msg == "!hello") irc->send_message(name, "Hello, "+person->nick+"!");
 		if (msg == "!hostthis") irc->send_message("#"+person->nick, "/host "+name[1..]);
+		if (sscanf(msg, "!tz %s", string tz))
+		{
+			string tm;
+			if (catch {tm=Calendar.Gregorian.Second()->set_timezone(tz)->format_time();})
+				tm = "Unable to figure out the time in that location, sorry.";
+			else
+				tm = tz + " - " + tm;
+			irc->send_message(name, sprintf("@%s: %s", person->nick, tm));
+		}
 		if (sscanf(msg, "\1ACTION %s\1", string slashme)) msg = person->nick+" "+slashme;
 		else msg = person->nick+": "+msg;
 		string pfx=sprintf("[%s] ",name);
