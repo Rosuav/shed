@@ -12,6 +12,21 @@ object irc;
 string lastchan;
 int nextcolor;
 
+mapping timezones;
+
+string timezone_info(string tz)
+{
+	if (!tz || tz=="") return "Regions are: " + sort(indices(timezones))*", ";
+	mapping|string region = timezones;
+	foreach (lower_case(tz)/"/", string part) if (!mappingp(region=region[part])) break;
+	if (undefinedp(region))
+		return "Unknown region "+tz+" - use '!tz' to list";
+	if (mappingp(region))
+		return "Locations in region "+tz+": "+sort(indices(region))*", ";
+	if (catch {return region+" - "+Calendar.Gregorian.Second()->set_timezone(region)->format_time();})
+		return "Unable to figure out the time in that location, sorry.";
+}
+
 class channel_notif
 {
 	inherit Protocols.IRC.Channel;
@@ -25,14 +40,15 @@ class channel_notif
 		lastchan = name;
 		if (msg == "!hello") irc->send_message(name, "Hello, "+person->nick+"!");
 		if (msg == "!hostthis") irc->send_message("#"+person->nick, "/host "+name[1..]);
-		if (sscanf(msg, "!tz %s", string tz))
+		if (msg == "!tz" || sscanf(msg, "!tz %s", string tz))
 		{
-			string tm;
-			if (catch {tm=Calendar.Gregorian.Second()->set_timezone(tz)->format_time();})
-				tm = "Unable to figure out the time in that location, sorry.";
-			else
-				tm = tz + " - " + tm;
-			irc->send_message(name, sprintf("@%s: %s", person->nick, tm));
+			tz = timezone_info(tz||"");
+			while (sizeof(tz) > 200)
+			{
+				sscanf(tz, "%200s%s %s", string piece, string word, tz);
+				irc->send_message(name, sprintf("@%s: %s%s ...", person->nick, piece, word));
+			}
+			irc->send_message(name, sprintf("@%s: %s", person->nick, tz));
 		}
 		if (sscanf(msg, "\1ACTION %s\1", string slashme)) msg = person->nick+" "+slashme;
 		else msg = person->nick+": "+msg;
@@ -65,6 +81,16 @@ void execcommand(string line)
 
 int main(int argc,array(string) argv)
 {
+	timezones = ([]);
+	foreach (sort(Calendar.TZnames.zonenames()), string zone)
+	{
+		array(string) parts = lower_case(zone)/"/";
+		mapping tz = timezones;
+		foreach (parts[..<1], string region)
+			if (!tz[region]) tz = tz[region] = ([]);
+			else tz = tz[region];
+		tz[parts[-1]] = zone;
+	}
 	if (!file_stat("twitchbot_config.txt"))
 	{
 		Stdio.write_file("twitchbot_config.txt",#"# twitchbot.pike config file
