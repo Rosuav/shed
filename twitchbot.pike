@@ -85,6 +85,7 @@ void execcommand(string line)
 
 void reconnect()
 {
+	if (irc) write("%% Reconnecting\n");
 	irc = Protocols.IRC.Client("irc.twitch.tv", config);
 	irc->cmd->cap("REQ","twitch.tv/membership");
 	irc->join_channel(channels[*]);
