@@ -41,7 +41,8 @@ class channel_notif
 	{
 		lastchan = name;
 		if (msg == "!hello") irc->send_message(name, "Hello, "+person->nick+"!");
-		if (msg == "!discord") irc->send_message(name, "Take over Discord: https://discord.gg/0n5IxqnfPOYwRc7a");
+		if (msg == "!disc") irc->send_message(name, "Take over Discord: https://discord.gg/0n5IxqnfPOYwRc7a");
+		if (msg == "!takeover") irc->send_message(name, "Join us on discord for the Pixel1st Takeover https://discord.gg/0n5IxqnfPOYwRc7a");
 		if (sscanf(msg, "!hype %s", string whatfor)) irc->send_message(name, "/me <3 gives the hype for "+whatfor+"! <3");
 		if (msg == "!hostthis") irc->send_message("#"+person->nick, "/host "+name[1..]);
 		if (msg == "!tz" || sscanf(msg, "!tz %s", string tz))
