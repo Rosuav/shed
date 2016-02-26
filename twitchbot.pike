@@ -7,6 +7,8 @@ http://twitchapps.com/tmi/
 and change your user and realname accordingly.
 */
 
+mapping config = ([]);
+array(string) channels = ({ });
 object irc;
 
 string lastchan;
@@ -70,13 +72,22 @@ void execcommand(string line)
 	{
 		write("%%% Joining #"+chan+"\n");
 		irc->join_channel("#"+chan);
+		channels += ({"#"+chan});
 	}
 	else if (sscanf(line, "/part %s", string chan))
 	{
 		write("%%% Parting #"+chan+"\n");
 		irc->part_channel("#"+chan);
+		channels -= ({"#"+chan});
 	}
 	else if (lastchan) irc->send_message(lastchan, line);
+}
+
+void reconnect()
+{
+	irc = Protocols.IRC.Client("irc.twitch.tv", config);
+	irc->cmd->cap("REQ","twitch.tv/membership");
+	irc->join_channel(channels[*]);
 }
 
 int main(int argc,array(string) argv)
@@ -105,8 +116,6 @@ pass: <password>
 channels: rosuav ellalune lara_cr cookingfornoobs
 ");
 	}
-	mapping config = ([]);
-	array(string) channels = ({ });
 	foreach (Stdio.read_file("twitchbot_config.txt")/"\n", string l)
 	{
 		l = String.trim_all_whites(l);
@@ -121,9 +130,8 @@ channels: rosuav ellalune lara_cr cookingfornoobs
 		return 0;
 	}
 	config->channel_program = channel_notif;
-	irc = Protocols.IRC.Client("irc.twitch.tv", config);
-	irc->cmd->cap("REQ","twitch.tv/membership");
-	irc->join_channel(channels[*]);
+	config->connection_lost = reconnect;
+	reconnect();
 	Stdio.stdin->set_buffer_mode(Stdio.Buffer(),0);
 	Stdio.stdin->set_read_callback(console);
 	if (has_value(argv,"--gui"))
