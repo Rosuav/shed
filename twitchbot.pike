@@ -29,6 +29,12 @@ string timezone_info(string tz)
 		return "Unable to figure out the time in that location, sorry.";
 }
 
+mapping(string:string) commands = ([
+	"!disc": "Take over Discord: https://discord.gg/0n5IxqnfPOYwRc7a",
+	"!takeover": "Join us on discord for the Pixel1st Takeover https://discord.gg/0n5IxqnfPOYwRc7a",
+	"!hype": "/me <3 gives the hype for %s! <3",
+]);
+
 class channel_notif
 {
 	inherit Protocols.IRC.Channel;
@@ -41,10 +47,9 @@ class channel_notif
 	{
 		lastchan = name;
 		if (msg == "!hello") irc->send_message(name, "Hello, "+person->nick+"!");
-		if (msg == "!disc") irc->send_message(name, "Take over Discord: https://discord.gg/0n5IxqnfPOYwRc7a");
-		if (msg == "!takeover") irc->send_message(name, "Join us on discord for the Pixel1st Takeover https://discord.gg/0n5IxqnfPOYwRc7a");
-		if (sscanf(msg, "!hype %s", string whatfor)) irc->send_message(name, "/me <3 gives the hype for "+whatfor+"! <3");
 		if (msg == "!hostthis") irc->send_message("#"+person->nick, "/host "+name[1..]);
+		if (commands[msg]) irc->send_message(name, commands[msg]);
+		if (sscanf(msg, "%s %s", string cmd, string param) && commands[cmd]) irc->send_message(name, replace(commands[cmd], "%s", param));
 		if (msg == "!tz" || sscanf(msg, "!tz %s", string tz))
 		{
 			tz = timezone_info(tz||"");
