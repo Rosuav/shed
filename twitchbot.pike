@@ -29,11 +29,7 @@ string timezone_info(string tz)
 		return "Unable to figure out the time in that location, sorry.";
 }
 
-mapping(string:string) commands = ([
-	"!disc": "Take over Discord: https://discord.gg/0n5IxqnfPOYwRc7a",
-	"!takeover": "Join us on discord for the Pixel1st Takeover https://discord.gg/0n5IxqnfPOYwRc7a",
-	"!hype": "/me <3 gives the hype for %s! <3",
-]);
+mapping(string:string) commands = Standards.JSON.decode_utf8(Stdio.read_file("twitchbot_commands.json")||"{}");
 
 class channel_notif
 {
