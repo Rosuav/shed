@@ -91,6 +91,7 @@ void reconnect()
 	if (irc) write("%% Reconnecting\n");
 	irc = Protocols.IRC.Client("irc.twitch.tv", config);
 	irc->cmd->cap("REQ","twitch.tv/membership");
+	nextcolor = 0;
 	irc->join_channel(channels[*]);
 }
 
