@@ -46,6 +46,14 @@ class channel_notif
 		if (msg == "!hostthis") irc->send_message("#"+person->nick, "/host "+name[1..]);
 		if (commands[msg]) irc->send_message(name, commands[msg]);
 		if (sscanf(msg, "%s %s", string cmd, string param) && commands[cmd]) irc->send_message(name, replace(commands[cmd], "%s", param));
+		if (sscanf(msg, "!addcmd !%s %s", string cmd, string response) == 2)
+		{
+			//Create a new command
+			string newornot = commands["!"+cmd] ? "Updated" : "Created new";
+			commands["!"+cmd] = response;
+			Stdio.write_file("twitchbot_commands.json", string_to_utf8(Standards.JSON.encode(commands, Standards.JSON.HUMAN_READABLE)));
+			irc->send_message(name, sprintf("@%s: %s command !%s", person->nick, newornot, cmd));
+		}
 		if (msg == "!tz" || sscanf(msg, "!tz %s", string tz))
 		{
 			tz = timezone_info(tz||"");
