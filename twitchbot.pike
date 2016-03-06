@@ -39,14 +39,12 @@ class channel_notif
 
 	void not_join(object who) {write("%sJoin %s: %s\e[0m\n",color,name,who->nick);}
 	void not_part(object who,string message,object executor) {write("%sPart %s: %s\e[0m\n",color,name,who->nick);}
-	void not_message(object person,string msg)
+
+	void cmd_hello(object person, string param) {irc->send_message(name, "Hello, "+person->nick+"!");}
+	void cmd_hostthis(object person, string param) {irc->send_message("#"+person->nick, "/host "+name[1..]);}
+	void cmd_addcmd(object person, string param)
 	{
-		lastchan = name;
-		if (msg == "!hello") irc->send_message(name, "Hello, "+person->nick+"!");
-		if (msg == "!hostthis") irc->send_message("#"+person->nick, "/host "+name[1..]);
-		if (commands[msg]) irc->send_message(name, commands[msg]);
-		if (sscanf(msg, "%s %s", string cmd, string param) && commands[cmd]) irc->send_message(name, replace(commands[cmd], "%s", param));
-		if (sscanf(msg, "!addcmd !%s %s", string cmd, string response) == 2)
+		if (sscanf(param, "!%s %s", string cmd, string response) == 2)
 		{
 			//Create a new command
 			string newornot = commands["!"+cmd] ? "Updated" : "Created new";
@@ -54,16 +52,34 @@ class channel_notif
 			Stdio.write_file("twitchbot_commands.json", string_to_utf8(Standards.JSON.encode(commands, Standards.JSON.HUMAN_READABLE)));
 			irc->send_message(name, sprintf("@%s: %s command !%s", person->nick, newornot, cmd));
 		}
-		if (msg == "!tz" || sscanf(msg, "!tz %s", string tz))
+	}
+	void cmd_tz(object person, string param)
+	{
+		string tz = timezone_info(param);
+		while (sizeof(tz) > 200)
 		{
-			tz = timezone_info(tz||"");
-			while (sizeof(tz) > 200)
-			{
-				sscanf(tz, "%200s%s %s", string piece, string word, tz);
-				irc->send_message(name, sprintf("@%s: %s%s ...", person->nick, piece, word));
-			}
-			irc->send_message(name, sprintf("@%s: %s", person->nick, tz));
+			sscanf(tz, "%200s%s %s", string piece, string word, tz);
+			irc->send_message(name, sprintf("@%s: %s%s ...", person->nick, piece, word));
 		}
+		irc->send_message(name, sprintf("@%s: %s", person->nick, tz));
+	}
+
+	void cmd_help(object person, string param)
+	{
+		array(string) cmds=({ });
+		foreach (indices(this), string attr) if (sscanf(attr, "cmd_%s", string c)) cmds+=({"!"+c});
+		cmds += indices(commands);
+		sort(cmds);
+		irc->send_message(name, sprintf("@%s: Available commands are:%{ %s%}", person->nick, cmds));
+	}
+
+	void not_message(object person,string msg)
+	{
+		lastchan = name;
+		if (function f = has_prefix(msg,"!") && this["cmd_"+msg[1..]]) f(person, "");
+		if (function f = (sscanf(msg, "!%s %s", string cmd, string param) == 2) && this["cmd_"+cmd]) f(person, param);
+		if (commands[msg]) irc->send_message(name, commands[msg]);
+		if (sscanf(msg, "%s %s", string cmd, string param) && commands[cmd]) irc->send_message(name, replace(commands[cmd], "%s", param));
 		if (sscanf(msg, "\1ACTION %s\1", string slashme)) msg = person->nick+" "+slashme;
 		else msg = person->nick+": "+msg;
 		string pfx=sprintf("[%s] ",name);
