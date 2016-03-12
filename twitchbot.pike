@@ -115,7 +115,7 @@ void reconnect()
 {
 	//NOTE: This appears to be creating duplicate channel joinings, for some reason.
 	if (irc) write("%% Reconnecting\n");
-	irc = Protocols.IRC.Client("irc.twitch.tv", config);
+	irc = Protocols.IRC.Client("irc.chat.twitch.tv", config);
 	irc->cmd->cap("REQ","twitch.tv/membership");
 	nextcolor = 0;
 	irc->join_channel(channels[*]);
