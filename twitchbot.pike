@@ -31,6 +31,31 @@ string timezone_info(string tz)
 
 mapping(string:string) commands = Standards.JSON.decode_utf8(Stdio.read_file("twitchbot_commands.json")||"{}");
 
+int lastmsgtime = time();
+array msgqueue = ({ });
+void pump_queue()
+{
+	int tm = time(1);
+	if (tm == lastmsgtime) {call_out(pump_queue, 1); return;}
+	lastmsgtime = tm;
+	[[string|array to, string msg], msgqueue] = Array.shift(msgqueue);
+	irc->send_message(to, msg);
+}
+void send_message(string|array to,string msg)
+{
+	int tm = time(1);
+	if (sizeof(msgqueue) || tm == lastmsgtime)
+	{
+		msgqueue += ({({to, msg})});
+		call_out(pump_queue, 1);
+	}
+	else
+	{
+		lastmsgtime = tm;
+		irc->send_message(to, msg);
+	}
+}
+
 class channel_notif
 {
 	inherit Protocols.IRC.Channel;
@@ -40,8 +65,8 @@ class channel_notif
 	void not_join(object who) {write("%sJoin %s: %s\e[0m\n",color,name,who->nick);}
 	void not_part(object who,string message,object executor) {write("%sPart %s: %s\e[0m\n",color,name,who->nick);}
 
-	void cmd_hello(object person, string param) {irc->send_message(name, "Hello, "+person->nick+"!");}
-	void cmd_hostthis(object person, string param) {irc->send_message("#"+person->nick, "/host "+name[1..]);}
+	void cmd_hello(object person, string param) {send_message(name, "Hello, "+person->nick+"!");}
+	void cmd_hostthis(object person, string param) {send_message("#"+person->nick, "/host "+name[1..]);}
 	void cmd_addcmd(object person, string param)
 	{
 		if (sscanf(param, "!%s %s", string cmd, string response) == 2)
@@ -50,7 +75,7 @@ class channel_notif
 			string newornot = commands["!"+cmd] ? "Updated" : "Created new";
 			commands["!"+cmd] = response;
 			Stdio.write_file("twitchbot_commands.json", string_to_utf8(Standards.JSON.encode(commands, Standards.JSON.HUMAN_READABLE)));
-			irc->send_message(name, sprintf("@%s: %s command !%s", person->nick, newornot, cmd));
+			send_message(name, sprintf("@%s: %s command !%s", person->nick, newornot, cmd));
 		}
 	}
 	void cmd_tz(object person, string param)
@@ -59,9 +84,9 @@ class channel_notif
 		while (sizeof(tz) > 200)
 		{
 			sscanf(tz, "%200s%s %s", string piece, string word, tz);
-			irc->send_message(name, sprintf("@%s: %s%s ...", person->nick, piece, word));
+			send_message(name, sprintf("@%s: %s%s ...", person->nick, piece, word));
 		}
-		irc->send_message(name, sprintf("@%s: %s", person->nick, tz));
+		send_message(name, sprintf("@%s: %s", person->nick, tz));
 	}
 
 	void cmd_help(object person, string param)
@@ -70,16 +95,17 @@ class channel_notif
 		foreach (indices(this), string attr) if (sscanf(attr, "cmd_%s", string c)) cmds+=({"!"+c});
 		cmds += indices(commands);
 		sort(cmds);
-		irc->send_message(name, sprintf("@%s: Available commands are:%{ %s%}", person->nick, cmds));
+		send_message(name, sprintf("@%s: Available commands are:%{ %s%}", person->nick, cmds));
 	}
 
 	void not_message(object person,string msg)
 	{
+		if (lower_case(person->nick) == lower_case(config->nick)) lastmsgtime = time(1);
 		lastchan = name;
 		if (function f = has_prefix(msg,"!") && this["cmd_"+msg[1..]]) f(person, "");
 		if (function f = (sscanf(msg, "!%s %s", string cmd, string param) == 2) && this["cmd_"+cmd]) f(person, param);
-		if (commands[msg]) irc->send_message(name, commands[msg]);
-		if (sscanf(msg, "%s %s", string cmd, string param) && commands[cmd]) irc->send_message(name, replace(commands[cmd], "%s", param));
+		if (commands[msg]) send_message(name, commands[msg]);
+		if (sscanf(msg, "%s %s", string cmd, string param) && commands[cmd]) send_message(name, replace(commands[cmd], "%s", param));
 		if (sscanf(msg, "\1ACTION %s\1", string slashme)) msg = person->nick+" "+slashme;
 		else msg = person->nick+": "+msg;
 		string pfx=sprintf("[%s] ",name);
@@ -108,7 +134,7 @@ void execcommand(string line)
 		irc->part_channel("#"+chan);
 		channels -= ({"#"+chan});
 	}
-	else if (lastchan) irc->send_message(lastchan, line);
+	else if (lastchan) send_message(lastchan, line);
 }
 
 void reconnect()
