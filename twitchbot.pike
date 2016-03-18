@@ -74,7 +74,7 @@ class channel_notif
 			//Create a new command
 			string newornot = commands["!"+cmd] ? "Updated" : "Created new";
 			commands["!"+cmd] = response;
-			Stdio.write_file("twitchbot_commands.json", string_to_utf8(Standards.JSON.encode(commands, Standards.JSON.HUMAN_READABLE)));
+			Stdio.write_file("twitchbot_commands.json", string_to_utf8(Standards.JSON.encode(commands, Standards.JSON.HUMAN_READABLE|Standards.JSON.PIKE_CANONICAL)));
 			send_message(name, sprintf("@%s: %s command !%s", person->nick, newornot, cmd));
 		}
 	}
