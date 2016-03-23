@@ -9,7 +9,7 @@ and change your user and realname accordingly.
 
 mapping config = ([]);
 array(string) channels = ({ });
-array(object) irc; //array until we can go back to just one connection
+object irc;
 
 string lastchan;
 int nextcolor;
@@ -147,9 +147,7 @@ void reconnect()
 {
 	//NOTE: This appears to be creating duplicate channel joinings, for some reason.
 	if (irc) write("%% Reconnecting\n");
-	//Connect to two servers at once. This may or may not actually work.
-	//Soon, hopefully, irc.twitch.tv can be dropped.
-	irc = ({Protocols.IRC.Client("irc.twitch.tv", config), Protocols.IRC.Client("irc.chat.twitch.tv", config)});
+	irc = Protocols.IRC.Client("irc.chat.twitch.tv", config);
 	irc->cmd->cap("REQ","twitch.tv/membership");
 	nextcolor = 0;
 	irc->join_channel(channels[*]);
