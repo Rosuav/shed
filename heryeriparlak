@@ -8,13 +8,15 @@
 //If given an SSH destination, will pipe itself bidirectionally
 //to the given computer and attempt to invoke itself there.
 
+string noisemode;
+
 array processes = ({ });
+array files = ({ });
 void bomb()
 {
 	werror("Child gone, terminating...\n");
 	processes->kill(2);
-	rm("/tmp/noise.wav");
-	rm("/tmp/noise.dat");
+	rm(files[*]);
 	exit(0);
 }
 
@@ -24,25 +26,50 @@ int main(int argc, array(string) argv)
 	werror("Building noise profile...\n");
 	Process.create_process(({"arecord", "-d1"}) + format + ({"/tmp/noise.wav"}))->wait();
 	Process.create_process(({"sox", "/tmp/noise.wav", "-n", "noiseprof", "/tmp/noise.dat"}))->wait();
+	files += ({"/tmp/noise.wav", "/tmp/noise.dat"});
 	werror("Noise profile built.\n");
-	object ssh_in, ssh_out;
-	if (argc >= 2 && argv[1] != "-c")
+	object master_in=Stdio.stdin, master_out=Stdio.stdout;
+	noisemode = (argv[-1]/" ")[-1]; //See, this is how to get the last word in your arguments :)
+	if (sizeof((multiset)(array)noisemode - (<'l', 'r', 'n'>))) noisemode = "lnln";
+	if (argc >= 2)
 	{
-		ssh_in = Stdio.File(); ssh_out = Stdio.File();
-		processes += ({
-			Process.create_process(({"ssh"}) + argv[1..] + ({"shed/heryeriparlak"}),
-				(["stdin": ssh_in->pipe(), "stdout": ssh_out->pipe()])),
-		});
+		//SSH mode
+		if (argv[1] != "-c")
+		{
+			//Establish remote link
+			master_in = Stdio.File(); master_out = Stdio.File();
+			processes += ({
+				Process.create_process(({"ssh", argv[1], "shed/heryeriparlak", noisemode[2..]}),
+					(["stdin": master_out->pipe(), "stdout": master_in->pipe()])),
+			});
+		}
+		master_out->write("%2H", Stdio.read_file("/tmp/noise.dat"));
+		sscanf(master_in->read(2), "%2c", int len);
+		Stdio.write_file("/tmp/remote_noise.dat", master_in->read(len));
+		files += ({"/tmp/remote_noise.dat"});
 	}
 	object pipe = Stdio.File();
-	//Three processes. Each one has its stderr linked to our stderr.
-	processes += ({
-		Process.create_process(({"arecord"}) + format,
-			(["stdin": Stdio.File("/dev/null"), "stdout": pipe->pipe(), "callback": bomb])),
-		Process.create_process(({"sox", "-twav", "-", "-twav", "-", "noisered", "/tmp/noise.dat", ".2"}),
-			(["stdin": pipe, "stdout": ssh_in, "callback": bomb])),
-		Process.create_process(({"aplay"}),
-			(["stdin": ssh_out, "stdout": Stdio.File("/dev/null", "wct"), "callback": bomb])),
-	});
+	//All subprocesses have stderr linked to our stderr.
+	subprocess(0, ({"arecord"}) + format, Stdio.File("/dev/null"), master_out);
+	subprocess(1, ({"aplay"}), master_in, Stdio.File("/dev/null", "wct"));
 	return -1;
+}
+
+void subprocess(int dir, array cmd, object stdin, object stdout)
+{
+	mapping opts = (["stdin": stdin, "stdout": stdout, "callback": bomb]);
+	array inout = ({"stdin", "stdout"});
+	if (noisemode[dir] != 'n')
+	{
+		object pipe = Stdio.File();
+		string noisefile = noisemode[dir]=='r' ? "/tmp/remote_noise.dat" : "/tmp/noise.dat";
+		mapping soxopts = opts + ([inout[dir]: pipe->pipe, inout[!dir]: opts[inout[dir]]]);
+		opts[inout[!dir]] = pipe;
+		processes += ({
+			Process.create_process(({"sox", "-twav", "-", "-twav", "-", "noisered", noisefile, ".2"}), soxopts),
+		});
+	}
+	processes += ({
+		Process.create_process(cmd, opts),
+	});
 }
