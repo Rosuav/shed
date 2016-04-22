@@ -63,7 +63,7 @@ void subprocess(int dir, array cmd, object stdin, object stdout)
 	{
 		object pipe = Stdio.File();
 		string noisefile = noisemode[dir]=='r' ? "/tmp/remote_noise.dat" : "/tmp/noise.dat";
-		mapping soxopts = opts + ([inout[dir]: pipe->pipe(), inout[!dir]: opts[inout[dir]]]);
+		mapping soxopts = opts + ([inout[dir]: pipe->pipe(), inout[!dir]: opts[inout[!dir]]]);
 		opts[inout[!dir]] = pipe;
 		processes += ({
 			Process.create_process(({"sox", "-twav", "-", "-twav", "-", "noisered", noisefile, ".2"}), soxopts),
