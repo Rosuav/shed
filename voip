@@ -19,10 +19,10 @@ void bomb()
 int main(int argc, array(string) argv)
 {
 	array(string) format = ({"-f", "s16_le", "-r", "16000"});
-	werror("Building noise profile... ");
+	werror("Building noise profile...\n");
 	Process.create_process(({"arecord", "-d1"}) + format + ({"/tmp/noise.wav"}))->wait();
 	Process.create_process(({"sox", "/tmp/noise.wav", "-n", "noiseprof", "/tmp/noise.dat"}))->wait();
-	werror("done.\n");
+	werror("Noise profile built.\n");
 	object ssh_in, ssh_out;
 	if (argc >= 2 && argv[1] != "-c")
 	{
