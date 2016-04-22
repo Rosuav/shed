@@ -1,4 +1,6 @@
 #!/usr/local/bin/pike
+//Her Yeri Parlak. Named after a dragon-killing magic item from
+//Soyutlanma, this demands Combat Reflexes.
 //Attempt to record and play back, without noise
 //Give it a second or so of silence before anything happens.
 //Will feed recorded (and noise-reduced) data to stdout,
@@ -28,7 +30,7 @@ int main(int argc, array(string) argv)
 	{
 		ssh_in = Stdio.File(); ssh_out = Stdio.File();
 		processes += ({
-			Process.create_process(({"ssh"}) + argv[1..] + ({"shed/voip"}),
+			Process.create_process(({"ssh"}) + argv[1..] + ({"shed/heryeriparlak"}),
 				(["stdin": ssh_in->pipe(), "stdout": ssh_out->pipe()])),
 		});
 	}
