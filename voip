@@ -1,0 +1,39 @@
+#!/usr/local/bin/pike
+//Attempt to record and play back, without noise
+//Give it a second or so of silence before anything happens.
+//Will feed recorded (and noise-reduced) data to stdout,
+//and will play back (unchanged) any data received on stdin.
+//If given an SSH destination, will pipe itself bidirectionally
+//to the given computer and attempt to invoke itself there.
+
+array processes = ({ });
+void bomb() {werror("Child gone, terminating...\n"); processes->kill(2); exit(0);}
+
+int main(int argc, array(string) argv)
+{
+	array(string) format = ({"-f", "s16_le", "-r", "16000"});
+	werror("Building noise profile... ");
+	Process.create_process(({"arecord", "-d1"}) + format + ({"noise.wav"}))->wait();
+	Process.create_process(({"sox", "noise.wav", "-n", "noiseprof", "noise.dat"}))->wait();
+	werror("done.\n");
+	object ssh_in, ssh_out;
+	if (argc >= 2)
+	{
+		ssh_in = Stdio.File(); ssh_out = Stdio.File();
+		processes += ({
+			Process.create_process(({"ssh"}) + argv[1..] + ({"shed/voip"}),
+				(["stdin": ssh_in->pipe(), "stdout": ssh_out->pipe()])),
+		});
+	}
+	object pipe = Stdio.File();
+	//Three processes. Each one has its stderr linked to our stderr.
+	processes += ({
+		Process.create_process(({"arecord"}) + format,
+			(["stdin": Stdio.File("/dev/null"), "stdout": pipe->pipe(), "callback": bomb])),
+		Process.create_process(({"sox", "-twav", "-", "-twav", "-", "noisered", "noise.dat", ".25"}),
+			(["stdin": pipe, "stdout": ssh_in, "callback": bomb])),
+		Process.create_process(({"aplay"}),
+			(["stdin": ssh_out, "stdout": Stdio.File("/dev/null", "wct"), "callback": bomb])),
+	});
+	return -1;
+}
