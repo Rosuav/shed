@@ -37,7 +37,7 @@ int main(int argc, array(string) argv)
 	processes += ({
 		Process.create_process(({"arecord"}) + format,
 			(["stdin": Stdio.File("/dev/null"), "stdout": pipe->pipe(), "callback": bomb])),
-		Process.create_process(({"sox", "-twav", "-", "-twav", "-", "noisered", "/tmp/noise.dat", ".25"}),
+		Process.create_process(({"sox", "-twav", "-", "-twav", "-", "noisered", "/tmp/noise.dat", ".2"}),
 			(["stdin": pipe, "stdout": ssh_in, "callback": bomb])),
 		Process.create_process(({"aplay"}),
 			(["stdin": ssh_out, "stdout": Stdio.File("/dev/null", "wct"), "callback": bomb])),
