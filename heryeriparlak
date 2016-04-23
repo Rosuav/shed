@@ -30,7 +30,7 @@ int main(int argc, array(string) argv)
 	werror("Noise profile built.\n");
 	object master_in=Stdio.stdin, master_out=Stdio.stdout;
 	noisemode = (argv[-1]/" ")[-1]; //See, this is how to get the last word in your arguments :)
-	if (sizeof((multiset)(array)noisemode - (<'l', 'r', 'n'>))) noisemode = "lnln";
+	if (sizeof(noisemode - "l" - "r" - "n")) noisemode = "lnln";
 	if (argc >= 2)
 	{
 		//SSH mode
