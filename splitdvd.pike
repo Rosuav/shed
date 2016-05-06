@@ -7,9 +7,9 @@ int main(int argc,array(string) argv)
 		array(string) f=glob(sprintf("VTS_%02d_*.VOB",i),files);
 		if (!sizeof(f)) break; //Come to the end of the titles
 		f-=glob("*_0.VOB",f); //Ignore VTS_nn_0.VOB
-		write("cat%{ "+argv[1]+"/VIDEO_TS/%s%}|avconv -i - %s\n",f,Process.sh_quote(sprintf(argv[2],i))); continue;
+		write("cat%{ "+argv[1]+"/VIDEO_TS/%s%}|ffmpeg -i - %s\n",f,Process.sh_quote(sprintf(argv[2],i))); continue;
 		Stdio.File pipe=Stdio.File();
-		object proc=Process.create_process(({"avconv","-i","-",sprintf(argv[2],i)}),(["stdin":pipe->pipe(Stdio.PROP_IPC|Stdio.PROP_REVERSE)]));
+		object proc=Process.create_process(({"ffmpeg","-i","-",sprintf(argv[2],i)}),(["stdin":pipe->pipe(Stdio.PROP_IPC|Stdio.PROP_REVERSE)]));
 		foreach (f,string fn)
 		{
 			Stdio.File in=Stdio.File(argv[1]+"/"+fn);
