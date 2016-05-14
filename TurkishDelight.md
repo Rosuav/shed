@@ -26,7 +26,8 @@ Turkish Delight (also called Lokum)
 
 3. Flavouring and colour:
    * 4 drops rosewater plus a couple of drops of red; or
-   * [[ other options not recorded here - oops, sorry Christine! ]]
+   * 2 drops oil of peppermint ("available at pharmacies") and 1 TS creme de menthe
+   * [[ can't find the lemon juice option anywhere ]]
    * Stir in. Pour into greased tin; leave overnight to set.
 
 4. Coating:
