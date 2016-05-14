@@ -38,5 +38,5 @@ Turkish Delight (also called Lokum)
 5. Serve, with or without a discussion on the perils of case insensitive text.
    * ^^ This note was not in the original recipe. :)
 
-The recipe ends with this note: <<Pictured and fully explained in expanding file
-under "Vegetables"!!>>
+The recipe ends with this note: «Pictured and fully explained in expanding file
+under "Vegetables"!!»
