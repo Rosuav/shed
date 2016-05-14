@@ -22,7 +22,7 @@ Turkish Delight (also called Lokum)
    * 2 cups boiling water
    * Stir in till thick [the mixture, not the cook]
    * Add syrup gradually
-   * Boil 30 mins exacly
+   * Boil 30 mins exactly
 
 3. Flavouring and colour:
    * 4 drops rosewater plus a couple of drops of red; or
