@@ -9,7 +9,7 @@ Turkish Delight (also called Lokum)
    * 2 cups white sugar
    * ½ cup water
    * Dissolve over low heat
-   * Boil, simmer for about 20 minutes -- 240°F or 115°C
+   * Boil, simmer for about 20 minutes until 240°F or 115°C
    * Remove from heat, add:
    * ¼ teaspoon tartaric acid
 
@@ -40,4 +40,6 @@ Turkish Delight (also called Lokum)
    * ^^ This note was not in the original recipe. :)
 
 The recipe ends with this note: «Pictured and fully explained in expanding file
-under "Vegetables"!!»
+under "Vegetables"!!» This explanation is from "The Australian Women's Weekly",
+30th March 1997 issue, where it's back to back with "New ways with frozen
+vegetables".
