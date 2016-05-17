@@ -3,6 +3,12 @@
 //connections on the same port; in practice, there's a small delay on the
 //cleartext ones (to see if they're starting SSL negotiation), and a larger
 //delay on encrypted (to actually do the negotiation).
+
+//The server design has been heavily cribbed from Minstrel Hall, as this
+//was originally a POC for supporting this exact model there. However, that
+//plan is not currently on the books, and this code is specific to Pike 8,
+//due to a significant reworking of the SSL and X509 subsystems since 7.8
+//(which Minstrel Hall still runs on, as at 20160518).
 array(object) clients = ({ });
 
 class SSLFile
