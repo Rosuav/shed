@@ -11,6 +11,8 @@ class SSLFile
 	int is_nonblocking() {return nonblocking_mode;}
 }
 
+object ctx = SSL.Context();
+
 class client
 {
 	object sock;
@@ -26,14 +28,6 @@ class client
 				//Probable SSL handshake
 				Pike.SmallBackend backend = Pike.SmallBackend();
 				sock->set_backend(backend);
-				object ctx = SSL.Context();
-				object key = Crypto.RSA()->generate_key(4096);
-				ctx->add_cert(key, ({Standards.X509.make_selfsigned_certificate(key,
-					3600*24*365, ([
-						"organizationName" : "Demo SSL server",
-						"commonName" : "*",
-					])
-				)}));
 				sock = SSLFile(sock, ctx);
 				sock->accept(handshake);
 				backend->call_out(sock->set_blocking, 0.0001);
@@ -73,6 +67,13 @@ int main()
 {
 	Stdio.Port mainsock=Stdio.Port();
 	if (!mainsock->bind(2211)) werror("Error binding: "+mainsock->errno()+"\n");
+	object key = Crypto.RSA()->generate_key(4096);
+	ctx->add_cert(key, ({Standards.X509.make_selfsigned_certificate(key,
+		3600*24*365, ([
+			"organizationName" : "Demo SSL server",
+			"commonName" : "*",
+		])
+	)}));
 	werror("Ready and listening: "+ctime(time())); //May be slightly different from the mudbooted record
 	while (1)
 	{
