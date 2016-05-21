@@ -40,8 +40,31 @@ void poll()
 	stickied &= (multiset)info[*][0]; //Prune the list of any windows that have closed.
 }
 
-int main()
+int main(int argc, array(string) argv)
 {
+	if (argc > 1 && argv[1]-"-" == "install")
+	{
+		string pike = master()->_pike_file_name; //Lifted from Hogan
+		if (!has_prefix(pike, "/")) pike = Process.search_path(pike);
+		Stdio.write_file("/etc/systemd/system/stickymonitor.service", sprintf(#"[Unit]
+Description=Stickify windows on the second monitor
+
+[Service]
+User=%s
+Environment=DISPLAY=%s
+ExecStart=%s %s
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+", getenv("SUDO_USER") || "root", getenv("DISPLAY") || "", pike, argv[0]));
+		Process.create_process(({"systemctl", "--system", "daemon-reload"}))->wait();
+		Process.create_process(({"systemctl", "enable", "stickymonitor"}))->wait();
+		Process.create_process(({"systemctl", "start", "stickymonitor"}))->wait();
+		write("Installed and started.\n");
+		return 0;
+	}
 	poll();
 	return -1;
 }
