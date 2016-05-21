@@ -7,6 +7,7 @@ xfce4-panel, calculated on startup.
 */
 
 int monitor_width;
+multiset(int) stickied = (<>);
 
 void poll()
 {
@@ -23,15 +24,24 @@ void poll()
 	}
 	foreach (info, [int id, int desktop, int x, int y, int w, int h, string title])
 	{
-		if (x > monitor_width)
-			//This window is past the edge
+		if (x > monitor_width && desktop >= 0)
+		{
+			//This window is past the edge and isn't stickied already.
+			stickied[id] = 1;
 			Process.create_process(({"wmctrl", "-ir", (string)id, "-b", "add,sticky"}))->wait();
-		else if (we stickied this window)
+		}
+		else if (x <= monitor_width && stickied[id])
+		{
+			//A window that we stickied has been brought back onto the main monitor.
+			stickied[id] = 0;
 			Process.create_process(({"wmctrl", "-ir", (string)id, "-b", "remove,sticky"}))->wait();
+		}
 	}
+	stickied &= (multiset)info[*][0]; //Prune the list of any windows that have closed.
 }
 
 int main()
 {
 	poll();
+	return -1;
 }
