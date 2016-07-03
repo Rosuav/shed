@@ -1,0 +1,4 @@
+! Disable mouse buttons 8 and 9 to block the stupid forward/back buttons
+! http://unix.stackexchange.com/questions/20550/how-to-disable-the-forward-back-buttons-on-my-mouse
+! ln -s ~/shed/.Xmodmap ~
+pointer = 1 2 3 4 5 6 7 0 0
