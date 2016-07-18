@@ -1,0 +1,11 @@
+#!/bin/sh
+# Update your gh-pages branch based on a subdirectory of your main tree
+# npm run build || exit $?
+# publish-gh-pages
+rev=`git rev-parse --short HEAD`
+git add -f build
+tree=`git write-tree --prefix=build/`
+git reset HEAD build
+commit=`echo Update gh-pages from build $rev|git commit-tree $tree -p gh-pages`
+git update-ref refs/heads/gh-pages $commit
+git push origin gh-pages:gh-pages
