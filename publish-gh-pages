@@ -2,11 +2,14 @@
 # Update your gh-pages branch based on a subdirectory of your main tree
 # npm run build || exit $?
 # publish-gh-pages
-# Note that the gh-pages branch has to exist already. You can create it with:
-# git checkout --orphan gh-pages
-# git rm -rf .
-# git commit --allow-empty -m "Initialize empty gh-pages"
-# git checkout master
+
+if ! git rev-parse gh-pages >/dev/null 2>/dev/null
+then
+  git checkout --orphan gh-pages
+  git rm -rf .
+  git commit --allow-empty -m "Initialize empty gh-pages"
+  git checkout master
+fi
 rev=`git rev-parse --short HEAD`
 git add -f build
 tree=`git write-tree --prefix=build/`
