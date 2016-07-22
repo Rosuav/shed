@@ -2,6 +2,8 @@
 # Update your gh-pages branch based on a subdirectory of your main tree
 # npm run build || exit $?
 # publish-gh-pages
+# Should be run on a clean working tree (all changes committed, although
+# pushing is optional) with a successful and complete build.
 
 if ! git rev-parse gh-pages >/dev/null 2>/dev/null
 then
