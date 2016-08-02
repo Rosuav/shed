@@ -26,6 +26,6 @@ int main()
                 Process.create_process(({"iptables","-D","INPUT",(string)idx1}))->wait();
         }
 	string ip=sprintf("%d.%d.%d.%d",addr>>24,(addr>>16)&255,(addr>>8)&255,addr&255);
-	Process.create_process(({"ip","r","get",ip}))->wait();
 	Process.create_process(({"whois",ip}))->wait();
+	Process.create_process(({"ip","r","get",ip}))->wait();
 }
