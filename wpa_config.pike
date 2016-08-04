@@ -47,6 +47,7 @@ int main()
 		foreach (nw; string key; array|int|string val)
 			if (stringp(val)) nw[key] = nw[key][3..]; //Trim off the "0; "
 			else if (arrayp(val)) nw[key] = lambda(string x) {return x[3..];}(nw[key][*]); //Trim off ALL the "0; ". For some reason "nw[key][*][3..]" doesn't work.
+		if (has_value(nw->ESSID, "\\x00")) continue; //Nulls don't seem to work too well. We probably don't care anyway.
 		sscanf(m_delete(nw, "ESSID"), "%O", string ssid); if (!ssid) error("FIXME: Couldn't figure out an SSID\n");
 		network_info[ssid] = nw;
 		string enc;
