@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+"""
+Triangle-clone a GitHub repository
+
+Pass it the web address (https) of the repo and it'll clone with SSH, then
+add another remote for your own fork.
+
+If the detected user name is incorrect:
+git config --global --unset user.github
+or explicitly set it to your user name.
+"""
+import re
+import subprocess
+import sys
+
+try:
+	username = subprocess.check_output(["git", "config", "user.github"]).decode("ascii").strip()
+except subprocess.CalledProcessError:
+	with subprocess.Popen(
+		["ssh", "-oBatchMode=yes", "-T", "git@github.com"],
+		stderr=subprocess.PIPE
+	) as proc:
+		_, msg = proc.communicate()
+		msg = msg.decode("ascii")
+	m = re.match("Hi (.*)! You've successfully authenticated, but GitHub does not provide shell access.", msg)
+	if not m:
+		print("SSH access must be configured at GitHub before 'git triangle' can be used.");
+		sys.exit(1)
+	username = m.group(1)
+	subprocess.check_call(["git", "config", "--global", "user.github", username])
+m = (re.match("https://github.com/([^/]+)/(.*)", sys.argv[1]) or
+	re.match("git@github.com:([^/]+)/(.*)", sys.argv[1]))
+if not m:
+	print("git triangle currently supports only GitHub https or ssh URLs")
+	sys.exit(1)
+owner = m.group(1)
+repo = m.group(2)
+url1 = "git@github.com:" + owner + "/" + repo
+url2 = "git@github.com:" + username + "/" + repo
+subprocess.check_call(["git", "clone", url1, "-oupstream"])
+subprocess.check_call(["git", "remote", "add", "origin", url2], cwd=repo)
