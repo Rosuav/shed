@@ -20,7 +20,11 @@ int main(int argc,array(string) argv)
 	foreach (input;int i;array(string) lines)
 	{
 		if (lines[0]==(string)(int)lines[0]) input[i]=lines=lines[1..]; //Trim off any index markers
-		lines[0]=srttime((srt2ms((lines[0]/" --> ")[*])[*]+offset)[*])*" --> ";
+		array(int) ms = srt2ms((lines[0]/" --> ")[*]);
+		if (delay == "25/24") ms = (ms[*] * 25)[*] / 24;
+		else if (delay == "24/25") ms = (ms[*] * 24)[*] / 25;
+		else ms = ms[*] + offset;
+		lines[0] = srttime(ms[*]) * " --> ";
 	}
 	Stdio.write_file(outfn,string_to_utf8(input[*]*"\n"*"\n\n"+"\n"));
 }
