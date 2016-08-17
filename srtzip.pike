@@ -29,7 +29,7 @@ int main(int argc,array(string) argv)
 		inputs[first]=inputs[first][1..];
 		if (opt->index) out->write("%d\n",++idx);
 		if (opt->filenames) best+="\n"+files[first];
-		if (opt->reposition && first<8)
+		if (opt->reposition && first<8 && has_value(best, '\n'))
 		{
 			//When possible, position the subtitle entries according to which file they came from.
 			sscanf(best,"%s\n%s",string hdr,string info);
