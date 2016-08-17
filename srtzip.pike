@@ -16,7 +16,7 @@ int main(int argc,array(string) argv)
 	if (sizeof(files)<2) exit(0,"USAGE: pike %s input1.srt input2.srt [input3.srt...] output.srt\nAttempts to 'zip' the inputs into the output.\n");
 	if (!opt->clobber && file_stat(outfn)) exit(0,"Refusing to clobber %s\n",outfn);
 	write("Combining to %s:\n%{\t%s\n%}",outfn,files);
-	array(array(string)) inputs=String.trim_all_whites(utf8_to_string(Stdio.read_file(files[*])[*])[*])[*]/"\n\n";
+	array(array(string)) inputs=replace(String.trim_all_whites(utf8_to_string(Stdio.read_file(files[*])[*])[*])[*],({"\r","\uFEFF"}),"")[*]/"\n\n";
 	//Trim off all index markers. We re-add them later if --index was passed.
 	foreach (inputs,array(string) inp) foreach (inp;int i;string para) if (sscanf(para,"%*d\n%s",string newpara)==2) inp[i]=newpara;
 	Stdio.File out=Stdio.File(outfn,"wct");
