@@ -1,1 +1,2 @@
 git push -u origin `git symbolic-ref --short HEAD`
+echo Pushed to `git remote get-url origin|sed 's_git@github.com:_https://github.com/_'`
