@@ -29,7 +29,7 @@ int main(int argc,array(string) argv)
 	[string outfn, array(string) files] = Array.pop(args[Arg.REST]);
 	if (sizeof(files)<2) exit(0, #"USAGE: pike %s input1.srt input2.srt [input3.srt...] output.srt
 Attempts to 'zip' the inputs into the output. Options:
-	//--oneline - fold each block to a single line
+	--oneline - fold each block to a single line
 	--translit=language - add a transliteration back to Latin
 	--trim - trim off leading/trailing '#', '-', '<i>', etc
 ");
@@ -49,6 +49,7 @@ Attempts to 'zip' the inputs into the output. Options:
 	{
 		if (lines[0] == (string)(int)lines[0]) output[i] = lines = lines[1..];
 		if (args->trim) foreach (lines; int j; string line) lines[j] = trim(line);
+		if (args->oneline) output[i] = lines = ({lines[0], lines[1..] * " ", ""}) + ({""}) * !!translit;
 	}
 	foreach (inputs,array(array(string)) input)
 	{
@@ -67,10 +68,19 @@ Attempts to 'zip' the inputs into the output. Options:
 				if (nextouttime-1000<inputtime) ++pos; else break;
 			}
 			if (args->trim) foreach (lines; int j; string line) lines[j] = trim(line);
-			//Optional: Add a transliteration on the way through.
-			if (translit) output[pos]+=({translit(lines[1])});
-			output[pos]+=lines[1..];
+			if (args->oneline)
+			{
+				string text = lines[1..] * " ";
+				if (output[pos][2] != "") text = " " + text;
+				output[pos][2] += text;
+				if (translit) output[pos][3] += translit(text);
+			}
+			else
+			{
+				if (translit) output[pos] += ({translit(lines[1])});
+				output[pos] += lines[1..];
+			}
 		}
 	}
-	Stdio.write_file(outfn,string_to_utf8(output[*]*"\n"*"\n\n"+"\n"));
+	Stdio.write_file(outfn,string_to_utf8(String.trim_all_whites((output[*]*"\n")[*])*"\n\n"+"\n"));
 }
