@@ -5,6 +5,14 @@ int srt2ms(string srt)
 	return hr*3600000+min*60000+sec*1000+ms;
 }
 
+//Clean up any encoding messes. Currently decodes UTF-8 and CRLF; can be
+//extended to tidy up anything else within reason (eg using another charset
+//if the data isn't UTF-8).
+string decode(string data)
+{
+	return utf8_to_string(data) - "\r";
+}
+
 //Trim junk off a line - markers of various sorts that we don't care about
 //Note that this will be called on the synchronization line, and MUST NOT damage it
 string trim(string line)
@@ -35,7 +43,7 @@ Attempts to 'zip' the inputs into the output. Options:
 	//The first file is the one that creates the final output. All other
 	//files are simply merged into the nearest slot based on start time.
 	//Also: That is one serious line of code. I'm not sure this is *good* code, but it's impressive how much automap will do for you.
-	[array(array(string)) output,array(array(array(string))) inputs]=Array.shift((String.trim_all_whites(utf8_to_string(Stdio.read_file(files[*])[*])[*])[*]/"\n\n")[*][*]/"\n");
+	[array(array(string)) output,array(array(array(string))) inputs]=Array.shift((String.trim_all_whites(decode(Stdio.read_file(files[*])[*])[*])[*]/"\n\n")[*][*]/"\n");
 	//Trim off any index markers. We can re-add them later if they're wanted.
 	foreach (output; int i; array(string) lines)
 	{
