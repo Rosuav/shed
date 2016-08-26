@@ -5,6 +5,16 @@ int srt2ms(string srt)
 	return hr*3600000+min*60000+sec*1000+ms;
 }
 
+//Trim junk off a line - markers of various sorts that we don't care about
+//Note that this will be called on the synchronization line, and MUST NOT damage it
+string trim(string line)
+{
+	line = replace(line, ({"<i>", "</i>"}), "");
+	if (has_prefix(line, "#")) line = line[1..];
+	if (has_prefix(line, "-")) line = line[1..];
+	return String.trim_all_whites(line);
+}
+
 int main(int argc,array(string) argv)
 {
 	mapping args = Arg.parse(argv);
@@ -13,7 +23,7 @@ int main(int argc,array(string) argv)
 Attempts to 'zip' the inputs into the output. Options:
 	//--oneline - fold each block to a single line
 	--translit=language - add a transliteration back to Latin
-	//--trim - trim off leading or trailing '#', '-', '<i>', '</i>'
+	--trim - trim off leading/trailing '#', '-', '<i>', etc
 ");
 	write("Combining to %s:\n%{\t%s\n%}",outfn,files);
 	function translit;
@@ -27,7 +37,11 @@ Attempts to 'zip' the inputs into the output. Options:
 	//Also: That is one serious line of code. I'm not sure this is *good* code, but it's impressive how much automap will do for you.
 	[array(array(string)) output,array(array(array(string))) inputs]=Array.shift((String.trim_all_whites(utf8_to_string(Stdio.read_file(files[*])[*])[*])[*]/"\n\n")[*][*]/"\n");
 	//Trim off any index markers. We can re-add them later if they're wanted.
-	foreach (output;int i;array(string) lines) if (lines[0]==(string)(int)lines[0]) output[i]=lines[1..];
+	foreach (output; int i; array(string) lines)
+	{
+		if (lines[0] == (string)(int)lines[0]) output[i] = lines = lines[1..];
+		if (args->trim) foreach (lines; int j; string line) lines[j] = trim(line);
+	}
 	foreach (inputs,array(array(string)) input)
 	{
 		int pos=0; //We'll never put anything earlier in the file than a previous insertion. (Also speeds up the search; in the common cases, we'll check just two or three entries.)
@@ -44,6 +58,7 @@ Attempts to 'zip' the inputs into the output. Options:
 				int nextouttime=srt2ms(output[pos+1][0]);
 				if (nextouttime-1000<inputtime) ++pos; else break;
 			}
+			if (args->trim) foreach (lines; int j; string line) lines[j] = trim(line);
 			//Optional: Add a transliteration on the way through.
 			if (translit) output[pos]+=({translit(lines[1])});
 			output[pos]+=lines[1..];
