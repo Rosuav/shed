@@ -7,11 +7,21 @@ int srt2ms(string srt)
 
 int main(int argc,array(string) argv)
 {
-	array(string) files=argv[1..<1];
-	string outfn=argv[-1];
-	if (sizeof(files)<2) exit(0,"USAGE: pike %s input1.srt input2.srt [input3.srt...] output.srt\nAttempts to 'zip' the inputs into the output.\n");
+	mapping args = Arg.parse(argv);
+	[string outfn, array(string) files] = Array.pop(args[Arg.REST]);
+	if (sizeof(files)<2) exit(0, #"USAGE: pike %s input1.srt input2.srt [input3.srt...] output.srt
+Attempts to 'zip' the inputs into the output. Options:
+	//--oneline - fold each block to a single line
+	--translit=language - add a transliteration back to Latin
+	//--trim - trim off leading or trailing '#', '-', '<i>', '</i>'
+");
 	write("Combining to %s:\n%{\t%s\n%}",outfn,files);
-	object translit=(object)"translit.pike";
+	function translit;
+	if (args->translit)
+	{
+		translit=((object)"translit.pike")[String.capitalize(args->translit) + "_to_Latin"];
+		if (!translit) write("WARNING: %O transliteration not found, ignoring\n", args->translit);
+	}
 	//The first file is the one that creates the final output. All other
 	//files are simply merged into the nearest slot based on start time.
 	//Also: That is one serious line of code. I'm not sure this is *good* code, but it's impressive how much automap will do for you.
@@ -35,7 +45,7 @@ int main(int argc,array(string) argv)
 				if (nextouttime-1000<inputtime) ++pos; else break;
 			}
 			//Optional: Add a transliteration on the way through.
-			//output[pos]+=({translit->Latin_to_Serbian(lines[1])});
+			if (translit) output[pos]+=({translit(lines[1])});
 			output[pos]+=lines[1..];
 		}
 	}
