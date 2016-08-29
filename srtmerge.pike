@@ -10,7 +10,7 @@ int srt2ms(string srt)
 //if the data isn't UTF-8).
 string decode(string data)
 {
-	return utf8_to_string(data) - "\r";
+	return utf8_to_string(data) - "\r" - "\uFEFF";
 }
 
 //Trim junk off a line - markers of various sorts that we don't care about
