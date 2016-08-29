@@ -47,9 +47,11 @@ Attempts to 'zip' the inputs into the output. Options:
 	//Trim off any index markers. We can re-add them later if they're wanted.
 	foreach (output; int i; array(string) lines)
 	{
-		if (lines[0] == (string)(int)lines[0]) output[i] = lines = lines[1..];
+		lines -= ({""});
+		if (lines[0] == (string)(int)lines[0]) lines = lines[1..];
 		if (args->trim) foreach (lines; int j; string line) lines[j] = trim(line);
-		if (args->oneline) output[i] = lines = ({lines[0], lines[1..] * " ", ""}) + ({""}) * !!translit;
+		if (args->oneline) lines = ({lines[0], lines[1..] * " ", ""}) + ({""}) * !!translit;
+		output[i] = lines;
 	}
 	foreach (inputs,array(array(string)) input)
 	{
