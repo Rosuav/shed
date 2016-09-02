@@ -4,6 +4,9 @@
 # publish-gh-pages
 # Should be run on a clean working tree (all changes committed, although
 # pushing is optional) with a successful and complete build.
+# If your build dir is not build/ in the repo root, select a different
+# subtree with: git config push.gh-pages.subtree some/path/to/build
+# Do not include a trailing slash.
 
 if ! git rev-parse gh-pages >/dev/null 2>/dev/null
 then
@@ -13,9 +16,10 @@ then
   git checkout master
 fi
 rev=`git rev-parse --short HEAD`
-git add -f build
-tree=`git write-tree --prefix=build/`
-git reset HEAD build
-commit=`echo Update gh-pages from build $rev|git commit-tree $tree -p gh-pages`
+dir=`git config push.gh-pages.subtree || echo build`
+git add -f $dir
+tree=`git write-tree --prefix=$dir/`
+git reset HEAD $dir
+commit=`echo Update gh-pages from $dir $rev|git commit-tree $tree -p gh-pages`
 git update-ref refs/heads/gh-pages $commit
 git push origin gh-pages:gh-pages
