@@ -37,7 +37,7 @@ int main(int argc, array(string) argv)
 		array matches = filter(dir, has_prefix, line);
 		if (!sizeof(matches)) continue; //Ignore any that aren't found
 		if (sizeof(matches) > 1) exit(1, "ERROR: Prefix %O matches multiple files\n", line);
-		if (!trim && has_suffix(matches[0], "." + preferred_ext))
+		if (!trim && trim != "" && has_suffix(matches[0], "." + preferred_ext))
 		{
 			//Easy: just copy the file in as-is.
 			//TODO: Hardlink or symlink if that's an option
