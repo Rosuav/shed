@@ -16,7 +16,7 @@ At no time are the original files changed. A new directory is created.
 */
 string preferred_ext = "ogg";
 //multiset(string) permitted_exts = (<"wav", "mp3">); //Additional extensions accepted in copy mode
-string target = "/home/rosuav/tmp/MusicOnly";
+string target = "MusicOnly";
 
 int main(int argc, array(string) argv)
 {
