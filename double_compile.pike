@@ -12,15 +12,15 @@ between using the installed pike and the one from the build dir.
 int main(int argc, array(string) argv)
 {
 	if (argc == 1) argv += ({Program.defined(object_program(Crypto.Random))});
+	program p = compile_file(argv[-1]);
+	string s = encode_value(p, master()->Encoder(p));
 	if (argv[1] == "-x")
 	{
-		//Actually do the build
-		program p = compile_file(argv[2]);
-		string s = encode_value(p, master()->Encoder(p));
+		//This is the subprocess, using a different Pike interpreter.
 		write(s);
 		return 0;
 	}
-	string installed = Process.run(({"pike", argv[0], "-x", argv[1]}))->stdout;
+	string installed = s;
 	string build = Process.run(({"pike/bin/pike", argv[0], "-x", argv[1]}))->stdout;
 	if (installed == build) {write("Identical.\n"); return 0;}
 	//Hex-dump both files for readability and diff them.
