@@ -1,0 +1,2 @@
+sed -i 's_https://github.com/_git@github.com:_' .git/config
+git remote -v
