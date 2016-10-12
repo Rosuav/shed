@@ -73,7 +73,8 @@ int main(int argc,array(string) argv)
 							{
 								if (sscanf(line,"+%*d\t%s%*[\t]%f\t%f",string c,float hours,float dollars)==5)
 								{
-									if (hours*use_hacks!=dollars) exit(1,"Hours doesn't match dollars - maybe tweak the hook for flexibility?\n");
+									if (hours * use_hacks != dollars)
+										exit(1,"%O hours doesn't match %O dollars - maybe tweak the hook for flexibility?\n", hours, dollars);
 									comment=c;
 								}
 							}
