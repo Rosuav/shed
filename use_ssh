@@ -1,6 +1,7 @@
 # Run this to convert a GitHub repo from https to ssh.
 # You'll need an SSH key. Most likely, you can find one with this:
 # cat ~/.ssh/id_rsa.pub
+# Otherwise, create one with: ssh-keygen
 # Copy and paste the entire contents of this file to your GitHub
 # settings page: https://github.com/settings/keys
 # You will then be able to pull and push without a password.
