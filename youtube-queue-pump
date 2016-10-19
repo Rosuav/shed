@@ -1,5 +1,7 @@
 #!/usr/bin/env pike
 
+string script = "youtube-queue";
+
 int process()
 {
 	string targetdir;
@@ -43,7 +45,9 @@ int process()
 	}
 }
 
-int main()
+int main(int argc, array(string) argv)
 {
+	if (argc > 1) script = argv[1];
+	else if (has_value(argv[0], "/")) script = argv[0] - "-pump";
 	while (process()) ;
 }
