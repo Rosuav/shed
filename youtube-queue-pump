@@ -1,0 +1,49 @@
+#!/usr/bin/env pike
+
+int process()
+{
+	string targetdir;
+	array(string) have = ({ });
+	foreach (Stdio.read_file("youtube-queue")/"\n", string line)
+	{
+		//Ignore blanks and comments
+		if (line == "" || line[0] == ';' || line[0] == '#') continue;
+		if (sscanf(line, "Target: %s", string targ))
+		{
+			//Target directory: stuff gets downloaded to here.
+			targetdir = targ;
+			have += get_dir(targetdir);
+			continue;
+		}
+		if (sscanf(line, "Ignore: %s", string ign))
+		{
+			//Ignore directory: stuff won't be downloaded if found here.
+			have += get_dir(ign);
+			continue;
+		}
+		//We have a line.
+		//Parsing options lifted from StilleBot's songrequest module
+		sscanf(line, "https://youtu.be/%s", line);
+		sscanf(line, "https://www.youtube.com/watch?v=%s", line);
+		sscanf(line, "?v=%s", line);
+		sscanf(line, "v=%s", line);
+		sscanf(line, "%s&", line); //If any of the previous ones has "?v=blah&other-info=junk", trim that off
+		if (sizeof(line) != 11)
+		{
+			if (line != "") write("Unrecognized video tag format: %O\n", line);
+			continue;
+		}
+		//Okay. Now we check if we already have it.
+		int got = 0;
+		foreach (have, string fn) if (has_value(fn, line)) got = 1; //Or should it be stricter?
+		if (got) continue;
+		if (!targetdir || !file_stat(targetdir)) exit(1, "Target directory not specified or not found\n");
+		Process.create_process(({"youtube-dl", "--", line}), (["cwd": targetdir]))->wait();
+		return 1; //After processing one file, go back and start reading the script anew. It might have been edited.
+	}
+}
+
+int main()
+{
+	while (process()) ;
+}
