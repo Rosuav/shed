@@ -6,7 +6,7 @@ int process()
 {
 	string targetdir;
 	array(string) have = ({ });
-	foreach (Stdio.read_file("youtube-queue")/"\n", string line)
+	foreach (Stdio.read_file(script)/"\n", string line)
 	{
 		//Ignore blanks and comments
 		if (line == "" || line[0] == ';' || line[0] == '#') continue;
