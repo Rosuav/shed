@@ -1,0 +1,82 @@
+#!/usr/bin/env pike
+//Save and load permissions
+//Usage: git perms
+//Will register itself as a post-checkout hook.
+
+//Encode a file name in the most tidy way possible, but such that
+//decode_filename() on the result will unambiguously return the
+//original file name. Can produce three forms of output:
+//1) Identical to input. Used only if the characters in the file name
+//   are all ASCII printable, without whitespace, backslash, or quotes.
+//2) "%O" notation. Used if the characters are all ASCII printable,
+//   but might contain 0x20 spaces or 0x22 quotes (but not backslash,
+//   nor other whitespace).
+//3) b"base64". The string is encoded base-64, enclosed in quotes,
+//   and prefixed with a 'b'. Note that the incoming file name is
+//   assumed to be a byte string, not a Unicode string.
+string encode_filename(string fn)
+{
+	if (fn == "") return "\"\"";
+	//Avoided for compatibility (Pike 7.8 doesn't support this).
+	//[int min, int max] = String.range(fn);
+	int min = fn[0], max = fn[0];
+	foreach ((array)fn, int ch)
+	{
+		if (ch < min) min = ch;
+		if (ch > max) max = ch;
+	}
+	//End of String.range.
+
+	//Base 64.
+	if (min < ' ' || max > '~' || has_value(fn, '\\'))
+		return "b\"" + MIME.encode_base64(fn) + "\"";
+
+	//Quoted.
+	if (min == ' ' || has_value(fn, '"'))
+		return sprintf("%O", fn);
+
+	//Literal. If we get here, all the characters are 'safe'.
+	return fn;
+}
+
+string decode_filename(string fn)
+{
+	string ret = fn;
+	if (has_prefix(fn, "b\"") && has_suffix(fn, "\""))
+		ret = MIME.decode_base64(fn[2..<1]);
+	else if (has_prefix(fn, "\""))
+		sscanf(fn, "%O", ret);
+	//Assert: After decoding, we should get something that encodes
+	//to the original. Otherwise, this might be a sneaky/messy way of
+	//having duplicate file names, eg foo/"foo"/b"Zm9v". Disallow.
+	if (encode_filename(ret) != fn)
+		error("Corrupted file name %O - doesn't round-trip", fn);
+	return ret;
+}
+
+int main(int argc, array(string) argv)
+{
+	if (argc == 4)
+	{
+		exit(1, "TODO: Implement post-checkout hook.\n");
+	}
+	//Optionally refresh a file ".permissions" as a collection of file owners and modes.
+	string statfile = String.trim_all_whites(Process.run(({"git", "config", "rosuav.record-permissions"}))->stdout);
+	if (statfile == "") statfile = ".permissions";
+	string prevperms = Stdio.read_file(statfile);
+	string perms = "";
+	foreach (Process.run(({"git", "ls-files", "-z"}))->stdout / "\0", string fn)
+	{
+		if (fn == "") break; //should be the last entry only
+		object stat = file_stat(fn);
+		if (!stat) {werror("WARNING: Missing file %O\n", fn); continue;} //Probably the file's in process of deletion.
+		perms += sprintf("0%o (%s) %d %d %s\n",
+			stat->mode, stat->mode_string, //mode_string is ignored on read
+			stat->uid, stat->gid,
+			encode_filename(fn),
+		);
+	}
+	if (perms == prevperms) return 0;
+	Stdio.write_file(statfile, perms);
+	Process.create_process(({"git", "add", "-v", statfile}))->wait();
+}
