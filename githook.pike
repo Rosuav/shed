@@ -32,8 +32,9 @@ int main(int argc,array(string) argv)
 	string cmd=explode_path(argv[0])[-1];
 	if (cmd == "githook.pike")
 	{
-		System.symlink(argv[0],".git/hooks/prepare-commit-msg");
-		System.symlink(argv[0],".git/hooks/commit-msg");
+		foreach (indices(this), string fn)
+			if (sscanf(fn, "hook_%s", string hook))
+				System.symlink(argv[0], ".git/hooks/" + replace(hook, "_", "-"));
 		write("Installed.\n");
 	}
 	else if (function f = this["hook_" + replace(cmd, "-", "_")])
