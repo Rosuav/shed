@@ -29,7 +29,7 @@ string encode_filename(string fn)
 
 	//Base 64.
 	if (min < ' ' || max > '~' || has_value(fn, '\\'))
-		return "b\"" + MIME.encode_base64(fn) + "\"";
+		return "b\"" + MIME.encode_base64(fn, 1) + "\"";
 
 	//Quoted.
 	if (min == ' ' || has_value(fn, '"'))
