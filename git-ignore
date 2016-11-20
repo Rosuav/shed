@@ -1,0 +1,5 @@
+for fn; do echo $fn >>.gitignore; done
+git ls-files --exclude-standard --ignored -z|xargs -0 git rm --cached
+git add .gitignore
+IFS=,
+git commit -m "Ignore $*"
