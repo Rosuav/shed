@@ -68,7 +68,7 @@ int main(int argc, array(string) argv)
 	foreach (Process.run(({"git", "ls-files", "-z"}))->stdout / "\0", string fn)
 	{
 		if (fn == "") break; //should be the last entry only
-		object stat = file_stat(fn);
+		object stat = file_stat(fn, 1);
 		if (!stat) {werror("WARNING: Missing file %O\n", fn); continue;} //Probably the file's in process of deletion.
 		perms += sprintf("0%o (%s) %d %d %s\n",
 			stat->mode, stat->mode_string, //mode_string is ignored on read
