@@ -4,7 +4,7 @@ Chocolate Ripple Cake
 Ingredients
 -----------
 
-* 300g chocolate biscuits
+* 300g Chocolate Ripple biscuits
 * 600mL thickened cream (for whipping)
 * 1tsp vanilla essence
 * Sugar ("some")
