@@ -36,3 +36,5 @@ Directions
 20. Once the cream has completely softened the biscuits, defrigerate.
 21. Slice diagonally. The first (corner) slice is the cook's privilege.
 22. Serve the slices two at a time (you can't serve just one), making a lovely sliced cake.
+
+Can also be done with ginger biscuits. It won't be "chocolate" ripple cake that way, though. You might have to come up with a new name. I suggest "ginger ripple cake", but YMMV.
