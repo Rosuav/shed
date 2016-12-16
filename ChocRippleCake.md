@@ -4,7 +4,7 @@ Chocolate Ripple Cake
 Ingredients
 -----------
 
-* 300g Chocolate Ripple biscuits
+* 300g Chocolate Ripple biscuits **
 * 600mL thickened cream (for whipping)
 * 1tsp vanilla essence
 * Sugar ("some")
@@ -39,5 +39,7 @@ Directions
 23. Serve the slices two at a time (you can't serve just one), making a lovely striped cake.
 
 ----
+
+** Note that the biscuits are important. If you can't get the actual Arnott's Chocolate Ripple biscuits (entirely likely, since Arnott's is an Australian company), see if you can find something similar. They have to be made of a chocolatey dough, not chocolate coated or chocolate chip - think Oreos minus the filling.
 
 Can also be done with ginger biscuits. It won't be "chocolate" ripple cake that way, though. You might have to come up with a new name. I suggest "ginger ripple cake", but YMMV.
