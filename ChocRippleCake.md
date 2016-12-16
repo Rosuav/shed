@@ -22,20 +22,21 @@ Directions
 6. Taste another Lindor ball.
 7. Add a teaspoon of vanilla to the cream. Optional if you used chocolate sugar.
 8. Lay down a coating of cream on the plate.
-9. Take a biscuit and add cream to it, then stand it on its edge on the plated cream.
-10. Build up two rows of biscuits, separated by cream. Every surface must be creamed.
-11. Taste a Lindor ball.
-12. Lather cream over the chocolate biscuits, covering them completely.
-13. Taste another Lindor ball, or two to be on the safe side.
-14. Check the biscuits carefully for any spots that aren't covered in cream.
-15. Taste a Lindor ball.
-16. Put the whole kit and caboodle in the fridge.
-17. Taste another Lindor ball, and give one to your sister too.
-18. Refrigerate overnight (the food, not you).
-19. Taste the remaining Lindor balls while you wait.
-20. Once the cream has completely softened the biscuits, defrigerate.
-21. Slice diagonally. The first (corner) slice is the cook's privilege.
-22. Serve the slices two at a time (you can't serve just one), making a lovely sliced cake.
+9. Take two biscuits and sandwich them together with cream.
+10. Cream another biscuit and add it to the stack. Stand the stack on its edge on the plated cream.
+11. Build up two rows of biscuits, separated by cream. Every surface must be creamed.
+12. Taste a Lindor ball.
+13. Lather cream over the chocolate biscuits, covering them completely.
+14. Taste another Lindor ball, or two to be on the safe side.
+15. Check the biscuits carefully for any spots that aren't covered in cream.
+16. Taste a Lindor ball.
+17. Put the whole kit and caboodle in the fridge.
+18. Taste another Lindor ball, and give one to your sister too.
+19. Refrigerate overnight (the food, not you).
+20. Taste the remaining Lindor balls while you wait.
+21. Once the cream has completely softened the biscuits, defrigerate.
+22. Slice diagonally. The first (corner) slice is the cook's privilege.
+23. Serve the slices two at a time (you can't serve just one), making a lovely sliced cake.
 
 ----
 
