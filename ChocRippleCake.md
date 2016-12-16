@@ -36,7 +36,7 @@ Directions
 20. Taste the remaining Lindor balls while you wait.
 21. Once the cream has completely softened the biscuits, defrigerate.
 22. Slice diagonally. The first (corner) slice is the cook's privilege.
-23. Serve the slices two at a time (you can't serve just one), making a lovely sliced cake.
+23. Serve the slices two at a time (you can't serve just one), making a lovely striped cake.
 
 ----
 
