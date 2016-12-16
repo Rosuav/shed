@@ -22,7 +22,7 @@ Directions
 6. Taste another Lindor ball.
 7. Add a teaspoon of vanilla to the cream. Optional if you used chocolate sugar.
 8. Lay down a coating of cream on the plate.
-9. Take a biscuit and add cream to it, then place it on the plated cream.
+9. Take a biscuit and add cream to it, then stand it on its edge on the plated cream.
 10. Build up two stacks of biscuits, separated by cream. Every surface must be creamed.
 11. Taste a Lindor ball.
 12. Lather cream over the chocolate biscuits, covering them completely.
