@@ -27,7 +27,7 @@ Directions
 11. Taste a Lindor ball.
 12. Lather cream over the chocolate biscuits, covering them completely.
 13. Taste another Lindor ball, or two to be on the safe side.
-14. Check the biscuits carefully for any spots where they're not covered in cream.
+14. Check the biscuits carefully for any spots that aren't covered in cream.
 15. Taste a Lindor ball.
 16. Put the whole kit and caboodle in the fridge.
 17. Taste another Lindor ball, and give one to your sister too.
