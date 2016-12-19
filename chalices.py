@@ -33,3 +33,7 @@ for poison in range(CHALICES): # though you won't normally see the full set
 print("Summary:")
 print(" ", "  ".join(" %2s   " % (n+1) for n in range(CHALICES)))
 print(" ", "  ".join("%5.2f%%" % c for c in total_chances))
+
+# Summary:
+#     1       2       3       4       5       6       7       8
+#   87.50%  76.56%  66.99%  58.62%  51.29%  44.88%  39.27%  34.36%
