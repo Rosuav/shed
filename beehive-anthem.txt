@@ -1,0 +1,56 @@
+Magnificent... Oh, oh, magnificent
+I was born, I was born to be with you
+In this space and time
+After that and ever after I haven't had a clue
+Only to ???
+This foolishness can leave a heart black and blue
+Only love, only love can leave such a mark
+Only love, only love can heal such a scar
+
+I was born, I was born to sing for you
+I didn't have a choice but to lift you up
+And sing whatever song you wanted me to
+I give you back my voice from the womb
+My first cry, it was a joyful noise
+Only love, only love can leave such a mark
+Only love, only love can heal such a scar
+
+Justified till we die, you and I will magnify
+Magnificent, Magnificent, ohhhhhhhhhhhhhhhhhhhh
+
+.... This is your solo, Beehive... take it away! .....
+
+Only love, only love can leave such a mark
+Only love, only love unites our hearts
+
+Justified till we die, you and I will magnify
+Magnificent.... Magnificent!
+Magnificent.
+
+
+/2016-12-11.mp4
+Pretty good!
+
+/2016-12-12.mp4
+Weak in places. People let her down :(
+
+/2016-12-15.mp4
+Didn't even bother downloading. Twitch muted that bit. :(
+
+/2016-12-17.mp4
+All united by love. And gaming!
+
+/2016-12-18.mp4
+Stephen's first anthem
+
+/2016-12-19.mp4
+Normal chat box was broken so we were watching the admin version
+(including when she had to ban someone for being non-PG)
+
+/2016-12-29.mp4
+Round of applause!! (Because she used the clip earlier and loved it.)
+
+Download them thus:
+$ url=`youtube-dl --get-url https://www.twitch.tv/lilbumblebear/v/107929408`
+$ ffmpeg -ss 05:32:10 -i $url -t 0:05:35 -c copy 2012-12-17.mp4
+Tweak the start time and duration to get a good clip.
