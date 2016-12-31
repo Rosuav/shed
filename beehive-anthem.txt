@@ -50,7 +50,12 @@ Normal chat box was broken so we were watching the admin version
 /2016-12-29.mp4
 Round of applause!! (Because she used the clip earlier and loved it.)
 
+/2016-12-30.mp4
+First one with her brand new anthem scene!
+05:24:53 - 0:05:20
+
+
 Download them thus:
 $ url=`youtube-dl --get-url https://www.twitch.tv/lilbumblebear/v/107929408`
-$ ffmpeg -ss 05:32:10 -i $url -t 0:05:35 -c copy 2012-12-17.mp4
+$ ffmpeg -ss 05:32:10 -i $url -t 0:05:35 -c copy 2016-12-17.mp4
 Tweak the start time and duration to get a good clip.
