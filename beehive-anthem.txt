@@ -2,7 +2,7 @@ Magnificent... Oh, oh, magnificent
 I was born, I was born to be with you
 In this space and time
 After that and ever after I haven't had a clue
-Only to ???
+Only to regret(?)
 This foolishness can leave a heart black and blue
 Only love, only love can leave such a mark
 Only love, only love can heal such a scar
@@ -54,6 +54,9 @@ Round of applause!! (Because she used the clip earlier and loved it.)
 First one with her brand new anthem scene!
 05:24:53 - 0:05:20
 
+/2017-01-01.mp4
+Keep talking till you find it in the list...
+05:24:15 - 0:05:35
 
 Download them thus:
 $ url=`youtube-dl --get-url https://www.twitch.tv/lilbumblebear/v/107929408`
