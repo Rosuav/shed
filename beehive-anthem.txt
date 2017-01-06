@@ -58,7 +58,11 @@ First one with her brand new anthem scene!
 Keep talking till you find it in the list...
 05:24:15 - 0:05:35
 
+/2017-01-05.mp4
+OtherSister's first anthem, I think
+05:06:40 - 0:05:20
+
 Download them thus:
 $ url=`youtube-dl --get-url https://www.twitch.tv/lilbumblebear/v/107929408`
-$ ffmpeg -ss 05:32:10 -i $url -t 0:05:35 -c copy 2016-12-17.mp4
+$ ffmpeg -ss 05:32:10 -i $url -t 0:05:35 -c copy 2017-01-07.mp4
 Tweak the start time and duration to get a good clip.
