@@ -1,7 +1,12 @@
 # Calculate your odds of surviving the Murder Trivia Party chalices game
 from collections import defaultdict
+import sys
 
-CHALICES = 8 # Total number of chalices
+try:
+	CHALICES = int(sys.argv[1])
+except (IndexError, ValueError):
+	CHALICES = 8
+
 chances = {0: 1.0} # Initially, you have 100% chance of having no placed pellets.
 total_chances = []
 for poison in range(CHALICES): # though you won't normally see the full set
