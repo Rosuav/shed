@@ -1,0 +1,32 @@
+#!/usr/bin/env pike
+
+void root_write(string filename, string data)
+{
+	Process.run(({"sudo", "tee", filename}), (["stdin": data]));
+}
+
+int main(int argc, array(string) argv)
+{
+	if (argc < 2) exit(1, "USAGE: %s isofile\n", argv[0]);
+	string fn = combine_path(getcwd(), argv[1]);
+	string pfx = getenv("WINEPREFIX") || combine_path(getenv("HOME"), ".wine");
+	string dest_dir = combine_path(pfx, lower_case(explode_path(fn)[-1]));
+	string unit = String.trim_all_whites(Process.run(({"systemd-escape", "-p", dest_dir}))->stdout);
+	write("Unit file: %s.mount\n", unit);
+	root_write("/etc/systemd/system/" + unit + ".mount", sprintf(#"[Mount]
+What=%s
+Where=%s
+", fn, dest_dir));
+	root_write("/etc/systemd/system/" + unit + ".automount", sprintf(#"[Automount]
+Where=%s
+TimeoutIdleSec=1
+
+[Install]
+WantedBy=multi-user.target
+", dest_dir));
+	Process.create_process(({"sudo", "systemctl", "daemon-reload"}))->wait();
+	Process.create_process(({"sudo", "systemctl", "enable", unit + ".automount"}))->wait();
+	Process.create_process(({"sudo", "systemctl", "start", unit + ".automount"}))->wait();
+	write("Created. %d files in directory.\n", sizeof(get_dir(dest_dir)));
+	Process.exec("winecfg");
+}
