@@ -27,6 +27,15 @@ WantedBy=multi-user.target
 	Process.create_process(({"sudo", "systemctl", "daemon-reload"}))->wait();
 	Process.create_process(({"sudo", "systemctl", "enable", unit + ".automount"}))->wait();
 	Process.create_process(({"sudo", "systemctl", "start", unit + ".automount"}))->wait();
-	write("Created. %d files in directory.\n", sizeof(get_dir(dest_dir)));
-	Process.exec("winecfg");
+	string drives = combine_path(pfx, "dosdevices");
+	multiset gotdrives = (multiset)get_dir(drives);
+	string newdrive;
+	for (int ltr = 'c'; ltr <= 'z'; ++ltr)
+	{
+		string d = sprintf("%c:", ltr);
+		if (!gotdrives[d]) {newdrive = d; break;}
+	}
+	if (!newdrive) exit(1, "Mounted but no drive letter assigned\n");
+	symlink(dest_dir, combine_path(drives, newdrive));
+	write("Created as %s - %d files in directory.\n", newdrive, sizeof(get_dir(dest_dir)));
 }
