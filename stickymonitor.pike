@@ -11,7 +11,7 @@ multiset(int) stickied = (<>);
 
 void poll()
 {
-	call_out(poll, 60);
+	call_out(poll, 15);
 	sscanf(Process.run(({"wmctrl", "-lG"}))->stdout,"%{0x%8x %d %d %d %d %d%*[ ]%*[^ ] %s\n%}", array info);
 	if (!monitor_width)
 	{
