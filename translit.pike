@@ -188,15 +188,14 @@ void Korean_completion(object ef,object ls)
 //code snippets. In code, double the backslashes.)
 string diacriticals(string input)
 {
-	//Note that using \: for U+030B is pushing it, UI-wise. (It's the double acute accent; for
+	//Note that using \= for U+030B is pushing it, UI-wise. (It's the double acute accent; for
 	//instance, Hungarian uses an acute accent to indicate a long vowel, with double acute used
-	//to indicate the long forms of vowels with umlauts.) I've no idea what would make sense.
-	//Possibly it'd be worth taking \" for that, but then what would be better for U+0308?
+	//to indicate the long forms of vowels with umlauts.) It's good enough for X11 - so be it.
 	//Likewise, \, for cedilla means that comma U+0326 is hard to find a good key for. I'm
 	//using "shift comma" for it.
 	mapping map=(["\\!":"\u00A1","\\?":"\u00BF","o\\e":"ø","a\\e":"æ","s\\s":"ß",
 		"\\`":"\u0300","\\'":"\u0301","\\^":"\u0302","\\~":"\u0303","\\-":"\u0304","\\@":"\u0306","\\.":"\u0307","\\\"":"\u0308",
-		"\\o":"\u030A","\\:":"\u030B","\\v":"\u030C","\\<":"\u0326","\\,":"\u0327","\\k":"\u0328",
+		"\\o":"\u030A","\\=":"\u030B","\\v":"\u030C","\\<":"\u0326","\\,":"\u0327","\\k":"\u0328",
 		"d\\-":"đ","d\u0304":"đ","D\\-":"Đ","D\u0304":"Đ", //Special-case "d with macron" to "d with bar"
 		"I\\.":"İ","i\\.":"ı", //Note that these are, in a way, reversed; I\. adds a dot, but i\. removes one.
 	]);
