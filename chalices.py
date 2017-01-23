@@ -36,8 +36,10 @@ for poison in range(CHALICES): # though you won't normally see the full set
 	total_chances.append(tot)
 
 print("Summary:")
-print(" ", "  ".join(" %2s   " % (n+1) for n in range(CHALICES)))
-print(" ", "  ".join("%5.2f%%" % c for c in total_chances))
+print(" ", "  ".join(" %2s   " % (n+1) for n in range(CHALICES)), "", "<-- pellets")
+print(" ", "  ".join("%5.2f%%" % c for c in total_chances), " <-- you live")
+print(" ", "  ".join("%5.2f%%" % (100-c) for c in total_chances), " <-- you die")
+print(" ", "  ".join("%5.2f%%" % (((c/100)**(CHALICES-n))*100) for n, c in enumerate(total_chances, 1)), "<-- all live")
 
 # Summary:
 #     1       2       3       4       5       6       7       8
