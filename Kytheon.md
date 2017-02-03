@@ -15,3 +15,12 @@ from general public (eg Minstrel Hall clients). Low ping for us is very good; lo
 ping for G&S Soc people is of minor importance (since the site itself is so slow);
 low ping for Minstrel Hall people is of moderate importance (there aren't many,
 and they're mostly happy with what they have, so any improvement is improvement).
+
+Operating system: Debian Jessie. Stretch is getting close to stable, but until it
+actually _is_ stable, I won't grab it. Don't want too many kernel updates.
+
+Pike: I'm upgrading to 8.1 because there are a lot of features that I want. I may
+end up backing down to 8.0 though.
+
+From now on, Minstrel Hall will NOT be running as root. This may have a few small
+consequences, but for the most part, I've already removed the need.
