@@ -26,3 +26,15 @@ From now on, Minstrel Hall will NOT be running as root. This may have a few smal
 consequences, but for the most part, I've already removed the need. This means
 adjusting it to accept a socket from systemd, which in turn necessitates a change
 to Pike, so this is not considered stable yet.
+
+Still TODO:
+* DNS (auth only - migrate recursive to Sikorsky)
+* Apache, preferably with Py3 (libapache2-mod-wsgi-py3) - check compatibility
+* Email delivery: Postfix, spamassassin, SPF checking
+* Viewing email: Courier IMAP, Squirrel, optional RoundCube
+* Migrate outgoing email to Sikorsky???
+* Mailing lists - mailman 3???
+* PostgreSQL - dump/reload to upgrade to the latest version
+* MySQL, but avoid it for anything crucial (eg email accounts)
+* Pure-FTPD maybe (can I push everyone to SCP?)
+* Performance check: why does token.html.raw take so much CPU to load?
