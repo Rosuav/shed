@@ -23,4 +23,6 @@ Pike: I'm upgrading to 8.1 because there are a lot of features that I want. I ma
 end up backing down to 8.0 though.
 
 From now on, Minstrel Hall will NOT be running as root. This may have a few small
-consequences, but for the most part, I've already removed the need.
+consequences, but for the most part, I've already removed the need. This means
+adjusting it to accept a socket from systemd, which in turn necessitates a change
+to Pike, so this is not considered stable yet.
