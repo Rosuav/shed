@@ -29,7 +29,7 @@ to Pike, so this is not considered stable yet.
 
 Still TODO:
 * DNS (auth only - migrate recursive to Sikorsky)
-* Apache, preferably with Py3 (libapache2-mod-wsgi-py3) - check compatibility
+* Apache, preferably with Py3 (libapache2-mod-wsgi-py3) - check app compatibility
 * Email delivery: Postfix, spamassassin, SPF checking
 * Viewing email: Courier IMAP, Squirrel, optional RoundCube
 * Migrate outgoing email to Sikorsky???
