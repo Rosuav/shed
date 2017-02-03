@@ -37,4 +37,3 @@ Still TODO:
 * PostgreSQL - dump/reload to upgrade to the latest version
 * MySQL, but avoid it for anything crucial (eg email accounts)
 * Pure-FTPD maybe (can I push everyone to SCP?)
-* Performance check: why does tokimg.html.pike take so much CPU to load?
