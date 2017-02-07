@@ -1,4 +1,4 @@
-from flask import Flask, render_template, g, Markup, request, redirect, url_for, Response, jsonify
+from flask import Flask, request, jsonify
 import requests
 app = Flask(__name__)
 
