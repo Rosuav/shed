@@ -63,11 +63,6 @@ eggs and chook eggs. Oh right. "Chook" is our word for "chicken", specifically
 the animal as opposed to the food. Creme Eggs don't taste like chicken though,
 they taste like chocolate. Naturally.
 
-* Ever desperately wanted to put cherries, coconut, and chocolate together? Me
-neither, but that's what makes a **Cherry Ripe** bar. I'm also running out of
-imaginative things to say about these things, so just get to eating them and
-find out for yourself!
-
 * **Jaffas** have a crisp orange-flavoured outer shell and a chocolate interior.
 There are some traditions associated with them, including rolling them down the
 aisles in theatres, which I beg you not to do if you ever want to go back to
