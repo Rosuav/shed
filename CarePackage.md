@@ -119,6 +119,4 @@ vegetables and not enough chocolate for my liking, though.
 and they're not as prevalent.
 
 So there you have it: a whirlwind tour of Australian cuisine, with a focus on
-Rosuav-friendly food items. It's my way of saying "thank you" for the awesome
-stream you run, and all the cookies you've sent me, and the great community you
-head up. God bless!
+Rosuav-friendly food items. Enjoy!
