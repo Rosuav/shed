@@ -3,8 +3,8 @@ Australian foods
 
 In this box, you will find a variety of iconic Australian food items, curated
 with love by... oh, who am I kidding. I just grabbed some supermarket basics
-that you probably can't easily find in America. :) Herein is an explanation of
-what's included and why.
+that you probably can't easily find in North America. :) Herein is an
+explanation of what's included and why.
 
 
 Biscuits
