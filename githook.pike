@@ -59,18 +59,7 @@ int hook_prepare_commit_msg(array(string) argv)
 			//Two hacks for CJAPrivate repo
 			if (int use_hacks=(int)Process.run(({"git","config","--get","rosuav.log-search.use-hacks"}))->stdout)
 			{
-				//Hack 1: "Other" invoices are identified by their first lines.
-				if (has_prefix(fn,"Other/Inv"))
-				{
-					sscanf(Stdio.read_file(fn),"Client: %s\n",string client);
-					if (string desc=(["Rafeh Qazi":"Session with Rafeh", "Mike Kilmer (MikeILL)":"Work for MikeILL"])[client])
-					{
-						Stdio.write_file(argv[1],desc+"\n"+msg);
-						return 0;
-					}
-					//Otherwise fall through.
-				}
-				//Hack 2: Thinkful invoices usually get simple additions of single lines.
+				//Hack: Thinkful invoices usually get simple additions of single lines.
 				if (has_prefix(fn,"Thinkful/Inv"))
 				{
 					string comment;
