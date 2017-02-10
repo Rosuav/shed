@@ -21,15 +21,6 @@ to be included. Interestingly, the name is legally protected, and they must
 never be sold as "Anzac cookies". (The more you know...)
 
 
-Vegemite
---------
-
-* I couldn't put a box like this together without including a little jar of
-**Vegemite**. Don't overdo it; use it sparingly. Take a cracker or a slice of
-bread, butter it, and then add just a little bit of Vegemite, and you'll get
-an idea of what this iconically rough-tasting food is all about.
-
-
 Chocolate
 ---------
 
@@ -68,14 +59,16 @@ There are some traditions associated with them, including rolling them down the
 aisles in theatres, which I beg you not to do if you ever want to go back to
 that theatre.
 
+* **Macadamia nuts** are native to Australia, though they're also grown in other
+countries too now. You can get them straight or chocolate-covered. Due to
+international shipping concerns, I've included only chocolate-coated macadamias;
+it totally isn't because chocolate. Honestly.
+
 
 Other
 -----
 
 It may surprise you to learn that I eat some things that aren't chocolate.
-
-* **Macadamia nuts** are native to Australia, though they're also grown in other
-countries too now. You can get them straight or chocolate-covered.
 
 * **Lamingtons** were invented by a British aristocratic lady who found that the
 harsh weather of Australia made cake go stale very quickly. It's covered in a
@@ -92,6 +85,10 @@ Honourable Mentions
 
 Not every Australian icon could be included. Here's a few other foods we eat;
 if you ever come visit, ask for 'em!
+
+* Possibly the most iconic Australian food is **Vegemite**. If you didn't grow
+up eating it, you probably won't enjoy it, but feel free to pretend that I
+included some, you ate it, and you are proud of yourself.
 
 * **Kangaroo**. Usually in steak or minced, roo meat can be substituted for beef
 in pretty much anything, and it's always an improvement (in my totally unbiased
