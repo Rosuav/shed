@@ -45,10 +45,6 @@ honeycomb one ("Crunchie").
 * **Maltesers** brag that you can't eat just one. I'll leave it to you to decide
 whether that's a good thing or not.
 
-* I didn't think **pineapple-flavoured chocolates** were particularly Antipodean,
-but I'm told they are, so here they are. This is another brand that Cadbury
-owns, but is famous enough to retain on the packaging.
-
 * **Creme Eggs** are found in two basic sizes - I guess they correspond to pigeon
 eggs and chook eggs. Oh right. "Chook" is our word for "chicken", specifically
 the animal as opposed to the food. Creme Eggs don't taste like chicken though,
@@ -57,7 +53,7 @@ they taste like chocolate. Naturally.
 * **Macadamia nuts** are native to Australia, though they're also grown in other
 countries too now. You can get them straight or chocolate-covered. Due to
 international shipping concerns, I've included only chocolate-coated macadamias;
-it totally isn't because chocolate. Honestly.
+it totally isn't just because chocolate. Honestly.
 
 
 Other
@@ -69,10 +65,6 @@ It may surprise you to learn that I eat some things that aren't chocolate.
 harsh weather of Australia made cake go stale very quickly. It's covered in a
 sealing layer of chocolate icing, and then doused in coconut so you can pick
 it up.
-
-* Hakuna matata? Australian food is often called "grub", and it's not unknown
-to eat actual **witchetty grubs** (look 'em up on Wikipedia: slimy yet satisfying);
-but I'd much rather eat this version of them.
 
 
 Honourable Mentions
@@ -101,12 +93,6 @@ definitely in your favour.
 * **Dim sims**. No, I don't mean dim sum; the dim sim is peculiarly Australian and
 only *inspired by* Chinese cuisine. Can be eaten fried or steamed. Has too many
 vegetables and not enough chocolate for my liking, though.
-
-* **Jaffas** have a crisp orange-flavoured outer shell and a chocolate interior.
-There are some traditions associated with them, including rolling them down the
-aisles in theatres, which I beg you not to do if you ever want to go back to
-that theatre. I was going to include some, but couldn't find a package small
-enough to fit in the box. :(
 
 * **Prawns**. Mmmmmmm, prawns. You probably have 'em too, but you call 'em "shrimp"
 and they're not as prevalent.
