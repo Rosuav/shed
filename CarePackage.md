@@ -98,7 +98,7 @@ each bakery (and many buy from local butchers, too, making for a strong sense
 of community). While it IS possible to get a bad one occasionally, the odds are
 definitely in your favour.
 
-* **Dim Sims**. No, I don't mean dim sum; the dim sim is peculiarly Australian and
+* **Dim sims**. No, I don't mean dim sum; the dim sim is peculiarly Australian and
 only *inspired by* Chinese cuisine. Can be eaten fried or steamed. Has too many
 vegetables and not enough chocolate for my liking, though.
 
