@@ -54,11 +54,6 @@ eggs and chook eggs. Oh right. "Chook" is our word for "chicken", specifically
 the animal as opposed to the food. Creme Eggs don't taste like chicken though,
 they taste like chocolate. Naturally.
 
-* **Jaffas** have a crisp orange-flavoured outer shell and a chocolate interior.
-There are some traditions associated with them, including rolling them down the
-aisles in theatres, which I beg you not to do if you ever want to go back to
-that theatre.
-
 * **Macadamia nuts** are native to Australia, though they're also grown in other
 countries too now. You can get them straight or chocolate-covered. Due to
 international shipping concerns, I've included only chocolate-coated macadamias;
@@ -106,6 +101,12 @@ definitely in your favour.
 * **Dim Sims**. No, I don't mean dim sum; the dim sim is peculiarly Australian and
 only *inspired by* Chinese cuisine. Can be eaten fried or steamed. Has too many
 vegetables and not enough chocolate for my liking, though.
+
+* **Jaffas** have a crisp orange-flavoured outer shell and a chocolate interior.
+There are some traditions associated with them, including rolling them down the
+aisles in theatres, which I beg you not to do if you ever want to go back to
+that theatre. I was going to include some, but couldn't find a package small
+enough to fit in the box. :(
 
 * **Prawns**. Mmmmmmm, prawns. You probably have 'em too, but you call 'em "shrimp"
 and they're not as prevalent.
