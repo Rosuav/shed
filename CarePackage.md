@@ -66,6 +66,10 @@ harsh weather of Australia made cake go stale very quickly. It's covered in a
 sealing layer of chocolate icing, and then doused in coconut so you can pick
 it up.
 
+* **Chocolate-flavoured sugar** isn't particularly Australian, but it's so very
+Rosuav that I had to include some. Also because you didn't know it was a thing.
+Turn coffee into mocha, or tea into... chocolate tea? Goes well in whipped cream.
+
 
 Honourable Mentions
 -------------------
