@@ -33,7 +33,7 @@ Still TODO:
 * Email delivery: Postfix, spamassassin, SPF checking
 * Viewing email: Courier IMAP, Squirrel, optional RoundCube
 * Migrate outgoing email to Sikorsky???
-* Mailing lists - mailman 3??? Probably not - stick to MM 2 for now.
-* PostgreSQL - dump/reload to upgrade to the latest version
+* Mailing lists - mailman. Configure them all.
+* PostgreSQL - dump/reload to deploy on 9.6
 * MySQL, but avoid it for anything crucial (eg email accounts)
 * Pure-FTPD maybe (can I push everyone to SCP?)
