@@ -32,7 +32,7 @@ Still TODO:
 * Apache, preferably with Py3 (libapache2-mod-wsgi-py3) - check app compatibility
 * Email delivery: Postfix, spamassassin, SPF checking
 * Viewing email: Courier IMAP, Squirrel, optional RoundCube
-* Migrate outgoing email to Sikorsky???
+* Migrate outgoing email to Sikorsky
 * Mailing lists - mailman. Configure them all.
 * PostgreSQL - dump/reload to deploy on 9.6
 * MySQL, but avoid it for anything crucial (eg email accounts)
