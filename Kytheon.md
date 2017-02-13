@@ -19,13 +19,8 @@ and they're mostly happy with what they have, so any improvement is improvement)
 Operating system: Debian Jessie. Stretch is getting close to stable, but until it
 actually _is_ stable, I won't grab it. Don't want too many kernel updates.
 
-Pike: I'm upgrading to 8.1 because there are a lot of features that I want. I may
+Pike: I'm upgrading to 8.1 because there are some features that I want. I may
 end up backing down to 8.0 though.
-
-From now on, Minstrel Hall will NOT be running as root. This may have a few small
-consequences, but for the most part, I've already removed the need. This means
-adjusting it to accept a socket from systemd, which in turn necessitates a change
-to Pike, so this is not considered stable yet.
 
 Still TODO:
 * DNS (auth only - migrate recursive to Sikorsky)
