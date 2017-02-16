@@ -22,6 +22,10 @@ actually _is_ stable, I won't grab it. Don't want too many kernel updates.
 Pike: I'm upgrading to 8.1 because there are some features that I want. I may
 end up backing down to 8.0 though.
 
+Setting up courier-imap involved a lot of configuration (git-managed), and one
+odd package installation: 'apt install gamin'. Some sort of weird issue with the
+default filesystem notification library, but gamin replaces it and works. Weird.
+
 Still TODO:
 * DNS (auth only - migrate recursive to Sikorsky)
 * Apache, preferably with Py3 (libapache2-mod-wsgi-py3) - check app compatibility
@@ -32,3 +36,10 @@ Still TODO:
 * PostgreSQL - dump/reload to deploy on 9.6
 * MySQL, but avoid it for anything crucial (eg email accounts)
 * Pure-FTPD maybe (can I push everyone to SCP?)
+
+Creating a mail user:
+* Run `userdbpw` to encrypt the password (or use some other crypt() eg Pike's)
+* insert into users values ('address@domain.example', 'shortname', 'password');
+* mkdir /var/mail/virtual/shortname
+* chown 111:118 /var/mail/virtual/shortname
+* TODO: Switch to better encryption eg bcrypt
