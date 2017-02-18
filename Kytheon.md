@@ -27,11 +27,7 @@ odd package installation: 'apt install gamin'. Some sort of weird issue with the
 default filesystem notification library, but gamin replaces it and works. Weird.
 
 Still TODO:
-* Email delivery: Postfix, spamassassin, SPF checking
-* Mailing lists - mailman. Configure them all.
-* PostgreSQL - dump/reload to deploy on 9.6
-* MySQL, but avoid it for anything crucial (eg email accounts)
-* Pure-FTPD maybe (can I push everyone to SCP?)
+* Email delivery: spamassassin bayes filtering data (check it!)
 
 Creating a mail user:
 * Run `userdbpw` to encrypt the password (or use some other crypt() eg Pike's)
