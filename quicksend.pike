@@ -132,6 +132,7 @@ int main(int argc, array(string) argv)
 		Stdio.Port port = Stdio.Port(PORT);
 		while (Stdio.File sock = port->accept())
 		{
+			write("Received connection from %s\n", sock->query_address());
 			sock->write("%2H", findcmd);
 			sock->write("%4H", Process.run(findcmd)->stdout);
 			int n = 0;
@@ -147,6 +148,10 @@ int main(int argc, array(string) argv)
 				}
 				string data = read_hollerith(sock, 4);
 				if (!data) break;
+				array(string) parts = explode_path(fn) - ({"."});
+				for (int i = 0; i < sizeof(parts) - 1; ++i)
+					mkdir(combine_path(@parts[..i]));
+				if (file_stat(fn)) continue; //Ignore files that already exist.
 				Stdio.write_file(fn, data);
 				++n;
 			}
@@ -156,9 +161,11 @@ int main(int argc, array(string) argv)
 	}
 	//Client mode
 	Stdio.File sock = Stdio.File();
+	write("Connecting to %s...\n", argv[1]);
 	sock->connect(argv[1], PORT);
 	string findcmd = read_hollerith(sock, 2);
 	array(string) clientfiles = Process.run(findcmd)->stdout / "\0";
+	write("Getting server files...\n");
 	array(string) serverfiles = read_hollerith(sock, 4) / "\0";
 	write("Client has %d files, server has %d\n", sizeof(clientfiles), sizeof(serverfiles));
 	array(string) sendme = clientfiles - serverfiles;
@@ -167,12 +174,12 @@ int main(int argc, array(string) argv)
 	foreach (sendme, string fn)
 	{
 		if (fn == "") continue;
-		write(combine_path(@explode_path(fn)[..<1]));
+		write(combine_path(@explode_path(fn)[..<1]) + "\e[K");
 		sock->write("%2H", fn);
 		sock->write("%4H", Stdio.read_file(fn));
 		prog->update(1);
 	}
-	write("\n"); //Move off the progress bar
+	write("\e[K\n"); //Move off the progress bar
 	sock->write("%2H", "");
 	string signoff = read_hollerith(sock, 2);
 	write("Server says: %s\n", signoff);
