@@ -169,15 +169,17 @@ int main(int argc, array(string) argv)
 	array(string) serverfiles = read_hollerith(sock, 4) / "\0";
 	write("Client has %d files, server has %d\n", sizeof(clientfiles), sizeof(serverfiles));
 	array(string) sendme = clientfiles - serverfiles;
-	write("Need to send: %d\n", sizeof(sendme)); //May have more elements than the raw numbers suggest
-	object prog = TimedProgressBar("Transferring", 0, sizeof(sendme));
+	int totsize = 0; foreach (sendme, string fn) totsize += file_stat(fn)->size;
+	write("Need to send: %d files, %d bytes\n", sizeof(sendme), totsize); //May have more elements than the raw numbers suggest
+	object prog = TimedProgressBar("Transferring", 0, totsize);
+	prog->update(0);
 	foreach (sendme, string fn)
 	{
 		if (fn == "") continue;
-		write(combine_path(@explode_path(fn)[..<1]) + "\e[K");
+		write("%d - %s\e[K", file_stat(fn)->size, fn[..64]);
 		sock->write("%2H", fn);
 		sock->write("%4H", Stdio.read_file(fn));
-		prog->update(1);
+		prog->update(file_stat(fn)->size);
 	}
 	write("\e[K\n"); //Move off the progress bar
 	sock->write("%2H", "");
