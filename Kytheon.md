@@ -26,9 +26,13 @@ Setting up courier-imap involved a lot of configuration (git-managed), and one
 odd package installation: 'apt install gamin'. Some sort of weird issue with the
 default filesystem notification library, but gamin replaces it and works. Weird.
 
+Setting up SASL authentication for SMTP (as an alternative to IMAP-before-SMTP)
+required adding the 'postfix' user to the 'sasl' group. Didn't find that in any
+docos anywhere.
+
 Still TODO:
 * Email delivery: spamassassin bayes filtering data (check it!)
-* SMTP Auth instead of (as well as?) IMAP-before-SMTP
+* STARTTLS on all email-carrying sockets
 
 Creating a mail user:
 * Run `userdbpw` to encrypt the password (or use some other crypt() eg Pike's)
