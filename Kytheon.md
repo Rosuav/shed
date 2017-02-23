@@ -28,6 +28,7 @@ default filesystem notification library, but gamin replaces it and works. Weird.
 
 Still TODO:
 * Email delivery: spamassassin bayes filtering data (check it!)
+* SMTP Auth instead of (as well as?) IMAP-before-SMTP
 
 Creating a mail user:
 * Run `userdbpw` to encrypt the password (or use some other crypt() eg Pike's)
