@@ -32,7 +32,7 @@ docos anywhere.
 
 Still TODO:
 * Email delivery: spamassassin bayes filtering data (check it!)
-* STARTTLS on all email-carrying sockets
+* STARTTLS on all email-carrying sockets (SMTP 587 done, SMTP 25 done, IMAP not)
 
 Creating a mail user:
 * Run `userdbpw` to encrypt the password (or use some other crypt() eg Pike's)
