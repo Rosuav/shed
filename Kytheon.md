@@ -32,7 +32,10 @@ docos anywhere.
 
 Still TODO:
 * Email delivery: spamassassin bayes filtering data (check it!)
-* STARTTLS on all email-carrying sockets (SMTP 587 done, SMTP 25 done, IMAP not)
+* STARTTLS on all email-carrying sockets (SMTP 587 done, SMTP 25 done, IMAP
+  active but not enforced)
+* Upgrade SquirrelMail so it can handle STARTTLS, thus allowing it to be
+  enforced??
 
 Creating a mail user:
 * Run `userdbpw` to encrypt the password (or use some other crypt() eg Pike's)
