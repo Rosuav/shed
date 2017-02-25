@@ -36,6 +36,10 @@ Still TODO:
   active but not enforced)
 * Upgrade SquirrelMail so it can handle STARTTLS, thus allowing it to be
   enforced?? Would mean getting it from svn, not the Debian repo.
+* Backups. What isn't in git needs to be backed up. This means mail, possibly
+  /var/www, the databases, and MH/Torr data.
+* Backups, again. Can/should we have a "git backup box" that, on a cron job,
+  pulls a bunch of stuff from GitHub? Where should that live?
 
 Creating a mail user:
 * Run `userdbpw` to encrypt the password (or use some other crypt() eg Pike's)
