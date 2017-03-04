@@ -12,7 +12,7 @@ try: from setproctitle import setproctitle
 except ImportError: setproctitle = lambda t: None
 
 # Load parameters
-GAMES = 3000
+GAMES = 5000
 PLAYERS_PER_GAME = 3
 BYTES_PER_MOVE = 100 # Client to server
 BYTES_PER_UPDATE = 100 # Server to client
