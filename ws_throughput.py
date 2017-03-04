@@ -58,7 +58,7 @@ async def establish_clients(hosts):
 			asyncio.ensure_future(game_client(next(hosts), gameid, player))
 	print("Sockets established. Ctrl-C to halt test.")
 	tm = time.time()
-	print("%6s %8s %8s" % ("Socks", "Moves/s", "KBytes/s"))
+	print("%6s %8s %8s (delta time)" % ("Socks", "Moves/s", "KBytes/s"))
 	print("%6d %8.2f %8.2f <-- expected avg" % (
 		# Expected sockets
 		GAMES * PLAYERS_PER_GAME,
@@ -70,7 +70,7 @@ async def establish_clients(hosts):
 	while True:
 		await asyncio.sleep(10)
 		t = time.time(); delay = t - tm; tm = t
-		print("%6s %8.2f %8.2f" % (stats[0], stats[1]/delay, stats[2]/delay/1024))
+		print("%6s %8.2f %8.2f %.2f" % (stats[0], stats[1]/delay, stats[2]/delay/1024, delay))
 		stats[1:] = 0, 0
 
 if len(sys.argv) > 1:
