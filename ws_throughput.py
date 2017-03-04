@@ -113,7 +113,7 @@ class Room:
 			try:
 				resp = await f(ws, **msg["data"])
 			except asyncio.CancelledError:
-				raise
+				break
 			except Exception as e:
 				print("Exception in ws handler:")
 				print(e)
