@@ -51,8 +51,9 @@ async def game_client(host, gameid, player):
 
 async def establish_clients(hosts):
 	hosts = itertools.cycle(hosts)
+	junk = hex(random.randrange(0x10000,0xfffff))[2:]
 	for game in range(GAMES):
-		gameid = "throughput" + str(game)
+		gameid = "throughput" + junk + str(game)
 		for player in range(PLAYERS_PER_GAME):
 			asyncio.ensure_future(game_client(next(hosts), gameid, player))
 	print("Sockets established. Ctrl-C to halt test.")
