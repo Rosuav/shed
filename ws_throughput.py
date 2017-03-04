@@ -25,6 +25,7 @@ update_data = ">" * BYTES_PER_UPDATE
 stats = [0, 0, 0]
 async def game_client(host, gameid, player):
 	session = ClientSession()
+	if ":" in host: host = "[" + host + "]" # IPv6 literal
 	async with session.ws_connect("http://%s:8888/ws" % host) as ws:
 		stats[0] += 1
 		ws.send_json({"type": "login", "data": {"room": gameid, "name": str(player)}})
