@@ -187,9 +187,9 @@ async def serve_http(loop, port, sock=None):
 	if sock:
 		srv = await loop.create_server(app.make_handler(), sock=sock)
 	else:
-		srv = await loop.create_server(app.make_handler(), "0.0.0.0", port)
+		srv = await loop.create_server(app.make_handler(), "", port)
 		sock = srv.sockets[0]
-	print("Listening on %s:%s" % sock.getsockname(), file=sys.stderr)
+	print("Listening on %s:%s" % sock.getsockname()[:2], file=sys.stderr)
 
 def run(port=8080, sock=None):
 	loop = asyncio.get_event_loop()
