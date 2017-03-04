@@ -22,10 +22,11 @@ SECONDS_BETWEEN_MOVES = 30 # per player
 move_data = "<" * BYTES_PER_MOVE
 update_data = ">" * BYTES_PER_UPDATE
 
-stats = [0, 0]
+stats = [0, 0, 0]
 async def game_client(host, gameid, player):
 	session = ClientSession()
 	async with session.ws_connect("http://%s:8888/ws" % host) as ws:
+		stats[0] += 1
 		ws.send_json({"type": "login", "data": {"room": gameid, "name": str(player)}})
 		async def make_moves():
 			# Stagger the requests a bit
@@ -43,8 +44,8 @@ async def game_client(host, gameid, player):
 		asyncio.ensure_future(make_moves())
 		async for msg in ws:
 			if msg.type == WSMsgType.TEXT:
-				stats[0] += 1
-				stats[1] += len(msg.data)
+				stats[1] += 1
+				stats[2] += len(msg.data)
 	ws = None
 
 async def establish_clients(hosts):
@@ -55,12 +56,12 @@ async def establish_clients(hosts):
 			asyncio.ensure_future(game_client(next(hosts), gameid, player))
 	print("Sockets established. Ctrl-C to halt test.")
 	tm = time.time()
-	print("%8s %8s" % ("Moves/s", "Bytes/s"))
+	print("%8s %8s %6s" % ("Moves/s", "Bytes/s", "Socks"))
 	while True:
 		await asyncio.sleep(10)
 		t = time.time(); delay = t - tm; tm = t
-		print("%8.2f %8.2f" % (stats[0]/delay, stats[1]/delay))
-		stats[:] = 0, 0
+		print("%8.2f %8.2f %6d" % (stats[1]/delay, stats[2]/delay, stats[0]))
+		stats[1:] = 0, 0
 
 if len(sys.argv) > 1:
 	# Client
