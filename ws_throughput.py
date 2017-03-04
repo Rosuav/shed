@@ -40,11 +40,11 @@ async def game_client(host, gameid, player):
 				if delay > 0:
 					await asyncio.sleep(delay)
 					if not ws: break
+				stats[1] += 1
 				ws.send_str(move_data)
 		asyncio.ensure_future(make_moves())
 		async for msg in ws:
 			if msg.type == WSMsgType.TEXT:
-				stats[1] += 1
 				stats[2] += len(msg.data)
 	ws = None
 
