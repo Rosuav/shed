@@ -32,8 +32,7 @@ docos anywhere.
 
 Still TODO:
 * Email delivery: spamassassin bayes filtering data (check it!)
-* STARTTLS on all email-carrying sockets (SMTP 587 done, SMTP 25 done, IMAP
-  active but not enforced)
+* Require STARTTLS before IMAP authentication (SMTP already does)
 * Upgrade SquirrelMail so it can handle STARTTLS, thus allowing it to be
   enforced?? Would mean getting it from svn, not the Debian repo.
 * Backups. What isn't in git needs to be backed up. This means mail, possibly
