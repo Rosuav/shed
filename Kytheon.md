@@ -40,7 +40,6 @@ Still TODO:
   /var/www, the databases, and MH/Torr data.
 * Backups, again. Can/should we have a "git backup box" that, on a cron job,
   pulls a bunch of stuff from GitHub? Where should that live?
-* Mail notifs in MH
 
 Creating a mail user:
 * Run `userdbpw` to encrypt the password (or use some other crypt() eg Pike's)
