@@ -44,7 +44,9 @@ Still TODO:
   - Backup tool needs to maintain directory structure, but probably won't need
     to content-check any file that exists. Assume that email files never change
     (maybe with a quick file size check just in case, since that comes from the
-    directory entry). Skip any file courierimap* as they are just caches.
+    directory entry). Skip any file courierimap* as they are just caches, maybe
+    keeping courierimapsubscribed, because without it, all the non-core folders
+    will vanish (can be reinstated easily, but it would confuse people).
 * Backups, again. Can/should we have a "git backup box" that, on a cron job,
   pulls a bunch of stuff from GitHub? Where should that live?
 
