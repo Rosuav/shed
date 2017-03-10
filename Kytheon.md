@@ -35,10 +35,7 @@ Still TODO:
 * Require STARTTLS before IMAP authentication (SMTP already does)
 * Upgrade SquirrelMail so it can handle STARTTLS, thus allowing it to be
   enforced?? Would mean getting it from svn, not the Debian repo.
-* Backups. What isn't in git needs to be backed up. This means mail, possibly
-  /var/www, the databases, and MH/Torr data.
-  - rsync accepted for mail, despite concerns of permissions openness.
-  - need databases and MH/Torr
+* Backups. Stuff that's in git still might get forgotten somehow.
   - automated 'git status' in every directory???
     - needs to locate all directories that we care about
     - needs ignore list
