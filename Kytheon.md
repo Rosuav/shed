@@ -37,16 +37,13 @@ Still TODO:
   enforced?? Would mean getting it from svn, not the Debian repo.
 * Backups. What isn't in git needs to be backed up. This means mail, possibly
   /var/www, the databases, and MH/Torr data.
-  - Not happy with results of rsync test, partly due to the wide-open perms
-    needed to make it work. Unless I can chown all email data backup:postfix
-    sticky and make Postfix use group perms (in which case I can chmod them
-    all 575/464), this won't work.
-  - Backup tool needs to maintain directory structure, but probably won't need
-    to content-check any file that exists. Assume that email files never change
-    (maybe with a quick file size check just in case, since that comes from the
-    directory entry). Skip any file courierimap* as they are just caches, maybe
-    keeping courierimapsubscribed, because without it, all the non-core folders
-    will vanish (can be reinstated easily, but it would confuse people).
+  - rsync accepted for mail, despite concerns of permissions openness.
+  - need databases and MH/Torr
+  - automated 'git status' in every directory???
+    - needs to locate all directories that we care about
+    - needs ignore list
+    - if non-empty status, send email
+    - must cope with different branch and remote names
 * Backups, again. Can/should we have a "git backup box" that, on a cron job,
   pulls a bunch of stuff from GitHub? Where should that live?
 
