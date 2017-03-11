@@ -34,14 +34,13 @@ def check(repos):
 @command
 def add(repos):
 	"""Add this or another repository to the watch list"""
+	# TODO: Add a 'verbose mode'
 	repos = repos or ["."]
-	print(repos)
 	for repo in repos:
 		dir = subprocess.check_output(["git", "-C", repo, "rev-parse", "--show-toplevel"])
 		dir = dir.decode("ascii").strip("\n")
-		# TODO: Add only if not already present.
-		subprocess.check_call(["git", "config", "--global", "--add", "rosuav.git-watch.repos", dir])
-	sys.exit("Not implemented [add]")
+		# TODO: Ensure that 'dir' doesn't have any regex-special characters, or escape them
+		subprocess.check_call(["git", "config", "--global", "--replace-all", "rosuav.git-watch.repos", dir, dir])
 
 def main():
 	parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
