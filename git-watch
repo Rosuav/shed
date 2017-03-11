@@ -16,3 +16,34 @@ TODO:
 
 * Install into systemd incl .timer
 """
+import argparse
+import sys
+
+commands = []
+def command(f):
+	commands.append(f)
+	return f
+
+# First command is also the default
+@command
+def check():
+	"""Check all repositories on your list"""
+	sys.exit("Not implemented [check]")
+
+@command
+def add():
+	"""Add this or another repository to the watch list"""
+	sys.exit("Not implemented [add]")
+
+def main():
+	parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+	subparsers = parser.add_subparsers()
+	parser.set_defaults(func=commands[0])
+	for func in commands:
+		par = subparsers.add_parser(func.__name__, help=func.__doc__.split("\n")[0])
+		par.set_defaults(func=func)
+	args = vars(parser.parse_args())
+	return args.pop("func")(**args)
+
+if __name__ == '__main__':
+	sys.exit(main())
