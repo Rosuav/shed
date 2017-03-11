@@ -40,7 +40,7 @@ def add(repos):
 def main():
 	parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
 	subparsers = parser.add_subparsers()
-	parser.set_defaults(func=commands[0])
+	parser.set_defaults(func=commands[0], repos=[])
 	for func in commands:
 		par = subparsers.add_parser(func.__name__, help=func.__doc__.split("\n")[0])
 		par.set_defaults(func=func)
