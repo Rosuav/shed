@@ -18,6 +18,7 @@ TODO:
 """
 import argparse
 import sys
+import subprocess
 
 commands = []
 def command(f):
@@ -35,6 +36,11 @@ def add(repos):
 	"""Add this or another repository to the watch list"""
 	repos = repos or ["."]
 	print(repos)
+	for repo in repos:
+		dir = subprocess.check_output(["git", "-C", repo, "rev-parse", "--show-toplevel"])
+		dir = dir.decode("ascii").strip("\n")
+		# TODO: Add only if not already present.
+		subprocess.check_call(["git", "config", "--global", "--add", "rosuav.git-watch.repos", dir])
 	sys.exit("Not implemented [add]")
 
 def main():
