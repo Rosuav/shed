@@ -26,13 +26,15 @@ def command(f):
 
 # First command is also the default
 @command
-def check():
+def check(repos):
 	"""Check all repositories on your list"""
 	sys.exit("Not implemented [check]")
 
 @command
-def add():
+def add(repos):
 	"""Add this or another repository to the watch list"""
+	repos = repos or ["."]
+	print(repos)
 	sys.exit("Not implemented [add]")
 
 def main():
@@ -42,8 +44,9 @@ def main():
 	for func in commands:
 		par = subparsers.add_parser(func.__name__, help=func.__doc__.split("\n")[0])
 		par.set_defaults(func=func)
-	args = vars(parser.parse_args())
-	return args.pop("func")(**args)
+		par.add_argument("repos", nargs="*", help="Repository(ies) to check")
+	args = parser.parse_args()
+	return args.func(args.repos)
 
 if __name__ == '__main__':
 	sys.exit(main())
