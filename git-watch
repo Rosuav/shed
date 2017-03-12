@@ -29,6 +29,9 @@ def command(f):
 @command
 def check(repos):
 	"""Check all repositories on your list"""
+	dirs = subprocess.check_output(["git", "config", "--get-all", "rosuav.git-watch.repos"])
+	dirs = dirs.decode("ascii").strip("\n").split("\n")
+	print(dirs)
 	sys.exit("Not implemented [check]")
 
 @command
