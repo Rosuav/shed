@@ -32,7 +32,10 @@ def check(repos):
 	"""Check all repositories on your list"""
 	dirs = subprocess.check_output(["git", "config", "--get-all", "rosuav.git-watch.repos"])
 	dirs = dirs.decode("ascii").strip("\n").split("\n")
-	print(dirs)
+	for dir in dirs:
+		print(dir)
+		status = subprocess.check_output(["git", "-C", dir, "status", "--porcelain"])
+		print(status)
 	sys.exit("Not implemented [check]")
 
 @command
