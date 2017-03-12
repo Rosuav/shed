@@ -42,6 +42,8 @@ def add(repos):
 		# TODO: Ensure that 'dir' doesn't have any regex-special characters, or escape them
 		subprocess.check_call(["git", "config", "--global", "--replace-all", "rosuav.git-watch.repos", dir, dir])
 
+# TODO: 'search' subcommand to scan the file system for .git directories??
+
 def main():
 	parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
 	subparsers = parser.add_subparsers()
