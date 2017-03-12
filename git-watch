@@ -12,9 +12,10 @@ TODO:
 
 * Must show branch upstream status - if no associated remote, flag it
 
-* Ideally email on fail
+* Ideally email on fail:
+git watch | mail user@domain.example -s "Unpushed changes" -E
 
-* Install into systemd incl .timer
+* Install into systemd incl .timer (let the admin do manually)
 """
 import argparse
 import sys
