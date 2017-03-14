@@ -51,6 +51,8 @@ def add(repos):
 
 # TODO: 'search' subcommand to scan the file system for .git directories??
 
+# TODO: 'remove'
+
 def main():
 	parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
 	subparsers = parser.add_subparsers()
