@@ -33,10 +33,20 @@ def check(repos):
 	dirs = subprocess.check_output(["git", "config", "--get-all", "rosuav.git-watch.repos"])
 	dirs = dirs.decode("ascii").strip("\n").split("\n")
 	for dir in dirs:
-		print(dir)
-		status = subprocess.check_output(["git", "-C", dir, "status", "--porcelain"])
-		print(status)
-	sys.exit("Not implemented [check]")
+		status = subprocess.check_output(["git", "-C", dir, "status", "--porcelain", "--branch"])
+		status = status.decode("ascii").strip("\n").split("\n")
+		if not status:
+			# Completely empty??? Probably some sort of error.
+			print(dir, "-- unexpected situation, please contact author")
+			continue
+		# First line should be the branch info.
+		if "..." not in status[0]:
+			print(dir, "-- no upstream for branch, suggest 'git push -u'")
+		if "[ahead" in status[0]:
+			# Note that diverged branches show "[ahead N, behind m]"
+			print(dir, "-- has unpushed commits")
+		if len(status) > 1:
+			print(dir, "-- has unstaged changes")
 
 @command
 def add(repos):
