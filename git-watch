@@ -18,6 +18,7 @@ git watch | mail user@domain.example -s "Unpushed changes" -E
 * Install into systemd incl .timer (let the admin do manually)
 """
 import argparse
+import os
 import sys
 import subprocess
 
@@ -67,7 +68,21 @@ def add(repos):
 
 # TODO: 'search' subcommand to scan the file system for .git directories??
 
-# TODO: 'remove'
+@command
+def rm(repos):
+	"""Remove this or another repository from the watch list"""
+	# TODO: Add a 'verbose mode'
+	repos = repos or ["."]
+	for repo in repos:
+		try:
+			dir = subprocess.check_output(["git", "-C", repo, "rev-parse", "--show-toplevel"])
+			dir = dir.decode("ascii").strip("\n")
+		except subprocess.CalledProcessError:
+			# TODO: If the dir isn't found in config, error out.
+			# (If it IS found, remove it, as that's how you remove a deleted repo.)
+			dir = os.path.abspath(repo)
+		# TODO: As above, check for regex specials
+		subprocess.check_call(["git", "config", "--global", "--unset-all", "rosuav.git-watch.repos", dir])
 
 def main():
 	parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
