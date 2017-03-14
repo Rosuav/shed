@@ -33,7 +33,13 @@ def check(repos):
 	dirs = subprocess.check_output(["git", "config", "--get-all", "rosuav.git-watch.repos"])
 	dirs = dirs.decode("ascii").strip("\n").split("\n")
 	for dir in dirs:
-		status = subprocess.check_output(["git", "-C", dir, "status", "--porcelain", "--branch"])
+		try:
+			status = subprocess.check_output(["git", "-C", dir, "status", "--porcelain", "--branch"])
+		except subprocess.CalledProcessError as e:
+			# It's entirely possible that stderr isn't connected anywhere,
+			# so give an admin a chance to see that there's a problem.
+			print(dir, "-- unable to 'git status', see stderr")
+			continue
 		status = status.decode("ascii").strip("\n").split("\n")
 		if not status:
 			# Completely empty??? Probably some sort of error.
