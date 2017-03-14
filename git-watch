@@ -77,13 +77,16 @@ def rm(repos):
 
 def main():
 	parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-	subparsers = parser.add_subparsers()
-	parser.set_defaults(func=commands[0], repos=[])
+	subparsers = parser.add_subparsers(dest="command")
 	for func in commands:
 		par = subparsers.add_parser(func.__name__, help=func.__doc__.split("\n")[0])
 		par.set_defaults(func=func)
 		par.add_argument("repos", nargs="*", help="Repository(ies) to check")
 	args = parser.parse_args()
+	if not args.command:
+		# In Pythons older than 3.4.3, we can't just set_defaults for these,
+		# so we hack around it by stashing a command name in there.
+		return commands[0]([])
 	return args.func(args.repos)
 
 if __name__ == '__main__':
