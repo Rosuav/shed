@@ -2,20 +2,11 @@
 """
 Watch git repositories for uncommitted or unpushed changes
 
-TODO:
+Suggestion: Have notifications automatically emailed to you.
+git watch | mail user@domain.example -s "Status of git repos" -E
 
-* Scan file system for .git directories
-
-* Explicit list of directories to monitor
-
-* In each directory, run 'git status' in porcelain mode
-
-* Must show branch upstream status - if no associated remote, flag it
-
-* Ideally email on fail:
-git watch | mail user@domain.example -s "Unpushed changes" -E
-
-* Install into systemd incl .timer (let the admin do manually)
+Further suggestion: Set up a cron job or equivalent to do the
+above regularly (eg daily).
 """
 import argparse
 import os
