@@ -31,7 +31,6 @@ required adding the 'postfix' user to the 'sasl' group. Didn't find that in any
 docos anywhere.
 
 Still TODO:
-* Email delivery: spamassassin bayes filtering data (check it!)
 * Require STARTTLS before IMAP authentication (SMTP already does)
 * Upgrade SquirrelMail so it can handle STARTTLS, thus allowing it to be
   enforced?? Would mean getting it from svn, not the Debian repo.
