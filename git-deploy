@@ -39,6 +39,12 @@ gh-pages)
   ;;
 esac
 
+if [ -n "`git status --porcelain`" ]
+then
+  echo 'For safety, deployment cannot be run with unstaged changes.'
+  exit 1
+fi
+
 if ! git rev-parse deploy >/dev/null 2>/dev/null
 then
   git checkout --orphan deploy
