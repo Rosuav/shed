@@ -1,0 +1,55 @@
+#!/bin/sh
+# Update your deploy branch based on a subdirectory of your main tree
+# npm run build || exit $?
+# git deploy
+# Should be run on a clean working tree (all changes committed, although
+# pushing is optional) with a successful and complete build.
+# If your build dir is not build/ in the repo root, select a different
+# subtree with: git config push.deploy.subtree some/path/to/build
+# Do not include a trailing slash.
+# Choose a remote to push to, if not origin:
+# git config push.deploy.remote heroku
+# Choose a remote branch name to push to, if not deploy:
+# git config push.deploy.branch gh-pages
+
+case $1 in
+-h)
+  echo 'Choose deployment mode with one of:'
+  echo 'git deploy heroku'
+  echo 'git deploy gh-pages'
+  echo 'Or configure manually.'
+  exit 0
+  ;;
+heroku)
+  echo 'Selecting Heroku deployment.'
+  git config push.deploy.remote heroku
+  git config push.deploy.branch master
+  ;;
+gh-pages)
+  echo 'Selecting GitHub Pages deployment.'
+  git config push.deploy.branch gh-pages
+  ;;
+*)
+  echo 'Not expecting parameters normally.'
+  echo '(Sorry, not very friendly yet. PRs welcome.)'
+  exit 1
+  ;;
+esac
+
+if ! git rev-parse deploy >/dev/null 2>/dev/null
+then
+  git checkout --orphan deploy
+  git rm -rf .
+  git commit --allow-empty -m "Initialize deployment branch"
+  git checkout master
+fi
+rev=`git rev-parse --short HEAD`
+dir=`git config push.deploy.subtree || echo build`
+git add -f $dir
+tree=`git write-tree --prefix=$dir/`
+git reset HEAD $dir
+commit=`echo Deploy $dir from $rev|git commit-tree $tree -p deploy`
+git update-ref refs/heads/deploy $commit
+remote=`git config push.deploy.remote || echo origin`
+branch=`git config push.deploy.branch || echo deploy`
+git push $remote deploy:$branch
