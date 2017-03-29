@@ -13,6 +13,9 @@
 # git config push.deploy.branch gh-pages
 
 case $1 in
+'')
+  # 'git deploy' on its own will do a deployment
+  ;;
 -h)
   echo 'Choose deployment mode with one of:'
   echo 'git deploy heroku'
