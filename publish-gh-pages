@@ -1,4 +1,5 @@
 #!/bin/sh
+# Deprecated in favour of git-deploy (see also)
 # Update your gh-pages branch based on a subdirectory of your main tree
 # npm run build || exit $?
 # publish-gh-pages
