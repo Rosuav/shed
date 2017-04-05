@@ -1,6 +1,6 @@
 #!/usr/bin/env pike
 
-string script = "youtube-queue";
+string script = "yt-queue";
 
 int process()
 {
