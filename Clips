@@ -74,3 +74,4 @@ avconv -i /video/Disney/Disney\ Classic\ -\ 33\ -\ Pocahontas.avi -ss 0:12:24 -t
 (Not a clip) avconv -i /video/BluRayDisney/Tangled.2010.PROPER.1080p.BluRay.x264-CiNEFiLE.mkv -s 544x320 -map 0:v -map 0:a Tangled-en.mkv
 avconv -i Anastasia\ -\ Once\ Upon\ A\ December\ Flemish\ \(Lyrics\)-tknUjV7e_Ec.mp4 -c:s copy -vf crop=872:488:204:116 "Anastasia - Once Upon A December - Flemish.mkv"
 (Not a clip) avconv -i ../Downloads/Princess\ Diaries\ The\ 10th\ Anniversary\ Edition\ \(1\ and\ 2\)\ 1080p\ \ BD9\ AC3\ AVCHD.iCandy/The\ Princess\ Diaries\ 2\ Royal\ Engagement\ \(2004\)/BDMV/STREAM/00000.m2ts -s 544x306 -c:s copy -c:a copy "2004 - The Princess Diaries 2 - Royal Engagement.mkv"
+ffmpeg -ss 00:12:07 -i `youtube-dl --get-url https://www.twitch.tv/lilbumblebear/v/134367064` -t 0:01:48 -c copy TheSwordingOfRosuav.mkv
