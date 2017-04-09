@@ -64,5 +64,5 @@ OtherSister's first anthem, I think - didn't keep for some reason
 
 Download them thus:
 $ url=`youtube-dl --get-url https://www.twitch.tv/lilbumblebear/v/107929408`
-$ ffmpeg -ss 05:32:10 -i $url -t 0:05:35 -c copy 2017-01-07.mp4
+$ ffmpeg -ss 05:32:10 -i $url -t 0:05:35 -c copy 2017-01-07.mkv
 Tweak the start time and duration to get a good clip.
