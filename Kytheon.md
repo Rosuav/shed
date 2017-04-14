@@ -34,13 +34,7 @@ Still TODO:
 * Require STARTTLS before IMAP authentication (SMTP already does)
 * Upgrade SquirrelMail so it can handle STARTTLS, thus allowing it to be
   enforced?? Would mean getting it from svn, not the Debian repo.
-* Backups. Stuff that's in git still might get forgotten somehow.
-  - automated 'git status' in every directory???
-    - needs to locate all directories that we care about
-    - needs ignore list
-    - if non-empty status, send email
-    - must cope with different branch and remote names
-* Backups, again. Can/should we have a "git backup box" that, on a cron job,
+* Backups. Can/should we have a "git backup box" that, on a cron job,
   pulls a bunch of stuff from GitHub? Where should that live?
 
 Creating a mail user:
