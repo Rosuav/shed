@@ -319,6 +319,8 @@ array englishbraille=({
 	13,123,134,1345,135,1234,12345,1235,234,2345, //k-t
 	136,1236,2456,1346,13456,1356, //u-z (including w, which is allocated a separate slot normally)
 });
+//⠁⠃⠉⠙⠑⠋⠛⠓⠊⠚	⠅⠇⠍⠝⠕⠏⠟⠗⠎⠞	⠥⠧⠺⠭⠽⠵
+//abcdefghij	klmnopqrst	uvwxyz
 array braillechars=lambda(int code) {int ret=0x2800; while (code) {ret+=1<<(code%10-1); code/=10;} return sprintf("%c",ret);}(englishbraille[*]);
 mapping Braille=mkmapping("abcdefghijklmnopqrstuvwxyz"/1,braillechars) + mkmapping("ABCDEFGHIJKLMNOPQRSTUVWXYZ"/1,"\u2828"+braillechars[*]);
 string Latin_to_Braille(string input) {return replace(input,Braille);}
