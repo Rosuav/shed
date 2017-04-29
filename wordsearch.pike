@@ -16,7 +16,7 @@ int main(int argc, array(string) argv)
 	{
 		foreach (counter(w); string l; int n) if (n > ltrcount[l]) continue nextword;
 		if (sizeof(w) <= best) continue;
-		write(w + "\n");
+		write("%d %s\n", sizeof(w), w);
 		best = sizeof(w);
 	}
 }
