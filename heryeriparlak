@@ -10,7 +10,7 @@
 
 string noisemode;
 
-void log(msg)
+void log(string msg)
 {
 	werror("[%s] %s\n", gethostname(), msg);
 }
