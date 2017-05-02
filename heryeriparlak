@@ -43,6 +43,7 @@ int main(int argc, array(string) argv)
 		{
 			//Establish remote link
 			master_in = Stdio.File(); master_out = Stdio.File();
+			log("Establishing link to " + argv[1]);
 			processes += ({
 				Process.create_process(({"ssh", argv[1], "shed/heryeriparlak", noisemode[2..]}),
 					(["stdin": master_out->pipe(), "stdout": master_in->pipe()])),
