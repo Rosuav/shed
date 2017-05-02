@@ -26,6 +26,30 @@ void bomb()
 	exit(0);
 }
 
+Stdio.File linepipe(function handler)
+{
+	string buf = "";
+	void cb(mixed id, string data)
+	{
+		buf += data;
+		while (has_value(buf, '\n'))
+		{
+			sscanf(buf, "%s\n%s", string line, buf);
+			handler(line);
+		}
+	}
+	object pipe = Stdio.File();
+	pipe->set_read_callback(cb);
+	return pipe->pipe();
+}
+
+void remote_stderr(string line)
+{
+	if (line == "") return;
+	if (line[0] != '[') werror("[remote] %s\n", line);
+	else werror("%s\n", line);
+}
+
 int main(int argc, array(string) argv)
 {
 	log("Initiating Her Yeri Parlak:");
@@ -53,7 +77,7 @@ int main(int argc, array(string) argv)
 			log("Establishing link to " + argv[1]);
 			processes += ({
 				Process.create_process(({"ssh", argv[1], "shed/heryeriparlak", "-c", noisemode[2..]}),
-					(["stdin": master_out->pipe(), "stdout": master_in->pipe()])),
+					(["stdin": master_out->pipe(), "stdout": master_in->pipe(), "stderr": linepipe(remote_stderr)])),
 			});
 		}
 		master_out->write("%2H", Stdio.read_file("/tmp/noise.dat"));
