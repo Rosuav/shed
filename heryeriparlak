@@ -10,11 +10,16 @@
 
 string noisemode;
 
+void log(msg)
+{
+	werror("[%s] %s\n", gethostname(), msg);
+}
+
 array processes = ({ });
 array files = ({ });
 void bomb()
 {
-	werror("Child gone, terminating...\n");
+	log("Child gone, terminating...");
 	processes->kill(2);
 	rm(files[*]);
 	exit(0);
@@ -23,11 +28,11 @@ void bomb()
 int main(int argc, array(string) argv)
 {
 	array(string) format = ({"-f", "s16_le", "-r", "12000"});
-	werror("Building noise profile...\n");
+	log("Building noise profile...");
 	Process.create_process(({"arecord", "-d1"}) + format + ({"/tmp/noise.wav"}))->wait();
 	Process.create_process(({"sox", "/tmp/noise.wav", "-n", "noiseprof", "/tmp/noise.dat"}))->wait();
 	files += ({"/tmp/noise.wav", "/tmp/noise.dat"});
-	werror("Noise profile built.\n");
+	log("Noise profile built.");
 	object master_in=Stdio.stdin, master_out=Stdio.stdout;
 	noisemode = (argv[-1]/" ")[-1]; //See, this is how to get the last word in your arguments :)
 	if (sizeof(noisemode - "l" - "r" - "n")) noisemode = "lnln";
