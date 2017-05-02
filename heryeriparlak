@@ -40,14 +40,18 @@ int main(int argc, array(string) argv)
 	if (sizeof(noisemode - "l" - "r" - "n")) noisemode = "lnln";
 	if (argc >= 2)
 	{
-		//SSH mode
+		//SSH mode. Note that this is compatible with regular shells AND with the use
+		//of heryeriparlak *as* the remote shell; in the latter case, SSH will invoke
+		//the remote script with two arguments of "-c" and "shed/heryeriparlak -c XX"
+		//(where XX is the noise mode). This odd usage means that our flag for client
+		//mode MUST be "-c".
 		if (argv[1] != "-c")
 		{
 			//Establish remote link
 			master_in = Stdio.File(); master_out = Stdio.File();
 			log("Establishing link to " + argv[1]);
 			processes += ({
-				Process.create_process(({"ssh", argv[1], "shed/heryeriparlak", noisemode[2..]}),
+				Process.create_process(({"ssh", argv[1], "shed/heryeriparlak", "-c", noisemode[2..]}),
 					(["stdin": master_out->pipe(), "stdout": master_in->pipe()])),
 			});
 		}
