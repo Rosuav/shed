@@ -9,7 +9,7 @@
 //to the given computer and attempt to invoke itself there.
 
 string noisemode;
-int localtime, remotetime;
+int timediff;
 
 void log(string msg)
 {
@@ -84,9 +84,11 @@ int main(int argc, array(string) argv)
 		sscanf(master_in->read(2), "%2c", int len);
 		Stdio.write_file("/tmp/remote_noise.dat", master_in->read(len));
 		files += ({"/tmp/remote_noise.dat"});
-		master_out->write("%4c", localtime = time());
-		sscanf(master_in->read(4), "%4c", remotetime);
-		log(sprintf("Time here %d, there %d ==> offset %d", localtime, remotetime, localtime - remotetime));
+		int localtime = time();
+		master_out->write("%4c", localtime);
+		sscanf(master_in->read(4), "%4c", int remotetime);
+		timediff = localtime - remotetime;
+		log(sprintf("Time here %d, there %d ==> offset %d", localtime, remotetime, timediff));
 	}
 	object pipe = Stdio.File();
 	//All subprocesses have stderr linked to our stderr.
