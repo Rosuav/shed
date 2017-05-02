@@ -27,6 +27,8 @@ void bomb()
 
 int main(int argc, array(string) argv)
 {
+	log("Initiating Her Yeri Parlak:");
+	log(Process.sh_quote(argv[*]) * " ");
 	array(string) format = ({"-f", "s16_le", "-r", "12000"});
 	log("Building noise profile...");
 	Process.create_process(({"arecord", "-d1"}) + format + ({"/tmp/noise.wav"}))->wait();
