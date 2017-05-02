@@ -97,7 +97,7 @@ int main(int argc, array(string) argv)
 
 void subprocess(int dir, array cmd, object stdin, object stdout)
 {
-	mapping opts = (["stdin": stdin, "stdout": stdout, "callback": bomb]);
+	mapping opts = (["stdin": stdin, "stdout": stdout, "stderr": linepipe(log), "callback": bomb]);
 	array inout = ({"stdin", "stdout"});
 	if (noisemode[dir] != 'n')
 	{
