@@ -69,7 +69,7 @@ int main(int argc, array(string) argv)
 	log(Process.sh_quote(argv[*]) * " ");
 	array(string) format = ({"-f", "s16_le", "-r", "12000"});
 	log("Building noise profile...");
-	Process.create_process(({"arecord", "-d1"}) + format + ({"/tmp/noise.wav"}))->wait();
+	Process.create_process(({"arecord", "-d1"}) + format + ({"/tmp/noise.wav"}), (["stderr": linepipe(log)]))->wait();
 	Process.create_process(({"sox", "/tmp/noise.wav", "-n", "noiseprof", "/tmp/noise.dat"}))->wait();
 	files += ({"/tmp/noise.wav", "/tmp/noise.dat"});
 	log("Noise profile built.");
