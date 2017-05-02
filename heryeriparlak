@@ -46,8 +46,21 @@ Stdio.File linepipe(function handler)
 void remote_stderr(string line)
 {
 	if (line == "") return;
-	if (line[0] != '[') werror("[remote] %s\n", line);
+	if (sscanf(line, "# TIMECHECK # %d", int remotetime))
+	{
+		int localtime = time();
+		int td = localtime - remotetime;
+		log(sprintf("Time here %d, there %d ==> offset %d [was %d]", localtime, remotetime, td, timediff));
+		timediff = td;
+	}
+	else if (line[0] != '[') werror("[remote] %s\n", line);
 	else werror("%s\n", line);
+}
+
+void timecheck()
+{
+	call_out(timecheck, 30);
+	werror("# TIMECHECK # %d\n", time());
 }
 
 int main(int argc, array(string) argv)
@@ -80,6 +93,7 @@ int main(int argc, array(string) argv)
 					(["stdin": master_out->pipe(), "stdout": master_in->pipe(), "stderr": linepipe(remote_stderr)])),
 			});
 		}
+		else call_out(timecheck, 30);
 		master_out->write("%2H", Stdio.read_file("/tmp/noise.dat"));
 		sscanf(master_in->read(2), "%2c", int len);
 		Stdio.write_file("/tmp/remote_noise.dat", master_in->read(len));
