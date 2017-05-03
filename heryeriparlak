@@ -8,6 +8,12 @@
 //If given an SSH destination, will pipe itself bidirectionally
 //to the given computer and attempt to invoke itself there.
 
+/* TODO:
+UDP broadcast??
+Mute button??
+MULTI CHANNEL????
+*/
+
 string noisemode;
 int timediff;
 
