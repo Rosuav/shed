@@ -30,6 +30,16 @@
    for a channel you don't listen to, you ignore it. (As with muting, this is
    perfectly safe.) You can then have a variety of modes, such as an open-mic
    channel between a few people and a push-to-talk that goes to everyone.
+
+Throughput: Currently, this is built around transmission every ~10ms. This is
+about right for latency, but may need to be increased (to 25ish) to allow for
+better scaling. With a dozen people transmitting (even if most are on private
+and independent channels), we will be sending ~1200 packets per second; my 4G
+can handle ~600 pps. (You don't score PACKETS in Doom, you know.) Or maybe my
+testing methodology needs work. The home ethernet can manage ~5000 pps; wifi,
+oddly, manages only ~320 pps (granted, that's to Aragorn, so it might be slow
+at that end). TODO: Test between Sikorsky and Traal some time when Traal's at
+home. If we can get a decent PPS out of a wireless LAN, we're laughing.
 */
 
 string noisemode;
