@@ -1,4 +1,25 @@
-/* Throughput and analysis measurement for the Her Yeri Parlak Cans system */
+/* Throughput and analysis measurement for the Her Yeri Parlak Cans system
+
+Timing: All packets get ms time incorporated. On receipt, calculate offset:
+your_time() - packet time
+This value is the sum of two unknown quantities: the transmission latency
+and the clock difference between the two computers. We assume that the clock
+difference is an approximately stable quantity, and we can be confident that
+the latency is a nonnegative value. Therefore we take the lowest total ever
+seen and take that to be the clock offset. (Closest to negative infinity,
+not closest to zero; the clock offset could be either direction.)
+
+Having established a "best ever seen" offset, we assume that the current
+packet's offset exceeds that best by a value representing only the latency.
+As such, we can now discard any packets with latency in excess of some
+predetermined value (eg 1500ms). In the face of clock errors or other time
+discrepancies, this will either cope smoothly (if the clock offset is
+lowered permanently and stably), or cause the audio to be muted (if the
+offset increases permanently) or intermittent (if it fluctuates). Anyone who
+hears silence can bounce the receiver to reset all time offsets and force a
+recalculation; the fluctuating time issue is fundamentally unresolvable, and
+the only solution is to have a latency window that exceeds the fluctuation.
+*/
 constant PORT = 517;
 Stdio.UDP udp = Stdio.UDP()->bind(PORT, "::", 1);
 
