@@ -8,10 +8,26 @@
 //If given an SSH destination, will pipe itself bidirectionally
 //to the given computer and attempt to invoke itself there.
 
-/* TODO:
-UDP broadcast??
-Mute button??
-MULTI CHANNEL????
+/* TODO: Turn this into a fully-functional set of cans. Prerequisites:
+
+1) Use UDP transmission instead of TCP. This also allows latency control; you
+   can keep buffer sizes small and just drop data. (Note that UDP can deliver
+   packets out of order, which would produce weird results. I'm going to just
+   ignore that and let it cause occasional glitches on bad connections.) Note
+   that packets MUST contain an exact number of samples; with 16-bit audio, a
+   packet must contain an even number of bytes. I have never seen this behave
+   any other way, but for safety's sake, buffer any spare bytes before send.
+2) Support UDP broadcast. Obviously this requires single-segment networking -
+   but you want that anyway, to minimize latency.
+3) The ability to play multiple concurrent streams. With N participants, each
+   her yeri parlak must be able to play N-1 simultaneous transmissions.
+4) A mute button that halts transmission temporarily. This won't be difficult
+   at the receiving end, as it'll already be critical to coping with UDP.
+5) Channels. This is the true killer feature. Every outgoing packet gets some
+   channel identifier (probably a one-byte prefix), and when you receive data
+   for a channel you don't listen to, you ignore it. (As with muting, this is
+   perfectly safe.) You can then have a variety of modes, such as an open-mic
+   channel between a few people and a push-to-talk that goes to everyone.
 */
 
 string noisemode;
