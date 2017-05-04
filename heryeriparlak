@@ -158,7 +158,7 @@ int main(int argc, array(string) argv)
 		call_out(ping, 10);
 	}
 	subprocess(0, ({"arecord", "-B", "10"}) + format, Stdio.File("/dev/null"), master_out);
-	subprocess(1, ({"aplay"}) + format, master_in, Stdio.File("/dev/null", "wct"));
+	subprocess(1, ({"aplay", "-B", "10"}) + format, master_in, Stdio.File("/dev/null", "wct"));
 	return -1;
 }
 
