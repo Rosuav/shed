@@ -19,6 +19,11 @@ offset increases permanently) or intermittent (if it fluctuates). Anyone who
 hears silence can bounce the receiver to reset all time offsets and force a
 recalculation; the fluctuating time issue is fundamentally unresolvable, and
 the only solution is to have a latency window that exceeds the fluctuation.
+
+The upshot of this is that the clock used does not actually need to have any
+correlation to wall time. It doesn't even have to be consistent across nodes
+in the group! Implementations are encouraged to use a monotonic clock if one
+is available.
 */
 constant PORT = 517;
 Stdio.UDP udp = Stdio.UDP()->bind(PORT, "::", 1);
