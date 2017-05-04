@@ -93,7 +93,7 @@ void remote_stderr(string line)
 
 void timecheck()
 {
-	call_out(timecheck, 30);
+	call_out(timecheck, 60);
 	werror("# TIMECHECK # %d\n", time());
 }
 
@@ -131,7 +131,7 @@ int main(int argc, array(string) argv)
 					(["stdin": master_out->pipe(), "stdout": master_in->pipe(), "stderr": linepipe(remote_stderr)])),
 			});
 		}
-		else call_out(timecheck, 30);
+		else call_out(timecheck, 60);
 		if (noisemode != "nnnn")
 		{
 			master_out->write("%2H", Stdio.read_file("/tmp/noise.dat"));
