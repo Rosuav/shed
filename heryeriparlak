@@ -119,7 +119,7 @@ int main(int argc, array(string) argv)
 	object pipe = Stdio.File();
 	//All subprocesses have stderr linked to our stderr via the logger.
 	subprocess(0, ({"arecord", "-B", "10"}) + format, Stdio.File("/dev/null"), master_out);
-	subprocess(1, ({"aplay"}), master_in, Stdio.File("/dev/null", "wct"));
+	subprocess(1, ({"aplay"}) + format, master_in, Stdio.File("/dev/null", "wct"));
 	return -1;
 }
 
