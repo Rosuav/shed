@@ -1,6 +1,6 @@
 /* Throughput and analysis measurement for the Her Yeri Parlak Cans system
 
-Timing: All packets get ms time incorporated. On receipt, calculate offset:
+Timing: All packets get usec time incorporated. On receipt, calculate offset:
 your_time() - packet time
 This value is the sum of two unknown quantities: the transmission latency
 and the clock difference between the two computers. We assume that the clock
