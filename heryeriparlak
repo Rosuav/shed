@@ -118,6 +118,17 @@ int main(int argc, array(string) argv)
 	}
 	object pipe = Stdio.File();
 	//All subprocesses have stderr linked to our stderr via the logger.
+	if (has_value(argv, "--metrics"))
+	{
+		//Hack: Get some metrics
+		object linker = Stdio.File();
+		int bytes = 0, chunks = 0;
+		function send = master_out->write; //Dodge the closure
+		linker->set_read_callback(lambda(mixed id, string data) {bytes += sizeof(data); chunks++; send(data);});
+		master_out = linker->pipe();
+		void ping() {call_out(ping, 10); log(sprintf("PING! %d bytes in %d chunks", bytes, chunks)); bytes = chunks = 0;}
+		call_out(ping, 10);
+	}
 	subprocess(0, ({"arecord", "-B", "10"}) + format, Stdio.File("/dev/null"), master_out);
 	subprocess(1, ({"aplay"}) + format, master_in, Stdio.File("/dev/null", "wct"));
 	return -1;
