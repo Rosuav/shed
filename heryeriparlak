@@ -76,11 +76,14 @@ int main(int argc, array(string) argv)
 	noisemode = (argv[-1]/" ")[-1]; //See, this is how to get the last word in your arguments :)
 	if (sizeof(noisemode - "l" - "r" - "n")) noisemode = "lnln";
 	array(string) format = ({"-f", "s16_le", "-r", "12000"});
-	log("Building noise profile...");
-	Process.create_process(({"arecord", "-d1"}) + format + ({"/tmp/noise.wav"}), (["stderr": linepipe(log)]))->wait();
-	Process.create_process(({"sox", "/tmp/noise.wav", "-n", "noiseprof", "/tmp/noise.dat"}))->wait();
-	files += ({"/tmp/noise.wav", "/tmp/noise.dat"});
-	log("Noise profile built.");
+	if (noisemode != "nnnn")
+	{
+		log("Building noise profile...");
+		Process.create_process(({"arecord", "-d1"}) + format + ({"/tmp/noise.wav"}), (["stderr": linepipe(log)]))->wait();
+		Process.create_process(({"sox", "/tmp/noise.wav", "-n", "noiseprof", "/tmp/noise.dat"}))->wait();
+		files += ({"/tmp/noise.wav", "/tmp/noise.dat"});
+		log("Noise profile built.");
+	}
 	object master_in=Stdio.stdin, master_out=Stdio.stdout;
 	if (argc >= 2)
 	{
@@ -100,10 +103,13 @@ int main(int argc, array(string) argv)
 			});
 		}
 		else call_out(timecheck, 30);
-		master_out->write("%2H", Stdio.read_file("/tmp/noise.dat"));
-		sscanf(master_in->read(2), "%2c", int len);
-		Stdio.write_file("/tmp/remote_noise.dat", master_in->read(len));
-		files += ({"/tmp/remote_noise.dat"});
+		if (noisemode != "nnnn")
+		{
+			master_out->write("%2H", Stdio.read_file("/tmp/noise.dat"));
+			sscanf(master_in->read(2), "%2c", int len);
+			Stdio.write_file("/tmp/remote_noise.dat", master_in->read(len));
+			files += ({"/tmp/remote_noise.dat"});
+		}
 		int localtime = time();
 		master_out->write("%4c", localtime);
 		sscanf(master_in->read(4), "%4c", int remotetime);
