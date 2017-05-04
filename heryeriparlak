@@ -103,7 +103,7 @@ int main(int argc, array(string) argv)
 	log(Process.sh_quote(argv[*]) * " ");
 	noisemode = (argv[-1]/" ")[-1]; //See, this is how to get the last word in your arguments :)
 	if (sizeof(noisemode - "l" - "r" - "n")) noisemode = "lnln";
-	array(string) format = ({"-t", "raw", "-f", "s16_le", "-r", "12000"});
+	array(string) format = ({"-t", "wav", "-f", "s16_le", "-r", "12000"});
 	if (noisemode != "nnnn")
 	{
 		log("Building noise profile...");
@@ -112,6 +112,7 @@ int main(int argc, array(string) argv)
 		files += ({"/tmp/noise.wav", "/tmp/noise.dat"});
 		log("Noise profile built.");
 	}
+	else format[1] = "raw"; //When working without noisered, we don't need WAV headers.
 	object master_in=Stdio.stdin, master_out=Stdio.stdout;
 	if (argc >= 2)
 	{
