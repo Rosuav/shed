@@ -20,7 +20,9 @@
 2) Support UDP broadcast. Obviously this requires single-segment networking -
    but you want that anyway, to minimize latency.
 3) The ability to play multiple concurrent streams. With N participants, each
-   her yeri parlak must be able to play N-1 simultaneous transmissions.
+   her yeri parlak must be able to play N-1 simultaneous transmissions. Maybe
+   have an aplay process for each source IP address, which you pipe data into
+   as it arrives??
 4) A mute button that halts transmission temporarily. This won't be difficult
    at the receiving end, as it'll already be critical to coping with UDP.
 5) Channels. This is the true killer feature. Every outgoing packet gets some
