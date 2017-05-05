@@ -85,8 +85,8 @@ void sig_ptt_channel_changed() {checkchan("ptt");}
 void checkchan(string mode)
 {
 	string chan = config[mode + "chan"] = win[mode + "_channel"]->get_text();
-	object glob = chan == "global" ? GTK2.GdkColor(0, 255, 255) : UNDEFINED;
-	object mute = chan == "" ? GTK2.GdkColor(0, 255, 255) : UNDEFINED;
+	object glob = chan == "global" ? win->highlight : UNDEFINED;
+	object mute = chan == "" ? win->highlight : UNDEFINED;
 	foreach (({GTK2.STATE_NORMAL, GTK2.STATE_ACTIVE, GTK2.STATE_SELECTED, GTK2.STATE_PRELIGHT}), int state)
 	{
 		win[mode + "_global"]->modify_bg(GTK2.STATE_NORMAL, glob);
@@ -142,6 +142,7 @@ int main(int argc, array(string) argv)
 	}
 	call_out(send, 0.01);
 	GTK2.setup_gtk();
+	win->highlight = GTK2.GdkColor(0, 255, 255);
 	win->mainwindow = GTK2.Window((["title": "Her Yeri Parlak"]))->add(GTK2.Vbox(0, 10)
 		->add(GTK2.Frame("Receive channels (commas to separate)")
 			->add(win->recv_channels = GTK2.Entry()->set_text(config->recvchan))
