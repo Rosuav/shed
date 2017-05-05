@@ -27,7 +27,8 @@ is available.
 */
 constant ADDR = "224.0.0.1"; //Multicast address: All hosts on current network.
 constant PORT = 5170;
-Stdio.UDP udp = Stdio.UDP()->bind(PORT); //NOTE: *Not* enabling IPv6; this app is v4-only.
+Stdio.UDP|array(Stdio.UDP) udp = Stdio.UDP()->bind(PORT); //NOTE: *Not* enabling IPv6; this app is v4-only.
+array(string) ips;
 
 mapping(string:float) active = ([]);
 int basetime = time();
@@ -46,13 +47,14 @@ void send()
 void recv(mapping(string:int|string) info)
 {
 	if (info->port != PORT) return;
+	if (has_value(ips, info->ip)) info->ip = " <self> ";
 	active[info->ip] = time(basetime);
 }
 
-int main()
+int main(int argc, array(string) argv)
 {
 	udp->set_read_callback(recv);
-	array(string) ips = sort(values(Stdio.gethostip())->ips * ({ }));
+	ips = sort(values(Stdio.gethostip())->ips * ({ }));
 	write("My IPs: %s\n", ips * ", ");
 	//We pick the first one (after sorting textually) to be our identity.
 	//Since we listen on every available IP, this won't majorly hurt,
@@ -60,6 +62,20 @@ int main()
 	//Most computers will have just one IP anyway, so none of this matters.
 	udp->enable_multicast(ips[0]);
 	udp->add_membership(ADDR);
+	if (has_value(argv, "--send-all"))
+	{
+		//To avoid craziness in a multi-network situation, send via
+		//every available IP address, not just the default. Note that
+		//this can cause split-brain situations if there are actually
+		//multiple networks using the cans, but otherwise, it means
+		//you don't have to explicitly pick an IP or interface.
+		udp = ({udp});
+		foreach (ips[1..], string ip)
+		{
+			udp += ({Stdio.UDP()->bind(PORT)});
+			udp[-1]->enable_multicast(ip);
+		}
+	}
 	call_out(send, 0.01);
 	return -1;
 }
