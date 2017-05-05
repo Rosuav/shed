@@ -100,6 +100,20 @@ void sig_recv_channels_changed()
 	recvchannels = (config->recvchan - " ") / ",";
 }
 
+int sig_b4_mainwindow_key_press_event(object self, object ev)
+{
+	if (ev->keyval != 32) return 0;
+	write("Pressed\n");
+	return 1;
+}
+
+int sig_b4_mainwindow_key_release_event(object self, object ev)
+{
+	if (ev->keyval != 32) return 0;
+	write("Released\n");
+	return 1;
+}
+
 int main(int argc, array(string) argv)
 {
 	udp->set_read_callback(recv);
