@@ -43,6 +43,9 @@ mapping(string:float) active = ([]);
 mapping(string:object) players = ([]);
 int basetime = time();
 
+mapping(string:int) packetcount = ([]);
+void showcounts() {write("%O\n", packetcount); packetcount = ([]); call_out(showcounts, 30);}
+
 string lastsend;
 string sendbuf = "";
 void send(mixed id, string data)
@@ -55,6 +58,7 @@ void send(mixed id, string data)
 	if (sizeof(sendbuf) & 1) {data = sendbuf[..<1]; sendbuf = sendbuf[<0..];}
 	else {data = sendbuf; sendbuf = "";}
 	if (sendchannel != lastsend) write("Now sending on %O\n", lastsend = sendchannel);
+	packetcount["sent"]++;
 	if (sendchannel != "")
 		udp->send(ADDR, PORT, sprintf("T%d C%s\n%s", gethrtime(), sendchannel, data), 2);
 	string line = "";
@@ -66,7 +70,9 @@ void send(mixed id, string data)
 
 void recv(mapping(string:int|string) info)
 {
+	packetcount[""]++;
 	if (info->port != PORT) return; //Not from one of us.
+	packetcount[info->ip]++;
 	if (has_value(ips, info->ip)) return; //Normally ignore our loopback (remove this for testing)
 	//NOTE: Currently the packet format is strict, but it's designed to be able to be
 	//more intelligently parsed in the future, with space-delimited tokens and marker
@@ -89,6 +95,7 @@ void recv(mapping(string:int|string) info)
 		]));
 	}
 	players[info->ip]->write(data);
+	packetcount["written"]++;
 }
 
 mapping(string:GTK2.Widget) win = ([]);
@@ -144,6 +151,7 @@ int sig_b4_mainwindow_key_release_event(object self, object ev)
 
 int main(int argc, array(string) argv)
 {
+	call_out(showcounts, 30);
 	loadconfig();
 	udp->set_read_callback(recv);
 	ips = sort(values(Stdio.gethostip())->ips * ({ }));
