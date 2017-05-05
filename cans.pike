@@ -66,6 +66,8 @@ void recv(mapping(string:int|string) info)
 	active[info->ip] = time(basetime);
 }
 
+mapping(string:GTK2.Widget) win = ([]);
+
 int main(int argc, array(string) argv)
 {
 	udp->set_read_callback(recv);
@@ -93,5 +95,27 @@ int main(int argc, array(string) argv)
 		}
 	}
 	call_out(send, 0.01);
+	GTK2.setup_gtk();
+	object window = GTK2.Window(0)->add(GTK2.Vbox(0, 10)
+		->add(GTK2.Frame("Receive channels (commas to separate)")
+			->add(win->recv_channels = GTK2.Entry())
+		)
+		->add(GTK2.Hbox(0, 10)
+			->add(GTK2.Frame("Normal channel")->add(GTK2.Vbox(0, 10)
+				->add(win->norm_channel = GTK2.Entry())
+				->add(GTK2.HbuttonBox()
+					->add(win->norm_global = GTK2.Button("Global"))
+					->add(win->norm_mute = GTK2.Button("Mute"))
+				)
+			))
+			->add(GTK2.Frame("Push-to-talk channel")->add(GTK2.Vbox(0, 10)
+				->add(win->norm_channel = GTK2.Entry())
+				->add(GTK2.HbuttonBox()
+					->add(win->norm_global = GTK2.Button("Global"))
+					->add(win->norm_mute = GTK2.Button("Mute"))
+				)
+			))
+		)
+	)->show_all();
 	return -1;
 }
