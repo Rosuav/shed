@@ -25,8 +25,9 @@ correlation to wall time. It doesn't even have to be consistent across nodes
 in the group! Implementations are encouraged to use a monotonic clock if one
 is available.
 */
+constant ADDR = "224.0.0.1"; //Multicast address: All hosts on current network.
 constant PORT = 517;
-Stdio.UDP udp = Stdio.UDP()->bind(PORT, "::", 1);
+Stdio.UDP udp = Stdio.UDP()->bind(PORT); //NOTE: *Not* enabling IPv6; this app is v4-only.
 
 mapping(string:float) active = ([]);
 int basetime = time();
@@ -34,7 +35,7 @@ int basetime = time();
 void send()
 {
 	call_out(send, 0.01);
-	udp->send("192.168.1.255", PORT, "Hello", 2); //TODO: Detect broadcast addr
+	udp->send(ADDR, PORT, "Hello", 2);
 	string line = "";
 	float cutoff = time(basetime) - 0.5;
 	foreach (sort(indices(active)), string ip)
@@ -50,7 +51,15 @@ void recv(mapping(string:int|string) info)
 
 int main()
 {
-	udp->set_read_callback(recv)->enable_broadcast();
+	udp->set_read_callback(recv);
+	//NOTE: After connecting the socket, we can query the local address.
+	//I'm not sure how it picks between multiples.
+	Stdio.UDP tmp = Stdio.UDP(); tmp->connect(ADDR, PORT);
+	string my_addr = (tmp->query_address()/" ")[0];
+	//However, a connected socket doesn't seem to send correctly. So we
+	//just connect a little dummy.
+	udp->enable_multicast(my_addr);
+	udp->add_membership(ADDR);
 	call_out(send, 0.01);
 	return -1;
 }
