@@ -41,6 +41,7 @@ array(string) recvchannels;
 mapping(string:int) senders = ([]);
 mapping(string:float) active = ([]);
 mapping(string:object) players = ([]);
+mapping(string:int) lastseq = ([]);
 int basetime = time();
 
 mapping(string:int) packetcount = ([]);
@@ -48,6 +49,7 @@ void showcounts() {write("%O\n", packetcount); packetcount = ([]); call_out(show
 
 string lastsend;
 string sendbuf = "";
+int sequence;
 void send(mixed id, string data)
 {
 	sendbuf += data;
@@ -61,7 +63,7 @@ void send(mixed id, string data)
 	packetcount["sent"]++;
 	packetcount["sentbytes"] += sizeof(data);
 	if (sendchannel != "")
-		udp->send(ADDR, PORT, sprintf("T%d C%s\n%s", gethrtime(), sendchannel, data), 2);
+		udp->send(ADDR, PORT, sprintf("T%d C%s Q%d\n%s", gethrtime(), sendchannel, ++sequence, data), 2);
 	string line = "";
 	float cutoff = time(basetime) - 0.5;
 	foreach (sort(indices(active)), string ip)
@@ -79,8 +81,12 @@ void recv(mapping(string:int|string) info)
 	//more intelligently parsed in the future, with space-delimited tokens and marker
 	//letters, ending with a newline before the payload. (The payload is binary data,
 	//which normally will be an audio blob; the header is ASCII text. Maybe UTF-8.)
-	sscanf(info->data, "T%d C%s\n%s", int packettime, string chan, string(0..255) data);
+	sscanf(info->data, "T%d C%s Q%d\n%s", int packettime, string chan, int seq, string(0..255) data);
 	if (!data) return; //Packet not in correct format.
+	int expect = lastseq[info->ip] + 1;
+	if (seq < expect) werror("WARNING: %s seq non-monotonic! %d expected %d\n", info->ip, seq, expect);
+	else packetcount[info->ip + " dropped"] += seq - expect;
+	lastseq[info->ip] = seq;
 	packetcount[info->ip + " bytes"] += sizeof(data);
 	if (!has_value(recvchannels, chan)) return; //Was sent to a channel we don't follow.
 	int offset = gethrtime() - packettime;
