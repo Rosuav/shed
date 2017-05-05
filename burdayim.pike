@@ -53,6 +53,7 @@ int sequence;
 void send(mixed id, string data)
 {
 	sendbuf += data;
+	if (sizeof(sendbuf) < 512) return; //Always send good-sized packets, to reduce packet collisions
 	//PROTECTION: Always send an even number of bytes. This is probably never
 	//going to trigger, but if we ever do get an odd number of bytes, it'd be
 	//possible for a lost UDP packet to leave us mismatched.
