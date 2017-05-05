@@ -59,6 +59,7 @@ void send(mixed id, string data)
 	else {data = sendbuf; sendbuf = "";}
 	if (sendchannel != lastsend) write("Now sending on %O\n", lastsend = sendchannel);
 	packetcount["sent"]++;
+	packetcount["sentbytes"] += sizeof(data);
 	if (sendchannel != "")
 		udp->send(ADDR, PORT, sprintf("T%d C%s\n%s", gethrtime(), sendchannel, data), 2);
 	string line = "";
@@ -80,6 +81,7 @@ void recv(mapping(string:int|string) info)
 	//which normally will be an audio blob; the header is ASCII text. Maybe UTF-8.)
 	sscanf(info->data, "T%d C%s\n%s", int packettime, string chan, string(0..255) data);
 	if (!data) return; //Packet not in correct format.
+	packetcount[info->ip + " bytes"] += sizeof(data);
 	if (!has_value(recvchannels, chan)) return; //Was sent to a channel we don't follow.
 	int offset = gethrtime() - packettime;
 	int lastofs = senders[info->ip];
