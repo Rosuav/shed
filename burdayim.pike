@@ -40,6 +40,7 @@ array(string) recvchannels;
 
 mapping(string:int) senders = ([]);
 mapping(string:float) active = ([]);
+mapping(string:object) players = ([]);
 int basetime = time();
 
 string lastsend;
@@ -80,6 +81,14 @@ void recv(mapping(string:int|string) info)
 	int lag = offset - lastofs;
 	if (lag > 500000) {werror("%s: lag %d usec\n", info->ip, lag); return;} //Half a second old? Drop it.
 	active[info->ip] = time(basetime);
+	if (!players[info->ip])
+	{
+		write("New voice on comms: %s\n", info->ip);
+		Process.create_process(({"aplay", "-B", "10"}) + audio_format, ([
+			"stdin": (players[info->ip] = Stdio.File())->pipe(),
+		]));
+	}
+	players[info->ip]->write(data);
 }
 
 mapping(string:GTK2.Widget) win = ([]);
