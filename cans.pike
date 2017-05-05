@@ -117,5 +117,26 @@ int main(int argc, array(string) argv)
 			))
 		)
 	)->show_all();
+	//Lifted and simplified from Gypsum's collect_signals
+	foreach (indices(this), string key) if (has_prefix(key, "sig_") && callablep(this[key]))
+	{
+		//Function names of format sig_x_y become a signal handler for win->x signal y.
+		//(Note that classes are callable, so they can be used as signal handlers too.)
+		//This may pose problems, as it's possible for x and y to have underscores in
+		//them, so we scan along and find the shortest such name that exists in win[].
+		//If there's none, ignore the callable (currently without any error or warning,
+		//despite the explicit prefix). This can create ambiguities, but only in really
+		//contrived situations, so I'm deciding not to care. :)
+		array parts=(key/"_")[1..];
+		int b4=(parts[0]=="b4"); if (b4) parts=parts[1..]; //sig_b4_some_object_some_signal will connect _before_ the normal action
+		for (int i=0;i<sizeof(parts)-1;++i) if (mixed obj = win[parts[..i]*"_"])
+		{
+			if (objectp(obj) && callablep(obj->signal_connect))
+			{
+				obj->signal_connect(parts[i+1..]*"_", this[key], UNDEFINED, UNDEFINED, b4);
+				break;
+			}
+		}
+	}
 	return -1;
 }
