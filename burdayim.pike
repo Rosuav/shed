@@ -32,7 +32,7 @@ is available.
 */
 constant ADDR = "224.0.0.1"; //Multicast address: All hosts on current network.
 constant PORT = 5170;
-constant audio_format = ({"-t", "raw", "-f", "s16_le", "-r", "12000", "-B", "10"});
+constant audio_format = ({"-t", "raw", "-f", "s16_le", "-r", "12000", "-B", "25000"});
 Stdio.UDP|array(Stdio.UDP) udp = Stdio.UDP()->bind(PORT, "0.0.0.0", 1); //NOTE: *Not* enabling IPv6; this app is v4-only.
 array(string) ips;
 string sendchannel = "global";
