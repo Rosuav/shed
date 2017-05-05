@@ -29,14 +29,16 @@ constant ADDR = "224.0.0.1"; //Multicast address: All hosts on current network.
 constant PORT = 5170;
 Stdio.UDP|array(Stdio.UDP) udp = Stdio.UDP()->bind(PORT); //NOTE: *Not* enabling IPv6; this app is v4-only.
 array(string) ips;
+int channel = 0; //Send on this channel. Messages on channel 0 are always received.
 
+mapping(string:int) senders = ([]);
 mapping(string:float) active = ([]);
 int basetime = time();
 
 void send()
 {
 	call_out(send, 0.01);
-	udp->send(ADDR, PORT, "Hello", 2);
+	udp->send(ADDR, PORT, sprintf("T%d C%d\nHello, world", gethrtime(), channel), 2);
 	string line = "";
 	float cutoff = time(basetime) - 0.5;
 	foreach (sort(indices(active)), string ip)
@@ -46,8 +48,19 @@ void send()
 
 void recv(mapping(string:int|string) info)
 {
-	if (info->port != PORT) return;
-	if (has_value(ips, info->ip)) info->ip = " <self> ";
+	if (info->port != PORT) return; //Not from one of us.
+	if (has_value(ips, info->ip)) return; //Normally ignore our loopback (remove this for testing)
+	//NOTE: Currently the packet format is strict, but it's designed to be able to be
+	//more intelligently parsed in the future, with space-delimited tokens and marker
+	//letters, ending with a newline before the payload. (The payload is binary data,
+	//which normally will be an audio blob; the header is ASCII text. Maybe UTF-8.)
+	sscanf(info->data, "T%d C%d\n%s", int packettime, int chan, string(0..255) data);
+	if (!data) return; //Packet not in correct format.
+	int offset = gethrtime() - packettime;
+	int lastofs = senders[info->ip];
+	if (undefinedp(lastofs) || offset < lastofs) senders[info->ip] = lastofs = offset;
+	int lag = offset - lastofs;
+	if (lag > 500000) werror("%s: lag %d usec\n", info->ip, lag); //Half a second old? Drop it.
 	active[info->ip] = time(basetime);
 }
 
