@@ -29,7 +29,8 @@ constant ADDR = "224.0.0.1"; //Multicast address: All hosts on current network.
 constant PORT = 5170;
 Stdio.UDP|array(Stdio.UDP) udp = Stdio.UDP()->bind(PORT); //NOTE: *Not* enabling IPv6; this app is v4-only.
 array(string) ips;
-int channel = 0; //Send on this channel. Messages on channel 0 are always received.
+string sendchannel = "global";
+array(string) recvchannels = ({"global"});
 
 mapping(string:int) senders = ([]);
 mapping(string:float) active = ([]);
@@ -38,7 +39,7 @@ int basetime = time();
 void send()
 {
 	call_out(send, 0.01);
-	udp->send(ADDR, PORT, sprintf("T%d C%d\nHello, world", gethrtime(), channel), 2);
+	udp->send(ADDR, PORT, sprintf("T%d C%s\nHello, world", gethrtime(), sendchannel), 2);
 	string line = "";
 	float cutoff = time(basetime) - 0.5;
 	foreach (sort(indices(active)), string ip)
@@ -54,8 +55,9 @@ void recv(mapping(string:int|string) info)
 	//more intelligently parsed in the future, with space-delimited tokens and marker
 	//letters, ending with a newline before the payload. (The payload is binary data,
 	//which normally will be an audio blob; the header is ASCII text. Maybe UTF-8.)
-	sscanf(info->data, "T%d C%d\n%s", int packettime, int chan, string(0..255) data);
+	sscanf(info->data, "T%d C%s\n%s", int packettime, string chan, string(0..255) data);
 	if (!data) return; //Packet not in correct format.
+	if (!has_value(recvchannels, chan)) return; //Was sent to a channel we don't follow.
 	int offset = gethrtime() - packettime;
 	int lastofs = senders[info->ip];
 	if (undefinedp(lastofs) || offset < lastofs) senders[info->ip] = lastofs = offset;
