@@ -68,11 +68,31 @@ void recv(mapping(string:int|string) info)
 
 mapping(string:GTK2.Widget) win = ([]);
 
+//TODO: Persist this
+mapping(string:string|array|mapping) config = ([
+	"normchan": "", "pttchan": "global",
+	"recvchan": "global",
+]);
+
 void sig_mainwindow_delete_event() {exit(0);}
+
 void sig_norm_global_clicked() {win->norm_channel->set_text("global");}
 void sig_norm_mute_clicked() {win->norm_channel->set_text("");}
 void sig_ptt_global_clicked() {win->ptt_channel->set_text("global");}
 void sig_ptt_mute_clicked() {win->ptt_channel->set_text("");}
+void sig_norm_channel_changed() {checkchan("norm");}
+void sig_ptt_channel_changed() {checkchan("ptt");}
+void checkchan(string mode)
+{
+	string chan = config[mode + "chan"] = win[mode + "_channel"]->get_text();
+	object glob = chan == "global" ? GTK2.GdkColor(0, 255, 255) : UNDEFINED;
+	object mute = chan == "" ? GTK2.GdkColor(0, 255, 255) : UNDEFINED;
+	foreach (({GTK2.STATE_NORMAL, GTK2.STATE_ACTIVE, GTK2.STATE_SELECTED, GTK2.STATE_PRELIGHT}), int state)
+	{
+		win[mode + "_global"]->modify_bg(GTK2.STATE_NORMAL, glob);
+		win[mode + "_mute"]->modify_bg(GTK2.STATE_NORMAL, mute);
+	}
+}
 
 int main(int argc, array(string) argv)
 {
@@ -108,14 +128,14 @@ int main(int argc, array(string) argv)
 		)
 		->add(GTK2.Hbox(0, 10)
 			->add(GTK2.Frame("Normal channel")->add(GTK2.Vbox(0, 10)
-				->add(win->norm_channel = GTK2.Entry())
+				->add(win->norm_channel = GTK2.Entry()->set_text(config->normchan))
 				->add(GTK2.HbuttonBox()
 					->add(win->norm_global = GTK2.Button("Global"))
 					->add(win->norm_mute = GTK2.Button("Mute"))
 				)
 			))
 			->add(GTK2.Frame("Push-to-talk channel")->add(GTK2.Vbox(0, 10)
-				->add(win->ptt_channel = GTK2.Entry())
+				->add(win->ptt_channel = GTK2.Entry()->set_text(config->pttchan))
 				->add(GTK2.HbuttonBox()
 					->add(win->ptt_global = GTK2.Button("Global"))
 					->add(win->ptt_mute = GTK2.Button("Mute"))
@@ -123,6 +143,7 @@ int main(int argc, array(string) argv)
 			))
 		)
 	)->show_all();
+	checkchan("norm"); checkchan("ptt");
 	//Lifted and simplified from Gypsum's collect_signals
 	foreach (indices(this), string key) if (has_prefix(key, "sig_") && callablep(this[key]))
 	{
