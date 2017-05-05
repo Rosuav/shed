@@ -1,4 +1,9 @@
-/* Throughput and analysis measurement for the Her Yeri Parlak Cans system
+/* IP Group Telephony system based around prior art in Her Yeri Parlak
+
+Named after a minor artifact in Soyutlanma, and before that from Turkish
+"burdayım" = "I am here", this allows a moderate number of people to
+communicate on a global channel, while a small number of people (or several
+such groups) communicate on private channels.
 
 Timing: All packets get usec time incorporated. On receipt, calculate offset:
 your_time() - packet time
