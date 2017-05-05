@@ -69,6 +69,10 @@ void recv(mapping(string:int|string) info)
 mapping(string:GTK2.Widget) win = ([]);
 
 void sig_mainwindow_delete_event() {exit(0);}
+void sig_norm_global_clicked() {win->norm_channel->set_text("global");}
+void sig_norm_mute_clicked() {win->norm_channel->set_text("");}
+void sig_ptt_global_clicked() {win->ptt_channel->set_text("global");}
+void sig_ptt_mute_clicked() {win->ptt_channel->set_text("");}
 
 int main(int argc, array(string) argv)
 {
