@@ -32,7 +32,7 @@ is available.
 */
 constant ADDR = "224.0.0.1"; //Multicast address: All hosts on current network.
 constant PORT = 5170;
-constant audio_format = ({"-t", "raw", "-f", "s16_le", "-r", "12000"});
+constant audio_format = ({"-t", "raw", "-f", "s16_le", "-r", "12000", "-B", "10"});
 Stdio.UDP|array(Stdio.UDP) udp = Stdio.UDP()->bind(PORT, "0.0.0.0", 1); //NOTE: *Not* enabling IPv6; this app is v4-only.
 array(string) ips;
 string sendchannel = "global";
@@ -92,7 +92,7 @@ void recv(mapping(string:int|string) info)
 	if (!players[info->ip])
 	{
 		write("New voice on comms: %s\n", info->ip);
-		Process.create_process(({"aplay", "-B", "10"}) + audio_format, ([
+		Process.create_process(({"aplay"}) + audio_format, ([
 			"stdin": (players[info->ip] = Stdio.File())->pipe(),
 		]));
 	}
@@ -226,7 +226,7 @@ int main(int argc, array(string) argv)
 		}
 	}
 	Stdio.File recorder = Stdio.File();
-	Process.create_process(({"arecord", "-B", "10"}) + audio_format, ([
+	Process.create_process(({"arecord"}) + audio_format, ([
 		"stdin": Stdio.File("/dev/null"), "stdout": recorder->pipe(),
 		"callback": lambda() {exit(0);},
 	]));
