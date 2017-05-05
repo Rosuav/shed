@@ -46,7 +46,8 @@ void send()
 {
 	call_out(send, 0.01);
 	if (sendchannel != lastsend) write("Now sending on %O\n", lastsend = sendchannel);
-	udp->send(ADDR, PORT, sprintf("T%d C%s\nHello, world", gethrtime(), sendchannel), 2);
+	if (sendchannel != "")
+		udp->send(ADDR, PORT, sprintf("T%d C%s\nHello, world", gethrtime(), sendchannel), 2);
 	string line = "";
 	float cutoff = time(basetime) - 0.5;
 	foreach (sort(indices(active)), string ip)
