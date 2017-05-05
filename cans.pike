@@ -52,13 +52,9 @@ void recv(mapping(string:int|string) info)
 int main()
 {
 	udp->set_read_callback(recv);
-	//NOTE: After connecting the socket, we can query the local address.
-	//I'm not sure how it picks between multiples.
-	Stdio.UDP tmp = Stdio.UDP(); tmp->connect(ADDR, PORT);
-	string my_addr = (tmp->query_address()/" ")[0];
-	//However, a connected socket doesn't seem to send correctly. So we
-	//just connect a little dummy.
-	udp->enable_multicast(my_addr);
+	array(string) ips = values(Stdio.gethostip())->ips * ({ });
+	write("My IPs: %s\n", ips * ", ");
+	udp->enable_multicast(ips[0]);
 	udp->add_membership(ADDR);
 	call_out(send, 0.01);
 	return -1;
