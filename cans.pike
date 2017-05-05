@@ -103,14 +103,14 @@ void sig_recv_channels_changed()
 int sig_b4_mainwindow_key_press_event(object self, object ev)
 {
 	if (ev->keyval != 32) return 0;
-	write("Pressed\n");
+	sendchannel = config->pttchan;
 	return 1;
 }
 
 int sig_b4_mainwindow_key_release_event(object self, object ev)
 {
 	if (ev->keyval != 32) return 0;
-	write("Released\n");
+	sendchannel = config->normchan;
 	return 1;
 }
 
@@ -165,6 +165,7 @@ int main(int argc, array(string) argv)
 		)
 	)->show_all();
 	checkchan("norm"); checkchan("ptt"); sig_recv_channels_changed();
+	sendchannel = config->normchan;
 	//Lifted and simplified from Gypsum's collect_signals
 	foreach (indices(this), string key) if (has_prefix(key, "sig_") && callablep(this[key]))
 	{
