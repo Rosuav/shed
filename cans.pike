@@ -68,6 +68,8 @@ void recv(mapping(string:int|string) info)
 
 mapping(string:GTK2.Widget) win = ([]);
 
+void sig_mainwindow_delete_event() {exit(0);}
+
 int main(int argc, array(string) argv)
 {
 	udp->set_read_callback(recv);
@@ -96,7 +98,7 @@ int main(int argc, array(string) argv)
 	}
 	call_out(send, 0.01);
 	GTK2.setup_gtk();
-	object window = GTK2.Window((["title": "Her Yeri Parlak"]))->add(GTK2.Vbox(0, 10)
+	win->mainwindow = GTK2.Window((["title": "Her Yeri Parlak"]))->add(GTK2.Vbox(0, 10)
 		->add(GTK2.Frame("Receive channels (commas to separate)")
 			->add(win->recv_channels = GTK2.Entry())
 		)
