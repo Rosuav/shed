@@ -179,7 +179,7 @@ int main(int argc, array(string) argv)
 	}
 	GTK2.setup_gtk();
 	win->highlight = GTK2.GdkColor(0, 255, 255);
-	win->mainwindow = GTK2.Window((["title": "Burdayım"]))->add(GTK2.Vbox(0, 10)
+	win->mainwindow = GTK2.Window((["title": "Burdayim"]))->add(GTK2.Vbox(0, 10)
 		->add(GTK2.Frame("Receive channels (commas to separate)")
 			->add(win->recv_channels = GTK2.Entry()->set_text(config->recvchan))
 		)
