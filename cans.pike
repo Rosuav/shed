@@ -30,7 +30,7 @@ constant PORT = 5170;
 Stdio.UDP|array(Stdio.UDP) udp = Stdio.UDP()->bind(PORT); //NOTE: *Not* enabling IPv6; this app is v4-only.
 array(string) ips;
 string sendchannel = "global";
-array(string) recvchannels = ({"global"});
+array(string) recvchannels;
 
 mapping(string:int) senders = ([]);
 mapping(string:float) active = ([]);
@@ -94,6 +94,12 @@ void checkchan(string mode)
 	}
 }
 
+void sig_recv_channels_changed()
+{
+	config->recvchan = win->recv_channels->get_text();
+	recvchannels = (config->recvchan - " ") / ",";
+}
+
 int main(int argc, array(string) argv)
 {
 	udp->set_read_callback(recv);
@@ -124,7 +130,7 @@ int main(int argc, array(string) argv)
 	GTK2.setup_gtk();
 	win->mainwindow = GTK2.Window((["title": "Her Yeri Parlak"]))->add(GTK2.Vbox(0, 10)
 		->add(GTK2.Frame("Receive channels (commas to separate)")
-			->add(win->recv_channels = GTK2.Entry())
+			->add(win->recv_channels = GTK2.Entry()->set_text(config->recvchan))
 		)
 		->add(GTK2.Hbox(0, 10)
 			->add(GTK2.Frame("Normal channel")->add(GTK2.Vbox(0, 10)
@@ -143,7 +149,7 @@ int main(int argc, array(string) argv)
 			))
 		)
 	)->show_all();
-	checkchan("norm"); checkchan("ptt");
+	checkchan("norm"); checkchan("ptt"); sig_recv_channels_changed();
 	//Lifted and simplified from Gypsum's collect_signals
 	foreach (indices(this), string key) if (has_prefix(key, "sig_") && callablep(this[key]))
 	{
