@@ -36,9 +36,11 @@ mapping(string:int) senders = ([]);
 mapping(string:float) active = ([]);
 int basetime = time();
 
+string lastsend;
 void send()
 {
 	call_out(send, 0.01);
+	if (sendchannel != lastsend) write("Now sending on %O\n", lastsend = sendchannel);
 	udp->send(ADDR, PORT, sprintf("T%d C%s\nHello, world", gethrtime(), sendchannel), 2);
 	string line = "";
 	float cutoff = time(basetime) - 0.5;
