@@ -93,12 +93,13 @@ void recv(mapping(string:int|string) info)
 
 mapping(string:GTK2.Widget) win = ([]);
 
-//TODO: Persist this
+//Persistent configs
 mapping(string:string|array|mapping) config = ([
 	"normchan": "", "pttchan": "global",
 	"recvchan": "global",
 ]);
-
+void saveconfig() {Stdio.write_file(".burdayimrc", Standards.JSON.encode(config));}
+void loadconfig() {catch {config = Standards.JSON.decode(Stdio.read_file(".burdayimrc")) || config;};}
 void sig_mainwindow_delete_event() {exit(0);}
 
 void sig_norm_global_clicked() {win->norm_channel->set_text("global");}
@@ -117,12 +118,14 @@ void checkchan(string mode)
 		win[mode + "_global"]->modify_bg(GTK2.STATE_NORMAL, glob);
 		win[mode + "_mute"]->modify_bg(GTK2.STATE_NORMAL, mute);
 	}
+	saveconfig();
 }
 
 void sig_recv_channels_changed()
 {
 	config->recvchan = win->recv_channels->get_text();
 	recvchannels = (config->recvchan - " ") / ",";
+	saveconfig();
 }
 
 int sig_b4_mainwindow_key_press_event(object self, object ev)
@@ -141,6 +144,7 @@ int sig_b4_mainwindow_key_release_event(object self, object ev)
 
 int main(int argc, array(string) argv)
 {
+	loadconfig();
 	udp->set_read_callback(recv);
 	ips = sort(values(Stdio.gethostip())->ips * ({ }));
 	if (argc > 1 && has_value(ips, argv[1])) ips = ({argv[1]});
