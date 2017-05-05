@@ -52,8 +52,12 @@ void recv(mapping(string:int|string) info)
 int main()
 {
 	udp->set_read_callback(recv);
-	array(string) ips = values(Stdio.gethostip())->ips * ({ });
+	array(string) ips = sort(values(Stdio.gethostip())->ips * ({ }));
 	write("My IPs: %s\n", ips * ", ");
+	//We pick the first one (after sorting textually) to be our identity.
+	//Since we listen on every available IP, this won't majorly hurt,
+	//and the sort ensures that it's stable, if a little arbitrary.
+	//Most computers will have just one IP anyway, so none of this matters.
 	udp->enable_multicast(ips[0]);
 	udp->add_membership(ADDR);
 	call_out(send, 0.01);
