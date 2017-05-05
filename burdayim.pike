@@ -78,7 +78,7 @@ void recv(mapping(string:int|string) info)
 	int lastofs = senders[info->ip];
 	if (undefinedp(lastofs) || offset < lastofs) senders[info->ip] = lastofs = offset;
 	int lag = offset - lastofs;
-	if (lag > 500000) werror("%s: lag %d usec\n", info->ip, lag); //Half a second old? Drop it.
+	if (lag > 500000) {werror("%s: lag %d usec\n", info->ip, lag); return;} //Half a second old? Drop it.
 	active[info->ip] = time(basetime);
 }
 
