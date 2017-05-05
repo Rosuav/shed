@@ -55,6 +55,7 @@ int main(int argc, array(string) argv)
 {
 	udp->set_read_callback(recv);
 	ips = sort(values(Stdio.gethostip())->ips * ({ }));
+	if (argc > 1 && has_value(ips, argv[1])) ips = ({argv[1]});
 	write("My IPs: %s\n", ips * ", ");
 	//We pick the first one (after sorting textually) to be our identity.
 	//Since we listen on every available IP, this won't majorly hurt,
