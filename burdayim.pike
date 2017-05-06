@@ -81,13 +81,13 @@ void recv(mapping(string:int|string) info)
 	packetcount[""]++;
 	if (info->port != PORT) return; //Not from one of us.
 	packetcount[info->ip]++;
-	if (has_value(ips, info->ip)) return; //Normally ignore our loopback (remove this for testing)
 	//NOTE: Currently the packet format is strict, but it's designed to be able to be
 	//more intelligently parsed in the future, with space-delimited tokens and marker
 	//letters, ending with a newline before the payload. (The payload is binary data,
 	//which normally will be an audio blob; the header is ASCII text. Maybe UTF-8.)
 	sscanf(info->data, "T%d C%s Q%d\n%s", int packettime, string chan, int seq, string(0..255) data);
 	if (!data) return; //Packet not in correct format.
+	if (has_value(ips, info->ip)) chan = "_" + chan; //Normally ignore our loopback
 	int expect = lastseq[info->ip] + 1;
 	if (seq < expect) werror("WARNING: %s seq non-monotonic! %d expected %d\n", info->ip, seq, expect);
 	else packetcount[info->ip + " dropped"] += seq - expect;
