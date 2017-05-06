@@ -1,6 +1,6 @@
 //Experiments with UDP transmission and packet loss
 constant ADDR = "224.0.0.1"; //Multicast address: All hosts on current network.
-constant PORT = 12345;
+constant PORT = 1227;
 Stdio.UDP udp = Stdio.UDP()->bind(PORT);
 
 int sequence = 0;
