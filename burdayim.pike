@@ -64,7 +64,11 @@ void send(mixed id, string data)
 	packetcount["sent"]++;
 	packetcount["sentbytes"] += sizeof(data);
 	if (sendchannel != "")
-		udp->send(ADDR, PORT, sprintf("T%d C%s Q%d\n%s", gethrtime(), sendchannel, ++sequence, data), 2);
+	{
+		string packet = sprintf("T%d C%s Q%d\n%s", gethrtime(), sendchannel, ++sequence, data);
+		int sent = udp->send(ADDR, PORT, packet, 2);
+		if (sent < sizeof(packet)) werror("WARNING: Tried to send %d but sent %d\n", sizeof(packet), sent);
+	}
 	string line = "";
 	float cutoff = time(basetime) - 0.5;
 	foreach (sort(indices(active)), string ip)
