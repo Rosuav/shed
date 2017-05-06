@@ -29,7 +29,9 @@ void showstats()
 int main()
 {
 	udp->set_read_callback(recv);
-	udp->enable_multicast(values(Stdio.gethostip())[0]->ips[0]);
+	string ip = values(Stdio.gethostip())[0]->ips[0];
+	write("I am: %s\n", ip);
+	udp->enable_multicast(ip);
 	udp->add_membership(ADDR);
 	send();
 	call_out(showstats, 10);
