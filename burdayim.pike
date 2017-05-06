@@ -143,6 +143,10 @@ void checkchan(string mode)
 
 void sig_recv_channels_changed()
 {
+	//TODO: Also populate some sort of list of destination channels.
+	//This would allow the SM to receive a large number of low-traffic
+	//channels (eg FOH, Techs, etc), and use them for occasional calls
+	//only (and the other people on the channel wouldn't have global).
 	config->recvchan = win->recv_channels->get_text();
 	recvchannels = (config->recvchan - " ") / ",";
 	saveconfig();
