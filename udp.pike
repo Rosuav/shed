@@ -29,6 +29,8 @@ void stats()
 int main()
 {
 	udp->set_read_callback(recv);
+	udp->enable_multicast(values(Stdio.gethostip())[0]->ips[0]);
+	udp->add_membership(ADDR);
 	send();
 	call_out(stats, 10);
 	return -1;
