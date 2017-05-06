@@ -42,6 +42,14 @@ class Sender(string ip, int expectseq)
 {
 	float active;
 	int offset = UNDEFINED;
+	Stdio.File pipe;
+	void create()
+	{
+		write("New voice on comms: %s\n", ip);
+		Process.create_process(({"aplay"}) + audio_format, ([
+			"stdin": (pipe = Stdio.File())->pipe(),
+		]));
+	}
 }
 mapping(string:object) senders = ([]);
 mapping(string:object) players = ([]);
@@ -105,14 +113,7 @@ void recv(mapping(string:int|string) info)
 	int lag = offset - lastofs;
 	if (lag > 100000) {werror("%s: lag %d usec\n", info->ip, lag); return;} //Too old? Drop it.
 	sender->active = time(basetime);
-	if (!players[info->ip])
-	{
-		write("New voice on comms: %s\n", info->ip);
-		Process.create_process(({"aplay"}) + audio_format, ([
-			"stdin": (players[info->ip] = Stdio.File())->pipe(),
-		]));
-	}
-	players[info->ip]->write(data);
+	sender->pipe->write(data);
 	packetcount["written"]++;
 }
 
