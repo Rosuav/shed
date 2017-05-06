@@ -52,7 +52,6 @@ class Sender(string ip, int expectseq)
 	}
 }
 mapping(string:object) senders = ([]);
-mapping(string:object) players = ([]);
 int basetime = time();
 
 mapping(string:int) packetcount = ([]);
