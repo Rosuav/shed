@@ -102,7 +102,8 @@ void recv(mapping(string:int|string) info)
 	if (has_value(ips, info->ip)) chan = "_" + chan; //Normally ignore our loopback
 	int expect = sender->expectseq;
 	if (seq < expect) werror("WARNING: %s seq non-monotonic! %d expected %d\n", info->ip, seq, expect);
-	else packetcount[info->ip + " dropped"] += seq - expect;
+	else if (seq == expect + 1) packetcount[info->ip + " dropped"]++;
+	else if (seq > expect) packetcount[info->ip + " gap " + (seq - expect)]++;
 	sender->expectseq = seq + 1;
 	packetcount[info->ip + " bytes"] += sizeof(data);
 	if (!has_value(recvchannels, chan)) return; //Was sent to a channel we don't follow.
