@@ -68,6 +68,7 @@ void send(mixed id, string data)
 		string packet = sprintf("T%d C%s Q%d\n%s", gethrtime(), sendchannel, ++sequence, data);
 		int sent = udp->send(ADDR, PORT, packet, 2);
 		if (sent < sizeof(packet)) werror("WARNING: Tried to send %d but sent %d\n", sizeof(packet), sent);
+		udp->send(ADDR, PORT, packet, 2); //Attempt a resend in case of packet loss
 	}
 	string line = "";
 	float cutoff = time(basetime) - 0.5;
@@ -89,7 +90,8 @@ void recv(mapping(string:int|string) info)
 	if (!data) return; //Packet not in correct format.
 	if (has_value(ips, info->ip)) chan = "_" + chan; //Normally ignore our loopback
 	int expect = lastseq[info->ip] + 1;
-	if (seq < expect) werror("WARNING: %s seq non-monotonic! %d expected %d\n", info->ip, seq, expect);
+	if (seq == expect - 1) return; //Resend (ignore it)
+	else if (seq < expect) werror("WARNING: %s seq non-monotonic! %d expected %d\n", info->ip, seq, expect);
 	else packetcount[info->ip + " dropped"] += seq - expect;
 	lastseq[info->ip] = seq;
 	packetcount[info->ip + " bytes"] += sizeof(data);
