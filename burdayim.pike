@@ -112,6 +112,7 @@ void recv(mapping(string:int|string) info)
 	if (undefinedp(lastofs) || offset < lastofs) sender->offset = lastofs = offset;
 	int lag = offset - lastofs;
 	if (lag > 100000) {werror("%s: lag %d usec\n", info->ip, lag); return;} //Too old? Drop it.
+	packetcount[info->ip + " lag " + (lag/10000) + "0ms"]++;
 	sender->active = time(basetime);
 	sender->pipe->write(data);
 	packetcount["written"]++;
