@@ -7,7 +7,7 @@ int sequence = 0;
 mapping stats = ([]);
 void send()
 {
-	call_out(send, 0.01);
+	call_out(send, 0.025);
 	udp->send(ADDR, PORT, (string)++sequence);
 }
 
@@ -16,6 +16,7 @@ void recv(mapping(string:int|string) info)
 	int expect = stats[info->ip] + 1;
 	int seq = (int)info->data;
 	stats[info->ip + " lost"] += seq - expect;
+	stats[info->ip + " rcvd"]++;
 	stats[info->ip] = seq;
 }
 
