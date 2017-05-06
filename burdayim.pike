@@ -40,10 +40,10 @@ array(string) recvchannels;
 
 class Sender(string ip, int expectseq)
 {
+	float active;
 	int offset = UNDEFINED;
 }
 mapping(string:object) senders = ([]);
-mapping(string:float) active = ([]);
 mapping(string:object) players = ([]);
 int basetime = time();
 
@@ -74,8 +74,8 @@ void send(mixed id, string data)
 	}
 	string line = "";
 	float cutoff = time(basetime) - 0.5;
-	foreach (sort(indices(active)), string ip)
-		if (active[ip] > cutoff) line += " " + ip;
+	foreach (sort(indices(senders)), string ip)
+		if (senders[ip]->active > cutoff) line += " " + ip;
 	write(line + "\e[K\r");
 }
 
@@ -104,7 +104,7 @@ void recv(mapping(string:int|string) info)
 	if (undefinedp(lastofs) || offset < lastofs) sender->offset = lastofs = offset;
 	int lag = offset - lastofs;
 	if (lag > 100000) {werror("%s: lag %d usec\n", info->ip, lag); return;} //Too old? Drop it.
-	active[info->ip] = time(basetime);
+	sender->active = time(basetime);
 	if (!players[info->ip])
 	{
 		write("New voice on comms: %s\n", info->ip);
