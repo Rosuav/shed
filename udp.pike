@@ -7,7 +7,7 @@ int sequence = 0;
 mapping stats = ([]), lastseq = ([]);
 void send()
 {
-	call_out(send, 0.025);
+	call_out(send, 0.01);
 	udp->send(ADDR, PORT, (string)++sequence);
 }
 
