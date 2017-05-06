@@ -95,6 +95,13 @@ void recv(mapping(string:int|string) info)
 	packetcount[""]++;
 	if (info->port != PORT) return; //Not from one of us.
 	packetcount[info->ip]++;
+	if (sscanf(info->data, "RESEND %d", int wantseq) && wantseq)
+	{
+		//Resend request.
+		write("RESEND REQUEST - want %d, we last sent %d\n", wantseq, sequence);
+		packetcount["resend ofs " + (sequence - wantseq)/10]++;
+		return;
+	}
 	//NOTE: Currently the packet format is strict, but it's designed to be able to be
 	//more intelligently parsed in the future, with space-delimited tokens and marker
 	//letters, ending with a newline before the payload. (The payload is binary data,
@@ -106,7 +113,11 @@ void recv(mapping(string:int|string) info)
 	if (has_value(ips, info->ip)) chan = "_" + chan; //Normally ignore our loopback
 	int expect = sender->expectseq;
 	if (seq < expect) werror("WARNING: %s seq non-monotonic! %d expected %d\n", info->ip, seq, expect);
-	else if (seq == expect + 1) packetcount[info->ip + " dropped"]++;
+	else if (seq == expect + 1)
+	{
+		packetcount[info->ip + " dropped"]++;
+		//udp->send(info->ip, PORT, "RESEND " + sender->expectseq, 2);
+	}
 	else if (seq > expect) packetcount[info->ip + " gap " + (seq - expect)]++;
 	sender->expectseq = seq + 1;
 	packetcount[info->ip + " bytes"] += sizeof(data);
