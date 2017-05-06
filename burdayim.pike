@@ -38,10 +38,13 @@ array(string) ips;
 string sendchannel = "global";
 array(string) recvchannels;
 
-mapping(string:int) senders = ([]);
+class Sender(string ip, int expectseq)
+{
+	int offset = UNDEFINED;
+}
+mapping(string:object) senders = ([]);
 mapping(string:float) active = ([]);
 mapping(string:object) players = ([]);
-mapping(string:int) lastseq = ([]);
 int basetime = time();
 
 mapping(string:int) packetcount = ([]);
@@ -87,16 +90,18 @@ void recv(mapping(string:int|string) info)
 	//which normally will be an audio blob; the header is ASCII text. Maybe UTF-8.)
 	sscanf(info->data, "T%d C%s Q%d\n%s", int packettime, string chan, int seq, string(0..255) data);
 	if (!data) return; //Packet not in correct format.
+	object sender = senders[info->ip];
+	if (!sender) senders[info->ip] = sender = Sender(info->ip, seq);
 	if (has_value(ips, info->ip)) chan = "_" + chan; //Normally ignore our loopback
-	int expect = lastseq[info->ip] + 1;
+	int expect = sender->expectseq;
 	if (seq < expect) werror("WARNING: %s seq non-monotonic! %d expected %d\n", info->ip, seq, expect);
 	else packetcount[info->ip + " dropped"] += seq - expect;
-	lastseq[info->ip] = seq;
+	sender->expectseq = seq + 1;
 	packetcount[info->ip + " bytes"] += sizeof(data);
 	if (!has_value(recvchannels, chan)) return; //Was sent to a channel we don't follow.
 	int offset = gethrtime() - packettime;
-	int lastofs = senders[info->ip];
-	if (undefinedp(lastofs) || offset < lastofs) senders[info->ip] = lastofs = offset;
+	int lastofs = sender->offset;
+	if (undefinedp(lastofs) || offset < lastofs) sender->offset = lastofs = offset;
 	int lag = offset - lastofs;
 	if (lag > 100000) {werror("%s: lag %d usec\n", info->ip, lag); return;} //Too old? Drop it.
 	active[info->ip] = time(basetime);
