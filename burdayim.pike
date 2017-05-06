@@ -29,6 +29,10 @@ The upshot of this is that the clock used does not actually need to have any
 correlation to wall time. It doesn't even have to be consistent across nodes
 in the group! Implementations are encouraged to use a monotonic clock if one
 is available.
+
+CJA 20170506: It appears that latency, even on a cheap pocket wifi device,
+averages 1-2ms. So it would not be all that unreasonable to drop packets
+aggressively - even at 10ms, and definitely at 25ms. Forget 1500ms! :)
 */
 constant ADDR = "224.0.0.1"; //Multicast address: All hosts on current network.
 constant PORT = 5170;
