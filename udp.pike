@@ -4,7 +4,7 @@ constant PORT = 1227;
 Stdio.UDP udp = Stdio.UDP()->bind(PORT);
 
 int sequence = 0;
-mapping stats = ([]);
+mapping stats = ([]), lastseq = ([]);
 void send()
 {
 	call_out(send, 0.025);
@@ -13,11 +13,11 @@ void send()
 
 void recv(mapping(string:int|string) info)
 {
-	int expect = stats[info->ip] + 1;
+	int expect = lastseq[info->ip] + 1;
 	int seq = (int)info->data;
 	stats[info->ip + " lost"] += seq - expect;
 	stats[info->ip + " rcvd"]++;
-	stats[info->ip] = seq;
+	lastseq[info->ip] = seq;
 }
 
 void showstats()
