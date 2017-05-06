@@ -16,7 +16,7 @@
    ignore that and let it cause occasional glitches on bad connections.) Note
    that packets MUST contain an exact number of samples; with 16-bit audio, a
    packet must contain an even number of bytes. I have never seen this behave
-   any other way, but for safety's sake, buffer any spare bytes before send.
+   any other way, but for safety's sake, buffer any spare byte before send.
 2) Support UDP broadcast. Obviously this requires single-segment networking -
    but you want that anyway, to minimize latency.
 3) The ability to play multiple concurrent streams. With N participants, each
