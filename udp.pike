@@ -4,7 +4,7 @@ constant PORT = 12345;
 Stdio.UDP udp = Stdio.UDP()->bind(PORT);
 
 int sequence = 0;
-mapping recvseq = ([]), lost = ([]);
+mapping stats = ([]);
 void send()
 {
 	call_out(send, 0.01);
@@ -13,17 +13,17 @@ void send()
 
 void recv(mapping(string:int|string) info)
 {
-	int expect = recvseq[info->ip] + 1;
+	int expect = stats[info->ip] + 1;
 	int seq = (int)info->data;
-	lost[info->ip] += seq - expect;
-	recvseq[info->ip] = seq;
+	stats[info->ip + " lost"] += seq - expect;
+	stats[info->ip] = seq;
 }
 
-void stats()
+void showstats()
 {
-	call_out(stats, 10);
-	write("Lost: %O\n", lost);
-	lost = ([]);
+	call_out(showstats, 10);
+	write("%O\n", stats);
+	stats = ([]);
 }
 
 int main()
@@ -32,6 +32,6 @@ int main()
 	udp->enable_multicast(values(Stdio.gethostip())[0]->ips[0]);
 	udp->add_membership(ADDR);
 	send();
-	call_out(stats, 10);
+	call_out(showstats, 10);
 	return -1;
 }
