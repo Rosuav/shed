@@ -290,7 +290,7 @@ int main(int argc, array(string) argv)
 		//Switch to TCP transmission with UDP handshake.
 		//Probably not compatible with --send-all (untested).
 		transmitmode = "tcp";
-		call_out(beacon, 1);
+		call_out(beacon, 0.01);
 		mainsock = Stdio.Port(PORT, accepttcp); //Note, again, IPv4 only.
 	}
 	GTK2.setup_gtk();
