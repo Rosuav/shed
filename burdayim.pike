@@ -43,8 +43,9 @@ string sendchannel = "global";
 array(string) recvchannels;
 string transmitmode = "udp"; //or "tcp"
 
-class Sender(string ip, int expectseq)
+class Sender(string ip)
 {
+	int expectseq;
 	float active;
 	int offset = UNDEFINED;
 	Stdio.File pipe;
@@ -102,6 +103,8 @@ void recv(mapping(string:int|string) info)
 {
 	packetcount[""]++;
 	if (info->port != PORT) return; //Not from one of us.
+	object sender = senders[info->ip];
+	if (!sender) senders[info->ip] = sender = Sender(info->ip);
 	packetcount[info->ip]++;
 	if (sscanf(info->data, "RESEND %d", int wantseq) && wantseq)
 	{
@@ -116,10 +119,8 @@ void recv(mapping(string:int|string) info)
 	//which normally will be an audio blob; the header is ASCII text. Maybe UTF-8.)
 	sscanf(info->data, "T%d C%s Q%d\n%s", int packettime, string chan, int seq, string(0..255) data);
 	if (!data) return; //Packet not in correct format.
-	object sender = senders[info->ip];
-	if (!sender) senders[info->ip] = sender = Sender(info->ip, seq);
 	if (has_value(ips, info->ip)) chan = "_" + chan; //Normally ignore our loopback
-	int expect = sender->expectseq;
+	int expect = sender->expectseq || seq;
 	if (seq < expect) werror("WARNING: %s seq non-monotonic! %d expected %d\n", info->ip, seq, expect);
 	else if (seq == expect + 1)
 	{
