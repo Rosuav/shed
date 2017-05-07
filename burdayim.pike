@@ -41,6 +41,7 @@ Stdio.UDP|array(Stdio.UDP) udp = Stdio.UDP()->bind(PORT, "0.0.0.0", 1); //NOTE: 
 array(string) ips;
 string sendchannel = "global";
 array(string) recvchannels;
+string transmitmode = "udp"; //or "tcp"
 
 class Sender(string ip, int expectseq)
 {
@@ -215,6 +216,12 @@ int main(int argc, array(string) argv)
 			udp += ({Stdio.UDP()->bind(PORT)});
 			udp[-1]->enable_multicast(ip);
 		}
+	}
+	if (has_value(argv, "--tcp"))
+	{
+		//Switch to TCP transmission with UDP handshake.
+		//Probably not compatible with --send-all (untested).
+		transmitmode = "tcp";
 	}
 	GTK2.setup_gtk();
 	win->highlight = GTK2.GdkColor(0, 255, 255);
