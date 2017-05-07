@@ -79,13 +79,23 @@ int sequence;
 void send(mixed id, string data)
 {
 	sendbuf += data;
-	//if (sizeof(sendbuf) < 512) return; //Always send good-sized packets, to reduce packet collisions (doesn't seem to help)
-	//PROTECTION: Always send an even number of bytes. This is probably never
-	//going to trigger, but if we ever do get an odd number of bytes, it'd be
-	//possible for a lost UDP packet to leave us mismatched.
-	//TODO: Measure this based on the audio_format above.
-	if (sizeof(sendbuf) & 1) {data = sendbuf[..<1]; sendbuf = sendbuf[<0..];}
-	else {data = sendbuf; sendbuf = "";}
+	if (transmitmode == "tcp")
+	{
+		//In TCP mode, we always chunk to exactly 256 bytes.
+		if (sizeof(sendbuf) < 256) return;
+		data = sendbuf[..255]; sendbuf = sendbuf[256..];
+	}
+	else
+	{
+		//In UDP mode, we send whatever we have, because a packet is a packet.
+		//if (sizeof(sendbuf) < 512) return; //Always send good-sized packets, to reduce packet collisions (doesn't seem to help)
+		//PROTECTION: Always send an even number of bytes. This is probably never
+		//going to trigger, but if we ever do get an odd number of bytes, it'd be
+		//possible for a lost UDP packet to leave us mismatched.
+		//TODO: Measure this based on the audio_format above.
+		if (sizeof(sendbuf) & 1) {data = sendbuf[..<1]; sendbuf = sendbuf[<0..];}
+		else {data = sendbuf; sendbuf = "";}
+	}
 	if (sendchannel != lastsend) write("Now sending on %O\n", lastsend = sendchannel);
 	packetcount["sent"]++;
 	packetcount["sentbytes"] += sizeof(data);
