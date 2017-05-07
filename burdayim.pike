@@ -102,7 +102,10 @@ void send(mixed id, string data)
 	if (sendchannel != "")
 	{
 		string packet = sprintf("T%d C%s Q%d\n%s", gethrtime(), sendchannel, ++sequence, data);
-		udp->send(ADDR, PORT, packet, 2);
+		if (transmitmode == "tcp")
+			tcpsocks->write(packet);
+		else
+			udp->send(ADDR, PORT, packet, 2);
 	}
 	string line = "";
 	float cutoff = time(basetime) - 0.5;
