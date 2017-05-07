@@ -85,8 +85,10 @@ class Sender(string ip)
 		//Establish a TCP connection, since this sender doesn't broadcast
 		//its content via UDP.
 		if (sock) return;
+		write("Connecting to %s via TCP...\n", ip);
 		sock = Stdio.File(); sock->open_socket();
 		sock->set_nonblocking(sockread, 0, sockgone);
+		sock->connect(ip, PORT);
 	}
 }
 mapping(string:object) senders = ([]);
