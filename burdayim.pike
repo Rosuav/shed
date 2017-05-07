@@ -102,8 +102,7 @@ void send(mixed id, string data)
 	if (sendchannel != "")
 	{
 		string packet = sprintf("T%d C%s Q%d\n%s", gethrtime(), sendchannel, ++sequence, data);
-		int sent = udp->send(ADDR, PORT, packet, 2);
-		if (sent < sizeof(packet)) werror("WARNING: Tried to send %d but sent %d\n", sizeof(packet), sent);
+		udp->send(ADDR, PORT, packet, 2);
 	}
 	string line = "";
 	float cutoff = time(basetime) - 0.5;
