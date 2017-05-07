@@ -141,6 +141,12 @@ void send(mixed id, string data)
 void beacon()
 {
 	//When transmitting on TCP, we send out a UDP beacon periodically.
+	//TCP mode uses significantly more packets per second than UDP
+	//(with the possible exception that UDP might send smaller packets;
+	//certainly more than UDP with a minimum packet payload of 256),
+	//but by maintaining a retry loop in low level kernel facilities
+	//rather than using an application-level retry, we hopefully gain
+	//enough to make it worthwhile.
 	call_out(beacon, 1);
 	udp->send(ADDR, PORT, "Beacon", 2);
 }
