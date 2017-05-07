@@ -136,11 +136,17 @@ void recv(mapping(string:int|string) info)
 		packetcount["resend ofs " + (sequence - wantseq)/10]++;
 		return;
 	}
+	handle_packet(info->data, sender);
+}
+
+void handle_packet(string packet, Sender sender)
+{
+	string ip = sender->ip;
 	//NOTE: Currently the packet format is strict, but it's designed to be able to be
 	//more intelligently parsed in the future, with space-delimited tokens and marker
 	//letters, ending with a newline before the payload. (The payload is binary data,
 	//which normally will be an audio blob; the header is ASCII text. Maybe UTF-8.)
-	sscanf(info->data, "T%d C%s Q%d\n%s", int packettime, string chan, int seq, string(0..255) data);
+	sscanf(packet, "T%d C%s Q%d\n%s", int packettime, string chan, int seq, string(0..255) data);
 	if (!data) return; //Packet not in correct format.
 	if (has_value(ips, ip)) chan = "_" + chan; //Normally ignore our loopback
 	int expect = sender->expectseq || seq;
