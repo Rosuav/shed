@@ -201,7 +201,7 @@ void handle_packet(string packet, Sender sender)
 	int lastofs = sender->offset;
 	if (undefinedp(lastofs) || offset < lastofs) sender->offset = lastofs = offset;
 	int lag = offset - lastofs;
-	if (lag > 25000) {werror("%s: lag %d usec\n", ip, lag); return;} //Too old? Drop it.
+	if (lag > 50000) {werror("%s: lag %d usec\n", ip, lag); return;} //Too old? Drop it.
 	packetcount[ip + " lag " + (lag/10000) + "0ms"]++;
 	sender->active = time(basetime);
 	sender->pipe->write(data);
