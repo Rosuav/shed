@@ -91,6 +91,13 @@ void send(mixed id, string data)
 	write(line + "\e[K\r");
 }
 
+void beacon()
+{
+	//When transmitting on TCP, we send out a UDP beacon periodically.
+	call_out(beacon, 1);
+	udp->send(ADDR, PORT, "Beacon", 2);
+}
+
 void recv(mapping(string:int|string) info)
 {
 	packetcount[""]++;
@@ -222,6 +229,7 @@ int main(int argc, array(string) argv)
 		//Switch to TCP transmission with UDP handshake.
 		//Probably not compatible with --send-all (untested).
 		transmitmode = "tcp";
+		call_out(beacon, 1);
 	}
 	GTK2.setup_gtk();
 	win->highlight = GTK2.GdkColor(0, 255, 255);
