@@ -44,6 +44,7 @@ array(string) recvchannels;
 string transmitmode = "udp"; //or "tcp"
 Stdio.Port mainsock; //Only if transmitmode=="tcp"
 array(Stdio.File) tcpsocks = ({ });
+constant TCP_PACKET_SIZE = 256;
 
 void ignore() { } //Ignore anything they send us.
 void accepttcp()
@@ -72,9 +73,9 @@ class Sender(string ip)
 	void sockread(mixed id, string data)
 	{
 		tcpbuf += data;
-		if (sizeof(tcpbuf) < 256) return; //Can't possibly have a full packet
-		int pktlen = search(tcpbuf, '\n') + 256;
-		if (sizeof(tcpbuf) < 256) return; //Don't have the headers and 256 bytes of data
+		if (sizeof(tcpbuf) < TCP_PACKET_SIZE) return; //Can't possibly have a full packet
+		int pktlen = search(tcpbuf, '\n') + TCP_PACKET_SIZE;
+		if (sizeof(tcpbuf) < TCP_PACKET_SIZE) return; //Don't have the headers and a packet's worth of data
 		data = tcpbuf[..pktlen]; tcpbuf = tcpbuf[pktlen+1..];
 		handle_packet(data, this); //TODO: Bring handle_packet in as a method
 	}
@@ -105,9 +106,9 @@ void send(mixed id, string data)
 	sendbuf += data;
 	if (transmitmode == "tcp")
 	{
-		//In TCP mode, we always chunk to exactly 256 bytes.
-		if (sizeof(sendbuf) < 256) return;
-		data = sendbuf[..255]; sendbuf = sendbuf[256..];
+		//In TCP mode, we always chunk to exactly TCP_PACKET_SIZE bytes.
+		if (sizeof(sendbuf) < TCP_PACKET_SIZE) return;
+		data = sendbuf[..TCP_PACKET_SIZE-1]; sendbuf = sendbuf[TCP_PACKET_SIZE..];
 	}
 	else
 	{
@@ -143,7 +144,7 @@ void beacon()
 	//When transmitting on TCP, we send out a UDP beacon periodically.
 	//TCP mode uses significantly more packets per second than UDP
 	//(with the possible exception that UDP might send smaller packets;
-	//certainly more than UDP with a minimum packet payload of 256),
+	//certainly more than UDP with an equivalent minimum packet payload),
 	//but by maintaining a retry loop in low level kernel facilities
 	//rather than using an application-level retry, we hopefully gain
 	//enough to make it worthwhile.
