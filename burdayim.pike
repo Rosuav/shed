@@ -101,11 +101,12 @@ void beacon()
 
 void recv(mapping(string:int|string) info)
 {
+	string ip = info->ip;
 	packetcount[""]++;
 	if (info->port != PORT) return; //Not from one of us.
-	object sender = senders[info->ip];
-	if (!sender) senders[info->ip] = sender = Sender(info->ip);
-	packetcount[info->ip]++;
+	object sender = senders[ip];
+	if (!sender) senders[ip] = sender = Sender(ip);
+	packetcount[ip]++;
 	if (sscanf(info->data, "RESEND %d", int wantseq) && wantseq)
 	{
 		//Resend request.
@@ -119,24 +120,24 @@ void recv(mapping(string:int|string) info)
 	//which normally will be an audio blob; the header is ASCII text. Maybe UTF-8.)
 	sscanf(info->data, "T%d C%s Q%d\n%s", int packettime, string chan, int seq, string(0..255) data);
 	if (!data) return; //Packet not in correct format.
-	if (has_value(ips, info->ip)) chan = "_" + chan; //Normally ignore our loopback
+	if (has_value(ips, ip)) chan = "_" + chan; //Normally ignore our loopback
 	int expect = sender->expectseq || seq;
-	if (seq < expect) werror("WARNING: %s seq non-monotonic! %d expected %d\n", info->ip, seq, expect);
+	if (seq < expect) werror("WARNING: %s seq non-monotonic! %d expected %d\n", ip, seq, expect);
 	else if (seq == expect + 1)
 	{
-		packetcount[info->ip + " dropped"]++;
-		//udp->send(info->ip, PORT, "RESEND " + sender->expectseq, 2);
+		packetcount[ip + " dropped"]++;
+		//udp->send(ip, PORT, "RESEND " + sender->expectseq, 2);
 	}
-	else if (seq > expect) packetcount[info->ip + " gap " + (seq - expect)]++;
+	else if (seq > expect) packetcount[ip + " gap " + (seq - expect)]++;
 	sender->expectseq = seq + 1;
-	packetcount[info->ip + " bytes"] += sizeof(data);
+	packetcount[ip + " bytes"] += sizeof(data);
 	if (!has_value(recvchannels, chan)) return; //Was sent to a channel we don't follow.
 	int offset = gethrtime() - packettime;
 	int lastofs = sender->offset;
 	if (undefinedp(lastofs) || offset < lastofs) sender->offset = lastofs = offset;
 	int lag = offset - lastofs;
-	if (lag > 100000) {werror("%s: lag %d usec\n", info->ip, lag); return;} //Too old? Drop it.
-	packetcount[info->ip + " lag " + (lag/10000) + "0ms"]++;
+	if (lag > 100000) {werror("%s: lag %d usec\n", ip, lag); return;} //Too old? Drop it.
+	packetcount[ip + " lag " + (lag/10000) + "0ms"]++;
 	sender->active = time(basetime);
 	sender->pipe->write(data);
 	packetcount["written"]++;
