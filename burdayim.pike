@@ -59,12 +59,34 @@ class Sender(string ip)
 	float active;
 	int offset = UNDEFINED;
 	Stdio.File pipe;
+	Stdio.File sock;
+	string tcpbuf = "";
 	void create()
 	{
 		write("New voice on comms: %s\n", ip);
 		Process.create_process(({"aplay"}) + audio_format, ([
 			"stdin": (pipe = Stdio.File())->pipe(),
 		]));
+	}
+
+	void sockread(mixed id, string data)
+	{
+		tcpbuf += data;
+		if (sizeof(tcpbuf) < 256) return; //Can't possibly have a full packet
+		int pktlen = search(tcpbuf, '\n') + 256;
+		if (sizeof(tcpbuf) < 256) return; //Don't have the headers and 256 bytes of data
+		data = tcpbuf[..pktlen]; tcpbuf = tcpbuf[pktlen+1..];
+		handle_packet(data, this); //TODO: Bring handle_packet in as a method
+	}
+
+	void sockgone() {sock = 0;}
+	void establish_tcp()
+	{
+		//Establish a TCP connection, since this sender doesn't broadcast
+		//its content via UDP.
+		if (sock) return;
+		sock = Stdio.File(); sock->open_socket();
+		sock->set_nonblocking(sockread, 0, sockgone);
 	}
 }
 mapping(string:object) senders = ([]);
@@ -134,6 +156,12 @@ void recv(mapping(string:int|string) info)
 		//Resend request.
 		write("RESEND REQUEST - want %d, we last sent %d\n", wantseq, sequence);
 		packetcount["resend ofs " + (sequence - wantseq)/10]++;
+		return;
+	}
+	if (info->data == "Beacon")
+	{
+		//The other end is asking us to connect via TCP. Let's oblige.
+		sender->establish_tcp();
 		return;
 	}
 	handle_packet(info->data, sender);
