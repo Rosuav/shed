@@ -44,7 +44,7 @@ array(string) recvchannels;
 string transmitmode = "udp"; //or "tcp"
 Stdio.Port mainsock; //Only if transmitmode=="tcp"
 array(Stdio.File) tcpsocks = ({ });
-constant TCP_PACKET_SIZE = 256;
+constant TCP_PACKET_SIZE = 512;
 
 void ignore() { } //Ignore anything they send us.
 void accepttcp()
