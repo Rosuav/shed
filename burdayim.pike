@@ -42,6 +42,16 @@ array(string) ips;
 string sendchannel = "global";
 array(string) recvchannels;
 string transmitmode = "udp"; //or "tcp"
+Stdio.Port mainsock; //Only if transmitmode=="tcp"
+array(Stdio.File) tcpsocks = ({ });
+
+void ignore() { } //Ignore anything they send us.
+void accepttcp()
+{
+	object sock = mainsock->accept();
+	sock->set_nonblocking(ignore, 0, lambda() {tcpsocks -= ({sock});});
+	tcpsocks += ({sock});
+}
 
 class Sender(string ip)
 {
@@ -232,6 +242,7 @@ int main(int argc, array(string) argv)
 		//Probably not compatible with --send-all (untested).
 		transmitmode = "tcp";
 		call_out(beacon, 1);
+		mainsock = Stdio.Port(PORT, accepttcp); //Note, again, IPv4 only.
 	}
 	GTK2.setup_gtk();
 	win->highlight = GTK2.GdkColor(0, 255, 255);
