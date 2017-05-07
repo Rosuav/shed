@@ -33,6 +33,13 @@ is available.
 CJA 20170506: It appears that latency, even on a cheap pocket wifi device,
 averages 1-2ms. So it would not be all that unreasonable to drop packets
 aggressively - even at 10ms, and definitely at 25ms. Forget 1500ms! :)
+
+TODO: Listen for "Squelch" messages. If the recipient detects latency in
+excess of its limit in TCP mode, send a squelch back to the sender, asking
+for no further transmissions for that many usec. Upon receipt of such a
+message, the sender records its current clock plus the squelch time, and
+flags that one recipient as "squelched until X". Any squelched clients
+simply don't receive traffic.
 */
 constant ADDR = "224.0.0.1"; //Multicast address: All hosts on current network.
 constant PORT = 5170;
