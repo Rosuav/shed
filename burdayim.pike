@@ -148,6 +148,7 @@ void recv(mapping(string:int|string) info)
 	else if (seq == expect + 1)
 	{
 		packetcount[ip + " dropped"]++;
+		//Not currently sending resend requests (they always arrive too late)
 		//udp->send(ip, PORT, "RESEND " + sender->expectseq, 2);
 	}
 	else if (seq > expect) packetcount[ip + " gap " + (seq - expect)]++;
