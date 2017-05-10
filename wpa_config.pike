@@ -112,7 +112,9 @@ void sig_add_clicked()
 	{
 		data = Process.run(({"wpa_passphrase", ssid, win->passphrase->get_text()}))->stdout;
 		//Remove the cleartext passphrase.
-		sscanf(data, "%s\t#psk=%*s\n%s", string q, string w); data = q + w;
+		sscanf(data, "%s\t#psk=%*s\n%s", string q, string w);
+		if (!w) exit(1, "Password could not be encrypted");
+		data = q + w;
 	}
 	//exit(0, data); //Dry run
 	Stdio.append_file("/etc/wpa_supplicant.conf",data);
