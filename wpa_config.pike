@@ -78,6 +78,8 @@ int main()
 	win->mainwindow=GTK2.Window(0)->set_title("Register with new network")
 		->add(GTK2.Vbox(0,10)
 			->add(list)
+			//TODO: Support WPA2 Enterprise and the possible need for user name
+			//as well as passphrase
 			->pack_start(GTK2.Hbox(0,0)
 				->pack_start(GTK2.Label("Passphrase (if encrypted):"),0,0,0)
 				->add(win->passphrase=GTK2.Entry())
