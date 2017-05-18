@@ -113,3 +113,21 @@ def analyze(deck, tag="", decksize=40):
 	return sum(chances.values())
 
 analyze(gavin, "Gavin's averages")
+
+# Imagine building a mono-white deck that consists exclusively of white
+# creatures of CMC 2 through 5 and seventeen basic Plains. What is the best
+# distribution to achieve the Gavin Curve?
+lands = 17
+total_creatures = 40 - lands
+best = 0.0
+for cmc2 in range(1, total_creatures):
+	for cmc3 in range(1, total_creatures - cmc2):
+		for cmc4 in range(1, total_creatures - cmc2 - cmc3):
+			cmc5 = total_creatures - cmc2 - cmc3 - cmc4
+			chance = analyze([0, 0, cmc2, cmc3, cmc4, cmc5, 0, lands])
+			if chance > best:
+				best = chance
+				best_distro = "%d CMC 2, %d CMC 3, %d CMC 4, %d CMC 5" % (
+					cmc2, cmc3, cmc4, cmc5)
+print("For %d%% chance of success:" % int(best * 100))
+print(best_distro)
