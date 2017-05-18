@@ -65,9 +65,27 @@ def draw(deck, chances=None):
 			# old one, incrementing one value. But I can't be
 			# bothered. Lists are very handy. :)
 			cards[idx] += 1
-			newchance[tuple(cards)] += chance
+			newchance[tuple(cards)] += chance * prob
 			cards[idx] -= 1
 	return newchance
+
+def validate(chances, lands, creatures):
+	"""Validate a probability block and ascertain the likelihood of success.
+
+	A successful draw is defined by achieving certain minimums of lands and
+	of creatures of the right CMCs. The latter is defined by a sequence of
+	integers; the former by a single integer.
+
+	Returns the probability [0.0, 1.0] of success.
+	"""
+	success = 0.0
+	for cards, prob in chances.items():
+		if lands > cards[-1]: continue
+		for need, have in zip(creatures, cards):
+			if need > have: break
+		else:
+			success += prob
+	return success
 
 def analyze(deck, tag="", decksize=40):
 	# Add "non-curve spells" as deck[-2]
@@ -80,6 +98,9 @@ def analyze(deck, tag="", decksize=40):
 	chances = None
 	for hand_size in range(7): # 8 on the draw
 		chances = draw(deck, chances)
-	print(chances) # Opening hand
+	# Turn 1: Need a land, that's all.
+	# Note that we don't currently take mulligans into account.
+	# That's an entirely separate science.
+	print("Turn 1:", validate(chances, 1, (0,)))
 
 analyze(gavin, "Gavin's averages")
