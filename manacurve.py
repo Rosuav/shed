@@ -76,15 +76,15 @@ def validate(chances, lands, creatures):
 	of creatures of the right CMCs. The latter is defined by a sequence of
 	integers; the former by a single integer.
 
-	Returns the probability [0.0, 1.0] of success.
+	Returns a trimmed dictionary with all unsuccessful draws eliminated.
 	"""
-	success = 0.0
+	success = {}
 	for cards, prob in chances.items():
 		if lands > cards[-1]: continue
 		for need, have in zip(creatures, cards):
 			if need > have: break
 		else:
-			success += prob
+			success[cards] = prob
 	return success
 
 def analyze(deck, tag="", decksize=40):
@@ -106,7 +106,8 @@ def analyze(deck, tag="", decksize=40):
 	need = (0, 0)
 	for turn in range(1, 6):
 		chances = draw(deck, chances)
-		print("Turn %d:" % turn, validate(chances, turn, need))
+		chances = validate(chances, turn, need)
+		print("Turn %d:" % turn, sum(chances.values()))
 		need += 1,
 
 analyze(gavin, "Gavin's averages")
