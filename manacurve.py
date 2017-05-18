@@ -12,3 +12,18 @@ have the best possible chances of hitting creatures turns two through five?
 
 Let's find out.
 """
+
+# A deck is represented by the mana cost distribution of its spells. The land
+# count is in the last slot, and is accessed as deck[-1].
+
+# Average figures from Gavin's article
+gavin = [0, 1, 5, 4, 3, 2, 1, 17]
+
+def analyze(deck, tag="", decksize=40):
+	if tag:
+		print("---- %s ----" % tag)
+		print("%d lands, %d creatures, %d other spells" % (
+			deck[-1], sum(deck[:-1]), decksize-sum(deck)
+		))
+
+analyze(gavin, "Gavin's averages")
