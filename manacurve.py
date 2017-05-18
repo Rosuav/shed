@@ -78,6 +78,7 @@ def validate(chances, lands, creatures):
 
 	Returns a trimmed dictionary with all unsuccessful draws eliminated.
 	"""
+	# TODO: Accept double-casting eg a pair of two-drops instead of a CMC 4
 	success = {}
 	for cards, prob in chances.items():
 		if lands > cards[-1]: continue
