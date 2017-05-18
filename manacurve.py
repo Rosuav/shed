@@ -96,11 +96,17 @@ def analyze(deck, tag="", decksize=40):
 			deck[-1], sum(deck[:-2]), deck[-2]
 		))
 	chances = None
-	for hand_size in range(7): # 8 on the draw
+	for hand_size in range(6): # Or 7 on the draw. Simplifies the loop.
 		chances = draw(deck, chances)
-	# Turn 1: Need a land, that's all.
+	# Turn 1, we need a land, that's all.
 	# Note that we don't currently take mulligans into account.
 	# That's an entirely separate science.
-	print("Turn 1:", validate(chances, 1, (0,)))
+	# Turns 2 through 5, we need an additional land and a creature of that
+	# CMC. We never actually ask for a CMC 1 creature.
+	need = (0, 0)
+	for turn in range(1, 6):
+		chances = draw(deck, chances)
+		print("Turn %d:" % turn, validate(chances, turn, need))
+		need += 1,
 
 analyze(gavin, "Gavin's averages")
