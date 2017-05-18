@@ -107,7 +107,9 @@ def analyze(deck, tag="", decksize=40):
 	for turn in range(1, 6):
 		chances = draw(deck, chances)
 		chances = validate(chances, turn, need)
-		print("Turn %d:" % turn, sum(chances.values()))
+		if tag:
+			print("Turn %d:" % turn, sum(chances.values()))
 		need += 1,
+	return sum(chances.values())
 
 analyze(gavin, "Gavin's averages")
