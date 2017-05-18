@@ -77,7 +77,9 @@ def analyze(deck, tag="", decksize=40):
 		print("%d lands, %d creatures, %d other spells" % (
 			deck[-1], sum(deck[:-2]), deck[-2]
 		))
-	chances = draw(deck)
-	print(chances) # First card.
+	chances = None
+	for hand_size in range(7): # 8 on the draw
+		chances = draw(deck, chances)
+	print(chances) # Opening hand
 
 analyze(gavin, "Gavin's averages")
