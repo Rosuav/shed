@@ -11,6 +11,7 @@ Ingredients
 * 1 cup sugar
 * 1 cup coconut
 * 1 tsp vanilla
+* Pie dish with sloped sides (for easier serving)
 
 Directions
 ----------
@@ -18,6 +19,6 @@ Directions
 1. Collect ingredients. Preheat oven to 350°F or 180°C (take your pick).
 2. Start "Let It Go" playing
 3. Mix everything together
-4. Pour into a baking pan
-5. Insert baking pan into oven
+4. Pour into a pie dish
+5. Insert pie dish into oven
 6. Watch Queen Elsa build her ice palace, because you'll be done before she is.
