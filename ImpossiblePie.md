@@ -1,0 +1,23 @@
+Impossible Pie
+==============
+
+Ingredients
+-----------
+
+* 3-4 eggs
+* 125g butter (softened) or margarine
+* ½ cup flour
+* 2 cups milk
+* 1 cup sugar
+* 1 cup coconut
+* 1 tsp vanilla
+
+Directions
+----------
+
+1. Collect ingredients. Preheat oven to 350°F or 180°C (take your pick).
+2. Start "Let It Go" playing
+3. Mix everything together
+4. Pour into a baking pan
+5. Insert baking pan into oven
+6. Watch Queen Elsa build her ice palace, because you'll be done before she is.
