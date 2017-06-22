@@ -22,3 +22,4 @@ Directions
 4. Pour into a pie dish
 5. Insert pie dish into oven
 6. Watch Queen Elsa build her ice palace, because you'll be done before she is.
+7. Leave the pie in the oven for 31 to 41 minutes, or for 59 or 265 minutes if you want it to be burned. When it's done, a skewer inserted into it will come out clean.
