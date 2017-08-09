@@ -39,10 +39,10 @@ void drag(object self,object ev)
 int main(int argc, array(string) argv)
 {
 	if (argc<2) exit(1, "USAGE: pike %s username [delay]\nWill display the current viewers for username's channel\nUpdates every delay seconds - default 10.\n");
-	GTK2.setup_gtk();
 	string username = argv[1];
 	if (argc>2) delay = (int)argv[2] || 10;
 	url = sprintf("http://tmi.twitch.tv/group/user/%s/chatters", lower_case(username));
+	GTK2.setup_gtk();
 	object win = GTK2.Window((["resizable": 0, "title": "Viewers on " + username + "'s stream", "decorated": 0]))
 		->add(info=GTK2.Label("Loading...")->modify_fg(GTK2.STATE_NORMAL, GTK2.GdkColor(255, 255, 255)))
 		->modify_bg(GTK2.STATE_NORMAL, GTK2.GdkColor(0, 0, 0))
