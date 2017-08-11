@@ -88,6 +88,7 @@ int main()
 	Array.shuffle(all_emotes);
 	//Pick up some emotes we don't have and download them.
 	int dl = 15000; //Once the limit gets exhausted, stop downloading and just analyze what we have.
+	//dl = sizeof(all_emotes) - sizeof(glob("*.png", get_dir())); //Get the lot!
 	int checked = 0;
 	if (dl) foreach (all_emotes, mapping emote)
 	{
