@@ -21,6 +21,7 @@ mapping(string|int:int) find_colors(string fn)
 		img = m->image; alpha = m->alpha;
 	}) return 0; //Decoding errors happen sometimes. Some images are actually JPGs.
 	mapping(string|int:int) ret = ([]);
+	int pixels = 0;
 	for (int y = 0; y < img->ysize(); ++y)
 		for (int x = 0; x < img->xsize(); ++x)
 		{
@@ -40,7 +41,11 @@ mapping(string|int:int) find_colors(string fn)
 			ret[sprintf("%02x%02x%02x = "+best, @img->getpixel(x, y))]++;
 			ret[best]++;
 			ret[SCORE] += best;
+			++pixels;
 		}
+	//Take the average distance of non-transparent pixels, to avoid skewing towards
+	//mostly-transparent images.
+	if (pixels) ret[SCORE] /= pixels; //"if (pixels)" because brollC :D
 	//Eliminate unusual colours from the dump display.
 	//TODO: Fold them into nearby colours.
 	//(They still affect the final score.)
