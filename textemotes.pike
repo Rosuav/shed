@@ -60,14 +60,14 @@ int main()
 	//one seems to have one element in that array.
 	Array.shuffle(all_emotes);
 	//Pick up some emotes we don't have and download them.
-	int dl = 100; //Once the limit gets exhausted, stop downloading and just analyze what we have.
+	int dl = 10000; //Once the limit gets exhausted, stop downloading and just analyze what we have.
 	int checked = 0;
 	if (dl) foreach (all_emotes, mapping emote)
 	{
 		++checked;
 		string fn = emote->regex + ".png";
 		if (file_stat(fn)) continue; //Assume that any file is the right file.
-		write("Downloading %s...\e[K\r", emote->regex);
+		write("[%d] Downloading %s...\e[K\r", dl, emote->regex);
 		string data = Protocols.HTTP.get_url_data(emote->images[0]->url);
 		if (!data) {write("ERROR LOADING %s\n", emote->regex); continue;}
 		Stdio.write_file(fn, data);
