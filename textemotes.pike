@@ -65,6 +65,20 @@ mapping(string|int:int) find_colors(string fn)
 	return ret;
 }
 
+array parse_images(array(string) files, int start, int step)
+{
+	write("Starting thread %d/%d\n", start, step);
+	array results = ({ });
+	for (int i = start; i < sizeof(files); i += step)
+	{
+		mapping info = find_colors(files[i]);
+		if (!info) continue;
+		//write("%s: %O\n", fn-".png", info);
+		results += ({ ({info[SCORE], files[i]-".png"}) });
+	}
+	return results;
+}
+
 int main()
 {
 	array all_emotes = Standards.JSON.decode_utf8(Stdio.read_file("emote_list.json"))->emoticons;
@@ -72,7 +86,7 @@ int main()
 	//one seems to have one element in that array.
 	Array.shuffle(all_emotes);
 	//Pick up some emotes we don't have and download them.
-	int dl = 10000; //Once the limit gets exhausted, stop downloading and just analyze what we have.
+	int dl = 15000; //Once the limit gets exhausted, stop downloading and just analyze what we have.
 	int checked = 0;
 	if (dl) foreach (all_emotes, mapping emote)
 	{
@@ -87,16 +101,18 @@ int main()
 	}
 	write("Checked %d.\e[K\n", checked);
 	array(string) files = sort(glob("*.png", get_dir()));
-	array emotes = allocate(sizeof(files));
-	foreach (files; int i; string fn)
-	{
-		mapping info = find_colors(fn);
-		if (!info) continue;
-		//write("%s: %O\n", fn-".png", info);
-		emotes[i] = ({info[SCORE], fn-".png"});
-	}
+	#if 0
+	array THREADS = enumerate(4); //For some reason, this doesn't work with the array directly in the parameters. (???)
+	array emotes = `+(@Thread.Thread(parse_images, files, THREADS[*], sizeof(THREADS))->wait());
+	#else
+	//Hmm. With one thread, we're pegging one CPU core. But with multiple, we just divide the job
+	//across multiple cores, with no two cores being busy at the same time. So there's some sort
+	//of locking going on, and the overall task is slower with threads than without.
+	//Let's just do it without threads, then. :(
+	array emotes = parse_images(files, 0, 1);
+	#endif
 	emotes -= ({0});
-	write("Parsed %d.\n", sizeof(emotes));
+	write("Parsed %d/%d.\n", sizeof(emotes), sizeof(files));
 	sort(emotes);
 	write("%{[%d] %s\n%}", emotes[..9]);
 	Stdio.write_file("top10.html", sprintf("%{<li><img src=\"%s.png\"> %<s\n%}", emotes[..29][*][1]));
