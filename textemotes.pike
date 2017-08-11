@@ -22,6 +22,7 @@ mapping(string|int:int) find_colors(string fn)
 	}) return 0; //Decoding errors happen sometimes. Some images are actually JPGs.
 	mapping(string|int:int) ret = ([]);
 	int pixels = 0;
+	array(int) aimed_at = allocate(sizeof(focal_points));
 	for (int y = 0; y < img->ysize(); ++y)
 		for (int x = 0; x < img->xsize(); ++x)
 		{
@@ -31,21 +32,32 @@ mapping(string|int:int) find_colors(string fn)
 			//Calculate the distance-squared to each focal point.
 			//Whichever one is closest, that's this pixel's distance.
 			int best = 256*256 * `+(@color_weight);
-			foreach (focal_points, array focus)
+			int focalpoint;
+			foreach (focal_points; int which; array focus)
 			{
 				int dist = 0;
 				for (int i=0; i<3; ++i)
 					dist += (pixel[i] - focus[i]) ** 2 * color_weight[i];
-				if (dist < best) best = dist;
+				if (dist < best) {focalpoint = which; best = dist;}
 			}
+			aimed_at[focalpoint]++;
+			ret["F" + focalpoint]++;
 			ret[sprintf("%02x%02x%02x = "+best, @img->getpixel(x, y))]++;
 			ret[best]++;
 			ret[SCORE] += best;
 			++pixels;
 		}
-	//Take the average distance of non-transparent pixels, to avoid skewing towards
-	//mostly-transparent images.
-	if (pixels) ret[SCORE] /= pixels; //"if (pixels)" because brollC :D
+	if (pixels) //because brollC :D
+	{
+		//Take the average distance of non-transparent pixels, to avoid skewing towards
+		//mostly-transparent images.
+		ret[SCORE] /= pixels;
+		//Multiply by the highest proportion to land on a single focal point. This
+		//means that images using exactly one colour (which thus attach every pixel
+		//to the same focal point) will score higher (worse) than those which use
+		//all three colours fairly evenly.
+		ret[SCORE] = ret[SCORE] * max(@aimed_at) / max(min(@aimed_at), 1);
+	}
 	//Eliminate unusual colours from the dump display.
 	//TODO: Fold them into nearby colours.
 	//(They still affect the final score.)
@@ -82,6 +94,7 @@ int main()
 		//write("%s: %O\n", fn-".png", info);
 		emotes += ({ ({info[SCORE], fn-".png"}) });
 	}
+	write("Parsed %d.\n", sizeof(emotes));
 	sort(emotes);
 	write("%{[%d] %s\n%}", emotes[..9]);
 	Stdio.write_file("top10.html", sprintf("%{<li><img src=\"%s.png\"> %<s\n%}", emotes[..29][*][1]));
