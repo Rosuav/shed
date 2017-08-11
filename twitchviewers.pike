@@ -50,7 +50,7 @@ int main(int argc, array(string) argv)
 		if (sizeof(other_argv) < 3) continue; //Can't be what we want.
 		if (other_argv[0] != "pike" && !has_suffix(other_argv[0], "/pike")) continue; //Not Pike
 		if (other_argv[2] != argv[1]) continue; //Different Twitch user
-		if (other_argv[1] == argv[0]) exit(0, "Already monitoring this user.\n"); //Exact file match
+		if (other_argv[1] == argv[0]) exit(0, "Already monitoring this user [pid=%s].\n", fn); //Exact file match
 		//TODO: Sloppy script path matching, as long as they refer to the same file.
 	};
 	url = sprintf("http://tmi.twitch.tv/group/user/%s/chatters", lower_case(username));
