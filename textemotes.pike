@@ -86,14 +86,16 @@ int main()
 		if (!--dl) break;
 	}
 	write("Checked %d.\e[K\n", checked);
-	array emotes = ({ });
-	foreach (sort(get_dir()), string fn) if (has_suffix(fn, ".png"))
+	array(string) files = sort(glob("*.png", get_dir()));
+	array emotes = allocate(sizeof(files));
+	foreach (files; int i; string fn)
 	{
 		mapping info = find_colors(fn);
 		if (!info) continue;
 		//write("%s: %O\n", fn-".png", info);
-		emotes += ({ ({info[SCORE], fn-".png"}) });
+		emotes[i] = ({info[SCORE], fn-".png"});
 	}
+	emotes -= ({0});
 	write("Parsed %d.\n", sizeof(emotes));
 	sort(emotes);
 	write("%{[%d] %s\n%}", emotes[..9]);
