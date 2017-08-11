@@ -58,6 +58,7 @@ mapping(string|int:int) find_colors(string fn)
 		//all three colours fairly evenly.
 		ret[SCORE] = ret[SCORE] * max(@aimed_at) / max(min(@aimed_at), 1);
 	}
+	else ret[SCORE] = 1<<256; //Actually I've found *four* entirely-transparent emotes. Suppress them.
 	//Eliminate unusual colours from the dump display.
 	//TODO: Fold them into nearby colours.
 	//(They still affect the final score.)
