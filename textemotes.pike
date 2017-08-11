@@ -24,8 +24,8 @@ mapping(string|int:int) find_colors(string fn)
 	for (int y = 0; y < img->ysize(); ++y)
 		for (int x = 0; x < img->xsize(); ++x)
 		{
-			int alpha = `+(@alpha->getpixel(x, y));
-			if (alpha < 128) continue; //Ignore what's transparent (or mostly so)
+			int a = `+(@alpha->getpixel(x, y));
+			if (a < 128) continue; //Ignore what's transparent (or mostly so)
 			array pixel = img->getpixel(x, y);
 			//Calculate the distance-squared to each focal point.
 			//Whichever one is closest, that's this pixel's distance.
