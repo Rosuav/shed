@@ -92,7 +92,7 @@ int main()
 	if (dl) foreach (all_emotes, mapping emote)
 	{
 		++checked;
-		string fn = emote->regex + ".png";
+		string fn = replace(emote->regex, "/", "\xEF\xBC\x8F") + ".png"; //A slash in a file name becomes "／", UTF-8 encoded.
 		if (file_stat(fn)) continue; //Assume that any file is the right file.
 		write("[%d] Downloading %s...\e[K\r", dl, emote->regex);
 		string data = Protocols.HTTP.get_url_data(emote->images[0]->url);
