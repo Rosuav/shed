@@ -7,6 +7,7 @@ array focal_points = ({
 	({80, 106, 239}),
 	({192, 80, 239}),
 	({236,  0, 140}),
+	({153, 50, 172}), //Fourth (optional) focal point from impgrrlMuch
 });
 array color_weight = ({87, 127, 41}); //Color weighting as per grey()
 //array color_weight = ({1,1,1}); //Flat color weighting
@@ -56,7 +57,9 @@ mapping(string|int:int) find_colors(string fn)
 		//means that images using exactly one colour (which thus attach every pixel
 		//to the same focal point) will score higher (worse) than those which use
 		//all three colours fairly evenly.
-		ret[SCORE] = ret[SCORE] * max(@aimed_at) / max(min(@aimed_at), 1);
+		//NOTE: The fourth focal point is optional; three-letter emotes (SEW, IAM)
+		//don't use it. So don't penalize an emote for using only three colours.
+		ret[SCORE] = ret[SCORE] * max(@aimed_at) / max(min(@aimed_at[..<1]), 1);
 	}
 	else ret[SCORE] = 1<<256; //Actually I've found *four* entirely-transparent emotes. Suppress them.
 	//Eliminate unusual colours from the dump display.
@@ -74,13 +77,13 @@ array parse_images(array(string) files, int start, int step)
 	{
 		mapping info = find_colors(files[i]);
 		if (!info) continue;
-		//write("%s: %O\n", fn-".png", info);
+		//write("%s: %O\n", files[i]-".png", info);
 		results += ({ ({info[SCORE], files[i]-".png"}) });
 	}
 	return results;
 }
 
-int main()
+int main(int argc, array(string) argv)
 {
 	array all_emotes = Standards.JSON.decode_utf8(Stdio.read_file("emote_list.json"))->emoticons;
 	//NOTE: The emote info contains an *array* of images, but every single
@@ -104,6 +107,7 @@ int main()
 	}
 	write("Checked %d.\e[K\n", checked);
 	array(string) files = sort(glob("*.png", get_dir()));
+	if (argc > 1) files = argv[1..]; //Process a specific set of files for debug purposes
 	#if 0
 	array THREADS = enumerate(4); //For some reason, this doesn't work with the array directly in the parameters. (???)
 	array emotes = `+(@Thread.Thread(parse_images, files, THREADS[*], sizeof(THREADS))->wait());
