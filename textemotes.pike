@@ -121,6 +121,7 @@ Similarity is determined by their use of colours; but the emotes are not all per
 'MOIST' and 'BULGE' emotes use darker shades, for instance. Nonetheless, the search has proved somewhat fruitful;
 below you will see the algorithm's top 100 results.
 </p>
+<p>Source code is all on <a href=\"https://github.com/Rosuav/shed/blob/master/textemotes.pike\">GitHub</a>.</p>
 <table border=1>
 %{<tr>%s</tr>
 %}</table></body>", Array.transpose(columns)[*]*""));
