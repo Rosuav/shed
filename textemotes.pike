@@ -96,13 +96,16 @@ int main(int argc, array(string) argv)
 		array columns = ({ });
 		foreach (argv[2..], string resultfile)
 		{
-			sscanf(Stdio.read_file(resultfile), "%{<li><img src=\"%s.png\"> %*s\n%}", array emotes);
-			array col = ({ });
+			sscanf(Stdio.read_file(resultfile), "Colors:%{ %[a-z0-9]%}<br>\n%{<li><img src=\"%s.png\"> %*s\n%}", array cols, array emotes);
+			array col = ({sprintf("<td>Color matches: %{<div style=\"background-color: #%s\"></div>%}</td>", cols)});
 			foreach (emotes, [string emote])
-				col += ({sprintf("<td><img src=\"%s\"> %s</td>", emote_url[emote], emote)});
+				col += ({sprintf("<td><img src=\"%s\" alt=\"%s\"> %<s</td>", emote_url[emote], emote)});
 			columns += ({col});
 		}
 		Stdio.write_file(argv[0] - ".pike" + ".html", sprintf(#"<!doctype html>
+<head>
+<meta charset=\"utf-8\">
+<title>Text emotes</title>
 <style>
 div {
 	display: inline-block;
@@ -110,16 +113,17 @@ div {
 	height: 28px;
 }
 </style>
+</head>
+<body>
 <p>
 The following is the result of a great emote search, looking for the text emotes like 'I AM', 'SEW', 'MUCH', etc.
-Similarity is determined by their use of colours; but the emotes are not all perfectly consistent. TockCustom's
+Similarity is determined by their use of colours; but the emotes are not all perfectly consistent - TockCustom's
 'MOIST' and 'BULGE' emotes use darker shades, for instance. Nonetheless, the search has proved somewhat fruitful;
 below you will see the algorithm's top 100 results.
 </p>
 <table border=1>
-<tr><td>Color matches: %{<div style=\"background-color: #%02x%02x%02x\"></div>%}</td></tr>
 %{<tr>%s</tr>
-%}</table>", focal_points, Array.transpose(columns)[*]*""));
+%}</table></body>", Array.transpose(columns)[*]*""));
 		return 0;
 	}
 	Array.shuffle(all_emotes);
@@ -156,5 +160,5 @@ below you will see the algorithm's top 100 results.
 	write("Parsed %d/%d.\n", sizeof(emotes), sizeof(files));
 	sort(emotes);
 	write("%{[%d] %s\n%}", emotes[..9]);
-	Stdio.write_file("most_similar.html", sprintf("%{<li><img src=\"%s.png\"> %<s\n%}", emotes[..99][*][1]));
+	Stdio.write_file("most_similar.html", sprintf("Colors:%{ %02x%02x%02x%}<br>\n%{<li><img src=\"%s.png\"> %<s\n%}", focal_points, emotes[..99][*][1]));
 }
