@@ -7,7 +7,7 @@ array focal_points = ({
 	({80, 106, 239}),
 	({192, 80, 239}),
 	({236,  0, 140}),
-	({153, 50, 172}), //Fourth (optional) focal point from impgrrlMuch
+	//({153, 50, 172}), //Fourth (optional) focal point from impgrrlMuch. Improves some results; worsens others.
 });
 array color_weight = ({87, 127, 41}); //Color weighting as per grey()
 //array color_weight = ({1,1,1}); //Flat color weighting
@@ -59,7 +59,7 @@ mapping(string|int:int) find_colors(string fn)
 		//all three colours fairly evenly.
 		//NOTE: The fourth focal point is optional; three-letter emotes (SEW, IAM)
 		//don't use it. So don't penalize an emote for using only three colours.
-		ret[SCORE] = ret[SCORE] * max(@aimed_at) / max(min(@aimed_at[..<1]), 1);
+		ret[SCORE] = ret[SCORE] * max(@aimed_at) / max(min(@aimed_at[..2]), 1);
 	}
 	else ret[SCORE] = 1<<256; //Actually I've found *four* entirely-transparent emotes. Suppress them.
 	//Eliminate unusual colours from the dump display.
@@ -77,7 +77,7 @@ array parse_images(array(string) files, int start, int step)
 	{
 		mapping info = find_colors(files[i]);
 		if (!info) continue;
-		//write("%s: %O\n", files[i]-".png", info);
+		if (sizeof(files) < 20) write("%s: %O\n", files[i]-".png", info);
 		results += ({ ({info[SCORE], files[i]-".png"}) });
 	}
 	return results;
