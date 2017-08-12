@@ -88,6 +88,40 @@ int main(int argc, array(string) argv)
 	array all_emotes = Standards.JSON.decode_utf8(Stdio.read_file("emote_list.json"))->emoticons;
 	//NOTE: The emote info contains an *array* of images, but every single
 	//one seems to have one element in that array.
+	if (argc > 2 && argv[1] == "--results")
+	{
+		//Reparse the result file(s) into a combined file
+		mapping(string:string) emote_url = ([]);
+		foreach (all_emotes, mapping emote) emote_url[emote->regex] = emote->images[0]->url || "(none)";
+		array columns = ({ });
+		foreach (argv[2..], string resultfile)
+		{
+			sscanf(Stdio.read_file(resultfile), "%{<li><img src=\"%s.png\"> %*s\n%}", array emotes);
+			array col = ({ });
+			foreach (emotes, [string emote])
+				col += ({sprintf("<td><img src=\"%s\"> %s</td>", emote_url[emote], emote)});
+			columns += ({col});
+		}
+		Stdio.write_file(argv[0] - ".pike" + ".html", sprintf(#"<!doctype html>
+<style>
+div {
+	display: inline-block;
+	width: 28px;
+	height: 28px;
+}
+</style>
+<p>
+The following is the result of a great emote search, looking for the text emotes like 'I AM', 'SEW', 'MUCH', etc.
+Similarity is determined by their use of colours; but the emotes are not all perfectly consistent. TockCustom's
+'MOIST' and 'BULGE' emotes use darker shades, for instance. Nonetheless, the search has proved somewhat fruitful;
+below you will see the algorithm's top 100 results.
+</p>
+<table border=1>
+<tr><td>Color matches: %{<div style=\"background-color: #%02x%02x%02x\"></div>%}</td></tr>
+%{<tr>%s</tr>
+%}</table>", focal_points, Array.transpose(columns)[*]*""));
+		return 0;
+	}
 	Array.shuffle(all_emotes);
 	//Pick up some emotes we don't have and download them.
 	int dl = 15000; //Once the limit gets exhausted, stop downloading and just analyze what we have.
