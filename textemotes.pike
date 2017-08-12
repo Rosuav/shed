@@ -92,12 +92,13 @@ int main()
 	int checked = 0;
 	if (dl) foreach (all_emotes, mapping emote)
 	{
+		if (!emote->images[0]->url) continue; //A handful of emotes have no URL. Why?
 		++checked;
 		string fn = replace(emote->regex, "/", "\xEF\xBC\x8F") + ".png"; //A slash in a file name becomes "／", UTF-8 encoded.
 		if (file_stat(fn)) continue; //Assume that any file is the right file.
 		write("[%d] Downloading %s...\e[K\r", dl, emote->regex);
 		string data = Protocols.HTTP.get_url_data(emote->images[0]->url);
-		if (!data) {write("ERROR LOADING %s\n", emote->regex); continue;}
+		if (!data) {write("ERROR LOADING %s\e[K\n", emote->regex); continue;}
 		Stdio.write_file(fn, data);
 		if (!--dl) break;
 	}
@@ -117,5 +118,5 @@ int main()
 	write("Parsed %d/%d.\n", sizeof(emotes), sizeof(files));
 	sort(emotes);
 	write("%{[%d] %s\n%}", emotes[..9]);
-	Stdio.write_file("top10.html", sprintf("%{<li><img src=\"%s.png\"> %<s\n%}", emotes[..29][*][1]));
+	Stdio.write_file("most_similar.html", sprintf("%{<li><img src=\"%s.png\"> %<s\n%}", emotes[..99][*][1]));
 }
