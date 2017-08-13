@@ -4,7 +4,7 @@ Science Pack 1 E+R => T
 	Copper Plate
 Science Pack 2
 	Inserter U+E+E => Y
-		Electronic Circuit R+E => I
+		Electronic Circuit R+E => U
 			Copper Wire
 				Copper Plate
 			Iron Plate
