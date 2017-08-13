@@ -1,0 +1,44 @@
+Science Pack 1 E+R => T
+	Iron Gear Wheel E => E
+		Iron Plate
+	Copper Plate
+Science Pack 2
+	Inserter U+E+E => Y
+		Electronic Circuit R+E => I
+			Copper Wire
+				Copper Plate
+			Iron Plate
+		Iron Plate
+		Iron Gear Wheel
+	Belt E+E => Y
+		Iron Plate
+		Iron Gear Wheel
+
+
+Belts
+Q: iron ore
+W: coal
+E: iron gear wheel | iron plate
+R: copper plate | copper wire
+T: science pack 1
+Y: transport belt | inserter
+U: electronic circuit
+I: science pack 2
+
+           ------------------T
+           sci1
+     /---------------------------------E
+     | w /-----------------------------R
+     | h | circuit  inserter   belt
+Q   W| e | /------------------U  |  U--U
+| f || e | |            ---------------Y
+| u || l | (potential)            sci2
+| r || s | (for more)             -----I
+| n ||   | (circuits)
+| a || c |
+| c || a |
+| e || b |
+| s || l |
+     | e |
+         |
+         |
