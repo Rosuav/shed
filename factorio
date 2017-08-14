@@ -1,3 +1,5 @@
+TODO: Map out the oil processing subsystem.
+
 Science Pack 1 E+R => T
 	Iron Gear Wheel E => E
 		Iron Plate
@@ -110,3 +112,5 @@ Q   W| e | /------------------U  |  U---------------------------------\
      | e |
          |
          |
+
+For the time being, anything marked as "logistics" will need to be manually carried around, so keep the chest limits high - once the bots are doing it, limit the chests more aggressively.
