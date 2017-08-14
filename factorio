@@ -32,18 +32,18 @@ Military Science Pack
 	Grenade
 	Gun Turret
 Production Science Pack
-	Electric Engine Unit
+	Electric Engine Unit O+U => A
 		Engine Unit
 		Electronic Circuit U
 		Lubricant [liquid]
-	Assembling Machine 1
+	Assembling Machine 1 E+U => direct into factory
 		Electronic Circuit U
 		Iron Gear Wheel E
 		Iron Plate E
-	Electric Furnace
-		Steel Plate
+	Electric Furnace U+logistics => A
+		Steel Plate (logistics)
 		Advanced Circuit
-		Stone Brick
+		Stone Brick (logistics)
 High Tech Science Pack
 	Battery
 		Iron Plate E
@@ -69,6 +69,7 @@ U: electronic circuit | advanced circuit
 I: science pack 2 | science pack 3
 O: steel plate | engine unit
 P: electric drill
+A: electric engine unit | electric furnace
 
            ------------------T
            sci1
@@ -96,13 +97,13 @@ After preparing this part, the next step is to research the Logistics System. Th
 | t        sci1    engine - pipe         ^v
 | e  /----------------------------------------------------------------E
 | e  | w /------------------------------------------------------------R
-  l  | h | circuit  inserter   belt      ^O sci3 drill        adv-cct
+  l  | h | circuit  inserter   belt      ^v sci3 drill  am1    adv-cct
 Q   W| e | /------------------U  |  U---------------------------------\
-| f || e | |            -------------Y   ^    P--------               |
-| u || l | |                      sci2   |                            |
-| r || s | |                    I--------/                            |
+| f || e | |            -------------Y   ^O   P-------- sciP          |
+| u || l | |                      sci2   |elec  furnace               |
+| r || s | |                    I--------/ ^ --------A                |
 | n ||   | \----------------------------------------------------------/
-| a || c |
+| a || c |                                 ^ incoming pipe for lubricant
 | c || a |
 | e || b |
 | s || l |
