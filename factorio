@@ -94,7 +94,7 @@ After preparing this part, the next step is to research the Logistics System. Th
                                          |
 /-----------------------------------------\ O
 | s        ----------------------------T  |
-| t        sci1    engine - pipe         ^v
+| t        sci1    engine-pipe-engine    ^v
 | e  /----------------------------------------------------------------E
 | e  | w /------------------------------------------------------------R
   l  | h | circuit  inserter   belt      ^v sci3 drill  am1    adv-cct
