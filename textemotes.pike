@@ -61,7 +61,13 @@ mapping(string|int:int) find_colors(string fn)
 		//don't use it. So don't penalize an emote for using only three colours.
 		ret[SCORE] = ret[SCORE] * max(@aimed_at) / max(min(@aimed_at[..2]), 1);
 	}
-	else ret[SCORE] = 1<<256; //Actually I've found *four* entirely-transparent emotes. Suppress them.
+	/* Actually there are a bunch of transparent emotes. So suppress them.
+	bboyHair (bald/shaved streamer), brollC, ferretNULL, fireBreak,
+	kgothTENBUCKS/kgothTWENTYFIVEBUCKS (streamer doesn't like tier emotes),
+	m4xEmpty, micNone, pvp0, ruyuB, smithNothing, teeveeBlank, tgm300,
+	twingeBlank. There are also near-transparent ones - ignore them too.
+	*/
+	else ret[SCORE] = 1<<256;
 	//Eliminate unusual colours from the dump display.
 	//TODO: Fold them into nearby colours.
 	//(They still affect the final score.)
