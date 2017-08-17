@@ -42,7 +42,7 @@ int main(int argc, array(string) argv)
 	string username = argv[1];
 	if (argc>2) delay = (int)argv[2] || 10;
 	//First check if there's another process doing the same job. LINUX ONLY - might work on other Unices but untested.
-	foreach (get_dir("/proc"), string fn) if (fn == (string)(int)fn) catch
+	foreach (get_dir("/proc"), string fn) if (fn == (string)(int)fn && getpid() != (int)fn) catch
 	{
 		//This might bomb, eg if the process is owned by another user.
 		//If so, we assume that process doesn't matter to us.
