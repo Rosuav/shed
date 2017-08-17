@@ -47,7 +47,7 @@ Production Science Pack
 		Advanced Circuit
 		Stone Brick (logistics)
 High Tech Science Pack
-	Battery
+	Battery (chem plant)
 		Iron Plate E
 		Copper Plate R
 		Sulfuric Acid [liquid]
@@ -99,7 +99,7 @@ After preparing this part, the next step is to research the Logistics System. Th
 | t        sci1    engine-pipe-engine    ^v
 | e  /----------------------------------------------------------------E
 | e  | w /------------------------------------------------------------R
-  l  | h | circuit  inserter   belt      ^v sci3 drill  am1    adv-cct
+  l  | h | circuit  inserter   belt      ^v sci3 drill  am1      a_cct
 Q   W| e | /------------------U  |  U---------------------------------\
 | f || e | |            -------------Y   ^O   P-------- sciP          |
 | u || l | |                      sci2   |elec  furnace               |
@@ -114,3 +114,24 @@ Q   W| e | /------------------U  |  U---------------------------------\
          |
 
 For the time being, anything marked as "logistics" will need to be manually carried around, so keep the chest limits high - once the bots are doing it, limit the chests more aggressively.
+
+                                         I
+                                         |
+/-----------------------------------------\ O
+| s        ----------------------------T  |
+| t        sci1    engine-pipe-engine    ^v
+| e  /----------------------------------------------------------------E
+| e  | w /------------------------------------------------------------R
+  l  | h | circuit  inserter   belt      ^v sci3 drill  am1 proc a_cct
+Q   W| e | /------------------U  |  U---------------------------------\
+| f || e | |            -------------Y   ^O   P-------- sciP          |
+| u || l | |                      sci2   |elec  furnace               |
+| r || s | |                    I--------/ ^ --------A                |
+| n ||   | \----------------------------------------------------------/
+| a || c |                                 ^ incoming pipe for lubricant
+| c || a |
+| e || b |
+| s || l |
+     | e |
+         |
+         |
