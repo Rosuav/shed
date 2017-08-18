@@ -72,6 +72,7 @@ I: science pack 2 | science pack 3
 O: steel plate | engine unit
 P: electric drill
 A: electric engine unit | electric furnace
+S: iron plate [more]
 
            ------------------T
            sci1
@@ -115,23 +116,27 @@ Q   W| e | /------------------U  |  U---------------------------------\
 
 For the time being, anything marked as "logistics" will need to be manually carried around, so keep the chest limits high - once the bots are doing it, limit the chests more aggressively.
 
-                                         I
-                                         |
-/-----------------------------------------\ O
-| s        ----------------------------T  |
-| t        sci1    engine-pipe-engine    ^v
-| e  /----------------------------------------------------------------E
-| e  | w /------------------------------------------------------------R
-  l  | h | circuit  inserter   belt      ^v sci3 drill  am1 proc a_cct
-Q   W| e | /------------------U  |  U---------------------------------\
-| f || e | |            -------------Y   ^O   P-------- sciP          |
-| u || l | |                      sci2   |elec  furnace               |
-| r || s | |                    I--------/ ^ --------A                |
-| n ||   | \----------------------------------------------------------/
-| a || c |                                 ^ incoming pipe for lubricant
-| c || a |
-| e || b |
-| s || l |
-     | e |
-         |
-         |
+To advance to the production of yellow science packs, more iron and steel is needed. More everything is needed. Resupply belt E post-wheel-production via a refill belt S. Move steel outside the current system, using electric furnaces (which don't need the coal run).
+
+            W                                    I
+            ^                                    |
+/-------------------------------------------------\ O
+|   /-----------\  ----------------------------T  |
+|   |   Q   ^   v  sci1    engine-pipe-engine    ^v
+| : | : | i |/----------------------------------------------------------------E
+| s | i | r || w /------------------------------------------------------------R
+| t | r | o || h | circuit  inserter   belt      ^v sci3 drill  am1 proc a_cct
+| e | o | n || e | /------------------U  |  U---------------------------------\
+| e | n | s || e | |            -------------Y   ^O   P-------- sciP          |
+| l | : | m || l | |                      sci2   |elec  furnace  A            |
+| : | : | e || s | |                    I--------/ ^ ------------/            |
+| s | i | l ||   | \----------------------------------------------------------/
+| t | r | t || c |                                 ^ incoming pipe for lubricant
+| e | o | i || a |
+| e | n | n || b |
+| l | : | g || l |
+O   S        | e |
+                 |
+                 |
+
+In this setup, Science Pack 3 is a bottleneck. Promote its production with every non-logistical benefit possible, eg Assembling Machine 3 and lots of modules.
