@@ -73,6 +73,7 @@ O: steel plate | engine unit
 P: electric drill
 A: electric engine unit | electric furnace
 S: iron plate [more]
+D: processing unit | speed module
 
            ------------------T
            sci1
@@ -127,8 +128,8 @@ To advance to the production of yellow science packs, more iron and steel is nee
 | s | i | r || w /------------------------------------------------------------R
 | t | r | o || h | circuit  inserter   belt      ^v sci3 drill  am1 proc a_cct
 | e | o | n || e | /------------------U  |  U---------------------------------\
-| e | n | s || e | |            -------------Y   ^O   P-------- sciP          |
-| l | : | m || l | |                      sci2   |elec  furnace  A            |
+| e | n | s || e | |            -------------Y   ^O   P-------- sciP --------D|
+| l | : | m || l | |                      sci2   |elec  furnace  A   spd sci5 |
 | : | : | e || s | |                    I--------/ ^ ------------/            |
 | s | i | l ||   | \----------------------------------------------------------/
 | t | r | t || c |                                 ^ incoming pipe for lubricant
