@@ -164,3 +164,59 @@ FUG-b-FUG
 CENTRIFUG at top is processing ore. The two CENTRIFUG below are playing patty-cake via a pair of chests, which should initially be mostly-full of U-238. (By the time you get to 40 U-235, you'll probably have a chestful or two of 238 anyway.) Uranium from the top centrifuge is added into box [a], and FUELCELLS will be supplied with uranium from box [b]. (It will also need a supply of iron plate.)
 
 The easiest way to balance the boxes is with a single arithmetic combinator, three wires, and a filter inserter. Link the upper box directly to the inserter; link the lower box to the combinator, and the combinator to the inserter. Set the combinator to multiply channel "Each" by -1, and output to "Each". Thus the contents of the lower box will be subtracted from the contents of the upper box, and any value above zero will be transferred by the inserter.
+
+
+Oil processing
+--------------
+
+The main refinery has two inputs. Initially they both want crude oil, but once advanced processing is researched, the "second" one will want water instead. This is the one further around clockwise than the "first" one - eg if the refinery has its inputs at the top and its outputs below, the oil is on the left and the water on the right.
+
+If crude oil is being supplied by train, be sure to include a storage tank between the train pump and the refinery.
+
+Before cracking is researched, use storage tanks for spare light/heavy oil.
+
+Pipe to ground is represented by ▶     ◀ and above-ground pipe with box-drawing characters.
+
+Processing:
+H!L, L!G: Cracking heavy -> light, light -> gas. The water input is marked with a W.
+LUB: Lubricant (made from heavy oil). Dumped straight into a storage tank.
+SOL: Solid fuel (best made from light oil).
+PLA: Plastic (needs coal input)
+SUL: Sulfur
+RRR [assembling machine]: Convert solid fuel into rocket fuel. Two machines feed a passive provider chest.
+ACD: Sulphuric acid. Fed by the sulfur works.
+BAT: Batteries. Requires iron and copper.
+
+Belt "W" from the main section needs to come to or past here, providing coal to the plastic factory.
+Next to it, an output belt carries the plastic back.
+Belts "E" and "R" similarly, and an output belt for batteries.
+
+[C]rude, [W]ater, [G]as, [L]ight, [H]eavy
+
+           RRR
+           RRR
+         #<RRR    C W
+         ^  ^     | |
+       RRR SOL   Refin
+       RRR<SOL   | | |
+       RRR SOL   G L H
+            ┏┻L!G┨ ┃ ┃
+            ┗▶L!G▼◀┛ ┣H!L
+  W━▶       ◀┳W!G    ▼H!L
+             ┣▶      ◀W!L
+             ▼       ▲
+                     LUB
+                     LUB
+                     LUB
+                     Sto
+                     Sto
+                     Sto
+             ▲       <┻> to lubricant-requiring factories
+             ┗▶  ▲     ◀┳▶ ◀┓
+                 ┣▶     ┃◀┓ ┃
+                 PLA    SUL ACD
+                 PLA    SUL>ACD
+                 PLA    SUL ACD
+                 ||     BAT━┨ |
+                  W   R BAT ▼ E
+                      ||BAT
