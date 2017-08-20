@@ -102,8 +102,8 @@ After preparing this part, the next step is to research the Logistics System. Th
 | t        sci1    engine-pipe-engine    ^v
 | e  /----------------------------------------------------------------E
 | e  | w /------------------------------------------------------------R
-  l  | h | circuit  inserter   belt      ^v sci3 drill  am1      a_cct
-Q   W| e | /------------------U  |  U---------------------------------\
+  l  | h | circuit  inserter   belts     ^v sci3 drill  am1      a_cct
+Q   W| e | /-------------------U | U---------------------------------\
 | f || e | |            -------------Y   ^O   P-------- sciP          |
 | u || l | |                      sci2   |elec  furnace               |
 | r || s | |                    I--------/ ^ --------A                |
@@ -201,9 +201,9 @@ Belts "E" and "R" similarly, and an output belt for batteries.
        RRR<SOL   | | |
        RRR SOL   G L H
             ┏┻L!G┨ ┃ ┃
-            ┗▶L!G▼◀┛ ┣H!L
-  W━▶       ◀┳W!G    ▼H!L
-             ┣▶      ◀W!L
+            ┗▶L!G▼◀┻▶┣H!L◀┓
+  W━▶       ◀┳W!G    ▼H!L ┃
+             ┣▶      ◀W!L━┛
              ▼       ▲
                      LUB
                      LUB
