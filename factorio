@@ -163,7 +163,7 @@ FUG-b-FUG
 
 CENTRIFUG at top is processing ore. The two CENTRIFUG below are playing patty-cake via a pair of chests, which should initially be mostly-full of U-238. (By the time you get to 40 U-235, you'll probably have a chestful or two of 238 anyway.) Uranium from the top centrifuge is added into box [a], and FUELCELLS will be supplied with uranium from box [b]. (It will also need a supply of iron plate.)
 
-The easiest way to balance the boxes is with a single arithmetic combinator, three wires, and a filter inserter. Link the upper box directly to the inserter; link the lower box to the combinator, and the combinator to the inserter. Set the combinator to multiply channel "Each" by -1, and output to "Each". Thus the contents of the lower box will be subtracted from the contents of the upper box, and any value above zero will be transferred by the inserter.
+The easiest way to balance the boxes is with a single arithmetic combinator, three wires, and a filter inserter. Link the upper box directly to the inserter; link the lower box to the combinator, and the combinator to the inserter. Set the combinator to multiply channel "Each" by -1, and output to "Each". The filter inserter's mode is "Set Filters". Thus the contents of the lower box will be subtracted from the contents of the upper box, and any value above zero will be transferred by the inserter.
 
 
 Oil processing
