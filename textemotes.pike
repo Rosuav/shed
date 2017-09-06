@@ -3,12 +3,17 @@
 
 //Focal points taken from kittenzSew; impgrrlMuch is nearly the same;
 //brollI is a bit different but close.
-array focal_points = ({
+array kittenz = ({
 	({80, 106, 239}),
 	({192, 80, 239}),
 	({236,  0, 140}),
-	//({153, 50, 172}), //Fourth (optional) focal point from impgrrlMuch. Improves some results; worsens others.
 });
+//Fourth (optional) focal point from impgrrlMuch. Improves some results; worsens others.
+array impgrrl = kittenz + ({({153, 50, 172})});
+
+//Select which set of focal points to use.
+array focal_points = kittenz;
+
 array color_weight = ({87, 127, 41}); //Color weighting as per grey()
 //array color_weight = ({1,1,1}); //Flat color weighting
 
