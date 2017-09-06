@@ -11,6 +11,16 @@ array kittenz = ({
 //Fourth (optional) focal point from impgrrlMuch. Improves some results; worsens others.
 array impgrrl = kittenz + ({({153, 50, 172})});
 
+//TockCustom has a darker set of colours.
+array tockBulge = ({
+	({102, 45, 145}),
+	({127, 63, 152}),
+	({146, 39, 143}),
+	({236, 0, 140}),
+	({239, 89, 161}),
+});
+array tockMoist = tockBulge + ({({169, 23, 143})});
+
 //Select which set of focal points to use.
 array focal_points = kittenz;
 
