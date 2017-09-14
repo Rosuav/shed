@@ -1,5 +1,6 @@
 //Attempt to find the text emotes on Twitch
 //These are similar to brollI "I AM" and its friends.
+//curl -H 'Accept: application/vnd.twitchtv.v5+json' -H 'Client-ID: uo6dggojyb8d6soh92zknwmi5ej1q2' -X GET 'https://api.twitch.tv/kraken/chat/emoticons' >emote_list.json
 
 //Focal points taken from kittenzSew; impgrrlMuch is nearly the same;
 //brollI is a bit different but close.
@@ -153,19 +154,23 @@ below you will see the algorithm's top 100 results.
 	int dl = 15000; //Once the limit gets exhausted, stop downloading and just analyze what we have.
 	//dl = sizeof(all_emotes) - sizeof(glob("*.png", get_dir())); //Get the lot!
 	int checked = 0;
+	int downloaded = 0;
 	if (dl) foreach (all_emotes, mapping emote)
 	{
 		if (!emote->images[0]->url) continue; //A handful of emotes have no URL. Why?
 		++checked;
 		string fn = replace(emote->regex, "/", "\xEF\xBC\x8F") + ".png"; //A slash in a file name becomes "／", UTF-8 encoded.
 		if (file_stat(fn)) continue; //Assume that any file is the right file.
+		++downloaded;
+		if (has_value(argv, "--count")) continue;
 		write("[%d] Downloading %s...\e[K\r", dl, emote->regex);
 		string data = Protocols.HTTP.get_url_data(emote->images[0]->url);
 		if (!data) {write("ERROR LOADING %s\e[K\n", emote->regex); continue;}
 		Stdio.write_file(fn, data);
 		if (!--dl) break;
 	}
-	write("Checked %d.\e[K\n", checked);
+	write("Checked %d, downloaded %d.\e[K\n", checked, downloaded);
+	if (has_value(argv, "--count")) return 0;
 	array(string) files = sort(glob("*.png", get_dir()));
 	if (argc > 1) files = argv[1..]; //Process a specific set of files for debug purposes
 	#if 0
