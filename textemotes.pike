@@ -114,14 +114,14 @@ int main(int argc, array(string) argv)
 	{
 		//Reparse the result file(s) into a combined file
 		mapping(string:string) emote_url = ([]);
-		foreach (all_emotes, mapping emote) emote_url[emote->regex] = emote->images[0]->url || "(none)";
+		foreach (all_emotes, mapping emote) emote_url[emote->regex] = emote->images[0]->url;
 		array columns = ({ });
 		foreach (argv[2..], string resultfile)
 		{
 			sscanf(Stdio.read_file(resultfile), "Colors:%{ %[a-z0-9]%}<br>\n%{<li><img src=\"%s.png\"> %*s\n%}", array cols, array emotes);
 			array col = ({sprintf("<td>Color matches: %{<div style=\"background-color: #%s\"></div>%}</td>", cols)});
 			foreach (emotes, [string emote])
-				col += ({sprintf("<td><img src=\"%s\" alt=\"%s\"> %<s</td>", emote_url[emote], emote)});
+				col += ({sprintf("<td><img src=\"%s\" alt=\"%s\"> %<s</td>", emote_url[emote] || "(none)", emote)});
 			columns += ({col});
 		}
 		Stdio.write_file(argv[0] - ".pike" + ".html", sprintf(#"<!doctype html>
