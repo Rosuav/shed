@@ -49,10 +49,11 @@ class client(object sock)
 		if (buf->sscanf("\x16\x03")) //Is this the best way to peek for a couple of bytes?
 		{
 			//Probable SSL handshake
-			sock = SSL.File(sock, ctx);
+			sock->set_buffer_mode(0, 0);
+			sock = SSLFile(sock, ctx);
 			sock->set_buffer_mode(Stdio.Buffer(), Stdio.Buffer());
 			sock->set_accept_callback(accept_callback);
-			sock->set_read_callback(read_ssl_callback);
+			sock->set_read_callback(read_callback);
 			write("accept: %O\n", sock->accept("\x16\x03" + buf->read()));
 			write("SSL connection established [errno %O]\n", sock->errno());
 			write("sock: %O\n", sock);
@@ -88,8 +89,8 @@ int main()
 			"commonName" : "*",
 		])
 	)}));
-	//mainsock = Stdio.Port(2211, accept, "::");
-	mainsock = PORT(ctx, 2211, accept);
+	mainsock = Stdio.Port(2211, accept, "::");
+	//mainsock = PORT(ctx, 2211, accept);
 	werror("Ready and listening: "+ctime(time())); //May be slightly different from the mudbooted record
 	return -1;
 }
