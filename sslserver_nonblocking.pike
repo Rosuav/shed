@@ -114,8 +114,9 @@ class PORT
 
 	string readbuf = "";
 	object sendto;
-	void low_read(mixed id, string data)
+	void low_read(mixed id, string|object data)
 	{
+		if (objectp(data)) data = data->read();
 		write("low_read: %O\n", data);
 		if (sendto) sendto->ssl_read_callback(id, data);
 		else readbuf += data;
@@ -128,7 +129,7 @@ class PORT
 	void ssl_callback(mixed id)
 	{
 		object f = socket->accept();
-		//f->set_buffer_mode(Stdio.Buffer(), Stdio.Buffer());
+		f->set_buffer_mode(Stdio.Buffer(), Stdio.Buffer());
 		f->set_nonblocking(low_read, low_write);
 		write("Got socket: %O\n", f);
 		if (f) call_out(lambda()
@@ -136,6 +137,7 @@ class PORT
 			write("NOW we'll accept that\n");
 			object ssl_fd = SSLFile(f, ctx);
 			ssl_fd->set_nonblocking(low_read, low_write);
+			f->set_buffer_mode(0, 0);
 			write("accept: %O\n", ssl_fd->accept(readbuf));
 			//sendto = ssl_fd;
 			//f->set_read_callback(low_read);
