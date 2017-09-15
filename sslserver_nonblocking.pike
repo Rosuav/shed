@@ -38,10 +38,10 @@ class client(object sock)
 		sock->set_nonblocking(read_callback, write_callback, close_callback);
 	}
 
-	void write_callback(mixed ... args) {/*write("write: %O\n", args);*/}
-	void close_callback(mixed ... args) {write("close: %O\n", args);}
-	void accept_callback(mixed ... args) {write("accept: %O\n", args);}
-	void read_ssl_callback(mixed ... args) {write("read_ssl: %O\n", args);}
+	void write_callback(mixed ... args) {/*write("writecb: %O\n", args);*/}
+	void close_callback(mixed ... args) {write("closecb: %O\n", args);}
+	void accept_callback(mixed ... args) {write("acceptcb: %O\n", args);}
+	void read_ssl_callback(mixed ... args) {write("read_sslcb: %O\n", args);}
 
 	void read_callback(mixed id, Stdio.Buffer buf)
 	{
@@ -81,7 +81,6 @@ void accept()
 
 int main()
 {
-	//mainsock = Stdio.Port(2211, accept, "::");
 	object key = Crypto.RSA()->generate_key(4096);
 	ctx->add_cert(key, ({Standards.X509.make_selfsigned_certificate(key,
 		3600*24*365, ([
@@ -89,6 +88,7 @@ int main()
 			"commonName" : "*",
 		])
 	)}));
+	//mainsock = Stdio.Port(2211, accept, "::");
 	mainsock = PORT(ctx, 2211, accept);
 	werror("Ready and listening: "+ctime(time())); //May be slightly different from the mudbooted record
 	return -1;
