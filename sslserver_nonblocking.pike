@@ -45,7 +45,7 @@ class client(object sock)
 
 	void read_callback(mixed id, Stdio.Buffer buf)
 	{
-		write("read_callback\n");
+		write("read_callback %d\n", sizeof((string)buf));
 		if (buf->sscanf("\x16\x03")) //Is this the best way to peek for a couple of bytes?
 		{
 			//Probable SSL handshake
