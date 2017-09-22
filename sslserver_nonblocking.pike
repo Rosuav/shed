@@ -61,7 +61,7 @@ class client(object sock)
 			call_out(debug, 2, buf);
 			return;
 		}
-		string line = buf->match("%s%*[\r]\n");
+		string line = buf->match("%[^\r\n]%*[\r]\n");
 		write("Line: %O\n", line);
 		sock->write(sprintf("Command: %O\n", line));
 	}
