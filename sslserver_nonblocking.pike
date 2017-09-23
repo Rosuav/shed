@@ -38,7 +38,7 @@ class client(object sock)
 		sock->set_nonblocking(read_callback, write_callback, close_callback);
 	}
 
-	void write_callback(mixed ... args) {/*write("writecb: %O\n", args);*/}
+	void write_callback(mixed ... args) {write("writecb: %O\n", args);}
 	void close_callback(mixed ... args) {write("closecb: %O\n", args);}
 	void accept_callback(mixed ... args) {write("acceptcb: %O\n", args);}
 	void read_ssl_callback(mixed ... args) {write("read_sslcb: %O\n", args);}
@@ -54,6 +54,7 @@ class client(object sock)
 			sock->set_buffer_mode(Stdio.Buffer(), Stdio.Buffer());
 			sock->set_accept_callback(accept_callback);
 			sock->set_read_callback(read_callback);
+			sock->set_write_callback(write_callback);
 			write("accept: %O\n", sock->accept("\x16\x03" + buf->read()));
 			write("SSL connection established [errno %O]\n", sock->errno());
 			write("sock: %O\n", sock);
