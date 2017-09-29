@@ -30,6 +30,7 @@ class SSLFile
 
 class client(object sock)
 {
+	int written = 0;
 	void create()
 	{
 		write("Got connection %O\n", sock);
@@ -38,9 +39,9 @@ class client(object sock)
 		sock->set_nonblocking(read_callback, write_callback, close_callback);
 	}
 
-	void write_callback(mixed ... args) {write("writecb: %O\n", args);}
+	void write_callback(mixed ... args) {write("writecb: %O\n", args); if (!written) {written=1; sock->write("Welcome 2\n");}}
 	void close_callback(mixed ... args) {write("closecb: %O\n", args);}
-	void accept_callback(mixed ... args) {write("acceptcb: %O\n", args);}
+	void accept_callback(mixed ... args) {write("acceptcb: %O\n", args); sock->write("Welcome!\n");}
 	void read_ssl_callback(mixed ... args) {write("read_sslcb: %O\n", args);}
 
 	void read_callback(mixed id, Stdio.Buffer buf)
