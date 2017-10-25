@@ -9,7 +9,7 @@ string(0..255) upstream(mapping(string:mixed) conn, string(0..255) data) {if (da
 mapping dns(int portref, mapping query, mapping udp_data, function(mapping:void) cb)
 {
 	mapping q = query->qd[0];
-	werror("Query: %O\n", q->name);
+	//werror("Query: %O\n", q->name);
 	if (q->type == Protocols.DNS.T_TXT)
 	{
 		array(string) parts = q->name / ".";
@@ -23,7 +23,7 @@ mapping dns(int portref, mapping query, mapping udp_data, function(mapping:void)
 			return (["an": (["cl": q->cl, "ttl": 1, "type": q->type, "name": q->name, "txt": "<connecting>"])]);
 		}
 		string sendme = MIME.decode_base64(parts[..<2] * ""); //Everything before the connection ID is text to send.
-		werror("Combined and decoded: %O\n", sendme);
+		//werror("Combined and decoded: %O\n", sendme);
 		if (sendme == "")
 		{
 			//Wants to receive text. (We could multiplex but it'd be potentially messy.)
@@ -66,5 +66,5 @@ string(0..255) tcp(mapping(string:mixed) conn, string(0..255) data)
 	}
 	data = data[..329]; //Max 330 bytes per transmission. TODO: Send the rest separately.
 	string hostname = MIME.encode_base64(data) / 63.0 * ".";
-	conn->dns->do_query(hostname + conn->domain, Protocols.DNS.C_IN, Protocols.DNS.T_TXT, lambda() {werror("Sent\n");});
+	conn->dns->do_query(hostname + conn->domain, Protocols.DNS.C_IN, Protocols.DNS.T_TXT, lambda() {/*werror("Sent\n");*/});
 }
