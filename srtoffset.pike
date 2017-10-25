@@ -15,7 +15,8 @@ int main(int argc,array(string) argv)
 {
 	if (argc<4) exit(0,"USAGE: pike %s input.srt delay output.srt\n");
 	[string infn,string delay,string outfn]=argv[1..3];
-	int offset=srt2ms(replace(delay,".",",")); //Allow a dot instead of a comma
+	int offset=srt2ms(replace(delay-"-",".",",")); //Allow a dot instead of a comma
+	if (delay[0] == '-') offset = -offset;
 	array(array(string)) input=(String.trim_all_whites(utf8_to_string(Stdio.read_file(infn)))/"\n\n")[*]/"\n";
 	foreach (input;int i;array(string) lines)
 	{

@@ -42,13 +42,18 @@ class client
 				write("SSL connection established.\n");
 			}
 		}
+		object readbuf = Stdio.Buffer();
+		sock->set_buffer_mode(readbuf);
 		sock->write("Hello!\n");
-		while (1)
+		out: while (1)
 		{
-			string cmd = sock->read(1024, 1);
-			if (!cmd) break;
-			if (has_value(cmd, "quit")) break;
-			sock->write("Sure, whatever.\n");
+			while (string cmd = readbuf->match("%s%*[\r]\n"))
+			{
+				if (cmd == "quit") break out;
+				write("cmd: %O\n", cmd);
+				sock->write("Sure, whatever.\n");
+			}
+			readbuf->add(sock->read(1024, 1));
 		}
 		sock->write("Bye!\n");
 		write("Dropping connection %O\n", sock);

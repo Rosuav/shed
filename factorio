@@ -1,0 +1,222 @@
+Research
+--------
+
+Science Pack 1 E+R => T
+	Iron Gear Wheel E => E
+		Iron Plate
+	Copper Plate
+Science Pack 2
+	Inserter U+E+E => Y
+		Electronic Circuit R+E => U
+			Copper Wire
+				Copper Plate
+			Iron Plate
+		Iron Plate
+		Iron Gear Wheel
+	Belt E+E => Y
+		Iron Plate
+		Iron Gear Wheel
+Science Pack 3
+	Advanced Circuit U+x+R => U
+		Electronic Circuit
+		Plastic (not on a main belt - only for adv cct)
+		Copper Wire
+	Engine Unit E => + E + O => O
+		Steel Plate
+		Iron Gear Wheel
+		Iron Pipe (not on a main belt - made on demand)
+			Iron Plate
+	Electric Mining Drill U+E+E => P
+		Electronic Circuit
+		Iron Gear Wheel
+		Iron Plate
+Military Science Pack
+	Piercing rounds
+	Grenade
+	Gun Turret
+Production Science Pack
+	Electric Engine Unit O+U => A
+		Engine Unit
+		Electronic Circuit U
+		Lubricant [liquid]
+	Assembling Machine 1 E+U => direct into factory
+		Electronic Circuit U
+		Iron Gear Wheel E
+		Iron Plate E
+	Electric Furnace U+logistics => A
+		Steel Plate (logistics)
+		Advanced Circuit
+		Stone Brick (logistics)
+High Tech Science Pack
+	Battery (chem plant)
+		Iron Plate E
+		Copper Plate R
+		Sulfuric Acid [liquid]
+	Processing Unit
+		Electronic Circuit (x20!)
+		Advanced Circuit
+		Sulfuric Acid [liquid]
+	Speed Module
+		Electronic Circuit
+		Advanced Circuit
+	Copper Cable (x30!)
+
+Belts
+Q: iron ore
+W: coal
+E: iron gear wheel | iron plate
+R: copper plate | copper wire
+T: science pack 1
+Y: transport belt | inserter
+U: electronic circuit | advanced circuit
+I: science pack 2 | science pack 3
+O: steel plate | engine unit
+P: electric drill
+A: electric engine unit | electric furnace
+S: iron plate [more]
+D: processing unit | speed module
+
+           ------------------T
+           sci1
+     /---------------------------------E
+     | w /-----------------------------R
+     | h | circuit  inserter   belt
+Q   W| e | /------------------U  |  U--U
+| f || e | |            ---------------Y
+| u || l | (potential)            sci2
+| r || s | (for more)             -----I
+| n ||   | (circuits)
+| a || c |
+| c || a |
+| e || b |
+| s || l |
+     | e |
+         |
+         |
+
+After preparing this part, the next step is to research the Logistics System. That requires all science packs bar military, though. So let's start with blues and purples.
+                                         I
+                                         |
+/-----------------------------------------\ O
+| s        ----------------------------T  |
+| t        sci1    engine-pipe-engine    ^v
+| e  /----------------------------------------------------------------E
+| e  | w /------------------------------------------------------------R
+  l  | h | circuit  inserter   belts     ^v sci3 drill  am1      a_cct
+Q   W| e | /-------------------U | U---------------------------------\
+| f || e | |            -------------Y   ^O   P-------- sciP          |
+| u || l | |                      sci2   |elec  furnace               |
+| r || s | |                    I--------/ ^ --------A                |
+| n ||   | \----------------------------------------------------------/
+| a || c |                                 ^ incoming pipe for lubricant
+| c || a |
+| e || b |
+| s || l |
+     | e |
+         |
+         |
+
+For the time being, anything marked as "logistics" will need to be manually carried around, so keep the chest limits high - once the bots are doing it, limit the chests more aggressively.
+
+To advance to the production of yellow science packs, more iron and steel is needed. More everything is needed. Resupply belt E post-wheel-production via a refill belt S. Move steel outside the current system, using electric furnaces (which don't need the coal run).
+
+            W                                    I
+            ^                                    |
+/-------------------------------------------------\ O
+|   /-----------\  ----------------------------T  |
+|   |   Q   ^   v  sci1    engine-pipe-engine    ^v
+| : | : | i |/----------------------------------------------------------------E
+| s | i | r || w /------------------------------------------------------------R
+| t | r | o || h | circuit  inserter   belt      ^v sci3 drill  am1 proc a_cct
+| e | o | n || e | /------------------U  |  U---------------------------------\
+| e | n | s || e | |            -------------Y   ^O   P-------- sciP --------D|
+| l | : | m || l | |                      sci2   |elec  furnace  A   spd sci5 |
+| : | : | e || s | |                    I--------/ ^ ------------/            |
+| s | i | l ||   | \----------------------------------------------------------/
+| t | r | t || c |                                 ^ incoming pipe for lubricant
+| e | o | i || a |
+| e | n | n || b |
+| l | : | g || l |
+O   S        | e |
+                 |
+                 |
+
+In this setup, Science Pack 3 is a bottleneck. Promote its production with every non-logistical benefit possible, eg Assembling Machine 3 and lots of modules.
+
+
+Uranium processing
+------------------
+
+Once refinement is researched, uranium can be processed thus:
+
+   CEN
+   TRI
+   FUG
+    |
+CEN-a-CEN
+TRI # TRI
+FUG-b-FUG
+    |
+   FUE
+   LCE
+   LLS
+
+CENTRIFUG at top is processing ore. The two CENTRIFUG below are playing patty-cake via a pair of chests, which should initially be mostly-full of U-238. (By the time you get to 40 U-235, you'll probably have a chestful or two of 238 anyway.) Uranium from the top centrifuge is added into box [a], and FUELCELLS will be supplied with uranium from box [b]. (It will also need a supply of iron plate.)
+
+The easiest way to balance the boxes is with a single arithmetic combinator, three wires, and a filter inserter. Link the upper box directly to the inserter; link the lower box to the combinator, and the combinator to the inserter. Set the combinator to multiply channel "Each" by -1, and output to "Each". The filter inserter's mode is "Set Filters". Thus the contents of the lower box will be subtracted from the contents of the upper box, and any value above zero will be transferred by the inserter.
+
+
+Oil processing
+--------------
+
+The main refinery has two inputs. Initially they both want crude oil, but once advanced processing is researched, the "second" one will want water instead. This is the one further around clockwise than the "first" one - eg if the refinery has its inputs at the top and its outputs below, the oil is on the left and the water on the right.
+
+If crude oil is being supplied by train, be sure to include a storage tank between the train pump and the refinery.
+
+Before cracking is researched, use storage tanks for spare light/heavy oil.
+
+Pipe to ground is represented by ▶     ◀ and above-ground pipe with box-drawing characters.
+
+Processing:
+H!L, L!G: Cracking heavy -> light, light -> gas. The water input is marked with a W.
+LUB: Lubricant (made from heavy oil). Dumped straight into a storage tank.
+SOL: Solid fuel (best made from light oil).
+PLA: Plastic (needs coal input)
+SUL: Sulfur
+RRR [assembling machine]: Convert solid fuel into rocket fuel. Two machines feed a passive provider chest.
+ACD: Sulphuric acid. Fed by the sulfur works.
+BAT: Batteries. Requires iron and copper.
+
+Belt "W" from the main section needs to come to or past here, providing coal to the plastic factory.
+Next to it, an output belt carries the plastic back.
+Belts "E" and "R" similarly, and an output belt for batteries.
+
+[C]rude, [W]ater, [G]as, [L]ight, [H]eavy
+
+           RRR
+           RRR
+         #<RRR    C W
+         ^  ^     | |
+       RRR SOL   Refin
+       RRR<SOL   | | |
+       RRR SOL   G L H
+            ┏┻L!G┨ ┃ ┃
+            ┗▶L!G▼◀┻▶┣H!L◀┓
+  W━▶       ◀┳W!G    ▼H!L ┃
+             ┣▶      ◀W!L━┛
+             ▼       ▲
+                     LUB
+                     LUB
+                     LUB
+                     Sto
+                     Sto
+                     Sto
+             ▲       <┻> to lubricant-requiring factories
+             ┗▶  ▲     ◀┳▶ ◀┓
+                 ┣▶     ┃◀┓ ┃
+                 PLA    SUL ACD
+                 PLA    SUL>ACD
+                 PLA    SUL ACD
+                 ||     BAT━┨ |
+                  W   R BAT ▼ E
+                      ||BAT

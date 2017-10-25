@@ -65,7 +65,7 @@ int hook_prepare_commit_msg(array(string) argv)
 					string comment;
 					foreach (Process.run(({"git","diff","-U0","--cached"}))->stdout/"\n",string line)
 					{
-						if (sscanf(line,"+%*d\t%s%*[\t]%f\t%f",string c,float hours,float dollars)==5)
+						if (sscanf(line,"+| %*d\t| %s%*[\t]| %f\t| %f", string c, float hours, float dollars) == 5)
 						{
 							if (hours * use_hacks != dollars)
 								exit(1,"%O hours doesn't match %O dollars - maybe tweak the hook for flexibility?\n", hours, dollars);

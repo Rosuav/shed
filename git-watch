@@ -69,8 +69,8 @@ def rm(repos):
 			dir = subprocess.check_output(["git", "-C", repo, "rev-parse", "--show-toplevel"])
 			dir = dir.decode("ascii").strip("\n")
 		except subprocess.CalledProcessError:
-			# TODO: If the dir isn't found in config, error out.
-			# (If it IS found, remove it, as that's how you remove a deleted repo.)
+			# TODO: If the dir isn't found in config, error out. But if it IS found,
+			# suppress the error and remove it, as that's how you remove a deleted repo.
 			dir = os.path.abspath(repo)
 		# TODO: As above, check for regex specials
 		subprocess.check_call(["git", "config", "--global", "--unset-all", "rosuav.git-watch.repos", dir])
