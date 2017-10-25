@@ -19,7 +19,7 @@ mapping dns(int portref, mapping query, mapping udp_data, function(mapping:void)
 		if (!c->sock)
 		{
 			//TODO: Allow customization of destination (maybe). Or hard-code 35.160.129.187.
-			G->connect(c->sock = (["_portref": 3333|HOGAN_ACTIVE, "_ip": "127.0.0.1", "rcvd": ""]));
+			G->connect(c->sock = (["_portref": 3333|HOGAN_ACTIVE, "_ip": "35.160.129.187", "rcvd": ""]));
 			return (["an": (["cl": q->cl, "ttl": 1, "type": q->type, "name": q->name, "txt": "<connecting>"])]);
 		}
 		string sendme = MIME.decode_base64(parts[..<2] * ""); //Everything before the connection ID is text to send.
@@ -53,7 +53,7 @@ string(0..255) tcp(mapping(string:mixed) conn, string(0..255) data)
 	if (!data)
 	{
 		if (conn->_closing) return 0; //TODO: Signal upstream to disconnect
-		conn->dns = Protocols.DNS.async_client("127.0.0.1");
+		conn->dns = Protocols.DNS.async_client("37.61.205.138");
 		conn->domain = sprintf(".%d.tod", G->G->next_domain++);
 		conn->recv = lambda(string|void domain, mapping|void resp) {
 			string received = domain && resp && resp->an[0]->txt;
