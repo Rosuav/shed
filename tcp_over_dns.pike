@@ -55,6 +55,13 @@ string(0..255) tcp(mapping(string:mixed) conn, string(0..255) data)
 		if (conn->_closing) return 0; //TODO: Signal upstream to disconnect
 		conn->dns = Protocols.DNS.async_client("127.0.0.1");
 		conn->domain = sprintf(".%d.tod", G->G->next_domain++);
+		conn->recv = lambda(string|void domain, mapping|void resp) {
+			string received = domain && resp && resp->an[0]->txt;
+			if (received) G->send(conn, received);
+			if (!conn->dns) return;
+			conn->dns->do_query(conn->domain, Protocols.DNS.C_IN, Protocols.DNS.T_TXT, conn->recv);
+		};
+		conn->recv();
 		return "<connecting...>\n";
 	}
 	data = data[..329]; //Max 330 bytes per transmission. TODO: Send the rest separately.
