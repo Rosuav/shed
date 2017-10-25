@@ -54,9 +54,10 @@ string(0..255) tcp(mapping(string:mixed) conn, string(0..255) data)
 	{
 		if (conn->_closing) return 0; //TODO: Signal upstream to disconnect
 		conn->dns = Protocols.DNS.async_client("127.0.0.1");
+		conn->domain = sprintf(".%d.tod", G->G->next_domain++);
 		return "<connecting...>\n";
 	}
 	data = data[..329]; //Max 330 bytes per transmission. TODO: Send the rest separately.
 	string hostname = MIME.encode_base64(data) / 63.0 * ".";
-	conn->dns->do_query(hostname + ".tod", Protocols.DNS.C_IN, Protocols.DNS.T_TXT, lambda() {werror("Sent\n");});
+	conn->dns->do_query(hostname + conn->domain, Protocols.DNS.C_IN, Protocols.DNS.T_TXT, lambda() {werror("Sent\n");});
 }
