@@ -2,7 +2,7 @@
 //It's a TCP/IP proxy that uses DNS in the middle.
 //Honestly, it's no weirder than "TCP over HTTP", which is called WebSockets.
 
-mapping(int:function) services=([53|HOGAN_DNS: dns, 3333|HOGAN_ACTIVE: upstream, /*23|HOGAN_PLAIN: telnet*/]);
+mapping(int:function) services=([53|HOGAN_DNS: dns, 3333|HOGAN_ACTIVE: upstream, 23|HOGAN_PLAIN: tcp]);
 
 string(0..255) upstream(mapping(string:mixed) conn, string(0..255) data) {if (data) conn->rcvd += data;}
 
@@ -46,4 +46,17 @@ mapping dns(int portref, mapping query, mapping udp_data, function(mapping:void)
 		return (["an": (["cl": q->cl, "ttl": 1, "type": q->type, "name": q->name, "txt": "<sent>"])]);
 	}
 	return (["rcode": Protocols.DNS.REFUSED]);
+}
+
+string(0..255) tcp(mapping(string:mixed) conn, string(0..255) data)
+{
+	if (!data)
+	{
+		if (conn->_closing) return 0; //TODO: Signal upstream to disconnect
+		conn->dns = Protocols.DNS.async_client("127.0.0.1");
+		return "<connecting...>\n";
+	}
+	data = data[..329]; //Max 330 bytes per transmission. TODO: Send the rest separately.
+	string hostname = MIME.encode_base64(data) / 63.0 * ".";
+	conn->dns->do_query(hostname + ".tod", Protocols.DNS.C_IN, Protocols.DNS.T_TXT, lambda() {werror("Sent\n");});
 }
