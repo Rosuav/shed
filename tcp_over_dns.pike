@@ -53,7 +53,7 @@ string(0..255) tcp(mapping(string:mixed) conn, string(0..255) data)
 	if (!data)
 	{
 		if (conn->_closing) return 0; //TODO: Signal upstream to disconnect
-		conn->dns = Protocols.DNS.async_client("37.61.205.138");
+		conn->dns = Protocols.DNS.async_client("203.206.226.83");
 		conn->domain = sprintf(".%d.tod", G->G->next_domain++);
 		conn->recv = lambda(string|void domain, mapping|void resp) {
 			string received = domain && resp && resp->an[0]->txt;
