@@ -13,6 +13,8 @@ import re
 import subprocess
 import sys
 
+# TODO: Use "git triangle" with no args to convert a simple clone into a triangle
+
 try:
 	username = subprocess.check_output(["git", "config", "user.github"]).decode("ascii").strip()
 except subprocess.CalledProcessError:
