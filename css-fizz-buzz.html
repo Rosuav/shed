@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<head>
+<script>
+function generate() {
+	event.preventDefault();
+	let inp = document.getElementById("target");
+	let target = parseInt(inp.value, 10);
+	inp.value = "";
+	let content = "";
+	for (let i = 1; i <= target; ++i)
+		content += "<div>" + i + "</div>";
+	document.getElementById("display").innerHTML = content;
+}
+</script>
+<style>
+#display div {
+	display: inline-block;
+	width: 5rem;
+	height: 5rem;
+	border: 1px solid black;
+	margin: 0.25rem;
+}
+#display div:nth-child(3n) {
+	border: 3px solid green;
+	font-size: 0;
+}
+#display div:nth-child(3n)::before {
+	content: "fizz";
+	font-size: 1rem;
+}
+#display div:nth-child(5n) {
+	background-color: #a0f0c0;
+	font-size: 0;
+}
+#display div:nth-child(5n)::after {
+	content: "buzz";
+	font-size: 1rem;
+}
+</style>
+</head>
+<body>
+<form onsubmit="generate()">
+<label>Enter number to fizzbuzz to: <input id=target></label>
+<input type=submit value="Generate">
+</form>
+<div id=display></div>
+</body>
+</html>
