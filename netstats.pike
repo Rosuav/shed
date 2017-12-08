@@ -53,6 +53,13 @@ int main()
 			info[desc]=bytes; //Retain the string so we can easily distinguish absence from a value of "0"
 			if (lastinfo[desc]) write("%12f/s %s\n",((int)bytes-(int)lastinfo[desc])/tm,desc);
 			else write("New: %12s %s\n",bytes,desc);
+			if (have_comments) //Show packet counts only if the rules have been filtered down (else it gets spammy fast)
+			{
+				desc += " pkts";
+				info[desc] = pkts;
+				if (lastinfo[desc]) write("%12f/s %s\n",((int)pkts-(int)lastinfo[desc])/tm,desc);
+				else write("New: %12s %s\n",pkts,desc);
+			}
 		}
 		if (info[chain])
 		{
