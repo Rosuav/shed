@@ -77,4 +77,6 @@ avconv -i Anastasia\ -\ Once\ Upon\ A\ December\ Flemish\ \(Lyrics\)-tknUjV7e_Ec
 ffmpeg -ss 00:12:07 -i `youtube-dl --get-url https://www.twitch.tv/lilbumblebear/v/134367064` -t 0:01:48 -c copy TheSwordingOfRosuav.mkv
 ffmpeg -y -i Bob\ Ross\ -\ Lake\ in\ the\ Valley\ \(Season\ 26\ Episode\ 4\)-KvJmSrErm20.mp4 -ss 182 -t 23 "Bob Ross.mkv"
 # This might get muted once it becomes a Past Broadcast
+# These also become inaccessible eventually :(
 ffmpeg -ss 4:27:27 -i `youtube-dl --get-url https://www.twitch.tv/videos/168760526` -t 428 -c copy "Now I see the panicBasket.mkv"
+ffmpeg -ss 0:43:51 -i `youtube-dl --get-url https://www.twitch.tv/videos/210193536` -t 163 -c copy "TVC plays Sorcerer.mkv"
