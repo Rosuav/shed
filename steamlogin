@@ -1,6 +1,9 @@
 #!/bin/bash
+# Steam autologin
+# Requires https://github.com/dyc3/steamguard-cli and xdotool (probably found in your distro repos)
 USERNAME=$1
 PASSWORD=$2
+steam &
 if [ -z "$PASSWORD" ]; then
 	login() {
 		xdotool search --name "Steam Login" windowactivate type $USERNAME && xdotool sleep 0.1 key Tab
