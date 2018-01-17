@@ -59,8 +59,7 @@ def usage():
 	return 1
 
 def main(args):
-	func = do_code
-	user = None
+	func = user = None
 	for arg in args:
 		f = globals().get("do_" + arg)
 		if f:
@@ -72,6 +71,7 @@ def main(args):
 	if not user:
 		print("TODO: check if there's exactly one user, and if so,")
 		print("default to that user. Not yet implemented.")
+	if not func: func = do_code
 	func(user)
 
 if __name__ == "__main__":
