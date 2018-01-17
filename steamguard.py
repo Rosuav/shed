@@ -8,6 +8,25 @@ import time
 
 _time_offset = None # TODO: Align clocks with Valve
 
+def timecheck():
+	url = "https://api.steampowered.com/ITwoFactorService/QueryTime/v0001"
+	import requests # ImportError? Install 'requests' using pip or similar.
+	data = requests.post(url, "steamid=0").json()
+	return int(data["response"]["server_time"]) - int(time.time())
+
+def do_timecheck(user):
+	"""Check your clock against Valve's"""
+	offset = timecheck()
+	if offset == 0:
+		print("Your clock is in sync with Valve's (+/- 0.5 sec)")
+	elif -3 < offset < 3:
+		# A tiny offset is unlikely to cause issues. TODO: Figure out
+		# how far out the clocks can be and still not be a problem.
+		print("Your clock is in sync with Valve's (%+d sec)" % offset)
+	else:
+		print("CAUTION: Your clock is %+d sec out of sync" % offset)
+		print("Consider adjusting your clock, or use --time-sync")
+
 def generate_code(secret, timestamp=None):
 	"""Generate a SteamGuard code for a given shared secret
 
