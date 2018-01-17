@@ -8,6 +8,11 @@ import time
 
 _time_offset = None # TODO: Align clocks with Valve
 
+def get_default_user():
+	print("TODO: check if there's exactly one user, and if so,")
+	print("default to that user. Not yet implemented.")
+	raise SystemExit
+
 def timecheck():
 	url = "https://api.steampowered.com/ITwoFactorService/QueryTime/v0001"
 	import requests # ImportError? Install 'requests' using pip or similar.
@@ -58,10 +63,12 @@ def do_code(user):
 	"""Generate an auth code for logins"""
 	# TODO: Retrieve the saved shared-secret, decode it if necessary,
 	# and call generate_code on that secret.
+	if not user: user = get_default_user()
 	print("Stub, unimplemented")
 
 def do_trade(user):
 	"""Accept all pending trades/markets"""
+	if not user: user = get_default_user()
 	print("Stub, unimplemented")
 
 def do_setup(user):
@@ -89,9 +96,6 @@ def main(args):
 		else:
 			if user: return usage()
 			user = arg
-	if not user:
-		print("TODO: check if there's exactly one user, and if so,")
-		print("default to that user. Not yet implemented.")
 	if not func: func = do_code
 	func(user)
 
