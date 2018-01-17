@@ -5,6 +5,14 @@ def do_code(user):
 	"""Generate an auth code for logins"""
 	print("Stub, unimplemented")
 
+def do_trade(user):
+	"""Accept all pending trades/markets"""
+	print("Stub, unimplemented")
+
+def do_setup(user):
+	"""Set up a new user"""
+	print("Stub, unimplemented")
+
 def usage():
 	print("USAGE: python3 steamguard.py [command] [user]")
 	print("command is one of:")
