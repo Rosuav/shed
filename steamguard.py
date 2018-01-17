@@ -35,6 +35,9 @@ def main(args):
 		else:
 			if user: return usage()
 			user = arg
+	if not user:
+		print("TODO: check if there's exactly one user, and if so,")
+		print("default to that user. Not yet implemented.")
 	func(user)
 
 if __name__ == "__main__":
