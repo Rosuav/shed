@@ -1,6 +1,12 @@
 # Reimplementation of the Steam Mobile Authentication protocol, as demonstrated
 # by https://github.com/geel9/SteamAuth (MIT-licensed, as is this code).
 
+_time_offset = None # TODO: Align clocks with Valve
+
+def generate_code(acct):
+	"""Generate a SteamGuard code"""
+	return "Unimplemented"
+
 def do_code(user):
 	"""Generate an auth code for logins"""
 	print("Stub, unimplemented")
