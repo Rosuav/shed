@@ -1,11 +1,39 @@
 # Reimplementation of the Steam Mobile Authentication protocol, as demonstrated
 # by https://github.com/geel9/SteamAuth (MIT-licensed, as is this code).
 
+import base64
+import hashlib
+import hmac
+import time
+
 _time_offset = None # TODO: Align clocks with Valve
 
-def generate_code(acct):
-	"""Generate a SteamGuard code"""
-	return "Unimplemented"
+def generate_code(secret, timestamp=None):
+	"""Generate a SteamGuard code for a given shared secret
+
+	If timestamp is None, will generate one for the current
+	time; otherwise it should be a Unix time.
+
+	>>> generate_code("HvveV1y11i/lGOqBWdo3a1fU/290", 1516187198)
+	"2K3V8"
+	"""
+	secret = base64.b64decode(secret)
+	if timestamp is None:
+		timestamp = int(time.time())
+	timestamp //= 30 # The code regenerates every half minute
+	timestamp = timestamp.to_bytes(8, "big")
+	hash = hmac.new(secret, timestamp, hashlib.sha1).digest()
+	# The low four bits of the last byte tell us where to grab four bytes from.
+	b = hash[-1] & 15
+	quad = hash[b:b+4]
+	# The code seems to be masked off to 31-bit (??)
+	code = int.from_bytes(quad, "big") & 0x7FFFFFFF
+	alphabet = "23456789BCDFGHJKMNPQRTVWXY"
+	ret = ""
+	for _ in range(5):
+		ret += alphabet[code % 26]
+		code //= 26
+	return ret
 
 def do_code(user):
 	"""Generate an auth code for logins"""
