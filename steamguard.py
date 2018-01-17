@@ -56,6 +56,8 @@ def generate_code(secret, timestamp=None):
 
 def do_code(user):
 	"""Generate an auth code for logins"""
+	# TODO: Retrieve the saved shared-secret, decode it if necessary,
+	# and call generate_code on that secret.
 	print("Stub, unimplemented")
 
 def do_trade(user):
