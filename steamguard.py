@@ -14,6 +14,17 @@ import time
 
 _time_offset = None # TODO: Align clocks with Valve
 
+def saved_accounts_filename():
+	HOME = os.environ.get("HOME")
+	if HOME:
+		# Unix-like system; save into ~/.steamguardrc
+		return HOME + "/.steamguardrc"
+	else:
+		# Probably Windows; save into .steamguardrc in the
+		# current directory instead. Depends on this script
+		# being run consistently from the same directory.
+		return ".steamguardrc"
+
 def get_default_user():
 	print("TODO: check if there's exactly one user, and if so,")
 	print("default to that user. Not yet implemented.")
@@ -175,16 +186,7 @@ def do_setup(user):
 	revcode = data["revocation_code"]
 	print("Revocation code:", revcode)
 	print("RECORD THIS. Do it. Go.")
-	HOME = os.environ.get("HOME")
-	if HOME:
-		# Unix-like system; save into ~/.steamguardrc
-		fn = HOME + "/.steamguardrc"
-	else:
-		# Probably Windows; save into .steamguardrc in the
-		# current directory instead. Depends on this script
-		# being run consistently from the same directory.
-		fn = ".steamguardrc"
-	with open(fn, "a") as f:
+	with open(saved_accounts_filename(), "a") as f:
 		json.dump({
 			"account_name": user,
 			"shared_secret": shared_secret,
