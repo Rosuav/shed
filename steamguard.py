@@ -140,7 +140,6 @@ def do_setup(user):
 	# that happens to be JSON-formatted. This is inside a JSON response
 	# body. It could have simply been a nested object, but noooooo.
 	oauth = json.loads(data["oauth"])
-	# TODO: If no phone is associated with the account, register one.
 	resp = requests.post("https://api.steampowered.com/ITwoFactorService/AddAuthenticator/v0001", {
 		"access_token": oauth["oauth_token"],
 		"steamid": oauth["steamid"],
