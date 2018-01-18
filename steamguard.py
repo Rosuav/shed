@@ -7,6 +7,7 @@ import base64
 import hashlib
 import hmac
 import json
+import os
 import time
 # import requests # Not done globally as it's big and not all calls require it
 # import rsa # Not done globally as it's third-party and very few actions need it
@@ -174,7 +175,22 @@ def do_setup(user):
 	revcode = data["revocation_code"]
 	print("Revocation code:", revcode)
 	print("RECORD THIS. Do it. Go.")
-	print("Shared secret:", shared_secret)
+	HOME = os.environ.get("HOME")
+	if HOME:
+		# Unix-like system; save into ~/.steamguardrc
+		fn = HOME + "/.steamguardrc"
+	else:
+		# Probably Windows; save into .steamguardrc in the
+		# current directory instead. Depends on this script
+		# being run consistently from the same directory.
+		fn = ".steamguardrc"
+	with open(fn, "a") as f:
+		json.dump({
+			"account_name": user,
+			"shared_secret": shared_secret,
+			"revocation_code": revcode,
+		}, f)
+		print("", file=f)
 
 	while True:
 		code = input("Enter the SMS code sent to your phone: ")
