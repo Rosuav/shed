@@ -87,12 +87,11 @@ def do_setup(user):
 	import rsa # ImportError? 'pip install rsa' or equivalent.
 	key = rsa.PublicKey(int(data["publickey_mod"], 16),
 		int(data["publickey_exp"], 16))
-	rsa_timestamp = data["timestamp"]
 	password = password.encode("ascii") # Encoding error? See if Steam uses UTF-8.
 	password = base64.b64encode(rsa.encrypt(password, key))
 	params = {
 		"username": user, "password": password,
-		"rsatimestamp": rsa_timestamp,
+		"rsatimestamp": data["timestamp"],
 		"oauth_client_id": "DE45CD61",
 		"oauth_scope": "read_profile write_profile read_client write_client",
 		# Dunno if these values are needed
