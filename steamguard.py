@@ -68,6 +68,7 @@ def do_code(user):
 	"""Generate an auth code for logins"""
 	# TODO: Retrieve the saved shared-secret, decode it if necessary,
 	# and call generate_code on that secret.
+	print(generate_code(user)) # HACK: Provide the secret itself for now
 	if not user: user = get_default_user()
 	print("Stub, unimplemented")
 
@@ -133,8 +134,15 @@ def do_setup(user):
 		cookies=cookies)
 	if not resp.json()["has_phone"]:
 		print("There is no phone number associated with your account.")
-		print("TODO: Implement adding phone to acct.")
-		return
+		print("Provide a phone number that can receive an SMS, in the")
+		print("format: +{CC} 123-456-789 (where {CC} is your country")
+		print("code for international dialing)")
+		phone = input("Enter your phone number: ")
+		phone = phone.replace("-", "")
+		resp = requests.post("https://steamcommunity.com/steamguard/phoneajax",
+			{"op": "add_phone_number", "arg": phone, "sessionid": cookies["sessionid"]},
+			cookies=cookies)
+		pprint.pprint(resp.json())
 
 	# For reasons which escape me, the OAuth info is provided as a *string*
 	# that happens to be JSON-formatted. This is inside a JSON response
