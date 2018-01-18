@@ -90,12 +90,24 @@ def do_setup(user):
 	rsa_timestamp = data["timestamp"]
 	password = password.encode("ascii") # Encoding error? See if Steam uses UTF-8.
 	password = base64.b64encode(rsa.encrypt(password, key))
-	data = requests.post("https://steamcommunity.com/login/dologin", {
+	params = {
 		"username": user, "password": password,
 		"rsatimestamp": rsa_timestamp,
-	}).json()
+	}
+	while "need more info":
+		data = requests.post("https://steamcommunity.com/login/dologin", params).json()
+		if data["success"]: break # Yay!
+		if data.get("emailauth_needed"):
+			print("Email auth code required. Check email at domain", data["emaildomain"])
+			params["emailsteamid"] = data["emailsteamid"]
+			params["emailauth"] = input("Enter authorization code: ")
+		elif data.get("requires_twofactor"):
+			print("TODO: Two-factor auth code")
+		else:
+			print("Unable to log in - here's the raw dump:")
+			print(data)
+			return
 	print(data)
-	# Next step: see if email or 2FA is needed, and prompt for that.
 
 def usage():
 	print("USAGE: python3 steamguard.py [command] [user]")
