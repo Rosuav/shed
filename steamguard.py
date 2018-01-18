@@ -101,8 +101,14 @@ def do_setup(user):
 		#"donotcache": str(int(time.time())),
 	}
 	# This is a magic cookie in every sense. Its presence makes Steam provide
-	# OAuth info, which otherwise is inexplicably omitted. Thanks, Steam!
+	# OAuth info, which otherwise is inexplicably omitted. Thanks, Steam! (I
+	# could understand a query parameter or request body variable "mode=oauth"
+	# or something, but doing it with a cookie? Seriously?)
 	cookies = {"mobileClient": "android"}
+	# Generate a sessionid (why this is necessary, I don't know)
+	resp = requests.get("https://steamcommunity.com/login?oauth_client_id=DE45CD61&oauth_scope=read_profile%20write_profile%20read_client%20write_client",
+		headers={"X-Requested-With": "com.valvesoftware.android.steam.community"}, cookies=cookies)
+	cookies.update(resp.cookies)
 	while "need more info":
 		resp = requests.post("https://steamcommunity.com/login/dologin", params, cookies=cookies)
 		cookies.update(resp.cookies)
