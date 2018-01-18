@@ -103,7 +103,9 @@ def do_setup(user):
 	# OAuth info, which otherwise is inexplicably omitted. Thanks, Steam!
 	cookies = {"mobileClient": "android"}
 	while "need more info":
-		data = requests.post("https://steamcommunity.com/login/dologin", params, cookies=cookies).json()
+		resp = requests.post("https://steamcommunity.com/login/dologin", params, cookies=cookies)
+		cookies.update(resp.cookies)
+		data = resp.json()
 		if data["success"]: break # Yay!
 		if data.get("emailauth_needed"):
 			print("Email auth code required. Check email at domain", data["emaildomain"])
@@ -116,6 +118,8 @@ def do_setup(user):
 			print(data)
 			return
 	import pprint; pprint.pprint(data)
+	print()
+	pprint.pprint(cookies)
 
 def usage():
 	print("USAGE: python3 steamguard.py [command] [user]")
