@@ -121,6 +121,14 @@ def do_setup(user):
 	import pprint; pprint.pprint(data)
 	print()
 	pprint.pprint(cookies)
+
+	# Hmm, this needs a session key instead of the OAuth login info.
+	if 0:
+		resp = requests.post("https://steamcommunity.com/steamguard/phoneajax", {"op": "has_phone"})
+		print()
+		pprint.pprint(resp.json())
+		return
+
 	# For reasons which escape me, the OAuth info is provided as a *string*
 	# that happens to be JSON-formatted. This is inside a JSON response
 	# body. It could have simply been a nested object, but noooooo.
