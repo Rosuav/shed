@@ -138,6 +138,7 @@ def do_setup(user):
 	resp = requests.post("https://steamcommunity.com/steamguard/phoneajax",
 		{"op": "has_phone", "arg": "null", "sessionid": cookies["sessionid"]},
 		cookies=cookies)
+	verify_phone = False
 	if not resp.json()["has_phone"]:
 		print("There is no phone number associated with your account.")
 		print("Provide a phone number that can receive an SMS, in the")
@@ -152,17 +153,54 @@ def do_setup(user):
 			print("Steam was unable to add that phone number.")
 			print(data)
 			return
+		verify_phone = True
 
-	resp = requests.post("https://api.steampowered.com/ITwoFactorService/AddAuthenticator/v0001", {
+	data = requests.post("https://api.steampowered.com/ITwoFactorService/AddAuthenticator/v0001", {
 		"access_token": oauth["oauth_token"],
 		"steamid": oauth["steamid"],
 		"authenticator_type": "1",
 		"device_identifier": "android:92bb3646-1d32-3646-3646-36461d32bdbe", # TODO: Generate randomly?
 		"sms_phone_id": "1",
-	})
-	data = resp.json()
-	print()
-	pprint.pprint(data)
+	}).json()["response"]
+	if data["status"] == 29:
+		print("Something else is already authenticated, will need to remove.")
+		print("TODO.")
+		return
+	elif data["status"] != 1:
+		print("Steam authentication failed - here's the raw dump:")
+		print()
+		pprint.pprint(data)
+	shared_secret = data["shared_secret"]
+	revcode = data["revocation_code"]
+	print("Revocation code:", revcode)
+	print("RECORD THIS. Do it. Go.")
+	print("Shared secret:", shared_secret)
+
+	while True:
+		code = input("Enter the SMS code sent to your phone: ")
+		if verify_phone:
+			data = requests.post("https://steamcommunity.com/steamguard/phoneajax",
+				{"op": "check_sms_code", "arg": code, "checkfortos": 0,
+				"skipvoip": 1, "sessionid": cookies["sessionid"]},
+				cookies=cookies).json()
+			print()
+			pprint.pprint(data)
+			if not data["success"]: continue
+			print("Phone successfully registered.")
+			verify_phone = False
+		tm = int(time.time())
+		data = requests.post("https://api.steampowered.com/ITwoFactorService/FinalizeAddAuthenticator/v0001", {
+			"access_token": oauth["oauth_token"],
+			"steamid": oauth["steamid"],
+			"activation_code": code,
+			"authenticator_code": generate_code(shared_secret, tm),
+			"authenticator_time": tm,
+		}).json()["response"]
+		if data["success"]: break
+		pprint.pprint(data)
+	print("Your phone has been registered. SAVE the revocation code.")
+	print("If you lose the revocation code, you will have great difficulty")
+	print("undoing what you've just done here.")
 
 def usage():
 	print("USAGE: python3 steamguard.py [command] [user]")
