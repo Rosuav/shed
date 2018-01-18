@@ -1,11 +1,14 @@
 # Reimplementation of the Steam Mobile Authentication protocol, as demonstrated
 # by https://github.com/geel9/SteamAuth (MIT-licensed, as is this code).
+# Full functionality requires the 'requests' and 'rsa' modules, which should be
+# available via pip. Some features will be available without them.
 
 import base64
 import hashlib
 import hmac
 import time
 # import requests # Not done globally as it's big and not all calls require it
+# import rsa # Not done globally as it's third-party and very few actions need it
 
 _time_offset = None # TODO: Align clocks with Valve
 
@@ -81,11 +84,12 @@ def do_setup(user):
 	password = getpass.getpass()
 	import requests
 	data = requests.post("https://steamcommunity.com/login/getrsakey", {"username": user}).json()
-	pkey = int(data["publickey_mod"], 16)
+	import rsa # ImportError? 'pip install rsa' or equivalent.
+	key = rsa.PublicKey(int(data["publickey_mod"], 16),
+		int(data["publickey_exp"], 16))
 	rsa_timestamp = data["timestamp"]
-	# TODO: Encrypt the password (encoded ASCII or maybe UTF-8) using the
-	# public key given.
-	password = base64.b64encode(b"...")
+	password = password.encode("ascii") # Encoding error? See if Steam uses UTF-8.
+	password = base64.b64encode(rsa.encrypt(password, key))
 	data = requests.post("https://steamcommunity.com/login/dologin", {
 		"username": user, "password": password,
 		"rsatimestamp": rsa_timestamp,
