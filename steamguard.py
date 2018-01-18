@@ -128,6 +128,10 @@ def do_setup(user):
 	import pprint; pprint.pprint(data)
 	print()
 	pprint.pprint(cookies)
+	# For reasons which escape me, the OAuth info is provided as a *string*
+	# that happens to be JSON-formatted. This is inside a JSON response
+	# body. It could have simply been a nested object, but noooooo.
+	oauth = json.loads(data["oauth"])
 
 	# See if there's already a phone associated with the account.
 	# If there is, we should be able to receive an SMS there. I think.
@@ -141,15 +145,14 @@ def do_setup(user):
 		print("code for international dialing)")
 		phone = input("Enter your phone number: ")
 		phone = phone.replace("-", "")
-		resp = requests.post("https://steamcommunity.com/steamguard/phoneajax",
+		data = requests.post("https://steamcommunity.com/steamguard/phoneajax",
 			{"op": "add_phone_number", "arg": phone, "sessionid": cookies["sessionid"]},
-			cookies=cookies)
-		pprint.pprint(resp.json())
+			cookies=cookies).json()
+		if not data["success"]:
+			print("Steam was unable to add that phone number.")
+			print(data)
+			return
 
-	# For reasons which escape me, the OAuth info is provided as a *string*
-	# that happens to be JSON-formatted. This is inside a JSON response
-	# body. It could have simply been a nested object, but noooooo.
-	oauth = json.loads(data["oauth"])
 	resp = requests.post("https://api.steampowered.com/ITwoFactorService/AddAuthenticator/v0001", {
 		"access_token": oauth["oauth_token"],
 		"steamid": oauth["steamid"],
