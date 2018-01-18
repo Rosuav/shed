@@ -93,13 +93,18 @@ def do_setup(user):
 	params = {
 		"username": user, "password": password,
 		"rsatimestamp": rsa_timestamp,
+		"oauth_client_id": "DE45CD61",
+		"oauth_scope": "read_profile write_profile read_client write_client",
 		# Dunno if these values are needed
-		#"oauth_client_id": "DE45CD61",
-		#"oauth_scope": "read_profile write_profile read_client write_client",
 		#"loginfriendlyname": "#login_emailauth_friendlyname_mobile",
+		#"remember_login": "false",
+		#"donotcache": str(int(time.time())),
 	}
+	# This is a magic cookie in every sense. Its presence makes Steam provide
+	# OAuth info, which otherwise is inexplicably omitted. Thanks, Steam!
+	cookies = {"mobileClient": "android"}
 	while "need more info":
-		data = requests.post("https://steamcommunity.com/login/dologin", params).json()
+		data = requests.post("https://steamcommunity.com/login/dologin", params, cookies=cookies).json()
 		if data["success"]: break # Yay!
 		if data.get("emailauth_needed"):
 			print("Email auth code required. Check email at domain", data["emaildomain"])
