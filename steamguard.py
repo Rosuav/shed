@@ -129,6 +129,8 @@ def do_setup(user):
 	print()
 	pprint.pprint(cookies)
 
+	# See if there's already a phone associated with the account.
+	# If there is, we should be able to receive an SMS there. I think.
 	resp = requests.post("https://steamcommunity.com/steamguard/phoneajax",
 		{"op": "has_phone", "arg": "null", "sessionid": cookies["sessionid"]},
 		cookies=cookies)
