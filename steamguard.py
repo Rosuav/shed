@@ -82,7 +82,7 @@ def do_setup(user):
 		if not user: return
 	import getpass
 	password = getpass.getpass()
-	import requests
+	import requests # ImportError? Install 'requests' and 'rsa' using pip or similar.
 	data = requests.post("https://steamcommunity.com/login/getrsakey", {"username": user}).json()
 	import rsa # ImportError? 'pip install rsa' or equivalent.
 	key = rsa.PublicKey(int(data["publickey_mod"], 16),
@@ -93,6 +93,10 @@ def do_setup(user):
 	params = {
 		"username": user, "password": password,
 		"rsatimestamp": rsa_timestamp,
+		# Dunno if these values are needed
+		#"oauth_client_id": "DE45CD61",
+		#"oauth_scope": "read_profile write_profile read_client write_client",
+		#"loginfriendlyname": "#login_emailauth_friendlyname_mobile",
 	}
 	while "need more info":
 		data = requests.post("https://steamcommunity.com/login/dologin", params).json()
@@ -102,12 +106,12 @@ def do_setup(user):
 			params["emailsteamid"] = data["emailsteamid"]
 			params["emailauth"] = input("Enter authorization code: ")
 		elif data.get("requires_twofactor"):
-			print("TODO: Two-factor auth code")
+			params["twofactorcode"] = input("Enter 2FA code: ")
 		else:
 			print("Unable to log in - here's the raw dump:")
 			print(data)
 			return
-	print(data)
+	import pprint; pprint.pprint(data)
 
 def usage():
 	print("USAGE: python3 steamguard.py [command] [user]")
