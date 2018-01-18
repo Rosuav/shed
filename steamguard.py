@@ -6,6 +6,7 @@
 import base64
 import hashlib
 import hmac
+import json
 import time
 # import requests # Not done globally as it's big and not all calls require it
 # import rsa # Not done globally as it's third-party and very few actions need it
@@ -120,6 +121,21 @@ def do_setup(user):
 	import pprint; pprint.pprint(data)
 	print()
 	pprint.pprint(cookies)
+	# For reasons which escape me, the OAuth info is provided as a *string*
+	# that happens to be JSON-formatted. This is inside a JSON response
+	# body. It could have simply been a nested object, but noooooo.
+	oauth = json.loads(data["oauth"])
+	# TODO: If no phone is associated with the account, register one.
+	resp = requests.post("https://api.steampowered.com/ITwoFactorService/AddAuthenticator/v0001", {
+		"access_token": oauth["oauth_token"],
+		"steamid": oauth["steamid"],
+		"authenticator_type": "1",
+		"device_identifier": "android:92bb3646-1d32-3646-3646-36461d32bdbe", # TODO: Generate randomly?
+		"sms_phone_id": "1",
+	})
+	data = resp.json()
+	print()
+	pprint.pprint(data)
 
 def usage():
 	print("USAGE: python3 steamguard.py [command] [user]")
