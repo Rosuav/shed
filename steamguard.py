@@ -115,7 +115,7 @@ def do_setup(user):
 		data = resp.json()
 		if data["success"]: break # Yay!
 		if data.get("emailauth_needed"):
-			print("Email auth code required. Check email at domain", data["emaildomain"])
+			print("Email auth code required; check email at domain:", data["emaildomain"])
 			params["emailsteamid"] = data["emailsteamid"]
 			params["emailauth"] = input("Enter authorization code: ")
 		elif data.get("requires_twofactor"):
@@ -127,12 +127,14 @@ def do_setup(user):
 	import pprint; pprint.pprint(data)
 	print()
 	pprint.pprint(cookies)
-	return # The below code currently doesn't work.
 
-	# Hmm, this needs a session key instead of the OAuth login info.
-	resp = requests.post("https://steamcommunity.com/steamguard/phoneajax", {"op": "has_phone"})
-	print()
-	pprint.pprint(resp.json())
+	resp = requests.post("https://steamcommunity.com/steamguard/phoneajax",
+		{"op": "has_phone", "arg": "null", "sessionid": cookies["sessionid"]},
+		cookies=cookies)
+	if not resp.json()["has_phone"]:
+		print("There is no phone number associated with your account.")
+		print("TODO: Implement adding phone to acct.")
+		return
 
 	# For reasons which escape me, the OAuth info is provided as a *string*
 	# that happens to be JSON-formatted. This is inside a JSON response
