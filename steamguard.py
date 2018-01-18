@@ -5,6 +5,7 @@ import base64
 import hashlib
 import hmac
 import time
+# import requests # Not done globally as it's big and not all calls require it
 
 _time_offset = None # TODO: Align clocks with Valve
 
@@ -73,7 +74,24 @@ def do_trade(user):
 
 def do_setup(user):
 	"""Set up a new user"""
-	print("Stub, unimplemented")
+	if not user:
+		user = input("User name: ")
+		if not user: return
+	import getpass
+	password = getpass.getpass()
+	import requests
+	data = requests.post("https://steamcommunity.com/login/getrsakey", {"username": user}).json()
+	pkey = int(data["publickey_mod"], 16)
+	rsa_timestamp = data["timestamp"]
+	# TODO: Encrypt the password (encoded ASCII or maybe UTF-8) using the
+	# public key given.
+	password = base64.b64encode(b"...")
+	data = requests.post("https://steamcommunity.com/login/dologin", {
+		"username": user, "password": password,
+		"rsatimestamp": rsa_timestamp,
+	}).json()
+	print(data)
+	# Next step: see if email or 2FA is needed, and prompt for that.
 
 def usage():
 	print("USAGE: python3 steamguard.py [command] [user]")
