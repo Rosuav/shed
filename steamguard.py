@@ -197,6 +197,9 @@ def do_trade(user):
 			if text: desc.append(text)
 			if rest: rest = rest.split('>', 1)[1]
 		print(desc)
+	if not input("Enter 'a' to accept all: ").startswith("a"):
+		print("Trades left untouched.")
+		return
 	params["op"] = "allow"
 	params["cid[]"] = ids; params["ck[]"] = keys
 	resp = requests.post("https://steamcommunity.com/mobileconf/multiajaxop", params, cookies=cookies)
