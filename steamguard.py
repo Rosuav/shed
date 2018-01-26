@@ -326,7 +326,9 @@ def do_setup(user):
 			return
 		verify_phone = True
 
-	# TODO: See if the C# app is able to deauth with less than 15 days trade hold
+	# TODO: See if there's a way to change auth rather than just delete and
+	# start over, which incurs a 15-day trade lock. Not sure how; the C#
+	# steamguard-cli has the same issue, where after revoking, no SMS comes.
 	# Might require enlarging the scope of the 'while' loop.
 	while "retry add auth":
 		data = requests.post("https://api.steampowered.com/ITwoFactorService/AddAuthenticator/v0001", {
