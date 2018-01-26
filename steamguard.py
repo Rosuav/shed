@@ -76,13 +76,58 @@ def generate_code(secret, timestamp=None):
 		code //= 26
 	return ret
 
+def import_from_mafiles(username):
+	"""Attempt to import one user from ~/maFiles, where the C# auth program puts it
+
+	If successful, returns the shared secret for that account, and also
+	saves it to our own file. If unsuccessful, returns None.
+	"""
+	HOME = os.environ.get("HOME")
+	if not HOME: return None
+	dir = HOME + "/maFiles"
+	try:
+		files = os.listdir(dir)
+	except FileNotFoundError:
+		return None
+	for file in files:
+		if file == "manifest.json": continue
+		with open(dir + "/" + file) as f:
+			info = json.load(f)
+		if info["account_name"] == username:
+			with open(saved_accounts_filename(), "a") as f:
+				json.dump({
+					"account_name": username,
+					"shared_secret": info["shared_secret"],
+					"revocation_code": info["revocation_code"],
+				}, f)
+				print("", file=f)
+			return info["shared_secret"]
+	return None
+
 def do_code(user):
 	"""Generate an auth code for logins"""
-	# TODO: Retrieve the saved shared-secret, decode it if necessary,
-	# and call generate_code on that secret.
-	print(generate_code(user)) # HACK: Provide the secret itself for now
+	if user is not None and len(user) == 28:
+		# Allow the secret itself to be provided on the
+		# command line, for testing/debugging
+		print(generate_code(user))
+		return
 	if not user: user = get_default_user()
-	print("Stub, unimplemented")
+	with open(saved_accounts_filename()) as f:
+		for line in f:
+			line = line.strip()
+			if not line: continue
+			info = json.loads(line)
+			if info["account_name"] == user:
+				print(generate_code(info["shared_secret"]))
+				return
+			# TODO: Partial matching?
+	# Not found. Look in ~/maFiles and see if we can import.
+	secret = import_from_mafiles(user)
+	if not secret:
+		print("User not found, try running 'steamguard.py setup'")
+		return
+	print("==> imported shared secret from maFiles")
+	print(generate_code(secret))
 
 def do_trade(user):
 	"""Accept all pending trades/markets"""
