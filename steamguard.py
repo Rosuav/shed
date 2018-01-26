@@ -167,6 +167,9 @@ def do_trade(user):
 	})
 	import pprint
 	# Now begins the parsing of HTML. Followed by a light salad.
+	# It's a mess, it's not truly parsing HTML, and it's not pretty.
+	# But it works. It gets the info we need. It's as good as we can
+	# hope for without an actual API for doing this.
 	for raw in info.text.split('<div class="mobileconf_list_entry"')[1:]:
 		tag, rest = raw.split(">", 1)
 		confid = key = None
