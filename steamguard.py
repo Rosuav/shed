@@ -227,6 +227,7 @@ def do_setup(user):
 		print("Steam authentication failed - here's the raw dump:")
 		print()
 		pprint.pprint(data)
+	identity_secret = data["identity_secret"]
 	shared_secret = data["shared_secret"]
 	revcode = data["revocation_code"]
 	print("Revocation code:", revcode)
@@ -234,8 +235,10 @@ def do_setup(user):
 	with open(saved_accounts_filename(), "a") as f:
 		json.dump({
 			"account_name": user,
+			"identity_secret": identity_secret,
 			"shared_secret": shared_secret,
 			"revocation_code": revcode,
+			"steamid": oauth["steamid"],
 		}, f)
 		print("", file=f)
 
