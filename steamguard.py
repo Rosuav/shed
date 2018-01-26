@@ -108,6 +108,17 @@ def import_from_mafiles(username):
 			return info["shared_secret"]
 	return None
 
+def get_user_info(username):
+	with open(saved_accounts_filename()) as f:
+		for line in f:
+			line = line.strip()
+			if not line: continue
+			info = json.loads(line)
+			if info["account_name"] == username:
+				return info
+			# TODO: Partial matching?
+	return None # Not found
+
 def do_code(user):
 	"""Generate an auth code for logins"""
 	if user is not None and len(user) == 28:
@@ -116,15 +127,10 @@ def do_code(user):
 		print(generate_code(user))
 		return
 	if not user: user = get_default_user()
-	with open(saved_accounts_filename()) as f:
-		for line in f:
-			line = line.strip()
-			if not line: continue
-			info = json.loads(line)
-			if info["account_name"] == user:
-				print(generate_code(info["shared_secret"]))
-				return
-			# TODO: Partial matching?
+	info = get_user_info(user)
+	if info:
+		print(generate_code(info["shared_secret"]))
+		return
 	# Not found. Look in ~/maFiles and see if we can import.
 	secret = import_from_mafiles(user)
 	if not secret:
