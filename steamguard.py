@@ -226,6 +226,9 @@ def do_trade(user):
 			if text: desc.append(text)
 			if rest: rest = rest.split('>', 1)[1]
 		print(desc)
+	if not ids:
+		print("No trades to confirm.")
+		return
 	if not input("Enter 'a' to accept all: ").startswith("a"):
 		print("Trades left untouched.")
 		return
