@@ -25,6 +25,39 @@ def saved_accounts_filename():
 		# being run consistently from the same directory.
 		return ".steamguardrc"
 
+def load_users():
+	with open(saved_accounts_filename()) as f:
+		users = json.load(f)
+	if "" in users: del users[""]
+	return users
+
+def save_users(users):
+	with open(saved_accounts_filename(), "w") as f:
+		print("{", file=f)
+		for username, info in users.items():
+			if not username: continue
+			if "account_name" in info: del info["account_name"]
+			print("\t%s: %s," % (
+				json.dumps(username),
+				json.dumps(info),
+			), file=f)
+		# Since JSON doesn't like trailing commas, we add a
+		# shim at the end.
+		print('\t"": {}', file=f)
+		print("}", file=f)
+
+def load_users_legacy():
+	users = {}
+	with open(saved_accounts_filename()) as f:
+		for line in f:
+			line = line.strip()
+			if not line: continue
+			info = json.loads(line)
+			users[info["account_name"]] = info
+	# Automatically save back in the new format
+	save_users(users)
+	return users
+
 def get_default_user():
 	print("TODO: check if there's exactly one user, and if so,")
 	print("default to that user. Not yet implemented.")
@@ -94,31 +127,26 @@ def import_from_mafiles(username):
 		with open(dir + "/" + file) as f:
 			info = json.load(f)
 		if info["account_name"] == username:
-			with open(saved_accounts_filename(), "a") as f:
-				json.dump({
-					"account_name": username,
-					"identity_secret": info["identity_secret"],
-					"shared_secret": info["shared_secret"],
-					"revocation_code": info["revocation_code"],
-					"steamid": info["Session"]["SteamID"],
-					"sessionid": info["Session"]["SessionID"],
-					"steamLoginSecure": info["Session"]["SteamLoginSecure"],
-				}, f)
-				print("", file=f)
+			users = load_users()
+			users[username] = {
+				"account_name": username,
+				"identity_secret": info["identity_secret"],
+				"shared_secret": info["shared_secret"],
+				"revocation_code": info["revocation_code"],
+				"steamid": info["Session"]["SteamID"],
+				"sessionid": info["Session"]["SessionID"],
+				"steamLoginSecure": info["Session"]["SteamLoginSecure"],
+			}
+			save_users(users)
 			return info["shared_secret"]
 	return None
 
 def get_user_info(username):
-	user = None
-	with open(saved_accounts_filename()) as f:
-		for line in f:
-			line = line.strip()
-			if not line: continue
-			info = json.loads(line)
-			if info["account_name"] == username:
-				user = info
-			# TODO: Partial matching?
-	return user
+	try:
+		users = load_users()
+	except json.decoder.JSONDecodeError:
+		users = load_users_legacy()
+	return users.get(username)
 
 def do_code(user):
 	"""Generate an auth code for logins"""
@@ -302,15 +330,13 @@ def do_setup(user):
 		# Already using an authenticator. If that's ours, save the info back
 		# and thus refresh the login. Otherwise, the other one may need to be
 		# revoked before we can move on.
-		info = get_user_info(user)
-		if not info:
+		users = load_users()
+		if user not in users:
 			print("Something else is already authenticated, will need to remove.")
 			print("TODO.")
 			return
-		info["steamLoginSecure"] = cookies["steamLoginSecure"]
-		with open(saved_accounts_filename(), "a") as f:
-			json.dump(info, f)
-			print("", file=f)
+		users[user]["steamLoginSecure"] = cookies["steamLoginSecure"]
+		save_users(users)
 		print("Login data refreshed. Trades should work again.")
 		return
 	elif data["status"] != 1:
@@ -322,17 +348,17 @@ def do_setup(user):
 	revcode = data["revocation_code"]
 	print("Revocation code:", revcode)
 	print("RECORD THIS. Do it. Go.")
-	with open(saved_accounts_filename(), "a") as f:
-		json.dump({
-			"account_name": user,
-			"identity_secret": identity_secret,
-			"shared_secret": shared_secret,
-			"revocation_code": revcode,
-			"steamid": oauth["steamid"],
-			"sessionid": cookies["sessionid"], # might not be used for anything, not sure
-			"steamLoginSecure": cookies["steamLoginSecure"],
-		}, f)
-		print("", file=f)
+	users = load_users()
+	users[user] = {
+		"account_name": user,
+		"identity_secret": identity_secret,
+		"shared_secret": shared_secret,
+		"revocation_code": revcode,
+		"steamid": oauth["steamid"],
+		"sessionid": cookies["sessionid"], # might not be used for anything, not sure
+		"steamLoginSecure": cookies["steamLoginSecure"],
+	}
+	save_users(users)
 
 	while True:
 		code = input("Enter the SMS code sent to your phone: ")
