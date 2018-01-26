@@ -353,6 +353,7 @@ def do_setup(user):
 				}).json()["response"]
 				if resp.get("success"):
 					print("Success! Your old authenticator has been removed.")
+					print("If you don't receive an SMS, restart the auth procedure.")
 					continue
 				print("Unable to remove the old auth - check the revocation code.")
 				print(resp)
