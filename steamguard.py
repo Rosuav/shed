@@ -180,6 +180,16 @@ def do_trade(user):
 			print(tag)
 			continue
 		print("confid", confid, "- key", key)
+		rest = rest.split('<div class="mobileconf_list_entry_sep">', 1)[0].strip()
+		# Strip HTML tags and produce a series of text nodes,
+		# ignoring any that are just whitespace
+		desc = []
+		while rest:
+			text, rest = rest.split('<', 1)
+			text = text.strip()
+			if text: desc.append(text)
+			if rest: rest = rest.split('>', 1)[1]
+		print(desc)
 
 def do_setup(user):
 	"""Set up a new user"""
