@@ -97,8 +97,10 @@ def import_from_mafiles(username):
 			with open(saved_accounts_filename(), "a") as f:
 				json.dump({
 					"account_name": username,
+					"identity_secret": info["identity_secret"],
 					"shared_secret": info["shared_secret"],
 					"revocation_code": info["revocation_code"],
+					"steamid": info["Session"]["SteamID"],
 				}, f)
 				print("", file=f)
 			return info["shared_secret"]
