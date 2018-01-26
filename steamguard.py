@@ -139,7 +139,7 @@ def do_code(user):
 	print("==> imported shared secret from maFiles")
 	print(generate_code(secret))
 
-def generate_identity_hash(secret, tag):
+def generate_identity_hash(secret, tag, timestamp=None):
 	"""Generate a hash based on the identity_secret"""
 	secret = base64.b64decode(secret)
 	if timestamp is None:
@@ -151,17 +151,22 @@ def generate_identity_hash(secret, tag):
 def do_trade(user):
 	"""Accept all pending trades/markets"""
 	if not user: user = get_default_user()
-	secret = user # testing - work directly with the secret
-	print("Stub, unimplemented")
+	user = get_user_info(user)
+	if not user:
+		print("User not found")
+		return
 	import requests
 	tm = int(time.time())
 	info = requests.get("https://steamcommunity.com/mobileconf/conf", {
 		"m": "android", "tag": "conf", "t": tm,
 		"p": "android:92bb3646-1d32-3646-3646-36461d32bdbe",
-		"a": oauth["steamid"],
-		"k": generate_identity_hash(secret, "conf"),
+		"a": user["steamid"],
+		"k": generate_identity_hash(user["identity_secret"], "conf"),
+	}, cookies={
+		'steamLoginSecure': user["steamLoginSecure"],
 	})
-	pprint.pprint(info)
+	import pprint
+	print(info.text)
 
 def do_setup(user):
 	"""Set up a new user"""
@@ -274,7 +279,7 @@ def do_setup(user):
 			"shared_secret": shared_secret,
 			"revocation_code": revcode,
 			"steamid": oauth["steamid"],
-			"sessionid": cookies["sessionid"],
+			"sessionid": cookies["sessionid"], # might not be used for anything, not sure
 			"steamLoginSecure": cookies["steamLoginSecure"],
 		}, f)
 		print("", file=f)
