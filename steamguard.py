@@ -101,6 +101,8 @@ def import_from_mafiles(username):
 					"shared_secret": info["shared_secret"],
 					"revocation_code": info["revocation_code"],
 					"steamid": info["Session"]["SteamID"],
+					"sessionid": info["Session"]["SessionID"],
+					"steamLoginSecure": info["Session"]["SteamLoginSecure"],
 				}, f)
 				print("", file=f)
 			return info["shared_secret"]
@@ -266,6 +268,8 @@ def do_setup(user):
 			"shared_secret": shared_secret,
 			"revocation_code": revcode,
 			"steamid": oauth["steamid"],
+			"sessionid": cookies["sessionid"],
+			"steamLoginSecure": cookies["steamLoginSecure"],
 		}, f)
 		print("", file=f)
 
