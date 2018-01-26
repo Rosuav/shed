@@ -131,10 +131,29 @@ def do_code(user):
 	print("==> imported shared secret from maFiles")
 	print(generate_code(secret))
 
+def generate_identity_hash(secret, tag):
+	"""Generate a hash based on the identity_secret"""
+	secret = base64.b64decode(secret)
+	if timestamp is None:
+		timestamp = int(time.time())
+	timestamp = timestamp.to_bytes(8, "big")
+	hash = hmac.new(secret, timestamp + tag.encode("ascii"), hashlib.sha1).digest()
+	return base64.b64encode(hash)
+
 def do_trade(user):
 	"""Accept all pending trades/markets"""
 	if not user: user = get_default_user()
+	secret = user # testing - work directly with the secret
 	print("Stub, unimplemented")
+	import requests
+	tm = int(time.time())
+	info = requests.get("https://steamcommunity.com/mobileconf/conf", {
+		"m": "android", "tag": "conf", "t": tm,
+		"p": "android:92bb3646-1d32-3646-3646-36461d32bdbe",
+		"a": oauth["steamid"],
+		"k": generate_identity_hash(secret, "conf"),
+	})
+	pprint.pprint(info)
 
 def do_setup(user):
 	"""Set up a new user"""
