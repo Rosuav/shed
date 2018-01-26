@@ -157,19 +157,22 @@ def do_trade(user):
 		return
 	import requests
 	tm = int(time.time())
-	info = requests.get("https://steamcommunity.com/mobileconf/conf", {
+	params = {
 		"m": "android", "tag": "conf", "t": tm,
 		"p": "android:92bb3646-1d32-3646-3646-36461d32bdbe",
 		"a": user["steamid"],
 		"k": generate_identity_hash(user["identity_secret"], "conf"),
-	}, cookies={
+	}
+	cookies = {
 		'steamLoginSecure': user["steamLoginSecure"],
-	})
+	}
+	info = requests.get("https://steamcommunity.com/mobileconf/conf", params, cookies=cookies)
 	import pprint
 	# Now begins the parsing of HTML. Followed by a light salad.
 	# It's a mess, it's not truly parsing HTML, and it's not pretty.
 	# But it works. It gets the info we need. It's as good as we can
 	# hope for without an actual API for doing this.
+	ids = []; keys = []
 	for raw in info.text.split('<div class="mobileconf_list_entry"')[1:]:
 		tag, rest = raw.split(">", 1)
 		confid = key = None
@@ -183,6 +186,7 @@ def do_trade(user):
 			print(tag)
 			continue
 		print("confid", confid, "- key", key)
+		ids.append(confid); keys.append(key)
 		rest = rest.split('<div class="mobileconf_list_entry_sep">', 1)[0].strip()
 		# Strip HTML tags and produce a series of text nodes,
 		# ignoring any that are just whitespace
@@ -193,6 +197,11 @@ def do_trade(user):
 			if text: desc.append(text)
 			if rest: rest = rest.split('>', 1)[1]
 		print(desc)
+	params["op"] = "allow"
+	params["cid[]"] = ids; params["ck[]"] = keys
+	resp = requests.post("https://steamcommunity.com/mobileconf/multiajaxop", params, cookies=cookies)
+	print(resp)
+	import pprint; pprint.pprint(resp.json())
 
 def do_setup(user):
 	"""Set up a new user"""
