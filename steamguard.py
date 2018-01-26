@@ -166,7 +166,20 @@ def do_trade(user):
 		'steamLoginSecure': user["steamLoginSecure"],
 	})
 	import pprint
-	print(info.text)
+	# Now begins the parsing of HTML. Followed by a light salad.
+	for raw in info.text.split('<div class="mobileconf_list_entry"')[1:]:
+		tag, rest = raw.split(">", 1)
+		confid = key = None
+		for attr in tag.split(" "):
+			if "=" not in attr: continue
+			name, val = attr.split("=", 1)
+			if name == "data-confid": confid = val.strip('"')
+			if name == "data-key": key = val.strip('"')
+		if confid is None or key is None:
+			print("UNABLE TO PARSE:")
+			print(tag)
+			continue
+		print("confid", confid, "- key", key)
 
 def do_setup(user):
 	"""Set up a new user"""
