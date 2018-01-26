@@ -6,11 +6,11 @@ PASSWORD=$2
 steam &
 if [ -z "$PASSWORD" ]; then
 	login() {
-		xdotool search --name "Steam Login" windowactivate type $USERNAME && xdotool sleep 0.1 key Tab
+		xdotool search --name "Steam Login" windowactivate sleep 0.1 type $USERNAME && xdotool sleep 0.1 key Tab
 	}
 else
 	login() {
-		xdotool search --name "Steam Login" windowactivate type $USERNAME && xdotool sleep 0.1 key Tab type $PASSWORD && xdotool sleep 0.1 key Return
+		xdotool search --name "Steam Login" windowactivate sleep 0.1 type $USERNAME && xdotool sleep 0.1 key Tab type $PASSWORD && xdotool sleep 0.1 key Return
 	}
 fi
 xdotool search --name "Steam Guard" windowactivate || until login; do echo Waiting for Steam login window...; sleep 1; done
