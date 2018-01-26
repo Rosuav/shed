@@ -341,6 +341,17 @@ def do_setup(user):
 			print("You will need the 'recovery code' or 'revocation code' from")
 			print("the mobile authenticator app or whatever other service you have")
 			print("been using. If you do not have such a code, contact Valve.")
+			print()
+			revcode = input("Enter the revocation code eg R12345: ")
+			if not revcode: return
+			resp = requests.post("https://api.steampowered.com/ITwoFactorService/RemoveAuthenticator/v0001", {
+				"steamid": oauth["steamid"],
+				"steamguard_scheme": "2", # ?? dunno
+				"revocation_code": revcode,
+				"access_token": oauth["oauth_token"],
+			}).json()
+			if resp["success"]:
+				print("Success! Your old authenticator has been removed.")
 			return
 		users[user]["steamLoginSecure"] = cookies["steamLoginSecure"]
 		save_users(users)
