@@ -324,43 +324,50 @@ def do_setup(user):
 			return
 		verify_phone = True
 
-	data = requests.post("https://api.steampowered.com/ITwoFactorService/AddAuthenticator/v0001", {
-		"access_token": oauth["oauth_token"],
-		"steamid": oauth["steamid"],
-		"authenticator_type": "1",
-		"device_identifier": "android:92bb3646-1d32-3646-3646-36461d32bdbe", # TODO: Generate randomly?
-		"sms_phone_id": "1",
-	}).json()["response"]
-	if data["status"] == 29:
-		# Already using an authenticator. If that's ours, save the info back
-		# and thus refresh the login. Otherwise, the other one may need to be
-		# revoked before we can move on.
-		users = load_users()
-		if user not in users:
-			print("Something else is already authenticated, will need to remove.")
-			print("You will need the 'recovery code' or 'revocation code' from")
-			print("the mobile authenticator app or whatever other service you have")
-			print("been using. If you do not have such a code, contact Valve.")
-			print()
-			revcode = input("Enter the revocation code eg R12345: ")
-			if not revcode: return
-			resp = requests.post("https://api.steampowered.com/ITwoFactorService/RemoveAuthenticator/v0001", {
-				"steamid": oauth["steamid"],
-				"steamguard_scheme": "2", # ?? dunno
-				"revocation_code": revcode,
-				"access_token": oauth["oauth_token"],
-			}).json()
-			if resp["success"]:
-				print("Success! Your old authenticator has been removed.")
+	while "retry add auth":
+		data = requests.post("https://api.steampowered.com/ITwoFactorService/AddAuthenticator/v0001", {
+			"access_token": oauth["oauth_token"],
+			"steamid": oauth["steamid"],
+			"authenticator_type": "1",
+			"device_identifier": "android:92bb3646-1d32-3646-3646-36461d32bdbe", # TODO: Generate randomly?
+			"sms_phone_id": "1",
+		}).json()["response"]
+		if data["status"] == 29:
+			# Already using an authenticator. If that's ours, save the info back
+			# and thus refresh the login. Otherwise, the other one may need to be
+			# revoked before we can move on.
+			users = load_users()
+			if user not in users:
+				print("Something else is already authenticated, will need to remove.")
+				print("You will need the 'recovery code' or 'revocation code' from")
+				print("the mobile authenticator app or whatever other service you have")
+				print("been using. If you do not have such a code, contact Valve.")
+				print()
+				revcode = input("Enter the revocation code eg R12345: ")
+				if not revcode: return
+				resp = requests.post("https://api.steampowered.com/ITwoFactorService/RemoveAuthenticator/v0001", {
+					"steamid": oauth["steamid"],
+					"steamguard_scheme": "2", # ?? dunno
+					"revocation_code": revcode,
+					"access_token": oauth["oauth_token"],
+				}).json()["response"]
+				if resp.get("success"):
+					print("Success! Your old authenticator has been removed.")
+					continue
+				print("Unable to remove the old auth - check the revocation code.")
+				print(resp)
+				return
+			users[user]["steamLoginSecure"] = cookies["steamLoginSecure"]
+			save_users(users)
+			print("Login data refreshed. Trades should work again.")
 			return
-		users[user]["steamLoginSecure"] = cookies["steamLoginSecure"]
-		save_users(users)
-		print("Login data refreshed. Trades should work again.")
-		return
-	elif data["status"] != 1:
+		elif data["status"] == 1:
+			# Success!
+			break
 		print("Steam authentication failed - here's the raw dump:")
 		print()
 		pprint.pprint(data)
+		return
 	identity_secret = data["identity_secret"]
 	shared_secret = data["shared_secret"]
 	revcode = data["revocation_code"]
