@@ -338,7 +338,9 @@ def do_setup(user):
 		users = load_users()
 		if user not in users:
 			print("Something else is already authenticated, will need to remove.")
-			print("TODO.")
+			print("You will need the 'recovery code' or 'revocation code' from")
+			print("the mobile authenticator app or whatever other service you have")
+			print("been using. If you do not have such a code, contact Valve.")
 			return
 		users[user]["steamLoginSecure"] = cookies["steamLoginSecure"]
 		save_users(users)
