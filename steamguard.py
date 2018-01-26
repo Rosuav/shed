@@ -9,10 +9,12 @@ import hmac
 import json
 import os
 import time
+import pprint
 # import requests # Not done globally as it's big and not all calls require it
 # import rsa # Not done globally as it's third-party and very few actions need it
 
 _time_offset = None # TODO: Align clocks with Valve
+DEBUG = False # Set to True to get raw dumps of responses
 
 def saved_accounts_filename():
 	HOME = os.environ.get("HOME")
@@ -196,7 +198,6 @@ def do_trade(user):
 		'steamLoginSecure': user["steamLoginSecure"],
 	}
 	info = requests.get("https://steamcommunity.com/mobileconf/conf", params, cookies=cookies)
-	import pprint
 	# Now begins the parsing of HTML. Followed by a light salad.
 	# It's a mess, it's not truly parsing HTML, and it's not pretty.
 	# But it works. It gets the info we need. It's as good as we can
@@ -236,7 +237,7 @@ def do_trade(user):
 	params["cid[]"] = ids; params["ck[]"] = keys
 	resp = requests.post("https://steamcommunity.com/mobileconf/multiajaxop", params, cookies=cookies)
 	print(resp)
-	import pprint; pprint.pprint(resp.json())
+	print(resp.json())
 
 def do_setup(user):
 	"""Set up a new user"""
@@ -292,9 +293,10 @@ def do_setup(user):
 			print("Unable to log in - here's the raw dump:")
 			print(data)
 			return
-	import pprint; pprint.pprint(data)
-	print()
-	pprint.pprint(cookies)
+	if DEBUG:
+		pprint.pprint(data)
+		print()
+		pprint.pprint(cookies)
 	# For reasons which escape me, the OAuth info is provided as a *string*
 	# that happens to be JSON-formatted. This is inside a JSON response
 	# body. It could have simply been a nested object, but noooooo.
@@ -371,7 +373,7 @@ def do_setup(user):
 				"skipvoip": 1, "sessionid": cookies["sessionid"]},
 				cookies=cookies).json()
 			print()
-			pprint.pprint(data)
+			if DEBUG: pprint.pprint(data)
 			if not data["success"]: continue
 			print("Phone successfully registered.")
 			verify_phone = False
@@ -384,7 +386,7 @@ def do_setup(user):
 			"authenticator_time": tm,
 		}).json()["response"]
 		if data["success"]: break
-		pprint.pprint(data)
+		if DEBUG: pprint.pprint(data)
 	print("Your phone has been registered. SAVE the revocation code.")
 	print("If you lose the revocation code, you will have great difficulty")
 	print("undoing what you've just done here.")
