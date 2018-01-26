@@ -203,6 +203,7 @@ def do_trade(user):
 	# But it works. It gets the info we need. It's as good as we can
 	# hope for without an actual API for doing this.
 	ids = []; keys = []
+	# TODO: Handle market listings too
 	for raw in info.text.split('<div class="mobileconf_list_entry"')[1:]:
 		tag, rest = raw.split(">", 1)
 		confid = key = None
@@ -230,6 +231,7 @@ def do_trade(user):
 	if not ids:
 		print("No trades to confirm.")
 		return
+	# TODO: Provide more details (on request, esp if it requires another API call)
 	if not input("Enter 'a' to accept all: ").startswith("a"):
 		print("Trades left untouched.")
 		return
@@ -324,6 +326,8 @@ def do_setup(user):
 			return
 		verify_phone = True
 
+	# TODO: See if the C# app is able to deauth with less than 15 days trade hold
+	# Might require enlarging the scope of the 'while' loop.
 	while "retry add auth":
 		data = requests.post("https://api.steampowered.com/ITwoFactorService/AddAuthenticator/v0001", {
 			"access_token": oauth["oauth_token"],
