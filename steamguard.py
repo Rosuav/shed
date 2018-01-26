@@ -109,7 +109,7 @@ def import_from_mafiles(username):
 	return None
 
 def get_user_info(username):
-	user = info
+	user = None
 	with open(saved_accounts_filename()) as f:
 		for line in f:
 			line = line.strip()
