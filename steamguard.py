@@ -198,6 +198,12 @@ def do_setup(user):
 			params["emailsteamid"] = data["emailsteamid"]
 			params["emailauth"] = input("Enter authorization code: ")
 		elif data.get("requires_twofactor"):
+			if "twofactorcode" not in params:
+				# Try to automate this if we already have part of the info
+				old_info = get_user_info(user)
+				if old_info and old_info["shared_secret"]:
+					params["twofactorcode"] = generate_code(old_info["shared_secret"])
+					continue
 			params["twofactorcode"] = input("Enter 2FA code: ")
 		else:
 			print("Unable to log in - here's the raw dump:")
