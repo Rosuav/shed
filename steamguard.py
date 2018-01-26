@@ -298,8 +298,19 @@ def do_setup(user):
 		"sms_phone_id": "1",
 	}).json()["response"]
 	if data["status"] == 29:
-		print("Something else is already authenticated, will need to remove.")
-		print("TODO.")
+		# Already using an authenticator. If that's ours, save the info back
+		# and thus refresh the login. Otherwise, the other one may need to be
+		# revoked before we can move on.
+		info = get_user_info(user)
+		if not info:
+			print("Something else is already authenticated, will need to remove.")
+			print("TODO.")
+			return
+		info["steamLoginSecure"] = cookies["steamLoginSecure"]
+		with open(saved_accounts_filename(), "a") as f:
+			json.dump(info, f)
+			print("", file=f)
+		print("Login data refreshed. Trades should work again.")
 		return
 	elif data["status"] != 1:
 		print("Steam authentication failed - here's the raw dump:")
