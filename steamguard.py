@@ -66,9 +66,8 @@ def get_default_user():
 	raise SystemExit
 
 def timecheck():
-	url = "https://api.steampowered.com/ITwoFactorService/QueryTime/v0001"
 	import requests # ImportError? Install 'requests' using pip or similar.
-	data = requests.post(url, "steamid=0").json()
+	data = requests.post("https://api.steampowered.com/ITwoFactorService/QueryTime/v0001", "steamid=0").json()
 	return int(data["response"]["server_time"]) - int(time.time())
 
 def do_timecheck(user):
