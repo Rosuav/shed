@@ -281,7 +281,7 @@ def do_trade(user):
 				print("Out of range")
 				continue # whatever, it's ugly
 			print("Getting details for transaction", which)
-			resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[0], params, cookies=cookies)
+			resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[which], params, cookies=cookies)
 			# Yes, that's right. We get back a JSON blob that contains
 			# a blob of HTML. Which contains JavaScript.
 			print()
@@ -311,6 +311,8 @@ def do_trade(user):
 					print("Market name:", confiteminfo["market_name"])
 				for line in confiteminfo["descriptions"]:
 					colorprint(line["value"], line.get("color"))
+			else:
+				print("Trade listing [unimpl]")
 
 def do_setup(user):
 	"""Set up a new user"""
