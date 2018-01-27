@@ -262,8 +262,40 @@ def do_trade(user):
 			return
 		if cmd[0] == "d":
 			which = int(cmd[1:] or "0")
+			if which >= len(ids):
+				print("Out of range")
+				continue # whatever, it's ugly
 			print("Getting details for transaction", which)
-			print("TODO")
+			resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[0], params, cookies=cookies)
+			# Yes, that's right. We get back a JSON blob that contains
+			# a blob of HTML. Which contains JavaScript.
+			print()
+			html = resp.json()["html"]
+			if "g_rgAppContextData" in html:
+				# It's a market listing. Show the full details, with one more API call.
+				html = html.split('<div class="mobileconf_listing_prices">', 1)[1]
+				text, html = html.split("<script>", 1)
+				# 'text' is now a block of (HTML-formatted) text that's interesting.
+				# 'html' is the remaining HTML, which has some other stuff in it still.
+				text = text.replace("<br>", "") # Join the lines with linebreaks.
+				while text:
+					cur, text = text.split('<', 1)
+					cur = cur.strip()
+					if cur: print(*cur.split()) # collapse whitespace
+					if text: text = text.split('>', 1)[1].strip()
+				# Okay. Now to parse out a block of info from the HTML...
+				# that is to say, the JSON in the HTML in the JSON. Yeah.
+				jsdata = html.split("BuildHover( 'confiteminfo', ", 1)[1]
+				confiteminfo = json.JSONDecoder().raw_decode(jsdata)[0]
+				for link in confiteminfo["actions"]:
+					print(link["name"], link["link"])
+				name = confiteminfo["name"]
+				print(name)
+				print(confiteminfo["type"])
+				if confiteminfo["market_name"] != name:
+					print("Market name:", confiteminfo["market_name"])
+				for line in confiteminfo["descriptions"]:
+					print(line["value"])
 
 def do_setup(user):
 	"""Set up a new user"""
