@@ -205,17 +205,18 @@ def do_trade(user):
 	with open("dump.html", "w") as f: print(info.text, file=f)
 	for raw in info.text.split('<div class="mobileconf_list_entry"')[1:]:
 		tag, rest = raw.split(">", 1)
-		confid = key = None
+		confid = key = type = None
 		for attr in tag.split(" "):
 			if "=" not in attr: continue
 			name, val = attr.split("=", 1)
 			if name == "data-confid": confid = val.strip('"')
 			if name == "data-key": key = val.strip('"')
+			if name == "data-type": type = val.strip('"')
 		if confid is None or key is None:
 			print("UNABLE TO PARSE:")
 			print(tag)
 			continue
-		print("confid", confid, "- key", key)
+		print("idx", len(ids), "type", type, "confid", confid, "- key", key)
 		ids.append(confid); keys.append(key)
 		rest = rest.split('<div class="mobileconf_list_entry_sep">', 1)[0].strip()
 		# Strip HTML tags and produce a series of text nodes,
@@ -230,10 +231,9 @@ def do_trade(user):
 	if not ids:
 		print("No trades to confirm.")
 		return
-	resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[0], params, cookies=cookies)
-	print("Details:", resp)
-	with open("details.json", "w") as f: print(resp.text, file=f)
-	with open("details.html", "w") as f: print(resp.json()["html"], file=f)
+	#resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[0], params, cookies=cookies)
+	#with open("details.json", "w") as f: print(resp.text, file=f)
+	#with open("details.html", "w") as f: print(resp.json()["html"], file=f)
 	# TODO: Provide more details (on request, esp if it requires another API call)
 	# TODO: Have a --dump flag to create the above dump files
 	"""Useful info for market listings:
@@ -249,13 +249,21 @@ def do_trade(user):
 	"""Useful info for trade offers:
 	* TODO
 	"""
-	if not input("Enter 'a' to accept all: ").lower().startswith("a"):
-		print("Trades left untouched.")
-		return
-	params["op"] = "allow"
-	params["cid[]"] = ids; params["ck[]"] = keys
-	resp = requests.post("https://steamcommunity.com/mobileconf/multiajaxop", params, cookies=cookies)
-	print(resp.json())
+	while "user input needed":
+		cmd = input("Enter 'a' to accept all, 'd' for more details: ").lower()
+		if not cmd:
+			print("Trades left untouched.")
+			return
+		if cmd[0] == "a":
+			params["op"] = "allow"
+			params["cid[]"] = ids; params["ck[]"] = keys
+			resp = requests.post("https://steamcommunity.com/mobileconf/multiajaxop", params, cookies=cookies)
+			print(resp.json())
+			return
+		if cmd[0] == "d":
+			which = int(cmd[1:] or "0")
+			print("Getting details for transaction", which)
+			print("TODO")
 
 def do_setup(user):
 	"""Set up a new user"""
