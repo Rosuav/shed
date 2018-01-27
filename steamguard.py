@@ -16,6 +16,21 @@ import pprint
 _time_offset = None # TODO: Align clocks with Valve
 DEBUG = False # Set to True to get raw dumps of responses
 
+def colorprint(text, color):
+	"""Display the given text in the given color.
+
+	TODO: Check if the terminal can handle it, and if not, just
+	print the text as-is.
+	"""
+	if not color:
+		print(text)
+		return
+	color = int(color.strip("#"), 16)
+	r = color >> 16
+	g = (color >> 8) & 255
+	b = color & 255
+	print("\x1b[0;38;2;%d;%d;%dm%s\x1b[0m" % (r,g,b, text))
+
 def saved_accounts_filename():
 	HOME = os.environ.get("HOME")
 	if HOME:
@@ -290,12 +305,12 @@ def do_trade(user):
 				for link in confiteminfo["actions"]:
 					print(link["name"], link["link"])
 				name = confiteminfo["name"]
-				print(name)
+				colorprint(name, confiteminfo.get("name_color"))
 				print(confiteminfo["type"])
 				if confiteminfo["market_name"] != name:
 					print("Market name:", confiteminfo["market_name"])
 				for line in confiteminfo["descriptions"]:
-					print(line["value"])
+					colorprint(line["value"], line.get("color"))
 
 def do_setup(user):
 	"""Set up a new user"""
