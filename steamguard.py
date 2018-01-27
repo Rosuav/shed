@@ -203,6 +203,7 @@ def do_trade(user):
 	# But it works. It gets the info we need. It's as good as we can
 	# hope for without an actual API for doing this.
 	ids = []; keys = []
+	with open("dump.html", "w") as f: print(info.text, file=f)
 	for raw in info.text.split('<div class="mobileconf_list_entry"')[1:]:
 		tag, rest = raw.split(">", 1)
 		confid = key = None
@@ -230,7 +231,25 @@ def do_trade(user):
 	if not ids:
 		print("No trades to confirm.")
 		return
+	resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[0], params, cookies=cookies)
+	print("Details:", resp)
+	with open("details.json", "w") as f: print(resp.text, file=f)
+	with open("details.html", "w") as f: print(resp.json()["html"], file=f)
 	# TODO: Provide more details (on request, esp if it requires another API call)
+	# TODO: Have a --dump flag to create the above dump files
+	"""Useful info for market listings:
+	* Name of game (from g_rgAppContextData)
+	* Split on "BuildHover( 'confiteminfo', " and JSON-decode - call that confiteminfo
+	* Name of item, amount being traded (from confiteminfo)
+	* Market name (from confiteminfo)
+	* Sale price and volume (from HTML, strip the tags)
+	* Item wiki page (redirect - don't follow it, just show it)
+	* Inspect In Game link (from confiteminfo)
+	* Description lines? (With colours???)
+	"""
+	"""Useful info for trade offers:
+	* TODO
+	"""
 	if not input("Enter 'a' to accept all: ").lower().startswith("a"):
 		print("Trades left untouched.")
 		return
