@@ -203,7 +203,6 @@ def do_trade(user):
 	# But it works. It gets the info we need. It's as good as we can
 	# hope for without an actual API for doing this.
 	ids = []; keys = []
-	# TODO: Handle market listings too
 	for raw in info.text.split('<div class="mobileconf_list_entry"')[1:]:
 		tag, rest = raw.split(">", 1)
 		confid = key = None
@@ -232,13 +231,12 @@ def do_trade(user):
 		print("No trades to confirm.")
 		return
 	# TODO: Provide more details (on request, esp if it requires another API call)
-	if not input("Enter 'a' to accept all: ").startswith("a"):
+	if not input("Enter 'a' to accept all: ").lower().startswith("a"):
 		print("Trades left untouched.")
 		return
 	params["op"] = "allow"
 	params["cid[]"] = ids; params["ck[]"] = keys
 	resp = requests.post("https://steamcommunity.com/mobileconf/multiajaxop", params, cookies=cookies)
-	print(resp)
 	print(resp.json())
 
 def do_setup(user):
