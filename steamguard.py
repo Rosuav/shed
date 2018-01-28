@@ -211,7 +211,14 @@ def do_trade(user):
 	cookies = {
 		'steamLoginSecure': user["steamLoginSecure"],
 	}
-	info = requests.get("https://steamcommunity.com/mobileconf/conf", params, cookies=cookies)
+	try:
+		info = requests.get("https://steamcommunity.com/mobileconf/conf", params, cookies=cookies)
+	except requests.exceptions.InvalidSchema as e:
+		# Probably we're not logged in.
+		if e.args[0] == "No connection adapters were found for 'steammobile://lostauth'":
+			print("Lost auth - rerun 'setup' on this user to refresh session")
+			print("TODO: Attempt a session refresh within the API first")
+			return
 	# Now begins the parsing of HTML. Followed by a light salad.
 	# It's a mess, it's not truly parsing HTML, and it's not pretty.
 	# But it works. It gets the info we need. It's as good as we can
@@ -312,7 +319,18 @@ def do_trade(user):
 				for line in confiteminfo["descriptions"]:
 					colorprint(line["value"], line.get("color"))
 			else:
-				print("Trade listing [unimpl]")
+				# Split the HTML into two interesting parts:
+				# 1) What you're offering
+				# 2) What you're requesting
+				_, offer, request = html.split("tradeoffer_item_list", 2)
+				print("You offered:")
+				for item in offer.split('data-economy-item="')[1:]:
+					item = item.split('"', 1)[0]
+					print(item)
+				print("You requested:")
+				for item in request.split('data-economy-item="')[1:]:
+					item = item.split('"', 1)[0]
+					print(item)
 
 def do_setup(user):
 	"""Set up a new user"""
