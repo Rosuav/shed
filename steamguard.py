@@ -62,6 +62,8 @@ def save_users(users):
 		# shim at the end.
 		print('\t"": {}', file=f)
 		print("}", file=f)
+	# Attempt to mark the file as unreadable by anyone else
+	os.chmod(saved_accounts_filename(), 0o600)
 
 def load_users_legacy():
 	users = {}
