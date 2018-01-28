@@ -269,6 +269,9 @@ def do_trade(user):
 			resp = requests.post("https://steamcommunity.com/mobileconf/multiajaxop", params, cookies=cookies)
 			print(resp.json())
 			return
+		# TODO: Allow the cancelling of one single offer, which will happen
+		# immediately. Don't need a multi-item cancel; the only other one we
+		# might need is "cancel everything". Don't let things get too complex.
 		if cmd[0] == "d":
 			which = int(cmd[1:] or "0")
 			if which >= len(ids):
