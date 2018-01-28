@@ -258,19 +258,6 @@ def do_trade(user):
 	#with open("details.html", "w") as f: print(resp.json()["html"], file=f)
 	# TODO: Provide more details (on request, esp if it requires another API call)
 	# TODO: Have a --dump flag to create the above dump files
-	"""Useful info for market listings:
-	* Name of game (from g_rgAppContextData)
-	* Split on "BuildHover( 'confiteminfo', " and JSON-decode - call that confiteminfo
-	* Name of item, amount being traded (from confiteminfo)
-	* Market name (from confiteminfo)
-	* Sale price and volume (from HTML, strip the tags)
-	* Item wiki page (redirect - don't follow it, just show it)
-	* Inspect In Game link (from confiteminfo)
-	* Description lines? (With colours???)
-	"""
-	"""Useful info for trade offers:
-	* TODO
-	"""
 	while "user input needed":
 		cmd = input("Enter 'a' to accept all, 'd' for more details: ").lower()
 		if not cmd:
@@ -323,14 +310,44 @@ def do_trade(user):
 				# 1) What you're offering
 				# 2) What you're requesting
 				_, offer, request = html.split("tradeoffer_item_list", 2)
-				print("You offered:")
-				for item in offer.split('data-economy-item="')[1:]:
-					item = item.split('"', 1)[0]
-					print(item)
-				print("You requested:")
-				for item in request.split('data-economy-item="')[1:]:
-					item = item.split('"', 1)[0]
-					print(item)
+				offer = [item.split('"', 1)[0] for item in offer.split('data-economy-item="')[1:]]
+				request = [item.split('"', 1)[0] for item in request.split('data-economy-item="')[1:]]
+				if not offer and not request:
+					print("No items found in trade - probable parsing error")
+					continue
+				if not offer:
+					print("You request %d item(s):" % len(request))
+				elif not request:
+					print("You offer %d item(s) as a gift:" % len(offer))
+				else:
+					print("You offer %d item(s) and request %d item(s):" % (len(offer), len(request)))
+				def download_item(item):
+					ids = item.split("/", 1)[1]
+					# print(ids)
+					text = requests.get("https://steamcommunity.com/economy/itemclasshover/" + ids + "?content_only=1").text
+					jsdata = text.split("BuildHover(")[1].split(",", 1)[1].strip()
+					info = json.JSONDecoder().raw_decode(jsdata)[0]
+					# TODO: Save the info using 'ids' or 'item' as the key
+					# If the user wants EVEN MORE info, we can show similarly to the
+					# market listing above.
+					colorprint(info["name"], info.get("name_color"))
+					if "fraudwarnings" in info:
+						# This also picks up "item has been renamed"
+						for fraud in info["fraudwarnings"]:
+							fraud = fraud.replace("This item has been renamed.\n", "")
+							print("\t" + fraud)
+					if info["market_name"] != info["name"]:
+						# This shows extra details for some items, eg wear
+						# level on war paint, killstreak quality, etc
+						print("\t ==> " + info["market_name"])
+					# TODO: Have some "warning flag" heuristics based on
+					# info["description"] that would indicate stuff the user
+					# would want to know, eg "Killstreaker", "Unusual", "Gift"
+				for item in offer:
+					download_item(item)
+				if request: print("<== You are requesting ==>")
+				for item in request:
+					download_item(item)
 
 def do_setup(user):
 	"""Set up a new user"""
