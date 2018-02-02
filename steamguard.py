@@ -324,8 +324,17 @@ def do_trade(user):
 				print(confiteminfo["type"])
 				if confiteminfo["market_name"] != name:
 					print("Market name:", confiteminfo["market_name"])
-				for line in confiteminfo["descriptions"]:
-					colorprint(line["value"], line.get("color"))
+				while "stay in details":
+					print("d: Show more details for this listing")
+					print("c: Cancel this listing, leaving others untouched")
+					cmd = input("Or hit Enter to return to the summary: ")
+					if cmd == "d":
+						for line in confiteminfo["descriptions"]:
+							colorprint(line["value"], line.get("color"))
+					elif cmd == "c":
+						print("Unimplemented. (TODO)")
+					else:
+						break
 			else:
 				# Split the HTML into two interesting parts:
 				# 1) What you're offering
