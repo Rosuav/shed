@@ -80,7 +80,6 @@ def save_users():
 	os.chmod(saved_accounts_filename(), 0o600)
 	os.chmod(saved_cookies_filename(), 0o600)
 load_users()
-save_users()
 
 def get_default_user():
 	print("TODO: check if there's exactly one user, and if so,")
