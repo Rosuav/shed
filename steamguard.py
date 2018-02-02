@@ -225,7 +225,7 @@ def do_trade(user):
 	# It's a mess, it's not truly parsing HTML, and it's not pretty.
 	# But it works. It gets the info we need. It's as good as we can
 	# hope for without an actual API for doing this.
-	ids = []; keys = []
+	ids = []; keys = []; trades = []
 	with open("dump.html", "w") as f: print(info.text, file=f)
 	for raw in info.text.split('<div class="mobileconf_list_entry"')[1:]:
 		tag, rest = raw.split(">", 1)
@@ -254,19 +254,14 @@ def do_trade(user):
 			print("Parsing problem - description may not be properly readable")
 			print(desc)
 			continue
-		# The first description line usually says who you're trading with,
-		# or what you're selling; the last line says when the offer was made.
-		print("%d: %s (%s)" % (len(ids), desc[0], desc[2].lower()))
-		if type == 2:
+		if type == "2":
 			# Trade offer with another player
-			for item in desc[1].split(", "):
-				print("\t" + item)
+			# Show it over multiple lines for clarity
+			desc[1] = desc[1].replace(", ", "\n\t")
 			# Note that the items CAN include commas, which will make this display ugly.
 			# (Try trading "Taunt: Rock, Paper, Scissors" for instance.)
 			# The details view will still be correct.
-		elif type == 3:
-			# Market listing. Should show the sell price and what you'd get.
-			print(desc[1])
+		trades.append(desc)
 	if not ids:
 		print("No trades to confirm.")
 		return
@@ -276,6 +271,12 @@ def do_trade(user):
 	# TODO: Provide more details (on request, esp if it requires another API call)
 	# TODO: Have a --dump flag to create the above dump files
 	while "user input needed":
+		print()
+		for pos, desc in enumerate(trades):
+			# The first description line usually says who you're trading with,
+			# or what you're selling; the last line says when the offer was made.
+			print("%d: %s (%s)" % (pos + 1, desc[0], desc[2].lower()))
+			print("\t" + desc[1])
 		cmd = input("Enter 'a' to accept all, or a transaction number for more details: ").lower()
 		if not cmd:
 			print("Trades left untouched.")
@@ -331,6 +332,7 @@ def do_trade(user):
 					if cmd == "d":
 						for line in confiteminfo["descriptions"]:
 							colorprint(line["value"], line.get("color"))
+						print()
 					elif cmd == "c":
 						print("Unimplemented. (TODO)")
 					else:
