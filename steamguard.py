@@ -276,7 +276,7 @@ def do_trade(user):
 	# TODO: Provide more details (on request, esp if it requires another API call)
 	# TODO: Have a --dump flag to create the above dump files
 	while "user input needed":
-		cmd = input("Enter 'a' to accept all, 'd' for more details: ").lower()
+		cmd = input("Enter 'a' to accept all, or a transaction number for more details: ").lower()
 		if not cmd:
 			print("Trades left untouched.")
 			return
@@ -289,9 +289,9 @@ def do_trade(user):
 		# TODO: Allow the cancelling of one single offer, which will happen
 		# immediately. Don't need a multi-item cancel; the only other one we
 		# might need is "cancel everything". Don't let things get too complex.
-		if cmd[0] == "d":
-			which = int(cmd[1:] or "0")
-			if which >= len(ids):
+		if cmd.isdigit():
+			which = int(cmd) - 1
+			if which < 0 or which >= len(ids):
 				print("Out of range")
 				continue # whatever, it's ugly
 			print("Getting details for transaction", which)
