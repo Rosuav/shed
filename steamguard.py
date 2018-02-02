@@ -229,7 +229,7 @@ def do_trade(username):
 	# But it works. It gets the info we need. It's as good as we can
 	# hope for without an actual API for doing this.
 	ids = []; keys = []; trades = []
-	with open("dump.html", "w") as f: print(info.text, file=f)
+	# with open("dump.html", "w") as f: print(info.text, file=f)
 	for raw in info.text.split('<div class="mobileconf_list_entry"')[1:]:
 		tag, rest = raw.split(">", 1)
 		confid = key = type = None
@@ -297,8 +297,8 @@ def do_trade(username):
 			try: which = int(cmd) - 1
 			except ValueError: continue
 			if which < 0 or which >= len(ids):
-				print("Out of range")
-				continue # whatever, it's ugly
+				print("Not a transaction number I recognize - try again?")
+				continue
 			print("Downloading details...")
 			resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[which], params, cookies=cookies)
 			# Yes, that's right. We get back a JSON blob that contains
