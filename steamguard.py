@@ -299,7 +299,6 @@ def do_trade(user):
 				print("Out of range")
 				continue # whatever, it's ugly
 			print("Downloading details...")
-			t = time.time()
 			resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[which], params, cookies=cookies)
 			# Yes, that's right. We get back a JSON blob that contains
 			# a blob of HTML. Which contains JavaScript.
@@ -331,7 +330,7 @@ def do_trade(user):
 				while "stay in details":
 					print("d: Show more details for this listing")
 					print("c: Cancel this listing, leaving others untouched")
-					cmd = input("Or hit Enter to return to the summary: ")
+					cmd = input("Or hit Enter to return to the summary: ").lower()
 					if cmd == "d":
 						for line in confiteminfo["descriptions"]:
 							colorprint(line["value"], line.get("color"))
@@ -391,15 +390,51 @@ def do_trade(user):
 				threads = [threading.Thread(target=download_thread) for _ in range(thread_count)]
 				for thread in threads: thread.start()
 				for thread in threads: thread.join()
-				if offer: print("<== You are offering ==>")
-				for item in offer:
-					display_item(item)
-				if request: print("<== You are requesting ==>")
-				for item in request:
-					display_item(item)
-				print()
-				print(time.time() - t)
-				input("Hit Enter to return to the summary: ")
+				while "stay in details":
+					if offer: print("<== You are offering ==>")
+					for item in offer:
+						display_item(item)
+					if request: print("<== You are requesting ==>")
+					for item in request:
+						display_item(item)
+					print()
+					if offer: print("o: Show more details about the items offered")
+					if request: print("r: Show more details about the items requested")
+					print("c: Cancel this trade, leaving others untouched")
+					cmd = input("Or hit Enter to return to the summary: ").lower()
+					if cmd == "o" or cmd == "r":
+						items = offer if cmd == "o" else request
+						if not items: continue
+						pos = 0
+						while "stay in item info":
+							info = item_details[items[pos]]
+							name = info["name"]
+							colorprint(name, info.get("name_color"))
+							print(info["type"])
+							if info["market_name"] != name:
+								print("Market name:", info["market_name"])
+							for line in info["descriptions"]:
+								colorprint(line["value"], line.get("color"))
+							print()
+							cmd = input("Item %d/%d, [n]ext/[p]rev, [q]uit this menu, or enter number: " %
+								(pos + 1, len(items)))
+							if cmd == "n":
+								pos = (pos + 1) % len(items)
+							elif cmd == "p":
+								pos = (pos - 1) % len(items)
+							elif cmd.isdigit():
+								pos = (int(cmd) - 1) % len(items)
+							elif cmd == "":
+								# Paginate: advance to the next, but if at last item,
+								# return to previous menu. Kinda DWIMmy but useful.
+								if pos == len(items) - 1: break
+								pos += 1
+							elif cmd == "q":
+								break
+					elif cmd == "c":
+						print("Unimplemented. (TODO)")
+					else:
+						break
 
 def do_setup(user):
 	"""Set up a new user"""
