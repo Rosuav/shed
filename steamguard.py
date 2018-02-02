@@ -351,11 +351,11 @@ def do_trade(user):
 					print("No items found in trade - probable parsing error")
 					continue
 				if not offer:
-					print("You request %d item(s):" % len(request))
+					print("You request %d item(s)" % len(request))
 				elif not request:
-					print("You offer %d item(s) as a gift:" % len(offer))
+					print("You offer %d item(s) as a gift" % len(offer))
 				else:
-					print("You offer %d item(s) and request %d item(s):" % (len(offer), len(request)))
+					print("You offer %d item(s) and request %d item(s)" % (len(offer), len(request)))
 				item_details = {}
 				downloadme = collections.deque(offer + request)
 				def download_item(item):
@@ -391,6 +391,7 @@ def do_trade(user):
 				threads = [threading.Thread(target=download_thread) for _ in range(thread_count)]
 				for thread in threads: thread.start()
 				for thread in threads: thread.join()
+				if offer: print("<== You are offering ==>")
 				for item in offer:
 					display_item(item)
 				if request: print("<== You are requesting ==>")
