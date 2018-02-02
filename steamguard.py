@@ -4,10 +4,12 @@
 # available via pip. Some features will be available without them.
 
 import base64
+import collections
 import hashlib
 import hmac
 import json
 import os
+import threading
 import time
 import pprint
 # import requests # Not done globally as it's big and not all calls require it
@@ -297,6 +299,7 @@ def do_trade(user):
 				print("Out of range")
 				continue # whatever, it's ugly
 			print("Downloading details...")
+			t = time.time()
 			resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[which], params, cookies=cookies)
 			# Yes, that's right. We get back a JSON blob that contains
 			# a blob of HTML. Which contains JavaScript.
@@ -354,12 +357,15 @@ def do_trade(user):
 				else:
 					print("You offer %d item(s) and request %d item(s):" % (len(offer), len(request)))
 				item_details = {}
+				downloadme = collections.deque(offer + request)
 				def download_item(item):
 					ids = item.split("/", 1)[1]
 					text = requests.get("https://steamcommunity.com/economy/itemclasshover/" + ids + "?content_only=1").text
 					jsdata = text.split("BuildHover(")[1].split(",", 1)[1].strip()
 					info = json.JSONDecoder().raw_decode(jsdata)[0]
 					item_details[item] = info
+				def display_item(item):
+					info = item_details[item]
 					colorprint(info["name"], info.get("name_color"))
 					if "fraudwarnings" in info:
 						# This also picks up "item has been renamed"
@@ -373,12 +379,25 @@ def do_trade(user):
 					# TODO: Have some "warning flag" heuristics based on
 					# info["description"] that would indicate stuff the user
 					# would want to know, eg "Killstreaker", "Unusual", "Gift"
+				def download_thread():
+					while "moar stuff":
+						try:
+							item = downloadme.popleft()
+						except IndexError:
+							break
+						download_item(item)
+				# Cap out at eight download threads
+				thread_count = min(len(offer) + len(request), 8)
+				threads = [threading.Thread(target=download_thread) for _ in range(thread_count)]
+				for thread in threads: thread.start()
+				for thread in threads: thread.join()
 				for item in offer:
-					download_item(item)
+					display_item(item)
 				if request: print("<== You are requesting ==>")
 				for item in request:
-					download_item(item)
+					display_item(item)
 				print()
+				print(time.time() - t)
 				input("Hit Enter to return to the summary: ")
 
 def do_setup(user):
