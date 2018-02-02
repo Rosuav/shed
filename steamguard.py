@@ -290,7 +290,8 @@ def do_trade(user):
 		# immediately. Don't need a multi-item cancel; the only other one we
 		# might need is "cancel everything". Don't let things get too complex.
 		if cmd.isdigit():
-			which = int(cmd) - 1
+			try: which = int(cmd) - 1
+			except ValueError: continue
 			if which < 0 or which >= len(ids):
 				print("Out of range")
 				continue # whatever, it's ugly
