@@ -366,16 +366,16 @@ def do_trade(user):
 					item_details[item] = info
 				def display_item(item):
 					info = item_details[item]
-					colorprint(info["name"], info.get("name_color"))
+					colorprint("\t" + info["name"], info.get("name_color"))
 					if "fraudwarnings" in info:
 						# This also picks up "item has been renamed"
 						for fraud in info["fraudwarnings"]:
 							fraud = fraud.replace("This item has been renamed.\n", "")
-							print("\t" + fraud)
+							print("\t\t" + fraud)
 					if info["market_name"] != info["name"]:
 						# This shows extra details for some items, eg wear
 						# level on war paint, killstreak quality, etc
-						print("\t ==> " + info["market_name"])
+						print("\t\t ==> " + info["market_name"])
 					# TODO: Have some "warning flag" heuristics based on
 					# info["description"] that would indicate stuff the user
 					# would want to know, eg "Killstreaker", "Unusual", "Gift"
