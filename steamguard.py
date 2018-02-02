@@ -296,7 +296,7 @@ def do_trade(user):
 			if which < 0 or which >= len(ids):
 				print("Out of range")
 				continue # whatever, it's ugly
-			print("Getting details for transaction", which)
+			print("Downloading details...")
 			resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[which], params, cookies=cookies)
 			# Yes, that's right. We get back a JSON blob that contains
 			# a blob of HTML. Which contains JavaScript.
