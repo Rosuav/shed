@@ -162,10 +162,6 @@ def import_from_mafiles(username):
 			return info["shared_secret"]
 	return None
 
-def get_user_info(username):
-	# shim, deleteme
-	return users.get(username)
-
 def do_code(user):
 	"""Generate an auth code for logins"""
 	if user is not None and len(user) == 28:
@@ -174,7 +170,7 @@ def do_code(user):
 		print(generate_code(user))
 		return
 	if not user: user = get_default_user()
-	info = get_user_info(user)
+	info = users.get(user)
 	if info:
 		print(generate_code(info["shared_secret"]))
 		return
@@ -195,11 +191,10 @@ def generate_identity_hash(secret, tag, timestamp=None):
 	hash = hmac.new(secret, timestamp + tag.encode("ascii"), hashlib.sha1).digest()
 	return base64.b64encode(hash)
 
-def do_trade(user):
+def do_trade(username):
 	"""Accept all pending trades/markets"""
-	if not user: user = get_default_user()
-	username = user
-	user = get_user_info(user)
+	if not username: username = get_default_user()
+	user = users.get(username)
 	if not user:
 		print("User not found")
 		return
@@ -480,7 +475,7 @@ def do_setup(user):
 		elif data.get("requires_twofactor"):
 			if "twofactorcode" not in params:
 				# Try to automate this if we already have part of the info
-				old_info = get_user_info(user)
+				old_info = users.get(user)
 				if old_info and old_info["shared_secret"]:
 					params["twofactorcode"] = generate_code(old_info["shared_secret"])
 					continue
