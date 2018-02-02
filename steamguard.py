@@ -56,6 +56,7 @@ def save_users(users):
 		for username, info in users.items():
 			if not username: continue
 			if "account_name" in info: del info["account_name"]
+			if "sessionid" in info: del info["sessionid"]
 			print("\t%s: %s," % (
 				json.dumps(username),
 				json.dumps(info),
@@ -154,7 +155,6 @@ def import_from_mafiles(username):
 				"shared_secret": info["shared_secret"],
 				"revocation_code": info["revocation_code"],
 				"steamid": info["Session"]["SteamID"],
-				"sessionid": info["Session"]["SessionID"],
 				"steamLoginSecure": info["Session"]["SteamLoginSecure"],
 			}
 			save_users(users)
@@ -582,7 +582,6 @@ def do_setup(user):
 		"shared_secret": shared_secret,
 		"revocation_code": revcode,
 		"steamid": oauth["steamid"],
-		"sessionid": cookies["sessionid"], # might not be used for anything, not sure
 		"steamLoginSecure": cookies["steamLoginSecure"],
 	}
 	save_users(users)
