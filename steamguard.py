@@ -288,12 +288,13 @@ def do_trade(username):
 			params["op"] = "allow"
 			params["cid[]"] = ids; params["ck[]"] = keys
 			resp = requests.post("https://steamcommunity.com/mobileconf/multiajaxop", params, cookies=cookies)
+			ok = resp.json()["success"]
+			if ok:
+				print("All transactions approved.")
+				return
+			print("Unable to do that - here's the response:")
 			print(resp.json())
-			return
-		# TODO: Allow the cancelling of one single offer, which will happen
-		# immediately. Don't need a multi-item cancel; the only other one we
-		# might need is "cancel everything". Don't let things get too complex.
-		if cmd.isdigit():
+		elif cmd.isdigit():
 			try: which = int(cmd) - 1
 			except ValueError: continue
 			if which < 0 or which >= len(ids):
@@ -330,14 +331,23 @@ def do_trade(username):
 					print("Market name:", confiteminfo["market_name"])
 				while "stay in details":
 					print("d: Show more details for this listing")
-					print("c: Cancel this listing, leaving others untouched")
+					print("a: Accept just this listing, leaving others untouched")
+					print("c: Cancel just this listing, leaving others untouched")
 					cmd = input("Or hit Enter to return to the summary: ").lower()
 					if cmd == "d":
 						for line in confiteminfo["descriptions"]:
 							colorprint(line["value"], line.get("color"))
 						print()
-					elif cmd == "c":
-						print("Unimplemented. (TODO)")
+					elif cmd == "c" or cmd == "a":
+						params["op"] = "allow" if cmd == "a" else "cancel"
+						params["cid"] = ids[which]; params["ck"] = keys[which]
+						resp = requests.post("https://steamcommunity.com/mobileconf/ajaxop", params, cookies=cookies)
+						ok = resp.json()["success"]
+						if ok:
+							# Abuse recursion because we have to reset basically EVERYTHING
+							return do_trade(username)
+						print("Unable to do that - here's the response:")
+						print(resp.json())
 					else:
 						break
 			else:
@@ -401,7 +411,8 @@ def do_trade(username):
 					print()
 					if offer: print("o: Show more details about the items offered")
 					if request: print("r: Show more details about the items requested")
-					print("c: Cancel this trade, leaving others untouched")
+					print("a: Accept just this trade, leaving others untouched")
+					print("c: Cancel just this trade, leaving others untouched")
 					cmd = input("Or hit Enter to return to the summary: ").lower()
 					if cmd == "o" or cmd == "r":
 						items = offer if cmd == "o" else request
@@ -432,8 +443,16 @@ def do_trade(username):
 								pos += 1
 							elif cmd == "q":
 								break
-					elif cmd == "c":
-						print("Unimplemented. (TODO)")
+					elif cmd == "c" or cmd == "a":
+						params["op"] = "allow" if cmd == "a" else "cancel"
+						params["cid"] = ids[which]; params["ck"] = keys[which]
+						resp = requests.post("https://steamcommunity.com/mobileconf/ajaxop", params, cookies=cookies)
+						ok = resp.json()["success"]
+						if ok:
+							# Abuse recursion because we have to reset basically EVERYTHING
+							return do_trade(username)
+						print("Unable to do that - here's the response:")
+						print(resp.json())
 					else:
 						break
 
