@@ -50,10 +50,19 @@ def saved_cookies_filename():
 
 def load_users():
 	global users, user_cookies
-	with open(saved_cookies_filename()) as f:
-		user_cookies = json.load(f)
-	with open(saved_accounts_filename()) as f:
-		users = json.load(f)
+	try:
+		with open(saved_accounts_filename()) as f:
+			users = json.load(f)
+	except FileNotFoundError:
+		users = {}
+	try:
+		with open(saved_cookies_filename()) as f:
+			user_cookies = json.load(f)
+	except FileNotFoundError:
+		# Note that it's perfectly reasonable to have a user file but
+		# no cookies file. 2FA codes will work fine, but you'll need
+		# to re-enter a password to do your first trade per account.
+		user_cookies = {}
 	if "" in users: del users[""]
 
 def save_users():
