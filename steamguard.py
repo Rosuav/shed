@@ -159,7 +159,6 @@ def import_from_mafiles(username):
 			info = json.load(f)
 		if info["account_name"] == username:
 			users[username] = {
-				"account_name": username,
 				"identity_secret": info["identity_secret"],
 				"shared_secret": info["shared_secret"],
 				"revocation_code": info["revocation_code"],
@@ -577,7 +576,6 @@ def do_setup(user):
 	print("Revocation code:", revcode)
 	print("RECORD THIS. Do it. Go.")
 	users[user] = {
-		"account_name": user,
 		"identity_secret": identity_secret,
 		"shared_secret": shared_secret,
 		"revocation_code": revcode,
