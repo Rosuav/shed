@@ -79,7 +79,7 @@ def save_users():
 				json.dumps(info),
 			), file=f)
 		# Since JSON doesn't like trailing commas, we add a
-		# shim at the end.
+		# shim at the end. TODO: Use this for configs??
 		print('\t"": {}', file=f)
 		print("}", file=f)
 	with open(saved_cookies_filename(), "w") as f:
@@ -91,8 +91,11 @@ def save_users():
 load_users()
 
 def get_default_user():
-	print("TODO: check if there's exactly one user, and if so,")
-	print("default to that user. Not yet implemented.")
+	if len(users) == 1:
+		# Only one user. Default to that user - easy.
+		return next(iter(users))
+	print("Multiple logins have been saved - you'll need to specify which one")
+	print("to work with. TODO: Allow a default-user setting somewhere.")
 	raise SystemExit
 
 def timecheck():
