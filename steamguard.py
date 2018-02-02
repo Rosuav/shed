@@ -353,15 +353,14 @@ def do_trade(user):
 					print("You offer %d item(s) as a gift:" % len(offer))
 				else:
 					print("You offer %d item(s) and request %d item(s):" % (len(offer), len(request)))
+				item_details = {}
 				def download_item(item):
 					ids = item.split("/", 1)[1]
 					# print(ids)
 					text = requests.get("https://steamcommunity.com/economy/itemclasshover/" + ids + "?content_only=1").text
 					jsdata = text.split("BuildHover(")[1].split(",", 1)[1].strip()
 					info = json.JSONDecoder().raw_decode(jsdata)[0]
-					# TODO: Save the info using 'ids' or 'item' as the key
-					# If the user wants EVEN MORE info, we can show similarly to the
-					# market listing above.
+					item_details[item] = info
 					colorprint(info["name"], info.get("name_color"))
 					if "fraudwarnings" in info:
 						# This also picks up "item has been renamed"
@@ -380,6 +379,8 @@ def do_trade(user):
 				if request: print("<== You are requesting ==>")
 				for item in request:
 					download_item(item)
+				print()
+				input("Hit Enter to return to the summary: ")
 
 def do_setup(user):
 	"""Set up a new user"""
