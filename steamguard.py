@@ -240,7 +240,6 @@ def do_trade(user):
 			print("UNABLE TO PARSE:")
 			print(tag)
 			continue
-		print("idx", len(ids), "type", type, "confid", confid, "- key", key)
 		ids.append(confid); keys.append(key)
 		rest = rest.split('<div class="mobileconf_list_entry_sep">', 1)[0].strip()
 		# Strip HTML tags and produce a series of text nodes,
@@ -251,7 +250,23 @@ def do_trade(user):
 			text = text.strip()
 			if text: desc.append(text)
 			if rest: rest = rest.split('>', 1)[1]
-		print(desc)
+		if len(desc) != 3:
+			print("Parsing problem - description may not be properly readable")
+			print(desc)
+			continue
+		# The first description line usually says who you're trading with,
+		# or what you're selling; the last line says when the offer was made.
+		print("%d: %s (%s)" % (len(ids), desc[0], desc[2].lower()))
+		if type == 2:
+			# Trade offer with another player
+			for item in desc[1].split(", "):
+				print("\t" + item)
+			# Note that the items CAN include commas, which will make this display ugly.
+			# (Try trading "Taunt: Rock, Paper, Scissors" for instance.)
+			# The details view will still be correct.
+		elif type == 3:
+			# Market listing. Should show the sell price and what you'd get.
+			print(desc[1])
 	if not ids:
 		print("No trades to confirm.")
 		return
