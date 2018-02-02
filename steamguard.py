@@ -356,7 +356,6 @@ def do_trade(user):
 				item_details = {}
 				def download_item(item):
 					ids = item.split("/", 1)[1]
-					# print(ids)
 					text = requests.get("https://steamcommunity.com/economy/itemclasshover/" + ids + "?content_only=1").text
 					jsdata = text.split("BuildHover(")[1].split(",", 1)[1].strip()
 					info = json.JSONDecoder().raw_decode(jsdata)[0]
