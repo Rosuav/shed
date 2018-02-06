@@ -691,6 +691,35 @@ def do_install(arg):
 			os.path.abspath(__file__),
 		), file=f)
 	os.chmod(script, 0o755)
+	# Attempt to create a bash completion file
+	import subprocess
+	# (Not using the Py3.5 subprocess.run() API for compat with older Pythons)
+	path = subprocess.check_output(["pkg-config", "--variable=completionsdir", "bash-completion"])
+	path = path.decode("ascii").strip() # Non-ASCII path? I'll figure it out if it ever happens.
+	with open(path + "/steamguard", "w") as f:
+		print("""# bash completion for Python steamguard CLI
+_steamguard()
+{
+    local cur prev words cword
+    _init_completion || return
+    # COMPREPLY=( $( compgen -W $(steamguard autocomplete "$cur" "$prev") -- "$cur" ) )
+    COMPREPLY=( $( compgen -W '%s' -- "$cur" ) )
+} &&
+complete -F _steamguard steamguard
+""" % " ".join(name[3:] for name in globals() if name.startswith("do_")), file=f)
+	print("Installed.")
+
+def do_complete(args):
+	"""Provide autocomplete options"""
+	# TODO: If a full command name is entered, emit a list of
+	# user names. Otherwise, emit a list of command names, unless
+	# a prefix has been entered which conflicts with them but is
+	# the start of a user name. Or something. Maybe just return a
+	# full list of commands AND users unless we clearly have one
+	# or the other? Anyhow, the shell side of this isn't currently
+	# working, so this isn't active.
+	cur, prev = args
+	print("trade setup timecheck")
 
 def usage():
 	print("USAGE: python3 steamguard.py [command] [user]")
@@ -710,11 +739,14 @@ def main(args):
 		if f:
 			if func: return usage()
 			func = f
+			# HACK: Autocomplete needs unparsed args.
+			if func is do_complete:
+				return func(args[1:])
 		else:
 			if user: return usage()
 			user = arg
 	if not func: func = do_code
-	func(user)
+	return func(user)
 
 if __name__ == "__main__":
 	sys.exit(main(sys.argv[1:]))
