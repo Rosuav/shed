@@ -9,6 +9,7 @@ import hashlib
 import hmac
 import json
 import os
+import sys
 import threading
 import time
 import pprint
@@ -672,6 +673,25 @@ def do_setup(user):
 	print("If you lose the revocation code, you will have great difficulty")
 	print("undoing what you've just done here.")
 
+def do_install(arg):
+	"""Install 'steamguard' command (may require root privileges)"""
+	# Not guaranteed to work on non-Linux platforms
+	script = "/usr/local/bin/steamguard"
+	try:
+		f = open(script, "w" if arg == "force" else "x")
+	except FileExistsError:
+		print(script, "already exists - will not overwrite.")
+		return 1
+	except PermissionError:
+		print("Unable to install - permission denied (try sudo?)")
+		return 1
+	with f:
+		print("%r %r" % (
+			sys.executable,
+			os.path.abspath(__file__),
+		), file=f)
+	os.chmod(script, 0o755)
+
 def usage():
 	print("USAGE: python3 steamguard.py [command] [user]")
 	print("command is one of:")
@@ -697,5 +717,4 @@ def main(args):
 	func(user)
 
 if __name__ == "__main__":
-	import sys
 	sys.exit(main(sys.argv[1:]))
