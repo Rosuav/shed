@@ -166,6 +166,7 @@ def import_from_mafiles(username):
 				"shared_secret": info["shared_secret"],
 				"revocation_code": info["revocation_code"],
 				"steamid": info["Session"]["SteamID"],
+				"oauth_token": info["Session"]["OAuthToken"],
 			}
 			user_cookies[username] = info["Session"]["SteamLoginSecure"]
 			save_users()
@@ -219,14 +220,48 @@ def do_trade(username):
 	cookies = {
 		'steamLoginSecure': user_cookies[username],
 	}
-	try:
-		info = requests.get("https://steamcommunity.com/mobileconf/conf", params, cookies=cookies)
-	except requests.exceptions.InvalidSchema as e:
-		# Probably we're not logged in.
-		if e.args[0] == "No connection adapters were found for 'steammobile://lostauth'":
-			print("Lost auth - rerun 'setup' on this user to refresh session")
-			print("TODO: Attempt a session refresh within the API first")
-			return
+	info = None
+	def attempt_login():
+		try:
+			nonlocal info
+			info = requests.get("https://steamcommunity.com/mobileconf/conf", params, cookies=cookies)
+		except requests.exceptions.InvalidSchema as e:
+			# If the login fails, Steam returns a redirect, which requests.get attempts to
+			# follow. But it can't, because the scheme isn't valid.
+			if e.args[0] == "No connection adapters were found for 'steammobile://lostauth'":
+				return False
+			raise
+		else:
+			return True
+
+	if not attempt_login():
+		if "oauth_token" in user:
+			print("Refreshing session...")
+			print("(If this fails, rerun 'setup' on this user to refresh manually.)")
+			data = requests.post("https://api.steampowered.com/IMobileAuthService/GetWGToken/v0001", {
+				"access_token": user["oauth_token"],
+			}).json()["response"]
+			cookies["steamLoginSecure"] = user_cookies[username] = \
+				"{}%7C%7C{}".format(user["steamid"], data["token_secure"])
+			if not attempt_login():
+				print("Session refresh failed. Please re-enter your password to continue.")
+				do_setup(username)
+				cookies["steamLoginSecure"] = user_cookies[username]
+				if not attempt_login():
+					print("Unable to automatically re-authenticate. Investigate manually.")
+					return
+			else:
+				# Refresh succeeded - be sure to save the new cookie.
+				save_users()
+		else:
+			print("No OAuth token saved. You'll need to re-enter your password to")
+			print("obtain this; hopefully just this once.")
+			do_setup(username)
+			cookies["steamLoginSecure"] = user_cookies[username]
+			if not attempt_login():
+				print("Something went wrong with the login - maybe there's an error above?")
+				return
+
 	# Now begins the parsing of HTML. Followed by a light salad.
 	# It's a mess, it's not truly parsing HTML, and it's not pretty.
 	# But it works. It gets the info we need. It's as good as we can
@@ -582,6 +617,8 @@ def do_setup(user):
 				print(resp)
 				return
 			user_cookies[user] = cookies["steamLoginSecure"]
+			if "oauth_token" not in users[user]:
+				users[user]["oauth_token"] = oauth["oauth_token"]
 			save_users()
 			print("Login data refreshed. Trades should work again.")
 			return
@@ -602,6 +639,7 @@ def do_setup(user):
 		"shared_secret": shared_secret,
 		"revocation_code": revcode,
 		"steamid": oauth["steamid"],
+		"oauth_token": oauth["oauth_token"],
 	}
 	user_cookies[user] = cookies["steamLoginSecure"]
 	save_users()
