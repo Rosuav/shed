@@ -304,7 +304,9 @@ def do_trade(username):
 			# The details view will still be correct.
 		trades.append(desc)
 	if not ids:
-		print("No trades to confirm.")
+		print("No trades to confirm. (Note that trades are occasionally 'lost' when login")
+		print("credentials reset. If that happens, cancel the trades in the Steam UI or on")
+		print("the Market http://steamcommunity.com/market/ and try again.")
 		return
 	#resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[0], params, cookies=cookies)
 	#with open("details.json", "w") as f: print(resp.text, file=f)
