@@ -362,7 +362,7 @@ def do_trade(username):
 				# that is to say, the JSON in the HTML in the JSON. Yeah.
 				jsdata = html.split("BuildHover( 'confiteminfo', ", 1)[1]
 				confiteminfo = json.JSONDecoder().raw_decode(jsdata)[0]
-				for link in confiteminfo["actions"]:
+				for link in confiteminfo.get("actions", ()):
 					print(link["name"], link["link"])
 				name = confiteminfo["name"]
 				colorprint(name, confiteminfo.get("name_color"))
