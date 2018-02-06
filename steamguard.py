@@ -686,7 +686,7 @@ def do_install(arg):
 		print("Unable to install - permission denied (try sudo?)")
 		return 1
 	with f:
-		print("%r %r" % (
+		print('%r %r "$@"' % (
 			sys.executable,
 			os.path.abspath(__file__),
 		), file=f)
