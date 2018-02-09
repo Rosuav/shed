@@ -127,7 +127,7 @@ def do_timecheck(user):
 		print("Your clock is in sync with Valve's (%+d sec)" % offset)
 	else:
 		print("CAUTION: Your clock is %+d sec out of sync" % offset)
-		print("Consider adjusting your clock, or use --time-sync")
+		print("Consider adjusting your clock, eg with NTP")
 
 def generate_code(secret, timestamp=None):
 	"""Generate a SteamGuard code for a given shared secret
