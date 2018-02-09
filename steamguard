@@ -99,6 +99,9 @@ def save_users():
 load_users()
 
 def get_default_user():
+	if not users:
+		print("Start with 'steamguard setup' to authenticate a user")
+		raise SystemExit
 	if len(users) == 1:
 		# Only one user. Default to that user - easy.
 		return next(iter(users))
