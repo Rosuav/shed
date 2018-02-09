@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Reimplementation of the Steam Mobile Authentication protocol, as demonstrated
 # by https://github.com/geel9/SteamAuth (MIT-licensed, as is this code).
 # Full functionality requires the 'requests' and 'rsa' modules, which should be
@@ -678,19 +679,13 @@ def do_install(arg):
 	# Not guaranteed to work on non-Linux platforms
 	script = "/usr/local/bin/steamguard"
 	try:
-		f = open(script, "w" if arg == "force" else "x")
+		os.symlink(os.path.abspath(__file__), script)
 	except FileExistsError:
 		print(script, "already exists - will not overwrite.")
 		return 1
 	except PermissionError:
 		print("Unable to install - permission denied (try sudo?)")
 		return 1
-	with f:
-		print('%r %r "$@"' % (
-			sys.executable,
-			os.path.abspath(__file__),
-		), file=f)
-	os.chmod(script, 0o755)
 	# Attempt to create a bash completion file
 	import subprocess
 	# (Not using the Py3.5 subprocess.run() API for compat with older Pythons)
@@ -698,28 +693,25 @@ def do_install(arg):
 	path = path.decode("ascii").strip() # Non-ASCII path? I'll figure it out if it ever happens.
 	with open(path + "/steamguard", "w") as f:
 		print("""# bash completion for Python steamguard CLI
-_steamguard()
-{
-    local cur prev words cword
-    _init_completion || return
-    # COMPREPLY=( $( compgen -W $(steamguard autocomplete "$cur" "$prev") -- "$cur" ) )
-    COMPREPLY=( $( compgen -W '%s' -- "$cur" ) )
-} &&
-complete -F _steamguard steamguard
-""" % " ".join(name[3:] for name in globals() if name.startswith("do_")), file=f)
+complete -C 'steamguard complete' steamguard
+""", file=f)
 	print("Installed.")
 
 def do_complete(args):
-	"""Provide autocomplete options"""
-	# TODO: If a full command name is entered, emit a list of
-	# user names. Otherwise, emit a list of command names, unless
-	# a prefix has been entered which conflicts with them but is
-	# the start of a user name. Or something. Maybe just return a
-	# full list of commands AND users unless we clearly have one
-	# or the other? Anyhow, the shell side of this isn't currently
-	# working, so this isn't active.
-	cur, prev = args
-	print("trade setup timecheck")
+	"""Provide autocomplete options for bash"""
+	# If we have a full subcommand name, tab-complete the user name only.
+	# If we have a full user name, tab-complete the command.
+	# Otherwise, offer both options.
+	self, part, previous = args
+	#print("\n", args, file=sys.stderr)
+	#print(sorted(os.environ), file=sys.stderr)
+	commands = [func[3:] for func in globals() if func.startswith("do_")]
+	if previous in commands: completeme = users
+	elif previous in users: completeme = commands
+	else: completeme = commands + list(users)
+	for word in completeme:
+		if word.startswith(part):
+			print(word)
 
 def usage():
 	print("USAGE: python3 steamguard.py [command] [user]")
