@@ -241,7 +241,7 @@ def do_trade(username):
 		"k": generate_identity_hash(user["identity_secret"], "conf"),
 	}
 	cookies = {
-		'steamLoginSecure': user_cookies[username],
+		'steamLoginSecure': user_cookies.get(username, ""),
 	}
 	info = None
 	def attempt_login():
