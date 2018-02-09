@@ -114,6 +114,10 @@ def timecheck():
 
 def do_timecheck(user):
 	"""Check your clock against Valve's"""
+	# TODO: Save the offset into _config, and have everything use that
+	# If there's a previously-saved offset, show (a) the desynchronization
+	# and (b) the change in desync compared to the saved one, aka the
+	# drift. A significant clock drift is a problem.
 	offset = timecheck()
 	if offset == 0:
 		print("Your clock is in sync with Valve's (+/- 0.5 sec)")
