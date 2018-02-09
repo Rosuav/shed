@@ -247,7 +247,7 @@ def do_trade(username):
 	def attempt_login():
 		try:
 			nonlocal info
-			info = requests.get("https://steamcommunity.com/mobileconf/conf", params, cookies=cookies)
+			info = requests.get("https://steamcommunity.com/mobileconf/conf", params=params, cookies=cookies)
 		except requests.exceptions.InvalidSchema as e:
 			# If the login fails, Steam returns a redirect, which requests.get attempts to
 			# follow. But it can't, because the scheme isn't valid.
@@ -331,7 +331,7 @@ def do_trade(username):
 		print("credentials reset. If that happens, cancel the trades in the Steam UI or on")
 		print("the Market http://steamcommunity.com/market/ and try again.)")
 		return
-	#resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[0], params, cookies=cookies)
+	#resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[0], params=params, cookies=cookies)
 	#with open("details.json", "w") as f: print(resp.text, file=f)
 	#with open("details.html", "w") as f: print(resp.json()["html"], file=f)
 	# TODO: Provide more details (on request, esp if it requires another API call)
@@ -364,7 +364,7 @@ def do_trade(username):
 				print("Not a transaction number I recognize - try again?")
 				continue
 			print("Downloading details...")
-			resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[which], params, cookies=cookies)
+			resp = requests.get("https://steamcommunity.com/mobileconf/details/" + ids[which], params=params, cookies=cookies)
 			# Yes, that's right. We get back a JSON blob that contains
 			# a blob of HTML. Which contains JavaScript.
 			print()
