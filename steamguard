@@ -20,7 +20,8 @@ import pprint
 # import rsa # Not done globally as it's third-party and very few actions need it
 
 _config = {} # Loaded from the users[""] dumpspace. Must be JSON-compatible.
-DEBUG = False # Set to True to get raw dumps of responses
+# _config["debug"] => True to get raw dumps of responses
+# _config["default_user"] => User name to use if none specified and multiple are saved
 
 def colorprint(text, color):
 	"""Display the given text in the given color.
@@ -565,7 +566,7 @@ def do_setup(user):
 			print("Unable to log in - here's the raw dump:")
 			print(data)
 			return
-	if DEBUG:
+	if _config.get("debug"):
 		pprint.pprint(data)
 		print()
 		pprint.pprint(cookies)
@@ -669,7 +670,7 @@ def do_setup(user):
 				"skipvoip": 1, "sessionid": cookies["sessionid"]},
 				cookies=cookies).json()
 			print()
-			if DEBUG: pprint.pprint(data)
+			if _config.get("debug"): pprint.pprint(data)
 			if not data["success"]: continue
 			print("Phone successfully registered.")
 			verify_phone = False
@@ -682,7 +683,7 @@ def do_setup(user):
 			"authenticator_time": tm,
 		}).json()["response"]
 		if data["success"]: break
-		if DEBUG: pprint.pprint(data)
+		if _config.get("debug"): pprint.pprint(data)
 	print("Your phone has been registered. SAVE the revocation code.")
 	print("If you lose the revocation code, you will have great difficulty")
 	print("undoing what you've just done here.")
