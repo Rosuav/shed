@@ -101,8 +101,10 @@ def get_default_user():
 	if len(users) == 1:
 		# Only one user. Default to that user - easy.
 		return next(iter(users))
+	if "default_user" in _config and _config["default_user"] in users:
+		return _config["default_user"]
 	print("Multiple logins have been saved - you'll need to specify which one")
-	print("to work with. TODO: Allow a default-user setting somewhere.")
+	print("to work with.")
 	raise SystemExit
 
 def timecheck():
