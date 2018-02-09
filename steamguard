@@ -714,7 +714,7 @@ def do_complete(args):
 			print(word)
 
 def usage():
-	print("USAGE: python3 steamguard.py [command] [user]")
+	print("USAGE: steamguard [command] [user]")
 	print("command is one of:")
 	for func in sorted(globals()):
 		if func.startswith("do_"):
@@ -727,6 +727,8 @@ def usage():
 def main(args):
 	func = user = None
 	for arg in args:
+		if arg in {"-h", "--help", "help"}:
+			return usage()
 		f = globals().get("do_" + arg)
 		if f:
 			if func: return usage()
