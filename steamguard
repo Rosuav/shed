@@ -107,6 +107,15 @@ def get_default_user():
 	print("to work with.")
 	raise SystemExit
 
+def now():
+	"""Return the current time as an integer
+
+	Ideally, this will return the time on Valve's clock (not to
+	be confused with Valve Time), utilizing the offset from the
+	most recent time check.
+	"""
+	return int(time.time())
+
 def timecheck():
 	import requests # ImportError? Install 'requests' using pip or similar.
 	data = requests.post("https://api.steampowered.com/ITwoFactorService/QueryTime/v0001", "steamid=0").json()
@@ -140,7 +149,7 @@ def generate_code(secret, timestamp=None):
 	"""
 	secret = base64.b64decode(secret)
 	if timestamp is None:
-		timestamp = int(time.time())
+		timestamp = now()
 	timestamp //= 30 # The code regenerates every half minute
 	timestamp = timestamp.to_bytes(8, "big")
 	hash = hmac.new(secret, timestamp, hashlib.sha1).digest()
@@ -209,9 +218,7 @@ def do_code(user):
 def generate_identity_hash(secret, tag, timestamp=None):
 	"""Generate a hash based on the identity_secret"""
 	secret = base64.b64decode(secret)
-	if timestamp is None:
-		timestamp = int(time.time())
-	timestamp = timestamp.to_bytes(8, "big")
+	timestamp = (timestamp or now()).to_bytes(8, "big")
 	hash = hmac.new(secret, timestamp + tag.encode("ascii"), hashlib.sha1).digest()
 	return base64.b64encode(hash)
 
@@ -223,9 +230,8 @@ def do_trade(username):
 		print("User not found")
 		return
 	import requests
-	tm = int(time.time())
 	params = {
-		"m": "android", "tag": "conf", "t": tm,
+		"m": "android", "tag": "conf", "t": now(),
 		"p": "android:92bb3646-1d32-3646-3646-36461d32bdbe",
 		"a": user["steamid"],
 		"k": generate_identity_hash(user["identity_secret"], "conf"),
@@ -528,10 +534,6 @@ def do_setup(user):
 		"rsatimestamp": data["timestamp"],
 		"oauth_client_id": "DE45CD61",
 		"oauth_scope": "read_profile write_profile read_client write_client",
-		# Dunno if these values are needed
-		#"loginfriendlyname": "#login_emailauth_friendlyname_mobile",
-		#"remember_login": "false",
-		#"donotcache": str(int(time.time())),
 	}
 	# This is a magic cookie in every sense. Its presence makes Steam provide
 	# OAuth info, which otherwise is inexplicably omitted. Thanks, Steam! (I
@@ -671,7 +673,7 @@ def do_setup(user):
 			if not data["success"]: continue
 			print("Phone successfully registered.")
 			verify_phone = False
-		tm = int(time.time())
+		tm = int(time.time()) # Doesn't need to be adjusted to Valve's clock AFAIK
 		data = requests.post("https://api.steampowered.com/ITwoFactorService/FinalizeAddAuthenticator/v0001", {
 			"access_token": oauth["oauth_token"],
 			"steamid": oauth["steamid"],
