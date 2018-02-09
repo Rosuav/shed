@@ -3,6 +3,7 @@
 # by https://github.com/geel9/SteamAuth (MIT-licensed, as is this code).
 # Full functionality requires the 'requests' and 'rsa' modules, which should be
 # available via pip. Some features will be available without them.
+VERSION = "1.0.0"
 
 import base64
 import collections
@@ -10,6 +11,7 @@ import hashlib
 import hmac
 import json
 import os
+import subprocess
 import sys
 import threading
 import time
@@ -674,8 +676,56 @@ def do_setup(user):
 	print("If you lose the revocation code, you will have great difficulty")
 	print("undoing what you've just done here.")
 
+def make_completions(prefix=""):
+	# Not guaranteed to work on any non-Linux system. Might work on
+	# other Unices but I haven't tested it.
+	# (Not using the Py3.5 subprocess.run() API for compat with older Pythons)
+	path = subprocess.check_output(["pkg-config", "--variable=completionsdir", "bash-completion"])
+	path = path.decode("ascii").strip() # Non-ASCII path? I'll figure it out if it ever happens.
+	os.makedirs(prefix + path)
+	with open(prefix + path + "/steamguard", "w") as f:
+		print("""# bash completion for Python steamguard CLI
+complete -C 'steamguard complete' steamguard
+""", file=f)
+
 def do_install(arg):
 	"""Install 'steamguard' command (may require root privileges)"""
+	if arg == "deb":
+		# Build a Debian package (TODO: test this properly)
+		import shutil
+		dir = "/tmp/steamguard_%s-1" % VERSION
+		if os.path.exists(dir):
+			shutil.rmtree(dir)
+		os.makedirs(dir + "/usr/local/bin")
+		with open(dir + "/usr/local/bin/steamguard", "w") as f:
+			with open(__file__) as self:
+				f.write(self.read())
+		os.chmod(dir + "/usr/local/bin/steamguard", 0o755)
+		make_completions(dir)
+		os.mkdir(dir + "/DEBIAN")
+		with open(dir + "/DEBIAN/control", "w") as f:
+			print("""
+Package: steamguard
+Version: %s-1
+Section: base
+Priority: optional
+Architecture: all
+Depends: python3 (>= 3.4), python3-requests (>= 2.4.3), python3-rsa (>= 3.1.4)
+Maintainer: Chris Angelico <rosuav@gmail.com>
+Description: Steam Authenticator CLI
+ Reimplementation of the SteamGuard functionality in pure Python
+ as a command-line (desktop) tool rather than a mobile phone app.
+ .
+ Has the core capabilities of the Steam 2FA mobile app: generate
+ 2FA codes for logins, approve and cancel trade offers and market
+ listings, and manage authenticators.
+ .
+ Requires requests and rsa packages and a Python 3.x interpreter.
+ Exact versions required have yet to be checked.
+""" % VERSION, file=f)
+		subprocess.call(["dpkg-deb", "--build", dir])
+		shutil.rmtree(dir)
+		return
 	# Not guaranteed to work on non-Linux platforms
 	script = "/usr/local/bin/steamguard"
 	try:
@@ -687,14 +737,7 @@ def do_install(arg):
 		print("Unable to install - permission denied (try sudo?)")
 		return 1
 	# Attempt to create a bash completion file
-	import subprocess
-	# (Not using the Py3.5 subprocess.run() API for compat with older Pythons)
-	path = subprocess.check_output(["pkg-config", "--variable=completionsdir", "bash-completion"])
-	path = path.decode("ascii").strip() # Non-ASCII path? I'll figure it out if it ever happens.
-	with open(path + "/steamguard", "w") as f:
-		print("""# bash completion for Python steamguard CLI
-complete -C 'steamguard complete' steamguard
-""", file=f)
+	make_completions()
 	print("Installed.")
 
 def do_complete(args):
