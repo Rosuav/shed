@@ -19,7 +19,7 @@ import pprint
 # import requests # Not done globally as it's big and not all calls require it
 # import rsa # Not done globally as it's third-party and very few actions need it
 
-_time_offset = None # TODO: Align clocks with Valve
+_config = {} # Loaded from the users[""] dumpspace. Must be JSON-compatible.
 DEBUG = False # Set to True to get raw dumps of responses
 
 def colorprint(text, color):
@@ -67,7 +67,10 @@ def load_users():
 		# no cookies file. 2FA codes will work fine, but you'll need
 		# to re-enter a password to do your first trade per account.
 		user_cookies = {}
-	if "" in users: del users[""]
+	if "" in users:
+		global _config
+		_config = users[""]
+		del users[""]
 
 def save_users():
 	with open(saved_accounts_filename(), "w") as f:
@@ -82,9 +85,9 @@ def save_users():
 				json.dumps(username),
 				json.dumps(info),
 			), file=f)
-		# Since JSON doesn't like trailing commas, we add a
-		# shim at the end. TODO: Use this for configs??
-		print('\t"": {}', file=f)
+		# Save our configuration (without the trailing comma, since
+		# JSON doesn't like loose commas)
+		print('\t"": %s' % json.dumps(_config), file=f)
 		print("}", file=f)
 	with open(saved_cookies_filename(), "w") as f:
 		json.dump(user_cookies, f)
