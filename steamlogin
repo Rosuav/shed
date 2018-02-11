@@ -13,6 +13,6 @@ else
 	}
 fi
 xdotool search --name "Steam Guard" windowactivate || until login; do echo Waiting for Steam login window...; sleep 1; done
-until xdotool search --name "Steam Guard" windowactivate && xdotool type `python3 ~/shed/steamguard.py $USERNAME` && xdotool sleep 0.1 key Return
+until xdotool search --name "Steam Guard" windowactivate && xdotool type `steamguard $USERNAME` && xdotool sleep 0.1 key Return
 do echo Waiting for steamguard window...; sleep 1; done
 echo Logged in.
