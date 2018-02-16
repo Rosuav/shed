@@ -1,6 +1,6 @@
 #!/bin/bash
 # Steam autologin
-# Requires https://github.com/dyc3/steamguard-cli and xdotool (probably found in your distro repos)
+# Requires xdotool (probably found in your distro repos) and the use of steamguard from this repo
 USERNAME=$1
 PASSWORD=$2
 if [ -z "$PASSWORD" ]; then
