@@ -691,6 +691,37 @@ def do_setup(user):
 	print("If you lose the revocation code, you will have great difficulty")
 	print("undoing what you've just done here.")
 
+def do_login(user):
+	"""Log in the given user (apart from the password)"""
+	# Not guaranteed to work on any non-Linux system. Requires xdotool.
+	if not user: user = get_default_user()
+	info = users.get(user)
+	if not info:
+		print("User not registered with steamguard. First time? Use:")
+		print("steamguard setup", user)
+		return
+	# First try to find the 2FA prompt.
+	if subprocess.call(["xdotool", "search", "--name", "Steam Guard", "windowactivate"]):
+		# There's no 2FA prompt yet. Let's try to find a login page instead.
+		# TODO: Should we attempt to invoke Steam? Maybe do so only if it's not running?
+		while True:
+			if subprocess.call(["xdotool", "search", "--name", "Steam Login", "windowactivate", "sleep", "0.1"]):
+				print("Waiting for Steam login window...")
+				time.sleep(1)
+				continue
+			if subprocess.call(["xdotool", "type", user]):
+				continue # Shouldn't happen
+			if subprocess.call(["xdotool", "sleep", "0.1", "key", "Tab"]):
+				continue # Ditto
+			break
+	# Okay, so we've done a login, or else the Steam Guard window is already here.
+	while subprocess.call(["xdotool", "search", "--name", "Steam Guard", "windowactivate"]):
+		print("Waiting for steamguard window...")
+		time.sleep(1)
+	subprocess.check_call(["xdotool", "type", generate_code(info["shared_secret"])])
+	subprocess.check_call(["xdotool", "sleep", "0.1", "key", "Return"])
+	print("Logged in.")
+
 def make_completions(prefix=""):
 	# Not guaranteed to work on any non-Linux system. Might work on
 	# other Unices but I haven't tested it.
