@@ -713,8 +713,10 @@ def do_login(user):
 				continue # Shouldn't happen
 			if subprocess.call(["xdotool", "sleep", "0.1", "key", "Tab"]):
 				continue # Ditto
+			# TODO: Allow the password to be entered here with getpass()?
 			break
 	# Okay, so we've done a login, or else the Steam Guard window is already here.
+	# (Should this be "else: while"?)
 	while subprocess.call(["xdotool", "search", "--name", "Steam Guard", "windowactivate"]):
 		print("Waiting for steamguard window...")
 		time.sleep(1)
