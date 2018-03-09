@@ -23,6 +23,8 @@ _config = {} # Loaded from the users[""] dumpspace. Must be JSON-compatible.
 # _config["debug"] => True to get raw dumps of responses
 # _config["default_user"] => User name to use if none specified and multiple are saved
 
+_options = {} # User-specified options (pre-parsed for convenience)
+
 def colorprint(text, color):
 	"""Display the given text in the given color.
 
@@ -820,6 +822,16 @@ def main(args):
 	for arg in args:
 		if arg in {"-h", "--help", "help"}:
 			return usage()
+		if arg.startswith("--"):
+			# TODO: Parse options more intelligently (not
+			# sure if argparse can do it though, too variable)
+			_options[arg] = True
+			continue
+		if arg.startswith("-"):
+			# "-abc" ==> "-a -b -c"
+			for arg in arg[1:]:
+				_options["-" + arg] = True
+			continue
 		f = globals().get("do_" + arg)
 		if f:
 			if func: return usage()
