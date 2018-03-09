@@ -702,6 +702,11 @@ def do_login(user):
 		print("User not registered with steamguard. First time? Use:")
 		print("steamguard setup", user)
 		return
+	if "-p" in _options or "--pass" in _options:
+		import getpass
+		password = getpass.getpass()
+	else:
+		password = None
 	# First try to find the 2FA prompt.
 	if subprocess.call(["xdotool", "search", "--name", "Steam Guard", "windowactivate"]):
 		# There's no 2FA prompt yet. Let's try to find a login page instead.
@@ -715,7 +720,11 @@ def do_login(user):
 				continue # Shouldn't happen
 			if subprocess.call(["xdotool", "sleep", "0.1", "key", "Tab"]):
 				continue # Ditto
-			# TODO: Allow the password to be entered here with getpass()?
+			if password:
+				if subprocess.call(["xdotool", "type", password]):
+					continue # Ditto ditto
+				if subprocess.call(["xdotool", "sleep", "0.1", "key", "Return"]):
+					continue # Ditty
 			break
 	# Okay, so we've done a login, or else the Steam Guard window is already here.
 	# (Should this be "else: while"?)
