@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+import webbrowser
+webbrowser.open("https://cranky-jackson-36d9ef.netlify.com")
+print("git gud doggo")
+print("git rekt")
