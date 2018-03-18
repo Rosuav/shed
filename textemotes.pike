@@ -1,6 +1,9 @@
 //Attempt to find the text emotes on Twitch
 //These are similar to brollI "I AM" and its friends.
 //curl -H 'Accept: application/vnd.twitchtv.v5+json' -H 'Client-ID: uo6dggojyb8d6soh92zknwmi5ej1q2' -X GET 'https://api.twitch.tv/kraken/chat/emoticons' >emote_list.json
+//If a human-readable version is desired:
+//python3 -m json.tool <emote_list.json >emote_human.json
+//Pretty-prints it at roughly double the file size. Either version is acceptable to this script.
 
 //Focal points taken from kittenzSew; impgrrlMuch is nearly the same;
 //brollI is a bit different but close.
