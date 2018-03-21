@@ -81,3 +81,4 @@ ffmpeg -y -i Bob\ Ross\ -\ Lake\ in\ the\ Valley\ \(Season\ 26\ Episode\ 4\)-KvJ
 ffmpeg -ss 4:27:27 -i `youtube-dl --get-url https://www.twitch.tv/videos/168760526` -t 428 -c copy "Now I see the panicBasket.mkv"
 ffmpeg -ss 0:43:51 -i `youtube-dl --get-url https://www.twitch.tv/videos/210193536` -t 163 -c copy "TVC plays Sorcerer.mkv"
 ffmpeg -ss 1:48:50 -i `youtube-dl --get-url https://www.twitch.tv/videos/239937840` -t 225 -c copy "TVC plays for DeviCat.mkv"
+python3 megaclip.py 239937840 1:48:51 224 "TVC plays for DeviCat"
