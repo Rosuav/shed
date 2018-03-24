@@ -70,3 +70,7 @@ Download them thus:
 $ url=`youtube-dl --get-url https://www.twitch.tv/lilbumblebear/v/107929408`
 $ ffmpeg -ss 05:32:10 -i $url -t 0:05:35 -c copy 2017-01-07.mkv
 Tweak the start time and duration to get a good clip.
+
+Or use the wrapper and get chat too:
+$ python3 megaclip.py 242164831 2:35:01 2:40:15 "20180324 Beehive Anthem"
+
