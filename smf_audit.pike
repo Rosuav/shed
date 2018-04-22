@@ -67,6 +67,9 @@ array(array(string|array(array(int|string)))) parsesmf(string data)
 void audit(string data)
 {
 	array(array(string|array(array(int|string)))) chunks = parsesmf(data);
+	//Currently audits each chunk separately. As long as there's no overlap
+	//in channel usage, this should not be a problem. If it becomes an issue,
+	//add an optional step here to flatten to SMF0.
 	foreach (chunks; int i; [string id, array chunk]) if (id == "MTrk")
 	{
 		multiset(int) channels = (<>);
