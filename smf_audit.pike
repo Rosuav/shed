@@ -87,7 +87,7 @@ void audit(string data)
 					//It's a Note-Off (8x nn vv), or a Note-On with
 					//a velocity of 0 (9x nn 00).
 					if (!notes_down[note]) write("[%d:%d] Release of unstruck note %X\n", i, ev, note);
-					notes_down[note] = 0;
+					m_delete(notes_down, note);
 				}
 				else
 				{
