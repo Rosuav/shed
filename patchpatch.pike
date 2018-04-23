@@ -111,7 +111,7 @@ array(array(string|array(array(int|string)))) parsesmf(string data)
 			array(int|string) ev=({delay,command});
 			switch (command)
 			{
-				case 0x00..0x7F: return 0; //Error - status byte expected. Running status with no previous status.
+				case 0x00..0x7F: error("Status byte expected. Running status with no previous status.\n");
 				case 0x80..0x8F: //Note off
 				case 0x90..0x9F: //Note on
 				case 0xA0..0xAF: //Note aftertouch
@@ -132,7 +132,7 @@ array(array(string|array(array(int|string)))) parsesmf(string data)
 				case 0xF1: case 0xF4..0xF6: case 0xF8..0xFE: //System Common various
 					//No data bytes.
 					break;
-				case 0xF0: case 0xF7: return 0; //SysEx not currently supported
+				case 0xF0: case 0xF7: error("SysEx not currently supported\n");
 				case 0xFF: //Meta event
 					[int type,int len,data]=({data[0],@getvarlen(data[1..])});
 					string meta=data[..len-1]; data=data[len..];
