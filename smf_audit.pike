@@ -20,20 +20,24 @@ void audit(string data)
 			if (cmd >= 0x80 && cmd <= 0x9F)
 			{
 				int note = ((cmd & 15) << 8) | data[2];
+				int was_down = notes_down[note];
 				if (cmd < 0x90 || data[3] == 0)
 				{
 					//werror("[%d:%d] %d ==> -%X\n", i, ev, data[0], note);
 					//It's a Note-Off (8x nn vv), or a Note-On with
 					//a velocity of 0 (9x nn 00).
-					if (!notes_down[note]) write("[%d:%d] Release of unstruck note %X\n", i, ev, note);
 					m_delete(notes_down, note);
+					if (was_down) continue;
+					write("[%d:%d] Release of unstruck note %X\n", i, ev, note);
 				}
 				else
 				{
 					//werror("[%d:%d] %d ==> +%X\n", i, ev, data[0], note);
-					if (notes_down[note]) write("[%d:%d] Restrike of playing note %X [struck %d]\n", i, ev, note, notes_down[note]);
 					notes_down[note] = ev;
+					if (!was_down) continue;
+					write("[%d:%d] Restrike of playing note %X [struck %d]\n", i, ev, note, was_down);
 				}
+				//If we get here, there was a problem.
 			}
 			/*else if (cmd == 255)
 				werror("[%d:%d] %d ==> Meta %X %O\n", i, ev, data[0], data[2], data[3]);
