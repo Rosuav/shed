@@ -167,6 +167,7 @@ string buildsmf(array(array(string|array(array(int|string)))) chunks)
 		int laststatus=0;
 		foreach (chunk[1],array(int|string|array) ev)
 		{
+			if (!ev) continue; //Allow zeroing out of events to completely remove them
 			if (ev[1]==0xFF)
 			{
 				data+=({sprintf("%s\xFF%c%s%s",makevarlen(ev[0]),ev[2],makevarlen(sizeof(ev[3])),ev[3])});
