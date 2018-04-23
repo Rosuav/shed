@@ -83,3 +83,4 @@ ffmpeg -ss 0:43:51 -i `youtube-dl --get-url https://www.twitch.tv/videos/2101935
 ffmpeg -ss 1:48:50 -i `youtube-dl --get-url https://www.twitch.tv/videos/239937840` -t 225 -c copy "TVC plays for DeviCat.mkv"
 python3 megaclip.py 239937840 1:48:51 224 "TVC plays for DeviCat"
 python3 megaclip.py 247782593 1:07:19 4:18 "Miss Gingerbread reads Flynt's messages"
+python3 megaclip.py 253489974 2:51:30 2:55:00 "Nightbot trolls Kristen"
