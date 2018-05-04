@@ -46,6 +46,12 @@ void poll()
 			stickied[id] = 0;
 			Process.create_process(({"wmctrl", "-ir", (string)id, "-b", "remove,sticky"}))->wait();
 		}
+		//If we spot an OBS projector, full-screen it. (Once fullscreened, it should be in (0,0), so don't re-fs it.)
+		if (title == "Windowed Projector (Preview)" && (x || y))
+		{
+			Process.create_process(({"wmctrl", "-ir", (string)id, "-e", "0,0,0,-1,-1"}))->wait();
+			Process.create_process(({"wmctrl", "-ir", (string)id, "-b", "add,fullscreen"}))->wait();
+		}
 	}
 	stickied &= (multiset)info[*][0]; //Prune the list of any windows that have closed.
 }
