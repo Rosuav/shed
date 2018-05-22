@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Rave with DeviCat</title>
+<style>
+img {
+	display: block;
+	position: absolute;
+	width: 112px; height: 112px;
+}
+#momoko {
+	left: 180px; top: 150px;
+}
+#shizuko {
+	right: 180px; top: 150px;
+}
+#glow_blu {
+	left: 293px; top: 73px;
+	transform: rotate(45deg);
+	transform-origin: -50px calc(50px + 112px); /* Momoko's hands */
+	animation: 1.5s infinite rave_blu;
+}
+#glow_red {
+	right: calc(80px + 112px + 112px); top: 80px;
+	transform: rotate(-45deg);
+	transform-origin: calc(50px + 112px) calc(50px + 112px); /* Shizuko's hands */
+	animation: 1.5s infinite rave_red;
+}
+@keyframes rave_blu {
+	from {
+		transform: rotate(45deg);
+		animation-timing-function: ease-in;
+	}
+	20% {
+		transform: rotate(-27deg) translateY(-25px);
+		animation-timing-function: ease-out;
+	}
+	50% {
+		transform: rotate(-135deg);
+		animation-timing-function: ease-in;
+	}
+	80% {
+		transform: rotate(-27deg) translateY(-25px);
+		animation-timing-function: ease-out;
+	}
+	to {
+		transform: rotate(45deg);
+	}
+}
+@keyframes rave_red {
+	from {
+		transform: rotate(-45deg);
+		animation-timing-function: ease-in;
+	}
+	20% {
+		transform: rotate(27deg) translateY(-25px);
+		animation-timing-function: ease-out;
+	}
+	50% {
+		transform: rotate(135deg);
+		animation-timing-function: ease-in;
+	}
+	80% {
+		transform: rotate(27deg) translateY(-25px);
+		animation-timing-function: ease-out;
+	}
+	to {
+		transform: rotate(-45deg);
+	}
+}
+section {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	position: absolute;
+	top: 300px;
+}
+iframe {
+	display: block;
+	margin-bottom: 2em;
+}
+h1 {text-align: center;}
+</style>
+</head>
+<body>
+<h1>Rave with Devi!</h1>
+<img id=momoko alt="Momoko" src="https://static-cdn.jtvnw.net/emoticons/v1/819925/5.0">
+<img id=glow_blu alt="Blue glowstick" src="https://static-cdn.jtvnw.net/emoticons/v1/819895/5.0">
+<img id=shizuko alt="Shizuko" src="https://static-cdn.jtvnw.net/emoticons/v1/819927/5.0">
+<img id=glow_red alt="Red glowstick" src="https://static-cdn.jtvnw.net/emoticons/v1/819892/5.0">
+<section>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/tS3HPXCxJUw" frameborder="0"></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/i0jkaBS6TbU" frameborder="0"></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/B7xai5u_tnk" frameborder="0"></iframe>
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Nl_4MWNh08I" frameborder="0"></iframe>
+</section>
+</body>
+</html>
