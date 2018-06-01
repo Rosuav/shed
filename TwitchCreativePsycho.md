@@ -10,8 +10,8 @@ the case, if quotes and clips are to be believed. Don't believe me? Check out
 these prime examples:
 
 * [Lara_cr](https://twitch.tv/lara_cr):
-  - <https://clips.twitch.tv/CreativeEndearingWoodpeckerPipeHype> with more details
-    <https://clips.twitch.tv/SlipperyPunchyWitchTBTacoRight>
+  - <https://clips.twitch.tv/CreativeEndearingWoodpeckerPipeHype>
+  - More details: <https://clips.twitch.tv/SlipperyPunchyWitchTBTacoRight>
 
 * [DeviCat](https://twitch.tv/devicat):
   - <https://clips.twitch.tv/AwkwardBlitheJackalANELE>
