@@ -45,6 +45,9 @@ The details:
   while in the category for that game counts as a creative stream.)
 * Submit your clips via Twitter with the clip URL andany title or caption you
   need. Mention @rosuav, and use hashtag #TwitchCreativePsycho.
+* I will "Like" every submission tweet that I see. If I haven't Liked yours
+  after a day or two, I didn't see it; check that you mentioned me and
+  included the hashtag, and maybe retweet it.
 * Please don't artificially synthesize entries. Psychoses should come up
   naturally as part of the normal flow of conversation.
 * Questions should be directed to @rosuav either on Twitter or Twitch.
