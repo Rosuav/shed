@@ -1,4 +1,5 @@
-# Finding the Twitch Creative Psychos
+Finding the Twitch Creative Psychos
+===================================
 
 Digital artist or psycho murderer? Can you even tell the difference?
 
@@ -8,20 +9,21 @@ psychos, not that they murder psychos). Or at least, that would appear to be
 the case, if quotes and clips are to be believed. Don't believe me? Check out
 these prime examples:
 
-* [Lara_cr](https://twitch.tv/lara_cr): https://clips.twitch.tv/CreativeEndearingWoodpeckerPipeHype
-  with more details https://clips.twitch.tv/SlipperyPunchyWitchTBTacoRight
+* [Lara_cr](https://twitch.tv/lara_cr):
+  - [https://clips.twitch.tv/CreativeEndearingWoodpeckerPipeHype] with more details
+    [https://clips.twitch.tv/SlipperyPunchyWitchTBTacoRight]
 
 * [DeviCat](https://twitch.tv/devicat):
-  - https://clips.twitch.tv/AwkwardBlitheJackalANELE
-  - https://clips.twitch.tv/ManlyPeacefulWren4Head
-  - https://clips.twitch.tv/DaintyCrackyNostrilAMPTropPunch
+  - [https://clips.twitch.tv/AwkwardBlitheJackalANELE]
+  - [https://clips.twitch.tv/ManlyPeacefulWren4Head]
+  - [https://clips.twitch.tv/DaintyCrackyNostrilAMPTropPunch]
   - "I'm just going to borrow her face." (28-Jan-18)
   - "How tall can you make a giraffe before someone breaks its neck?" (09-Apr-18)
   - "We got a couple of minutes to kill you guys" (28-May-18) - psycho on a schedule
 
-* [TinyMamaFox](https://twitch.tv/tinymamafox): https://clips.twitch.tv/EasySpoopyClintMVGame
+* [TinyMamaFox](https://twitch.tv/tinymamafox): [https://clips.twitch.tv/EasySpoopyClintMVGame]
 
-* [LadyDreamTV](https://twitch.tv/ladydreamtv): https://clips.twitch.tv/ArtisticBetterAntelopeBrokeBack
+* [LadyDreamTV](https://twitch.tv/ladydreamtv): [https://clips.twitch.tv/ArtisticBetterAntelopeBrokeBack]
 
 Don't worry; they're all safely behind the protective screens of Twitch. But
 if you know of a streamer that fits this description, I want to know about them
