@@ -8,3 +8,4 @@ The Twitch Creative Psychos
 * 20180605: SleepyMia <https://clips.twitch.tv/MistyInexpensiveEggplantDuDudu>
 * 20180607: DeviCat <https://clips.twitch.tv/FunPatientBubbleteaTinyFace>
 * 20180607: CandySprout <https://clips.twitch.tv/ExquisiteBashfulButterflyKippa>
+* 20180612: DeviCat <https://clips.twitch.tv/ViscousDifferentMetalTF2John>
