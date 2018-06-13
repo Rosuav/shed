@@ -10,3 +10,4 @@ The Twitch Creative Psychos
 * 20180607: CandySprout <https://clips.twitch.tv/ExquisiteBashfulButterflyKippa>
 * 20180612: DeviCat <https://clips.twitch.tv/ViscousDifferentMetalTF2John>
 * 20180613: FierceKittenz <https://clips.twitch.tv/CulturedInspiringPeafowlFunRun>
+* 20180613: ProphTart <https://clips.twitch.tv/ModernGrotesqueSrirachaFunRun>
