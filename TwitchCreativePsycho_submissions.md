@@ -13,3 +13,4 @@ The Twitch Creative Psychos
 * 20180613: ProphTart <https://clips.twitch.tv/ModernGrotesqueSrirachaFunRun>
  and <https://clips.twitch.tv/TangibleCharmingSaladAMPEnergyCherry> and
  <https://clips.twitch.tv/ThoughtfulRenownedPeafowlBCWarrior>
+* 20180614: DeviCat <https://clips.twitch.tv/MoldyPoorScallionBloodTrail>
