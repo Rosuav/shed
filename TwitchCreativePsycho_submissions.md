@@ -11,6 +11,6 @@ The Twitch Creative Psychos
 * 20180612: DeviCat <https://clips.twitch.tv/ViscousDifferentMetalTF2John>
 * 20180613: FierceKittenz <https://clips.twitch.tv/CulturedInspiringPeafowlFunRun>
 * 20180613: ProphTart <https://clips.twitch.tv/ModernGrotesqueSrirachaFunRun>
- and <https://clips.twitch.tv/TangibleCharmingSaladAMPEnergyCherry> and
- <https://clips.twitch.tv/ThoughtfulRenownedPeafowlBCWarrior>
+  and <https://clips.twitch.tv/TangibleCharmingSaladAMPEnergyCherry> and
+  <https://clips.twitch.tv/ThoughtfulRenownedPeafowlBCWarrior>
 * 20180614: DeviCat <https://clips.twitch.tv/MoldyPoorScallionBloodTrail>
