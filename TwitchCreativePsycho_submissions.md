@@ -14,3 +14,4 @@ The Twitch Creative Psychos
   and <https://clips.twitch.tv/TangibleCharmingSaladAMPEnergyCherry> and
   <https://clips.twitch.tv/ThoughtfulRenownedPeafowlBCWarrior>
 * 20180614: DeviCat <https://clips.twitch.tv/MoldyPoorScallionBloodTrail>
+* 20180614: Kadoodles <https://clips.twitch.tv/PleasantSecretiveSalmonLeeroyJenkins>
