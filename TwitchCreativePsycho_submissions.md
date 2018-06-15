@@ -114,3 +114,16 @@ that they seek the less... presentable components.
 
 (language warning, borderline NSFW)
 <https://clips.twitch.tv/PleasantSecretiveSalmonLeeroyJenkins>
+
+CONCLUSION
+----------
+
+Actually, we haven't yet reached a true conclusion. The search for psychos is
+[still ongoing](TwitchCreativePsycho) and we are likely to find more examples,
+both of the same people we've already seen, and of additional psychos. But
+already we can see ample evidence that creative persons have a strong tendency
+to be psychotic murderers, at least when taken out of context. Support your
+local [Twitch Creative](https://www.twitch.tv/directory/game/Creative) streamers
+and help them to wear their straitjackets with pride and a sense of true
+accomplishment. For after all, it takes many years of practice to become as
+dangerous and awesome as these people are.
