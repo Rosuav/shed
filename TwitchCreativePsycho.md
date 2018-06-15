@@ -31,6 +31,10 @@ if you know of a streamer that fits this description, I want to know about them
 lock them up in Rutledge Private Clinic and Asylum). In fact, I'm willing to
 give a prize for the best evidence of psychosis. Please, send me clips!
 
+As time permits, I will be writing up detailed explanations of the psychoses,
+to better aid the admissions doctors. These will be found in [a separate
+page](TwitchCreativePsycho_submissions).
+
 The details:
 
 * First prize will be $US 250. Additional prizes may be given out at the
