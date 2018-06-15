@@ -109,7 +109,7 @@ Kadoodles
 In this example, we see a psycho's assistant discussing the nature of the work
 she does. Every component of a victim is potentially usable, and thus saleable.
 The greatest psychos often purchase components rather than harvesting them all
-(see [DeviCat](#DeviCat-3) above), and it is from such merchants as Doodles
+(see [DeviCat](#devicat-3) above), and it is from such merchants as Doodles
 that they seek the less... presentable components.
 
 (language warning, borderline NSFW)
