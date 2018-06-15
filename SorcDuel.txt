@@ -1,0 +1,12 @@
+The Sorcerer's Duel
+===================
+
+'The Sorcerer himself appears in the common room, looking for someone. When he sees <Glanfindel?>, he strides over.
+become sorcerer
+'You! You have wronged me. You entered my sanctum and you STOLE my power cylinders.
+'I challenge you to a duel. And as the aggrieved party, I claim the right to name the weapons.
+'Misery Poker at five paces. Winner takes all, loser leaves town. A duel to the death.
+'As the aggrieved, I open with a free complaint.
+become
+share -- I was robbed of the power cylinders that my Eternal Flame requires. --
+'Each time the Sorcerer issues a complaint, you (any of you) must issue a counter-complaint. You will be playing as a team.
