@@ -61,11 +61,56 @@ Here she sketches one of the tools she uses for altering head shapes.
 
 <https://clips.twitch.tv/ExquisiteBashfulButterflyKippa>
 
+DeviCat
+-------
 
-* 20180612: DeviCat <https://clips.twitch.tv/ViscousDifferentMetalTF2John>
-* 20180613: FierceKittenz <https://clips.twitch.tv/CulturedInspiringPeafowlFunRun>
-* 20180613: ProphTart <https://clips.twitch.tv/ModernGrotesqueSrirachaFunRun>
-  and <https://clips.twitch.tv/TangibleCharmingSaladAMPEnergyCherry> and
-  <https://clips.twitch.tv/ThoughtfulRenownedPeafowlBCWarrior>
-* 20180614: DeviCat <https://clips.twitch.tv/MoldyPoorScallionBloodTrail>
-* 20180614: Kadoodles <https://clips.twitch.tv/PleasantSecretiveSalmonLeeroyJenkins>
+Not all her body parts are personally harvested. Here we see the Devi opening
+a box of mail-order components; they were blind-boxed, and she did not know
+exactly which parts would be included. It surprised her greatly to find that
+one of them was... a tooth.
+
+<https://clips.twitch.tv/ViscousDifferentMetalTF2John>
+
+FierceKittenz
+-------------
+
+Like the Devi, this kitten is not afraid to get her hands dirty, obtaining
+victims and dissecting them for usable components. Here she contemplates her
+options, cautioning the viewers that the dissection process can at times be
+noisy (for obvious reasons).
+
+<https://clips.twitch.tv/CulturedInspiringPeafowlFunRun>
+
+ProphTart
+---------
+
+Beware those who create things without properly thinking about their layers.
+This poor gentleman cannot be blamed for his actions, as it is not his fault
+that a demon took possession of his body. Note the background of Lucia di
+Lammermoor, subtly hinting at the likely fate of this man's wife.
+
+<https://clips.twitch.tv/ModernGrotesqueSrirachaFunRun> and
+<https://clips.twitch.tv/TangibleCharmingSaladAMPEnergyCherry> and
+<https://clips.twitch.tv/ThoughtfulRenownedPeafowlBCWarrior>
+
+DeviCat
+-------
+
+Here we see the steps just prior to dissection. The Devi seeks out a new body,
+but since that body is currently fully operational, she must select a method of
+de-operationalizing the body. Attempting to harvest components from an active
+corpse is usually problematic, so she makes the corpse more of, well, a corpse.
+
+<https://clips.twitch.tv/MoldyPoorScallionBloodTrail>
+
+Kadoodles
+---------
+
+In this example, we see a psycho's assistant discussing the nature of the work
+she does. Every component of a victim is potentially usable, and thus saleable.
+The greatest psychos often purchase components rather than harvesting them all
+(see [DeviCat](#DeviCat-3) above), and it is from such merchants as Doodles
+that they seek the less... presentable components.
+
+(language warning, borderline NSFW)
+<https://clips.twitch.tv/PleasantSecretiveSalmonLeeroyJenkins>
