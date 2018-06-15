@@ -10,3 +10,19 @@ become sorcerer
 become
 share -- I was robbed of the power cylinders that my Eternal Flame requires. --
 'Each time the Sorcerer issues a complaint, you (any of you) must issue a counter-complaint. You will be playing as a team.
+''Share' your complaints, so we can see them easily.
+
+share -- Nobody loves me, and few respect me. I am feared without being respected. --
+share -- Maintaining a pet dragon costs me 95% of my monthly income from looting and pillaging. --
+share -- The central heating in my draughty castle isn't working. --
+share -- The price of candles just keeps going up. Maintaining my evil pentagrams is getting more expensive by the year. --
+share -- All my minions are dead. Mostly because I killed them for incompetence. --
+share -- I don't have a wife. I tried to marry a girl, but she got away from me. --
+share -- Everyone hates me just because I'm a teeny weeny bit evil. They don't understand that I'm just misunderstood. --
+share -- Last week, a hero came in and pushed my big "do not push" button. Ruined my whole day. --
+share -- Dry-cleaning fees on long flowing robes are just INSANE. --
+share -- I made a bargain with a demon for eternal life, but just as I tried to double-cross him, he killed me. (Luckily I got better.) --
+share -- Yes yes, it's first-world problems, but the gigantic and imposing doors to my castle are SO slow to open whenever I get a delivery. --
+share -- Some people broke into my files and stole my recipe for bacon cheeseburgers, just because it was labelled 'secret plans' by mistake. --
+share -- I have to be here dueling with you instead of working on my super-secret plans for world domination. --
+share -- My plans for world domination don't have council approval yet. --
