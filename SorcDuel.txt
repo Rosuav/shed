@@ -21,8 +21,26 @@ share -- I don't have a wife. I tried to marry a girl, but she got away from me.
 share -- Everyone hates me just because I'm a teeny weeny bit evil. They don't understand that I'm just misunderstood. --
 share -- Last week, a hero came in and pushed my big "do not push" button. Ruined my whole day. --
 share -- Dry-cleaning fees on long flowing robes are just INSANE. --
+share -- I murdered all my friends because I needed secrecy. Now I'm lonely. --
+share -- My last three cooks had to be executed for putting strange powders in the food. Now I'm living on ramen noodles. Again. --
 share -- I made a bargain with a demon for eternal life, but just as I tried to double-cross him, he killed me. (Luckily I got better.) --
 share -- Yes yes, it's first-world problems, but the gigantic and imposing doors to my castle are SO slow to open whenever I get a delivery. --
+share -- It's crucial that I play evil dramatic music, but I can't STAND the Toccata and Fugue. --
 share -- Some people broke into my files and stole my recipe for bacon cheeseburgers, just because it was labelled 'secret plans' by mistake. --
 share -- I have to be here dueling with you instead of working on my super-secret plans for world domination. --
 share -- My plans for world domination don't have council approval yet. --
+
+Eventually the players will best him.
+
+sayas sorcerer Nooooooo! I don't have anything left to grumble at!! A sorcerer with nothing to complain at... I've been demoted to mere king!
+'The Sorcerer thumps down the Eternal Flame like a petulent child, and stomps off. For someone with nothing left to complain about, he sure seems to have a lot of grumbling left in him.
+
+* If STB wanted this to be the last session *
+
+'Congratulations! You are true heroes. The Eternal Flame is yours, you have the favour of the people, and most importantly, you helped to invent a new cocktail. The greatest power and the greatest alcohol are yours to command!
+
+* If STB wants another session (or more) after this *
+
+'Freed from his servitude to the Sorcerer, the dragon declares himself to be the duly-elected President of All The World. Elections will be held annually, and anyone who does not vote for the dragon will be ignored. (This is to ensure a properly-fair election.)
+'As you helped the dragon to come to power, you are deemed a threat, and thus are considered rivals. The dragon offers you sixty seconds to run away, otherwise he's going to fly to his presidential apartments. That'll teach you!
+'After the dragon leaves, you decide that this cannot continue. Something is rotten in the current state of affairs. But solving it... will wait for another day.
