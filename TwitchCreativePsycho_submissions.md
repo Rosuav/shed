@@ -115,6 +115,15 @@ that they seek the less... presentable components.
 (language warning, borderline NSFW)
 <https://clips.twitch.tv/PleasantSecretiveSalmonLeeroyJenkins>
 
+DeviCat
+-------
+
+Even psychos need step-by-step instructions sometimes. Fortunately, the Devi is
+here with all the instructions you need. Reiko the Fauna demonstrates the first
+steps towards success.
+
+<https://clips.twitch.tv/ElegantCheerfulWitchBudBlast>
+
 CONCLUSION
 ----------
 
