@@ -89,3 +89,9 @@ try:
 	f()
 except InvalidConstantError as e:
 	print(e)
+
+@const(len=len, str=str, int=int)
+def digit_count(n):
+	return len(str(int(n)))
+
+dis.dis(digit_count)
