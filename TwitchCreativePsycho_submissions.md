@@ -129,6 +129,11 @@ NightGalem
 
 <https://clips.twitch.tv/TallInnocentKaleSuperVinlin>
 
+CookingForNoobs
+---------------
+
+<https://clips.twitch.tv/DullAcceptableAlfalfaBIRB>
+
 CONCLUSION
 ----------
 
