@@ -139,6 +139,11 @@ BjornsWorkshop
 
 <https://clips.twitch.tv/RudeHorriblePistachioEleGiggle>
 
+TambriArt
+---------
+
+<https://clips.twitch.tv/EntertainingStrangeApeSpicyBoy>
+
 CONCLUSION
 ----------
 
