@@ -127,20 +127,36 @@ steps towards success.
 NightGalem
 ----------
 
+Some people can get away with murder. Others need to conceal the evidence, at
+least a little bit.
+
 <https://clips.twitch.tv/TallInnocentKaleSuperVinlin>
 
 CookingForNoobs
 ---------------
+
+What do psychos contribute to society? Why, of course, they offer their stabby
+services to those who are in need! Only a medical professional could talk of
+surgery while gazing at food.
 
 <https://clips.twitch.tv/DullAcceptableAlfalfaBIRB>
 
 BjornsWorkshop
 --------------
 
+Never fight against the knife. Let it work for you. Interestingly, this
+particular psycho feels that the face is a weird place to go to work, yet is
+quite happy to discuss styles and techniques for working other parts of the
+human body.
+
 <https://clips.twitch.tv/RudeHorriblePistachioEleGiggle>
 
 TambriArt
 ---------
+
+Victim or minion? Either way, you don't need eyes if you're around this artist.
+She will remove them and, perhaps, give you a replacement set. Or perhaps not.
+They're overrated anyway.
 
 <https://clips.twitch.tv/EntertainingStrangeApeSpicyBoy>
 
