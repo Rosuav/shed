@@ -160,6 +160,14 @@ They're overrated anyway.
 
 <https://clips.twitch.tv/EntertainingStrangeApeSpicyBoy>
 
+XionFox
+-------
+
+Some days, it's just so much hassle to do your proper murders. But a proper
+psycho will not shy away from her duty. Those holes gotta be made.
+
+<https://clips.twitch.tv/PiliableIgnorantPeafowlJonCarnage>
+
 CONCLUSION
 ----------
 
