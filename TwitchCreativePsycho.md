@@ -47,7 +47,7 @@ The details:
   "Creative", it should be clear from the content of the clip that the stream
   is for the purpose of creating something. (For example, writing a game mod
   while in the category for that game counts as a creative stream.)
-* Submit your clips via Twitter with the clip URL andany title or caption you
+* Submit your clips via Twitter with the clip URL and any title or caption you
   need. Mention [@rosuav](https://twitter.com/rosuav), and use hashtag
   [#TwitchCreativePsycho](https://twitter.com/hashtag/TwitchCreativePsycho).
 * I will "Like" every submission tweet that I see. If I haven't Liked yours
