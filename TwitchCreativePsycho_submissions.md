@@ -171,10 +171,21 @@ psycho will not shy away from her duty. Those holes gotta be made.
 CONCLUSION
 ----------
 
-Actually, we haven't yet reached a true conclusion. The search for psychos is
-[still ongoing](TwitchCreativePsycho) and we are likely to find more examples,
-both of the same people we've already seen, and of additional psychos. But
-already we can see ample evidence that creative persons have a strong tendency
+We can never truly conclude this search, but the part of it where prizes are
+to be given out has come to a close. The most inspiring clips from the above
+collection are deemed to be:
+
+- FierceKittenz <https://clips.twitch.tv/CulturedInspiringPeafowlFunRun>
+- DeviCat <https://clips.twitch.tv/MoldyPoorScallionBloodTrail>
+- NightGalem <https://clips.twitch.tv/TallInnocentKaleSuperVinlin>
+
+Additional illustrious psychos:
+
+- CandySprout <https://clips.twitch.tv/ExquisiteBashfulButterflyKippa>
+- CookingForNoobs <https://clips.twitch.tv/DullAcceptableAlfalfaBIRB>
+- TambriArt <https://clips.twitch.tv/EntertainingStrangeApeSpicyBoy>
+
+We can see ample evidence that creative persons have a strong tendency
 to be psychotic murderers, at least when taken out of context. Support your
 local [Twitch Creative](https://www.twitch.tv/directory/game/Creative) streamers
 and help them to wear their straitjackets with pride and a sense of true
