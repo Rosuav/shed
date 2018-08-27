@@ -1,9 +1,9 @@
 # Scrape Woolies Online to find out the price of certain items
-# TODO: Also scrape Coles, maybe Aldi too, for comparisons
-# TODO: Save to a file to simplify price tracking
-# Note that Coles is a pain to scrape. Would need to poke around
-# to find exactly how it's doing its AJAX requests; naive tests
-# produced poor results.
+
+# Would be nice to track Coles and Aldi as well, but Aldi don't
+# show prices, and Coles is a pain to scrape. Would need to do
+# some seriously hairy research to find exactly how it's doing
+# its AJAX requests; naive tests produced poor results.
 
 import requests
 # import bs4
