@@ -22,11 +22,21 @@ def get_prices(search):
 	r = requests.post("https://www.woolworths.com.au/apis/ui/Search/products", json={
 		"SearchTerm": search,"PageSize":36,"PageNumber":1,"SortType":"TraderRelevance","IsSpecial":False,"Filters":[],"Location":"/shop/search/products?searchTerm=cadbury%20drinking%20chocolate"})
 	r.raise_for_status()
-	for product in r.json()["Products"]:
-		# There's an array of... product groups? Maybe?
-		print(product["Name"])
+	for group in r.json()["Products"]:
+		# There's an array of... product groups? Maybe? Not sure what to
+		# call them; they're shown to the user as a single "product", but
+		# you can pick any of the items to actually buy them. For example,
+		# an item available in multiple sizes is shown as one "item" with
+		# multiple "Add to Cart" buttons.
+		# print("\t" + group["Name"]) # Usually irrelevant
+		for product in group["Products"]:
+			if product["IsBundle"]: continue # eg "Winter Warmers Bundle" - irrelevant to this search
+			desc = product["Name"] + " " + product["PackageSize"]
+			price = "$%.2f" % product["Price"]
+			if product["HasCupPrice"]: price += " (" + product["CupString"] + ")"
+			print("[%s] %-45s %s" % (product["Stockcode"], desc, price))
 
 get_prices("cadbury drinking chocolate")
-get_prices("v energy drink")
-get_prices("mother energy drink")
-get_prices("monster energy drink")
+get_prices("v blue energy drink")
+get_prices("mother berry energy drink")
+# get_prices("monster assault energy drink") # Not carried by Woolies?
