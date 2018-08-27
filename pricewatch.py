@@ -8,17 +8,28 @@
 import requests
 # import bs4
 import urllib.parse
+import json
+import time
 
-def get_prices(search):
-	"""Get prices for a particular search term
+price_history = {}
+try:
+	with open("_pricewatch.json") as f:
+		price_history = json.load(f)
+except OSError:
+	pass
 
-	Returns a list of tuples of ('Woolworths', 'Item Name', 123400)
-	where the price is integer cents. Future expansion may have
-	other providers listed with the same item(s).
+# Leave room to store Coles and/or Aldi prices later
+woolies = price_history.setdefault("Woolies", {})
 
-	Currently scrapes only the first page of results, so don't
-	ask for too much
-	"""
+# Get a consistent timestamp for the sake of stability
+now = time.time()
+
+for search in [
+	"cadbury drinking chocolate",
+	"v blue energy drink",
+	"mother berry energy drink",
+	# "monster assault energy drink", # Not carried by Woolies?
+]:
 	r = requests.post("https://www.woolworths.com.au/apis/ui/Search/products", json={
 		"SearchTerm": search,"PageSize":36,"PageNumber":1,"SortType":"TraderRelevance","IsSpecial":False,"Filters":[],"Location":"/shop/search/products?searchTerm=cadbury%20drinking%20chocolate"})
 	r.raise_for_status()
@@ -31,12 +42,27 @@ def get_prices(search):
 		# print("\t" + group["Name"]) # Usually irrelevant
 		for product in group["Products"]:
 			if product["IsBundle"]: continue # eg "Winter Warmers Bundle" - irrelevant to this search
+			id = str(product["Stockcode"]) # Unique identifier - must be a string (gets saved to JSON)
 			desc = product["Name"] + " " + product["PackageSize"]
 			price = "$%.2f" % product["Price"]
 			if product["HasCupPrice"]: price += " (" + product["CupString"] + ")"
-			print("[%s] %-45s %s" % (product["Stockcode"], desc, price))
+			if id in woolies:
+				# Item we've already seen. Compare price to last time.
+				prev = woolies[id]
+				delta = product["Price"] * 100 - prev["price_cents"]
+				if delta > 0: color = "\x1b[1;31m" # Price gone up
+				elif delta < 0: color = "\x1b[1;32m" # Price gone down
+				else: color = "" # Price same as last seen
+				# TODO: Show the previous price, for comparison
+			else:
+				# New item. Show it in green.
+				color = "\x1b[32m"
+			print("%s[%s] %-45s %s\x1b[0m" % (color, product["Stockcode"], desc, price))
+			woolies[id] = {
+				"desc": desc,
+				"price_cents": int(product["Price"] * 100),
+				"seen": now,
+			}
 
-get_prices("cadbury drinking chocolate")
-get_prices("v blue energy drink")
-get_prices("mother berry energy drink")
-# get_prices("monster assault energy drink") # Not carried by Woolies?
+with open("_pricewatch.json", "w") as f:
+	json.dump(price_history, f, indent=4)
