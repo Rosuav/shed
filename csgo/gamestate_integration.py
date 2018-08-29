@@ -26,12 +26,13 @@ def update_configs():
 		except FileNotFoundError:
 			prevcfg = ""
 		if cfg != prevcfg:
-			print("Updating", filename, "=>", data)
+			logging.log(25, "Updating %s => %s", filename, data)
 			with open(filename, "w") as f:
 				f.write(cfg)
 	return "" # Response doesn't matter
 
 if __name__ == "__main__":
 	import logging
-	logging.basicConfig(level=logging.WARN) # use logging.INFO to see timestamped lines every request
+	logging.basicConfig(level=25) # use logging.INFO to see timestamped lines every request
+	import os; logging.log(25, "I am %d / %d", os.getuid(), os.getgid())
 	app.run(host="127.0.0.1", port=27014)
