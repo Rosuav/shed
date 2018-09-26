@@ -14,16 +14,16 @@ But we can do something about it. Check these links periodically, and make sure 
 all say that a gift subscription is not available (because that means she currently
 has an active sub). With teamwork, we can make sure she remains subscribed.
 
-* [https://www.twitch.tv/products/adufresne99?recipient=devicat](Amanda - Dragon Lady)
-* [https://www.twitch.tv/products/amelyth?recipient=devicat](Amelyth)
-* [https://www.twitch.tv/products/bloomerforthewin?recipient=devicat](BloomerForTheWin)
-* [https://www.twitch.tv/products/ciri_ion?recipient=devicat](Ciri - Mamma Mod)
-* [https://www.twitch.tv/products/fiercekittenz?recipient=devicat](FierceKittenz)
-* [https://www.twitch.tv/products/kayos198?recipient=devicat](Mr Kay)
-* [https://www.twitch.tv/products/kayosgirl?recipient=devicat](KayosGirl)
-* [https://www.twitch.tv/products/kaypikefashion?recipient=devicat](KayPikeFashion)
-* [https://www.twitch.tv/products/lavendercourage?recipient=devicat](LavenderCourage)
-* [https://www.twitch.tv/products/burningoil?recipient=devicat](MoistOwletteOfficial)
+* [Amanda - Dragon Lady](https://www.twitch.tv/products/adufresne99?recipient=devicat)
+* [Amelyth](https://www.twitch.tv/products/amelyth?recipient=devicat)
+* [BloomerForTheWin](https://www.twitch.tv/products/bloomerforthewin?recipient=devicat)
+* [Ciri - Mamma Mod](https://www.twitch.tv/products/ciri_ion?recipient=devicat)
+* [FierceKittenz](https://www.twitch.tv/products/fiercekittenz?recipient=devicat)
+* [Mr Kay](https://www.twitch.tv/products/kayos198?recipient=devicat)
+* [KayosGirl](https://www.twitch.tv/products/kayosgirl?recipient=devicat)
+* [KayPikeFashion](https://www.twitch.tv/products/kaypikefashion?recipient=devicat)
+* [LavenderCourage](https://www.twitch.tv/products/lavendercourage?recipient=devicat)
+* [MoistOwletteOfficial](https://www.twitch.tv/products/burningoil?recipient=devicat)
 
 If a few people check every week or thereabouts, she'll never lose a sub streak. We can
 do this!
