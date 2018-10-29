@@ -23,7 +23,7 @@ has an active sub). With teamwork, we can make sure she remains subscribed.
 * [FierceKittenz](https://www.twitch.tv/products/fiercekittenz?recipient=devicat) - 19th
 * [KayPikeFashion](https://www.twitch.tv/products/kaypikefashion?recipient=devicat) - 20th
 * [LavenderCourage](https://www.twitch.tv/products/lavendercourage?recipient=devicat) - 23rd
-* [Amanda - Dragon Lady](https://www.twitch.tv/products/adufresne99?recipient=devicat) - 23rd
+* [Amanda - Dragon Lady](https://www.twitch.tv/products/adufresne99?recipient=devicat) - 30th
 
 The dates given are approximately when the subs will recur. If a few people check back every week
 or thereabouts, she'll never lose a sub streak. We can do this!
