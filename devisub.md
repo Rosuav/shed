@@ -14,8 +14,8 @@ But we can do something about it. Check these links periodically, and make sure 
 all say that a gift subscription is not available (because that means she currently
 has an active sub). With teamwork, we can make sure she remains subscribed.
 
-* [Amelyth](https://www.twitch.tv/products/amelyth?recipient=devicat) - 1st
-* [MoistOwletteOfficial](https://www.twitch.tv/products/burningoil?recipient=devicat) - 1st
+* [Amelyth](https://www.twitch.tv/products/amelyth?recipient=devicat) - 5th
+* [MoistOwletteOfficial](https://www.twitch.tv/products/burningoil?recipient=devicat) - 5th
 * [Mr Kay](https://www.twitch.tv/products/kayos198?recipient=devicat) - 9th
 * [KayosGirl](https://www.twitch.tv/products/kayosgirl?recipient=devicat) - 9th
 * [BloomerForTheWin](https://www.twitch.tv/products/bloomerforthewin?recipient=devicat) - 17th
