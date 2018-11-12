@@ -6,6 +6,10 @@ configs = {
 		"T": "buy ak47",
 		...: "buy aug",
 	},
+	("map", "mode"): {
+		"casual": "buy hegrenade; buy flashbang; buy molotov",
+		"competitive": "buy hegrenade; buy flashbang; buy smokegrenade; buy molotov",
+	},
 }
 
 @app.route("/", methods=["POST"])
