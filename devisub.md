@@ -16,8 +16,8 @@ has an active sub). With teamwork, we can make sure she remains subscribed.
 
 * [Amelyth](https://www.twitch.tv/products/amelyth?recipient=devicat) - 5th
 * [MoistOwletteOfficial](https://www.twitch.tv/products/burningoil?recipient=devicat) - 5th
-* [Mr Kay](https://www.twitch.tv/products/kayos198?recipient=devicat) - 9th
-* [KayosGirl](https://www.twitch.tv/products/kayosgirl?recipient=devicat) - 9th
+* [Mr Kay](https://www.twitch.tv/products/kayos198?recipient=devicat) - 13th
+* [KayosGirl](https://www.twitch.tv/products/kayosgirl?recipient=devicat) - 13th
 * [BloomerForTheWin](https://www.twitch.tv/products/bloomerforthewin?recipient=devicat) - 17th
 * [Ciri - Mamma Mod](https://www.twitch.tv/products/ciri_ion?recipient=devicat) - 18th
 * [FierceKittenz](https://www.twitch.tv/products/fiercekittenz?recipient=devicat) - 19th
