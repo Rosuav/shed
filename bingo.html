@@ -54,5 +54,24 @@ an entire row or column in a single stream!
 </table>
 
 <p><small>Just for fun.</small></p>
+<script>
+/* Plans:
+1) Make the cells clickable to mark them off (and start with the free square marked)
+2) Network the cards, so you type in your name and see the same card
+2a) Have the card live-update if you have it open in two places
+2b) Have a hot-link to view only, eg "#yourname", for stream
+3) Generate cards from any arbitrary set of tiles - allow multiple cardsets
+4) Give each cell an ID such that the positions can be randomized. Free square stays put.
+*/
+function cell_clicked(ev) {
+	console.log(this.dataset.id);
+}
+
+let nextid = 0;
+document.querySelectorAll("td").forEach(el => {
+	el.onclick = cell_clicked;
+	el.dataset.id = ++nextid;
+});
+</script>
 </body>
 </html>
