@@ -8,6 +8,9 @@ td {
 	height: 7em;
 	text-align: center;
 }
+td.marked {
+	background: #a0f0c0;
+}
 </style>
 </head>
 <body>
@@ -33,7 +36,7 @@ an entire row or column in a single stream!
 </tr><tr>
 <td>Perfect bake-off<br><img src="https://static-cdn.jtvnw.net/emoticons/v1/1293021/1.0" title="devicatCAKE"></td>
 <td>Devi surprises herself with a visual effect<br><img src="https://static-cdn.jtvnw.net/emoticons/v1/1291574/1.0" title="devicatSPOOK"></td>
-<td><b>FREE</b><br>Someone is a <img src="https://static-cdn.jtvnw.net/emoticons/v1/1293027/1.0" title="devicatBUTT"><br><b>FREE</b></td>
+<td data-freebie=1><b>FREE</b><br>Someone is a <img src="https://static-cdn.jtvnw.net/emoticons/v1/1293027/1.0" title="devicatBUTT"><br><b>FREE</b></td>
 <td>PhotoShop asks for more RAM<br><img src="https://static-cdn.jtvnw.net/emoticons/v1/1038847/1.0" title="noobsSheep"></td>
 <td>One person takes three Gratitude Board spots<br><img src="https://static-cdn.jtvnw.net/emoticons/v1/1291596/1.0" title="devicatGLO">
     <img src="https://static-cdn.jtvnw.net/emoticons/v1/1291592/1.0" title="devicatLOVE">
@@ -65,12 +68,15 @@ an entire row or column in a single stream!
 */
 function cell_clicked(ev) {
 	console.log(this.dataset.id);
+	if (this.dataset.freebie) return; //Can't unmark the freebie
+	this.classList.toggle("marked");
 }
 
 let nextid = 0;
 document.querySelectorAll("td").forEach(el => {
 	el.onclick = cell_clicked;
 	el.dataset.id = ++nextid;
+	if (el.dataset.freebie) el.classList.add("marked");
 });
 </script>
 </body>
