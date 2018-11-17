@@ -9,7 +9,7 @@ Ingredients
 * ½ cup flour
 * 2 cups milk
 * 1 cup sugar
-* 1 cup coconut
+* 1 cup desiccated coconut (shredded coconut)
 * 1 tsp vanilla
 * Pie dish with sloped sides (for easier serving)
 
