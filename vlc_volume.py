@@ -1,6 +1,11 @@
 import asyncio
+import os
 import re
 import pydub
+
+# Either change this line, or set the password in your environment
+VLC_TELNET_PASSWORD = os.environ.get("VLC_TELNET_PASSWORD", "password-goes-here")
+PASSWORD_COMMAND = VLC_TELNET_PASSWORD.encode("utf-8") + b"\n"
 
 async def read_telnet_lines(reader):
 	"""Generate lines of telnet-stripped data
@@ -54,7 +59,7 @@ async def send_status(writer):
 
 async def tcp_echo_client():
 	reader, writer = await asyncio.open_connection("127.0.0.1", 4212)
-	writer.write(b"password-goes-here\n") # Substitute your VLC telnet password
+	writer.write(PASSWORD_COMMAND)
 	await writer.drain()
 	asyncio.ensure_future(send_status(writer))
 	fn = None
