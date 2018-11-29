@@ -59,7 +59,7 @@ async def tcp_echo_client():
 	asyncio.ensure_future(send_status(writer))
 	fn = None
 	async for line in read_telnet_lines(reader):
-		m = re.search("new input: file://([^ ]+) ", line)
+		m = re.search(r"\( new input: file://(.+) \)$", line)
 		if not m: continue
 		if m[1] == fn: continue # Same file as before
 		fn = m[1]
