@@ -53,7 +53,7 @@ async def read_telnet_lines(reader):
 
 async def send_status(writer):
 	while not writer.is_closing():
-		writer.write(b"status\n")
+		writer.write(b"status\nget_time\nget_length\n")
 		await writer.drain()
 		await asyncio.sleep(30)
 
@@ -62,8 +62,27 @@ async def tcp_echo_client():
 	writer.write(PASSWORD_COMMAND)
 	await writer.drain()
 	asyncio.ensure_future(send_status(writer))
-	fn = None
+	next_number = fn = None
 	async for line in read_telnet_lines(reader):
+		if line == "( state playing )":
+			next_number = "time" # If we're paused, ignore all this
+		elif next_number is not None and set(line) <= set("0123456789"):
+			if next_number == "time":
+				position = int(line)
+				next_number = "length"
+			else:
+				length = int(line)
+				next_number = None
+				time_to_next_track = length - position + 1
+				# If we're getting close to the next track, plan to check status
+				# right after that track finishes. This will often give prompt
+				# updates, and if that doesn't work, well, the periodic check
+				# will catch it within 30 seconds.
+				if time_to_next_track < 30:
+					asyncio.get_event_loop().call_later(time_to_next_track,
+						writer.write, b"status\nget_time\nget_length\n")
+		else:
+			next_number = None
 		m = re.search(r"\( new input: file://(.+) \)$", line)
 		if not m: continue
 		if m[1] == fn: continue # Same file as before
