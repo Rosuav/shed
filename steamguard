@@ -642,6 +642,8 @@ def do_setup(user):
 			user_cookies[user] = cookies["steamLoginSecure"]
 			if "oauth_token" not in users[user]:
 				users[user]["oauth_token"] = oauth["oauth_token"]
+			if "steamid" not in users[user]:
+				users[user]["steamid"] = oauth["steamid"]
 			save_users()
 			print("Login data refreshed. Trades should work again.")
 			return
