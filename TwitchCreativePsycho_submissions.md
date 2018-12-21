@@ -187,7 +187,7 @@ Additional illustrious psychos:
 
 We can see ample evidence that creative persons have a strong tendency
 to be psychotic murderers, at least when taken out of context. Support your
-local [Twitch Creative](https://www.twitch.tv/directory/game/Creative) streamers
-and help them to wear their straitjackets with pride and a sense of true
+local [Twitch Creative](https://www.twitch.tv/directory/tags/e36d0169-268a-4c62-a4f4-ddf61a0b3ae4)
+streamers and help them to wear their straitjackets with pride and a sense of true
 accomplishment. For after all, it takes many years of practice to become as
 dangerous and awesome as these people are.
