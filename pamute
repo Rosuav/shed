@@ -21,7 +21,7 @@ if len(sys.argv) > 2:
 	else:
 		... # TODO: Be more flexible
 
-info = subprocess.run(["pacmd", "list-sink-inputs"], check=True, capture_output=True, encoding="utf-8").stdout
+info = subprocess.run(["pacmd", "list-sink-inputs"], check=True, stdout=subprocess.PIPE, encoding="utf-8").stdout
 ignore = False
 for line in info.split("\n"):
 	if line.startswith("\t") and not ignore:
