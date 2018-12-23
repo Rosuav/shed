@@ -33,7 +33,7 @@ if app == "--complete":
 		path = path.decode("ascii").strip() # Non-ASCII path? I'll figure it out if it ever happens.
 		os.makedirs(path, exist_ok=True)
 		with open(path + "/pamute", "w") as f:
-			print("complete -C 'pamute --complete' pamute""", file=f)
+			print("complete -C 'pamute --complete' pamute", file=f)
 		print("Tab completion configured.")
 		sys.exit(0)
 
