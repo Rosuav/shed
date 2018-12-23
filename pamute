@@ -45,7 +45,7 @@ for line in info.split("\n"):
 		# Continuation line. If it starts with "\t\t", it's a nested continuation.
 		if line.startswith("\tmuted: "):
 			muted = line == "\tmuted: yes"
-		m = re.match('\t\tapplication.(name|icon_name|process.binary) = "(.*)"$', line)
+		m = re.match('\t\tapplication.(name|icon_name|process.binary|process.id) = "(.*)"$', line)
 		if not m: continue
 		prog = m.group(2).casefold()
 		if prog not in program_names:
