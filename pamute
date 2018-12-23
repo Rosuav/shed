@@ -12,7 +12,7 @@ if len(sys.argv) < 2:
 	print("USAGE: pamute application_name [1|0]", file=sys.stderr)
 	sys.exit(1)
 
-app = sys.argv[1]
+app = sys.argv[1].casefold()
 status = None # toggle
 
 if len(sys.argv) > 2:
@@ -23,13 +23,19 @@ if len(sys.argv) > 2:
 
 info = subprocess.run(["pacmd", "list-sink-inputs"], check=True, stdout=subprocess.PIPE, encoding="utf-8").stdout
 ignore = False
+program_names = {}
 for line in info.split("\n"):
 	if line.startswith("\t") and not ignore:
 		# Continuation line. If it starts with "\t\t", it's a nested continuation.
 		if line.startswith("\tmuted: "):
 			muted = line == "\tmuted: yes"
 		m = re.match('\t\tapplication.(name|icon_name|process.binary) = "(.*)"$', line)
-		if m and m.group(2) == app:
+		if not m: continue
+		prog = m.group(2).casefold()
+		if prog not in program_names:
+			if app == "--list": print(prog)
+			program_names[prog] = index
+		if prog == app:
 			print("Matched on", m.group(1))
 			ignore = True # Skip to the next index line
 			if status is None:
