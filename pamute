@@ -4,6 +4,7 @@
 # Can be run over SSH, and should make swift work of those crashed-but-noisy programs.
 # Requires Python 3.5 or better.
 
+import os
 import re
 import subprocess
 import sys
@@ -21,6 +22,21 @@ if len(sys.argv) > 2:
 	else:
 		... # TODO: Be more flexible
 
+if app == "--complete":
+	if len(sys.argv) >= 5: completeme = sys.argv[3]
+	else:
+		# Set up tab completion (may need sudo)
+		# Borrowed from steamguard
+		# Not guaranteed to work on any non-Linux system. Might work on
+		# other Unices but I haven't tested it.
+		path = subprocess.check_output(["pkg-config", "--variable=completionsdir", "bash-completion"])
+		path = path.decode("ascii").strip() # Non-ASCII path? I'll figure it out if it ever happens.
+		os.makedirs(path, exist_ok=True)
+		with open(path + "/pamute", "w") as f:
+			print("complete -C 'pamute --complete' pamute""", file=f)
+		print("Tab completion configured.")
+		sys.exit(0)
+
 info = subprocess.run(["pacmd", "list-sink-inputs"], check=True, stdout=subprocess.PIPE, encoding="utf-8").stdout
 ignore = False
 program_names = {}
@@ -34,6 +50,7 @@ for line in info.split("\n"):
 		prog = m.group(2).casefold()
 		if prog not in program_names:
 			if app == "--list": print(prog)
+			elif app == "--complete" and prog.startswith(completeme): print(prog)
 			program_names[prog] = index
 		if prog == app:
 			print("Matched on", m.group(1))
