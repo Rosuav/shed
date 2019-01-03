@@ -19,6 +19,10 @@ def get_emote_list():
 		# "Client-ID: xxxxxx" where the latter comes from Mustard Mine etc
 		# TODO: List BTTV and FFZ emotes somehow (maybe snoop traffic on
 		# the main site to find out where to get the list)
+		# https://api.betterttv.net/2/emotes - global BTTV emotes
+		# https://api.betterttv.net/2/frankerfacez_emotes/global - global FFZ emotes
+		# https://api.betterttv.net/2/channels/devicat - DeviCat BTTV emotes
+		# https://api.betterttv.net/2/frankerfacez_emotes/channels/54212603 - DeviCat FFZ emotes
 		req = requests.get("https://api.twitch.tv/kraken/chat/emoticons")
 		req.raise_for_status()
 		data = req.json()
