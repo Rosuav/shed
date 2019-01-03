@@ -1,12 +1,16 @@
 import json
 import sys
+import os.path
+
+# Can be overridden prior to calling get_emote_list if the path is wrong
+EMOTE_FILE = os.path.normpath(__file__ + "/../emotes/emote_list.json")
 
 emote_list = None
 def get_emote_list():
 	global emote_list
 	if emote_list: return emote_list
 	try:
-		with open("emotes/emote_list.json") as f:
+		with open(EMOTE_FILE) as f:
 			data = json.load(f)
 	except FileNotFoundError:
 		print("Downloading emote list...", file=sys.stderr)
@@ -16,7 +20,7 @@ def get_emote_list():
 		req = requests.get("https://api.twitch.tv/kraken/chat/emoticons")
 		req.raise_for_status()
 		data = req.json()
-		with open("emotes/emote_list.json", "w") as f:
+		with open(EMOTE_FILE, "w") as f:
 			json.dump(f, data)
 	emote_list = {em["regex"]:em["id"] for em in data["emoticons"]}
 	return emote_list
