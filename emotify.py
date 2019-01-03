@@ -55,6 +55,13 @@ def get_emote_list():
 		for e in em: emote_list[e] = emote_list[pat]
 	return emote_list
 
+def _xfrm_bttv(data):
+	"""Helper for load_bttv - parse a BTTV-format JSON file"""
+	template = data["urlTemplate"].replace("{{image}}", "1x")
+	if template.startswith("//"): template = "https:" + template
+	return {em["code"]: template.replace("{{id}}", em["id"])
+		for em in data["emotes"]}
+
 def load_bttv(*channels):
 	"""Load BTTV emotes for zero or more channels
 
@@ -65,11 +72,11 @@ def load_bttv(*channels):
 
 	NOTE: The channel names are not sanitized and should come from source code.
 	"""
-	_load_bttv("/bttv.json", "https://api.betterttv.net/2/emotes")
+	_load_emotes("/bttv.json", "https://api.betterttv.net/2/emotes", _xfrm_bttv)
 	for channel in channels:
-		_load_bttv("/bttv_%s.json" % channel, "https://api.betterttv.net/2/channels/" + channel)
-def _load_bttv(fn, url):
-	"""Helper for load_bttv()"""
+		_load_emotes("/bttv_%s.json" % channel, "https://api.betterttv.net/2/channels/" + channel, _xfrm_bttv)
+def _load_emotes(fn, url, xfrm):
+	"""Helper for load_bttv() and load_ffz()"""
 	emote_list = get_emote_list()
 	try:
 		with open(EMOTE_PATH + fn) as f:
@@ -79,12 +86,8 @@ def _load_bttv(fn, url):
 		import requests
 		req = requests.get(url)
 		req.raise_for_status()
-		data = req.json()
-		template = data["urlTemplate"].replace("{{image}}", "1x")
-		if template.startswith("//"): template = "https:" + template
-		data = {em["code"]: template.replace("{{id}}", em["id"])
-			for em in data["emotes"]}
-		with open(EMOTE_PATH + "/bttv.json", "w") as f:
+		data = xfrm(req.json())
+		with open(EMOTE_PATH + fn, "w") as f:
 			json.dump(data, f)
 	emote_list.update(data)
 
