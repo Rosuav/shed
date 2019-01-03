@@ -17,6 +17,8 @@ def get_emote_list():
 		import requests
 		# TODO: Add header "Accept: application/vnd.twitchtv.v5+json" and
 		# "Client-ID: xxxxxx" where the latter comes from Mustard Mine etc
+		# TODO: List BTTV and FFZ emotes somehow (maybe snoop traffic on
+		# the main site to find out where to get the list)
 		req = requests.get("https://api.twitch.tv/kraken/chat/emoticons")
 		req.raise_for_status()
 		data = req.json()
