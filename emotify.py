@@ -5,6 +5,26 @@ import os.path
 # Can be overridden prior to calling get_emote_list if the path is wrong
 EMOTE_FILE = os.path.normpath(__file__ + "/../emotes/emote_list.json")
 
+# Only a handful of emotes actually make use of the fact that the check is a
+# regex. We don't use regexes, so instead, we translate those few emotes into
+# a few actual strings that would match. Several have the "-?" optional hyphen
+# or a bit of alternation, and all of them have at least one escaped special.
+TRANSLATIONS = """
+\\:-?\\) :) :-)
+\\:-?\\( :( :-(
+\\:-?D :D :-D
+\\&gt\\;\\( >(
+\\:-?[z|Z|\\|] :-z :-Z :-| :z :Z :|
+[oO](_|\\.)[oO] o_o O_O o.o O.O
+B-?\\) B-) B)
+\\:-?(o|O) :-o :-O :o :O
+\\&lt\\;3 <3
+\\:-?[\\\\/] :-\\ :-/ :\\ :/
+\\;-?\\) ;) ;-)
+\\:-?(p|P) :-p :-P :p :P
+\\;-?(p|P) ;-p ;-P ;p ;P
+R-?\\) R) R-)
+"""
 emote_list = None
 def get_emote_list():
 	global emote_list
@@ -29,6 +49,9 @@ def get_emote_list():
 		with open(EMOTE_FILE, "w") as f:
 			json.dump(f, data)
 	emote_list = {em["regex"]:em["id"] for em in data["emoticons"]}
+	for trn in TRANSLATIONS.split("\n"):
+		pat, *em = trn.split(" ")
+		for e in em: emote_list[e] = emote_list[pat]
 	return emote_list
 
 def convert_emotes(msg):
@@ -39,6 +62,24 @@ def convert_emotes(msg):
 		words[i] = "![%s](https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0)" % (word, emotes[word])
 	return " ".join(words)
 
+def validate_translations():
+	# Check that the TRANSLATIONS mapping doesn't violate regex rules
+	import re
+	count = 0
+	for trn in TRANSLATIONS.split("\n"):
+		if not trn: continue
+		pattern, *emotes = trn.split(" ")
+		pat = re.compile(pattern) # Validate the RE format itself
+		for em in emotes:
+			em = em.replace("<", "&lt;").replace(">", "&gt;") # Convert to HTMLish form :(
+			m = re.match(pat, em)
+			if not m: print("Failed to match:", pattern, em)
+			elif m.group(0) != em: print("Failed to consume all:", pattern, em)
+		count += 1
+	print(count, "emote patterns tested.")
+
 if __name__ == "__main__":
 	for msg in sys.argv[1:]:
 		print(convert_emotes(msg))
+	if len(sys.argv) <= 1:
+		validate_translations()
