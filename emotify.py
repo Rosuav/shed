@@ -37,12 +37,6 @@ def get_emote_list():
 		import requests
 		# TODO: Add header "Accept: application/vnd.twitchtv.v5+json" and
 		# "Client-ID: xxxxxx" where the latter comes from Mustard Mine etc
-		# TODO: List BTTV and FFZ emotes somehow (maybe snoop traffic on
-		# the main site to find out where to get the list)
-		# https://api.betterttv.net/2/emotes - global BTTV emotes
-		# https://api.betterttv.net/2/frankerfacez_emotes/global - global FFZ emotes
-		# https://api.betterttv.net/2/channels/devicat - DeviCat BTTV emotes
-		# https://api.betterttv.net/2/frankerfacez_emotes/channels/54212603 - DeviCat FFZ emotes
 		req = requests.get("https://api.twitch.tv/kraken/chat/emoticons")
 		req.raise_for_status()
 		data = req.json()
@@ -55,14 +49,14 @@ def get_emote_list():
 		for e in em: emote_list[e] = emote_list[pat]
 	return emote_list
 
-def _load_emotes(fn, url, xfrm):
+def _load_emotes(desc, fn, url, xfrm):
 	"""Helper for load_bttv() and load_ffz()"""
 	emote_list = get_emote_list()
 	try:
 		with open(EMOTE_PATH + fn) as f:
 			data = json.load(f)
 	except FileNotFoundError:
-		print("Downloading BTTV emote list...", file=sys.stderr)
+		print("Downloading %s emote list..." % desc, file=sys.stderr)
 		import requests
 		req = requests.get(url)
 		req.raise_for_status()
@@ -88,9 +82,14 @@ def load_bttv(*channels):
 
 	NOTE: The channel names are not sanitized and should come from source code.
 	"""
-	_load_emotes("/bttv.json", "https://api.betterttv.net/2/emotes", _xfrm_bttv)
+	_load_emotes("BTTV global", "/bttv.json", "https://api.betterttv.net/2/emotes", _xfrm_bttv)
 	for channel in channels:
-		_load_emotes("/bttv_%s.json" % channel, "https://api.betterttv.net/2/channels/" + channel, _xfrm_bttv)
+		_load_emotes(channel + " BTTV", "/bttv_%s.json" % channel,
+			"https://api.betterttv.net/2/channels/" + channel, _xfrm_bttv)
+
+def _xfrm_ffz(data):
+	"""Helper for load_ffz - parse a FFZ-format JSON file"""
+	return {em["code"]: em["images"]["1x"] for em in data["emotes"]}
 
 def load_ffz(*channels):
 	"""Load FrankerFaceZ emotes for zero or more channels
@@ -100,6 +99,10 @@ def load_ffz(*channels):
 
 	Mutates the emote list used by convert_emotes().
 	"""
+	_load_emotes("FFZ global", "/ffz.json", "https://api.betterttv.net/2/frankerfacez_emotes/global", _xfrm_ffz)
+	for channel in channels:
+		_load_emotes(channel + " FFZ", "/ffz_%s.json" % channel,
+			"https://api.betterttv.net/2/frankerfacez_emotes/channels/" + channel, _xfrm_ffz)
 
 def convert_emotes(msg):
 	emotes = get_emote_list()
@@ -127,7 +130,8 @@ def validate_translations():
 	print(count, "emote patterns tested.")
 
 if __name__ == "__main__":
-	load_bttv("devicat")
+	# To activate BTTV and/or FFZ emotes:
+	# load_bttv("devicat"); load_ffz("54212603")
 	for msg in sys.argv[1:]:
 		print(convert_emotes(msg))
 	if len(sys.argv) <= 1:
