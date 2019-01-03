@@ -2,8 +2,8 @@ import json
 import sys
 import os.path
 
-# Can be overridden prior to calling get_emote_list if the path is wrong
-EMOTE_FILE = os.path.normpath(__file__ + "/../emotes/emote_list.json")
+# Can be overridden prior to calling get_emote_list
+EMOTE_PATH = os.path.normpath(__file__ + "/../emotes")
 
 # Only a handful of emotes actually make use of the fact that the check is a
 # regex. We don't use regexes, so instead, we translate those few emotes into
@@ -30,7 +30,7 @@ def get_emote_list():
 	global emote_list
 	if emote_list: return emote_list
 	try:
-		with open(EMOTE_FILE) as f:
+		with open(EMOTE_PATH + "/emote_list.json") as f:
 			data = json.load(f)
 	except FileNotFoundError:
 		print("Downloading emote list...", file=sys.stderr)
@@ -46,13 +46,27 @@ def get_emote_list():
 		req = requests.get("https://api.twitch.tv/kraken/chat/emoticons")
 		req.raise_for_status()
 		data = req.json()
-		with open(EMOTE_FILE, "w") as f:
+		with open(EMOTE_PATH + "/emote_list.json", "w") as f:
 			json.dump(f, data)
 	emote_list = {em["regex"]:em["id"] for em in reversed(data["emoticons"])}
 	for trn in TRANSLATIONS.split("\n"):
 		pat, *em = trn.split(" ")
 		for e in em: emote_list[e] = emote_list[pat]
 	return emote_list
+
+def load_bttv(*channels):
+	"""Load BTTV emotes for zero or more channels
+
+	If no channels are specified, loads only the global emotes. Otherwise,
+	emotes for the named channels (by username) will also be loaded.
+	"""
+
+def load_ffz(*channels):
+	"""Load FrankerFaceZ emotes for zero or more channels
+
+	If no channels are specified, loads only the global emotes. Otherwise,
+	emotes for the named channels (by user ID) will also be loaded.
+	"""
 
 def convert_emotes(msg):
 	emotes = get_emote_list()
