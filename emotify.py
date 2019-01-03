@@ -64,6 +64,7 @@ def convert_emotes(msg):
 
 def validate_translations():
 	# Check that the TRANSLATIONS mapping doesn't violate regex rules
+	# Basically, this will catch typos like expecting ":)" to match "\\:-?\\(" etc.
 	import re
 	count = 0
 	for trn in TRANSLATIONS.split("\n"):
