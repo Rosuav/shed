@@ -55,6 +55,22 @@ def get_emote_list():
 		for e in em: emote_list[e] = emote_list[pat]
 	return emote_list
 
+def _load_emotes(fn, url, xfrm):
+	"""Helper for load_bttv() and load_ffz()"""
+	emote_list = get_emote_list()
+	try:
+		with open(EMOTE_PATH + fn) as f:
+			data = json.load(f)
+	except FileNotFoundError:
+		print("Downloading BTTV emote list...", file=sys.stderr)
+		import requests
+		req = requests.get(url)
+		req.raise_for_status()
+		data = xfrm(req.json())
+		with open(EMOTE_PATH + fn, "w") as f:
+			json.dump(data, f)
+	emote_list.update(data)
+
 def _xfrm_bttv(data):
 	"""Helper for load_bttv - parse a BTTV-format JSON file"""
 	template = data["urlTemplate"].replace("{{image}}", "1x")
@@ -75,21 +91,6 @@ def load_bttv(*channels):
 	_load_emotes("/bttv.json", "https://api.betterttv.net/2/emotes", _xfrm_bttv)
 	for channel in channels:
 		_load_emotes("/bttv_%s.json" % channel, "https://api.betterttv.net/2/channels/" + channel, _xfrm_bttv)
-def _load_emotes(fn, url, xfrm):
-	"""Helper for load_bttv() and load_ffz()"""
-	emote_list = get_emote_list()
-	try:
-		with open(EMOTE_PATH + fn) as f:
-			data = json.load(f)
-	except FileNotFoundError:
-		print("Downloading BTTV emote list...", file=sys.stderr)
-		import requests
-		req = requests.get(url)
-		req.raise_for_status()
-		data = xfrm(req.json())
-		with open(EMOTE_PATH + fn, "w") as f:
-			json.dump(data, f)
-	emote_list.update(data)
 
 def load_ffz(*channels):
 	"""Load FrankerFaceZ emotes for zero or more channels
