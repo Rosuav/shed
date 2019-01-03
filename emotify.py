@@ -48,7 +48,8 @@ def get_emote_list():
 		data = req.json()
 		with open(EMOTE_PATH + "/emote_list.json", "w") as f:
 			json.dump(f, data)
-	emote_list = {em["regex"]:em["id"] for em in reversed(data["emoticons"])}
+	emote_list = {em["regex"]: "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0" % em["id"]
+		for em in reversed(data["emoticons"])}
 	for trn in TRANSLATIONS.split("\n"):
 		pat, *em = trn.split(" ")
 		for e in em: emote_list[e] = emote_list[pat]
@@ -73,7 +74,7 @@ def convert_emotes(msg):
 	words = msg.split()
 	for i, word in enumerate(words):
 		if word not in emotes: continue
-		words[i] = "![%s](https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0)" % (word, emotes[word])
+		words[i] = "![%s](%s)" % (word, emotes[word])
 	return " ".join(words)
 
 def validate_translations():
