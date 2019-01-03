@@ -62,16 +62,22 @@ def load_bttv(*channels):
 	emotes for the named channels (by username) will also be loaded.
 
 	Mutates the emote list used by convert_emotes().
+
+	NOTE: The channel names are not sanitized and should come from source code.
 	"""
+	_load_bttv("/bttv.json", "https://api.betterttv.net/2/emotes")
+	for channel in channels:
+		_load_bttv("/bttv_%s.json" % channel, "https://api.betterttv.net/2/channels/" + channel)
+def _load_bttv(fn, url):
+	"""Helper for load_bttv()"""
 	emote_list = get_emote_list()
 	try:
-		with open(EMOTE_PATH + "/bttv.json") as f:
+		with open(EMOTE_PATH + fn) as f:
 			data = json.load(f)
 	except FileNotFoundError:
 		print("Downloading BTTV emote list...", file=sys.stderr)
 		import requests
-		# https://api.betterttv.net/2/channels/devicat - DeviCat BTTV emotes
-		req = requests.get("https://api.betterttv.net/2/emotes")
+		req = requests.get(url)
 		req.raise_for_status()
 		data = req.json()
 		template = data["urlTemplate"].replace("{{image}}", "1x")
@@ -117,7 +123,7 @@ def validate_translations():
 	print(count, "emote patterns tested.")
 
 if __name__ == "__main__":
-	load_bttv()
+	load_bttv("devicat")
 	for msg in sys.argv[1:]:
 		print(convert_emotes(msg))
 	if len(sys.argv) <= 1:
