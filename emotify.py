@@ -35,9 +35,14 @@ def get_emote_list():
 	except FileNotFoundError:
 		print("Downloading emote list...", file=sys.stderr)
 		import requests
-		# TODO: Add header "Accept: application/vnd.twitchtv.v5+json" and
-		# "Client-ID: xxxxxx" where the latter comes from Mustard Mine etc
-		req = requests.get("https://api.twitch.tv/kraken/chat/emoticons")
+		# TODO: Have other ways of getting hold of a client ID than having
+		# Mustard Mine installed
+		sys.path.append("../mustard-mine")
+		import config
+		req = requests.get("https://api.twitch.tv/kraken/chat/emoticons", headers={
+			"Client-ID": config.CLIENT_ID,
+			"Accept": "application/vnd.twitchtv.v5+json",
+		})
 		req.raise_for_status()
 		data = req.json()
 		with open(EMOTE_PATH + "/emote_list.json", "w") as f:
