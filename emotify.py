@@ -37,6 +37,8 @@ def get_emote_list():
 		import requests
 		# TODO: Have other ways of getting hold of a client ID than having
 		# Mustard Mine installed
+		# TODO: Retrieve historical emotes as well. Use the newest for any
+		# given keyword, but support the older ones eg noobsKnife, devicatEH
 		sys.path.append("../mustard-mine")
 		import config
 		req = requests.get("https://api.twitch.tv/kraken/chat/emoticons", headers={
@@ -49,6 +51,8 @@ def get_emote_list():
 			json.dump(data, f)
 	emote_list = {em["regex"]: "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0" % em["id"]
 		for em in reversed(data["emoticons"])}
+	# Add older emotes like this:
+	emote_list["devicatEH"] = "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0" % 1291575
 	for trn in TRANSLATIONS.split("\n"):
 		pat, *em = trn.split(" ")
 		for e in em: emote_list[e] = emote_list[pat]
