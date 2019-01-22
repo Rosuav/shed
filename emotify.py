@@ -53,6 +53,7 @@ def get_emote_list():
 		for em in reversed(data["emoticons"])}
 	# Add older emotes like this:
 	emote_list["devicatEH"] = "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0" % 1291575
+	emote_list["devicatGRR"] = "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0" % 1291582
 	for trn in TRANSLATIONS.split("\n"):
 		pat, *em = trn.split(" ")
 		for e in em: emote_list[e] = emote_list[pat]
