@@ -121,7 +121,7 @@ def convert_emotes(msg):
 	words = msg.split()
 	for i, word in enumerate(words):
 		if word not in emotes: continue
-		words[i] = "![%s](%s)" % (word, emotes[word])
+		words[i] = '![%s](%s "%s")' % (word, emotes[word], word) # Assumes emote names never contain double quotes
 	return " ".join(words)
 
 def validate_translations():
