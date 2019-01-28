@@ -30,8 +30,9 @@ configs = {
 		"competitive": "buy hegrenade; buy flashbang; buy smokegrenade; buy molotov",
 	},
 	("map", "phase"): {
-		"live": "frame", # Since "pause" toggles pause, we use "frame", which is idempotent.
 		# "warmup": "frame", # Optionally pause as soon as warmup starts
+		"live": "frame", # Since "pause" toggles pause, we use "frame", which is idempotent.
+		"gameover": "frame", # Stay paused until you actually leave the game
 		...: "play",
 		handler: pw and toggle_music
 	},
