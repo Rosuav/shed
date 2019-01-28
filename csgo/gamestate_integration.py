@@ -1,5 +1,24 @@
+import os
+import socket
 from flask import Flask, request # ImportError? Try "pip install flask".
 app = Flask(__name__)
+
+handler = object() # Dict key cookie
+
+pw = os.environ.get("VLC_TELNET_PASSWORD")
+def toggle_music(state):
+	try:
+		sock = socket.create_connection(("127.0.0.1", 4212))
+	except OSError: # Most likely ConnectionRefusedError
+		return # No VLC to manage
+	sock.send("{}\n{}\nquit\n".format(pw, state).encode("ascii"))
+	data = b""
+	while b"Bye-bye!" not in data:
+		cur = sock.recv(1024)
+		if not cur: break
+		data += cur
+	sock.close()
+
 configs = {
 	# Becomes gsi_player_team.cfg
 	("player", "team"): {
@@ -9,6 +28,11 @@ configs = {
 	("map", "mode"): {
 		"casual": "buy hegrenade; buy flashbang; buy molotov",
 		"competitive": "buy hegrenade; buy flashbang; buy smokegrenade; buy molotov",
+	},
+	("map", "phase"): {
+		"live": "frame", # Since "pause" toggles pause, we use "frame", which is idempotent.
+		...: "play",
+		handler: pw and toggle_music
 	},
 }
 
@@ -33,6 +57,8 @@ def update_configs():
 			logging.log(25, "Updating %s => %s", filename, data)
 			with open(filename, "w") as f:
 				f.write(cfg)
+			func = options.get(handler)
+			if func: func(cfg)
 	return "" # Response doesn't matter
 
 if __name__ == "__main__":
