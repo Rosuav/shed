@@ -5,11 +5,11 @@ app = Flask(__name__)
 
 handler = object() # Dict key cookie
 
-pw = os.environ.get("VLC_TELNET_PASSWORD")
+pw = os.environ.get("VLC_TELNET_PASSWORD") # If not available, VLC management won't be done
 def toggle_music(state):
 	try:
 		sock = socket.create_connection(("127.0.0.1", 4212))
-	except OSError: # Most likely ConnectionRefusedError
+	except OSError: # Most likely ConnectionRefusedError (ie VLC isn't using the telnet interface)
 		return # No VLC to manage
 	sock.send("{}\n{}\nquit\n".format(pw, state).encode("ascii"))
 	data = b""
@@ -31,6 +31,7 @@ configs = {
 	},
 	("map", "phase"): {
 		"live": "frame", # Since "pause" toggles pause, we use "frame", which is idempotent.
+		# "warmup": "frame", # Optionally pause as soon as warmup starts
 		...: "play",
 		handler: pw and toggle_music
 	},
