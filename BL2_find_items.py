@@ -134,7 +134,7 @@ class ProtoBuf:
 		return cls(**values)
 
 # Stub types that are used by SaveFile
-SkillData = ResourceData = ItemData = Inventory = Weapon = MissionPlaythrough = bytes
+SkillData = ResourceData = ItemData = Weapon = MissionPlaythrough = bytes
 DLCData = RegionGameStage = WorldDiscovery = WeaponMemento = ItemMemento = bytes
 Challenge = OneOffChallenge = BankSlot = Lockout = PackedItemData = PackedWeaponData = VehicleSkin = bytes
 
@@ -153,6 +153,12 @@ class UIPreferences(ProtoBuf):
 	color3: Color
 
 @dataclass
+class InventorySlots(ProtoBuf):
+	backpack: int
+	weapons: int
+	num_quick_slots_flourished: int # No idea what this is.
+
+@dataclass
 class SaveFile(ProtoBuf):
 	playerclass: str
 	level: int
@@ -166,7 +172,7 @@ class SaveFile(ProtoBuf):
 	unknown10: [int] = None
 	resources: [ResourceData] = None
 	items: [ItemData] = None
-	inventory: [Inventory] = None
+	inventory_slots: InventorySlots = None
 	weapons: [Weapon] = None
 	stats: bytes = b"" # ?? Opaque (for now)
 	fasttravel: [str] = None
@@ -250,7 +256,7 @@ def parse_savefile(fn):
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
 	savefile = SaveFile.decode_protobuf(data)
 	cls = savefile.playerclass.split(".")[0][3:] # "GD_??????.blah"
-	return "Level %d %s: %s\n%r" % (savefile.level, CLASSES.get(cls, cls), savefile.preferences.name, savefile.inventory)
+	return "Level %d %s: %s\n%r" % (savefile.level, CLASSES.get(cls, cls), savefile.preferences.name, savefile.stats[:64])
 
 dir = os.path.expanduser("~/.local/share/aspyr-media/borderlands 2/willowgame/savedata")
 dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
