@@ -86,13 +86,18 @@ def protobuf_end_group(data):
 def protobuf_32bit(data):
 	return data.get(4)
 
+int32, int64 = object(), object() # Pseudo-types. On decode they become normal integers.
+
 class ProtoBuf:
+	# These can be packed into arrays.
+	PACKABLE = {int: get_varint, int32: protobuf_decoder[1], int64: protobuf_decoder[5]}
+
 	@staticmethod
 	def decode_value(val, typ):
 		if isinstance(val, int): return val # Only for varints, which should always be ints
 		assert isinstance(val, bytes)
 		if isinstance(typ, type) and issubclass(typ, ProtoBuf): return typ.decode_protobuf(val)
-		if typ is int: return int.from_bytes(val, "little")
+		if typ in (int32, int64): return int.from_bytes(val, "little")
 		if typ is float: return struct.unpack("<f", val)
 		if typ is str: return val #.decode("UTF-8") # enable once every str really means str
 		if typ is bytes: return val
@@ -110,7 +115,13 @@ class ProtoBuf:
 			typ = cls.__dataclass_fields__[field].type
 			if isinstance(typ, list):
 				lst = values.setdefault(field, [])
-				lst.append(cls.decode_value(val, typ[0]))
+				if typ[0] in cls.PACKABLE and wiretype == 2:
+					# Packed integers.
+					val = Consumable(val)
+					while val:
+						lst.append(cls.PACKABLE[typ[0]](val))
+				else:
+					lst.append(cls.decode_value(val, typ[0]))
 			else:
 				values[field] = cls.decode_value(val, typ)
 			if isinstance(val, (str, bytes)) and len(val) > 30: val = val[:30]
@@ -119,12 +130,12 @@ class ProtoBuf:
 
 @dataclass
 class SaveFile(ProtoBuf):
-	playerclass: str = ""
-	level: int = 0
-	exp: int = 0
-	general_skill_points: int = 0
-	specialist_skill_points: int = 0 # No idea what the diff is btwn these
-	money: list = None # TODO: Packed list
+	playerclass: str
+	level: int
+	exp: int
+	general_skill_points: int
+	specialist_skill_points: int # No idea what the diff is btwn these
+	money: [int] # [money, Eridium, Seraph tokens, ??, Torgue tokens, then eight more unknowns]
 	playthroughs_completed: int = 0
 	skills: list = None # TODO: Repeatable, each is packed data
 	unknown9: list = None
@@ -214,7 +225,7 @@ def parse_savefile(fn):
 	# finishes off the current byte, and then there are always four more bytes.
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
 	savefile = SaveFile.decode_protobuf(data)
-	return "Level %d %s" % (savefile.level, savefile.playerclass)
+	return "Level %d %s, fully explored %r" % (savefile.level, savefile.playerclass, savefile.fully_explored)
 
 dir = os.path.expanduser("~/.local/share/aspyr-media/borderlands 2/willowgame/savedata")
 dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
