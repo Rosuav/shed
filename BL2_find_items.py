@@ -8,6 +8,7 @@
 # compression algorithm). Currently the path is hard-coded for Linux though.
 import hashlib
 import os.path
+from dataclasses import dataclass
 from pprint import pprint
 import lzo # ImportError? pip install python-lzo
 
@@ -51,6 +52,117 @@ def huffman_decode(data, size):
 	if len(residue) >= 8: raise ValueError("Too much compressed data - residue " + residue)
 	return b''.join(ret)
 
+def get_varint(data):
+	"""Parse a protobuf varint out of the given data
+
+	It's like a little-endian version of MIDI's variable-length
+	integer. I don't know why Google couldn't just adopt what
+	already existed.
+	"""
+	scale = ret = 0
+	byte = 128
+	while byte > 127:
+		byte = data.get(1)[0]
+		ret |= (byte&127) << scale
+		scale += 7
+	return ret
+
+# Handle protobuf wire types by destructively reading from data
+protobuf_decoder = [get_varint] # Type 0 is varint
+@protobuf_decoder.append
+def protobuf_64bit(data):
+	return int.from_bytes(data.get(8), "little")
+@protobuf_decoder.append
+def protobuf_length_delimited(data):
+	return data.get(get_varint(data))
+@protobuf_decoder.append
+def protobuf_start_group(data):
+	raise Exception("Unimplemented")
+@protobuf_decoder.append
+def protobuf_end_group(data):
+	raise Exception("Unimplemented")
+@protobuf_decoder.append
+def protobuf_32bit(data):
+	# If you need a float, struct.unpack("<f", data.get(4)) instead
+	return int.from_bytes(data.get(4), "little")
+
+@dataclass
+class SaveFile:
+	playerclass: str = ""
+	level: int = 0
+	exp: int = 0
+	general_skill_points: int = 0
+	specialist_skill_points: int = 0 # No idea what the diff is btwn these
+	money: list = None # TODO: Packed list
+	playthroughs_completed: int = 0
+	skills: list = None # TODO: Repeatable, each is packed data
+	unknown9: list = None
+	unknown10: list = None
+	resources: list = None # TODO: Repeatable, each is packed data
+	items: list = None # TODO: Packed?
+	inventory: list = None # TODO: Packed?
+	weapons: list = None # TODO: Packed?
+	stats: list = None # TODO
+	fasttravel: list = None # TODO
+	last_fasttravel: str = ""
+	missions: list = None
+	preferences: dict = None
+	savegameid: int = 0
+	plotmission: int = 0
+	unknown22: int = 0
+	codesused: list = None
+	codes_needing_notifs: list = None
+	total_play_time: int = 0
+	last_save_date: str = ""
+	dlc: list = None
+	unknown28: list = None
+	region_game_stages: list = None
+	world_discovery: list = None
+	badass_mode: int = 0
+	weapon_mementos: list = None
+	item_mementos: list = None
+	save_guid: str = ""
+	applied_customizations: list = None # Current skins?
+	black_market: list = None
+	active_mission: int = 0
+	challenges: list = None
+	level_challenge_unlocks: list = None
+	one_off_level_challenges: list = None
+	bank: list = None
+	challenge_prestiges: int = 0
+	lockout_list: list = None
+	is_dlc_class: int = 0
+	dlc_class_package: int = 0
+	fully_explored: list = None
+	unknown47: list = None
+	golden_keys: int = 0 # Number "notified", whatever that means.
+	last_playthrough: int = 0
+	show_new_playthrough_notif: int = 0
+	rcvd_default_weap: int = 0
+	queued_training_msgs: list = None
+	packed_item_data: list = None # TODO
+	packed_weapon_data: list = None # TODO
+	awesome_skill_disabled: int = 0
+	max_bank_slots: int = 0 # Might be useful when looking for a place to put stuff
+	vehicle_skins: list = None
+	vehicle_steering_mode: int = 0
+	has_played_uvhm: int = 0
+	overpower_levels: int = 0
+	last_overpower_choice: int = 0
+
+	@classmethod
+	def decode_protobuf(cls, data):
+		self = cls()
+		fields = list(cls.__dataclass_fields__)
+		data = Consumable(data)
+		while data:
+			field, wiretype = divmod(get_varint(data), 8)
+			val = protobuf_decoder[wiretype](data)
+			setattr(self, fields[field - 1], val)
+			if isinstance(val, (str, bytes)) and len(val) > 30: val = val[:30]
+			print("%d: Setting %s to %s" % (field, fields[field - 1], val))
+		return self
+
 class SaveFileFormatError(Exception): pass
 
 def parse_savefile(fn):
@@ -83,13 +195,13 @@ def parse_savefile(fn):
 	# Not sure what the last four bytes are. The end of the compressed sequence
 	# finishes off the current byte, and then there are always four more bytes.
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
-	return data[:64]
+	return SaveFile.decode_protobuf(data)
 
 dir = os.path.expanduser("~/.local/share/aspyr-media/borderlands 2/willowgame/savedata")
 dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
 for fn in sorted(os.listdir(dir)):
 	if not fn.endswith(".sav"): continue
-	# if fn != "save000a.sav": continue # Hack: Use the smallest file available
+	if fn != "save000a.sav": continue # Hack: Use the smallest file available
 	print(fn)
 	try: print(parse_savefile(os.path.join(dir, fn)))
 	except SaveFileFormatError as e: print(e.args[0])
