@@ -8,6 +8,7 @@
 # compression algorithm). Currently the path is hard-coded for Linux though.
 import hashlib
 import os.path
+import struct
 from dataclasses import dataclass
 from pprint import pprint
 import lzo # ImportError? pip install python-lzo
@@ -71,7 +72,7 @@ def get_varint(data):
 protobuf_decoder = [get_varint] # Type 0 is varint
 @protobuf_decoder.append
 def protobuf_64bit(data):
-	return int.from_bytes(data.get(8), "little")
+	return data.get(8)
 @protobuf_decoder.append
 def protobuf_length_delimited(data):
 	return data.get(get_varint(data))
@@ -83,12 +84,20 @@ def protobuf_end_group(data):
 	raise Exception("Unimplemented")
 @protobuf_decoder.append
 def protobuf_32bit(data):
-	# If you need a float, struct.unpack("<f", data.get(4)) instead
-	return int.from_bytes(data.get(4), "little")
+	return data.get(4)
 
 class ProtoBuf:
 	@staticmethod
-	def decode_value(val, typ): return val
+	def decode_value(val, typ):
+		if isinstance(val, int): return val # Only for varints, which should always be ints
+		assert isinstance(val, bytes)
+		if isinstance(typ, type) and issubclass(typ, ProtoBuf): return typ.decode_protobuf(val)
+		if typ is int: return int.from_bytes(val, "little")
+		if typ is float: return struct.unpack("<f", val)
+		if typ is str: return val #.decode("UTF-8") # enable once every str really means str
+		if typ is bytes: return val
+		if typ in (list, dict): return val # TODO
+		raise ValueError("Unrecognized annotation %r" % typ)
 	@classmethod
 	def decode_protobuf(cls, data):
 		fields = list(cls.__dataclass_fields__)
@@ -98,7 +107,7 @@ class ProtoBuf:
 			idx, wiretype = divmod(get_varint(data), 8)
 			field = fields[idx - 1]
 			val = protobuf_decoder[wiretype](data)
-			typ = cls.__dataclass_fields__[field]
+			typ = cls.__dataclass_fields__[field].type
 			if isinstance(typ, list):
 				lst = values.setdefault(field, [])
 				lst.append(cls.decode_value(val, typ[0]))
