@@ -99,7 +99,7 @@ class ProtoBuf:
 		if isinstance(typ, type) and issubclass(typ, ProtoBuf): return typ.decode_protobuf(val)
 		if typ in (int32, int64): return int.from_bytes(val, "little")
 		if typ is float: return struct.unpack("<f", val)
-		if typ is str: return val #.decode("UTF-8") # enable once every str really means str
+		if typ is str: return val.decode("UTF-8")
 		if typ is bytes: return val
 		if typ in (list, dict): return val # TODO
 		raise ValueError("Unrecognized annotation %r" % typ)
@@ -163,7 +163,7 @@ class SaveFile(ProtoBuf):
 	badass_mode: int = 0
 	weapon_mementos: list = None
 	item_mementos: list = None
-	save_guid: str = ""
+	save_guid: bytes = b""
 	applied_customizations: list = None # Current skins?
 	black_market: list = None
 	active_mission: int = 0
@@ -175,7 +175,7 @@ class SaveFile(ProtoBuf):
 	lockout_list: list = None
 	is_dlc_class: int = 0
 	dlc_class_package: int = 0
-	fully_explored: list = None
+	fully_explored: [str] = None
 	unknown47: list = None
 	golden_keys: int = 0 # Number "notified", whatever that means.
 	last_playthrough: int = 0
