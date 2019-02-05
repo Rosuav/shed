@@ -13,6 +13,13 @@ from dataclasses import dataclass
 from pprint import pprint
 import lzo # ImportError? pip install python-lzo
 
+CLASSES = { # Some of the classes are oddly named in the save files.
+	"Tulip_Mechromancer": "Mechromancer", # Gaige
+	"Soldier": "Commando", # Axton
+	"Lilac_PlayerClass": "Psycho", # Krieg.... a "lilac"??
+	"Mercenary": "Gunzerker", # Salvador
+}
+
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
 	def __init__(self, data):
@@ -124,8 +131,6 @@ class ProtoBuf:
 					lst.append(cls.decode_value(val, typ[0]))
 			else:
 				values[field] = cls.decode_value(val, typ)
-			if isinstance(val, (str, bytes)) and len(val) > 30: val = val[:30]
-			print("%d: Setting %s to %s" % (idx, field, values[field]))
 		return cls(**values)
 
 # Stub types that are used by SaveFile
@@ -230,13 +235,14 @@ def parse_savefile(fn):
 	# finishes off the current byte, and then there are always four more bytes.
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
 	savefile = SaveFile.decode_protobuf(data)
-	return "Level %d %s, fully explored %r" % (savefile.level, savefile.playerclass, savefile.fully_explored)
+	cls = savefile.playerclass.split(".")[0][3:] # "GD_??????.blah"
+	return "Level %d %s, customizations %r" % (savefile.level, CLASSES.get(cls, cls), savefile.applied_customizations)
 
 dir = os.path.expanduser("~/.local/share/aspyr-media/borderlands 2/willowgame/savedata")
 dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
 for fn in sorted(os.listdir(dir)):
 	if not fn.endswith(".sav"): continue
-	if fn != "save000a.sav": continue # Hack: Use the smallest file available
+	# if fn != "save000a.sav": continue # Hack: Use the smallest file available
 	print(fn)
 	try: print(parse_savefile(os.path.join(dir, fn)))
 	except SaveFileFormatError as e: print(e.args[0])
