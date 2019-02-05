@@ -136,7 +136,7 @@ class ProtoBuf:
 # Stub types that are used by SaveFile
 SkillData = ResourceData = ItemData = Weapon = MissionPlaythrough = bytes
 DLCData = RegionGameStage = WorldDiscovery = WeaponMemento = ItemMemento = bytes
-Challenge = OneOffChallenge = BankSlot = Lockout = PackedItemData = PackedWeaponData = VehicleSkin = bytes
+Challenge = OneOffChallenge = BankSlot = Lockout = VehicleSkin = bytes
 
 @dataclass
 class Color(ProtoBuf):
@@ -157,6 +157,20 @@ class InventorySlots(ProtoBuf):
 	backpack: int
 	weapons: int
 	num_quick_slots_flourished: int # No idea what this is.
+
+@dataclass
+class PackedItemData(ProtoBuf):
+	serial: bytes
+	quantity: int
+	equipped: int
+	mark: int
+
+@dataclass
+class PackedWeaponData(ProtoBuf):
+	serial: bytes
+	quickslot: int
+	mark: int
+	unknown4: int = 0
 
 @dataclass
 class SaveFile(ProtoBuf):
@@ -212,8 +226,8 @@ class SaveFile(ProtoBuf):
 	show_new_playthrough_notif: int = 0
 	rcvd_default_weap: int = 0
 	queued_training_msgs: [str] = None
-	packed_item_data: [PackedItemData] = None # TODO
-	packed_weapon_data: [PackedWeaponData] = None # TODO
+	packed_item_data: [PackedItemData] = None
+	packed_weapon_data: [PackedWeaponData] = None
 	awesome_skill_disabled: int = 0
 	max_bank_slots: int = 0 # Might be useful when looking for a place to put stuff
 	vehicle_skins: [VehicleSkin] = None
@@ -256,7 +270,7 @@ def parse_savefile(fn):
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
 	savefile = SaveFile.decode_protobuf(data)
 	cls = savefile.playerclass.split(".")[0][3:] # "GD_??????.blah"
-	return "Level %d %s: %s\n%r" % (savefile.level, CLASSES.get(cls, cls), savefile.preferences.name, savefile.stats[:64])
+	return "Level %d %s: %s\n%r" % (savefile.level, CLASSES.get(cls, cls), savefile.preferences.name, savefile.bank)
 
 dir = os.path.expanduser("~/.local/share/aspyr-media/borderlands 2/willowgame/savedata")
 dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
