@@ -136,7 +136,7 @@ class ProtoBuf:
 # Stub types that are used by SaveFile
 SkillData = ResourceData = ItemData = Weapon = MissionPlaythrough = bytes
 DLCData = RegionGameStage = WorldDiscovery = WeaponMemento = ItemMemento = bytes
-Challenge = OneOffChallenge = BankSlot = Lockout = VehicleSkin = bytes
+Challenge = OneOffChallenge = Lockout = VehicleSkin = bytes
 
 @dataclass
 class Color(ProtoBuf):
@@ -157,6 +157,11 @@ class InventorySlots(ProtoBuf):
 	backpack: int
 	weapons: int
 	num_quick_slots_flourished: int # No idea what this is.
+
+@dataclass
+class BankSlot(ProtoBuf):
+	serial: bytes
+	# Yes, that's all there is. Just a serial number. Packaged up in a protobuf.
 
 @dataclass
 class PackedItemData(ProtoBuf):
@@ -270,13 +275,13 @@ def parse_savefile(fn):
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
 	savefile = SaveFile.decode_protobuf(data)
 	cls = savefile.playerclass.split(".")[0][3:] # "GD_??????.blah"
-	return "Level %d %s: %s\n%r" % (savefile.level, CLASSES.get(cls, cls), savefile.preferences.name, savefile.bank)
+	return "Level %d %s: %s\n%r" % (savefile.level, CLASSES.get(cls, cls), savefile.preferences.name, savefile.lockout_list)
 
 dir = os.path.expanduser("~/.local/share/aspyr-media/borderlands 2/willowgame/savedata")
 dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
 for fn in sorted(os.listdir(dir)):
 	if not fn.endswith(".sav"): continue
 	# if fn != "save000a.sav": continue # Hack: Use the smallest file available
-	print(fn)
+	print(fn, end="... ")
 	try: print(parse_savefile(os.path.join(dir, fn)))
 	except SaveFileFormatError as e: print(e.args[0])
