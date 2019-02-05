@@ -86,8 +86,22 @@ def protobuf_32bit(data):
 	# If you need a float, struct.unpack("<f", data.get(4)) instead
 	return int.from_bytes(data.get(4), "little")
 
+class ProtoBuf:
+	@classmethod
+	def decode_protobuf(cls, data):
+		self = cls()
+		fields = list(cls.__dataclass_fields__)
+		data = Consumable(data)
+		while data:
+			field, wiretype = divmod(get_varint(data), 8)
+			val = protobuf_decoder[wiretype](data)
+			setattr(self, fields[field - 1], val)
+			if isinstance(val, (str, bytes)) and len(val) > 30: val = val[:30]
+			print("%d: Setting %s to %s" % (field, fields[field - 1], val))
+		return self
+
 @dataclass
-class SaveFile:
+class SaveFile(ProtoBuf):
 	playerclass: str = ""
 	level: int = 0
 	exp: int = 0
@@ -149,19 +163,6 @@ class SaveFile:
 	has_played_uvhm: int = 0
 	overpower_levels: int = 0
 	last_overpower_choice: int = 0
-
-	@classmethod
-	def decode_protobuf(cls, data):
-		self = cls()
-		fields = list(cls.__dataclass_fields__)
-		data = Consumable(data)
-		while data:
-			field, wiretype = divmod(get_varint(data), 8)
-			val = protobuf_decoder[wiretype](data)
-			setattr(self, fields[field - 1], val)
-			if isinstance(val, (str, bytes)) and len(val) > 30: val = val[:30]
-			print("%d: Setting %s to %s" % (field, fields[field - 1], val))
-		return self
 
 class SaveFileFormatError(Exception): pass
 
