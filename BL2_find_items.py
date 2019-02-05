@@ -128,6 +128,11 @@ class ProtoBuf:
 			print("%d: Setting %s to %s" % (idx, field, values[field]))
 		return cls(**values)
 
+# Stub types that are used by SaveFile
+SkillData = ResourceData = ItemData = Inventory = Weapon = MissionPlaythrough = bytes
+UIPreferences = DLCData = RegionGameStage = WorldDiscovery = WeaponMemento = ItemMemento = bytes
+Challenge = OneOffChallenge = BankSlot = Lockout = PackedItemData = PackedWeaponData = VehicleSkin = bytes
+
 @dataclass
 class SaveFile(ProtoBuf):
 	playerclass: str
@@ -135,58 +140,58 @@ class SaveFile(ProtoBuf):
 	exp: int
 	general_skill_points: int
 	specialist_skill_points: int # No idea what the diff is btwn these
-	money: [int] # [money, Eridium, Seraph tokens, ??, Torgue tokens, then eight more unknowns]
-	playthroughs_completed: int = 0
-	skills: list = None # TODO: Repeatable, each is packed data
-	unknown9: list = None
-	unknown10: list = None
-	resources: list = None # TODO: Repeatable, each is packed data
-	items: list = None # TODO: Packed?
-	inventory: list = None # TODO: Packed?
-	weapons: list = None # TODO: Packed?
-	stats: list = None # TODO
-	fasttravel: list = None # TODO
+	money: [int] # [money, Eridium, Seraph tokens, unknown, Torgue tokens, then eight more unknowns]
+	playthroughs_completed: int
+	skills: [SkillData]
+	unknown9: [int] = None
+	unknown10: [int] = None
+	resources: [ResourceData] = None
+	items: [ItemData] = None
+	inventory: [Inventory] = None
+	weapons: [Weapon] = None
+	stats: bytes = b"" # ?? Opaque (for now)
+	fasttravel: [str] = None
 	last_fasttravel: str = ""
-	missions: list = None
-	preferences: dict = None
+	missions: [MissionPlaythrough] = None
+	preferences: UIPreferences = None
 	savegameid: int = 0
 	plotmission: int = 0
 	unknown22: int = 0
-	codesused: list = None
-	codes_needing_notifs: list = None
+	codesused: [int] = None
+	codes_needing_notifs: [int] = None
 	total_play_time: int = 0
 	last_save_date: str = ""
-	dlc: list = None
-	unknown28: list = None
-	region_game_stages: list = None
-	world_discovery: list = None
+	dlc: [DLCData] = None
+	unknown28: [str] = None
+	region_game_stages: [RegionGameStage] = None
+	world_discovery: [WorldDiscovery] = None
 	badass_mode: int = 0
-	weapon_mementos: list = None
-	item_mementos: list = None
+	weapon_mementos: [WeaponMemento] = None
+	item_mementos: [ItemMemento] = None
 	save_guid: bytes = b""
-	applied_customizations: list = None # Current skins?
-	black_market: list = None
+	applied_customizations: [str] = None # Current skins?
+	black_market: [int] = None
 	active_mission: int = 0
-	challenges: list = None
-	level_challenge_unlocks: list = None
-	one_off_level_challenges: list = None
-	bank: list = None
+	challenges: [Challenge] = None
+	level_challenge_unlocks: [int] = None
+	one_off_level_challenges: [OneOffChallenge] = None
+	bank: [BankSlot] = None
 	challenge_prestiges: int = 0
-	lockout_list: list = None
+	lockout_list: [Lockout] = None
 	is_dlc_class: int = 0
 	dlc_class_package: int = 0
 	fully_explored: [str] = None
-	unknown47: list = None
+	unknown47: [bytes] = None
 	golden_keys: int = 0 # Number "notified", whatever that means.
 	last_playthrough: int = 0
 	show_new_playthrough_notif: int = 0
 	rcvd_default_weap: int = 0
-	queued_training_msgs: list = None
-	packed_item_data: list = None # TODO
-	packed_weapon_data: list = None # TODO
+	queued_training_msgs: [str] = None
+	packed_item_data: [PackedItemData] = None # TODO
+	packed_weapon_data: [PackedWeaponData] = None # TODO
 	awesome_skill_disabled: int = 0
 	max_bank_slots: int = 0 # Might be useful when looking for a place to put stuff
-	vehicle_skins: list = None
+	vehicle_skins: [VehicleSkin] = None
 	vehicle_steering_mode: int = 0
 	has_played_uvhm: int = 0
 	overpower_levels: int = 0
