@@ -135,8 +135,22 @@ class ProtoBuf:
 
 # Stub types that are used by SaveFile
 SkillData = ResourceData = ItemData = Inventory = Weapon = MissionPlaythrough = bytes
-UIPreferences = DLCData = RegionGameStage = WorldDiscovery = WeaponMemento = ItemMemento = bytes
+DLCData = RegionGameStage = WorldDiscovery = WeaponMemento = ItemMemento = bytes
 Challenge = OneOffChallenge = BankSlot = Lockout = PackedItemData = PackedWeaponData = VehicleSkin = bytes
+
+@dataclass
+class Color(ProtoBuf):
+	alpha: int
+	red: int
+	green: int
+	blue: int
+	def __repr__(self): return "RGBA<%d,%d,%d,%d>" % (self.red, self.green, self.blue, self.alpha)
+@dataclass
+class UIPreferences(ProtoBuf):
+	name: str
+	color1: Color
+	color2: Color
+	color3: Color
 
 @dataclass
 class SaveFile(ProtoBuf):
@@ -236,7 +250,7 @@ def parse_savefile(fn):
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
 	savefile = SaveFile.decode_protobuf(data)
 	cls = savefile.playerclass.split(".")[0][3:] # "GD_??????.blah"
-	return "Level %d %s, customizations %r" % (savefile.level, CLASSES.get(cls, cls), savefile.applied_customizations)
+	return "Level %d %s: %s\n%r" % (savefile.level, CLASSES.get(cls, cls), savefile.preferences.name, savefile.inventory)
 
 dir = os.path.expanduser("~/.local/share/aspyr-media/borderlands 2/willowgame/savedata")
 dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
