@@ -87,18 +87,26 @@ def protobuf_32bit(data):
 	return int.from_bytes(data.get(4), "little")
 
 class ProtoBuf:
+	@staticmethod
+	def decode_value(val, typ): return val
 	@classmethod
 	def decode_protobuf(cls, data):
-		self = cls()
 		fields = list(cls.__dataclass_fields__)
 		data = Consumable(data)
+		values = {}
 		while data:
-			field, wiretype = divmod(get_varint(data), 8)
+			idx, wiretype = divmod(get_varint(data), 8)
+			field = fields[idx - 1]
 			val = protobuf_decoder[wiretype](data)
-			setattr(self, fields[field - 1], val)
+			typ = cls.__dataclass_fields__[field]
+			if isinstance(typ, list):
+				lst = values.setdefault(field, [])
+				lst.append(cls.decode_value(val, typ[0]))
+			else:
+				values[field] = cls.decode_value(val, typ)
 			if isinstance(val, (str, bytes)) and len(val) > 30: val = val[:30]
-			print("%d: Setting %s to %s" % (field, fields[field - 1], val))
-		return self
+			print("%d: Setting %s to %s" % (idx, field, values[field]))
+		return cls(**values)
 
 @dataclass
 class SaveFile(ProtoBuf):
@@ -196,7 +204,8 @@ def parse_savefile(fn):
 	# Not sure what the last four bytes are. The end of the compressed sequence
 	# finishes off the current byte, and then there are always four more bytes.
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
-	return SaveFile.decode_protobuf(data)
+	savefile = SaveFile.decode_protobuf(data)
+	return "Level %d %s" % (savefile.level, savefile.playerclass)
 
 dir = os.path.expanduser("~/.local/share/aspyr-media/borderlands 2/willowgame/savedata")
 dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
