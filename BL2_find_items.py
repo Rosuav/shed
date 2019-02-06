@@ -275,7 +275,7 @@ def parse_savefile(fn):
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
 	savefile = SaveFile.decode_protobuf(data)
 	cls = savefile.playerclass.split(".")[0][3:] # "GD_??????.blah"
-	return "Level %d %s: %s\n%r" % (savefile.level, CLASSES.get(cls, cls), savefile.preferences.name, savefile.lockout_list)
+	return "Level %d %s: %s\n%r" % (savefile.level, CLASSES.get(cls, cls), savefile.preferences.name, savefile.inventory_slots)
 
 dir = os.path.expanduser("~/.local/share/aspyr-media/borderlands 2/willowgame/savedata")
 dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
