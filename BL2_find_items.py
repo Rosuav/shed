@@ -238,7 +238,14 @@ class SaveFile(ProtoBuf):
 	awesome_skill_disabled: int = 0
 	max_bank_slots: int = 0 # Might be useful when looking for a place to put stuff
 	vehicle_skins: [VehicleSkin] = None
-	vehicle_steering_mode: int = 0
+	if GAME == "borderlands the pre-sequel":
+		body_switches: bytes = b""
+		player_flags: [int] = None
+		vehicle_steering_mode: int = 0
+		discovered_compass_icons: [bytes] = None
+		suppress_oxygen_notifs: int = 0
+	else:
+		vehicle_steering_mode: int = 0
 	has_played_uvhm: int = 0
 	overpower_levels: int = 0
 	last_overpower_choice: int = 0
