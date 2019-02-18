@@ -37,6 +37,10 @@ class Consumable:
 		return ret
 	def __len__(self): return self.left
 	def peek(self): return self.data[self.eaten:] # Doubles as "convert to bytes/str"
+	@classmethod
+	def from_bits(cls, data):
+		"""Create a bitfield consumable from packed eight-bit data"""
+		return cls(''.join(format(x, "08b") for x in data))
 
 def decode_tree(bits):
 	"""Decode a (sub)tree from the given sequence of bits
@@ -50,7 +54,7 @@ def decode_tree(bits):
 	# Otherwise, it has subnodes.
 	return (decode_tree(bits), decode_tree(bits))
 def huffman_decode(data, size):
-	bits = Consumable(''.join(format(x, "08b") for x in data))
+	bits = Consumable.from_bits(data)
 	root = decode_tree(bits)
 	ret = []
 	while len(ret) < size:
