@@ -88,9 +88,9 @@ def decode_asset_library(data):
 	# bit set if it's a weapon, or clear if it's an item.
 	is_weapon = data[0] >= 128
 	if (data[0] & 127) != 10: raise ValueError("Version number mismatch")
-	print("Is weapon:", is_weapon)
+	# print("Is weapon:", is_weapon)
 	# Below assumes that it IS a weapon. Things are a bit different for items.
-	print("Unique ID:", int.from_bytes(data[1:5], "little"))
+	uid = int.from_bytes(data[1:5], "little")
 	setid = data[7]
 	bits = ConsumableLE.from_bits(data[8:])
 	config = get_asset("Asset Library Manager")
@@ -103,17 +103,19 @@ def decode_asset_library(data):
 		cfg = config["sets"][setid if useset == "1" else 0]["libraries"][field]
 		return cfg["sublibraries"][int(sublib,2)]["assets"][int(asset,2)]
 
-	print("Type:", _decode("WeaponTypes"))
-	print("Balance:", _decode("BalanceDefs"))
-	print("Brand:", _decode("Manufacturers"))
-	print("Grade:", int(bits.get(7), 2))
-	print("Stage:", int(bits.get(7), 2))
-	print("Body:", _decode("WeaponParts"))
-	print("Grip:", _decode("WeaponParts"))
-	print("Barrel:", _decode("WeaponParts"))
-	print("Sight:", _decode("WeaponParts"))
-	print("Stock:", _decode("WeaponParts"))
-	return ""
+	type = _decode("WeaponTypes")
+	balance = _decode("BalanceDefs")
+	brand = _decode("Manufacturers")
+	# There are two fields, "Grade" and "Stage". Not sure what the diff
+	# is, as they seem to be equal.
+	grade = int(bits.get(7), 2)
+	stage = int(bits.get(7), 2)
+	if grade == stage: lvl = "Lvl %d" % grade
+	else: lvl = "Level %d/%d" % (grade, stage)
+	for part in "body grip barrel sight stock elemental acc1 acc2 material pfx title".split():
+		_decode("WeaponParts")
+	type = type.replace("A_Weapons.WT_", "").replace("A_Weapons.WeaponType_", "").replace("_", " ")
+	return lvl + " " + type
 
 def decode_tree(bits):
 	"""Decode a (sub)tree from the given sequence of bits
