@@ -94,13 +94,16 @@ def decode_asset_library(data):
 	setid = data[7]
 	bits = ConsumableLE.from_bits(data[8:])
 	config = get_asset("Asset Library Manager")
+	if "sets_by_id" not in config:
+		# Remap the sets to be keyed by ID - it's more useful that way.
+		config["sets_by_id"] = {set["id"]: set for set in config["sets"]}
 	def _decode(field):
 		cfg = config["configs"][field]
 		asset = bits.get(cfg["asset_bits"])
 		sublib = bits.get(cfg["sublibrary_bits"] - 1)
 		useset = bits.get(1)
 		if "0" not in (useset+sublib+asset): return None # All -1 means "nothing here"
-		cfg = config["sets"][setid if useset == "1" else 0]["libraries"][field]
+		cfg = config["sets_by_id"][setid if useset == "1" else 0]["libraries"][field]
 		return cfg["sublibraries"][int(sublib,2)]["assets"][int(asset,2)]
 
 	type = _decode("WeaponTypes")
@@ -369,8 +372,7 @@ def parse_savefile(fn):
 	# goes in the item data array.
 	print()
 	for weapon in savefile.packed_weapon_data:
-		if not weapon.quickslot: continue
-		print("Weapon #%d:" % weapon.quickslot)
+		if weapon.quickslot: print("Weapon #%d:" % weapon.quickslot, end=" ")
 		print(decode_asset_library(weapon.serial))
 	# pprint(savefile.packed_item_data)
 	return "Level %d %s: %s (%d+%d items)\n%r" % (savefile.level, CLASSES.get(cls, cls),
