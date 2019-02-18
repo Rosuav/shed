@@ -102,7 +102,7 @@ class ProtoBuf:
 	PACKABLE = {int: get_varint, int32: protobuf_decoder[1], int64: protobuf_decoder[5]}
 
 	@staticmethod
-	def decode_value(val, typ):
+	def decode_value(val, typ, where):
 		if isinstance(val, int): return val # Only for varints, which should always be ints
 		assert isinstance(val, bytes)
 		if isinstance(typ, type) and issubclass(typ, ProtoBuf): return typ.decode_protobuf(val)
@@ -111,7 +111,7 @@ class ProtoBuf:
 		if typ is str: return val.decode("UTF-8")
 		if typ is bytes: return val
 		if typ in (list, dict): return val # TODO
-		raise ValueError("Unrecognized annotation %r" % typ)
+		raise ValueError("Unrecognized annotation %r in %s: data %r" % (typ, where, val[:64]))
 	@classmethod
 	def decode_protobuf(cls, data):
 		fields = list(cls.__dataclass_fields__)
@@ -130,9 +130,9 @@ class ProtoBuf:
 					while val:
 						lst.append(cls.PACKABLE[typ[0]](val))
 				else:
-					lst.append(cls.decode_value(val, typ[0]))
+					lst.append(cls.decode_value(val, typ[0], cls.__name__ + "." + field))
 			else:
-				values[field] = cls.decode_value(val, typ)
+				values[field] = cls.decode_value(val, typ, cls.__name__ + "." + field)
 		return cls(**values)
 
 # Stub types that are used by SaveFile
