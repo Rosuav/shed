@@ -186,7 +186,7 @@ class SaveFile(ProtoBuf):
 	exp: int
 	general_skill_points: int
 	specialist_skill_points: int # No idea what the diff is btwn these
-	money: [int] # [money, Eridium, Seraph tokens, unknown, Torgue tokens, then eight more unknowns]
+	money: [int] # [money, Eridium/Moonstones, Seraph tokens, unknown, Torgue tokens, then eight more unknowns]
 	playthroughs_completed: int
 	skills: [SkillData]
 	unknown9: [int] = None
