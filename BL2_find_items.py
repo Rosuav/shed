@@ -19,6 +19,8 @@ CLASSES = { # Some of the classes are oddly named in the save files.
 	"Lilac_PlayerClass": "Psycho", # Krieg.... a "lilac"??
 	"Mercenary": "Gunzerker", # Salvador
 }
+# GAME = "borderlands 2"
+GAME = "borderlands the pre-sequel"
 
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
@@ -277,7 +279,7 @@ def parse_savefile(fn):
 	cls = savefile.playerclass.split(".")[0][3:] # "GD_??????.blah"
 	return "Level %d %s: %s\n%r" % (savefile.level, CLASSES.get(cls, cls), savefile.preferences.name, savefile.inventory_slots)
 
-dir = os.path.expanduser("~/.local/share/aspyr-media/borderlands 2/willowgame/savedata")
+dir = os.path.expanduser("~/.local/share/aspyr-media/" + GAME + "/willowgame/savedata")
 dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
 for fn in sorted(os.listdir(dir)):
 	if not fn.endswith(".sav"): continue
