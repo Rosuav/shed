@@ -83,20 +83,19 @@ def decode_asset_library(data):
 	crc = binascii.crc32(data)
 	crc = (crc >> 16) ^ (crc & 65535)
 	if crc != crc16: raise ValueError("Checksum mismatch")
-	# bits = ConsumableLE.from_bits(data)
-	# The first byte is a version number (should be 10), with the high
+	config = get_asset("Asset Library Manager")
+	if "sets_by_id" not in config:
+		# Remap the sets to be keyed by ID - it's more useful that way.
+		config["sets_by_id"] = {set["id"]: set for set in config["sets"]}
+	# The first byte is a version number, with the high
 	# bit set if it's a weapon, or clear if it's an item.
 	is_weapon = data[0] >= 128
-	if (data[0] & 127) != 10: raise ValueError("Version number mismatch")
+	if (data[0] & 127) != config["version"]: raise ValueError("Version number mismatch")
 	# print("Is weapon:", is_weapon)
 	# Below assumes that it IS a weapon. Things are a bit different for items.
 	uid = int.from_bytes(data[1:5], "little")
 	setid = data[7]
 	bits = ConsumableLE.from_bits(data[8:])
-	config = get_asset("Asset Library Manager")
-	if "sets_by_id" not in config:
-		# Remap the sets to be keyed by ID - it's more useful that way.
-		config["sets_by_id"] = {set["id"]: set for set in config["sets"]}
 	def _decode(field):
 		cfg = config["configs"][field]
 		asset = bits.get(cfg["asset_bits"])
