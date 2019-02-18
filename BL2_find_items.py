@@ -6,7 +6,9 @@
 # to twink. It should be able to handle Windows and Linux save files, but
 # not save files from consoles (they may be big-endian, and/or use another
 # compression algorithm). Currently the path is hard-coded for Linux though.
+import binascii
 import hashlib
+import json
 import os.path
 import struct
 from dataclasses import dataclass
@@ -21,6 +23,15 @@ CLASSES = { # Some of the classes are oddly named in the save files.
 }
 # GAME = "borderlands 2"
 GAME = "borderlands the pre-sequel"
+
+# Requires access to the Gibbed data files.
+ASSET_PATH = "../GibbedBL2/Gibbed.Borderlands%s/projects/Gibbed.Borderlands%s.GameInfo/Resources/%s.json"
+def get_asset(fn, cache={}):
+	if fn not in cache:
+		if GAME == "borderlands 2": path = ASSET_PATH % ("2", "2", fn)
+		else: path = ASSET_PATH % ("Oz", "Oz", fn)
+		with open(path, "rb") as f: cache[fn] = json.load(f)
+	return cache[fn]
 
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
@@ -41,6 +52,68 @@ class Consumable:
 	def from_bits(cls, data):
 		"""Create a bitfield consumable from packed eight-bit data"""
 		return cls(''.join(format(x, "08b") for x in data))
+class ConsumableLE(Consumable):
+	"""Little-endian bitwise consumable"""
+	def get(self, num):
+		return super().get(num)[::-1]
+	@classmethod
+	def from_bits(cls, data):
+		"""Create a bitfield consumable from packed eight-bit data"""
+		return cls(''.join(format(x, "08b")[::-1] for x in data))
+
+def bogodecrypt(seed, data):
+	if not seed: return data
+	if seed > 1<<31: seed |= 31<<32 # Emulate an arithmetic right shift
+	xor = seed >> 5
+	data = list(data)
+	for i, x in enumerate(data):
+		# ??? No idea. Got this straight from Gibbed.
+		xor = (xor * 0x10A860C1) % 0xFFFFFFFB
+		data[i] = x ^ (xor & 255)
+	data = bytes(data)
+	split = len(data) - ((seed % 32) % len(data))
+	return data[split:] + data[:split]
+
+def decode_asset_library(data):
+	seed = int.from_bytes(data[1:5], "big")
+	data = data[:5] + bogodecrypt(seed, data[5:])
+	data += b"\xFF" * (40 - len(data)) # Pad to 40 with 0xFF
+	crc16 = int.from_bytes(data[5:7], "big")
+	data = data[:5] + b"\xFF\xFF" + data[7:]
+	crc = binascii.crc32(data)
+	crc = (crc >> 16) ^ (crc & 65535)
+	if crc != crc16: raise ValueError("Checksum mismatch")
+	# bits = ConsumableLE.from_bits(data)
+	# The first byte is a version number (should be 10), with the high
+	# bit set if it's a weapon, or clear if it's an item.
+	is_weapon = data[0] >= 128
+	if (data[0] & 127) != 10: raise ValueError("Version number mismatch")
+	print("Is weapon:", is_weapon)
+	# Below assumes that it IS a weapon. Things are a bit different for items.
+	print("Unique ID:", int.from_bytes(data[1:5], "little"))
+	setid = data[7]
+	bits = ConsumableLE.from_bits(data[8:])
+	config = get_asset("Asset Library Manager")
+	def _decode(field):
+		cfg = config["configs"][field]
+		asset = bits.get(cfg["asset_bits"])
+		sublib = bits.get(cfg["sublibrary_bits"] - 1)
+		useset = bits.get(1)
+		if "0" not in (useset+sublib+asset): return None # All -1 means "nothing here"
+		cfg = config["sets"][setid if useset == "1" else 0]["libraries"][field]
+		return cfg["sublibraries"][int(sublib,2)]["assets"][int(asset,2)]
+
+	print("Type:", _decode("WeaponTypes"))
+	print("Balance:", _decode("BalanceDefs"))
+	print("Brand:", _decode("Manufacturers"))
+	print("Grade:", int(bits.get(7), 2))
+	print("Stage:", int(bits.get(7), 2))
+	print("Body:", _decode("WeaponParts"))
+	print("Grip:", _decode("WeaponParts"))
+	print("Barrel:", _decode("WeaponParts"))
+	print("Sight:", _decode("WeaponParts"))
+	print("Stock:", _decode("WeaponParts"))
+	return ""
 
 def decode_tree(bits):
 	"""Decode a (sub)tree from the given sequence of bits
@@ -288,7 +361,18 @@ def parse_savefile(fn):
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
 	savefile = SaveFile.decode_protobuf(data)
 	cls = savefile.playerclass.split(".")[0][3:] # "GD_??????.blah"
-	return "Level %d %s: %s\n%r" % (savefile.level, CLASSES.get(cls, cls), savefile.preferences.name, savefile.inventory_slots)
+	# The packed_weapon_data and packed_item_data arrays contain the correct
+	# number of elements for the inventory items. (Equipped or backpack is
+	# irrelevant, but anything that isn't a weapon ('nade mod, class mod, etc)
+	# goes in the item data array.
+	print()
+	for weapon in savefile.packed_weapon_data:
+		if not weapon.quickslot: continue
+		print("Weapon #%d:" % weapon.quickslot)
+		print(decode_asset_library(weapon.serial))
+	# pprint(savefile.packed_item_data)
+	return "Level %d %s: %s (%d+%d items)\n%r" % (savefile.level, CLASSES.get(cls, cls),
+		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2, savefile.inventory_slots)
 
 dir = os.path.expanduser("~/.local/share/aspyr-media/" + GAME + "/willowgame/savedata")
 dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
@@ -298,3 +382,4 @@ for fn in sorted(os.listdir(dir)):
 	print(fn, end="... ")
 	try: print(parse_savefile(os.path.join(dir, fn)))
 	except SaveFileFormatError as e: print(e.args[0])
+	break
