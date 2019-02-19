@@ -20,6 +20,8 @@ CLASSES = { # Some of the classes are oddly named in the save files.
 	"Soldier": "Commando", # Axton
 	"Lilac_PlayerClass": "Psycho", # Krieg.... a "lilac"??
 	"Mercenary": "Gunzerker", # Salvador
+	"nce_Doppel": "Doppelganger", # Timothy
+	"Prototype": "Fragtrap", # Claptrap
 }
 # GAME = "borderlands 2"
 GAME = "borderlands the pre-sequel"
@@ -91,9 +93,8 @@ def decode_asset_library(data):
 	# bit set if it's a weapon, or clear if it's an item.
 	is_weapon = data[0] >= 128
 	if (data[0] & 127) != config["version"]: raise ValueError("Version number mismatch")
-	# print("Is weapon:", is_weapon)
-	# Below assumes that it IS a weapon. Things are a bit different for items.
 	uid = int.from_bytes(data[1:5], "little")
+	if not uid: return None # For some reason, there are a couple of null items at the end of inventory. They decode fine but aren't items.
 	setid = data[7]
 	bits = ConsumableLE.from_bits(data[8:])
 	def _decode(field):
@@ -105,7 +106,7 @@ def decode_asset_library(data):
 		cfg = config["sets_by_id"][setid if useset == "1" else 0]["libraries"][field]
 		return cfg["sublibraries"][int(sublib,2)]["assets"][int(asset,2)]
 
-	type = _decode("WeaponTypes")
+	type = _decode("WeaponTypes" if is_weapon else "ItemTypes")
 	balance = _decode("BalanceDefs")
 	brand = _decode("Manufacturers")
 	# There are two fields, "Grade" and "Stage". Not sure what the diff
@@ -114,10 +115,21 @@ def decode_asset_library(data):
 	stage = int(bits.get(7), 2)
 	if grade == stage: lvl = "Lvl %d" % grade
 	else: lvl = "Level %d/%d" % (grade, stage)
-	for part in "body grip barrel sight stock elemental acc1 acc2 material pfx title".split():
-		_decode("WeaponParts")
-	type = type.replace("A_Weapons.WT_", "").replace("A_Weapons.WeaponType_", "").replace("_", " ")
-	return lvl + " " + type
+	if is_weapon:
+		parts = "body grip barrel sight stock elemental acc1 acc2"
+		field = "WeaponParts"
+	else:
+		parts = "alpha beta gamma delta epsilon zeta eta theta"
+		field = "ItemParts"
+	for part in parts.split():
+		_decode(field)
+	material = _decode(field)
+	pfx = _decode(field) or "<no pfx>"
+	title = _decode(field) or "<no title>"
+
+	type = type.split(".", 1)[1]
+	type = type.replace("WT_", "").replace("WeaponType_", "")
+	return " ".join((lvl, type.replace("_", " "), pfx, title))
 
 def decode_tree(bits):
 	"""Decode a (sub)tree from the given sequence of bits
@@ -373,9 +385,14 @@ def parse_savefile(fn):
 	for weapon in savefile.packed_weapon_data:
 		if weapon.quickslot: print("Weapon #%d:" % weapon.quickslot, end=" ")
 		print(decode_asset_library(weapon.serial))
-	# pprint(savefile.packed_item_data)
-	return "Level %d %s: %s (%d+%d items)\n%r" % (savefile.level, CLASSES.get(cls, cls),
-		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2, savefile.inventory_slots)
+	for item in savefile.packed_item_data:
+		it = decode_asset_library(item.serial)
+		if not it: continue
+		print(("Equipped: " if item.equipped else "") + it)
+	for item in savefile.bank or []:
+		print("Bank:", decode_asset_library(item.serial))
+	return "Level %d %s: %s (%d+%d items)" % (savefile.level, CLASSES.get(cls, cls),
+		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2)
 
 dir = os.path.expanduser("~/.local/share/aspyr-media/" + GAME + "/willowgame/savedata")
 dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
