@@ -68,6 +68,22 @@ def bogodecrypt(seed, data):
 	split = len(data) - ((seed % 32) % len(data))
 	return data[split:] + data[:split]
 
+# Many entries in the files are of the form "GD_Weap_SniperRifles.A_Weapons.WeaponType_Vladof_Sniper"
+# but the savefile just has "A_Weapons.WeaponType_Vladof_Sniper". The same prefix appears to be used
+# for the components of the weapon. So far, I have not figured out how to synthesize the prefix, but
+# for any given type, there is only one prefix, so we just calculate from that.
+def _category(type_or_bal, _cache = {}):
+	if _cache: return _cache[type_or_bal]
+	for lbl in list(get_asset("Item Types")) + list(get_asset("Weapon Types")) \
+			+ list(get_asset("Item Balance")) + list(get_asset("Weapon Balance")):
+		cat, lbl = lbl.split(".", 1)
+		if lbl in _cache:
+			print("DUPLICATE:")
+			print(_cache[lbl] + "." + lbl)
+			print(cat + "." + lbl)
+		_cache[lbl] = cat
+	return _cache[type_or_bal]
+
 def decode_asset_library(data):
 	seed = int.from_bytes(data[1:5], "big")
 	data = data[:5] + bogodecrypt(seed, data[5:])
@@ -84,6 +100,7 @@ def decode_asset_library(data):
 	# The first byte is a version number, with the high
 	# bit set if it's a weapon, or clear if it's an item.
 	is_weapon = data[0] >= 128
+	weap_item = "Weapon" if is_weapon else "Item"
 	if (data[0] & 127) != config["version"]: raise ValueError("Version number mismatch")
 	uid = int.from_bytes(data[1:5], "little")
 	if not uid: return None # For some reason, there are a couple of null items at the end of inventory. They decode fine but aren't items.
@@ -96,9 +113,10 @@ def decode_asset_library(data):
 		useset = bits.get(1)
 		if "0" not in (useset+sublib+asset): return None # All -1 means "nothing here"
 		cfg = config["sets_by_id"][setid if useset == "1" else 0]["libraries"][field]
+		# print(field, cfg["sublibraries"][int(sublib,2)]["assets"][int(asset,2)])
 		return cfg["sublibraries"][int(sublib,2)]["assets"][int(asset,2)]
 
-	type = _decode("WeaponTypes" if is_weapon else "ItemTypes")
+	type = _decode(weap_item + "Types")
 	balance = _decode("BalanceDefs")
 	brand = _decode("Manufacturers")
 	# There are two fields, "Grade" and "Stage". Not sure what the diff
@@ -109,19 +127,25 @@ def decode_asset_library(data):
 	else: lvl = "Level %d/%d" % (grade, stage)
 	if is_weapon:
 		parts = "body grip barrel sight stock elemental acc1 acc2"
-		field = "WeaponParts"
 	else:
 		parts = "alpha beta gamma delta epsilon zeta eta theta"
-		field = "ItemParts"
 	for part in parts.split():
-		_decode(field)
-	material = _decode(field)
-	pfx = _decode(field) or "<no pfx>"
-	title = _decode(field) or "<no title>"
-
-	type = type.split(".", 1)[1]
-	type = type.replace("WT_", "").replace("WeaponType_", "")
-	return " ".join((lvl, type.replace("_", " "), pfx, title))
+		_decode(weap_item + "Parts")
+	material = _decode(weap_item + "Parts")
+	pfx = _decode(weap_item + "Parts") or "<no pfx>"
+	title = _decode(weap_item + "Parts") or "<no title>"
+	names = get_asset(weap_item + " Name Parts")
+	for cat in (_category(type), _category(balance), "GD_Weap_Shared_Names"):
+		pfxinfo = names.get(cat + "." + pfx)
+		if pfxinfo: break
+	# pfxinfo has a name (unless it's a null prefix), and a uniqueness flag. No idea what that one is for.
+	for cat in (_category(type), _category(balance), "GD_Weap_Shared_Names"):
+		titinfo = names.get(cat + "." + title)
+		if titinfo: break
+	if titinfo: title = titinfo["name"]
+	if pfxinfo and "name" in pfxinfo: title = pfxinfo["name"] + " " + title
+	type = type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
+	return "%s %s (%s)" % (lvl, title, type)
 
 def decode_tree(bits):
 	"""Decode a (sub)tree from the given sequence of bits
