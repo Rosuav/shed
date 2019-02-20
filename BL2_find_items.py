@@ -15,14 +15,6 @@ from dataclasses import dataclass
 from pprint import pprint
 import lzo # ImportError? pip install python-lzo
 
-CLASSES = { # Some of the classes are oddly named in the save files.
-	"Tulip_Mechromancer": "Mechromancer", # Gaige
-	"Soldier": "Commando", # Axton
-	"Lilac_PlayerClass": "Psycho", # Krieg.... a "lilac"??
-	"Mercenary": "Gunzerker", # Salvador
-	"nce_Doppel": "Doppelganger", # Timothy
-	"Prototype": "Fragtrap", # Claptrap
-}
 # GAME = "borderlands 2"
 GAME = "borderlands the pre-sequel"
 
@@ -376,7 +368,7 @@ def parse_savefile(fn):
 	# finishes off the current byte, and then there are always four more bytes.
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
 	savefile = SaveFile.decode_protobuf(data)
-	cls = savefile.playerclass.split(".")[0][3:] # "GD_??????.blah"
+	cls = get_asset("Player Classes")[savefile.playerclass]["class"]
 	# The packed_weapon_data and packed_item_data arrays contain the correct
 	# number of elements for the inventory items. (Equipped or backpack is
 	# irrelevant, but anything that isn't a weapon ('nade mod, class mod, etc)
@@ -391,7 +383,7 @@ def parse_savefile(fn):
 		print(("Equipped: " if item.equipped else "") + it)
 	for item in savefile.bank or []:
 		print("Bank:", decode_asset_library(item.serial))
-	return "Level %d %s: %s (%d+%d items)" % (savefile.level, CLASSES.get(cls, cls),
+	return "Level %d %s: %s (%d+%d items)" % (savefile.level, cls,
 		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2)
 
 dir = os.path.expanduser("~/.local/share/aspyr-media/" + GAME + "/willowgame/savedata")
