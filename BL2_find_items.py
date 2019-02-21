@@ -7,6 +7,7 @@
 # not save files from consoles (they may be big-endian, and/or use another
 # compression algorithm). Currently the path is hard-coded for Linux though.
 import binascii
+import collections
 import hashlib
 import json
 import os.path
@@ -158,21 +159,64 @@ def decode_tree(bits):
 	a 0 bit and then two subtrees.
 	"""
 	if bits.get(1) == "1": # Is it a leaf?
-		return bytes([int(bits.get(8), 2)])
+		return int(bits.get(8), 2)
 	# Otherwise, it has subnodes.
 	return (decode_tree(bits), decode_tree(bits))
 def huffman_decode(data, size):
 	bits = Consumable.from_bits(data)
 	root = decode_tree(bits)
+	global last_huffman_tree; last_huffman_tree = root
 	ret = []
 	while len(ret) < size:
 		cur = root
 		while isinstance(cur, tuple):
 			cur = cur[bits.get(1) == "1"]
 		ret.append(cur)
+	# The residue doesn't always consist solely of zero bits. I'm not sure
+	# why, and I have no idea how to replicate it. Hopefully it doesn't
+	# matter.
 	residue = bits.peek()
+	global last_huffman_residue; last_huffman_residue = residue
 	if len(residue) >= 8: raise ValueError("Too much compressed data - residue " + residue)
-	return b''.join(ret)
+	return bytes(ret)
+
+def huffman_encode(data):
+	if not data: return data # Probably wrong but should never happen anyway
+	# First, build a Huffman tree by figuring out which bytes are most common.
+	counts = collections.Counter(data)
+	while len(counts) > 1:
+		# Pick the two least common and join them
+		(left, lfreq), (right, rfreq) = counts.most_common()[-2:]
+		del counts[left], counts[right]
+		counts[(left, right)] = lfreq + rfreq
+	[head] = counts # Grab the sole remaining key
+	head = last_huffman_tree # Hack: Reuse the tree from the last decode (gives bit-for-bit identical compression)
+	# We now should have a Huffman tree where every node is either a leaf
+	# (a single byte value) or a tuple of two nodes with approximately
+	# equal frequency. Next, we turn that tree into a bit sequence that
+	# decode_tree() can parse, and also (for convenience) flatten it into
+	# a lookup table mapping byte values to their bit sequences.
+	bits = {}
+	ret = []
+	def _flatten(node, seq):
+		if isinstance(node, tuple):
+			ret.append("0")
+			_flatten(node[0], seq + "0")
+			_flatten(node[1], seq + "1")
+		else:
+			ret.append("1" + format(node, "08b"))
+			bits[node] = seq
+	_flatten(head, "")
+	# Finally, the easy bit: turn every data byte into a bit sequence.
+	ret.extend(bits[char] for char in data)
+	ret = "".join(ret)
+	spare = len(ret) % 8
+	if spare:
+		# Hack: Reuse the residue from the last decode. I *think* this is just
+		# junk bits that are ignored on load.
+		if len(last_huffman_residue) == 8-spare: ret += last_huffman_residue
+		else: ret += "0" * (8-spare)
+	return int(ret, 2).to_bytes(len(ret)//8, "big")
 
 def get_varint(data):
 	"""Parse a protobuf varint out of the given data
@@ -426,10 +470,11 @@ def parse_savefile(fn):
 	uncompressed_size = int.from_bytes(data.get(4), "big")
 	if uncompressed_size > 0x40000:
 		raise SaveFileFormatError("TODO: handle chunked decompression")
-	data = Consumable(lzo.decompress(data.peek(), False, uncompressed_size))
-	if len(data) != uncompressed_size:
-		raise SaveFileFormatError("Got wrong amount of data back (%d != %d)" % (len(data), uncompressed_size))
+	raw = lzo.decompress(data.peek(), False, uncompressed_size)
+	if len(raw) != uncompressed_size:
+		raise SaveFileFormatError("Got wrong amount of data back (%d != %d)" % (len(raw), uncompressed_size))
 	# Okay. Decompression complete. Now to parse the actual data.
+	data = Consumable(raw)
 	size = int.from_bytes(data.get(4), "big")
 	if size != len(data):
 		raise SaveFileFormatError("Size doesn't match remaining bytes - corrupt file? chunked?");
@@ -443,7 +488,34 @@ def parse_savefile(fn):
 	# The whole file has already been LZO-compressed. No point compressing twice!
 	# Not sure what the last four bytes are. The end of the compressed sequence
 	# finishes off the current byte, and then there are always four more bytes.
+	if data.peek()[-4:] != b"\xd4\x93\x9f\x1a":
+		raise SaveFileFormatError("Different last four bytes: %r" % data.peek()[-4:])
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
+	if crc != binascii.crc32(data):
+		raise SaveFileFormatError("CRC doesn't match (%d vs %d)" % (crc, binascii.crc32(data)))
+	if VERIFY:
+		reconstructed = huffman_encode(data)
+		reconstructed = b"".join([
+			(3 + 4 + 4 + 4 + len(reconstructed) + 4).to_bytes(4, "big"),
+			b"WSG",
+			(2).to_bytes(4, endian),
+			binascii.crc32(data).to_bytes(4, endian),
+			len(data).to_bytes(4, endian),
+			reconstructed,
+			b"\xd4\x93\x9f\x1a",
+		])
+		if reconstructed != raw:
+			if len(reconstructed) != len(raw):
+				print("Imperfect recompression:", len(raw), len(reconstructed))
+				return ""
+			print("Mismatched after recompression", len(raw))
+			for ofs in range(0, len(raw), 64):
+				old = raw[ofs:ofs+64]
+				new = reconstructed[ofs:ofs+64]
+				if old != new:
+					print(ofs, old)
+					print(ofs, new)
+			return ""
 	savefile = SaveFile.decode_protobuf(data)
 	if VERIFY:
 		reconstructed = savefile.encode_protobuf()
