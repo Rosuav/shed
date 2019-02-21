@@ -28,6 +28,7 @@ def get_asset(fn, cache={}):
 	return cache[fn]
 
 VERIFY = True # Debug mode - check and double check everything
+SHOW_INVENTORY = True
 
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
@@ -460,16 +461,17 @@ def parse_savefile(fn):
 	# number of elements for the inventory items. (Equipped or backpack is
 	# irrelevant, but anything that isn't a weapon ('nade mod, class mod, etc)
 	# goes in the item data array.
-	print()
-	for weapon in savefile.packed_weapon_data:
-		if weapon.quickslot: print("Weapon #%d:" % weapon.quickslot, end=" ")
-		print(decode_asset_library(weapon.serial))
-	for item in savefile.packed_item_data:
-		it = decode_asset_library(item.serial)
-		if not it: continue
-		print(("Equipped: " if item.equipped else "") + it)
-	for item in savefile.bank or []:
-		print("Bank:", decode_asset_library(item.serial))
+	if SHOW_INVENTORY:
+		print()
+		for weapon in savefile.packed_weapon_data:
+			if weapon.quickslot: print("Weapon #%d:" % weapon.quickslot, end=" ")
+			print(decode_asset_library(weapon.serial))
+		for item in savefile.packed_item_data:
+			it = decode_asset_library(item.serial)
+			if not it: continue
+			print(("Equipped: " if item.equipped else "") + it)
+		for item in savefile.bank or []:
+			print("Bank:", decode_asset_library(item.serial))
 	return "Level %d %s: %s (%d+%d items)" % (savefile.level, cls,
 		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2)
 
