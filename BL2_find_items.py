@@ -186,6 +186,15 @@ def get_varint(data):
 		scale += 7
 	return ret
 
+def build_varint(val):
+	"""Build a protobuf varint for the given value"""
+	data = []
+	while val > 127:
+		data.append((val & 127) | 128)
+		val >>= 7
+	data.append(val)
+	return bytes(data)
+
 # Handle protobuf wire types by destructively reading from data
 protobuf_decoder = [get_varint] # Type 0 is varint
 @protobuf_decoder.append
@@ -216,7 +225,7 @@ class ProtoBuf:
 		assert isinstance(val, bytes)
 		if isinstance(typ, type) and issubclass(typ, ProtoBuf): return typ.decode_protobuf(val)
 		if typ in (int32, int64): return int.from_bytes(val, "little")
-		if typ is float: return struct.unpack("<f", val)
+		if typ is float: return struct.unpack("<f", val) # TODO: Should this be subscripted [0]?
 		if typ is str: return val.decode("UTF-8")
 		if typ is bytes: return val
 		if typ in (list, dict): return val # TODO
@@ -243,6 +252,47 @@ class ProtoBuf:
 			else:
 				values[field] = cls.decode_value(val, typ, cls.__name__ + "." + field)
 		return cls(**values)
+
+	@staticmethod
+	def encode_value(val, typ, where):
+		if isinstance(val, int):
+			if typ is int32: return val.to_bytes(4, "little")
+			if typ is int64: return val.to_bytes(8, "little")
+			return build_varint(val)
+		if isinstance(val, bytes): return val # Stuff we can't decode gets returned untouched
+		if hasattr(val, "encode_protobuf"): return val.encode_protobuf()
+		if typ is str: return val.encode("UTF-8")
+		if typ is float: return struct.pack("<f", val)
+		if isinstance(typ, list) and typ[0] is int:
+			# Packed integers (supporting varint only)
+			return b"".join(build_varint(n) for n in val)
+		raise ValueError("Unrecognized annotation %r in %s: data %r" % (typ, where, val))
+	def encode_protobuf(self):
+		data = []
+		for idx, field in enumerate(self.__dataclass_fields__):
+			val = getattr(self, field)
+			if not val and val != 0: continue # Skip empties, except that a 0 int should still get encoded
+			typ = self.__dataclass_fields__[field].type
+			if typ is int:
+				# Wiretype 0 integer
+				data.append(build_varint(idx * 8 + 8))
+				data.append(build_varint(val))
+				continue
+			if isinstance(typ, list) and typ[0] is not int:
+				typ = typ[0]
+				for val in val:
+					val = self.encode_value(val, typ, self.__class__.__name__ + "." + field + "[*]")
+					assert isinstance(val, bytes)
+					data.append(build_varint(idx * 8 + 10))
+					data.append(build_varint(len(val)))
+					data.append(val)
+				continue
+			val = self.encode_value(val, typ, self.__class__.__name__ + "." + field)
+			assert isinstance(val, bytes)
+			data.append(build_varint(idx * 8 + 10))
+			data.append(build_varint(len(val)))
+			data.append(val)
+		return b"".join(data)
 
 # Stub types that are used by SaveFile
 SkillData = ResourceData = ItemData = Weapon = MissionPlaythrough = bytes
@@ -286,7 +336,7 @@ class PackedWeaponData(ProtoBuf):
 	serial: bytes
 	quickslot: int
 	mark: int
-	unknown4: int = 0
+	unknown4: int = None
 
 @dataclass
 class SaveFile(ProtoBuf):
@@ -311,7 +361,7 @@ class SaveFile(ProtoBuf):
 	preferences: UIPreferences = None
 	savegameid: int = 0
 	plotmission: int = 0
-	unknown22: int = 0
+	unknown22: int = None
 	codesused: [int] = None
 	codes_needing_notifs: [int] = None
 	total_play_time: int = 0
@@ -333,8 +383,8 @@ class SaveFile(ProtoBuf):
 	bank: [BankSlot] = None
 	challenge_prestiges: int = 0
 	lockout_list: [Lockout] = None
-	is_dlc_class: int = 0
-	dlc_class_package: int = 0
+	is_dlc_class: int = None
+	dlc_class_package: int = None
 	fully_explored: [str] = None
 	unknown47: [bytes] = None
 	golden_keys: int = 0 # Number "notified", whatever that means.
@@ -355,9 +405,9 @@ class SaveFile(ProtoBuf):
 		suppress_oxygen_notifs: int = 0
 	else:
 		vehicle_steering_mode: int = 0
-	has_played_uvhm: int = 0
-	overpower_levels: int = 0
-	last_overpower_choice: int = 0
+	has_played_uvhm: int = None
+	overpower_levels: int = None
+	last_overpower_choice: int = None
 
 class SaveFileFormatError(Exception): pass
 
@@ -392,6 +442,16 @@ def parse_savefile(fn):
 	# finishes off the current byte, and then there are always four more bytes.
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
 	savefile = SaveFile.decode_protobuf(data)
+	reconstructed = savefile.encode_protobuf()
+	if reconstructed != data:
+		print("Imperfect reconstruction:", len(data))
+		for sz in range(64, max(len(data), len(reconstructed))+65, 64):
+			if data[:sz] == reconstructed[:sz]: continue
+			print(sz-64)
+			print(data[sz-64:sz])
+			print(reconstructed[sz-64:sz])
+			break
+		return ""
 	cls = get_asset("Player Classes")[savefile.playerclass]["class"]
 	# The packed_weapon_data and packed_item_data arrays contain the correct
 	# number of elements for the inventory items. (Equipped or backpack is
