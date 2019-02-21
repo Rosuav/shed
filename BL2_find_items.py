@@ -28,8 +28,9 @@ def get_asset(fn, cache={}):
 		with open(path, "rb") as f: cache[fn] = json.load(f)
 	return cache[fn]
 
-VERIFY = True # Debug mode - check and double check everything
-SHOW_INVENTORY = True
+VERIFY = False # Debug mode - check and double check everything
+SYNTHESIZE = False # Testing: create a replica save file
+SHOW_INVENTORY = False
 
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
@@ -190,7 +191,7 @@ def huffman_encode(data):
 		del counts[left], counts[right]
 		counts[(left, right)] = lfreq + rfreq
 	[head] = counts # Grab the sole remaining key
-	head = last_huffman_tree # Hack: Reuse the tree from the last decode (gives bit-for-bit identical compression)
+	if VERIFY: head = last_huffman_tree # Hack: Reuse the tree from the last decode (gives bit-for-bit identical compression)
 	# We now should have a Huffman tree where every node is either a leaf
 	# (a single byte value) or a tuple of two nodes with approximately
 	# equal frequency. Next, we turn that tree into a bit sequence that
@@ -214,7 +215,7 @@ def huffman_encode(data):
 	if spare:
 		# Hack: Reuse the residue from the last decode. I *think* this is just
 		# junk bits that are ignored on load.
-		if len(last_huffman_residue) == 8-spare: ret += last_huffman_residue
+		if VERIFY and len(last_huffman_residue) == 8-spare: ret += last_huffman_residue
 		else: ret += "0" * (8-spare)
 	return int(ret, 2).to_bytes(len(ret)//8, "big")
 
@@ -473,6 +474,14 @@ def parse_savefile(fn):
 	raw = lzo.decompress(data.peek(), False, uncompressed_size)
 	if len(raw) != uncompressed_size:
 		raise SaveFileFormatError("Got wrong amount of data back (%d != %d)" % (len(raw), uncompressed_size))
+	if VERIFY:
+		# LZO compression isn't stable or consistent enough to compare the
+		# compressed bytes to what we got from the file. But let's just
+		# quickly make sure we can get something back, at least.
+		comp = lzo.compress(raw, 1, False)
+		if lzo.decompress(comp, False, uncompressed_size) != raw:
+			print("Recompression gives something that we didn't get first time!")
+			return ""
 	# Okay. Decompression complete. Now to parse the actual data.
 	data = Consumable(raw)
 	size = int.from_bytes(data.get(4), "big")
@@ -544,8 +553,25 @@ def parse_savefile(fn):
 			print(("Equipped: " if item.equipped else "") + it)
 		for item in savefile.bank or []:
 			print("Bank:", decode_asset_library(item.serial))
-	return "Level %d %s: %s (%d+%d items)" % (savefile.level, cls,
+	ret = "Level %d %s: %s (%d+%d items)" % (savefile.level, cls,
 		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2)
+	if SYNTHESIZE:
+		savefile.preferences.name = "PATCHED"
+		data = savefile.encode_protobuf()
+		reconstructed = huffman_encode(data)
+		reconstructed = b"".join([
+			(3 + 4 + 4 + 4 + len(reconstructed) + 4).to_bytes(4, "big"),
+			b"WSG",
+			(2).to_bytes(4, endian),
+			binascii.crc32(data).to_bytes(4, endian),
+			len(data).to_bytes(4, endian),
+			reconstructed,
+			b"\xd4\x93\x9f\x1a",
+		])
+		comp = len(reconstructed).to_bytes(4, "big") + lzo.compress(reconstructed, 1, False)
+		comp = hashlib.sha1(comp).digest() + comp
+		with open("synthesized.sav", "wb") as f: f.write(comp)
+	return ret
 
 dir = os.path.expanduser("~/.local/share/aspyr-media/" + GAME + "/willowgame/savedata")
 dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
