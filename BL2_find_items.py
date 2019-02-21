@@ -27,6 +27,8 @@ def get_asset(fn, cache={}):
 		with open(path, "rb") as f: cache[fn] = json.load(f)
 	return cache[fn]
 
+VERIFY = True # Debug mode - check and double check everything
+
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
 	def __init__(self, data):
@@ -442,16 +444,17 @@ def parse_savefile(fn):
 	# finishes off the current byte, and then there are always four more bytes.
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
 	savefile = SaveFile.decode_protobuf(data)
-	reconstructed = savefile.encode_protobuf()
-	if reconstructed != data:
-		print("Imperfect reconstruction:", len(data))
-		for sz in range(64, max(len(data), len(reconstructed))+65, 64):
-			if data[:sz] == reconstructed[:sz]: continue
-			print(sz-64)
-			print(data[sz-64:sz])
-			print(reconstructed[sz-64:sz])
-			break
-		return ""
+	if VERIFY:
+		reconstructed = savefile.encode_protobuf()
+		if reconstructed != data:
+			print("Imperfect reconstruction:", len(data))
+			for sz in range(64, max(len(data), len(reconstructed))+65, 64):
+				if data[:sz] == reconstructed[:sz]: continue
+				print(sz-64)
+				print(data[sz-64:sz])
+				print(reconstructed[sz-64:sz])
+				break
+			return ""
 	cls = get_asset("Player Classes")[savefile.playerclass]["class"]
 	# The packed_weapon_data and packed_item_data arrays contain the correct
 	# number of elements for the inventory items. (Equipped or backpack is
