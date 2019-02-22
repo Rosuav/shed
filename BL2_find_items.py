@@ -167,60 +167,73 @@ class Asset:
 			else:
 				raise AssertionError("Bad annotation %r" % typ)
 		ret["categories"] = (_category(ret["type"]), _category(ret["balance"]), "GD_Weap_Shared_Names")
+		ret = cls(**ret)
 		if VERIFY:
-			bits = []
-			# If we were doing this seriously, it would be better to build a
-			# mapping from item identifier to (set,subid,asset) triple.
-			def _find_asset(field, thing):
-				ret = None, None, None
-				best = 5
-				for useset in (0, setid) if setid and setid in config["sets_by_id"] else (0,):
-					cfg = config["sets_by_id"][useset]["libraries"][field]
-					for sublib, info in enumerate(cfg["sublibraries"]):
-						for asset, name in enumerate(info["assets"]):
-							if name == thing:
-								prio = (categories + (info["package"],)).index(info["package"]) # Elephant in Cairo
-								if prio < best:
-									ret = bool(useset), sublib, asset
-									best = prio
-				return ret
-			fields = []
-			def _encode(field, item):
-				cfg = config["configs"][field]
-				fields.append("%s-%d-%d" % (field, cfg["asset_bits"], cfg["sublibrary_bits"]))
-				if item is None:
-					bits.append("1" * (cfg["asset_bits"] + cfg["sublibrary_bits"]))
-					return
-				useset, sublib, asset = _find_asset(field, item)
-				if useset is None: raise ValueError("Thing not found: %r => %r" % (field, item))
-				bits.append(format(asset, "0%db" % cfg["asset_bits"])[::-1])
-				bits.append(format(sublib, "0%db" % (cfg["sublibrary_bits"]-1))[::-1])
-				bits.append("1" if useset else "0")
-			_encode(weap_item + "Types", type)
-			_encode("BalanceDefs", balance)
-			_encode("Manufacturers", brand)
-			bits.extend([format(grade, "07b")[::-1]]*2)
-			for part, piece in zip(parts.split(), pieces):
-				_encode(weap_item + "Parts", piece)
-			_encode(weap_item + "Parts", material)
-			_encode(weap_item + "Parts", None if pfx == "<no pfx>" else pfx)
-			_encode(weap_item + "Parts", None if title == "<no title>" else title)
-			bits = "".join(bits)
-			bits += "1" * (8 - (len(bits) % 8))
-			data = int(bits[::-1], 2).to_bytes(len(bits)//8, "little")
-			data = (
-				bytes([config["version"] | (128 if is_weapon else 0)]) +
-				seed.to_bytes(4, "big") + b"\xFF\xFF" + bytes([setid]) +
-				data
-			)
-			data = data + b"\xFF" * (40 - len(data)) # Pad for CRC calculation
-			# data = (data[:5] + crc.to_bytes(2, "big") + data[7:]).rstrip(b"\xFF")
-			# print(' '.join(format(x, "08b")[::-1] for x in data))
-			# print(' '.join(format(x, "08b")[::-1] for x in (dec[:5] + b"\xFF\xFF" + dec[7:])))
-			data = data[:5] + bogocrypt(seed, (crc.to_bytes(2, "big") + data[7:]).rstrip(b"\xFF"), "encrypt")
-			if data != orig:
-				raise AssertionError("Weapon reconstruction does not match original: %s %s (%s)" % (lvl, title, type))
-		return cls(**ret)
+			if ret.encode_asset_library() != orig:
+				raise AssertionError("Weapon reconstruction does not match original: %r" % ret)
+		return ret
+
+	def encode_asset_library(self):
+		# NOTE: Assumes that at least one decode has been done previously.
+		bits = []
+		config = get_asset("Asset Library Manager")
+		# If we were doing this seriously, it would be better to build a
+		# mapping from item identifier to (set,subid,asset) triple.
+		if self.setid and self.setid in config["sets_by_id"]: sets = (0, self.setid)
+		else: sets = (0,)
+		def _find_asset(field, thing):
+			ret = None, None, None
+			best = 5
+			for useset in sets:
+				cfg = config["sets_by_id"][useset]["libraries"][field]
+				for sublib, info in enumerate(cfg["sublibraries"]):
+					for asset, name in enumerate(info["assets"]):
+						if name == thing:
+							prio = (self.categories + (info["package"],)).index(info["package"]) # Elephant in Cairo
+							if prio < best:
+								ret = bool(useset), sublib, asset
+								best = prio
+			return ret
+		fields = []
+		def _encode(field, item):
+			cfg = config["configs"][field]
+			fields.append("%s-%d-%d" % (field, cfg["asset_bits"], cfg["sublibrary_bits"]))
+			if item is None:
+				bits.append("1" * (cfg["asset_bits"] + cfg["sublibrary_bits"]))
+				return
+			useset, sublib, asset = _find_asset(field, item)
+			if useset is None: raise ValueError("Thing not found: %r => %r" % (field, item))
+			bits.append(format(asset, "0%db" % cfg["asset_bits"])[::-1])
+			bits.append(format(sublib, "0%db" % (cfg["sublibrary_bits"]-1))[::-1])
+			bits.append("1" if useset else "0")
+		weap_item = "Weapon" if self.is_weapon else "Item"
+		for field, typ in self.__dataclass_fields__.items():
+			typ = typ.type
+			if typ is None:
+				continue # Not being encoded this way
+			if typ is int:
+				bits.append(format(getattr(self, field), "07b")[::-1])
+			elif isinstance(typ, str):
+				_encode(typ.replace("*", weap_item), getattr(self, field))
+			elif isinstance(typ, list):
+				for t, piece in zip(typ, getattr(self, field)):
+					_encode(t.replace("*", weap_item), piece)
+		bits = "".join(bits)
+		bits += "1" * (8 - (len(bits) % 8))
+		data = int(bits[::-1], 2).to_bytes(len(bits)//8, "little")
+		data = (
+			bytes([config["version"] | (128 if self.is_weapon else 0)]) +
+			self.seed.to_bytes(4, "big") + b"\xFF\xFF" + bytes([self.setid]) +
+			data
+		)
+		data = data + b"\xFF" * (40 - len(data)) # Pad for CRC calculation
+		crc = binascii.crc32(data)
+		crc = (crc >> 16) ^ (crc & 65535)
+		# data = (data[:5] + crc.to_bytes(2, "big") + data[7:]).rstrip(b"\xFF")
+		# print(' '.join(format(x, "08b")[::-1] for x in data))
+		# print(' '.join(format(x, "08b")[::-1] for x in (dec[:5] + b"\xFF\xFF" + dec[7:])))
+		return data[:5] + bogocrypt(self.seed, (crc.to_bytes(2, "big") + data[7:]).rstrip(b"\xFF"), "encrypt")
+
 	def __repr__(self):
 		if self.grade == self.stage: lvl = "Lvl %d" % self.grade
 		else: lvl = "Level %d/%d" % (self.grade, self.stage)
