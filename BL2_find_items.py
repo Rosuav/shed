@@ -92,129 +92,152 @@ def _category(type_or_bal, _cache = {}):
 		_cache[lbl] = cat
 	return _cache[type_or_bal]
 
-def decode_asset_library(data):
-	orig = data
-	seed = int.from_bytes(data[1:5], "big")
-	dec = data[:5] + bogocrypt(seed, data[5:], "decrypt")
-	if VERIFY:
-		reconstructed = dec[:5] + bogocrypt(seed, dec[5:], "encrypt")
-		if data != reconstructed:
-			print("Imperfect reconstruction of weapon/item:")
-			print(data)
-			print(reconstructed)
-			raise AssertionError
-	data = dec + b"\xFF" * (40 - len(dec)) # Pad to 40 with 0xFF
-	crc16 = int.from_bytes(data[5:7], "big")
-	data = data[:5] + b"\xFF\xFF" + data[7:]
-	crc = binascii.crc32(data)
-	crc = (crc >> 16) ^ (crc & 65535)
-	if crc != crc16: raise ValueError("Checksum mismatch")
-	config = get_asset("Asset Library Manager")
-	if "sets_by_id" not in config:
-		# Remap the sets to be keyed by ID - it's more useful that way.
-		config["sets_by_id"] = {set["id"]: set for set in config["sets"]}
-	# The first byte is a version number, with the high
-	# bit set if it's a weapon, or clear if it's an item.
-	is_weapon = data[0] >= 128
-	weap_item = "Weapon" if is_weapon else "Item"
-	if (data[0] & 127) != config["version"]: raise ValueError("Version number mismatch")
-	uid = int.from_bytes(data[1:5], "little")
-	if not uid: return None # For some reason, there are a couple of null items at the end of inventory. They decode fine but aren't items.
-	setid = data[7]
-	bits = ConsumableLE.from_bits(data[8:])
-	def _decode(field):
-		cfg = config["configs"][field]
-		asset = bits.get(cfg["asset_bits"])
-		sublib = bits.get(cfg["sublibrary_bits"] - 1)
-		useset = bits.get(1)
-		if "0" not in (useset+sublib+asset): return None # All -1 means "nothing here"
-		cfg = config["sets_by_id"][setid if useset == "1" else 0]["libraries"][field]
-		# print(field, cfg["sublibraries"][int(sublib,2)]["assets"][int(asset,2)])
-		return cfg["sublibraries"][int(sublib,2)]["assets"][int(asset,2)]
-
-	type = _decode(weap_item + "Types")
-	balance = _decode("BalanceDefs")
-	brand = _decode("Manufacturers")
+@dataclass
+class Asset:
+	seed: None
+	is_weapon: None
+	setid: None
+	categories: None
+	type: "*Types"
+	balance: "BalanceDefs"
+	brand: "Manufacturers"
 	# There are two fields, "Grade" and "Stage". Not sure what the diff
 	# is, as they seem to be equal.
-	grade = int(bits.get(7), 2)
-	stage = int(bits.get(7), 2)
-	if grade == stage: lvl = "Lvl %d" % grade
-	else: lvl = "Level %d/%d" % (grade, stage)
-	if is_weapon:
-		parts = "body grip barrel sight stock elemental acc1 acc2"
-	else:
-		parts = "alpha beta gamma delta epsilon zeta eta theta"
-	pieces = [_decode(weap_item + "Parts") for part in parts.split()]
-	material = _decode(weap_item + "Parts")
-	pfx = _decode(weap_item + "Parts") or "<no pfx>"
-	title = _decode(weap_item + "Parts") or "<no title>"
-	categories = (_category(type), _category(balance), "GD_Weap_Shared_Names")
-	if VERIFY:
-		bits = []
-		# If we were doing this seriously, it would be better to build a
-		# mapping from item identifier to (set,subid,asset) triple.
-		def _find_asset(field, thing):
-			ret = None, None, None
-			best = 5
-			for useset in (0, setid) if setid and setid in config["sets_by_id"] else (0,):
-				cfg = config["sets_by_id"][useset]["libraries"][field]
-				for sublib, info in enumerate(cfg["sublibraries"]):
-					for asset, name in enumerate(info["assets"]):
-						if name == thing:
-							prio = (categories + (info["package"],)).index(info["package"]) # Elephant in Cairo
-							if prio < best:
-								ret = bool(useset), sublib, asset
-								best = prio
-			return ret
-		fields = []
-		def _encode(field, item):
+	grade: int
+	stage: int
+	# Weapons: body grip barrel sight stock elemental acc1 acc2
+	# Items: alpha beta gamma delta epsilon zeta eta theta
+	pieces: ["*Parts"] * 8
+	material: "*Parts"
+	pfx: "*Parts"
+	title: "*Parts"
+
+	@classmethod
+	def decode_asset_library(cls, data):
+		orig = data
+		seed = int.from_bytes(data[1:5], "big")
+		dec = data[:5] + bogocrypt(seed, data[5:], "decrypt")
+		if VERIFY:
+			reconstructed = dec[:5] + bogocrypt(seed, dec[5:], "encrypt")
+			if data != reconstructed:
+				print("Imperfect reconstruction of weapon/item:")
+				print(data)
+				print(reconstructed)
+				raise AssertionError
+		data = dec + b"\xFF" * (40 - len(dec)) # Pad to 40 with 0xFF
+		crc16 = int.from_bytes(data[5:7], "big")
+		data = data[:5] + b"\xFF\xFF" + data[7:]
+		crc = binascii.crc32(data)
+		crc = (crc >> 16) ^ (crc & 65535)
+		if crc != crc16: raise ValueError("Checksum mismatch")
+		config = get_asset("Asset Library Manager")
+		if "sets_by_id" not in config:
+			# Remap the sets to be keyed by ID - it's more useful that way.
+			config["sets_by_id"] = {set["id"]: set for set in config["sets"]}
+		# The first byte is a version number, with the high
+		# bit set if it's a weapon, or clear if it's an item.
+		is_weapon = data[0] >= 128
+		weap_item = "Weapon" if is_weapon else "Item"
+		if (data[0] & 127) != config["version"]: raise ValueError("Version number mismatch")
+		uid = int.from_bytes(data[1:5], "little")
+		if not uid: return None # For some reason, there are a couple of null items at the end of inventory. They decode fine but aren't items.
+		setid = data[7]
+		bits = ConsumableLE.from_bits(data[8:])
+		def _decode(field):
 			cfg = config["configs"][field]
-			fields.append("%s-%d-%d" % (field, cfg["asset_bits"], cfg["sublibrary_bits"]))
-			if item is None:
-				bits.append("1" * (cfg["asset_bits"] + cfg["sublibrary_bits"]))
-				return
-			useset, sublib, asset = _find_asset(field, item)
-			if useset is None: raise ValueError("Thing not found: %r => %r" % (field, item))
-			bits.append(format(asset, "0%db" % cfg["asset_bits"])[::-1])
-			bits.append(format(sublib, "0%db" % (cfg["sublibrary_bits"]-1))[::-1])
-			bits.append("1" if useset else "0")
-		_encode(weap_item + "Types", type)
-		_encode("BalanceDefs", balance)
-		_encode("Manufacturers", brand)
-		bits.extend([format(grade, "07b")[::-1]]*2)
-		for part, piece in zip(parts.split(), pieces):
-			_encode(weap_item + "Parts", piece)
-		_encode(weap_item + "Parts", material)
-		_encode(weap_item + "Parts", None if pfx == "<no pfx>" else pfx)
-		_encode(weap_item + "Parts", None if title == "<no title>" else title)
-		bits = "".join(bits)
-		bits += "1" * (8 - (len(bits) % 8))
-		data = int(bits[::-1], 2).to_bytes(len(bits)//8, "little")
-		data = (
-			bytes([config["version"] | (128 if is_weapon else 0)]) +
-			seed.to_bytes(4, "big") + b"\xFF\xFF" + bytes([setid]) +
-			data
-		)
-		data = data + b"\xFF" * (40 - len(data)) # Pad for CRC calculation
-		# data = (data[:5] + crc.to_bytes(2, "big") + data[7:]).rstrip(b"\xFF")
-		# print(' '.join(format(x, "08b")[::-1] for x in data))
-		# print(' '.join(format(x, "08b")[::-1] for x in (dec[:5] + b"\xFF\xFF" + dec[7:])))
-		data = data[:5] + bogocrypt(seed, (crc.to_bytes(2, "big") + data[7:]).rstrip(b"\xFF"), "encrypt")
-		if data != orig:
-			raise AssertionError("Weapon reconstruction does not match original: %s %s (%s)" % (lvl, title, type))
-	names = get_asset(weap_item + " Name Parts")
-	for cat in categories:
-		pfxinfo = names.get(cat + "." + pfx)
-		if pfxinfo: break
-	# pfxinfo has a name (unless it's a null prefix), and a uniqueness flag. No idea what that one is for.
-	for cat in categories:
-		titinfo = names.get(cat + "." + title)
-		if titinfo: break
-	if titinfo: title = titinfo["name"]
-	if pfxinfo and "name" in pfxinfo: title = pfxinfo["name"] + " " + title
-	type = type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
-	return "%s %s (%s)" % (lvl, title, type)
+			asset = bits.get(cfg["asset_bits"])
+			sublib = bits.get(cfg["sublibrary_bits"] - 1)
+			useset = bits.get(1)
+			if "0" not in (useset+sublib+asset): return None # All -1 means "nothing here"
+			cfg = config["sets_by_id"][setid if useset == "1" else 0]["libraries"][field]
+			# print(field, cfg["sublibraries"][int(sublib,2)]["assets"][int(asset,2)])
+			return cfg["sublibraries"][int(sublib,2)]["assets"][int(asset,2)]
+
+		ret = {"seed": seed, "is_weapon": is_weapon, "setid": setid}
+		for field, typ in cls.__dataclass_fields__.items():
+			typ = typ.type
+			if typ is None:
+				continue # Not being decoded this way
+			if typ is int:
+				ret[field] = int(bits.get(7), 2)
+			elif isinstance(typ, str):
+				ret[field] = _decode(typ.replace("*", weap_item))
+			elif isinstance(typ, list):
+				ret[field] = [_decode(t.replace("*", weap_item)) for t in typ]
+			else:
+				raise AssertionError("Bad annotation %r" % typ)
+		ret["categories"] = (_category(ret["type"]), _category(ret["balance"]), "GD_Weap_Shared_Names")
+		if VERIFY:
+			bits = []
+			# If we were doing this seriously, it would be better to build a
+			# mapping from item identifier to (set,subid,asset) triple.
+			def _find_asset(field, thing):
+				ret = None, None, None
+				best = 5
+				for useset in (0, setid) if setid and setid in config["sets_by_id"] else (0,):
+					cfg = config["sets_by_id"][useset]["libraries"][field]
+					for sublib, info in enumerate(cfg["sublibraries"]):
+						for asset, name in enumerate(info["assets"]):
+							if name == thing:
+								prio = (categories + (info["package"],)).index(info["package"]) # Elephant in Cairo
+								if prio < best:
+									ret = bool(useset), sublib, asset
+									best = prio
+				return ret
+			fields = []
+			def _encode(field, item):
+				cfg = config["configs"][field]
+				fields.append("%s-%d-%d" % (field, cfg["asset_bits"], cfg["sublibrary_bits"]))
+				if item is None:
+					bits.append("1" * (cfg["asset_bits"] + cfg["sublibrary_bits"]))
+					return
+				useset, sublib, asset = _find_asset(field, item)
+				if useset is None: raise ValueError("Thing not found: %r => %r" % (field, item))
+				bits.append(format(asset, "0%db" % cfg["asset_bits"])[::-1])
+				bits.append(format(sublib, "0%db" % (cfg["sublibrary_bits"]-1))[::-1])
+				bits.append("1" if useset else "0")
+			_encode(weap_item + "Types", type)
+			_encode("BalanceDefs", balance)
+			_encode("Manufacturers", brand)
+			bits.extend([format(grade, "07b")[::-1]]*2)
+			for part, piece in zip(parts.split(), pieces):
+				_encode(weap_item + "Parts", piece)
+			_encode(weap_item + "Parts", material)
+			_encode(weap_item + "Parts", None if pfx == "<no pfx>" else pfx)
+			_encode(weap_item + "Parts", None if title == "<no title>" else title)
+			bits = "".join(bits)
+			bits += "1" * (8 - (len(bits) % 8))
+			data = int(bits[::-1], 2).to_bytes(len(bits)//8, "little")
+			data = (
+				bytes([config["version"] | (128 if is_weapon else 0)]) +
+				seed.to_bytes(4, "big") + b"\xFF\xFF" + bytes([setid]) +
+				data
+			)
+			data = data + b"\xFF" * (40 - len(data)) # Pad for CRC calculation
+			# data = (data[:5] + crc.to_bytes(2, "big") + data[7:]).rstrip(b"\xFF")
+			# print(' '.join(format(x, "08b")[::-1] for x in data))
+			# print(' '.join(format(x, "08b")[::-1] for x in (dec[:5] + b"\xFF\xFF" + dec[7:])))
+			data = data[:5] + bogocrypt(seed, (crc.to_bytes(2, "big") + data[7:]).rstrip(b"\xFF"), "encrypt")
+			if data != orig:
+				raise AssertionError("Weapon reconstruction does not match original: %s %s (%s)" % (lvl, title, type))
+		return cls(**ret)
+	def __repr__(self):
+		if self.grade == self.stage: lvl = "Lvl %d" % self.grade
+		else: lvl = "Level %d/%d" % (self.grade, self.stage)
+		names = get_asset("Weapon Name Parts" if self.is_weapon else "Item Name Parts")
+		pfxinfo = None
+		if self.pfx:
+			for cat in self.categories:
+				pfxinfo = names.get(cat + "." + self.pfx)
+				if pfxinfo: break
+			# pfxinfo has a name (unless it's a null prefix), and a uniqueness flag. No idea what that one is for.
+		for cat in self.categories:
+			titinfo = names.get(cat + "." + self.title)
+			if titinfo: break
+		title = titinfo["name"] if titinfo else self.title
+		if pfxinfo and "name" in pfxinfo: title = pfxinfo["name"] + " " + title
+		type = self.type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
+		return "%s %s (%s)" % (lvl, title, type)
 
 def decode_tree(bits):
 	"""Decode a (sub)tree from the given sequence of bits
@@ -610,13 +633,13 @@ def parse_savefile(fn):
 		print()
 		for weapon in savefile.packed_weapon_data:
 			if weapon.quickslot: print("Weapon #%d:" % weapon.quickslot, end=" ")
-			print(decode_asset_library(weapon.serial))
+			print(Asset.decode_asset_library(weapon.serial))
 		for item in savefile.packed_item_data:
-			it = decode_asset_library(item.serial)
+			it = Asset.decode_asset_library(item.serial)
 			if not it: continue
-			print(("Equipped: " if item.equipped else "") + it)
+			print("Equipped: " if item.equipped else "", it, sep="")
 		for item in savefile.bank or []:
-			print("Bank:", decode_asset_library(item.serial))
+			print("Bank:", Asset.decode_asset_library(item.serial))
 	ret = "Level %d %s: %s (%d+%d items)" % (savefile.level, cls,
 		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2)
 	if SYNTHESIZE:
