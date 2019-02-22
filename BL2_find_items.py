@@ -660,6 +660,14 @@ def parse_savefile(fn):
 		savefile.preferences.name = "PATCHED" # Easy way to see what's happening
 		# savefile.money[0] += 5000000 # Add more dollars
 		# savefile.money[1] += 500 # Add more eridium/moonstones
+
+		# Boost the levels of all equipped weapons lower than your current level
+		# for i, weapon in enumerate(savefile.packed_weapon_data):
+			# weap = Asset.decode_asset_library(weapon.serial)
+			# if weap.grade < savefile.level and weapon.quickslot:
+				# weap.grade += 1
+				# weap.stage += 1
+				# savefile.packed_weapon_data[i].serial = weap.encode_asset_library()
 		data = savefile.encode_protobuf()
 		reconstructed = huffman_encode(data)
 		reconstructed = b"".join([
