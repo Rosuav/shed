@@ -60,8 +60,11 @@ class ConsumableLE(Consumable):
 		"""Create a bitfield consumable from packed eight-bit data"""
 		return cls(''.join(format(x, "08b")[::-1] for x in data))
 
-def bogodecrypt(seed, data):
+def bogocrypt(seed, data, direction="decrypt"):
 	if not seed: return data
+	split = (seed % 32) % len(data)
+	if direction == "encrypt": # Encrypting splits first
+		data = data[split:] + data[:split]
 	if seed > 1<<31: seed |= 31<<32 # Emulate an arithmetic right shift
 	xor = seed >> 5
 	data = list(data)
@@ -70,8 +73,8 @@ def bogodecrypt(seed, data):
 		xor = (xor * 0x10A860C1) % 0xFFFFFFFB
 		data[i] = x ^ (xor & 255)
 	data = bytes(data)
-	split = len(data) - ((seed % 32) % len(data))
-	return data[split:] + data[:split]
+	if direction == "encrypt": return data
+	return data[-split:] + data[:-split] # Decrypting splits last
 
 # Many entries in the files are of the form "GD_Weap_SniperRifles.A_Weapons.WeaponType_Vladof_Sniper"
 # but the savefile just has "A_Weapons.WeaponType_Vladof_Sniper". The same prefix appears to be used
@@ -91,8 +94,15 @@ def _category(type_or_bal, _cache = {}):
 
 def decode_asset_library(data):
 	seed = int.from_bytes(data[1:5], "big")
-	data = data[:5] + bogodecrypt(seed, data[5:])
-	data += b"\xFF" * (40 - len(data)) # Pad to 40 with 0xFF
+	dec = data[:5] + bogocrypt(seed, data[5:], "decrypt")
+	if VERIFY:
+		reconstructed = dec[:5] + bogocrypt(seed, dec[5:], "encrypt")
+		if data != reconstructed:
+			print("Imperfect reconstruction of weapon/item:")
+			print(data)
+			print(reconstructed)
+			raise AssertionError
+	data = dec + b"\xFF" * (40 - len(dec)) # Pad to 40 with 0xFF
 	crc16 = int.from_bytes(data[5:7], "big")
 	data = data[:5] + b"\xFF\xFF" + data[7:]
 	crc = binascii.crc32(data)
