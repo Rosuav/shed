@@ -556,7 +556,10 @@ def parse_savefile(fn):
 	ret = "Level %d %s: %s (%d+%d items)" % (savefile.level, cls,
 		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2)
 	if SYNTHESIZE:
-		savefile.preferences.name = "PATCHED"
+		# Make changes to the save file before synthesizing
+		savefile.preferences.name = "PATCHED" # Easy way to see what's happening
+		# savefile.money[0] += 5000000 # Add more dollars
+		# savefile.money[1] += 500 # Add more eridium/moonstones
 		data = savefile.encode_protobuf()
 		reconstructed = huffman_encode(data)
 		reconstructed = b"".join([
