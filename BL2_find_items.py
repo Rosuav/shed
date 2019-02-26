@@ -244,10 +244,12 @@ class Asset:
 				pfxinfo = names.get(cat + "." + self.pfx)
 				if pfxinfo: break
 			# pfxinfo has a name (unless it's a null prefix), and a uniqueness flag. No idea what that one is for.
-		for cat in self.categories:
-			titinfo = names.get(cat + "." + self.title)
-			if titinfo: break
-		title = titinfo["name"] if titinfo else self.title
+		if self.title:
+			for cat in self.categories:
+				titinfo = names.get(cat + "." + self.title)
+				if titinfo: break
+			title = titinfo["name"] if titinfo else self.title
+		else: title = "<no title>"
 		if pfxinfo and "name" in pfxinfo: title = pfxinfo["name"] + " " + title
 		type = self.type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
 		return "%s %s (%s)" % (lvl, title, type)
