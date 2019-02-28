@@ -16,8 +16,8 @@ from dataclasses import dataclass
 from pprint import pprint
 import lzo # ImportError? pip install python-lzo
 
-# GAME = "borderlands 2"
-GAME = "borderlands the pre-sequel"
+GAME = "borderlands 2"
+# GAME = "borderlands the pre-sequel"
 
 # Requires access to the Gibbed data files.
 ASSET_PATH = "../GibbedBL2/Gibbed.Borderlands%s/projects/Gibbed.Borderlands%s.GameInfo/Resources/%s.json"
@@ -80,7 +80,7 @@ def bogocrypt(seed, data, direction="decrypt"):
 # for the components of the weapon. So far, I have not figured out how to synthesize the prefix, but
 # for any given type, there is only one prefix, so we just calculate from that.
 def _category(type_or_bal, _cache = {}):
-	if _cache: return _cache[type_or_bal]
+	if _cache: return _cache.get(type_or_bal, "")
 	for lbl in list(get_asset("Item Types")) + list(get_asset("Weapon Types")) \
 			+ list(get_asset("Item Balance")) + list(get_asset("Weapon Balance")):
 		cat, lbl = lbl.split(".", 1)
@@ -253,7 +253,10 @@ class Asset:
 		type = self.type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
 		return "%s %s (%s)" % (lvl, title, type)
 
-	def is_interesting(self): return True # Mess with this to filter the items displayed
+	# def is_interesting(self): return True # Mess with this to filter the items displayed
+	# def is_interesting(self): return 20 <= self.grade < 30 # Show items in a given level range
+	# def is_interesting(self): return "ClassMod" in self.type # Show class mods only
+	def is_interesting(self): return "Binder" in self.type # Show one specific type of item
 
 def decode_tree(bits):
 	"""Decode a (sub)tree from the given sequence of bits
