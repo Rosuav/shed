@@ -655,7 +655,7 @@ def parse_savefile(fn):
 	for item in (savefile.packed_weapon_data or []) + (savefile.packed_item_data or []) + (savefile.bank or []):
 		it = Asset.decode_asset_library(item.serial)
 		if it and it.is_interesting(): items.append((item.order(), -it.grade, item.prefix() + repr(it)))
-	ret = "Level %d %s: %s (%d+%d items)" % (savefile.level, cls,
+	ret = "Level %d %s: \x1b[1;31m%s\x1b[0m (%d+%d items)" % (savefile.level, cls,
 		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2)
 	items.sort()
 	ret += "".join("\n" + desc for order, lvl, desc in items if order >= 0)
