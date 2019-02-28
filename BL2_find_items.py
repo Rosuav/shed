@@ -84,7 +84,7 @@ def _category(type_or_bal, _cache = {}):
 	for lbl in list(get_asset("Item Types")) + list(get_asset("Weapon Types")) \
 			+ list(get_asset("Item Balance")) + list(get_asset("Weapon Balance")):
 		cat, lbl = lbl.split(".", 1)
-		if lbl in _cache:
+		if lbl in _cache and VERIFY:
 			print("DUPLICATE:")
 			print(_cache[lbl] + "." + lbl)
 			print(cat + "." + lbl)
