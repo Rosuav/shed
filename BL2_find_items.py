@@ -12,6 +12,7 @@ import hashlib
 import json
 import os.path
 import struct
+import random
 from dataclasses import dataclass
 from pprint import pprint
 import lzo # ImportError? pip install python-lzo
@@ -29,7 +30,7 @@ def get_asset(fn, cache={}):
 	return cache[fn]
 
 VERIFY = False # Debug mode - check and double check everything
-SYNTHESIZE = False # Testing: create a replica save file
+SYNTHESIZE = True # Testing: create a replica save file
 
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
@@ -251,7 +252,7 @@ class Asset:
 		else: title = "<no title>"
 		if pfxinfo and "name" in pfxinfo: title = pfxinfo["name"] + " " + title
 		type = self.type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
-		return "%s %s (%s)" % (lvl, title, type)
+		return "%s %s (%s)" % (lvl, title, type) #+ "\n" + " + ".join(filter(None, self.pieces))
 
 	# def is_interesting(self): return True # Mess with this to filter the items displayed
 	# def is_interesting(self): return 20 <= self.grade < 30 # Show items in a given level range
@@ -675,6 +676,21 @@ def parse_savefile(fn):
 				# weap.grade += 1
 				# weap.stage += 1
 				# savefile.packed_weapon_data[i].serial = weap.encode_asset_library()
+
+		# Synthesize a bunch of similar items for comparison
+		# for part in get_asset("Item Types")["GD_ClassMods.A_Item_Siren.ClassMod_Siren_Binder"]["alpha_parts"]:
+		for lvl in range(70, 10, -5):
+			synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=0, categories=("GD_ClassMods",),
+				type="A_Item_Siren.ClassMod_Siren_Binder", balance="ClassMods.BalDef_ClassMod_Siren_04_VeryRare",
+				brand="Manufacturers.Maliwan", grade=lvl, stage=lvl,
+				pieces=["Specialization.Spec_AS3_BS1_CS2", "StatPrimary.PrimaryStat_A5_B0_C0",
+					"StatPrimary02.PrimaryStat02_A0_B5_C0", None, None, None, None, None],
+				material="StatPenalty.StatPenalty_A0_B0_C2",
+				pfx="Prefix_Siren.Prefix_Binder_03_ChronoBinder", title="Title.Title_ClassMod",
+			)
+			packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
+			savefile.packed_item_data.append(packed)
+
 		data = savefile.encode_protobuf()
 		reconstructed = huffman_encode(data)
 		reconstructed = b"".join([
@@ -699,3 +715,4 @@ for fn in sorted(os.listdir(dir)):
 	print(fn, end="... ")
 	try: print(parse_savefile(os.path.join(dir, fn)))
 	except SaveFileFormatError as e: print(e.args[0])
+# print(parse_savefile("../save0001.sav"))
