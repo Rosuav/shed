@@ -30,7 +30,6 @@ def get_asset(fn, cache={}):
 
 VERIFY = False # Debug mode - check and double check everything
 SYNTHESIZE = False # Testing: create a replica save file
-SHOW_INVENTORY = False
 
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
@@ -254,6 +253,8 @@ class Asset:
 		type = self.type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
 		return "%s %s (%s)" % (lvl, title, type)
 
+	def is_interesting(self): return True # Mess with this to filter the items displayed
+
 def decode_tree(bits):
 	"""Decode a (sub)tree from the given sequence of bits
 
@@ -473,6 +474,8 @@ class InventorySlots(ProtoBuf):
 class BankSlot(ProtoBuf):
 	serial: bytes
 	# Yes, that's all there is. Just a serial number. Packaged up in a protobuf.
+	def prefix(self): return "Bank: "
+	def order(self): return 8
 
 @dataclass
 class PackedItemData(ProtoBuf):
@@ -480,6 +483,8 @@ class PackedItemData(ProtoBuf):
 	quantity: int
 	equipped: int
 	mark: int
+	def prefix(self): return "Equipped: " if self.equipped else ""
+	def order(self): return 5 if self.equipped else 7
 
 @dataclass
 class PackedWeaponData(ProtoBuf):
@@ -487,6 +492,8 @@ class PackedWeaponData(ProtoBuf):
 	quickslot: int
 	mark: int
 	unknown4: int = None
+	def prefix(self): return "Weapon %d: " % self.quickslot if self.quickslot else ""
+	def order(self): return self.quickslot or 6
 
 @dataclass
 class SaveFile(ProtoBuf):
@@ -643,20 +650,15 @@ def parse_savefile(fn):
 	# The packed_weapon_data and packed_item_data arrays contain the correct
 	# number of elements for the inventory items. (Equipped or backpack is
 	# irrelevant, but anything that isn't a weapon ('nade mod, class mod, etc)
-	# goes in the item data array.
-	if SHOW_INVENTORY:
-		print()
-		for weapon in savefile.packed_weapon_data:
-			if weapon.quickslot: print("Weapon #%d:" % weapon.quickslot, end=" ")
-			print(Asset.decode_asset_library(weapon.serial))
-		for item in savefile.packed_item_data:
-			it = Asset.decode_asset_library(item.serial)
-			if not it: continue
-			print("Equipped: " if item.equipped else "", it, sep="")
-		for item in savefile.bank or []:
-			print("Bank:", Asset.decode_asset_library(item.serial))
+	# goes in the item data array.)
+	items = []
+	for item in (savefile.packed_weapon_data or []) + (savefile.packed_item_data or []) + (savefile.bank or []):
+		it = Asset.decode_asset_library(item.serial)
+		if it and it.is_interesting(): items.append((item.order(), item.prefix() + repr(it)))
 	ret = "Level %d %s: %s (%d+%d items)" % (savefile.level, cls,
 		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2)
+	items.sort()
+	ret += "".join("\n" + desc for order, desc in items if order >= 0)
 	if SYNTHESIZE:
 		# Make changes to the save file before synthesizing
 		savefile.preferences.name = "PATCHED" # Easy way to see what's happening
