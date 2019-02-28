@@ -484,7 +484,7 @@ class PackedItemData(ProtoBuf):
 	equipped: int
 	mark: int
 	def prefix(self): return "Equipped: " if self.equipped else ""
-	def order(self): return 5 if self.equipped else 7
+	def order(self): return 5 if self.equipped else 6
 
 @dataclass
 class PackedWeaponData(ProtoBuf):
@@ -654,11 +654,11 @@ def parse_savefile(fn):
 	items = []
 	for item in (savefile.packed_weapon_data or []) + (savefile.packed_item_data or []) + (savefile.bank or []):
 		it = Asset.decode_asset_library(item.serial)
-		if it and it.is_interesting(): items.append((item.order(), item.prefix() + repr(it)))
+		if it and it.is_interesting(): items.append((item.order(), it.grade, item.prefix() + repr(it)))
 	ret = "Level %d %s: %s (%d+%d items)" % (savefile.level, cls,
 		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2)
 	items.sort()
-	ret += "".join("\n" + desc for order, desc in items if order >= 0)
+	ret += "".join("\n" + desc for order, lvl, desc in items if order >= 0)
 	if SYNTHESIZE:
 		# Make changes to the save file before synthesizing
 		savefile.preferences.name = "PATCHED" # Easy way to see what's happening
