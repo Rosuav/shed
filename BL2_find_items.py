@@ -30,7 +30,7 @@ def get_asset(fn, cache={}):
 	return cache[fn]
 
 VERIFY = False # Debug mode - check and double check everything
-SYNTHESIZE = True # Testing: create a replica save file
+SYNTHESIZE = False # Testing: create a replica save file
 
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
@@ -679,14 +679,29 @@ def parse_savefile(fn):
 
 		# Synthesize a bunch of similar items for comparison
 		# for part in get_asset("Item Types")["GD_ClassMods.A_Item_Siren.ClassMod_Siren_Binder"]["alpha_parts"]:
-		for lvl in range(70, 10, -5):
-			synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=0, categories=("GD_ClassMods",),
-				type="A_Item_Siren.ClassMod_Siren_Binder", balance="ClassMods.BalDef_ClassMod_Siren_04_VeryRare",
+		for lvl in reversed(sorted(random.sample(range(12, 73), 10))):
+			if lvl > 25:
+				# Create "Legendary Binder" class mod
+				setid = 10
+				cats = ("GD_Lobelia_ClassMods", "GD_ClassMods",)
+				type = "A_Item_Siren.ClassMod_Siren_LegendaryBinder"
+				balance = "ClassMods.BalDef_ClassMod_Lobelia_Siren_05_Legendary"
+				alpha = "Specialization.Spec_Legendary"
+				pfx = "Prefix_Siren.Prefix_LegendaryBinder"
+			else:
+				# Create purple "Chrono Binder" class mod
+				setid = 0
+				cats = ("GD_ClassMods",)
+				type = "A_Item_Siren.ClassMod_Siren_Binder"
+				balance = "ClassMods.BalDef_ClassMod_Siren_04_VeryRare"
+				alpha = "Specialization.Spec_AS3_BS1_CS2"
+				pfx = "Prefix_Siren.Prefix_Binder_03_ChronoBinder"
+			synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=setid, categories=cats, type=type, balance=balance,
 				brand="Manufacturers.Maliwan", grade=lvl, stage=lvl,
-				pieces=["Specialization.Spec_AS3_BS1_CS2", "StatPrimary.PrimaryStat_A5_B0_C0",
+				pieces=[alpha, "StatPrimary.PrimaryStat_A5_B0_C0",
 					"StatPrimary02.PrimaryStat02_A0_B5_C0", None, None, None, None, None],
 				material="StatPenalty.StatPenalty_A0_B0_C2",
-				pfx="Prefix_Siren.Prefix_Binder_03_ChronoBinder", title="Title.Title_ClassMod",
+				pfx=pfx, title="Title.Title_ClassMod",
 			)
 			packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
 			savefile.packed_item_data.append(packed)
