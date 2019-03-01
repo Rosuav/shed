@@ -679,6 +679,7 @@ def parse_savefile(fn):
 
 		# Synthesize a bunch of similar items for comparison
 		# for part in get_asset("Item Types")["GD_ClassMods.A_Item_Siren.ClassMod_Siren_Binder"]["alpha_parts"]:
+		'''
 		for lvl in reversed(sorted(random.sample(range(12, 73), 10))):
 			if lvl > 25:
 				# Create "Legendary Binder" class mod
@@ -705,6 +706,19 @@ def parse_savefile(fn):
 			)
 			packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
 			savefile.packed_item_data.append(packed)
+		'''
+		'''
+		synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=0, categories=("GD_ClassMods",),
+			type="A_Item_Merc.ClassMod_Merc_Hoarder", balance="ClassMods.BalDef_ClassMod_Mercenary_04_VeryRare",
+			brand="Manufacturers.Vladof", grade=33, stage=33,
+			pieces=["Specialization.Spec_AS2_BS1_CS3", "StatPrimary.PrimaryStat_A5_B0_C0",
+				"StatPrimary02.PrimaryStat02_A0_B5_C0", None, None, None, None, None],
+			material="StatPenalty.StatPenalty_A0_B0_C2",
+			pfx="Prefix_Merc.Prefix_Hoarder_02_LuckyHoarder", title="Title.Title_ClassMod",
+		)
+		packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
+		savefile.packed_item_data.append(packed)
+		'''
 
 		data = savefile.encode_protobuf()
 		reconstructed = huffman_encode(data)
