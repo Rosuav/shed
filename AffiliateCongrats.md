@@ -27,9 +27,9 @@ the portfolios of a few artists available for commission.
 - TODO: add other artists
 
 In general, simple shapes communicate better than scaled-down photographs do.
-You can't see much detail at 56x56 pixels (which is how emotes are usually seen
-in Twitch chat), so the bolder and simpler the lines, the more likely that the
-emote will say what it's trying to say.
+You can't see much detail at 56x56 pixels or below (which is how emotes are
+usually seen in Twitch chat), so the bolder and simpler the lines, the more
+likely that the emote will say what it's trying to say.
 
 (If you're a highly competent artist (or tightly strapped for cash), you can
 always create your own emotes, but it's often still worth browsing portfolios,
