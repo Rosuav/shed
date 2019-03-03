@@ -35,7 +35,7 @@ likely that the emote will say what it's trying to say.
 always create your own emotes, but it's often still worth browsing portfolios,
 just for the sake of seeing what people do.)
 
-As an affiliate, you have exactly one emote slot at each tier. What should you
+As an affiliate, you start with one emote slot at each tier. What should you
 put in them?
 
 - Tier 1 is the base emote. Everyone who subscribes to your channel gets this
@@ -59,6 +59,10 @@ put in them?
 Uploading new emotes introduces a small delay while they're approved, but you
 can redo this any time you want to. So don't stress out over this, and have all
 the fun :)
+
+As your channel grows, you have the opportunity to unlock more Tier 1 emotes.
+So if you have more ideas for emotes than you have slots for, write down the
+other ideas, as you might be able to use them later!
 
 Alerts
 ------
