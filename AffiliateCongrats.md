@@ -23,7 +23,7 @@ slots waiting to be filled with iconographic representations of you and your
 community. Unless you are yourself an emote artist, spend some time looking at
 the portfolios of a few artists available for commission.
 
-- Lara_Cr: https://trello.com/b/PoJd0ErX/commissions
+- [Lara_Cr](https://trello.com/b/PoJd0ErX/commissions)
 - TODO: add other artists
 
 In general, simple shapes communicate better than scaled-down photographs do.
