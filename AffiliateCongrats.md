@@ -24,6 +24,7 @@ community. Unless you are yourself an emote artist, spend some time looking at
 the portfolios of a few artists available for commission.
 
 - [Lara_Cr](https://trello.com/b/PoJd0ErX/commissions)
+- [Videokid](https://www.thenevermorenest.com/commissions/)
 - TODO: add other artists
 
 In general, simple shapes communicate better than scaled-down photographs do.
