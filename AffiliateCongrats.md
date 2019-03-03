@@ -12,6 +12,12 @@ shared with Twitch, there are tax withholdings, you won't get paid till you hit
 what you're passionate about, keep on engaging with your community, and when
 your first payout arrives, it'll be a cool bonus.
 
+Same goes for viewership numbers, follower counts, and all those other juicy
+stats. Don't stress about them. Maybe you won't have three average viewers.
+Maybe you will. Maybe someone will raid you, and you'll have heaps of people!
+That's great! But maybe not, too, and that's okay. Make your streams the best
+they can be, and don't worry about whether the numbers are going up or down.
+
 
 Okay, that's the negativity out of the way. On to the more fun stuff!!
 
