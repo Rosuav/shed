@@ -670,12 +670,18 @@ def parse_savefile(fn):
 		# savefile.money[1] += 500 # Add more eridium/moonstones
 
 		# Boost the levels of all equipped weapons lower than your current level
-		# for i, weapon in enumerate(savefile.packed_weapon_data):
-			# weap = Asset.decode_asset_library(weapon.serial)
-			# if weap.grade < savefile.level and weapon.quickslot:
-				# weap.grade += 1
-				# weap.stage += 1
-				# savefile.packed_weapon_data[i].serial = weap.encode_asset_library()
+		'''
+		for i, weapon in enumerate(savefile.packed_weapon_data):
+			weap = Asset.decode_asset_library(weapon.serial)
+			if weap.grade < savefile.level and weapon.quickslot:
+				weap.grade = weap.stage = savefile.level
+				savefile.packed_weapon_data[i].serial = weap.encode_asset_library()
+		for i, item in enumerate(savefile.packed_item_data):
+			it = Asset.decode_asset_library(item.serial)
+			if it and it.grade < savefile.level and item.equipped:
+				it.grade = it.stage = savefile.level
+				savefile.packed_item_data[i].serial = it.encode_asset_library()
+		'''
 
 		# Synthesize a bunch of similar items for comparison
 		# for part in get_asset("Item Types")["GD_ClassMods.A_Item_Siren.ClassMod_Siren_Binder"]["alpha_parts"]:
