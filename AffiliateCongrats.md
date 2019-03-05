@@ -32,7 +32,7 @@ the portfolios of a few artists available for commission.
 - [Lara_Cr](https://trello.com/b/PoJd0ErX/commissions)
 - [Videokid](https://www.thenevermorenest.com/commissions/)
 - [KisakaToriama](http://kisakatoriama.weebly.com/twitch-graphics.html)
-- TODO: add other artists
+- And any other emote artists you know of
 
 In general, simple shapes communicate better than scaled-down photographs do.
 You can't see much detail at 56x56 pixels or below (which is how emotes are
