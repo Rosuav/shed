@@ -31,6 +31,7 @@ the portfolios of a few artists available for commission.
 
 - [Lara_Cr](https://trello.com/b/PoJd0ErX/commissions)
 - [Videokid](https://www.thenevermorenest.com/commissions/)
+- [KisakaToriama](http://kisakatoriama.weebly.com/twitch-graphics.html)
 - TODO: add other artists
 
 In general, simple shapes communicate better than scaled-down photographs do.
