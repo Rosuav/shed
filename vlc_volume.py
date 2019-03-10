@@ -62,7 +62,7 @@ async def tcp_echo_client():
 	writer.write(PASSWORD_COMMAND)
 	await writer.drain()
 	asyncio.ensure_future(send_status(writer))
-	next_number = fn = None
+	next_number = fn = desired_volume = last_dbfs = None
 	async for line in read_telnet_lines(reader):
 		if line == "( state playing )":
 			next_number = "time" # If we're paused, ignore all this
@@ -83,6 +83,12 @@ async def tcp_echo_client():
 						writer.write, b"status\nget_time\nget_length\n")
 		else:
 			next_number = None
+		m = desired_volume is None and re.search(r"\( audio volume: ([0-9]+) \)$", line)
+		if m:
+			vol = int(m[1]) / 2.56 # Rescale from 0-255 to percentage
+			assert last_dbfs is not None # This should come AFTER we find the filename
+			desired_volume = vol + last_dbfs
+			print("vol", vol, "desired", desired_volume)
 		m = re.search(r"\( new input: file://(.+) \)$", line)
 		if not m: continue
 		if m[1] == fn: continue # Same file as before
@@ -91,6 +97,12 @@ async def tcp_echo_client():
 		try:
 			audio = pydub.AudioSegment.from_file(fn)
 			print("%s: %.2f dB (max %.2f)" % (fn, audio.dBFS, audio.max_dBFS))
+			last_dbfs = audio.dBFS
+			if desired_volume is not None:
+				vol = desired_volume - audio.dBFS
+				print("Setting volume to", vol)
+				writer.write(b"volume %d\n" % int(vol * 2.56 + 0.5))
+				await writer.drain()
 		except pydub.exceptions.CouldntDecodeError:
 			print(fn, "... unable to parse")
 
