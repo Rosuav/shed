@@ -1,6 +1,7 @@
 let width = 10, height = 10, mines = 10;
 //game[row][col] is 0-8 for number of nearby mines, or 9 for mine here
 const game = [];
+const board = document.getElementById("board");
 
 function set_content(elem, children) {
 	while (elem.lastChild) elem.removeChild(elem.lastChild);
@@ -23,22 +24,25 @@ function build(tag, attributes, children) {
 	return ret;
 }
 
-function clicked(ev) {
-	const btn = ev.currentTarget;
-	const num = game[btn.dataset.r][btn.dataset.c];
+function dig(r, c) {
+	const num = game[r][c];
 	if (num === 9) {
 		//Boom!
 		console.log("YOU DIED");
 		//TODO: Mark game as over
-		set_content(btn, "*");
+		set_content(board.children[r].children[c].firstChild, "*");
 		return;
 	}
-	set_content(btn, "" + num);
+	set_content(board.children[r].children[c].firstChild, "" + num);
 	//TODO: If num === 0, dig all adjacent cells
 }
 
+function clicked(ev) {
+	const btn = ev.currentTarget;
+	dig(+btn.dataset.r, +btn.dataset.c);
+}
+
 function new_game() {
-	const board = document.getElementById("board");
 	const table = [];
 	for (let r = 0; r < height; ++r) {
 		const row = [], tr = [];
@@ -68,6 +72,7 @@ function new_game() {
 			if (game[r+dr][c+dc] !== 9) game[r+dr][c+dc]++;
 		}
 	}
+	dig(0, 0);
 	console.log(game);
 }
 
