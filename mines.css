@@ -4,3 +4,7 @@ details {
 	margin: 10px 0;
 	max-width: 60em;
 }
+
+#board button {
+	width: 2em; height: 2em;
+}
