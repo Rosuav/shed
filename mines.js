@@ -25,7 +25,16 @@ function build(tag, attributes, children) {
 
 function clicked(ev) {
 	const btn = ev.currentTarget;
-	console.log("Clicked", btn.dataset.r, btn.dataset.c);
+	const num = game[btn.dataset.r][btn.dataset.c];
+	if (num === 9) {
+		//Boom!
+		console.log("YOU DIED");
+		//TODO: Mark game as over
+		set_content(btn, "*");
+		return;
+	}
+	set_content(btn, "" + num);
+	//TODO: If num === 0, dig all adjacent cells
 }
 
 function new_game() {
@@ -51,8 +60,13 @@ function new_game() {
 	for (let m = 0; m < mines; ++m) {
 		const r = Math.floor(Math.random() * height);
 		const c = Math.floor(Math.random() * width);
-		if (game[r][c]) {--m; continue;} //Should be fine to just reroll - you can't have a near-full grid anyway
+		if (game[r][c] === 9) {--m; continue;} //Should be fine to just reroll - you can't have a near-full grid anyway
+		if (r < 2 && c < 2) {--m; continue;} //Guarantee empty top-left cell as starter
 		game[r][c] = 9;
+		for (let dr = -1; dr <= 1; ++dr) for (let dc = -1; dc <= 1; ++dc) {
+			if (r+dr < 0 || r+dr >= height || c+dc < 0 || c+dc >= width) continue;
+			if (game[r+dr][c+dc] !== 9) game[r+dr][c+dc]++;
+		}
 	}
 	console.log(game);
 }
