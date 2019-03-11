@@ -30,9 +30,10 @@ function dig(game, r, c, board) {
 	const btn = board && board.children[r].children[c].firstChild;
 	if (num === 9) {
 		//Boom!
+		if (!board) throw new Error("You died"); //Should never happen on simulation - it's a fault in the autosolver
 		console.log("YOU DIED");
 		//TODO: Mark game as over
-		if (btn) set_content(btn, "*"); //Not flat
+		set_content(btn, "*"); //Not flat
 		return;
 	}
 	game[r][c] += 10;
