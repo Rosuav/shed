@@ -54,7 +54,7 @@ function flag(game, r, c, board) {
 	if (num > 9) return; //Already dug/flagged
 	const btn = board && board.children[r].children[c].firstChild;
 	if (num === 9) {
-		set_content(btn, "*"); //Not flat
+		if (btn) set_content(btn, "*"); //Not flat
 		game[r][c] = 19;
 		return;
 	}
@@ -109,7 +109,7 @@ function get_unknowns(game, r, c) {
 	//Helper for try_solve - get an array of the unknown cells around a cell
 	//Returns [n, [r,c], [r,c], [r,c]] with any number of row/col pairs
 	if (game[r][c] < 10) return null; //Shouldn't happen
-	const ret = [game[r][c]];
+	const ret = [game[r][c] - 10];
 	for (let dr = -1; dr <= 1; ++dr) for (let dc = -1; dc <= 1; ++dc) {
 		if (r+dr < 0 || r+dr >= height || c+dc < 0 || c+dc >= width) continue;
 		const cell = game[r+dr][c+dc];
@@ -127,14 +127,17 @@ function try_solve(game) {
 		if (game[r][c] < 10) continue;
 		const region = get_unknowns(game, r, c);
 		if (region.length === 1) continue; //No unknowns
+		console.log(r, c, region);
 		if (region[0] === 0) {
 			//There are no unflagged mines in this region!
+			console.log("All clear");
 			for (let i = 1; i < region.length; ++i)
 				dig(game, region[i][0], region[i][1]);
 		}
-		if (region[1] === region.length - 1)
+		if (region[0] === region.length - 1)
 		{
 			//There are as many unflagged mines as unknowns!
+			console.log("All mines");
 			for (let i = 1; i < region.length; ++i)
 				flag(game, region[i][0], region[i][1]);
 		}
