@@ -8,3 +8,7 @@ details {
 #board button {
 	width: 2em; height: 2em;
 }
+
+button.flat {
+	border: none;
+}

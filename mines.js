@@ -26,20 +26,32 @@ function build(tag, attributes, children) {
 
 function dig(r, c) {
 	const num = game[r][c];
+	if (num > 9) return; //Already dug
+	const btn = board.children[r].children[c].firstChild;
 	if (num === 9) {
 		//Boom!
 		console.log("YOU DIED");
 		//TODO: Mark game as over
-		set_content(board.children[r].children[c].firstChild, "*");
+		set_content(btn, "*"); //Not flat
 		return;
 	}
-	set_content(board.children[r].children[c].firstChild, "" + num);
-	//TODO: If num === 0, dig all adjacent cells
+	game[r][c] += 10;
+	if (!num)
+	{
+		btn.classList.add("flat"); //Don't show the actual zero
+		for (let dr = -1; dr <= 1; ++dr) for (let dc = -1; dc <= 1; ++dc) {
+			if (r+dr < 0 || r+dr >= height || c+dc < 0 || c+dc >= width) continue;
+			dig(r+dr, c+dc);
+		}
+		return;
+	}
+	set_content(btn, "" + num); btn.classList.add("flat");
 }
 
 function clicked(ev) {
 	const btn = ev.currentTarget;
 	dig(+btn.dataset.r, +btn.dataset.c);
+	btn.blur();
 }
 
 function new_game() {
