@@ -120,7 +120,20 @@ function get_unknowns(game, r, c) {
 }
 
 //Try to solve the game. Duh :)
-//Algorithm is pretty simple. Build an array of regions
+//Algorithm is pretty simple. Build an array of regions, where a "region" is some
+//group of unknown cells with a known number of mines among them. The initial set
+//of regions comes from the dug cells - if the cell says "2" and it has three
+//unknown cells adjacent to it and no flagged mines, we have a "two mines in three
+//cells" region. Any region with no mines in it, or as many mines as cells, can be
+//dug/flagged immediately. Then, proceed to subtract regions from regions: if one
+//region is a strict subset of another, the difference is itself a region. So if
+//two of the cells are also in a region of one mine, then the one cell NOT in the
+//smaller region must have a mine in it. (The algorithm is simpler than it sounds.)
+//TODO: Also handle overlaps between regions. Not every overlap yields new regions;
+//it's only of value if you can divide the space into three parts: [ x ( x+y ] y )
+//where the number of mines in regions X and Y are such that the *only* number of
+//mines that can be in the x+y overlap would leave the x-only as all mines and the
+//y-only as all clear. Look for these only if it seems that the game is unsolvable.
 function try_solve(game) {
 	//First, build up a list of trivial regions.
 	for (let r = 0; r < height; ++r) for (let c = 0; c < width; ++c) {
