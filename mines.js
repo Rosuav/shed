@@ -49,10 +49,32 @@ function dig(game, r, c, board) {
 	if (btn) {set_content(btn, "" + num); btn.classList.add("flat");}
 }
 
+function flag(game, r, c, board) {
+	const num = game[r][c];
+	if (num > 9) return; //Already dug/flagged
+	const btn = board && board.children[r].children[c].firstChild;
+	if (num === 9) {
+		set_content(btn, "*"); //Not flat
+		game[r][c] = 19;
+		return;
+	}
+	//Boom! Flagged a non-mine.
+	if (!board) throw new Error("You died"); //As above, shouldn't happen in simulation.
+	console.log("YOU DIED");
+	//TODO: Mark game as over
+	set_content(btn, "" + num);
+}
+
 function clicked(ev) {
 	const btn = ev.currentTarget;
 	dig(game, +btn.dataset.r, +btn.dataset.c, board);
 	btn.blur();
+}
+
+function blipped(ev) {
+	ev.preventDefault();
+	const btn = ev.currentTarget;
+	flag(game, +btn.dataset.r, +btn.dataset.c, board);
 }
 
 function generate_game() {
@@ -126,7 +148,7 @@ function new_game() {
 	for (let r = 0; r < height; ++r) {
 		const tr = [];
 		for (let c = 0; c < width; ++c)
-			tr.push(build("td", 0, build("button", {"data-r": r, "data-c": c, onclick: clicked})));
+			tr.push(build("td", 0, build("button", {"data-r": r, "data-c": c, onclick: clicked, oncontextmenu: blipped})));
 		table.push(build("tr", 0, tr));
 	}
 	set_content(board, table);
