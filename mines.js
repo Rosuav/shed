@@ -24,33 +24,33 @@ function build(tag, attributes, children) {
 	return ret;
 }
 
-function dig(game, r, c) {
+function dig(game, r, c, board) {
 	const num = game[r][c];
-	if (num > 9) return; //Already dug
-	const btn = board.children[r].children[c].firstChild;
+	if (num > 9) return; //Already dug/flagged
+	const btn = board && board.children[r].children[c].firstChild;
 	if (num === 9) {
 		//Boom!
 		console.log("YOU DIED");
 		//TODO: Mark game as over
-		set_content(btn, "*"); //Not flat
+		if (btn) set_content(btn, "*"); //Not flat
 		return;
 	}
 	game[r][c] += 10;
 	if (!num)
 	{
-		btn.classList.add("flat"); //Don't show the actual zero
+		if (btn) btn.classList.add("flat"); //Don't show the actual zero
 		for (let dr = -1; dr <= 1; ++dr) for (let dc = -1; dc <= 1; ++dc) {
 			if (r+dr < 0 || r+dr >= height || c+dc < 0 || c+dc >= width) continue;
-			dig(game, r+dr, c+dc);
+			dig(game, r+dr, c+dc, board);
 		}
 		return;
 	}
-	set_content(btn, "" + num); btn.classList.add("flat");
+	if (btn) {set_content(btn, "" + num); btn.classList.add("flat");}
 }
 
 function clicked(ev) {
 	const btn = ev.currentTarget;
-	dig(game, +btn.dataset.r, +btn.dataset.c);
+	dig(game, +btn.dataset.r, +btn.dataset.c, board);
 	btn.blur();
 }
 
@@ -135,7 +135,7 @@ function new_game() {
 		game = tryme;
 		break;
 	}
-	dig(game, 0, 0);
+	dig(game, 0, 0, board);
 	console.log(game);
 }
 
