@@ -135,31 +135,39 @@ function try_solve(game) {
 		if (region[1] === region.length - 1)
 		{
 			//There are as many unflagged mines as unknowns!
-			//Unimplemented
-			//for (let i = 1; i < region.length; ++i)
-				//flag(game, region[i][0], region[i][1]);
+			for (let i = 1; i < region.length; ++i)
+				flag(game, region[i][0], region[i][1]);
 		}
 	}
 	return true;
 }
 
 function new_game() {
-	const table = [];
-	for (let r = 0; r < height; ++r) {
-		const tr = [];
-		for (let c = 0; c < width; ++c)
-			tr.push(build("td", 0, build("button", {"data-r": r, "data-c": c, onclick: clicked, oncontextmenu: blipped})));
-		table.push(build("tr", 0, tr));
-	}
-	set_content(board, table);
 	while (true) {
 		const tryme = generate_game();
+		//TODO: Copy tryme for the attempted solve
+		dig(tryme, 0, 0);
 		if (!try_solve(tryme)) continue;
 		game = tryme;
 		break;
 	}
-	dig(game, 0, 0, board);
+	dig(game, 0, 0);
 	console.log(game);
+	const table = [];
+	for (let r = 0; r < height; ++r) {
+		const tr = [];
+		for (let c = 0; c < width; ++c)
+		{
+			let content = "";
+			const attr = {"data-r": r, "data-c": c, onclick: clicked, oncontextmenu: blipped};
+			if (game[r][c] === 19) content = "*";
+			else if (game[r][c] > 10) {content = "" + (game[r][c] - 10); attr.className = "flat";}
+			else if (game[r][c] === 10) attr.className = "flat";
+			tr.push(build("td", 0, build("button", attr, content)));
+		}
+		table.push(build("tr", 0, tr));
+	}
+	set_content(board, table);
 }
 
 new_game();
