@@ -1,6 +1,6 @@
 let width = 10, height = 10, mines = 10;
 //game[row][col] is 0-8 for number of nearby mines, or 9 for mine here
-const game = [];
+let game = null;
 const board = document.getElementById("board");
 
 function set_content(elem, children) {
@@ -55,9 +55,15 @@ function clicked(ev) {
 }
 
 function generate_game() {
+	const game = [];
 	if (mines * 10 > height * width) {
 		console.error("Too many mines (TODO: handle this better)");
 		return;
+	}
+	for (let r = 0; r < height; ++r) {
+		const row = [];
+		for (let c = 0; c < width; ++c) row.push(0);
+		game.push(row); //game.push([0] * width), please?? awww
 	}
 	//TODO optionally: Use a seedable PRNG with consistent algorithm, and be
 	//able to save pre-generated grids by recording their seeds. Or just save
@@ -73,21 +79,19 @@ function generate_game() {
 			if (game[r+dr][c+dc] !== 9) game[r+dr][c+dc]++;
 		}
 	}
+	return game;
 }
 
 function new_game() {
 	const table = [];
 	for (let r = 0; r < height; ++r) {
-		const row = [], tr = [];
-		for (let c = 0; c < width; ++c) {
-			row.push(0);
+		const tr = [];
+		for (let c = 0; c < width; ++c)
 			tr.push(build("td", 0, build("button", {"data-r": r, "data-c": c, onclick: clicked})));
-		}
-		game.push(row);
 		table.push(build("tr", 0, tr));
 	}
 	set_content(board, table);
-	generate_game();
+	game = generate_game();
 	dig(0, 0);
 	console.log(game);
 }
