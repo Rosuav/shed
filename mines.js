@@ -1,4 +1,5 @@
 let width = 10, height = 10, mines = 10;
+//game[row][col] is 0-8 for number of nearby mines, or 9 for mine here
 const game = [];
 
 function set_content(elem, children) {
@@ -24,22 +25,36 @@ function build(tag, attributes, children) {
 
 function clicked(ev) {
 	const btn = ev.currentTarget;
-	console.log("Clicked", btn.dataset.x, btn.dataset.y);
+	console.log("Clicked", btn.dataset.r, btn.dataset.c);
 }
 
 function new_game() {
 	const board = document.getElementById("board");
 	const table = [];
-	for (let y = 0; y < height; ++y) {
+	for (let r = 0; r < height; ++r) {
 		const row = [], tr = [];
-		for (let x = 0; x < width; ++x) {
+		for (let c = 0; c < width; ++c) {
 			row.push(0);
-			tr.push(build("td", 0, build("button", {"data-x": x, "data-y": y, onclick: clicked})));
+			tr.push(build("td", 0, build("button", {"data-r": r, "data-c": c, onclick: clicked})));
 		}
 		game.push(row);
 		table.push(build("tr", 0, tr));
 	}
 	set_content(board, table);
+	if (mines * 10 > height * width) {
+		console.error("Too many mines (TODO: handle this better)");
+		return;
+	}
+	//TODO optionally: Use a seedable PRNG with consistent algorithm, and be
+	//able to save pre-generated grids by recording their seeds. Or just save
+	//the mine grid, encoded compactly (eg saving just the mine locations).
+	for (let m = 0; m < mines; ++m) {
+		const r = Math.floor(Math.random() * height);
+		const c = Math.floor(Math.random() * width);
+		if (game[r][c]) {--m; continue;} //Should be fine to just reroll - you can't have a near-full grid anyway
+		game[r][c] = 9;
+	}
+	console.log(game);
 }
 
 new_game();
