@@ -1,4 +1,5 @@
 let width = 10, height = 10, mines = 10;
+const game = [];
 
 function set_content(elem, children) {
 	while (elem.lastChild) elem.removeChild(elem.lastChild);
@@ -28,15 +29,17 @@ function clicked(ev) {
 
 function new_game() {
 	const board = document.getElementById("board");
-	const rows = [];
+	const table = [];
 	for (let y = 0; y < height; ++y) {
-		const row = [];
+		const row = [], tr = [];
 		for (let x = 0; x < width; ++x) {
-			row.push(build("td", 0, build("button", {"data-x": x, "data-y": y, onclick: clicked})));
+			row.push(0);
+			tr.push(build("td", 0, build("button", {"data-x": x, "data-y": y, onclick: clicked})));
 		}
-		rows.push(build("tr", 0, row));
+		game.push(row);
+		table.push(build("tr", 0, tr));
 	}
-	set_content(board, rows);
+	set_content(board, table);
 }
 
 new_game();
