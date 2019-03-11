@@ -54,18 +54,7 @@ function clicked(ev) {
 	btn.blur();
 }
 
-function new_game() {
-	const table = [];
-	for (let r = 0; r < height; ++r) {
-		const row = [], tr = [];
-		for (let c = 0; c < width; ++c) {
-			row.push(0);
-			tr.push(build("td", 0, build("button", {"data-r": r, "data-c": c, onclick: clicked})));
-		}
-		game.push(row);
-		table.push(build("tr", 0, tr));
-	}
-	set_content(board, table);
+function generate_game() {
 	if (mines * 10 > height * width) {
 		console.error("Too many mines (TODO: handle this better)");
 		return;
@@ -84,6 +73,21 @@ function new_game() {
 			if (game[r+dr][c+dc] !== 9) game[r+dr][c+dc]++;
 		}
 	}
+}
+
+function new_game() {
+	const table = [];
+	for (let r = 0; r < height; ++r) {
+		const row = [], tr = [];
+		for (let c = 0; c < width; ++c) {
+			row.push(0);
+			tr.push(build("td", 0, build("button", {"data-r": r, "data-c": c, onclick: clicked})));
+		}
+		game.push(row);
+		table.push(build("tr", 0, tr));
+	}
+	set_content(board, table);
+	generate_game();
 	dig(0, 0);
 	console.log(game);
 }
