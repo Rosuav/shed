@@ -238,7 +238,6 @@ function new_game() {
 	while (true) {
 		const tryme = generate_game(height, width, mines);
 		++tries;
-		//TODO: Copy tryme for the attempted solve
 		dig(tryme, 0, 0);
 		if (!try_solve(tryme, mines)) continue;
 		game = tryme;
@@ -246,6 +245,8 @@ function new_game() {
 	}
 	if (tries === 1) console.log("Got a game first try");
 	else console.log("Got a game in " + tries + " tries.");
+	//Flip all the cells face-down again (simpler than copying the array)
+	for (let row of game) for (let i = 0; i < row.length; ++i) if (row[i] > 9) row[i] -= 10;
 	dig(game, 0, 0);
 	console.log(game);
 	const table = [];
