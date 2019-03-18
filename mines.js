@@ -137,16 +137,22 @@ const DEBUG = () => 0;
 //region is a strict subset of another, the difference is itself a region. So if
 //two of the cells are also in a region of one mine, then the one cell NOT in the
 //smaller region must have a mine in it. (The algorithm is simpler than it sounds.)
+//Note that the *entire board* also counts as a region. This ensures that the
+//search will correctly recognize iced-in sections as unsolveable, unless there are
+//exactly the right number of mines for the section.
 //TODO: Also handle overlaps between regions. Not every overlap yields new regions;
 //it's only of value if you can divide the space into three parts: [ x ( x+y ] y )
 //where the number of mines in regions X and Y are such that the *only* number of
 //mines that can be in the x+y overlap would leave the x-only as all mines and the
 //y-only as all clear. Look for these only if it seems that the game is unsolvable.
-//TODO: Also count the *entire board* as a region. That way, it might be possible
-//to say "there's only one mine left so it must be there". After the above.
-function try_solve(game) {
+function try_solve(game, totmines) {
 	//First, build up a list of trivial regions.
-	let regions = [];
+	//One big region for the whole board:
+	let regions = [[totmines]];
+	for (let r = 0; r < height; ++r) for (let c = 0; c < width; ++c)
+		if (game[r][c] === 19) regions[0][0]--;
+		else if (game[r][c] < 10) regions[0].push([r, c]);
+	//And then a region for every cell we know about.
 	const base_region = (r, c) => {
 		if (game[r][c] < 10 || game[r][c] === 19) return;
 		const region = get_unknowns(game, r, c);
@@ -234,7 +240,7 @@ function new_game() {
 		++tries;
 		//TODO: Copy tryme for the attempted solve
 		dig(tryme, 0, 0);
-		if (!try_solve(tryme)) continue;
+		if (!try_solve(tryme, mines)) continue;
 		game = tryme;
 		break;
 	}
