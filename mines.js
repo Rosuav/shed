@@ -134,6 +134,8 @@ function get_unknowns(game, r, c) {
 //where the number of mines in regions X and Y are such that the *only* number of
 //mines that can be in the x+y overlap would leave the x-only as all mines and the
 //y-only as all clear. Look for these only if it seems that the game is unsolvable.
+//TODO: Also count the *entire board* as a region. That way, it might be possible
+//to say "there's only one mine left so it must be there". After the above.
 function try_solve(game) {
 	//First, build up a list of trivial regions.
 	for (let r = 0; r < height; ++r) for (let c = 0; c < width; ++c) {
