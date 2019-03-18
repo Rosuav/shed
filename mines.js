@@ -162,7 +162,17 @@ function try_solve(game) {
 
 function new_game() {
 	while (true) {
-		const tryme = generate_game();
+		//~ const tryme = generate_game();
+		const tryme = [	[0,1,1,1,0,0,1,9,1,0],
+				[0,1,9,2,1,0,1,1,1,0],
+				[1,3,3,9,1,0,0,0,1,1],
+				[9,2,9,2,1,0,0,0,2,9],
+				[2,3,1,1,0,0,0,0,2,9],
+				[9,2,1,1,0,0,0,0,1,1],
+				[1,2,9,1,0,0,0,0,1,1],
+				[0,1,1,1,0,0,0,0,1,9],
+				[0,0,0,0,0,0,0,0,1,1],
+				[0,0,0,0,0,0,0,0,0,0]];
 		//TODO: Copy tryme for the attempted solve
 		dig(tryme, 0, 0);
 		if (!try_solve(tryme)) continue;
