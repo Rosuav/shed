@@ -176,7 +176,13 @@ function try_solve(game) {
 		else regions.push(region);
 	};
 	for (let r = 0; r < height; ++r) for (let c = 0; c < width; ++c) base_region(r, c);
-	console.log(regions);
+	console.log("Searching for subsets.");
+	for (let reg of regions)
+	{
+		let desc = reg[0] + " mines in";
+		for (let i = 1; i < reg.length; ++i) desc += " " + reg[i][0] + "," + reg[i][1];
+		console.log(desc);
+	}
 	//Next, try to find regions that are strict subsets of other regions.
 	let found = true;
 	while (found) {
