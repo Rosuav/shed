@@ -45,7 +45,7 @@ function dig(game, r, c, board, dug=[]) {
 	{
 		if (btn) btn.classList.add("flat"); //Don't show the actual zero
 		for (let dr = -1; dr <= 1; ++dr) for (let dc = -1; dc <= 1; ++dc) {
-			if (r+dr < 0 || r+dr >= height || c+dc < 0 || c+dc >= width) continue;
+			if (r+dr < 0 || r+dr >= game.length || c+dc < 0 || c+dc >= game[0].length) continue;
 			dig(game, r+dr, c+dc, board, dug);
 		}
 		return dug;
@@ -82,7 +82,7 @@ function blipped(ev) {
 	flag(game, +btn.dataset.r, +btn.dataset.c, board);
 }
 
-function generate_game() {
+function generate_game(height, width, mines) {
 	const game = [];
 	if (mines * 4 > height * width) {
 		console.error("Too many mines (TODO: handle this better)");
@@ -97,13 +97,13 @@ function generate_game() {
 	//able to save pre-generated grids by recording their seeds. Or just save
 	//the mine grid, encoded compactly (eg saving just the mine locations).
 	for (let m = 0; m < mines; ++m) {
-		const r = Math.floor(Math.random() * height);
-		const c = Math.floor(Math.random() * width);
+		const r = Math.floor(Math.random() * game.length);
+		const c = Math.floor(Math.random() * game[0].length);
 		if (game[r][c] === 9) {--m; continue;} //Should be fine to just reroll - you can't have a near-full grid anyway
 		if (r < 2 && c < 2) {--m; continue;} //Guarantee empty top-left cell as starter
 		game[r][c] = 9;
 		for (let dr = -1; dr <= 1; ++dr) for (let dc = -1; dc <= 1; ++dc) {
-			if (r+dr < 0 || r+dr >= height || c+dc < 0 || c+dc >= width) continue;
+			if (r+dr < 0 || r+dr >= game.length || c+dc < 0 || c+dc >= game[0].length) continue;
 			if (game[r+dr][c+dc] !== 9) game[r+dr][c+dc]++;
 		}
 	}
@@ -116,7 +116,7 @@ function get_unknowns(game, r, c) {
 	if (game[r][c] < 10) return null; //Shouldn't happen
 	const ret = [game[r][c] - 10];
 	for (let dr = -1; dr <= 1; ++dr) for (let dc = -1; dc <= 1; ++dc) {
-		if (r+dr < 0 || r+dr >= height || c+dc < 0 || c+dc >= width) continue;
+		if (r+dr < 0 || r+dr >= game.length || c+dc < 0 || c+dc >= game[0].length) continue;
 		const cell = game[r+dr][c+dc];
 		if (cell < 10) ret.push([r+dr, c+dc]);
 		if (cell === 19) ret[0]--;
@@ -149,7 +149,7 @@ function try_solve(game, totmines) {
 	//First, build up a list of trivial regions.
 	//One big region for the whole board:
 	let regions = [[totmines]];
-	for (let r = 0; r < height; ++r) for (let c = 0; c < width; ++c)
+	for (let r = 0; r < game.length; ++r) for (let c = 0; c < game[0].length; ++c)
 		if (game[r][c] === 19) regions[0][0]--;
 		else if (game[r][c] < 10) regions[0].push([r, c]);
 	//And then a region for every cell we know about.
@@ -178,7 +178,7 @@ function try_solve(game, totmines) {
 		}
 		else regions.push(region);
 	};
-	for (let r = 0; r < height; ++r) for (let c = 0; c < width; ++c) base_region(r, c);
+	for (let r = 0; r < game.length; ++r) for (let c = 0; c < game[0].length; ++c) base_region(r, c);
 	DEBUG("Searching for subsets.");
 	for (let reg of regions)
 	{
@@ -236,7 +236,7 @@ function try_solve(game, totmines) {
 function new_game() {
 	let tries = 0;
 	while (true) {
-		const tryme = generate_game();
+		const tryme = generate_game(height, width, mines);
 		++tries;
 		//TODO: Copy tryme for the attempted solve
 		dig(tryme, 0, 0);
@@ -249,9 +249,9 @@ function new_game() {
 	dig(game, 0, 0);
 	console.log(game);
 	const table = [];
-	for (let r = 0; r < height; ++r) {
+	for (let r = 0; r < game.length; ++r) {
 		const tr = [];
-		for (let c = 0; c < width; ++c)
+		for (let c = 0; c < game[0].length; ++c)
 		{
 			let content = "";
 			const attr = {"data-r": r, "data-c": c, onclick: clicked, oncontextmenu: blipped};
