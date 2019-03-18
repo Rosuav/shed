@@ -138,25 +138,32 @@ function get_unknowns(game, r, c) {
 //to say "there's only one mine left so it must be there". After the above.
 function try_solve(game) {
 	//First, build up a list of trivial regions.
-	for (let r = 0; r < height; ++r) for (let c = 0; c < width; ++c) {
-		if (game[r][c] < 10) continue;
-		const region = get_unknowns(game, r, c);
-		if (region.length === 1) continue; //No unknowns
-		console.log(r, c, region);
+	const regions = [];
+	const new_region = region => {
 		if (region[0] === 0) {
 			//There are no unflagged mines in this region!
 			console.log("All clear");
 			for (let i = 1; i < region.length; ++i)
 				dig(game, region[i][0], region[i][1]);
 		}
-		if (region[0] === region.length - 1)
+		else if (region[0] === region.length - 1)
 		{
 			//There are as many unflagged mines as unknowns!
 			console.log("All mines");
 			for (let i = 1; i < region.length; ++i)
 				flag(game, region[i][0], region[i][1]);
 		}
+		else regions.push(region);
 	}
+	for (let r = 0; r < height; ++r) for (let c = 0; c < width; ++c) {
+		if (game[r][c] < 10) continue;
+		const region = get_unknowns(game, r, c);
+		if (region.length === 1) continue; //No unknowns
+		console.log(r, c, region);
+		new_region(region);
+	}
+	console.log(regions);
+	//Next, try to find regions that are strict subsets of other regions.
 	return true;
 }
 
