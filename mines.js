@@ -84,7 +84,7 @@ function blipped(ev) {
 
 function generate_game() {
 	const game = [];
-	if (mines * 10 > height * width) {
+	if (mines * 4 > height * width) {
 		console.error("Too many mines (TODO: handle this better)");
 		return;
 	}
