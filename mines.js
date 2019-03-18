@@ -1,4 +1,3 @@
-let width = 10, height = 10, mines = 10;
 //game[row][col] is 0-8 for number of nearby mines, or 9 for mine here
 let game = null;
 const board = document.getElementById("board");
@@ -234,6 +233,7 @@ function try_solve(game, totmines) {
 }
 
 function new_game() {
+	let height = 10, width = 10, mines = 10;
 	let tries = 0;
 	while (true) {
 		const tryme = generate_game(height, width, mines);
