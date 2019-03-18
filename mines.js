@@ -24,9 +24,12 @@ function build(tag, attributes, children) {
 	return ret;
 }
 
-function dig(game, r, c, board) {
+//Returns an array of the cells dug. This can be empty (if the cell was not
+//unknown), just the given cell (if it was unknown and had mines nearby), or
+//a full array of many cells (if that cell had been empty).
+function dig(game, r, c, board, dug=[]) {
 	const num = game[r][c];
-	if (num > 9) return; //Already dug/flagged
+	if (num > 9) return dug; //Already dug/flagged
 	const btn = board && board.children[r].children[c].firstChild;
 	if (num === 9) {
 		//Boom!
@@ -34,19 +37,21 @@ function dig(game, r, c, board) {
 		console.log("YOU DIED");
 		//TODO: Mark game as over
 		set_content(btn, "*"); //Not flat
-		return;
+		return dug;
 	}
 	game[r][c] += 10;
+	dug.push([r, c]);
 	if (!num)
 	{
 		if (btn) btn.classList.add("flat"); //Don't show the actual zero
 		for (let dr = -1; dr <= 1; ++dr) for (let dc = -1; dc <= 1; ++dc) {
 			if (r+dr < 0 || r+dr >= height || c+dc < 0 || c+dc >= width) continue;
-			dig(game, r+dr, c+dc, board);
+			dig(game, r+dr, c+dc, board, dug);
 		}
-		return;
+		return dug;
 	}
 	if (btn) {set_content(btn, "" + num); btn.classList.add("flat");}
+	return dug;
 }
 
 function flag(game, r, c, board) {
@@ -138,13 +143,28 @@ function get_unknowns(game, r, c) {
 //to say "there's only one mine left so it must be there". After the above.
 function try_solve(game) {
 	//First, build up a list of trivial regions.
-	const regions = [];
+	let regions = [];
+	const base_region = (r, c) => {
+		if (game[r][c] < 10) return;
+		const region = get_unknowns(game, r, c);
+		if (region.length === 1) return; //No unknowns
+		console.log(r, c, region);
+		new_region(region);
+	};
 	const new_region = region => {
 		if (region[0] === 0) {
 			//There are no unflagged mines in this region!
 			console.log("All clear");
 			for (let i = 1; i < region.length; ++i)
-				dig(game, region[i][0], region[i][1]);
+				//Dig everything. Whatever we dug, add as a region.
+				for (let dug of dig(game, region[i][0], region[i][1])) {
+					const r = dug[0], c = dug[1];
+					console.log("Dug:", dug);
+					const newreg = get_unknowns(game, r, c);
+					if (newreg.length === 1) continue; //No unknowns
+					console.log("New dig:", r, c, newreg);
+					new_region(newreg);
+				}
 		}
 		else if (region[0] === region.length - 1)
 		{
@@ -154,32 +174,69 @@ function try_solve(game) {
 				flag(game, region[i][0], region[i][1]);
 		}
 		else regions.push(region);
-	}
-	for (let r = 0; r < height; ++r) for (let c = 0; c < width; ++c) {
-		if (game[r][c] < 10) continue;
-		const region = get_unknowns(game, r, c);
-		if (region.length === 1) continue; //No unknowns
-		console.log(r, c, region);
-		new_region(region);
-	}
+	};
+	for (let r = 0; r < height; ++r) for (let c = 0; c < width; ++c) base_region(r, c);
 	console.log(regions);
 	//Next, try to find regions that are strict subsets of other regions.
+	let found = true;
+	while (found) {
+		found = false;
+		for (let r1 of regions) {
+			//TODO: Don't do this quadratically. Recognize which MIGHT be subsets.
+			//Transform the region into something we can more easily look up (with stringified keys)
+			const reg = {}; for (let i = 1; i < r1.length; ++i) reg[r1[i].join("-")] = 1;
+			console.log(reg);
+			for (let r2 of regions) {
+				//See if r2 is a strict subset of r1
+				//In Python, I would represent coordinates as (r,c) tuples, and put them
+				//into a set, which I could then directly compare, difference, etc. Sigh.
+				if (!r2.length || r2.length >= r1.length) continue;
+				let i = 1;
+				for (i = 1; i < r2.length; ++i) if (!reg[r2[i].join("-")]) break;
+				if (i < r2.length) continue; //It's not a strict subset.
+				console.log(r2);
+				const reg2 = {}; for (let i = 1; i < r2.length; ++i) reg2[r2[i].join("-")] = 1;
+				const newreg = r1.filter((r, i) => !i || !reg2[r.join("-")]);
+				newreg[0] = r1[0] - r2[0];
+				console.log("New region:", newreg);
+				r1.splice(0); //Wipe the old region - we won't need it any more
+				new_region(newreg);
+				found = true;
+			}
+		}
+		//Prune the region list. Any that have been wiped go; others get their
+		//cell lists pruned to those still unknown.
+		const scanme = regions; regions = [];
+		console.log("Pruning:", scanme);
+		for (let region of scanme) {
+			if (!region.length) continue;
+			for (let i = 1; i < region.length; ++i) {
+				const cell = game[region[i][0]][region[i][1]];
+				if (cell < 10) continue;
+				region.splice(i, 1);
+				if (cell === 19) region[0]--;
+				found = true; //Changes were made.
+			}
+			if (region.length > 1) new_region(region); //Might end up being all-clear or all-mines, or a new actual region
+		}
+	}
+	console.log("Final regions:", regions);
 	return true;
 }
 
 function new_game() {
 	while (true) {
 		//~ const tryme = generate_game();
-		const tryme = [	[0,1,1,1,0,0,1,9,1,0],
-				[0,1,9,2,1,0,1,1,1,0],
-				[1,3,3,9,1,0,0,0,1,1],
-				[9,2,9,2,1,0,0,0,2,9],
-				[2,3,1,1,0,0,0,0,2,9],
-				[9,2,1,1,0,0,0,0,1,1],
-				[1,2,9,1,0,0,0,0,1,1],
-				[0,1,1,1,0,0,0,0,1,9],
-				[0,0,0,0,0,0,0,0,1,1],
-				[0,0,0,0,0,0,0,0,0,0]];
+		const tryme = [	[0,0,0,0,0,0,0,0,0,0],
+				[0,0,0,0,0,0,1,1,1,0],
+				[0,0,1,1,1,0,1,9,2,1],
+				[1,2,2,9,1,0,1,3,9,2],
+				[9,2,9,2,1,0,0,2,9,2],
+				[1,2,2,3,2,1,0,1,2,2],
+				[0,0,1,9,9,1,0,0,1,9],
+				[0,0,1,2,2,1,0,0,1,1],
+				[0,0,1,1,1,0,0,0,0,0],
+				[0,0,1,9,1,0,0,0,0,0]];
 		//TODO: Copy tryme for the attempted solve
 		dig(tryme, 0, 0);
 		if (!try_solve(tryme)) continue;
@@ -204,5 +261,7 @@ function new_game() {
 	}
 	set_content(board, table);
 }
+//Dump a game ready for testing
+function dump_game() {console.log(JSON.stringify(game.map(row => row.map(cell => cell > 9 ? cell - 10 : cell))));}
 
 new_game();
