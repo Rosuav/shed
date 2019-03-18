@@ -145,7 +145,7 @@ function try_solve(game) {
 	//First, build up a list of trivial regions.
 	let regions = [];
 	const base_region = (r, c) => {
-		if (game[r][c] < 10) return;
+		if (game[r][c] < 10 || game[r][c] === 19) return;
 		const region = get_unknowns(game, r, c);
 		if (region.length === 1) return; //No unknowns
 		console.log(r, c, region);
