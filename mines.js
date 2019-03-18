@@ -157,14 +157,8 @@ function try_solve(game) {
 			console.log("All clear");
 			for (let i = 1; i < region.length; ++i)
 				//Dig everything. Whatever we dug, add as a region.
-				for (let dug of dig(game, region[i][0], region[i][1])) {
-					const r = dug[0], c = dug[1];
-					console.log("Dug:", dug);
-					const newreg = get_unknowns(game, r, c);
-					if (newreg.length === 1) continue; //No unknowns
-					console.log("New dig:", r, c, newreg);
-					new_region(newreg);
-				}
+				for (let dug of dig(game, region[i][0], region[i][1]))
+					base_region(dug[0], dug[1]);
 		}
 		else if (region[0] === region.length - 1)
 		{
