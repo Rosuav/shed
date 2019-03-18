@@ -124,6 +124,9 @@ function get_unknowns(game, r, c) {
 	return ret;
 }
 
+//const DEBUG = console.log;
+const DEBUG = () => 0;
+
 //Try to solve the game. Duh :)
 //Algorithm is pretty simple. Build an array of regions, where a "region" is some
 //group of unknown cells with a known number of mines among them. The initial set
@@ -148,13 +151,13 @@ function try_solve(game) {
 		if (game[r][c] < 10 || game[r][c] === 19) return;
 		const region = get_unknowns(game, r, c);
 		if (region.length === 1) return; //No unknowns
-		console.log(r, c, region);
+		DEBUG(r, c, region);
 		new_region(region);
 	};
 	const new_region = region => {
 		if (region[0] === 0) {
 			//There are no unflagged mines in this region!
-			console.log("All clear");
+			DEBUG("All clear");
 			for (let i = 1; i < region.length; ++i)
 				//Dig everything. Whatever we dug, add as a region.
 				for (let dug of dig(game, region[i][0], region[i][1]))
@@ -163,19 +166,19 @@ function try_solve(game) {
 		else if (region[0] === region.length - 1)
 		{
 			//There are as many unflagged mines as unknowns!
-			console.log("All mines");
+			DEBUG("All mines");
 			for (let i = 1; i < region.length; ++i)
 				flag(game, region[i][0], region[i][1]);
 		}
 		else regions.push(region);
 	};
 	for (let r = 0; r < height; ++r) for (let c = 0; c < width; ++c) base_region(r, c);
-	console.log("Searching for subsets.");
+	DEBUG("Searching for subsets.");
 	for (let reg of regions)
 	{
 		let desc = reg[0] + " mines in";
 		for (let i = 1; i < reg.length; ++i) desc += " " + reg[i][0] + "," + reg[i][1];
-		console.log(desc);
+		DEBUG(desc);
 	}
 	//Next, try to find regions that are strict subsets of other regions.
 	let found = true;
@@ -185,7 +188,7 @@ function try_solve(game) {
 			//TODO: Don't do this quadratically. Recognize which MIGHT be subsets.
 			//Transform the region into something we can more easily look up (with stringified keys)
 			const reg = {}; for (let i = 1; i < r1.length; ++i) reg[r1[i].join("-")] = 1;
-			console.log(reg);
+			DEBUG(reg);
 			for (let r2 of regions) {
 				//See if r2 is a strict subset of r1
 				//In Python, I would represent coordinates as (r,c) tuples, and put them
@@ -194,11 +197,11 @@ function try_solve(game) {
 				let i = 1;
 				for (i = 1; i < r2.length; ++i) if (!reg[r2[i].join("-")]) break;
 				if (i < r2.length) continue; //It's not a strict subset.
-				console.log(r2);
+				DEBUG(r2);
 				const reg2 = {}; for (let i = 1; i < r2.length; ++i) reg2[r2[i].join("-")] = 1;
 				const newreg = r1.filter((r, i) => !i || !reg2[r.join("-")]);
 				newreg[0] = r1[0] - r2[0];
-				console.log("New region:", newreg);
+				DEBUG("New region:", newreg);
 				r1.splice(0); //Wipe the old region - we won't need it any more
 				new_region(newreg);
 				found = true;
@@ -207,7 +210,7 @@ function try_solve(game) {
 		//Prune the region list. Any that have been wiped go; others get their
 		//cell lists pruned to those still unknown.
 		const scanme = regions; regions = [];
-		console.log("Pruning:", scanme);
+		DEBUG("Pruning:", scanme);
 		for (let region of scanme) {
 			if (!region.length) continue;
 			for (let i = 1; i < region.length; ++i) {
@@ -220,29 +223,23 @@ function try_solve(game) {
 			if (region.length > 1) new_region(region); //Might end up being all-clear or all-mines, or a new actual region
 		}
 	}
-	console.log("Final regions:", regions);
-	return true;
+	DEBUG("Final regions:", regions);
+	return !regions.length;
 }
 
 function new_game() {
+	let tries = 0;
 	while (true) {
-		//~ const tryme = generate_game();
-		const tryme = [	[0,0,0,0,0,0,0,0,0,0],
-				[0,0,0,0,0,0,1,1,1,0],
-				[0,0,1,1,1,0,1,9,2,1],
-				[1,2,2,9,1,0,1,3,9,2],
-				[9,2,9,2,1,0,0,2,9,2],
-				[1,2,2,3,2,1,0,1,2,2],
-				[0,0,1,9,9,1,0,0,1,9],
-				[0,0,1,2,2,1,0,0,1,1],
-				[0,0,1,1,1,0,0,0,0,0],
-				[0,0,1,9,1,0,0,0,0,0]];
+		const tryme = generate_game();
+		++tries;
 		//TODO: Copy tryme for the attempted solve
 		dig(tryme, 0, 0);
 		if (!try_solve(tryme)) continue;
 		game = tryme;
 		break;
 	}
+	if (tries === 1) console.log("Got a game first try");
+	else console.log("Got a game in " + tries + " tries.");
 	dig(game, 0, 0);
 	console.log(game);
 	const table = [];
