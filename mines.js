@@ -235,15 +235,17 @@ function try_solve(game, totmines) {
 function new_game() {
 	let height = 10, width = 10, mines = 10;
 	let tries = 0;
+	game = null;
 	while (true) {
 		const tryme = generate_game(height, width, mines);
-		++tries;
+		if (++tries >= 10000) break;
 		dig(tryme, 0, 0);
 		if (!try_solve(tryme, mines)) continue;
 		game = tryme;
 		break;
 	}
-	if (tries === 1) console.log("Got a game first try");
+	if (!game) {console.log("Couldn't find a game in " + tries + " tries."); return;}
+	else if (tries === 1) console.log("Got a game first try");
 	else console.log("Got a game in " + tries + " tries.");
 	//Flip all the cells face-down again (simpler than copying the array)
 	for (let row of game) for (let i = 0; i < row.length; ++i) if (row[i] > 9) row[i] -= 10;
