@@ -255,9 +255,9 @@ class Asset:
 		return "%s %s (%s)" % (lvl, title, type) #+ "\n" + " + ".join(filter(None, self.pieces))
 
 	# def is_interesting(self): return True # Mess with this to filter the items displayed
-	# def is_interesting(self): return 20 <= self.grade < 30 # Show items in a given level range
+	def is_interesting(self): return 28 <= self.grade < 35 # Show items in a given level range
 	# def is_interesting(self): return "ClassMod" in self.type # Show class mods only
-	def is_interesting(self): return "Binder" in self.type # Show one specific type of item
+	# def is_interesting(self): return "Binder" in self.type # Show one specific type of item
 
 def decode_tree(bits):
 	"""Decode a (sub)tree from the given sequence of bits
