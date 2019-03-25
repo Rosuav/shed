@@ -5,6 +5,7 @@ let mines_left = 0;
 let gamestate = "not-started"; //Or playing, dead, won
 let starttime = new Date;
 const game_status = document.getElementById("game_status");
+let hint_cells = [], hint_mines = 0;
 
 function set_content(elem, children) {
 	while (elem.lastChild) elem.removeChild(elem.lastChild);
@@ -106,11 +107,38 @@ function startgame() {
 	gamestate = "playing";
 }
 
+function update_hint_text()
+{
+	let hint_text;
+	switch (hint_cells.length) {
+		case 0: hint_text = ""; break;
+		case 1:
+			if (hint_mines) hint_text = "This cell is a mine.";
+			else hint_text = "This cell is clear.";
+			break;
+		default:
+			if (hint_mines === hint_cells.length) hint_text = "These cells are mines.";
+			else if (!hint_mines) hint_text = "These cells are clear.";
+			else hint_text = "The red cells are mines, the blue ones are clear."; //Not possible as of 20190326 but future expansion could create it
+	}
+	set_content(document.getElementById("hint_text"), hint_text);
+}
+
 board.onclick = ev => {
 	const btn = ev.target; if (btn.tagName != "BUTTON") return;
 	if (gamestate === "not-started") startgame();
 	else if (gamestate !== "playing") return;
-	dig(game, +btn.dataset.r, +btn.dataset.c, board);
+	for (let dug of dig(game, +btn.dataset.r, +btn.dataset.c, board))
+	{
+		//TODO: Do set operations, not stupid array removal
+		const idx = hint_cells.indexOf(dug[0] + "," + dug[1]);
+		if (idx !== -1) {
+			hint_cells.splice(idx, 1);
+			const btn = board.children[dug[0]].children[dug[1]].firstChild;
+			btn.classList.remove("hint_clear");
+			update_hint_text();
+		}
+	}
 	btn.blur();
 };
 
@@ -122,6 +150,13 @@ board.oncontextmenu = ev => {
 	if (flag(game, +btn.dataset.r, +btn.dataset.c, board)) {
 		--mines_left;
 		set_content(game_status, mines_left + " mines left.");
+		const idx = hint_cells.indexOf(btn.dataset.r + "," + btn.dataset.c);
+		if (idx !== -1) {
+			btn.classList.remove("hint_mine");
+			hint_cells.splice(idx, 1);
+			--hint_mines;
+			update_hint_text();
+		}
 		if (!mines_left) win();
 	}
 };
@@ -189,7 +224,9 @@ const DEBUG = () => 0;
 //where the number of mines in regions X and Y are such that the *only* number of
 //mines that can be in the x+y overlap would leave the x-only as all mines and the
 //y-only as all clear. Look for these only if it seems that the game is unsolvable.
-function try_solve(game, totmines) {
+//If single_step is true, will search until a single hint is found, then THROWS
+//a pair of arrays: known clear cells, known mines. Yes. It throws. Deal with it.
+function try_solve(game, totmines, single_step=false) {
 	//First, build up a list of trivial regions.
 	//One big region for the whole board:
 	let regions = [[totmines]];
@@ -208,6 +245,7 @@ function try_solve(game, totmines) {
 		if (region[0] === 0) {
 			//There are no unflagged mines in this region!
 			DEBUG("All clear");
+			if (single_step) throw [region.slice(1), []];
 			for (let i = 1; i < region.length; ++i)
 				//Dig everything. Whatever we dug, add as a region.
 				for (let dug of dig(game, region[i][0], region[i][1]))
@@ -217,6 +255,7 @@ function try_solve(game, totmines) {
 		{
 			//There are as many unflagged mines as unknowns!
 			DEBUG("All mines");
+			if (single_step) throw [[], region.slice(1)];
 			for (let i = 1; i < region.length; ++i)
 				flag(game, region[i][0], region[i][1]);
 		}
@@ -276,6 +315,26 @@ function try_solve(game, totmines) {
 	DEBUG("Final regions:", regions);
 	return !regions.length;
 }
+
+document.getElementById("hint").onclick = ev => {
+	ev.preventDefault();
+	if (hint_cells.length) return;
+	try {
+		if (try_solve(game, mines_left, true)) console.warn("Game's already over?");
+		else console.warn("Game's unsolvable?"); //Neither of these should happen
+	}
+	catch (hint) {
+		//TODO: If 'hint' isn't an array, reraise, it's a failure of some sort
+		for (let i = 0; i < 2; ++i) for (let cell of hint[i])
+		{
+			hint_cells.push(cell[0] + "," + cell[1]);
+			hint_mines += i;
+			const btn = board.children[cell[0]].children[cell[1]].firstChild;
+			btn.classList.add(["hint_clear", "hint_mine"][i]);
+		}
+		update_hint_text();
+	}
+};
 
 function new_game() {
 	let height = 10, width = 10, mines = 10;

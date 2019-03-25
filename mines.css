@@ -15,4 +15,13 @@ button.flat {
 
 button.death {
 	border: 2px dashed red;
+	background: #faa;
+}
+
+button.hint_clear {
+	border: 2px dashed blue;
+}
+
+button.hint_mine {
+	border: 2px dashed red;
 }
