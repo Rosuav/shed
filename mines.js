@@ -1,6 +1,8 @@
 //game[row][col] is 0-8 for number of nearby mines, or 9 for mine here
 let game = null;
 const board = document.getElementById("board");
+let gamestate = "not-started"; //Or playing, dead, won
+let starttime = new Date;
 
 function set_content(elem, children) {
 	while (elem.lastChild) elem.removeChild(elem.lastChild);
@@ -23,23 +25,38 @@ function build(tag, attributes, children) {
 	return ret;
 }
 
+function die(game, r, c, board) {
+	if (!board) throw new Error("You died"); //Should never happen on simulation - it's a fault in the autosolver
+	const btn = board.children[r].children[c].firstChild;
+	if (game[r][c] === 9) set_content(btn, "*"); //Not flat
+	else set_content(btn, "" + game[r][c]);
+	btn.classList.add("death");
+	gamestate = "dead";
+	//Reveal the rest of the board, but don't flatten anything
+	for (let rr = 0; rr < game.length; ++rr) for (let cc = 0; cc < game[rr].length; ++cc)
+	{
+		if (rr === r && cc === c) continue; //Ignore the cell we just died at
+		if (game[rr][cc] > 9) continue; //Ignore previously-marked cells
+		const b = board.children[rr].children[cc].firstChild;
+		if (game[rr][cc] === 9) set_content(b, "?");
+		else if (game[rr][cc]) set_content(b, "" + game[rr][cc]);
+	}
+}
+
 //Returns an array of the cells dug. This can be empty (if the cell was not
 //unknown), just the given cell (if it was unknown and had mines nearby), or
 //a full array of many cells (if that cell had been empty).
 function dig(game, r, c, board, dug=[]) {
 	const num = game[r][c];
 	if (num > 9) return dug; //Already dug/flagged
-	const btn = board && board.children[r].children[c].firstChild;
 	if (num === 9) {
 		//Boom!
-		if (!board) throw new Error("You died"); //Should never happen on simulation - it's a fault in the autosolver
-		console.log("YOU DIED");
-		//TODO: Mark game as over
-		set_content(btn, "*"); //Not flat
+		die(game, r, c, board);
 		return dug;
 	}
 	game[r][c] += 10;
 	dug.push([r, c]);
+	const btn = board && board.children[r].children[c].firstChild;
 	if (!num)
 	{
 		if (btn) btn.classList.add("flat"); //Don't show the actual zero
@@ -63,13 +80,17 @@ function flag(game, r, c, board) {
 		return;
 	}
 	//Boom! Flagged a non-mine.
-	if (!board) throw new Error("You died"); //As above, shouldn't happen in simulation.
-	console.log("YOU DIED");
-	//TODO: Mark game as over
-	set_content(btn, "" + num);
+	die(game, r, c, board);
+}
+
+function startgame() {
+	starttime = new Date;
+	gamestate = "playing";
 }
 
 function clicked(ev) {
+	if (gamestate === "not-started") startgame();
+	else if (gamestate !== "playing") return;
 	const btn = ev.currentTarget;
 	dig(game, +btn.dataset.r, +btn.dataset.c, board);
 	btn.blur();
@@ -77,6 +98,8 @@ function clicked(ev) {
 
 function blipped(ev) {
 	ev.preventDefault();
+	if (gamestate === "not-started") startgame();
+	else if (gamestate !== "playing") return;
 	const btn = ev.currentTarget;
 	flag(game, +btn.dataset.r, +btn.dataset.c, board);
 }
@@ -235,7 +258,7 @@ function try_solve(game, totmines) {
 function new_game() {
 	let height = 10, width = 10, mines = 10;
 	let tries = 0;
-	game = null;
+	game = null; gamestate = "not-started";
 	while (true) {
 		const tryme = generate_game(height, width, mines);
 		if (++tries >= 10000) break;

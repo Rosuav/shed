@@ -12,3 +12,7 @@ details {
 button.flat {
 	border: none;
 }
+
+button.death {
+	border: 2px dashed red;
+}
