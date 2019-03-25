@@ -360,7 +360,7 @@ function new_game(height, width, mines) {
 		const tr = [];
 		for (let c = 0; c < game[0].length; ++c)
 		{
-			let content = "";
+			let content = "\xA0"; //Having a non-breaking space on the buttons makes the alignment tidier than having them empty does. :(
 			const attr = {"data-r": r, "data-c": c};
 			if (game[r][c] === 19) content = "*";
 			else if (game[r][c] > 10) {content = "" + (game[r][c] - 10); attr.className = "flat";}
