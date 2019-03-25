@@ -1,8 +1,10 @@
 //game[row][col] is 0-8 for number of nearby mines, or 9 for mine here
 let game = null;
 const board = document.getElementById("board");
+let mines_left = 0;
 let gamestate = "not-started"; //Or playing, dead, won
 let starttime = new Date;
+const game_status = document.getElementById("game_status");
 
 function set_content(elem, children) {
 	while (elem.lastChild) elem.removeChild(elem.lastChild);
@@ -32,6 +34,7 @@ function die(game, r, c, board) {
 	else set_content(btn, "" + game[r][c]);
 	btn.classList.add("death");
 	gamestate = "dead";
+	set_content(game_status, "YOU DIED"); //Mr Reynolds
 	//Reveal the rest of the board, but don't flatten anything
 	for (let rr = 0; rr < game.length; ++rr) for (let cc = 0; cc < game[rr].length; ++cc)
 	{
@@ -40,6 +43,20 @@ function die(game, r, c, board) {
 		const b = board.children[rr].children[cc].firstChild;
 		if (game[rr][cc] === 9) set_content(b, "?");
 		else if (game[rr][cc]) set_content(b, "" + game[rr][cc]);
+	}
+}
+
+function win() {
+	//Never called as part of simulation
+	gamestate = "won";
+	set_content(game_status, "Victory in " + (new Date - starttime)/1000 + " seconds!");
+	for (let rr = 0; rr < game.length; ++rr) for (let cc = 0; cc < game[rr].length; ++cc)
+	{
+		if (game[rr][cc] > 9) continue; //Ignore previously-marked cells
+		const b = board.children[rr].children[cc].firstChild;
+		if (game[rr][cc] === 9) {set_content(b, "*"); continue;}
+		if (game[rr][cc]) set_content(b, "" + game[rr][cc]);
+		b.classList.add("flat");
 	}
 }
 
@@ -72,15 +89,16 @@ function dig(game, r, c, board, dug=[]) {
 
 function flag(game, r, c, board) {
 	const num = game[r][c];
-	if (num > 9) return; //Already dug/flagged
+	if (num > 9) return false; //Already dug/flagged
 	const btn = board && board.children[r].children[c].firstChild;
 	if (num === 9) {
 		if (btn) set_content(btn, "*"); //Not flat
 		game[r][c] = 19;
-		return;
+		return true;
 	}
 	//Boom! Flagged a non-mine.
 	die(game, r, c, board);
+	return false;
 }
 
 function startgame() {
@@ -101,7 +119,11 @@ function blipped(ev) {
 	if (gamestate === "not-started") startgame();
 	else if (gamestate !== "playing") return;
 	const btn = ev.currentTarget;
-	flag(game, +btn.dataset.r, +btn.dataset.c, board);
+	if (flag(game, +btn.dataset.r, +btn.dataset.c, board)) {
+		--mines_left;
+		set_content(game_status, mines_left + " mines left.");
+		if (!mines_left) win();
+	}
 }
 
 function generate_game(height, width, mines) {
@@ -272,6 +294,7 @@ function new_game() {
 	else console.log("Got a game in " + tries + " tries.");
 	//Flip all the cells face-down again (simpler than copying the array)
 	for (let row of game) for (let i = 0; i < row.length; ++i) if (row[i] > 9) row[i] -= 10;
+	mines_left = mines; set_content(game_status, mines_left + " mines to find.");
 	dig(game, 0, 0);
 	console.log(game);
 	const table = [];
