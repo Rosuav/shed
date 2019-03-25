@@ -124,18 +124,54 @@ function update_hint_text()
 	set_content(document.getElementById("hint_text"), hint_text);
 }
 
+function highlight(r, c) {
+	const cell = game[r][c];
+	if (cell < 10) return false;
+	console.log("Cell already shown");
+	const region = get_unknowns(game, r, c);
+	console.log(region);
+	let highlight_text;
+	//Very similar to hint_text above, but has more grammatical possibilities.
+	switch (region.length) { //Note that region.length is one greater than the number of unknowns.
+		case 1: highlight_text = "There are no unknown cells near that one."; break;
+		case 2:
+			if (region[0]) highlight_text = "This cell is a mine.";
+			else highlight_text = "This cell is clear.";
+			break;
+		case 3:
+			if (region[0] === 2) highlight_text = "These cells are both mines.";
+			else if (!region[0]) highlight_text = "These cells are both clear.";
+			else highlight_text = "One of these two cells is a mine.";
+			break;
+		default:
+			if (region[0] === region.length - 1) highlight_text = "These cells are all mines.";
+			else if (!region[0]) highlight_text = "These cells are all clear.";
+			else if (region[0] === 1) highlight_text = "One of these " + (region.length - 1) + " cells is a mine.";
+			else highlight_text = region[0] + " of these " + (region.length - 1) + " cells are mines.";
+			break;
+	}
+	set_content(document.getElementById("highlight_text"), highlight_text);
+	document.querySelectorAll("button").forEach(btn => btn.classList.remove("region"));
+	for (let i = 1; i < region.length; ++i) {
+		const btn = board.children[region[i][0]].children[region[i][1]].firstChild;
+		btn.classList.add("region");
+	}
+	return true;
+}
+
 board.onclick = ev => {
 	const btn = ev.target; if (btn.tagName != "BUTTON") return;
 	if (gamestate === "not-started") startgame();
 	else if (gamestate !== "playing") return;
+	if (highlight(+btn.dataset.r, +btn.dataset.c)) {btn.blur(); return;}
 	for (let dug of dig(game, +btn.dataset.r, +btn.dataset.c, board))
 	{
 		//TODO: Do set operations, not stupid array removal
 		const idx = hint_cells.indexOf(dug[0] + "," + dug[1]);
+		const btn = board.children[dug[0]].children[dug[1]].firstChild;
+		btn.classList.remove("hint_clear", "region");
 		if (idx !== -1) {
 			hint_cells.splice(idx, 1);
-			const btn = board.children[dug[0]].children[dug[1]].firstChild;
-			btn.classList.remove("hint_clear");
 			update_hint_text();
 		}
 	}
@@ -147,12 +183,13 @@ board.oncontextmenu = ev => {
 	const btn = ev.target; if (btn.tagName != "BUTTON") return;
 	if (gamestate === "not-started") startgame();
 	else if (gamestate !== "playing") return;
+	if (highlight(+btn.dataset.r, +btn.dataset.c)) {btn.blur(); return;}
 	if (flag(game, +btn.dataset.r, +btn.dataset.c, board)) {
 		--mines_left;
 		set_content(game_status, mines_left + " mines left.");
+		btn.classList.remove("hint_mine", "region");
 		const idx = hint_cells.indexOf(btn.dataset.r + "," + btn.dataset.c);
 		if (idx !== -1) {
-			btn.classList.remove("hint_mine");
 			hint_cells.splice(idx, 1);
 			--hint_mines;
 			update_hint_text();

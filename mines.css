@@ -25,3 +25,7 @@ button.hint_clear {
 button.hint_mine {
 	border: 2px dashed red;
 }
+
+button.region {
+	border: 2px dashed green;
+}
