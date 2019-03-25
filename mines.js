@@ -318,7 +318,7 @@ function try_solve(game, totmines, single_step=false) {
 
 document.getElementById("hint").onclick = ev => {
 	ev.preventDefault();
-	if (hint_cells.length) return;
+	if (hint_cells.length || gamestate !== "playing") return;
 	try {
 		if (try_solve(game, mines_left, true)) console.warn("Game's already over?");
 		else console.warn("Game's unsolvable?"); //Neither of these should happen
