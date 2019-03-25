@@ -20,9 +20,17 @@ is as much a failure as digging a mine is. You will die. :)</p>
 <table id=board></table>
 <div><button type=button id=hint>Hint</button> <span id=hint_text></span>
 </main>
+<details><summary>New game</summary>
+TODO: Make this tidier... also, add a custom option
+<ul>
+<li><button type=button class=newgame data-height=8 data-width=8 data-mines=12>Easy: 8x8, 12 mines</button></li>
+<li><button type=button class=newgame data-height=15 data-width=15 data-mines=50>Medium: 15x15, 50 mines</button></li>
+<li><button type=button class=newgame data-height=20 data-width=20 data-mines=100>Dense: 20x20, 100 mines</button></li>
+<li><button type=button class=newgame data-height=30 data-width=30 data-mines=200>Tedious: 30x30, 200 mines</button></li>
+</ul>
+</details>
 <details><summary>TODO</summary>
 <ul>
-<li>Allow new-game with configurable dimensions</li>
 <li>Fix the layout - buttons aren't all aligned</li>
 <li>Get a flag for mines, not just an asterisk</li>
 <li>Get a BOOM for digging a mine</li>

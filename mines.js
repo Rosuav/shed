@@ -336,8 +336,7 @@ document.getElementById("hint").onclick = ev => {
 	}
 };
 
-function new_game() {
-	let height = 10, width = 10, mines = 10;
+function new_game(height, width, mines) {
 	let tries = 0;
 	game = null; gamestate = "not-started";
 	while (true) {
@@ -375,4 +374,12 @@ function new_game() {
 //Dump a game ready for testing
 function dump_game() {console.log(JSON.stringify(game.map(row => row.map(cell => cell > 9 ? cell - 10 : cell))));}
 
-new_game();
+document.querySelectorAll(".newgame").forEach(btn => btn.onclick = ev => {
+	ev.preventDefault();
+	const btn = ev.currentTarget;
+	const h = +btn.dataset.height, w = +btn.dataset.width, m = +btn.dataset.mines;
+	if (!h || !w || !m) return;
+	new_game(h, w, m);
+});
+
+new_game(10, 10, 10);
