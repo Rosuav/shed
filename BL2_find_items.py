@@ -102,7 +102,7 @@ class Asset:
 	balance: "BalanceDefs"
 	brand: "Manufacturers"
 	# There are two fields, "Grade" and "Stage". Not sure what the diff
-	# is, as they seem to be equal.
+	# is, as they seem to be equal (except when grade is 0 and stage is 1?).
 	grade: int
 	stage: int
 	# Weapons: body grip barrel sight stock elemental acc1 acc2
