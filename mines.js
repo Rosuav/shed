@@ -106,25 +106,25 @@ function startgame() {
 	gamestate = "playing";
 }
 
-function clicked(ev) {
+board.onclick = ev => {
+	const btn = ev.target; if (btn.tagName != "BUTTON") return;
 	if (gamestate === "not-started") startgame();
 	else if (gamestate !== "playing") return;
-	const btn = ev.currentTarget;
 	dig(game, +btn.dataset.r, +btn.dataset.c, board);
 	btn.blur();
-}
+};
 
-function blipped(ev) {
+board.oncontextmenu = ev => {
 	ev.preventDefault();
+	const btn = ev.target; if (btn.tagName != "BUTTON") return;
 	if (gamestate === "not-started") startgame();
 	else if (gamestate !== "playing") return;
-	const btn = ev.currentTarget;
 	if (flag(game, +btn.dataset.r, +btn.dataset.c, board)) {
 		--mines_left;
 		set_content(game_status, mines_left + " mines left.");
 		if (!mines_left) win();
 	}
-}
+};
 
 function generate_game(height, width, mines) {
 	const game = [];
@@ -303,7 +303,7 @@ function new_game() {
 		for (let c = 0; c < game[0].length; ++c)
 		{
 			let content = "";
-			const attr = {"data-r": r, "data-c": c, onclick: clicked, oncontextmenu: blipped};
+			const attr = {"data-r": r, "data-c": c};
 			if (game[r][c] === 19) content = "*";
 			else if (game[r][c] > 10) {content = "" + (game[r][c] - 10); attr.className = "flat";}
 			else if (game[r][c] === 10) attr.className = "flat";
