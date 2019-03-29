@@ -20,5 +20,6 @@ while emote_count is None or emote_count == len(emotes):
 	# Whatever number there are on the first run, that's considered "current".
 	# If it then changes, report it.
 	if emote_count is None: emote_count = len(emotes)
+	elif emote_count != len(emotes): break # Don't wait for the next minute
 	time.sleep(60)
 subprocess.check_call(["vlc", "/video/Clips/Let It Go/Turkish - Aldirma.mkv"])
