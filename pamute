@@ -53,7 +53,7 @@ for line in info.split("\n"):
 			elif app == "--complete" and prog.startswith(completeme): print(prog)
 			program_names[prog] = index
 		if prog == app:
-			print("Matched on", m.group(1))
+			print("Found", m.group(1), prog, end="... ")
 			ignore = True # Skip to the next index line
 			if status is None:
 				if muted is None:
