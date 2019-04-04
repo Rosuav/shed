@@ -135,10 +135,10 @@ int main(int argc, array(string) argv)
 
 	for (int x = 0; x < w; ++x) for (int y = 0; y < h; ++y)
 	{
-		//array pixel = base_img->getpixel(x, y);
-		//array(int) scores = score_image(images[*], @pixel, 1); //Segfaults the interpreter (!!)
-		[int r, int g, int b] = base_cmp->getpixel(x, y);
-		array(int) scores = score_image(images[*], r, g, b, 1); //But avoiding @ works.
+		array pixel = base_img->getpixel(x, y);
+		array(int) scores = score_image(images[*], @pixel, 1); //Caution: can segfault some versions of Pike
+		//[int r, int g, int b] = base_cmp->getpixel(x, y);
+		//array(int) scores = score_image(images[*], r, g, b, 1); //But avoiding @ is safe on all versions.
 		array imgs = images + ({ });
 		sort(scores, imgs);
 		//~ write("%{%d %}|%{ %d%}\n", scores[..2], scores[<2..]);
