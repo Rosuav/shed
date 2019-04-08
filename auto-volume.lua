@@ -12,10 +12,12 @@ end
 
 function activate()
 	vlc.msg.dbg("[AutoVol] Activated")
+	-- TODO: Establish socket connection to Python
 end
 
 function deactivate()
 	vlc.msg.dbg("[AutoVol] Deactivated")
+	-- TODO: Close socket connection
 end
 
 function input_changed()
