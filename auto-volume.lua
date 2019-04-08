@@ -52,7 +52,8 @@ end
 
 function playing_changed(status)
 	-- 2 is playing, 3 is paused, 4 is loading?? TODO: Find docs.
-	vlc.msg.info("[AutoVol] Playing changed to " .. status)
+	-- Not needed for current setup but might be of interest
+	vlc.msg.dbg("[AutoVol] Playing changed to " .. status)
 end
 
 function meta_changed()
