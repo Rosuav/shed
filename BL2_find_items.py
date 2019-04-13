@@ -13,7 +13,7 @@ import json
 import os.path
 import struct
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass # ImportError? Upgrade to Python 3.7 or pip install dataclasses
 from pprint import pprint
 import lzo # ImportError? pip install python-lzo
 
