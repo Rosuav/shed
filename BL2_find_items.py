@@ -681,7 +681,7 @@ def parse_savefile(fn):
 			if it and it.grade < savefile.level and item.equipped:
 				it.grade = it.stage = savefile.level
 				savefile.packed_item_data[i].serial = it.encode_asset_library()
-		'''
+		# '''
 
 		# Synthesize a bunch of similar items for comparison
 		# for part in get_asset("Item Types")["GD_ClassMods.A_Item_Siren.ClassMod_Siren_Binder"]["alpha_parts"]:
@@ -712,7 +712,7 @@ def parse_savefile(fn):
 			)
 			packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
 			savefile.packed_item_data.append(packed)
-		'''
+		# '''
 		'''
 		synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=0, categories=("GD_ClassMods",),
 			type="A_Item_Merc.ClassMod_Merc_Hoarder", balance="ClassMods.BalDef_ClassMod_Mercenary_04_VeryRare",
@@ -724,7 +724,7 @@ def parse_savefile(fn):
 		)
 		packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
 		savefile.packed_item_data.append(packed)
-		'''
+		# '''
 
 		data = savefile.encode_protobuf()
 		reconstructed = huffman_encode(data)
