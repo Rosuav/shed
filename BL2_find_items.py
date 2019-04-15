@@ -9,6 +9,7 @@
 import binascii
 import collections
 import hashlib
+import itertools
 import json
 import os.path
 import struct
@@ -31,6 +32,11 @@ def get_asset(fn, cache={}):
 
 VERIFY = False # Debug mode - check and double check everything
 SYNTHESIZE = False # Testing: create a replica save file
+
+def strip_prefixes(str, *prefixes):
+	for pfx in prefixes:
+		if str.startswith(pfx): return str[len(pfx):]
+	return str
 
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
@@ -724,6 +730,31 @@ def parse_savefile(fn):
 		)
 		packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
 		savefile.packed_item_data.append(packed)
+		# '''
+
+		# Synthesize every possible item based on its Balance definition
+		'''
+		balance = "GD_Aster_GrenadeMods.A_Item.GM_ChainLightning"
+		setid = 9
+		cats = ('GD_Aster_GrenadeMods', 'GD_GrenadeMods', 'GD_Weap_Shared_Names') # NOT the same as a normal Chain Lightning gives. Hmm.
+		level = 35
+		pfx, title = None, "Title.Title_ChainLightning"
+		# Below shouldn't need to be changed.
+		bal = get_asset("Item Balance")[balance]
+		balance = strip_prefixes(balance, *cats).strip(".")
+		type = strip_prefixes(bal["type"], *cats).strip(".")
+		p = bal["parts"]
+		pieces = [p.get(c, [None]) for c in ("alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta")]
+		for mfg, mat, *pieces in itertools.product(bal["manufacturers"], p["material"], *pieces):
+			mfg = strip_prefixes(mfg, "GD_Manufacturers.")
+			mat = strip_prefixes(mat, *cats).strip(".")
+			synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=setid, categories=cats,
+				type=type, balance=balance, brand=mfg, grade=level, stage=level,
+				pieces=[piece and strip_prefixes(piece, *cats).strip(".") for piece in pieces],
+				material=mat, pfx=pfx, title=title,
+			)
+			packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
+			savefile.packed_item_data.append(packed)
 		# '''
 
 		data = savefile.encode_protobuf()
