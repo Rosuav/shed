@@ -6,6 +6,7 @@
 # to twink. It should be able to handle Windows and Linux save files, but
 # not save files from consoles (they may be big-endian, and/or use another
 # compression algorithm). Currently the path is hard-coded for Linux though.
+import argparse
 import binascii
 import collections
 import hashlib
@@ -773,6 +774,7 @@ def parse_savefile(fn):
 		with open("synthesized.sav", "wb") as f: f.write(comp)
 	return ret
 
+# TODO: Parse args rather than control with code editing
 dir = os.path.expanduser("~/.local/share/aspyr-media/" + GAME + "/willowgame/savedata")
 dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
 for fn in sorted(os.listdir(dir)):
