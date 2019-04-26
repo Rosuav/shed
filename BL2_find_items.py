@@ -14,6 +14,7 @@ import itertools
 import json
 import os.path
 import struct
+import sys
 import random
 from dataclasses import dataclass # ImportError? Upgrade to Python 3.7 or pip install dataclasses
 from pprint import pprint
@@ -788,10 +789,15 @@ def parse_savefile(fn):
 
 # TODO: Parse args rather than control with code editing
 dir = os.path.expanduser("~/.local/share/aspyr-media/" + GAME + "/willowgame/savedata")
-dir = os.path.join(dir, os.listdir(dir)[0]) # If this bombs, you might not have any saves
+if args.player == "list":
+	print("Player IDs available:")
+	for player in sorted(os.listdir(dir)):
+		print("--player", player)
+	sys.exit(0)
+dir = os.path.join(dir, args.player or os.listdir(dir)[0]) # If this bombs, you might not have any saves
 for fn in sorted(os.listdir(dir)):
 	if not fn.endswith(".sav"): continue
-	# if fn != "save000a.sav": continue # Hack: Use the smallest file available
+	if args.file is not None and fn != args.file: continue
 	print(fn, end="... ")
 	try: print(parse_savefile(os.path.join(dir, fn)))
 	except SaveFileFormatError as e: print(e.args[0])
