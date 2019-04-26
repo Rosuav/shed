@@ -44,7 +44,7 @@ parser.set_defaults(game="borderlands 2")
 parser.add_argument("--player", help="Choose which player (by Steam ID) to view savefiles of")
 parser.add_argument("--verify", help="Verify code internals by attempting to back-encode", action="store_true")
 parser.add_argument("--synth", help="Synthesize a modified save file", choices=[])
-# TODO: Instead of choices, validate the part before the colon
+# TODO: Instead of choices, validate the part before the colon (currently, will crash if you pick a duff filter)
 parser.add_argument("-l", "--loot-filter", help="Filter loot to only what's interesting", action="append", default=[])
 parser.add_argument("-f", "--file", help="Process only one save file")
 args = parser.parse_args()
