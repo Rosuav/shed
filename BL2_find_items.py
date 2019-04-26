@@ -19,8 +19,20 @@ from dataclasses import dataclass # ImportError? Upgrade to Python 3.7 or pip in
 from pprint import pprint
 import lzo # ImportError? pip install python-lzo
 
-GAME = "borderlands 2"
-# GAME = "borderlands the pre-sequel"
+parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
+parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
+	action="store_const", const="borderlands 2", dest="game")
+parser.add_argument("-p", "--tps", help="Read Borderlands The Pre-Sequel savefiles",
+	action="store_const", const="borderlands the pre-sequel", dest="game")
+parser.set_defaults(game="borderlands 2")
+parser.add_argument("--player", help="Choose which player (by Steam ID) to view savefiles of")
+parser.add_argument("--verify", help="Verify code internals by attempting to back-encode", action="store_true")
+parser.add_argument("--synth", help="Synthesize a modified save file", choices=[])
+parser.add_argument("-f", "--file", help="Process only one save file")
+args = parser.parse_args()
+print(args)
+
+GAME = args.game
 
 # Requires access to the Gibbed data files.
 ASSET_PATH = "../GibbedBL2/Gibbed.Borderlands%s/projects/Gibbed.Borderlands%s.GameInfo/Resources/%s.json"
