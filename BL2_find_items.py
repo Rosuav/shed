@@ -61,7 +61,6 @@ def get_asset(fn, cache={}):
 		with open(path, "rb") as f: cache[fn] = json.load(f)
 	return cache[fn]
 
-VERIFY = args.verify # Debug mode - check and double check everything
 SYNTHESIZE = args.synth is not None # Testing: create a replica save file
 
 def strip_prefixes(str, *prefixes):
@@ -122,7 +121,7 @@ def _category(type_or_bal, _cache = {}):
 	for lbl in list(get_asset("Item Types")) + list(get_asset("Weapon Types")) \
 			+ list(get_asset("Item Balance")) + list(get_asset("Weapon Balance")):
 		cat, lbl = lbl.split(".", 1)
-		if lbl in _cache and VERIFY:
+		if lbl in _cache and args.verify:
 			print("DUPLICATE:")
 			print(_cache[lbl] + "." + lbl)
 			print(cat + "." + lbl)
@@ -154,7 +153,7 @@ class Asset:
 		orig = data
 		seed = int.from_bytes(data[1:5], "big")
 		dec = data[:5] + bogocrypt(seed, data[5:], "decrypt")
-		if VERIFY:
+		if args.verify:
 			reconstructed = dec[:5] + bogocrypt(seed, dec[5:], "encrypt")
 			if data != reconstructed:
 				print("Imperfect reconstruction of weapon/item:")
@@ -205,7 +204,7 @@ class Asset:
 				raise AssertionError("Bad annotation %r" % typ)
 		ret["categories"] = (_category(ret["type"]), _category(ret["balance"]), "GD_Weap_Shared_Names")
 		ret = cls(**ret)
-		if VERIFY:
+		if args.verify:
 			if ret.encode_asset_library() != orig:
 				raise AssertionError("Weapon reconstruction does not match original: %r" % ret)
 		return ret
@@ -330,7 +329,7 @@ def huffman_encode(data):
 		del counts[left], counts[right]
 		counts[(left, right)] = lfreq + rfreq
 	[head] = counts # Grab the sole remaining key
-	if VERIFY: head = last_huffman_tree # Hack: Reuse the tree from the last decode (gives bit-for-bit identical compression)
+	if args.verify: head = last_huffman_tree # Hack: Reuse the tree from the last decode (gives bit-for-bit identical compression)
 	# We now should have a Huffman tree where every node is either a leaf
 	# (a single byte value) or a tuple of two nodes with approximately
 	# equal frequency. Next, we turn that tree into a bit sequence that
@@ -354,7 +353,7 @@ def huffman_encode(data):
 	if spare:
 		# Hack: Reuse the residue from the last decode. I *think* this is just
 		# junk bits that are ignored on load.
-		if VERIFY and len(last_huffman_residue) == 8-spare: ret += last_huffman_residue
+		if args.verify and len(last_huffman_residue) == 8-spare: ret += last_huffman_residue
 		else: ret += "0" * (8-spare)
 	return int(ret, 2).to_bytes(len(ret)//8, "big")
 
@@ -619,7 +618,7 @@ def parse_savefile(fn):
 	raw = lzo.decompress(data.peek(), False, uncompressed_size)
 	if len(raw) != uncompressed_size:
 		raise SaveFileFormatError("Got wrong amount of data back (%d != %d)" % (len(raw), uncompressed_size))
-	if VERIFY:
+	if args.verify:
 		# LZO compression isn't stable or consistent enough to compare the
 		# compressed bytes to what we got from the file. But let's just
 		# quickly make sure we can get something back, at least.
@@ -647,7 +646,7 @@ def parse_savefile(fn):
 	data = huffman_decode(data.peek()[:-4], uncomp_size)
 	if crc != binascii.crc32(data):
 		raise SaveFileFormatError("CRC doesn't match (%d vs %d)" % (crc, binascii.crc32(data)))
-	if VERIFY:
+	if args.verify:
 		reconstructed = huffman_encode(data)
 		reconstructed = b"".join([
 			(3 + 4 + 4 + 4 + len(reconstructed) + 4).to_bytes(4, "big"),
@@ -671,7 +670,7 @@ def parse_savefile(fn):
 					print(ofs, new)
 			return ""
 	savefile = SaveFile.decode_protobuf(data)
-	if VERIFY:
+	if args.verify:
 		reconstructed = savefile.encode_protobuf()
 		if reconstructed != data:
 			print("Imperfect reconstruction:", len(data))
