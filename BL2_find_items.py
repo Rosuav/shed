@@ -30,6 +30,7 @@ parser.set_defaults(game="borderlands 2")
 parser.add_argument("--player", help="Choose which player (by Steam ID) to view savefiles of")
 parser.add_argument("--verify", help="Verify code internals by attempting to back-encode", action="store_true")
 parser.add_argument("--synth", help="Synthesize a modified save file", choices=[])
+parser.add_argument("-l", "--loot-filter", help="Filter loot to only what's interesting", action="append", choices=[], default=[])
 parser.add_argument("-f", "--file", help="Process only one save file")
 args = parser.parse_args()
 print(args)
@@ -679,7 +680,11 @@ def parse_savefile(fn):
 	items = []
 	for item in (savefile.packed_weapon_data or []) + (savefile.packed_item_data or []) + (savefile.bank or []):
 		it = Asset.decode_asset_library(item.serial)
-		if it and it.is_interesting(): items.append((item.order(), -it.grade, item.prefix() + repr(it)))
+		if not it: continue
+		for filter in args.loot_filter:
+			if not loot_filters[filter](it): break
+		else:
+			items.append((item.order(), -it.grade, item.prefix() + repr(it)))
 	ret = "Level %d %s: \x1b[1;31m%s\x1b[0m (%d+%d items)" % (savefile.level, cls,
 		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2)
 	items.sort()
