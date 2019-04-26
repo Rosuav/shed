@@ -43,8 +43,8 @@ def get_asset(fn, cache={}):
 		with open(path, "rb") as f: cache[fn] = json.load(f)
 	return cache[fn]
 
-VERIFY = False # Debug mode - check and double check everything
-SYNTHESIZE = False # Testing: create a replica save file
+VERIFY = args.verify # Debug mode - check and double check everything
+SYNTHESIZE = args.synth is not None # Testing: create a replica save file
 
 def strip_prefixes(str, *prefixes):
 	for pfx in prefixes:
