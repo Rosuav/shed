@@ -35,6 +35,15 @@ def level(item, minlvl, maxlvl=None):
 def type(item, type): return type in item.type
 del type # I want the filter to be called type, but not to override type()
 
+# Synthesizer modifications
+synthesizers = {}
+def synthesizer(f): synthesizers[f.__name__] = f
+
+@synthesizer
+def money(savefile): savefile.money[0] += 5000000 # Add more dollars
+@synthesizer
+def eridium(savefile): savefile.money[1] += 500 # Add more eridium/moonstones
+
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
 	action="store_const", const="borderlands 2", dest="game")
@@ -43,7 +52,7 @@ parser.add_argument("-p", "--tps", help="Read Borderlands The Pre-Sequel savefil
 parser.set_defaults(game="borderlands 2")
 parser.add_argument("--player", help="Choose which player (by Steam ID) to view savefiles of")
 parser.add_argument("--verify", help="Verify code internals by attempting to back-encode", action="store_true")
-parser.add_argument("--synth", help="Synthesize a modified save file", choices=[])
+parser.add_argument("--synth", help="Synthesize a modified save file", choices=synthesizers, action="append")
 # TODO: Instead of choices, validate the part before the colon (currently, will crash if you pick a duff filter)
 parser.add_argument("-l", "--loot-filter", help="Filter loot to only what's interesting", action="append", default=[])
 parser.add_argument("-f", "--file", help="Process only one save file")
@@ -60,8 +69,6 @@ def get_asset(fn, cache={}):
 		else: path = ASSET_PATH % ("Oz", "Oz", fn)
 		with open(path, "rb") as f: cache[fn] = json.load(f)
 	return cache[fn]
-
-SYNTHESIZE = args.synth is not None # Testing: create a replica save file
 
 def strip_prefixes(str, *prefixes):
 	for pfx in prefixes:
@@ -699,11 +706,13 @@ def parse_savefile(fn):
 		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2)
 	items.sort()
 	ret += "".join("\n" + desc for order, lvl, desc in items if order >= 0)
-	if SYNTHESIZE:
+	if args.synth is not None:
 		# Make changes to the save file before synthesizing
 		savefile.preferences.name = "PATCHED" # Easy way to see what's happening
-		# savefile.money[0] += 5000000 # Add more dollars
-		# savefile.money[1] += 500 # Add more eridium/moonstones
+
+		for synth in args.synth:
+			synth, *synthargs = synth.split(":")
+			synthesizers[synth](savefile, *synthargs)
 
 		# Boost the levels of all equipped weapons lower than your current level
 		'''
