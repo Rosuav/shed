@@ -21,6 +21,16 @@ from dataclasses import dataclass # ImportError? Upgrade to Python 3.7 or pip in
 from pprint import pprint
 import lzo # ImportError? pip install python-lzo
 
+# Loot filters
+loot_filters = {}
+def loot_filter(f): loot_filters[f.__name__] = f
+
+@loot_filter
+def level(item, minlvl, maxlvl=None):
+	minlvl = int(minlvl)
+	if maxlvl is None: maxlvl = minlvl + 5
+	return minlvl <= item.grade <= int(maxlvl)
+
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
 	action="store_const", const="borderlands 2", dest="game")
@@ -30,7 +40,8 @@ parser.set_defaults(game="borderlands 2")
 parser.add_argument("--player", help="Choose which player (by Steam ID) to view savefiles of")
 parser.add_argument("--verify", help="Verify code internals by attempting to back-encode", action="store_true")
 parser.add_argument("--synth", help="Synthesize a modified save file", choices=[])
-parser.add_argument("-l", "--loot-filter", help="Filter loot to only what's interesting", action="append", choices=[], default=[])
+# TODO: Instead of choices, validate the part before the colon
+parser.add_argument("-l", "--loot-filter", help="Filter loot to only what's interesting", action="append", default=[])
 parser.add_argument("-f", "--file", help="Process only one save file")
 args = parser.parse_args()
 print(args)
@@ -682,7 +693,8 @@ def parse_savefile(fn):
 		it = Asset.decode_asset_library(item.serial)
 		if not it: continue
 		for filter in args.loot_filter:
-			if not loot_filters[filter](it): break
+			filter, *filterargs = filter.split(":")
+			if not loot_filters[filter](it, *filterargs): break
 		else:
 			items.append((item.order(), -it.grade, item.prefix() + repr(it)))
 	ret = "Level %d %s: \x1b[1;31m%s\x1b[0m (%d+%d items)" % (savefile.level, cls,
