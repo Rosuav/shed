@@ -16,6 +16,7 @@ import os.path
 import struct
 import sys
 import random
+from fnmatch import fnmatch
 from dataclasses import dataclass # ImportError? Upgrade to Python 3.7 or pip install dataclasses
 from pprint import pprint
 import lzo # ImportError? pip install python-lzo
@@ -787,7 +788,6 @@ def parse_savefile(fn):
 		with open("synthesized.sav", "wb") as f: f.write(comp)
 	return ret
 
-# TODO: Parse args rather than control with code editing
 dir = os.path.expanduser("~/.local/share/aspyr-media/" + GAME + "/willowgame/savedata")
 if args.player == "list":
 	print("Player IDs available:")
@@ -795,10 +795,10 @@ if args.player == "list":
 		print("--player", player)
 	sys.exit(0)
 dir = os.path.join(dir, args.player or os.listdir(dir)[0]) # If this bombs, you might not have any saves
+file = (args.file or "").replace(".sav", "")
 for fn in sorted(os.listdir(dir)):
 	if not fn.endswith(".sav"): continue
-	if args.file is not None and fn != args.file: continue
+	if not fnmatch(fn, "*" + file + ".sav"): continue
 	print(fn, end="... ")
 	try: print(parse_savefile(os.path.join(dir, fn)))
 	except SaveFileFormatError as e: print(e.args[0])
-# print(parse_savefile("../save0001.sav"))
