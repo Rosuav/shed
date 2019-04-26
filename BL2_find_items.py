@@ -44,6 +44,89 @@ def money(savefile): savefile.money[0] += 5000000 # Add more dollars
 @synthesizer
 def eridium(savefile): savefile.money[1] += 500 # Add more eridium/moonstones
 
+@synthesizer
+def boost(savefile):
+	"""Boost the levels of all equipped gear lower than your current level"""
+	for i, weapon in enumerate(savefile.packed_weapon_data):
+		weap = Asset.decode_asset_library(weapon.serial)
+		if weap.grade < savefile.level and weapon.quickslot:
+			weap.grade = weap.stage = savefile.level
+			savefile.packed_weapon_data[i].serial = weap.encode_asset_library()
+	for i, item in enumerate(savefile.packed_item_data):
+		it = Asset.decode_asset_library(item.serial)
+		if it and it.grade < savefile.level and item.equipped:
+			it.grade = it.stage = savefile.level
+			savefile.packed_item_data[i].serial = it.encode_asset_library()
+
+@synthesizer
+def create_many(savefile):
+	"""Synthesize a bunch of similar items for comparison"""
+	# for part in get_asset("Item Types")["GD_ClassMods.A_Item_Siren.ClassMod_Siren_Binder"]["alpha_parts"]:
+	for lvl in sorted(random.sample(range(12, 73), 10), reverse=True):
+		if lvl > 25:
+			# Create "Legendary Binder" class mod
+			setid = 10
+			cats = ("GD_Lobelia_ClassMods", "GD_ClassMods",)
+			type = "A_Item_Siren.ClassMod_Siren_LegendaryBinder"
+			balance = "ClassMods.BalDef_ClassMod_Lobelia_Siren_05_Legendary"
+			alpha = "Specialization.Spec_Legendary"
+			pfx = "Prefix_Siren.Prefix_LegendaryBinder"
+		else:
+			# Create purple "Chrono Binder" class mod
+			setid = 0
+			cats = ("GD_ClassMods",)
+			type = "A_Item_Siren.ClassMod_Siren_Binder"
+			balance = "ClassMods.BalDef_ClassMod_Siren_04_VeryRare"
+			alpha = "Specialization.Spec_AS3_BS1_CS2"
+			pfx = "Prefix_Siren.Prefix_Binder_03_ChronoBinder"
+		synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=setid, categories=cats, type=type, balance=balance,
+			brand="Manufacturers.Maliwan", grade=lvl, stage=lvl,
+			pieces=[alpha, "StatPrimary.PrimaryStat_A5_B0_C0",
+				"StatPrimary02.PrimaryStat02_A0_B5_C0", None, None, None, None, None],
+			material="StatPenalty.StatPenalty_A0_B0_C2",
+			pfx=pfx, title="Title.Title_ClassMod",
+		)
+		packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
+		savefile.packed_item_data.append(packed)
+
+@synthesizer
+def create_one(savefile):
+	synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=0, categories=("GD_ClassMods",),
+		type="A_Item_Merc.ClassMod_Merc_Hoarder", balance="ClassMods.BalDef_ClassMod_Mercenary_04_VeryRare",
+		brand="Manufacturers.Vladof", grade=33, stage=33,
+		pieces=["Specialization.Spec_AS2_BS1_CS3", "StatPrimary.PrimaryStat_A5_B0_C0",
+			"StatPrimary02.PrimaryStat02_A0_B5_C0", None, None, None, None, None],
+		material="StatPenalty.StatPenalty_A0_B0_C2",
+		pfx="Prefix_Merc.Prefix_Hoarder_02_LuckyHoarder", title="Title.Title_ClassMod",
+	)
+	packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
+	savefile.packed_item_data.append(packed)
+
+@synthesizer
+def create_all(savefile):
+	"""Synthesize every possible item based on its Balance definition"""
+	balance = "GD_Aster_GrenadeMods.A_Item.GM_ChainLightning"
+	setid = 9
+	cats = ('GD_Aster_GrenadeMods', 'GD_GrenadeMods', 'GD_Weap_Shared_Names') # NOT the same as a normal Chain Lightning gives. Hmm.
+	level = 35
+	pfx, title = None, "Title.Title_ChainLightning"
+	# Below shouldn't need to be changed.
+	bal = get_asset("Item Balance")[balance]
+	balance = strip_prefixes(balance, *cats).strip(".")
+	type = strip_prefixes(bal["type"], *cats).strip(".")
+	p = bal["parts"]
+	pieces = [p.get(c, [None]) for c in ("alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta")]
+	for mfg, mat, *pieces in itertools.product(bal["manufacturers"], p["material"], *pieces):
+		mfg = strip_prefixes(mfg, "GD_Manufacturers.")
+		mat = strip_prefixes(mat, *cats).strip(".")
+		synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=setid, categories=cats,
+			type=type, balance=balance, brand=mfg, grade=level, stage=level,
+			pieces=[piece and strip_prefixes(piece, *cats).strip(".") for piece in pieces],
+			material=mat, pfx=pfx, title=title,
+		)
+		packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
+		savefile.packed_item_data.append(packed)
+
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
 	action="store_const", const="borderlands 2", dest="game")
@@ -713,88 +796,6 @@ def parse_savefile(fn):
 		for synth in args.synth:
 			synth, *synthargs = synth.split(":")
 			synthesizers[synth](savefile, *synthargs)
-
-		# Boost the levels of all equipped weapons lower than your current level
-		'''
-		for i, weapon in enumerate(savefile.packed_weapon_data):
-			weap = Asset.decode_asset_library(weapon.serial)
-			if weap.grade < savefile.level and weapon.quickslot:
-				weap.grade = weap.stage = savefile.level
-				savefile.packed_weapon_data[i].serial = weap.encode_asset_library()
-		for i, item in enumerate(savefile.packed_item_data):
-			it = Asset.decode_asset_library(item.serial)
-			if it and it.grade < savefile.level and item.equipped:
-				it.grade = it.stage = savefile.level
-				savefile.packed_item_data[i].serial = it.encode_asset_library()
-		# '''
-
-		# Synthesize a bunch of similar items for comparison
-		# for part in get_asset("Item Types")["GD_ClassMods.A_Item_Siren.ClassMod_Siren_Binder"]["alpha_parts"]:
-		'''
-		for lvl in reversed(sorted(random.sample(range(12, 73), 10))):
-			if lvl > 25:
-				# Create "Legendary Binder" class mod
-				setid = 10
-				cats = ("GD_Lobelia_ClassMods", "GD_ClassMods",)
-				type = "A_Item_Siren.ClassMod_Siren_LegendaryBinder"
-				balance = "ClassMods.BalDef_ClassMod_Lobelia_Siren_05_Legendary"
-				alpha = "Specialization.Spec_Legendary"
-				pfx = "Prefix_Siren.Prefix_LegendaryBinder"
-			else:
-				# Create purple "Chrono Binder" class mod
-				setid = 0
-				cats = ("GD_ClassMods",)
-				type = "A_Item_Siren.ClassMod_Siren_Binder"
-				balance = "ClassMods.BalDef_ClassMod_Siren_04_VeryRare"
-				alpha = "Specialization.Spec_AS3_BS1_CS2"
-				pfx = "Prefix_Siren.Prefix_Binder_03_ChronoBinder"
-			synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=setid, categories=cats, type=type, balance=balance,
-				brand="Manufacturers.Maliwan", grade=lvl, stage=lvl,
-				pieces=[alpha, "StatPrimary.PrimaryStat_A5_B0_C0",
-					"StatPrimary02.PrimaryStat02_A0_B5_C0", None, None, None, None, None],
-				material="StatPenalty.StatPenalty_A0_B0_C2",
-				pfx=pfx, title="Title.Title_ClassMod",
-			)
-			packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
-			savefile.packed_item_data.append(packed)
-		# '''
-		'''
-		synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=0, categories=("GD_ClassMods",),
-			type="A_Item_Merc.ClassMod_Merc_Hoarder", balance="ClassMods.BalDef_ClassMod_Mercenary_04_VeryRare",
-			brand="Manufacturers.Vladof", grade=33, stage=33,
-			pieces=["Specialization.Spec_AS2_BS1_CS3", "StatPrimary.PrimaryStat_A5_B0_C0",
-				"StatPrimary02.PrimaryStat02_A0_B5_C0", None, None, None, None, None],
-			material="StatPenalty.StatPenalty_A0_B0_C2",
-			pfx="Prefix_Merc.Prefix_Hoarder_02_LuckyHoarder", title="Title.Title_ClassMod",
-		)
-		packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
-		savefile.packed_item_data.append(packed)
-		# '''
-
-		# Synthesize every possible item based on its Balance definition
-		'''
-		balance = "GD_Aster_GrenadeMods.A_Item.GM_ChainLightning"
-		setid = 9
-		cats = ('GD_Aster_GrenadeMods', 'GD_GrenadeMods', 'GD_Weap_Shared_Names') # NOT the same as a normal Chain Lightning gives. Hmm.
-		level = 35
-		pfx, title = None, "Title.Title_ChainLightning"
-		# Below shouldn't need to be changed.
-		bal = get_asset("Item Balance")[balance]
-		balance = strip_prefixes(balance, *cats).strip(".")
-		type = strip_prefixes(bal["type"], *cats).strip(".")
-		p = bal["parts"]
-		pieces = [p.get(c, [None]) for c in ("alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta")]
-		for mfg, mat, *pieces in itertools.product(bal["manufacturers"], p["material"], *pieces):
-			mfg = strip_prefixes(mfg, "GD_Manufacturers.")
-			mat = strip_prefixes(mat, *cats).strip(".")
-			synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=setid, categories=cats,
-				type=type, balance=balance, brand=mfg, grade=level, stage=level,
-				pieces=[piece and strip_prefixes(piece, *cats).strip(".") for piece in pieces],
-				material=mat, pfx=pfx, title=title,
-			)
-			packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
-			savefile.packed_item_data.append(packed)
-		# '''
 
 		data = savefile.encode_protobuf()
 		reconstructed = huffman_encode(data)
