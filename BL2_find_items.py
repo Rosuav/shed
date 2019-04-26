@@ -31,6 +31,10 @@ def level(item, minlvl, maxlvl=None):
 	if maxlvl is None: maxlvl = minlvl + 5
 	return minlvl <= item.grade <= int(maxlvl)
 
+@loot_filter
+def type(item, type): return type in item.type
+del type # I want the filter to be called type, but not to override type()
+
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
 	action="store_const", const="borderlands 2", dest="game")
@@ -286,11 +290,6 @@ class Asset:
 		if pfxinfo and "name" in pfxinfo: title = pfxinfo["name"] + " " + title
 		type = self.type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
 		return "%s %s (%s)" % (lvl, title, type) #+ "\n" + " + ".join(filter(None, self.pieces))
-
-	# def is_interesting(self): return True # Mess with this to filter the items displayed
-	def is_interesting(self): return 28 <= self.grade < 35 # Show items in a given level range
-	# def is_interesting(self): return "ClassMod" in self.type # Show class mods only
-	# def is_interesting(self): return "Binder" in self.type # Show one specific type of item
 
 def decode_tree(bits):
 	"""Decode a (sub)tree from the given sequence of bits
