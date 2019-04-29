@@ -1,0 +1,141 @@
+{
+	"provider": {
+		"name": "Counter-Strike: Global Offensive",
+		"appid": 730,
+		"version": 13689,
+		"steamid": "76561198043731689",
+		"timestamp": 1556547795
+	},
+	"player": {
+		"steamid": "76561198043731689",
+		"name": "Rosuav",
+		"activity": "menu",
+		"state": {
+			"health": 0,
+			"armor": 0,
+			"helmet": false,
+			"flashed": 0,
+			"smoked": 0,
+			"burning": 0,
+			"money": 800,
+			"round_kills": 0,
+			"round_killhs": 0,
+			"equip_value": 0,
+			"round_totaldmg": 153
+		},
+		"weapons": {
+			"*": {
+				"name": "weapon_knife_t",
+				"paintkit": "default",
+				"type": "Knife",
+				"state": "holstered",
+				"ammo_clip": 20,
+				"ammo_clip_max": 20,
+				"ammo_reserve": 120
+			}
+		},
+		"match_stats": {
+			"kills": 0,
+			"assists": 0,
+			"deaths": 0,
+			"mvps": 0,
+			"score": 0
+		},
+		"observer_slot": 4,
+		"team": "T",
+		"spectarget": "76561197960265730",
+		"position": "271.68, 1443.93, -0.03",
+		"forward": "0.12, 0.99, 0.09"
+	},
+	"map": {
+		"mode": "competitive",
+		"name": "de_dust2",
+		"phase": "live",
+		"round": 0,
+		"team_ct": {
+			"score": 0,
+			"consecutive_round_losses": 0,
+			"timeouts_remaining": 1,
+			"matches_won_this_series": 0
+		},
+		"team_t": {
+			"score": 0,
+			"consecutive_round_losses": 0,
+			"timeouts_remaining": 1,
+			"matches_won_this_series": 0
+		},
+		"num_matches_to_win_series": 0,
+		"current_spectators": 0,
+		"souvenirs_total": 0,
+		"round_wins": {
+			"*": "t_win_elimination"
+		}
+	},
+	"round": {
+		"phase": "live",
+		"bomb": "planted",
+		"win_team": "T"
+	},
+	"allplayers": {
+		"*": {
+			"name": "Cliffe",
+			"observer_slot": 1,
+			"team": "CT",
+			"state": {
+				"health": 64,
+				"armor": 0,
+				"helmet": false,
+				"flashed": 0,
+				"burning": 0,
+				"money": 600,
+				"round_kills": 1,
+				"round_killhs": 0,
+				"round_totaldmg": 138,
+				"equip_value": 2450
+			},
+			"weapons": {
+				"*": {
+					"name": "weapon_knife",
+					"paintkit": "default",
+					"type": "Knife",
+					"state": "holstered",
+					"ammo_clip": 13,
+					"ammo_clip_max": 13,
+					"ammo_reserve": 52
+				}
+			},
+			"match_stats": {
+				"kills": 1,
+				"assists": 0,
+				"deaths": 2,
+				"mvps": 0,
+				"score": 2
+			},
+			"position": "318.59, 2087.26, 97.20",
+			"forward": "-0.06, -0.98, -0.20"
+		}
+	},
+	"grenades": {
+		"*": {
+			"owner": 76561197960265736,
+			"position": "-398.69, 1513.44, -124.41",
+			"velocity": "0.00, 0.00, 0.00",
+			"lifetime": "12.1",
+			"type": "smoke",
+			"effecttime": "9.3",
+			"flames": {
+				"*": "1401.91, 2089.25, -7.88"
+			}
+		}
+	},
+	"bomb": {
+		"state": "dropped",
+		"position": "306.75, 1633.31, 6.44",
+		"player": 76561197960265730,
+		"countdown": "2.7"
+	},
+	"phase_countdowns": {
+		"phase": "live",
+		"phase_ends_in": "93.3"
+	}
+}
