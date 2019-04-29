@@ -7,6 +7,24 @@ app = Flask(__name__)
 
 handler = object() # Dict key cookie
 
+# TODO: Play lots of CS:GO to populate this data, before resetting the config
+# - Classic Compet
+# - Classic Casual
+# - Deathmatch
+# - Short Demolition
+# - Arms Race
+# - Flying Scoutsman (for completeness)
+# - Wingman
+# - Danger Zone
+# Also spectate as many modes as possible:
+# - Classic Compet
+# - Classic Casual - easy
+# - Deathmatch - easy
+# - Short Demolition
+# - Arms Race
+# - Flying Scoutsman (again, for completeness)
+# - Wingman
+# - Danger Zone - just be sure to hang around after dying
 composite_file = os.path.dirname(os.readlink(__file__)) + "/composite.json"
 composite = {}
 try:
