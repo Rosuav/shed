@@ -42,6 +42,7 @@ last_known_cfg = {} # Mainly for the sake of logging
 @app.route("/", methods=["POST"])
 def update_configs():
 	if not request.json: return "", 400
+	del request.json["previously"]
 	# from pprint import pprint; pprint(request.json)
 	for path, options in configs.items():
 		data = request.json
