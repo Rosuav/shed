@@ -37,15 +37,31 @@ def toggle_music(state):
 		data += cur
 	sock.close()
 
+show_money = False
+last_money = 0
+def plot_money(state):
+	if not show_money or not isinstance(state, int): return
+	global last_money
+	if state < last_money:
+		logging.log(28, "Money: %d (-%d, -%.2f%%)", state,
+			last_money - state, 100 * (last_money - state) / (last_money or state))
+	last_money = state
+def toggle_money(state):
+	global show_money
+	show_money = state == "Rosuav"
+	# logging.log(28, "Watching: %r", state)
+
 configs = {
 	# Becomes gsi_player_team.cfg
 	("player", "team"): {
 		"T": "buy ak47",
 		...: "buy aug",
+		handler: "file"
 	},
 	("map", "mode"): {
 		"casual": "buy hegrenade; buy flashbang; buy molotov",
 		"competitive": "buy hegrenade; buy flashbang; buy smokegrenade; buy molotov",
+		handler: "file"
 	},
 	("map", "phase"): {
 		# "warmup": "frame", # Optionally pause as soon as warmup starts
@@ -54,6 +70,8 @@ configs = {
 		...: "play",
 		handler: pw and toggle_music
 	},
+	("player", "name"): {...: ..., handler: toggle_money},
+	("player", "state", "money"): {...: ..., handler: plot_money},
 }
 
 # Some GSI elements function as arrays, even if they're implemented as
@@ -111,22 +129,24 @@ def update_configs():
 		for key in path: data = data and data.get(key)
 		if data == last_known_cfg.get(path): continue
 		last_known_cfg[path] = data
-		logging.log(24, "New value for %s: %s", "-".join(path), data)
+		# logging.log(24, "New value for %s: %s", "-".join(path), data)
 		cfg = options.get(data, options.get(..., ""))
+		if cfg == ...: cfg = data
 		filename = "gsi_" + "_".join(path) + ".cfg"
-		# We read from the filesystem every time. The last_known_cfg
-		# cache will show changes that don't affect the actual state,
-		# but those should not trigger the other handlers.
-		try:
-			with open(filename) as f: prevcfg = f.read()
-		except FileNotFoundError:
-			prevcfg = ""
-		if cfg != prevcfg:
-			logging.log(25, "Updating %s => %s", filename, data)
-			with open(filename, "w") as f:
-				f.write(cfg)
-			func = options.get(handler)
-			if func: func(cfg)
+		func = options.get(handler)
+		if func == "file":
+			# We read from the filesystem every time. The last_known_cfg
+			# cache will show changes that don't affect the actual state,
+			# but those should not trigger the other handlers.
+			try:
+				with open(filename) as f: prevcfg = f.read()
+			except FileNotFoundError:
+				prevcfg = ""
+			if cfg != prevcfg:
+				logging.log(25, "Updating %s => %s", filename, data)
+				with open(filename, "w") as f:
+					f.write(str(cfg))
+		elif func: func(cfg)
 	return "" # Response doesn't matter
 
 if __name__ == "__main__":
