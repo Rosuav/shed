@@ -64,7 +64,7 @@ configs = {
 		handler: "file"
 	},
 	("map", "phase"): {
-		# "warmup": "frame", # Optionally pause as soon as warmup starts
+		"warmup": "frame", # Optionally pause as soon as warmup starts
 		"live": "frame", # Since "pause" toggles pause, we use "frame", which is idempotent.
 		"gameover": "frame", # Stay paused until you actually leave the game
 		...: "play",
