@@ -7,14 +7,6 @@ app = Flask(__name__)
 
 handler = object() # Dict key cookie
 
-# TODO: Play lots of CS:GO to populate this data, before resetting the config
-# - Wingman
-# Also spectate as many modes as possible:
-# - Classic Casual - easy
-# - Deathmatch - easy
-# - Arms Race
-# - Flying Scoutsman (again, for completeness)
-# - Wingman
 composite_file = os.path.dirname(os.readlink(__file__)) + "/composite.json"
 composite = {}
 try:
@@ -37,6 +29,7 @@ def toggle_music(state):
 		data += cur
 	sock.close()
 
+# NOTE: Money calculation is inactive if player_state is disabled in the config
 show_money = False
 last_money = 0
 def plot_money(state):
