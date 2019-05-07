@@ -21,6 +21,9 @@ from dataclasses import dataclass # ImportError? Upgrade to Python 3.7 or pip in
 from pprint import pprint
 import lzo # ImportError? pip install python-lzo
 
+# python-lzo 1.12 on Python 3.8 causes a DeprecationWarning regarding arg parsing with integers.
+import warnings; warnings.filterwarnings("ignore")
+
 # Loot filters
 loot_filters = {}
 def loot_filter(f): loot_filters[f.__name__] = f
