@@ -10,6 +10,7 @@ import argparse
 import binascii
 import collections
 import hashlib
+import inspect
 import itertools
 import json
 import os.path
@@ -24,9 +25,40 @@ import lzo # ImportError? pip install python-lzo
 # python-lzo 1.12 on Python 3.8 causes a DeprecationWarning regarding arg parsing with integers.
 import warnings; warnings.filterwarnings("ignore")
 
-# Loot filters
-loot_filters = {}
-def loot_filter(f): loot_filters[f.__name__] = f
+class FunctionArg:
+	def __init__(self, desc="keyword", other_args=0):
+		self.desc = desc
+		self.functions = {}
+		self.other_args = other_args # Number of args given to the function that aren't from the cmdline
+	def __repr__(self): return self.desc
+	def __call__(self, func_or_arg):
+		if isinstance(func_or_arg, str):
+			# We've been given a command-line argument (argparse mode).
+			fn, *args = func_or_arg.split(":")
+			if fn not in self.functions:
+				raise argparse.ArgumentTypeError("Unrecognized %r - valid: %s"
+					% (fn, ', '.join(sorted(self.functions))))
+			func = self.functions[fn]
+			max = func.__code__.co_argcount - self.other_args
+			min = max - len(func.__defaults__ or ())
+			if func.__code__.co_flags & inspect.CO_VARARGS:
+				max = float("inf")
+			if min == max != len(args):
+				# Special case some messages for readability
+				if min == 0:
+					raise argparse.ArgumentTypeError("%s does not take arguments" % fn)
+				raise argparse.ArgumentTypeError("%s%s requires exactly %d arg%s" %
+					(fn, ":X" * min, min, "s" * (min!=1)))
+			if len(args) < min:
+				raise argparse.ArgumentTypeError("%s requires at least %d arg%s" % (fn, min, "s" * (min!=1)))
+			if len(args) > max:
+				raise argparse.ArgumentTypeError("%s requires at most %d arg%s" % (fn, max, "s" * (max!=1)))
+			return func, args
+		# Else assume we've been given a function to retain (decorator mode)
+		self.functions[func_or_arg.__name__] = func_or_arg
+		return func_or_arg
+
+loot_filter = FunctionArg("filter", 1)
 
 @loot_filter
 def level(item, minlvl, maxlvl=None):
@@ -38,9 +70,8 @@ def level(item, minlvl, maxlvl=None):
 def type(item, type): return type in item.type
 del type # I want the filter to be called type, but not to override type()
 
-# Synthesizer modifications
-synthesizers = {}
-def synthesizer(f): synthesizers[f.__name__] = f
+
+synthesizer = FunctionArg("synth", 1)
 
 @synthesizer
 def money(savefile): savefile.money[0] += 5000000 # Add more dollars
@@ -140,9 +171,8 @@ parser.add_argument("--player", help="Choose which player (by Steam ID) to view 
 parser.add_argument("--verify", help="Verify code internals by attempting to back-encode", action="store_true")
 parser.add_argument("--pieces", help="Show the individual pieces inside weapons/items", action="store_true")
 parser.add_argument("--raw", help="Show the raw details of weapons/items (spammy - use loot filters)", action="store_true")
-parser.add_argument("--synth", help="Synthesize a modified save file", choices=synthesizers, action="append")
-# TODO: Instead of choices, validate the part before the colon (currently, will crash if you pick a duff filter)
-parser.add_argument("-l", "--loot-filter", help="Filter loot to only what's interesting", action="append", default=[])
+parser.add_argument("--synth", help="Synthesize a modified save file", type=synthesizer, action="append")
+parser.add_argument("-l", "--loot-filter", help="Filter loot to only what's interesting", type=loot_filter, action="append", default=[])
 parser.add_argument("-f", "--file", help="Process only one save file")
 args = parser.parse_args()
 print(args)
@@ -786,9 +816,8 @@ def parse_savefile(fn):
 	for item in (savefile.packed_weapon_data or []) + (savefile.packed_item_data or []) + (savefile.bank or []):
 		it = Asset.decode_asset_library(item.serial)
 		if not it: continue
-		for filter in args.loot_filter:
-			filter, *filterargs = filter.split(":")
-			if not loot_filters[filter](it, *filterargs): break
+		for filter, filterargs in args.loot_filter:
+			if not filter(it, *filterargs): break
 		else:
 			items.append((item.order(), -it.grade, item.prefix() + repr(it)))
 	ret = "Level %d %s: \x1b[1;31m%s\x1b[0m (%d+%d items)" % (savefile.level, cls,
@@ -798,10 +827,7 @@ def parse_savefile(fn):
 	if args.synth is not None:
 		# Make changes to the save file before synthesizing
 		savefile.preferences.name = "PATCHED" # Easy way to see what's happening
-
-		for synth in args.synth:
-			synth, *synthargs = synth.split(":")
-			synthesizers[synth](savefile, *synthargs)
+		for synth, synthargs in args.synth: synth(savefile, *synthargs)
 
 		data = savefile.encode_protobuf()
 		reconstructed = huffman_encode(data)
