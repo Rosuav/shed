@@ -137,7 +137,7 @@ def create_one(savefile):
 	savefile.packed_item_data.append(packed)
 
 @synthesizer
-def create_all(savefile):
+def create_all_items(savefile):
 	"""Synthesize every possible item based on its Balance definition"""
 	balance = "GD_Aster_GrenadeMods.A_Item.GM_ChainLightning"
 	setid = 9
@@ -160,6 +160,35 @@ def create_all(savefile):
 		)
 		packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
 		savefile.packed_item_data.append(packed)
+
+@synthesizer
+def create_all_weapons(savefile):
+	"""Synthesize every possible weapon based on its Balance definition"""
+	# Random note: Glitch attachments that begin with 0 are identified correctly
+	# eg GD_Ma_Weapons.Glitch_Attachments.Glitch_Attachment_0421 gives O0L4M2A1.
+	# Other attachments have the internal name give an Amplify value higher by one
+	# eg GD_Ma_Weapons.Glitch_Attachments.Glitch_Attachment_2144 is O2L1M4A3. Odd.
+	balance = "GD_Ma_Weapons.A_Weapons.SMG_Dahl_6_Glitch"
+	setid = 5
+	cats = ('GD_Weap_SMG', 'GD_Ma_Weapons', 'GD_Weap_Shared_Names')
+	level = 26
+	pfx, title = 'Name.Prefix_Dahl.Prefix_Body1_Accurate', 'Name.Title_Dahl.Title_Barrel_Dahl_Stable'
+	bal = get_asset("Weapon Balance")[balance]
+	balance = strip_prefixes(balance, *cats).strip(".")
+	type = strip_prefixes(bal.get("type", "GD_Weap_SMG.A_Weapons.WT_SMG_Dahl"), *cats).strip(".")
+	mfg = "Manufacturers.Dahl"
+	mat = strip_prefixes(bal["parts"]["material"][0], *cats).strip(".")
+	pieces = ['Body.SMG_Body_Dahl_VarC', 'Grip.SMG_Grip_Maliwan', 'Barrel.SMG_Barrel_Dahl', 'Sight.SMG_Sight_Dahl',
+		'Stock.SMG_Stock_Hyperion', 'elemental.SMG_Elemental_Corrosive', 'Accessory.SMG_Accessory_Body1_Accurate', ...]
+	for pieces[7] in bal["parts"]["accessory2"]:
+		synth = Asset(seed=random.randrange(1<<31), is_weapon=1, setid=setid, categories=cats,
+			type=type, balance=balance, brand=mfg, grade=level, stage=level,
+			pieces=[piece and strip_prefixes(piece, *cats).strip(".") for piece in pieces],
+			material=mat, pfx=pfx, title=title,
+		)
+		print("Creating:", synth)
+		packed = PackedWeaponData(serial=synth.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
+		savefile.packed_weapon_data.append(packed)
 
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
