@@ -139,6 +139,7 @@ parser.set_defaults(game="borderlands 2")
 parser.add_argument("--player", help="Choose which player (by Steam ID) to view savefiles of")
 parser.add_argument("--verify", help="Verify code internals by attempting to back-encode", action="store_true")
 parser.add_argument("--pieces", help="Show the individual pieces inside weapons/items", action="store_true")
+parser.add_argument("--raw", help="Show the raw details of weapons/items (spammy - use loot filters)", action="store_true")
 parser.add_argument("--synth", help="Synthesize a modified save file", choices=synthesizers, action="append")
 # TODO: Instead of choices, validate the part before the colon (currently, will crash if you pick a duff filter)
 parser.add_argument("-l", "--loot-filter", help="Filter loot to only what's interesting", action="append", default=[])
@@ -383,6 +384,7 @@ class Asset:
 		if pfxinfo and "name" in pfxinfo: title = pfxinfo["name"] + " " + title
 		type = self.type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
 		return "%s %s (%s)" % (lvl, title, type) + ("\n" + " + ".join(filter(None, self.pieces))) * args.pieces
+	if args.raw: del __repr__
 
 def decode_tree(bits):
 	"""Decode a (sub)tree from the given sequence of bits
