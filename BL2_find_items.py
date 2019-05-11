@@ -93,6 +93,26 @@ def boost(savefile):
 			savefile.packed_item_data[i].serial = it.encode_asset_library()
 
 @synthesizer
+def invdup(savefile, level):
+	"""Duplicate inventory at a new level for comparison"""
+	level = int(level)
+	if level < 1: raise ValueError("C'mon, get on my level, man")
+	for weapon in savefile.packed_weapon_data:
+		weap = Asset.decode_asset_library(weapon.serial)
+		if weap.grade != level and not weapon.quickslot:
+			weap.grade = weap.stage = level
+			weap.seed = random.randrange(1<<31)
+			packed = PackedWeaponData(serial=weap.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
+			savefile.packed_weapon_data.append(packed)
+	for item in savefile.packed_item_data:
+		it = Asset.decode_asset_library(item.serial)
+		if it and it.grade != level and not item.equipped:
+			it.grade = it.stage = level
+			it.seed = random.randrange(1<<31)
+			packed = PackedItemData(serial=it.encode_asset_library(), quantity=1, equipped=0, mark=1)
+			savefile.packed_item_data.append(packed)
+
+@synthesizer
 def create_many(savefile):
 	"""Synthesize a bunch of similar items for comparison"""
 	# for part in get_asset("Item Types")["GD_ClassMods.A_Item_Siren.ClassMod_Siren_Binder"]["alpha_parts"]:
