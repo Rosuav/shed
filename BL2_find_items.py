@@ -220,8 +220,8 @@ parser.add_argument("--player", help="Choose which player (by Steam ID) to view 
 parser.add_argument("--verify", help="Verify code internals by attempting to back-encode", action="store_true")
 parser.add_argument("--pieces", help="Show the individual pieces inside weapons/items", action="store_true")
 parser.add_argument("--raw", help="Show the raw details of weapons/items (spammy - use loot filters)", action="store_true")
-parser.add_argument("--synth", help="Synthesize a modified save file", type=synthesizer, action="append")
-parser.add_argument("-l", "--loot-filter", help="Filter loot to only what's interesting", type=loot_filter, action="append", default=[])
+parser.add_argument("--synth", help="Synthesize a modified save file", type=synthesizer, nargs="*")
+parser.add_argument("-l", "--loot-filter", help="Show loot, optionally filtered to only what's interesting", type=loot_filter, nargs="*")
 parser.add_argument("-f", "--file", help="Process only one save file")
 args = parser.parse_args()
 print(args)
@@ -863,6 +863,7 @@ def parse_savefile(fn):
 	# goes in the item data array.)
 	items = []
 	for item in (savefile.packed_weapon_data or []) + (savefile.packed_item_data or []) + (savefile.bank or []):
+		if args.loot_filter is None: break
 		it = Asset.decode_asset_library(item.serial)
 		if not it: continue
 		for filter, filterargs in args.loot_filter:
