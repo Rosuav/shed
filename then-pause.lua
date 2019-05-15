@@ -3,7 +3,7 @@
 
 function descriptor()
 	return { 
-		title = "Pause after this track",
+		title = "&Pause after this track",
 		version = "0.1",
 		author = "Rosuav",
 		capabilities = { "input-listener", "playing-listener" },
