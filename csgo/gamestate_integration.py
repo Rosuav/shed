@@ -60,6 +60,7 @@ configs = {
 		"warmup": "frame", # Optionally pause as soon as warmup starts
 		"live": "frame", # Since "pause" toggles pause, we use "frame", which is idempotent.
 		"gameover": "frame", # Stay paused until you actually leave the game
+		"intermission": "frame", # Stay paused during the half-time switch too
 		...: "play",
 		handler: pw and toggle_music
 	},
