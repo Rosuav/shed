@@ -1,6 +1,7 @@
 import asyncio
 import os
 import re
+import shutil
 import pydub
 
 # Either change this line, or set the password in your environment
@@ -57,6 +58,12 @@ async def send_status(writer):
 		await writer.drain()
 		await asyncio.sleep(30)
 
+def abbrev(s):
+	# TODO: Shorten paths more smartly
+	max = shutil.get_terminal_size().columns - 1
+	if len(s) <= max: return s
+	return s[-max:]
+
 async def tcp_echo_client():
 	reader, writer = await asyncio.open_connection("127.0.0.1", 4212)
 	writer.write(PASSWORD_COMMAND)
@@ -93,7 +100,7 @@ async def tcp_echo_client():
 		if not m: continue
 		if m[1] == fn: continue # Same file as before
 		fn = m[1]
-		print(fn, "... parsing...", end="\r")
+		print(abbrev(fn + " ... parsing..."), end="\r")
 		try:
 			audio = pydub.AudioSegment.from_file(fn)
 			print("%s: %.2f dB (max %.2f)" % (fn, audio.dBFS, audio.max_dBFS))
