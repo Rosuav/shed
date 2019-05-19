@@ -922,3 +922,6 @@ for fn in sorted(os.listdir(dir)):
 	print(fn, end="... ")
 	try: print(parse_savefile(os.path.join(dir, fn)))
 	except SaveFileFormatError as e: print(e.args[0])
+if file == "synth":
+	try: print(parse_savefile("synthesized.sav"))
+	except SaveFileFormatError as e: print(e.args[0])
