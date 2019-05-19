@@ -117,7 +117,16 @@ def create_many(savefile):
 	"""Synthesize a bunch of similar items for comparison"""
 	# for part in get_asset("Item Types")["GD_ClassMods.A_Item_Siren.ClassMod_Siren_Binder"]["alpha_parts"]:
 	for lvl in sorted(random.sample(range(12, 73), 10), reverse=True):
-		if lvl > 25:
+		if GAME == "borderlands the pre-sequel":
+			# Create purple "Loot Pinata" class mod
+			setid = 0
+			cats = ('GD_Cork_ClassMods', 'GD_Cork_ItemGrades', 'GD_Weap_Shared_Names',)
+			type = "A_Item_Prototype.ClassMod_Prototype_Pinata"
+			balance = "ClassMods.BalDef_ClassMod_Prototype_04_VeryRare"
+			alpha = "Specialization.Spec_AS1_BS2_CS3"
+			pfx = "Prefix_Prototype.Prefix_Pinata_01_Loot"
+			brand = "Manufacturers.Bandit"
+		elif lvl > 25:
 			# Create "Legendary Binder" class mod
 			setid = 10
 			cats = ("GD_Lobelia_ClassMods", "GD_ClassMods",)
