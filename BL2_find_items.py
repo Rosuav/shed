@@ -125,6 +125,7 @@ def create_many(savefile):
 			balance = "ClassMods.BalDef_ClassMod_Lobelia_Siren_05_Legendary"
 			alpha = "Specialization.Spec_Legendary"
 			pfx = "Prefix_Siren.Prefix_LegendaryBinder"
+			brand = "Manufacturers.Maliwan"
 		else:
 			# Create purple "Chrono Binder" class mod
 			setid = 0
@@ -133,8 +134,9 @@ def create_many(savefile):
 			balance = "ClassMods.BalDef_ClassMod_Siren_04_VeryRare"
 			alpha = "Specialization.Spec_AS3_BS1_CS2"
 			pfx = "Prefix_Siren.Prefix_Binder_03_ChronoBinder"
+			brand = "Manufacturers.Maliwan"
 		synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=setid, categories=cats, type=type, balance=balance,
-			brand="Manufacturers.Maliwan", grade=lvl, stage=lvl,
+			brand=brand, grade=lvl, stage=lvl,
 			pieces=[alpha, "StatPrimary.PrimaryStat_A5_B0_C0",
 				"StatPrimary02.PrimaryStat02_A0_B5_C0", None, None, None, None, None],
 			material="StatPenalty.StatPenalty_A0_B0_C2",
