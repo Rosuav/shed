@@ -354,6 +354,8 @@ class Asset:
 		config = get_asset("Asset Library Manager")
 		if "sets_by_id" not in config:
 			# Remap the sets to be keyed by ID - it's more useful that way.
+			# TODO: Do this somewhere else, so it's shared with encode_asset_library.
+			# Currently, if you call encode without ever having called decode, boom.
 			config["sets_by_id"] = {set["id"]: set for set in config["sets"]}
 		# The first byte is a version number, with the high
 		# bit set if it's a weapon, or clear if it's an item.
