@@ -70,6 +70,9 @@ def level(item, minlvl, maxlvl=None):
 def type(item, type): return type in item.type
 del type # I want the filter to be called type, but not to override type()
 
+@loot_filter
+def title(item, tit): return tit in item.title
+
 
 synthesizer = FunctionArg("synth", 1)
 
