@@ -173,12 +173,21 @@ def create_one(savefile):
 @synthesizer
 def create_all_items(savefile):
 	"""Synthesize every possible item based on its Balance definition"""
-	balance = "GD_Aster_GrenadeMods.A_Item.GM_ChainLightning"
-	setid = 9
-	cats = ('GD_Aster_GrenadeMods', 'GD_GrenadeMods', 'GD_Weap_Shared_Names') # NOT the same as a normal Chain Lightning gives. Hmm.
-	level = 35
-	pfx, title = None, "Title.Title_ChainLightning"
-	pieces = [...] * 8 # Or fix some of them to specific values
+	if GAME == "borderlands the pre-sequel":
+		balance = "GD_Cork_GrenadeMods.A_Item_Legendary.GM_BonusPackage"
+		setid = 0
+		cats = ('GD_Cork_GrenadeMods', 'GD_GrenadeMods', 'GD_Weap_Shared_Names')
+		level = 25
+		pfx, title = 'Prefix.Prefix_Longbow', "Title.Title_BonusPackage"
+		pieces = [..., 'Delivery.Delivery_LongBow', 'Trigger.Trigger_Grade0', ..., 'Damage.Damage_Grade7',
+			'DamageRadius.DamageRadius_ExtraLarge', 'ChildCount.ChildCount_Grade6', None]
+	else:
+		balance = "GD_Aster_GrenadeMods.A_Item.GM_ChainLightning"
+		setid = 9
+		cats = ('GD_Aster_GrenadeMods', 'GD_GrenadeMods', 'GD_Weap_Shared_Names') # NOT the same as a normal Chain Lightning gives. Hmm.
+		level = 35
+		pfx, title = None, "Title.Title_ChainLightning"
+		pieces = [...] * 8
 	# Below shouldn't need to be changed.
 	bal = get_asset("Item Balance")[balance]
 	balance = strip_prefixes(balance, *cats).strip(".")
