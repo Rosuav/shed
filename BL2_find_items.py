@@ -178,12 +178,14 @@ def create_all_items(savefile):
 	cats = ('GD_Aster_GrenadeMods', 'GD_GrenadeMods', 'GD_Weap_Shared_Names') # NOT the same as a normal Chain Lightning gives. Hmm.
 	level = 35
 	pfx, title = None, "Title.Title_ChainLightning"
+	pieces = [...] * 8 # Or fix some of them to specific values
 	# Below shouldn't need to be changed.
 	bal = get_asset("Item Balance")[balance]
 	balance = strip_prefixes(balance, *cats).strip(".")
 	type = strip_prefixes(bal["type"], *cats).strip(".")
 	p = bal["parts"]
-	pieces = [p.get(c, [None]) for c in ("alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta")]
+	pieces = [p.get(c, [None]) if pp is ... else [pp]
+		for c, pp in zip(["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta"], pieces)]
 	for mfg, mat, *pieces in itertools.product(bal["manufacturers"], p["material"], *pieces):
 		mfg = strip_prefixes(mfg, "GD_Manufacturers.")
 		mat = strip_prefixes(mat, *cats).strip(".")
