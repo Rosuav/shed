@@ -390,8 +390,19 @@ int main(int argc,array(string) argv)
 	};
 	if (!lang)
 	{
-		//TODO: Have a menu of available transliteration forms
-		lang = "Latin";
+		//Show a menu of available transliteration forms
+		object box = GTK2.HbuttonBox();
+		void click(GTK2.Button self) {lang = self->get_label();} //Will end the preload loop
+		foreach (sort(glob("*_to_Latin",indices(this))), string func)
+		{
+			object btn = GTK2.Button(func - "_to_Latin");
+			box->add(btn);
+			btn->signal_connect("clicked", click);
+		}
+		object picker = GTK2.Window(0)->set_title("Transliteration")->add(box)->show_all();
+		picker->signal_connect("destroy",lambda() {if (!lang) exit(0);});
+		while (!lang) GTK2.main_iteration_do(1);
+		destruct(picker);
 	}
 	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
 	GTK2.Window(0)->set_title(lang+" transliteration")->add(two_column(({
