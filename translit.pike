@@ -255,6 +255,35 @@ string Greek_to_Latin(string input)
 		(["χ":"ch","Χ":"Ch","θ":"th","Θ":"Th","ψ":"ps","Ψ":"Ps","ή":"ī\u0301"])),"NFC");
 }
 
+//Transliteration from https://en.wikipedia.org/wiki/Linear_B and https://linear-b.kinezika.info/
+array(string) linearb = String.normalize_space(#"
+	𐀀 𐀅 𐀊 𐀏 𐀔 𐀙 𐀞 𐀣 𐀨 𐀭 𐀲 𐀷 𐀼 
+	𐀁 𐀆 𐀋 𐀐 𐀕 𐀚 𐀟 𐀤 𐀩 𐀮 𐀳 𐀸 𐀽 
+	𐀂 𐀇 𐀑 𐀖 𐀛 𐀠 𐀥 𐀪 𐀯 𐀴 𐀹 
+	𐀃 𐀈 𐀍 𐀒 𐀗 𐀜 𐀡 𐀦 𐀫 𐀰 𐀵 𐀺 𐀿 
+	𐀄 𐀉 𐀓 𐀘 𐀝 𐀢 𐀬 𐀱 𐀶
+") / " ";
+array(string) lb_latin = String.normalize_space(#"
+	a da ja ka ma na pa qa ra sa ta wa za 
+	e de je ke me ne pe qe re se te we ze 
+	i di ki mi ni pi qi ri si ti wi 
+	o do jo ko mo no po qo ro so to wo zo 
+	u du ku mu nu pu ru su tu
+") / " ";
+mapping into_linearb = mkmapping(lb_latin, linearb);
+mapping from_linearb = mkmapping(linearb, lb_latin);
+object consonant_then_vowel = Regexp.PCRE.Plain("[djkmnpqrstwz]?[aeiou]");
+string to_linearb(string syllable) {return into_linearb[syllable] || syllable;}
+string Latin_to_LinearB(string input)
+{
+	return consonant_then_vowel->replace(input, to_linearb);
+}
+
+string LinearB_to_Latin(string input)
+{
+	return replace(input, from_linearb);
+}
+
 //Implements the Hebrew Academy 2006 transliteration: https://en.wikipedia.org/wiki/Romanization_of_Hebrew
 //with the modifications (from the 1953 standard) that waw/vav (ו) is transliterated w, to avoid collision
 //with bet/vet (ב) on v, and likewise kuf (ק) is transliterated q, to avoid collision with kaph (כּ) on k.
