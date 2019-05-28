@@ -370,7 +370,7 @@ int main(int argc,array(string) argv)
 	GTK2.Entry roman,other=GTK2.Entry();
 	GTK2.Entry original,trans;
 	GTK2.Button next,skip,pause;
-	string lang="Latin",initialtext;
+	string lang, initialtext;
 	if (argc>1) catch
 	{
 		if (this["Latin_to_"+argv[1]]) argv-=({lang=argv[1]});
@@ -388,6 +388,11 @@ int main(int argc,array(string) argv)
 			};
 		}
 	};
+	if (!lang)
+	{
+		//TODO: Have a menu of available transliteration forms
+		lang = "Latin";
+	}
 	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
 	GTK2.Window(0)->set_title(lang+" transliteration")->add(two_column(({
 		srtmode && "Original",srtmode && (original=GTK2.Entry()),
