@@ -170,6 +170,8 @@ def create_one(savefile):
 	packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
 	savefile.packed_item_data.append(packed)
 
+# Asset(seed=874029394, is_weapon=False, setid=0, categories=('GD_Shields', 'GD_ItemGrades', 'GD_Weap_Shared_Names'), type='A_Item.Shield_Juggernaut', balance='Shields.ItemGrade_Gear_Shield_Juggernaut_04_VeryRare', brand='Manufacturers.Pangolin', grade=44, stage=44, pieces=['Body.Body5_Anshin', 'Battery.Battery1_Tediore', 'Capacitor.Capacitor5_Anshin', 'Accessory.Accessory8_Juggernaut', None, None, None, None], material='Material.Material4_VeryRare_Juggernaut', pfx='Prefixes.Prefix_Special_Pangolin05', title='Titles.Title_Juggernaut01_JuggernautShield')
+
 @synthesizer
 def create_all_items(savefile):
 	"""Synthesize every possible item based on its Balance definition"""
