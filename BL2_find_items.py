@@ -428,6 +428,8 @@ class Asset:
 				for sublib, info in enumerate(cfg["sublibraries"]):
 					for asset, name in enumerate(info["assets"]):
 						if name == thing:
+							# TODO: Can we avoid needing self.categories here?
+							# Are there ever actually any duplicates?
 							prio = (self.categories + (info["package"],)).index(info["package"]) # Elephant in Cairo
 							if prio < best:
 								ret = bool(useset), sublib, asset
