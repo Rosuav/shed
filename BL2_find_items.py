@@ -473,25 +473,36 @@ class Asset:
 		# print(' '.join(format(x, "08b")[::-1] for x in (dec[:5] + b"\xFF\xFF" + dec[7:])))
 		return data[:5] + bogocrypt(self.seed, (crc.to_bytes(2, "big") + data[7:]).rstrip(b"\xFF"), "encrypt")
 
-	def __repr__(self):
-		if self.grade == self.stage: lvl = "Lvl %d" % self.grade
-		else: lvl = "Level %d/%d" % (self.grade, self.stage)
+	def get_title(self):
+		typeinfo = get_asset("Weapon Types" if self.is_weapon else "Item Types")[_category(self.type) + "." + self.type]
+		if typeinfo.get("has_full_name"):
+			# The item's type fully defines its title. This happens with a number
+			# of unique and/or special items.
+			return typeinfo["name"]
+		# Otherwise, build a name from a prefix (possibly) and a title.
+		# The name parts have categories and I don't yet know how to reliably list them.
 		names = get_asset("Weapon Name Parts" if self.is_weapon else "Item Name Parts")
+		cats = _category(self.type), _category(self.balance), "GD_Weap_Shared_Names"
 		pfxinfo = None
 		if self.pfx:
-			for cat in self.categories:
+			for cat in cats:
 				pfxinfo = names.get(cat + "." + self.pfx)
 				if pfxinfo: break
 			# pfxinfo has a name (unless it's a null prefix), and a uniqueness flag. No idea what that one is for.
 		if self.title:
-			for cat in self.categories:
+			for cat in cats:
 				titinfo = names.get(cat + "." + self.title)
 				if titinfo: break
 			title = titinfo["name"] if titinfo else self.title
 		else: title = "<no title>"
 		if pfxinfo and "name" in pfxinfo: title = pfxinfo["name"] + " " + title
+		return title
+
+	def __repr__(self):
+		if self.grade == self.stage: lvl = "Lvl %d" % self.grade
+		else: lvl = "Level %d/%d" % (self.grade, self.stage)
 		type = self.type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
-		return "%s %s (%s)" % (lvl, title, type) + ("\n" + " + ".join(filter(None, self.pieces))) * args.pieces
+		return "%s %s (%s)" % (lvl, self.get_title(), type) + ("\n" + " + ".join(filter(None, self.pieces))) * args.pieces
 	if args.raw: del __repr__
 
 def decode_tree(bits):
