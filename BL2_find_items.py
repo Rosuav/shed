@@ -195,7 +195,7 @@ def create_all_items(savefile):
 	balance = strip_prefixes(balance, *cats).strip(".")
 	type = strip_prefixes(bal["type"], *cats).strip(".")
 	p = bal["parts"]
-	pieces = [p.get(c, [None]) if pp is ... else [pp]
+	pieces = [p.get(c, [None]) if pp is ... else ["." + pp]
 		for c, pp in zip(["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta"], pieces)]
 	for mfg, mat, *pieces in itertools.product(bal["manufacturers"], p["material"], *pieces):
 		mfg = strip_prefixes(mfg, "GD_Manufacturers.")
@@ -227,11 +227,11 @@ def create_all_weapons(savefile):
 	mat = strip_prefixes(bal["parts"]["material"][0], *cats).strip(".")
 	pieces = ['Body.SMG_Body_Dahl_VarC', 'Grip.SMG_Grip_Maliwan', 'Barrel.SMG_Barrel_Dahl', 'Sight.SMG_Sight_Dahl',
 		'Stock.SMG_Stock_Hyperion', 'elemental.SMG_Elemental_Corrosive', 'Accessory.SMG_Accessory_Body1_Accurate', ...]
-	for pieces[7] in bal["parts"]["accessory2"]:
+	for piece in bal["parts"]["accessory2"]:
+		pieces[7] = strip_prefixes(piece, *cats).strip(".")
 		synth = Asset(seed=random.randrange(1<<31), is_weapon=1, setid=setid, categories=cats,
 			type=type, balance=balance, brand=mfg, grade=level, stage=level,
-			pieces=[piece and strip_prefixes(piece, *cats).strip(".") for piece in pieces],
-			material=mat, pfx=pfx, title=title,
+			pieces=pieces, material=mat, pfx=pfx, title=title,
 		)
 		print("Creating:", synth)
 		packed = PackedWeaponData(serial=synth.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
@@ -265,6 +265,7 @@ def get_asset(fn, cache={}):
 	return cache[fn]
 
 def strip_prefixes(str, *prefixes):
+	return str.split(".", 1)[1] # HACK
 	for pfx in prefixes:
 		if str.startswith(pfx): return str[len(pfx):]
 	return str
