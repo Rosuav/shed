@@ -415,6 +415,7 @@ class Asset:
 		# mapping from item identifier to (set,subid,asset) triple.
 		if self.setid and self.setid in config["sets_by_id"]: sets = (0, self.setid)
 		else: sets = (0,)
+		categories = _category(self.type), _category(self.balance) # Preferred categories to use
 		def _find_asset(field, thing):
 			ret = None, None, None
 			best = 5
@@ -423,9 +424,11 @@ class Asset:
 				for sublib, info in enumerate(cfg["sublibraries"]):
 					for asset, name in enumerate(info["assets"]):
 						if name == thing:
-							# TODO: Can we avoid needing self.categories here?
-							# Are there ever actually any duplicates?
-							prio = (self.categories + (info["package"],)).index(info["package"]) # Elephant in Cairo
+							# TODO: Make sure this is actually safe, then dispose of
+							# self.categories altogether. We can fetch it when needed.
+							prio = (categories + (info["package"],)).index(info["package"]) # Elephant in Cairo
+							if best < 5 and args.verify:
+								print("Got duplicate", ret, info["package"], thing)
 							if prio < best:
 								ret = bool(useset), sublib, asset
 								best = prio
