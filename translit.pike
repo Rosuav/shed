@@ -402,6 +402,7 @@ int main(int argc,array(string) argv)
 		object picker = GTK2.Window(0)->set_title("Transliteration")->add(box)->show_all();
 		picker->signal_connect("destroy",lambda() {if (!lang) exit(0);});
 		while (!lang) GTK2.main_iteration_do(1);
+		if (picker->destroy) picker->destroy(); //for older Pikes
 		destruct(picker);
 	}
 	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
