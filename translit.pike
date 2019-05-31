@@ -367,9 +367,6 @@ constant Latin_to_Latin = 1; //Hack to allow "Latin" to be recognized as a valid
 int main(int argc,array(string) argv)
 {
 	GTK2.setup_gtk();
-	GTK2.Entry roman,other=GTK2.Entry();
-	GTK2.Entry original,trans;
-	GTK2.Button next,skip,pause;
 	string lang, initialtext;
 	if (argc>1) catch
 	{
@@ -405,6 +402,15 @@ int main(int argc,array(string) argv)
 		if (picker->destroy) picker->destroy(); //for older Pikes
 		destruct(picker);
 	}
+	translit_window(lang, initialtext, argv);
+	return -1;
+}
+
+void translit_window(string lang, string|void initialtext, array(string)|void argv)
+{
+	GTK2.Entry roman,other=GTK2.Entry();
+	GTK2.Entry original,trans;
+	GTK2.Button next,skip,pause;
 	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
 	GTK2.Window(0)->set_title(lang+" transliteration")->add(two_column(({
 		srtmode && "Original",srtmode && (original=GTK2.Entry()),
@@ -501,5 +507,4 @@ int main(int argc,array(string) argv)
 		};
 		if (catch {vlc->write("pause\n");}) vlc=0; //Note that the "pause" command toggles paused status, but if you want an explicit "unpause" command, that's there too ("play").
 	});
-	return -1;
 }
