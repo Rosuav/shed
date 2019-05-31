@@ -366,7 +366,6 @@ void update(object self,array args)
 constant Latin_to_Latin = 1; //Hack to allow "Latin" to be recognized as a valid translit form
 int main(int argc,array(string) argv)
 {
-	GTK2.setup_gtk();
 	string lang, initialtext;
 	if (argc>1) catch
 	{
@@ -394,6 +393,7 @@ int main(int argc,array(string) argv)
 		if (sizeof(argv)>2 && sscanf(argv[2],"%d:%d:%d,%d",int hr,int min,int sec,int ms)==4)
 			starttime = hr*3600000+min*60000+sec*1000+ms;
 	}
+	GTK2.setup_gtk();
 	if (!lang)
 	{
 		//Show a menu of available transliteration forms
