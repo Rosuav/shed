@@ -385,6 +385,15 @@ int main(int argc,array(string) argv)
 			};
 		}
 	};
+	string srtfile;
+	int starttime;
+	if (sizeof(argv)>1 && !!file_stat(argv[1]))
+	{
+		//If you provide a .srt file on the command line, have extra features active.
+		srtfile = argv[1];
+		if (sizeof(argv)>2 && sscanf(argv[2],"%d:%d:%d,%d",int hr,int min,int sec,int ms)==4)
+			starttime = hr*3600000+min*60000+sec*1000+ms;
+	}
 	if (!lang)
 	{
 		//Show a menu of available transliteration forms
@@ -401,15 +410,6 @@ int main(int argc,array(string) argv)
 		while (!lang) GTK2.main_iteration_do(1);
 		if (picker->destroy) picker->destroy(); //for older Pikes
 		destruct(picker);
-	}
-	string srtfile;
-	int starttime;
-	if (sizeof(argv)>1 && !!file_stat(argv[1]))
-	{
-		//If you provide a .srt file on the command line, have extra features active.
-		srtfile = argv[1];
-		if (sizeof(argv)>2 && sscanf(argv[2],"%d:%d:%d,%d",int hr,int min,int sec,int ms)==4)
-			starttime = hr*3600000+min*60000+sec*1000+ms;
 	}
 	translit_window(lang, initialtext, srtfile, starttime);
 	return -1;
