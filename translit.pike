@@ -363,7 +363,7 @@ void update(object self,array args)
 	else {if (txt!=self->get_text()) self->set_text(txt);} //Self-translation only
 }
 
-constant Latin_to_Latin = 1;
+constant Latin_to_Latin = 1; //Hack to allow "Latin" to be recognized as a valid translit form
 int main(int argc,array(string) argv)
 {
 	GTK2.setup_gtk();
