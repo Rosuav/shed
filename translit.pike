@@ -364,6 +364,10 @@ void update(object self,array args)
 }
 
 constant Latin_to_Latin = 1; //Hack to allow "Latin" to be recognized as a valid translit form
+
+int window_count; void window_closed() {if (!--window_count) exit(0);}
+
+void open_translit(GTK2.Button self) {translit_window(self->get_label());}
 int main(int argc,array(string) argv)
 {
 	string lang, initialtext;
@@ -398,20 +402,16 @@ int main(int argc,array(string) argv)
 	{
 		//Show a menu of available transliteration forms
 		object box = GTK2.HbuttonBox();
-		function click = lambda(GTK2.Button self) {lang = self->get_label();}; //Will end the preload loop
 		foreach (sort(glob("*_to_Latin",indices(this))), string func)
 		{
 			object btn = GTK2.Button(func - "_to_Latin");
 			box->add(btn);
-			btn->signal_connect("clicked", click);
+			btn->signal_connect("clicked", open_translit);
 		}
 		object picker = GTK2.Window(0)->set_title("Transliteration")->add(box)->show_all();
-		picker->signal_connect("destroy",lambda() {if (!lang) exit(0);});
-		while (!lang) GTK2.main_iteration_do(1);
-		if (picker->destroy) picker->destroy(); //for older Pikes
-		destruct(picker);
+		picker->signal_connect("destroy", window_closed); ++window_count;
 	}
-	translit_window(lang, initialtext, srtfile, starttime);
+	else translit_window(lang, initialtext, srtfile, starttime);
 	return -1;
 }
 
@@ -430,7 +430,7 @@ void translit_window(string lang, string|void initialtext, string|void srtfile, 
 			->add(skip=GTK2.Button("_Skip")->set_use_underline(1))
 			->add(next=GTK2.Button("_Next")->set_use_underline(1))
 		),0,
-	})))->show_all()->signal_connect("destroy",lambda() {exit(0);});
+	})))->show_all()->signal_connect("destroy", window_closed); ++window_count;
 	(({original, other, roman, trans})-({0}))->modify_font(GTK2.PangoFontDescription("Sans 18"));
 	function latin_to,to_latin;
 	if (lang!="Latin")
