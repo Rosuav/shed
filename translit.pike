@@ -401,7 +401,7 @@ int main(int argc,array(string) argv)
 	if (!lang)
 	{
 		//Show a menu of available transliteration forms
-		object box = GTK2.HbuttonBox();
+		object box = GTK2.VbuttonBox();
 		foreach (sort(glob("*_to_Latin",indices(this))), string func)
 		{
 			object btn = GTK2.Button(func - "_to_Latin");
