@@ -402,22 +402,30 @@ int main(int argc,array(string) argv)
 		if (picker->destroy) picker->destroy(); //for older Pikes
 		destruct(picker);
 	}
-	translit_window(lang, initialtext, argv);
+	string srtfile;
+	int starttime;
+	if (sizeof(argv)>1 && !!file_stat(argv[1]))
+	{
+		//If you provide a .srt file on the command line, have extra features active.
+		srtfile = argv[1];
+		if (sizeof(argv)>2 && sscanf(argv[2],"%d:%d:%d,%d",int hr,int min,int sec,int ms)==4)
+			starttime = hr*3600000+min*60000+sec*1000+ms;
+	}
+	translit_window(lang, initialtext, srtfile, starttime);
 	return -1;
 }
 
-void translit_window(string lang, string|void initialtext, array(string)|void argv)
+void translit_window(string lang, string|void initialtext, string|void srtfile, int|void start)
 {
 	GTK2.Entry roman,other=GTK2.Entry();
 	GTK2.Entry original,trans;
 	GTK2.Button next,skip,pause;
-	int srtmode=(sizeof(argv)>1 && !!file_stat(argv[1])); //If you provide a .srt file on the command line, have extra features active.
 	GTK2.Window(0)->set_title(lang+" transliteration")->add(two_column(({
-		srtmode && "Original",srtmode && (original=GTK2.Entry()),
+		srtfile && "Original", srtfile && (original=GTK2.Entry()),
 		lang!="Latin" && lang,lang!="Latin" && other,
 		"Roman",roman=GTK2.Entry()->set_width_chars(50),
-		srtmode && "Trans",srtmode && (trans=GTK2.Entry()),
-		srtmode && (GTK2.HbuttonBox()
+		srtfile && "Trans", srtfile && (trans=GTK2.Entry()),
+		srtfile && (GTK2.HbuttonBox()
 			->add(pause=GTK2.Button("_Pause")->set_use_underline(1))
 			->add(skip=GTK2.Button("_Skip")->set_use_underline(1))
 			->add(next=GTK2.Button("_Next")->set_use_underline(1))
@@ -441,11 +449,9 @@ void translit_window(string lang, string|void initialtext, array(string)|void ar
 		roman->signal_connect("changed",comp,ls); comp(roman,ls);
 		roman->set_completion(compl);
 	}
-	int start=0;
-	if (sizeof(argv)>2 && sscanf(argv[2],"%d:%d:%d,%d",int hr,int min,int sec,int ms)==4) start=hr*3600000+min*60000+sec*1000+ms;
 	int lastpos=0;
 	if (next) next->signal_connect("clicked",lambda() {
-		array(string) data=utf8_to_string(Stdio.read_file(argv[1]))/"\n\n";
+		array(string) data=utf8_to_string(Stdio.read_file(srtfile))/"\n\n";
 		string orig=original->get_text();
 		original->set_text(""); //In case we find nothing
 		string kept_roman;
@@ -473,7 +479,7 @@ void translit_window(string lang, string|void initialtext, array(string)|void ar
 						if (t!="" && !has_prefix(t,"<i>")) t="<i>"+t+"</i>";
 					}
 					data[i]=sprintf("%s%{\n%s%}",String.trim_all_whites(paragraph),({o,r,t})-({""}));
-					Stdio.write_file(argv[1],string_to_utf8(String.trim_all_whites(data*"\n\n")+"\n"));
+					Stdio.write_file(srtfile, string_to_utf8(String.trim_all_whites(data*"\n\n")+"\n"));
 					continue;
 				}
 				//The first two-line paragraph, ignoring any we're patching in, ought
