@@ -392,7 +392,7 @@ int main(int argc,array(string) argv)
 	{
 		//Show a menu of available transliteration forms
 		object box = GTK2.HbuttonBox();
-		void click(GTK2.Button self) {lang = self->get_label();} //Will end the preload loop
+		function click = lambda(GTK2.Button self) {lang = self->get_label();}; //Will end the preload loop
 		foreach (sort(glob("*_to_Latin",indices(this))), string func)
 		{
 			object btn = GTK2.Button(func - "_to_Latin");
