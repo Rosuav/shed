@@ -26,6 +26,10 @@ B-?\\) B-) B)
 R-?\\) R) R-)
 """
 emote_list = None
+old_emotes = { # Add older emotes here:
+	"devicatEH": 1291575, "devicatGRR": 1291582,
+	"devicatSPOOK": 1291574, "devicatNOM": 819947,
+}
 def get_emote_list():
 	global emote_list
 	if emote_list: return emote_list
@@ -51,11 +55,9 @@ def get_emote_list():
 			json.dump(data, f)
 	emote_list = {em["regex"]: "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0" % em["id"]
 		for em in reversed(data["emoticons"])}
-	# Add older emotes like this:
-	emote_list["devicatEH"] = "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0" % 1291575
-	emote_list["devicatGRR"] = "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0" % 1291582
-	emote_list["devicatSPOOK"] = "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0" % 1291574
-	emote_list["devicatNOM"] = "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0" % 819947
+	for name, id in old_emotes.items():
+		if name not in emote_list:
+			emote_list[name] = "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0" % id
 	for trn in TRANSLATIONS.split("\n"):
 		pat, *em = trn.split(" ")
 		for e in em: emote_list[e] = emote_list[pat]
