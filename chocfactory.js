@@ -50,6 +50,7 @@ function choc(tag, attributes, children) {
 }
 //TODO: Enumerate these somehow
 function BUTTON(a,c) {return choc("BUTTON", a, c);}
+function DIV(a,c) {return choc("DIV", a, c);}
 function IMG(a,c) {return choc("LI", a, c);}
 function INPUT(a,c) {return choc("LI", a, c);}
 function LABEL(a,c) {return choc("LABEL", a, c);}
