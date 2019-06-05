@@ -52,7 +52,7 @@ function choc(tag, attributes, children) {
 function BUTTON(a,c) {return choc("BUTTON", a, c);}
 function DIV(a,c) {return choc("DIV", a, c);}
 function IMG(a,c) {return choc("LI", a, c);}
-function INPUT(a,c) {return choc("LI", a, c);}
+function INPUT(a,c) {return choc("INPUT", a, c);}
 function LABEL(a,c) {return choc("LABEL", a, c);}
 function LI(a,c) {return choc("LI", a, c);}
 function TD(a,c) {return choc("TD", a, c);}
