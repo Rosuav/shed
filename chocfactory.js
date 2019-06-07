@@ -31,7 +31,7 @@ function set_content(elem, children) {
 	while (elem.lastChild) elem.removeChild(elem.lastChild);
 	if (!Array.isArray(children)) children = [children];
 	for (let child of children) {
-		if (child === "") continue;
+		if (!child || child === "") continue;
 		if (typeof child === "string") child = document.createTextNode(child);
 		elem.appendChild(child);
 	}
