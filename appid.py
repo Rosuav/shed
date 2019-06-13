@@ -2,7 +2,7 @@
 import json
 import os.path
 import sys
-from fuzzywuzzy import process # ImportError? pip install 'fuzzywuzzy[speedup]'
+from fuzzywuzzy import process, fuzz # ImportError? pip install 'fuzzywuzzy[speedup]'
 
 CACHE_FILE = os.path.abspath(__file__ + "/../appid.json")
 
@@ -24,5 +24,13 @@ if len(sys.argv) == 1:
 	print("TODO: Use os.getcwd()")
 	sys.exit(0)
 
-for arg in sys.argv[1:]:
-	...
+appnames = list(appids)
+def shortest_token_set_ratio(query, choice):
+	"""Like fuzz.token_set_ratio, but breaks ties by choosing the shortest"""
+	return fuzz.token_set_ratio(query, choice) * 1000 + 1000 - len(choice)
+def show_matches(target):
+	for name, score in process.extract(target, appnames, limit=10, scorer=shortest_token_set_ratio):
+		print("\t[%3d%% - %7s] %s" % (score//1000, appids[name], name))
+
+# for arg in sys.argv[1:]: show_matches(arg) # Allow multiple args
+show_matches(" ".join(sys.argv[1:])) # Allow unquoted multi-word names
