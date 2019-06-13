@@ -21,10 +21,6 @@ except FileNotFoundError:
 		json.dump(appids, f)
 	print("Downloaded and cached.")
 
-if len(sys.argv) == 1:
-	print("TODO: Use os.getcwd()")
-	sys.exit(0)
-
 appnames = list(appids)
 def shortest_token_set_ratio(query, choice):
 	"""Like fuzz.token_set_ratio, but breaks ties by choosing the shortest"""
@@ -33,5 +29,13 @@ def show_matches(target):
 	for name, score in process.extract(target, appnames, limit=10, scorer=shortest_token_set_ratio):
 		print("\t[%3d%% - %7s] %s" % (score//1000, appids[name], name))
 
-# for arg in sys.argv[1:]: show_matches(arg) # Allow multiple args
-show_matches(" ".join(sys.argv[1:])) # Allow unquoted multi-word names
+if len(sys.argv) == 1:
+	path = os.getcwd()
+	if "steam/steamapps/common/" in path.lower():
+		# Take just the first component after /common/ and use that
+		path = path.split("steam/steamapps/common/")[1].split("/")[0]
+	print("Finding matches for path %s..." % path)
+	show_matches(path)
+else:
+	# for arg in sys.argv[1:]: show_matches(arg) # Allow multiple args
+	show_matches(" ".join(sys.argv[1:])) # Allow unquoted multi-word names
