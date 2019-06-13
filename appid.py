@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Find a Steam appid given its name
 import json
 import os.path
