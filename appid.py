@@ -1,10 +1,13 @@
 # Find a Steam appid given its name
 import json
+import os.path
 import sys
 from fuzzywuzzy import process # ImportError? pip install 'fuzzywuzzy[speedup]'
 
+CACHE_FILE = os.path.abspath(__file__ + "/../appid.json")
+
 try:
-	with open("appid.json") as f:
+	with open(CACHE_FILE) as f:
 		data = json.load(f)
 except FileNotFoundError:
 	import requests # ImportError? pip install requests
@@ -12,7 +15,7 @@ except FileNotFoundError:
 	r = requests.get("https://api.steampowered.com/ISteamApps/GetAppList/v0001/")
 	r.raise_for_status()
 	data = r.json()
-	with open("appid.json", "w") as f:
+	with open(CACHE_FILE, "w") as f:
 		json.dump(data, f)
 	print("Downloaded and cached.")
 
