@@ -49,5 +49,5 @@ function choc(tag, attributes, children) {
 	return ret;
 }
 //TODO: Enumerate these somehow
-"BUTTON DIV IMG INPUT LABEL LI TD TR"
+"BUTTON DIV IMG INPUT LABEL LI TD TR SELECT OPTION"
 	.split(" ").forEach(tag => window[tag] = (a, c) => choc(tag, a, c));
