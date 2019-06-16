@@ -184,7 +184,7 @@ def create_all_items(savefile):
 		level = 25
 		pfx, title = 'Prefix.Prefix_Longbow', "Title.Title_BonusPackage"
 		pieces = [..., 'Delivery.Delivery_LongBow', 'Trigger.Trigger_Grade0', ..., 'Damage.Damage_Grade7',
-			'DamageRadius.DamageRadius_ExtraLarge', 'ChildCount.ChildCount_Grade6', None]
+			'DamageRadius.DamageRadius_ExtraLarge', 'ChildCount.ChildCount_Grade6', ...]
 	else:
 		balance = "GD_Aster_GrenadeMods.A_Item.GM_ChainLightning"
 		setid = 9
