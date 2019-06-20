@@ -28,6 +28,7 @@ SOFTWARE.
 */
 
 function set_content(elem, children) {
+	//TODO: If elem is a selector, look it up
 	while (elem.lastChild) elem.removeChild(elem.lastChild);
 	if (!Array.isArray(children)) children = [children];
 	for (let child of children) {
