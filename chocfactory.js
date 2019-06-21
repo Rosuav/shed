@@ -84,4 +84,3 @@ export default choc;
 //For non-module scripts, allow some globals to be used
 window.choc = choc; window.set_content = set_content;
 window.chocify = tags => tags.split(" ").forEach(tag => window[tag] = choc[tag]);
-window.chocify("BUTTON DIV IMG INPUT LABEL LI TD TR SELECT OPTION"); //Deprecated set of defaults
