@@ -5,10 +5,11 @@ DOM object builder. (Thanks to DeviCat for the name!)
 Usage in HTML:
 <script type=module src="https://rosuav.github.io/shed/chocfactory.js"></script>
 <script src="/path/to/your/script.js"></script>
-chocify("UL LI FORM INPUT");
 
 Usage in a module:
 import choc, {set_content} from "https://rosuav.github.io/shed/chocfactory.js";
+
+chocify("UL LI FORM INPUT");
 const {UL, LI, FORM, INPUT} = choc;
 
 TODO: Document this. Because docs.
@@ -48,7 +49,7 @@ export function set_content(elem, children) {
 	return elem;
 }
 
-function choc(tag, attributes, children) {
+let choc = function(tag, attributes, children) {
 	const ret = document.createElement(tag);
 	if (attributes) for (let attr in attributes) {
 		if (attr.startsWith("data-")) //Simplistic - we don't transform "data-foo-bar" into "fooBar" per HTML.
@@ -61,10 +62,13 @@ function choc(tag, attributes, children) {
 
 //Interpret choc.DIV(attr, chld) as choc("DIV", attr, chld)
 //This is basically what Python would do as choc.__getattr__()
-export default new Proxy(choc, {get: function(obj, prop) {
+choc = new Proxy(choc, {get: function(obj, prop) {
 	if (prop in obj) return obj[prop];
 	return obj[prop] = (a, c) => obj(prop, a, c);
 }});
+
+//For modules, make the main entry-point easily available.
+export default choc;
 
 //For non-module scripts, allow some globals to be used
 window.choc = choc; window.set_content = set_content;
