@@ -7,7 +7,8 @@ let starttime = new Date;
 const game_status = document.getElementById("game_status");
 let hint_cells = [], hint_mines = 0;
 
-import build, {set_content} from "https://rosuav.github.io/shed/chocfactory.js";
+import choc, {set_content} from "https://rosuav.github.io/shed/chocfactory.js";
+const {TR, TD, BUTTON} = choc;
 
 function die(game, r, c, board) {
 	if (!board) throw new Error("You died"); //Should never happen on simulation - it's a fault in the autosolver
@@ -383,9 +384,9 @@ function new_game(height, width, mines) {
 			if (game[r][c] === 19) content = "*";
 			else if (game[r][c] > 10) {content = "" + (game[r][c] - 10); attr.className = "flat";}
 			else if (game[r][c] === 10) attr.className = "flat";
-			tr.push(build("td", 0, build("button", attr, content)));
+			tr.push(TD(0, BUTTON(attr, content)));
 		}
-		table.push(build("tr", 0, tr));
+		table.push(TR(0, tr));
 	}
 	set_content(board, table);
 }
