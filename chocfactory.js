@@ -62,6 +62,9 @@ export function set_content(elem, children) {
 
 let choc = function(tag, attributes, children) {
 	const ret = document.createElement(tag);
+	//If called as choc(tag, children), assume all attributes are defaults
+	if (typeof attributes === "string" || attributes instanceof Array || attributes instanceof Element)
+		return set_content(ret, attributes);
 	if (attributes) for (let attr in attributes) {
 		if (attr.startsWith("data-")) //Simplistic - we don't transform "data-foo-bar" into "fooBar" per HTML.
 			ret.dataset[attr.slice(5)] = attributes[attr];
