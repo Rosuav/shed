@@ -1,4 +1,5 @@
-{% include_relative chocfactory.js %}
+//-- include-above -- chocfactory.js
+//DO NOT EDIT ABOVE THIS LINE
 
 //Interpret choc.DIV(attr, chld) as choc("DIV", attr, chld)
 //This is basically what Python would do as choc.__getattr__()
