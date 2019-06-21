@@ -49,7 +49,7 @@ SOFTWARE.
 */
 
 export function set_content(elem, children) {
-	//TODO: If elem is a selector, look it up
+	if (typeof elem === "string") elem = document.querySelector(elem);
 	while (elem.lastChild) elem.removeChild(elem.lastChild);
 	if (!Array.isArray(children)) children = [children];
 	for (let child of children) {
