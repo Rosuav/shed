@@ -2,6 +2,15 @@
 
 DOM object builder. (Thanks to DeviCat for the name!)
 
+Usage in HTML:
+<script type=module src="https://rosuav.github.io/shed/chocfactory.js"></script>
+<script src="/path/to/your/script.js"></script>
+chocify("UL LI FORM INPUT");
+
+Usage in a module:
+import choc, {set_content} from "https://rosuav.github.io/shed/chocfactory.js";
+const {UL, LI, FORM, INPUT} = choc;
+
 TODO: Document this. Because docs.
 
 The MIT License (MIT)
@@ -27,7 +36,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-function set_content(elem, children) {
+export function set_content(elem, children) {
 	//TODO: If elem is a selector, look it up
 	while (elem.lastChild) elem.removeChild(elem.lastChild);
 	if (!Array.isArray(children)) children = [children];
@@ -49,6 +58,15 @@ function choc(tag, attributes, children) {
 	if (children) set_content(ret, children);
 	return ret;
 }
-//TODO: Enumerate these somehow
-"BUTTON DIV IMG INPUT LABEL LI TD TR SELECT OPTION"
-	.split(" ").forEach(tag => window[tag] = (a, c) => choc(tag, a, c));
+
+//Interpret choc.DIV(attr, chld) as choc("DIV", attr, chld)
+//This is basically what Python would do as choc.__getattr__()
+export default new Proxy(choc, {get: function(obj, prop) {
+	if (prop in obj) return obj[prop];
+	return obj[prop] = (a, c) => obj(prop, a, c);
+}});
+
+//For non-module scripts, allow some globals to be used
+window.choc = choc; window.set_content = set_content;
+window.chocify = tags => tags.split(" ").forEach(tag => window[tag] = choc[tag]);
+window.chocify("BUTTON DIV IMG INPUT LABEL LI TD TR SELECT OPTION"); //Deprecated set of defaults
