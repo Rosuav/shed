@@ -7,26 +7,7 @@ let starttime = new Date;
 const game_status = document.getElementById("game_status");
 let hint_cells = [], hint_mines = 0;
 
-function set_content(elem, children) {
-	while (elem.lastChild) elem.removeChild(elem.lastChild);
-	if (!Array.isArray(children)) children = [children];
-	for (let child of children) {
-		if (child === "") continue;
-		if (typeof child === "string") child = document.createTextNode(child);
-		elem.appendChild(child);
-	}
-	return elem;
-}
-function build(tag, attributes, children) {
-	const ret = document.createElement(tag);
-	if (attributes) for (let attr in attributes) {
-		if (attr.startsWith("data-")) //Simplistic - we don't transform "data-foo-bar" into "fooBar" per HTML.
-			ret.dataset[attr.slice(5)] = attributes[attr];
-		else ret[attr] = attributes[attr];
-	}
-	if (children) set_content(ret, children);
-	return ret;
-}
+import build, {set_content} from "https://rosuav.github.io/shed/chocfactory.js";
 
 function die(game, r, c, board) {
 	if (!board) throw new Error("You died"); //Should never happen on simulation - it's a fault in the autosolver
