@@ -384,9 +384,9 @@ function new_game(height, width, mines) {
 			if (game[r][c] === 19) content = "*";
 			else if (game[r][c] > 10) {content = "" + (game[r][c] - 10); attr.className = "flat";}
 			else if (game[r][c] === 10) attr.className = "flat";
-			tr.push(TD(0, BUTTON(attr, content)));
+			tr.push(TD(BUTTON(attr, content)));
 		}
-		table.push(TR(0, tr));
+		table.push(TR(tr));
 	}
 	set_content(board, table);
 }
