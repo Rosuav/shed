@@ -4,15 +4,26 @@ DOM object builder. (Thanks to DeviCat for the name!)
 
 Usage in HTML:
 <script type=module src="https://rosuav.github.io/shed/chocfactory.js"></script>
-<script src="/path/to/your/script.js"></script>
+<script defer src="/path/to/your/script.js"></script>
 
 Usage in a module:
 import choc, {set_content} from "https://rosuav.github.io/shed/chocfactory.js";
 
-chocify("UL LI FORM INPUT");
-const {UL, LI, FORM, INPUT} = choc;
 
-TODO: Document this. Because docs.
+Once imported, the chocolate factory can be used in a number of ways:
+* choc("TAG", attr, children)
+* choc.TAG(attr, children)
+* const {TAG} = choc; TAG(attr, children)
+* chocify("TAG"); TAG(attr, children) // in non-module scripts only
+
+The chocify function takes a blank-delimited list of tag names and creates
+attributes on the window object as shorthands. In non-module scripts, these
+will be available as globals. Use of destructuring is recommended instead.
+
+Regardless of how it's called, choc will return a newly-created element with
+the given tag, attributes, and children.
+
+TODO: Document the rest of how you use this.
 
 The MIT License (MIT)
 
