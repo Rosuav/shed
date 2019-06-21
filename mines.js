@@ -103,7 +103,7 @@ function update_hint_text()
 			else if (!hint_mines) hint_text = "These cells are clear.";
 			else hint_text = "The red cells are mines, the blue ones are clear."; //Not possible as of 20190326 but future expansion could create it
 	}
-	set_content(document.getElementById("hint_text"), hint_text);
+	set_content("#hint_text", hint_text);
 }
 
 function highlight(r, c) {
@@ -132,7 +132,7 @@ function highlight(r, c) {
 			else highlight_text = region[0] + " of these " + (region.length - 1) + " cells are mines.";
 			break;
 	}
-	set_content(document.getElementById("highlight_text"), highlight_text);
+	set_content("#highlight_text", highlight_text);
 	document.querySelectorAll("button").forEach(btn => btn.classList.remove("region"));
 	for (let i = 1; i < region.length; ++i) {
 		const btn = board.children[region[i][0]].children[region[i][1]].firstChild;
