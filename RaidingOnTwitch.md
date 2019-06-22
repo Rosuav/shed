@@ -18,7 +18,7 @@ checklist or step-by-step to out.
    section, type in the channel name, and click Raid.
 4. Do you have a raid call? Encourage your community to synchronize on some
    message that reflects your channel's theme or style. The clipboard is your
-   best friend here, as is a channel bot command like "!raid" to suggest some
+   friend here, as is a channel bot command like "!raid" to suggest some
    text to your viewers.
 5. Say your goodbyes and thank-yous, your closer, etc.
 6. Go to a closing screen for the last 10-15 seconds of the raid. Depending on
