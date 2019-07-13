@@ -910,7 +910,7 @@ def parse_savefile(fn):
 			if not filter(it, *filterargs): break
 		else:
 			items.append((item.order(), -it.grade, item.prefix() + repr(it)))
-	ret = "Level %d %s: \x1b[1;31m%s\x1b[0m (%d+%d items)" % (savefile.level, cls,
+	ret = "Level %d (%dxp) %s: \x1b[1;31m%s\x1b[0m (%d+%d items)" % (savefile.level, savefile.exp, cls,
 		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2)
 	items.sort()
 	ret += "".join("\n" + desc for order, lvl, desc in items if order >= 0)
