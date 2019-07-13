@@ -1,0 +1,62 @@
+# To make use of this, add a line to your .bashrc saying:
+# source shed/bash_tricks
+
+# TODO: Add the obs alias with a generic path
+# This will require json_tidy to be brought into shed, which in turn will
+# require that the "default scene" be done generically.
+
+# Add this to the end of a command to pop up the terminal window
+# eg: "make; present" to build, then pop up.
+alias present='wmctrl -ia $WINDOWID'
+
+unautowine() {
+    # Remove an autowine, including all its special features
+    [ -n "$MAINPATH" ] && export PATH="$MAINPATH"
+    unset MAINPATH
+    unset AUTOWINE
+    hash -r
+}
+
+checkdir() {
+
+    # ** 1 ** Report on the time taken by the last command, where possible.
+    # This is far from perfect, but is good enough to be of practical value.
+    last_command=`HISTTIMEFORMAT='%s ' history 1|cut -c 8-17`
+    # Pick the more recent timestamp out of the last time a prompt was printed, and
+    # the last time a command was added to history. This should hopefully weed out
+    # some of the situations where commands aren't added to history (eg if you hit
+    # Enter without typing a command), though it won't necessarily catch everything.
+    [ -n "$LASTPROMPTTIME" ] && last_command=$(($last_command > $LASTPROMPTTIME ? $last_command : $LASTPROMPTTIME))
+    duration=$((`date +%s` - $last_command))
+    if [ $duration -ge 86400 ]; then
+        # Abuse Julian day numbers to give us a count of days-to-execute. This is valid
+        # so long as we don't go above the number of days in the epoch year (1970), which,
+        # not being a leap year, gives us 365 days before the numbers wrap.
+        TZ=UTC0 printf 'Last command took %(%j days %H:%M:%S)T.\n' $(($duration - 86400))
+    elif [ $duration -ge 30 ]; then
+        # We treat a time duration (in seconds) as if it were a time_t (seconds since 1970)
+        # and then print out the time in UTC that this represents. That, for durations less
+        # than a day, is an easy way to convert seconds into H:M:S.
+        TZ=UTC0 printf 'Last command took %(%H:%M:%S)T.\n' $duration
+    fi
+    export LASTPROMPTTIME=`date +%s`
+
+    # ** 2 ** Automatically activate and deactivate Python virtual environments
+    [ -n "$VIRTUAL_ENV" ] && ! [[ `pwd` =~ `dirname $VIRTUAL_ENV`* ]] && echo Deactivating venv $VIRTUAL_ENV... && deactivate
+    [ -z "$VIRTUAL_ENV" -a -d env ] && echo Activating venv `pwd`/env... && source env/bin/activate
+
+    # ** 3 ** Automatically activate Wine prefixes
+    [ -n "$AUTOWINE" ] && [ "$AUTOWINE" != "$WINEPREFIX" ] && echo Autowine replaced with explicit wine. && unautowine
+    [ -n "$AUTOWINE" ] && ! [[ `pwd` =~ ^"$WINEPREFIX"(/|$) ]] && echo Deactivating autowine... && unautowine && unset WINEPREFIX
+    if [ -z "$AUTOWINE" -a -z "$WINEPREFIX" ] && [[ `pwd` =~ $HOME/.wine* ]]; then
+        echo Activating autowine...
+        export AUTOWINE=`pwd|grep -o $HOME/.wine'[^/]*'`
+        export WINEPREFIX="$AUTOWINE"
+        if [ -d $AUTOWINE/bin ]; then
+            export MAINPATH="$PATH"
+            export PATH="$AUTOWINE"/bin:"$PATH"
+            hash -r
+        fi
+    fi
+}
+PROMPT_COMMAND=checkdir
