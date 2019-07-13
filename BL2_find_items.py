@@ -941,6 +941,13 @@ if args.player == "list":
 	for player in sorted(os.listdir(dir)):
 		print("--player", player)
 	sys.exit(0)
+if args.file:
+	try: os.stat(args.file)
+	except FileNotFoundError: pass
+	else:
+		try: print(parse_savefile(args.file))
+		except SaveFileFormatError as e: print(e.args[0])
+		sys.exit(0)
 dir = os.path.join(dir, args.player or os.listdir(dir)[0]) # If this bombs, you might not have any saves
 file = (args.file or "").replace(".sav", "")
 for fn in sorted(os.listdir(dir)):
