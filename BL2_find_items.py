@@ -13,6 +13,7 @@ import hashlib
 import inspect
 import itertools
 import json
+import math
 import os.path
 import struct
 import sys
@@ -82,6 +83,15 @@ def strip_prefix(str): return str.split(".", 1)[1]
 def money(savefile): savefile.money[0] += 5000000 # Add more dollars
 @synthesizer
 def eridium(savefile): savefile.money[1] += 500 # Add more eridium/moonstones
+
+@synthesizer
+def xp(savefile, xp=None):
+	# Change the experience point count, without going beyond the level.
+	min = math.ceil(60 * savefile.level ** 2.8 - 60)
+	max = math.ceil(60 * (savefile.level + 1) ** 2.8 - 60) - 1
+	if xp is None: savefile.exp = max
+	elif min <= int(xp) <= max: savefile.exp = int(xp)
+	else: print("WARNING: Leaving XP unchanged - level %d needs %d-%d XP" % (savefile.level, min, max))
 
 @synthesizer
 def boost(savefile):
