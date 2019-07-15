@@ -20,8 +20,28 @@ TODO Mon?: Autohost manager for AliCatFiberarts (and others).
 
 # Goal: Make this a single-file download with no deps other than Python 3.7+.
 
+import json
+from pprint import pprint
+import threading
 import webbrowser
 import tkinter as tk
+import urllib.request
+
+"""
+PASS oauth:%s
+NICK %s
+CAP REQ :twitch.tv/commands
+JOIN #%s
+"""
+
+def checkauth(oauth):
+	print("Checking auth...")
+	with urllib.request.urlopen(urllib.request.Request(
+		"https://api.twitch.tv/kraken/user",
+		headers={"Authorization": "OAuth " + oauth},
+	)) as f:
+		data = json.load(f)
+	pprint(data)
 
 class Application(tk.Frame):
 	def __init__(self, master=None):
@@ -55,11 +75,12 @@ class Application(tk.Frame):
 		print(self.hostlist.get(1.0, tk.END))
 
 	def cmd_login_go_browser(self):
-		webbrowser.open("https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp608isickayubi39itsckt&redirect_uri=https://twitchapps.com/tmi/&scope=chat:read+chat:edit+channel_editor")
+		webbrowser.open("https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp608isickayubi39itsckt&redirect_uri=https://twitchapps.com/tmi/&scope=chat:read+chat:edit+channel_editor+user_read")
 
 	def cmd_login_check_auth(self):
 		oauth = self.login_ef.get()
-		print("UNIMPL")
+		if oauth.startswith("oauth:"): oauth = oauth[6:]
+		threading.Thread(target=checkauth, args=(oauth,)).start()
 
 win = tk.Tk()
 win.title("Autohost manager")
