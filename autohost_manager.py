@@ -20,12 +20,25 @@ TODO Mon?: Autohost manager for AliCatFiberarts (and others).
 
 # Goal: Make this a single-file download with no deps other than Python 3.7+.
 
+import webbrowser
 import tkinter as tk
 
 class Application(tk.Frame):
 	def __init__(self, master=None):
 		super().__init__(master)
 		self.pack()
+		# TODO: Fix layout later and make things prettier
+		self.login_frame = tk.LabelFrame(self, text="Authenticate with Twitch")
+		self.login_frame.pack(side="top")
+		self.login_lbl = tk.Label(self.login_frame, text="OAuth token:")
+		self.login_lbl.pack(side="left")
+		self.login_ef = tk.Entry(self.login_frame)
+		self.login_ef.pack(side="left")
+		self.login_go_browser = tk.Button(self.login_frame, text="Get a token", command=self.cmd_login_go_browser)
+		self.login_go_browser.pack(side="left")
+		self.login_check_auth = tk.Button(self.login_frame, text="Verify token", command=self.cmd_login_check_auth)
+		self.login_check_auth.pack(side="left")
+
 		# To prepopulate this, go to https://www.twitch.tv/rosuav/dashboard/settings/autohost
 		# and enter this into the console:
 		# document.querySelector(".autohost-list-edit").innerText
@@ -40,6 +53,13 @@ class Application(tk.Frame):
 
 	def cmd_show(self):
 		print(self.hostlist.get(1.0, tk.END))
+
+	def cmd_login_go_browser(self):
+		webbrowser.open("https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp608isickayubi39itsckt&redirect_uri=https://twitchapps.com/tmi/&scope=chat:read+chat:edit+channel_editor")
+
+	def cmd_login_check_auth(self):
+		oauth = self.login_ef.get()
+		print("UNIMPL")
 
 win = tk.Tk()
 win.title("Autohost manager")
