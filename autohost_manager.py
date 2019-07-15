@@ -47,8 +47,16 @@ def checkauth(oauth):
 	config.update(oauth=oauth, login=data["name"], display=data["display_name"], channel=data["name"])
 	save_config()
 
-def unhost():
-	print("Unhosting...")
+def hostpriority(channel):
+	# Currently a very simple prioritization: the closer something is
+	# to the beginning of the list, the higher the priority.
+	hosts = config.get("hosttargets", [])
+	try: return len(hosts) - hosts.index(channel)
+	except ValueError: return 0
+
+def checkhost(now_live):
+	if "oauth" not in config or "hosttargets" not in config: return
+	print("Checking host...")
 	sock = socket.create_connection(("irc.chat.twitch.tv", 6667))
 	sock.send("""PASS oauth:{oauth}
 NICK {login}
@@ -63,12 +71,14 @@ MARKENDOFTEXT1
 			hosting = line.split(" ")[3]
 			assert hosting and hosting[0] == ":"
 			hosting = hosting[1:]
-			if hosting == "-":
-				print("Not hosting")
-			else:
+			if hosting != "-":
 				print("Currently hosting:", hosting)
-				sock.send("PRIVMSG #{channel} :/unhost\nMARKENDOFTEXT2\n".format(**config).encode("UTF-8"))
-				endmarker = "MARKENDOFTEXT2"
+				curprio = hostpriority(hosting)
+				newprio = hostpriority(now_live)
+				if newprio > curprio:
+					print("Unhosting.")
+					sock.send("PRIVMSG #{channel} :/unhost\nMARKENDOFTEXT2\n".format(**config).encode("UTF-8"))
+					endmarker = "MARKENDOFTEXT2"
 
 		if endmarker in line:
 			sock.send(b"quit\n")
@@ -104,15 +114,15 @@ class Application(tk.Frame):
 
 		self.save = tk.Button(self, text="Save host list", command=self.cmd_save)
 		self.save.pack(side="top")
-		self.unhost = tk.Button(self, text="Unhost now", command=self.cmd_unhost)
+		self.unhost = tk.Button(self, text="Check now", command=self.cmd_checkhost)
 		self.unhost.pack(side="top")
 
 	def cmd_save(self):
-		config["hosttargets"] = [name for name in self.hostlist.get(1.0, tk.END).split("\n") if name]
+		config["hosttargets"] = [name for name in self.hostlist.get(1.0, tk.END).lower().split("\n") if name]
 		save_config()
 
-	def cmd_unhost(self):
-		threading.Thread(target=unhost).start()
+	def cmd_checkhost(self):
+		threading.Thread(target=checkhost, args=("devicat",)).start()
 
 	def cmd_login_go_browser(self):
 		webbrowser.open("https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp608isickayubi39itsckt&redirect_uri=https://twitchapps.com/tmi/&scope=chat:read+chat:edit+channel_editor+user_read")
