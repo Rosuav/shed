@@ -9,14 +9,14 @@ TODO Mon?: Autohost manager for AliCatFiberarts (and others).
 """
 
 # Components needed:
-# 1) Hosting control via IRC
+# 1) Hosting control via IRC - mostly done
 # 2) Going-live detection
-# 2a) Poll at a set interval eg 15 mins
-# 2b) Receive webhook notifications from Twitch
-# 3) Authentication, mainly for IRC
-# 3b) Optionally allow user to override channel name (in case you're an editor)
-# 4) Configuration of channel priorities, since we can't query Twitch
-# 5) JSON config storage
+# 2a) Poll at a set interval eg 15 mins - need
+# 2b) Receive webhook notifications from Twitch - nice to have
+# 3) Authentication, mainly for IRC - done
+# 3b) Optionally allow user to override channel name (in case you're an editor) - not done
+# 4) Configuration of channel priorities, since we can't query Twitch - done
+# 5) JSON config storage - done
 
 # Goal: Make this a single-file download with no deps other than Python 3.7+.
 
