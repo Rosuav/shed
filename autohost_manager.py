@@ -99,11 +99,17 @@ class Application(tk.Frame):
 		self.hostlist_frame = tk.LabelFrame(self, text="Autohost list in priority order")
 		self.hostlist_frame.pack(side="top")
 		self.hostlist = tk.Text(self.hostlist_frame, width=30, height=20)
+		self.hostlist.insert(tk.END, "\n".join(config.get("hosttargets", "")))
 		self.hostlist.pack()
-		# self.hostlist.get(1.0, tk.END).split("\n")
 
+		self.save = tk.Button(self, text="Save host list", command=self.cmd_save)
+		self.save.pack(side="top")
 		self.unhost = tk.Button(self, text="Unhost now", command=self.cmd_unhost)
 		self.unhost.pack(side="top")
+
+	def cmd_save(self):
+		config["hosttargets"] = [name for name in self.hostlist.get(1.0, tk.END).split("\n") if name]
+		save_config()
 
 	def cmd_unhost(self):
 		threading.Thread(target=unhost).start()
