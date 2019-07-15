@@ -22,6 +22,7 @@ Usage:
 # 5) JSON config storage - done
 
 # Goal: Make this a single-file download with no deps other than Python 3.7+.
+# Achieved so far; should be maintained so far as is possible.
 
 import json
 from pprint import pprint
