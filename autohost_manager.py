@@ -1,11 +1,14 @@
-"""
-TODO Mon?: Autohost manager for AliCatFiberarts (and others).
-* Have a list of high priority streams, in order (or with priorities)
-* Listen for, or poll for, streams going live
-* If (a) a high priority stream has just gone live, and (b) you are currently hosting, and (c) the hosted stream has lower priority
-* Then send "/unhost" to the channel.
-* Have a very very simple GUI (tkinter?)
-* "Optional: Rename this to autohost_manager.pyw to hide the black box"
+"""Autohost manager for Twitch streams
+
+Usage:
+* Install Python 3.7 or newer, and download this program.
+* Double-click on this script's icon - it should open up a small window.
+* Click "Get a token" to authenticate with Twitch
+* Paste in the token you get back (starting with "oauth:") and click Verify
+* Fill in your autohosts in priority order. (Sorry, can't query that from Twitch.)
+* Click "Save host list" and sit back and relax!
+* Optional: Rename this to autohost_manager.pyw to hide the black window. But if something
+  goes wrong, the black box will have very useful information in it.
 """
 
 # Components needed:
