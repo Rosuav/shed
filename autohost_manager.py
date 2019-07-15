@@ -17,3 +17,5 @@ TODO Mon?: Autohost manager for AliCatFiberarts (and others).
 # 3b) Optionally allow user to override channel name (in case you're an editor)
 # 4) Configuration of channel priorities, since we can't query Twitch
 # 5) JSON config storage
+
+# Goal: Make this a single-file download with no deps other than Python 3.7+.
