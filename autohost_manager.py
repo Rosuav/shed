@@ -28,6 +28,14 @@ import webbrowser
 import tkinter as tk
 import urllib.request
 
+try:
+	with open("autohost_manager.json") as f: config = json.load(f)
+	if not isinstance(config, dict): config = {}
+except (FileNotFoundError, json.decoder.JSONDecodeError):
+	config = {}
+def save_config():
+	with open("autohost_manager.json", "w") as f: json.dump(config, f)
+
 def checkauth(oauth):
 	print("Checking auth...")
 	with urllib.request.urlopen(urllib.request.Request(
@@ -36,8 +44,8 @@ def checkauth(oauth):
 	)) as f:
 		data = json.load(f)
 	pprint(data)
-	global auth # TODO: Save to a file, don't use magic globals
-	auth = {"oauth": oauth, "login": data["name"], "display": data["display_name"], "channel": data["name"]}
+	config.update(oauth=oauth, login=data["name"], display=data["display_name"], channel=data["name"])
+	save_config()
 
 def unhost():
 	print("Unhosting...")
@@ -47,7 +55,7 @@ NICK {login}
 CAP REQ :twitch.tv/commands
 JOIN #{channel}
 MARKENDOFTEXT1
-""".format(**auth).encode("UTF-8"))
+""".format(**config).encode("UTF-8"))
 	endmarker = "MARKENDOFTEXT1"
 	for line in sock.makefile(encoding="UTF-8"):
 		if line.startswith(":tmi.twitch.tv HOSTTARGET #"):
@@ -59,7 +67,7 @@ MARKENDOFTEXT1
 				print("Not hosting")
 			else:
 				print("Currently hosting:", hosting)
-				sock.send("PRIVMSG #{channel} :/unhost\nMARKENDOFTEXT2\n".format(**auth).encode("UTF-8"))
+				sock.send("PRIVMSG #{channel} :/unhost\nMARKENDOFTEXT2\n".format(**config).encode("UTF-8"))
 				endmarker = "MARKENDOFTEXT2"
 
 		if endmarker in line:
@@ -76,6 +84,7 @@ class Application(tk.Frame):
 		self.login_lbl = tk.Label(self.login_frame, text="OAuth token:")
 		self.login_lbl.pack(side="left")
 		self.login_ef = tk.Entry(self.login_frame)
+		self.login_ef.insert(0, config.get("oauth", ""))
 		self.login_ef.pack(side="left")
 		self.login_go_browser = tk.Button(self.login_frame, text="Get a token", command=self.cmd_login_go_browser)
 		self.login_go_browser.pack(side="left")
