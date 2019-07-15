@@ -22,17 +22,11 @@ TODO Mon?: Autohost manager for AliCatFiberarts (and others).
 
 import json
 from pprint import pprint
+import socket
 import threading
 import webbrowser
 import tkinter as tk
 import urllib.request
-
-"""
-PASS oauth:%s
-NICK %s
-CAP REQ :twitch.tv/commands
-JOIN #%s
-"""
 
 def checkauth(oauth):
 	print("Checking auth...")
@@ -42,6 +36,35 @@ def checkauth(oauth):
 	)) as f:
 		data = json.load(f)
 	pprint(data)
+	global auth # TODO: Save to a file, don't use magic globals
+	auth = {"oauth": oauth, "login": data["name"], "display": data["display_name"], "channel": data["name"]}
+
+def unhost():
+	print("Unhosting...")
+	sock = socket.create_connection(("irc.chat.twitch.tv", 6667))
+	sock.send("""PASS oauth:{oauth}
+NICK {login}
+CAP REQ :twitch.tv/commands
+JOIN #{channel}
+MARKENDOFTEXT1
+""".format(**auth).encode("UTF-8"))
+	endmarker = "MARKENDOFTEXT1"
+	for line in sock.makefile(encoding="UTF-8"):
+		if line.startswith(":tmi.twitch.tv HOSTTARGET #"):
+			# VERY VERY rudimentary IRC parsing
+			hosting = line.split(" ")[3]
+			assert hosting and hosting[0] == ":"
+			hosting = hosting[1:]
+			if hosting == "-":
+				print("Not hosting")
+			else:
+				print("Currently hosting:", hosting)
+				sock.send("PRIVMSG #{channel} :/unhost\nMARKENDOFTEXT2\n".format(**auth).encode("UTF-8"))
+				endmarker = "MARKENDOFTEXT2"
+
+		if endmarker in line:
+			sock.send(b"quit\n")
+	print("Closed")
 
 class Application(tk.Frame):
 	def __init__(self, master=None):
@@ -68,11 +91,13 @@ class Application(tk.Frame):
 		self.hostlist_frame.pack(side="top")
 		self.hostlist = tk.Text(self.hostlist_frame, width=30, height=20)
 		self.hostlist.pack()
-		self.show = tk.Button(self, text="Show stuff", command=self.cmd_show)
-		self.show.pack(side="top")
+		# self.hostlist.get(1.0, tk.END).split("\n")
 
-	def cmd_show(self):
-		print(self.hostlist.get(1.0, tk.END))
+		self.unhost = tk.Button(self, text="Unhost now", command=self.cmd_unhost)
+		self.unhost.pack(side="top")
+
+	def cmd_unhost(self):
+		threading.Thread(target=unhost).start()
 
 	def cmd_login_go_browser(self):
 		webbrowser.open("https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp608isickayubi39itsckt&redirect_uri=https://twitchapps.com/tmi/&scope=chat:read+chat:edit+channel_editor+user_read")
