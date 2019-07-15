@@ -9,9 +9,9 @@ TODO Mon?: Autohost manager for AliCatFiberarts (and others).
 """
 
 # Components needed:
-# 1) Hosting control via IRC - mostly done
+# 1) Hosting control via IRC - done
 # 2) Going-live detection
-# 2a) Poll at a set interval eg 15 mins - need
+# 2a) Poll at a set interval eg 15 mins - done
 # 2b) Receive webhook notifications from Twitch - nice to have
 # 3) Authentication, mainly for IRC - done
 # 3b) Optionally allow user to override channel name (in case you're an editor) - not done
@@ -24,6 +24,7 @@ import json
 from pprint import pprint
 import socket
 import threading
+import time
 import webbrowser
 import tkinter as tk
 import urllib.request
@@ -84,6 +85,42 @@ MARKENDOFTEXT1
 			sock.send(b"quit\n")
 	print("Closed")
 
+def poll_for_channels():
+	was_live = {}
+	while "keep polling":
+		if not config.get("hosttargets"):
+			print("No targets, waiting")
+			time.sleep(300)
+			continue
+		page = ""
+		url = "https://api.twitch.tv/helix/streams?" + "&".join("user_login=" + x for x in config["hosttargets"])
+		results = []
+		while "more pages":
+			req = urllib.request.Request(url + page, headers={"Client-ID": "q6batx0epp608isickayubi39itsckt"})
+			with urllib.request.urlopen(req) as f:
+				data = json.load(f)
+			results.extend(data["data"])
+			cursor = data.get("pagination", {}).get("cursor")
+			if not cursor: break # All done!
+			page = "&after=" + cursor
+		print("%d channels are live" % len(results))
+		now_live = {}
+		top_prio, hostme = 0, None
+		for channel in results:
+			chan = channel["user_name"].lower()
+			if chan not in was_live:
+				print("%s has just gone live!" % channel["user_name"])
+				prio = hostpriority(chan)
+				if prio > top_prio: top_prio, hostme = prio, chan
+			now_live[chan] = 1
+		if hostme:
+			# Look at the highest priority channel that's just gone online.
+			# If that's higher prio than the current host, we unhost.
+			# (There's no point checking all the others.)
+			checkhost(hostme)
+		was_live = now_live
+		time.sleep(15 * 60)
+
 class Application(tk.Frame):
 	def __init__(self, master=None):
 		super().__init__(master)
@@ -114,15 +151,10 @@ class Application(tk.Frame):
 
 		self.save = tk.Button(self, text="Save host list", command=self.cmd_save)
 		self.save.pack(side="top")
-		self.unhost = tk.Button(self, text="Check now", command=self.cmd_checkhost)
-		self.unhost.pack(side="top")
 
 	def cmd_save(self):
 		config["hosttargets"] = [name for name in self.hostlist.get(1.0, tk.END).lower().split("\n") if name]
 		save_config()
-
-	def cmd_checkhost(self):
-		threading.Thread(target=checkhost, args=("devicat",)).start()
 
 	def cmd_login_go_browser(self):
 		webbrowser.open("https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=q6batx0epp608isickayubi39itsckt&redirect_uri=https://twitchapps.com/tmi/&scope=chat:read+chat:edit+channel_editor+user_read")
@@ -132,6 +164,7 @@ class Application(tk.Frame):
 		if oauth.startswith("oauth:"): oauth = oauth[6:]
 		threading.Thread(target=checkauth, args=(oauth,)).start()
 
+threading.Thread(target=poll_for_channels, daemon=True).start()
 win = tk.Tk()
 win.title("Autohost manager")
 app = Application(master=win)
