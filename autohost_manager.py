@@ -19,3 +19,29 @@ TODO Mon?: Autohost manager for AliCatFiberarts (and others).
 # 5) JSON config storage
 
 # Goal: Make this a single-file download with no deps other than Python 3.7+.
+
+import tkinter as tk
+
+class Application(tk.Frame):
+	def __init__(self, master=None):
+		super().__init__(master)
+		self.pack()
+		# To prepopulate this, go to https://www.twitch.tv/rosuav/dashboard/settings/autohost
+		# and enter this into the console:
+		# document.querySelector(".autohost-list-edit").innerText
+		# Sadly, the API call /kraken/autohost/list is not documented anywhere and does
+		# not appear to be easily callable :(
+		self.hostlist_frame = tk.LabelFrame(self, text="Autohost list in priority order")
+		self.hostlist_frame.pack(side="top")
+		self.hostlist = tk.Text(self.hostlist_frame, width=30, height=20)
+		self.hostlist.pack()
+		self.show = tk.Button(self, text="Show stuff", command=self.cmd_show)
+		self.show.pack(side="top")
+
+	def cmd_show(self):
+		print(self.hostlist.get(1.0, tk.END))
+
+win = tk.Tk()
+win.title("Autohost manager")
+app = Application(master=win)
+app.mainloop()
