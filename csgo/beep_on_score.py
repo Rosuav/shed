@@ -6,7 +6,7 @@ import pygame.mixer
 FREQ = 44100
 pygame.mixer.init(frequency=FREQ, size=-16, channels=1)
 
-AMPLITUDE = 4096
+AMPLITUDE = 2048
 
 pips = []
 def make_pip(pitch, duration):
@@ -31,7 +31,7 @@ from pprint import pprint
 from flask import Flask, request # ImportError? Try "pip install flask".
 app = Flask(__name__)
 
-last_score = 0
+last_score = {}
 @app.route("/", methods=["POST"])
 def update_configs():
 	if not isinstance(request.json, dict): return "", 400
@@ -39,13 +39,14 @@ def update_configs():
 		if "previously" in request.json: del request.json["previously"]
 		if "added" in request.json: del request.json["added"]
 		if request.json: pprint(request.json)
-	try: score = request.json["player"]["match_stats"]["score"]
-	except KeyError: return "" # Not in a match
-	global last_score
-	if score > last_score:
-		print("Gained", score - last_score)
-		play_pip(score - last_score - 1)
-	last_score = score
+	try:
+		score = request.json["player"]["match_stats"]["score"]
+		person = request.json["player"]["name"]
+	except KeyError: return "" # Probably not in a match
+	if person in last_score and score > last_score[person]:
+		print(person, "gained", score - last_score[person], "=>", score)
+		play_pip(score - last_score[person] - 1)
+	last_score[person] = score
 	return "" # Response doesn't matter
 
 if __name__ == "__main__":
