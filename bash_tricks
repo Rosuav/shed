@@ -1,9 +1,9 @@
 # To make use of this, add a line to your .bashrc saying:
-# source shed/bash_tricks
+# source ~/shed/bash_tricks
 
-# TODO: Add the obs alias with a generic path
-# This will require json_tidy to be brought into shed, which in turn will
-# require that the "default scene" be done generically.
+# Invoke OBS Studio, then tidy up its config files
+# This will make the configs far more git-friendly.
+alias obs='/usr/bin/obs; python3 ~/shed/obs_tidy.py'
 
 # Add this to the end of a command to pop up the terminal window
 # eg: "make; present" to build, then pop up.
