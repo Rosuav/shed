@@ -1,12 +1,7 @@
 Mirror suggested that I could do a "Streamer Advice" stream where I answer
 questions or give advice about streaming tech stuff.
 
-* *Mirror:* Please include information about how OBS remote works, since you
-  said that can be a potential work around if a streamer forgets to end their
-  streaming software.
 * (TODO: Check if SLOBS can use OBS-WebSocket (Win7 VM) or has its own RC)
-* Discuss possible stream bot: automatically stop stream when you start hosting
-  (a sort of molly-guard)
 
 Handy links, in no particular order:
 * https://obsproject.com/
