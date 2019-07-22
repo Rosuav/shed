@@ -15,5 +15,8 @@ questions or give advice about streaming tech stuff.
   granting issues, channel support personal & privileges they can be granted.
 * General tips: install Python 3, use git, have my shed
 * OBS features: Studio Mode, bandwidth test (show example, don't demo), Stats
-  window (View|Stats), locking scene elements
+  window (View|Stats), locking scene elements, source group, scenes as sources,
+  Ctrl-F to Fill space
 * Streaming tools: Mustard Mine, StilleBot
+* Multiple monitors and how to make the most of them
+* StreamDeck, StreamPuppy, OBS Remote Control
