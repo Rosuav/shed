@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+import json
+import os
+import sys
+import pyotp # ImportError? pip install pyotp
+
+SAVEFILE = os.path.expanduser("~/.config/2fa.json") # Assumes Linux for now
+
+try:
+	with open(SAVEFILE) as f: sites = json.load(f)
+except FileNotFoundError:
+	sites = {}
+
+if len(sys.argv) < 2:
+	print("USAGE: 2fa sitename")
+	print("Use any name you like to identify the site. If unknown, will set up.")
+	print(pyotp.TOTP("JBSWY3DPEHPK3PXP", 8).now())
+elif sys.argv[1] in sites:
+	# Plain, no noise. You can pipe this into something or backtick it into
+	# another command without fiddling around.
+	print(pyotp.TOTP(*sites[sys.argv[1]]).now())
+else:
+	site = sys.argv[1]
+	print("Setting up new %r site" % site)
+	print("Hit Ctrl-C to cancel at any time.")
+	secret = input("Enter the shared secret: ").replace(" ", "")
+	digits = int(input("Desired length? [6] ") or "6")
+	print(pyotp.TOTP(secret, digits).now())
+	sites[site] = (secret, digits)
+	with open(SAVEFILE, "w") as f: json.dump(sites, f)
+	print("Saved. Back this file up securely:")
+	print(SAVEFILE)
+	if len(sites) == 1: print("It contains your new shared secret.")
+	else: print("It contains %d shared secrets." % len(sites))
