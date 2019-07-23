@@ -15,6 +15,17 @@ if len(sys.argv) < 2:
 	print("USAGE: 2fa sitename")
 	print("Use any name you like to identify the site. If unknown, will set up.")
 	print(pyotp.TOTP("JBSWY3DPEHPK3PXP", 8).now())
+elif sys.argv[1] == "--install":
+	# Lifted from steamguard
+	import subprocess
+	path = subprocess.check_output(["pkg-config", "--variable=completionsdir", "bash-completion"])
+	path = path.decode("ascii").strip() # Non-ASCII path? I'll figure it out if it ever happens.
+	os.makedirs(path, exist_ok=True)
+	with open(path + "/2fa", "w") as f:
+		print("complete -C '2fa --complete' 2fa", file=f)
+elif sys.argv[1] == "--complete":
+	for site in sorted(sites):
+		if site.startswith(sys.argv[3]): print(site)
 elif sys.argv[1] in sites:
 	# Plain, no noise. You can pipe this into something or backtick it into
 	# another command without fiddling around.
