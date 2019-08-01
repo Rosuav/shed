@@ -16,3 +16,10 @@ Questions will be gathered here for a future stream advice stream.
   - no need to have the other person's stream up, but if you do, mute it
   - keep an eye on both people's chats
   - have a bot command in your title to link to kadgar
+* TODO: Build up a set of documents with tips for streamers at different levels
+  - The absolute minimum you need to know in order to stream
+    - this will be extremely short
+  - Level up your stream
+  - AffiliateCongrats
+  - Raiding
+  - View counts and the difference between affiliate pushes and partner pushes
