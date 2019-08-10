@@ -68,7 +68,7 @@ string Serbian_to_Latin(string input)   {return replace(replace(input,preprocess
 string Latin_to_Ukrainian(string input) {return replace(replace(input,preprocess_r2c),latin/1,ukraine/1);}
 string Ukrainian_to_Latin(string input) {return replace(replace(input,preprocess_c2r),ukraine/1,latin/1);}
 
-void create()
+protected void create()
 {
 	foreach (preprocess,array(string) set)
 		foreach (set[1..],string alias) preprocess_r2c[alias]=set[0];
