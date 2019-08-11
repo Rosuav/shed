@@ -9,6 +9,7 @@ Questions will be gathered here for a future stream advice stream.
   - sub-only mode
   - slow mode
   - emote-only mode, although that's usually a toy
+  - chat delay (don't normally bother)
 * Tips on doing dual streams
   - don't bother trying to host the other person's video - just link to kadgar
   - set up Discord: have two channels, one public and one that you're in
