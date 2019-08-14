@@ -1,5 +1,6 @@
 import os.path
 import struct
+from dataclasses import dataclass # ImportError? Upgrade to Python 3.7 or pip install dataclasses
 
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
@@ -26,10 +27,37 @@ class Consumable:
 
 class SaveFileFormatError(Exception): pass
 
+class ParserMixin:
+	@classmethod
+	def from_buffer(cls, data):
+		fields = list(cls.__dataclass_fields__)
+		values = {}
+		for field in cls.__dataclass_fields__.values():
+			typ = field.type
+			if isinstance(typ, list):
+				values[field.name] = [... for _ in range(data.int())]
+			elif isinstance(typ, tuple):
+				values[field.name] = tuple(... for _ in typ)
+			elif isinstance(typ, int):
+				values[field.name] = data.get(typ)
+			elif typ is int:
+				values[field.name] = data.int()
+			elif typ is str:
+				values[field.name] = data.str()
+			else:
+				print("need to implement:", type(type), typ)
+		return cls(**values)
+
+@dataclass
+class Savefile(ParserMixin):
+	sig: 3
+	ver: int
+
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
-	sig = data.get(3); assert sig == b"WSG" # Schwenck?
-	ver = data.get(4); assert ver == b"\2\0\0\0" # Unknown, probably version
+	savefile = Savefile.from_buffer(data)
+	assert savefile.sig == b"WSG" # Schwenck?
+	assert savefile.ver == 2 # Unknown, probably version
 	type = data.get(4)
 	unknown = data.get(4)
 	cls = data.str().split("_")[-1]
