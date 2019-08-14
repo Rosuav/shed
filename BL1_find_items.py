@@ -34,6 +34,12 @@ def decode_dataclass(data, typ):
 			values[field.name] = decode_dataclass(data, field.type)
 		return typ(**values)
 	if isinstance(typ, list):
+		if len(typ) == 2:
+			# Hack because I have no idea what's going on here
+			# Decode up to a sentinel
+			ret = [decode_dataclass(data, typ[0])]
+			while ret[-1] != typ[1]: ret.append(decode_dataclass(data, typ[0]))
+			return ret
 		return [decode_dataclass(data, typ[0]) for _ in range(data.int())]
 	if isinstance(typ, tuple):
 		return tuple(decode_dataclass(data, t) for t in typ)
@@ -128,13 +134,13 @@ class Savefile:
 	colours: (int, int, int)
 	unknown10: 0x69
 	echo_recordings: [(str, int, int)] # No idea what the ints mean, probably flags about having heard them or something
+	unknown11: [int, 0x43211234] # Unknown values - more of them if you've finished the game??
 
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
 	savefile = decode_dataclass(data, Savefile)
 	assert savefile.last_location in savefile.fasttravels
 	print("%s (%s)" % (savefile.name, savefile.cls.split("_")[-1]))
-	while data.int() != 0x43211234: pass # Unknown values - more of them if you've finished the game??
 	unknown = data.get(59)
 	# Bank weapons maybe?? It's possible the last four bytes of the previous 'unknown' is number of bank items.
 	for _ in range(data.int()):
