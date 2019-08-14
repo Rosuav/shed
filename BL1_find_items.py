@@ -122,22 +122,18 @@ class Savefile:
 	unknown8: (int,) * 5 # [1-4, 39, ??, 3, 0] where the middle one is higher on more-experienced players
 	current_mission: str # I think? Maybe?
 	missions: [Mission]
+	unknown9: ((int, str), (int, str), (int,)*4, (int, str), (int, str), (int,) * 5) # ?? Seem to be more missions?
+	timestamp: str # Last saved? I think?
+	name: str
+	colours: (int, int, int)
+	unknown10: 0x69
+	echo_recordings: [(str, int, int)] # No idea what the ints mean, probably flags about having heard them or something
 
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
 	savefile = decode_dataclass(data, Savefile)
 	assert savefile.last_location in savefile.fasttravels
-	for _ in range(2): unknown = data.int(), data.str() # More missions???
-	unknown = [data.int() for _ in range(4)]
-	for _ in range(2): unknown = data.int(), data.str() # More missions???
-	unknown = [data.int() for _ in range(5)]
-	timestamp = data.str() # Last saved? I think?
-	name = data.str(); print("%s (%s)" % (name, savefile.cls.split("_")[-1]))
-	colours = data.int(), data.int(), data.int()
-	unknown = data.get(0x69)
-	for _ in range(data.int()):
-		echo = data.str();
-		unknown = (data.int(), data.int())
+	print("%s (%s)" % (savefile.name, savefile.cls.split("_")[-1]))
 	while data.int() != 0x43211234: pass # Unknown values - more of them if you've finished the game??
 	unknown = data.get(59)
 	# Bank weapons maybe?? It's possible the last four bytes of the previous 'unknown' is number of bank items.
