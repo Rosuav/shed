@@ -40,6 +40,9 @@ class ParserMixin:
 				values[field.name] = tuple(... for _ in typ)
 			elif isinstance(typ, int):
 				values[field.name] = data.get(typ)
+			elif isinstance(typ, bytes):
+				values[field.name] = data.get(len(typ))
+				assert values[field.name] == typ
 			elif typ is int:
 				values[field.name] = data.int()
 			elif typ is str:
@@ -50,22 +53,19 @@ class ParserMixin:
 
 @dataclass
 class Savefile(ParserMixin):
-	sig: 3
-	ver: int
+	sig: b"WSG"
+	ver: b"\2\0\0\0"
+	type: 4
+	unknown1: 4
+	cls: str
+	level: int
+	unknown2: 4
+	zeroes: bytes(8)
+	unknown3: 8
 
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
 	savefile = Savefile.from_buffer(data)
-	assert savefile.sig == b"WSG" # Schwenck?
-	assert savefile.ver == 2 # Unknown, probably version
-	type = data.get(4)
-	unknown = data.get(4)
-	cls = data.str().split("_")[-1]
-	level = data.int()
-	unknown = data.get(4)
-	zeroes = data.get(8)
-	unknown = data.get(4)
-	unknown = data.get(4) # either 0 or 1?
 	# Skills
 	for _ in range(data.int()):
 		skill = data.hollerith(); level = data.int()
@@ -127,7 +127,7 @@ def parse_savefile(fn):
 	for _ in range(2): unknown = data.int(), data.str() # More missions???
 	unknown = [data.int() for _ in range(5)]
 	timestamp = data.str() # Last saved? I think?
-	name = data.str(); print("%s (%s)" % (name, cls))
+	name = data.str(); print("%s (%s)" % (name, savefile.cls.split("_")[-1]))
 	colours = data.int(), data.int(), data.int()
 	unknown = data.get(0x69)
 	for _ in range(data.int()):
