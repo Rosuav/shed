@@ -50,6 +50,13 @@ def decode_dataclass(data, typ):
 	raise TypeError("need to implement: %r %r" % (type(type), typ))
 
 @dataclass
+class Skill:
+	name: str
+	level: int
+	progress: int # Possibly progress to next level?? Applies only to proficiencies.
+	state: int # Always either -1 or 1
+
+@dataclass
 class Savefile:
 	sig: b"WSG"
 	ver: b"\2\0\0\0"
@@ -58,21 +65,16 @@ class Savefile:
 	cls: str
 	level: int
 	unknown2: 4
-	zeroes: bytes(8)
+	zeroes1: bytes(8)
 	unknown3: 8
+	skills: [Skill]
+	zeroes2: bytes(8)
+	unknown4: int
+	zeroes3: bytes(4)
 
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
 	savefile = decode_dataclass(data, Savefile)
-	# Skills
-	for _ in range(data.int()):
-		skill = data.hollerith(); level = data.int()
-		# print(skill.decode().strip().split(".")[-1], level)
-		unknown = data.get(4) # Possibly progress to next level?? Applies only to proficiencies.
-		unknown = data.get(4) # Always either b"\xff\xff\xff\xff" or b"\1\0\0\0"
-	zeroes = data.get(8)
-	unknown = data.get(4)
-	zeroes = data.get(4)
 	# Ammo
 	for _ in range(data.int()):
 		cat = data.hollerith(); pool = data.hollerith()
