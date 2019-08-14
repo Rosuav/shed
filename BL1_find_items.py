@@ -47,6 +47,8 @@ def decode_dataclass(data, typ):
 		return data.int()
 	if typ is str:
 		return data.str()
+	if typ is float:
+		return struct.unpack("f", data.get(4))[0]
 	raise TypeError("need to implement: %r %r" % (type(type), typ))
 
 @dataclass
@@ -55,6 +57,13 @@ class Skill:
 	level: int
 	progress: int # Possibly progress to next level?? Applies only to proficiencies.
 	state: int # Always either -1 or 1
+
+@dataclass
+class Ammo:
+	cat: str
+	pool: str
+	amount: float # WHY??? Ammo regen maybe???
+	capacity: int # 0 = base capacity, 1 = first upgrade, etc
 
 @dataclass
 class Savefile:
@@ -71,16 +80,11 @@ class Savefile:
 	zeroes2: bytes(8)
 	unknown4: int
 	zeroes3: bytes(4)
+	ammo: [Ammo]
 
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
 	savefile = decode_dataclass(data, Savefile)
-	# Ammo
-	for _ in range(data.int()):
-		cat = data.hollerith(); pool = data.hollerith()
-		amount = int(struct.unpack("f", data.get(4))[0]) # WHY??? Ammo regen maybe???
-		capacity = data.int() # 0 = base capacity, 1 = first upgrade, etc
-		# print(amount, cat.decode().strip().split("_")[-1], "ammo")
 	# Items
 	for _ in range(data.int()):
 		grade = data.str()
