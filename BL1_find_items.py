@@ -135,22 +135,17 @@ class Savefile:
 	unknown10: 0x69
 	echo_recordings: [(str, int, int)] # No idea what the ints mean, probably flags about having heard them or something
 	unknown11: [int, 0x43211234] # Unknown values - more of them if you've finished the game??
+	unknown12: 59
+	bank_weapons: [Weapon] # Bank weapons maybe?? It's possible the last four bytes of the previous 'unknown' is number of bank items.
+	unknown13: (int,) * 6
+	zeroes6: bytes(80)
 
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
 	savefile = decode_dataclass(data, Savefile)
 	assert savefile.last_location in savefile.fasttravels
 	print("%s (%s)" % (savefile.name, savefile.cls.split("_")[-1]))
-	unknown = data.get(59)
-	# Bank weapons maybe?? It's possible the last four bytes of the previous 'unknown' is number of bank items.
-	for _ in range(data.int()):
-		item = [data.str() for _ in range(14)]
-		values = [data.int() for _ in range(5)]
-	# print(struct.unpack("f", data.get(4))[0])
-	unknown = [data.int() for _ in range(6)]
-	print(", ".join(hex(x) for x in unknown))
-	zeroes = data.get(80)
-	assert zeroes == bytes(80)
+	print(", ".join(hex(x) for x in savefile.unknown13))
 	assert len(data) == 0
 	return ""
 
