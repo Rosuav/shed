@@ -45,6 +45,8 @@ def decode_dataclass(data, typ):
 		return ret
 	if typ is int:
 		return data.int()
+	if typ is bytes:
+		return data.hollerith()
 	if typ is str:
 		return data.str()
 	if typ is float:
@@ -87,6 +89,12 @@ class Weapon:
 	values: (int,) * 5 # Again, values[2] seems to be the equip slot (1-4 or 0)
 
 @dataclass
+class Mission:
+	mission: str
+	unknowns: (int, int, int) # Always 4, 0, 0 for done missions, I think? Maybe a status or something.
+	goals: [(str, int)] # Always 0 of these for done missions
+
+@dataclass
 class Savefile:
 	sig: b"WSG"
 	ver: b"\2\0\0\0"
@@ -105,24 +113,20 @@ class Savefile:
 	items: [Item]
 	unknown5: (int, int)
 	weapons: [Weapon]
+	unknown6: bytes # always 1347 bytes long, unknown meaning
+	fasttravels: [str] # Doesn't include DLCs that have yet to be tagged up
+	last_location: str # You'll spawn at this location
+	zeroes4: bytes(12)
+	unknown7: int
+	zeroes5: bytes(4)
+	unknown8: (int,) * 5 # [1-4, 39, ??, 3, 0] where the middle one is higher on more-experienced players
+	current_mission: str # I think? Maybe?
+	missions: [Mission]
 
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
 	savefile = decode_dataclass(data, Savefile)
-	unknown = data.hollerith() # always 1347 bytes long, unknown meaning
-	fasttravels = [data.str() for _ in range(data.int())] # Doesn't include DLCs that have yet to be tagged up
-	last_location = data.str() # You'll spawn at this location
-	assert last_location in fasttravels
-	zeroes = data.get(12)
-	unknown = data.int()
-	zero = data.int()
-	unknowns = [data.int() for _ in range(5)] # [1-4, 39, ??, 3, 0] where the middle one is higher on more-experienced players
-	current_mission = data.str() # I think? Maybe?
-	for _ in range(data.int()):
-		mission = data.str()
-		# print(mission)
-		unknowns = data.int(), data.int(), data.int() # Always 4, 0, 0 for done missions, I think? Maybe a status or something.
-		goals = [(data.str(), data.int()) for _ in range(data.int())] # Always 0 of these for done missions
+	assert savefile.last_location in savefile.fasttravels
 	for _ in range(2): unknown = data.int(), data.str() # More missions???
 	unknown = [data.int() for _ in range(4)]
 	for _ in range(2): unknown = data.int(), data.str() # More missions???
