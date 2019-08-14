@@ -27,32 +27,30 @@ class Consumable:
 
 class SaveFileFormatError(Exception): pass
 
-class ParserMixin:
-	@classmethod
-	def from_buffer(cls, data):
-		fields = list(cls.__dataclass_fields__)
+def decode_dataclass(data, typ):
+	if hasattr(typ, "__dataclass_fields__"):
 		values = {}
-		for field in cls.__dataclass_fields__.values():
-			typ = field.type
-			if isinstance(typ, list):
-				values[field.name] = [... for _ in range(data.int())]
-			elif isinstance(typ, tuple):
-				values[field.name] = tuple(... for _ in typ)
-			elif isinstance(typ, int):
-				values[field.name] = data.get(typ)
-			elif isinstance(typ, bytes):
-				values[field.name] = data.get(len(typ))
-				assert values[field.name] == typ
-			elif typ is int:
-				values[field.name] = data.int()
-			elif typ is str:
-				values[field.name] = data.str()
-			else:
-				print("need to implement:", type(type), typ)
-		return cls(**values)
+		for field in typ.__dataclass_fields__.values():
+			values[field.name] = decode_dataclass(data, field.type)
+		return typ(**values)
+	if isinstance(typ, list):
+		return [decode_dataclass(data, typ[0]) for _ in range(data.int())]
+	if isinstance(typ, tuple):
+		return tuple(decode_dataclass(data, t) for t in typ)
+	if isinstance(typ, int):
+		return data.get(typ)
+	if isinstance(typ, bytes):
+		ret = data.get(len(typ))
+		assert ret == typ
+		return ret
+	if typ is int:
+		return data.int()
+	if typ is str:
+		return data.str()
+	raise TypeError("need to implement: %r %r" % (type(type), typ))
 
 @dataclass
-class Savefile(ParserMixin):
+class Savefile:
 	sig: b"WSG"
 	ver: b"\2\0\0\0"
 	type: 4
@@ -65,7 +63,7 @@ class Savefile(ParserMixin):
 
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
-	savefile = Savefile.from_buffer(data)
+	savefile = decode_dataclass(data, Savefile)
 	# Skills
 	for _ in range(data.int()):
 		skill = data.hollerith(); level = data.int()
