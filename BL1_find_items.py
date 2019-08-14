@@ -66,6 +66,27 @@ class Ammo:
 	capacity: int # 0 = base capacity, 1 = first upgrade, etc
 
 @dataclass
+class Item: # Can't find item level
+	grade: str
+	balance: str
+	pieces: (str,) * 4
+	mfg: str
+	prefix: str
+	title: str
+	values: (int,) * 5 # values[2] seems to be equipped state (1 or 0)
+
+@dataclass
+class Weapon:
+	grade: str
+	mfg: str
+	type: str
+	pieces: (str,) * 8
+	material: str
+	prefix: str
+	title: str
+	values: (int,) * 5 # Again, values[2] seems to be the equip slot (1-4 or 0)
+
+@dataclass
 class Savefile:
 	sig: b"WSG"
 	ver: b"\2\0\0\0"
@@ -81,37 +102,13 @@ class Savefile:
 	unknown4: int
 	zeroes3: bytes(4)
 	ammo: [Ammo]
+	items: [Item]
+	unknown5: (int, int)
+	weapons: [Weapon]
 
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
 	savefile = decode_dataclass(data, Savefile)
-	# Items
-	for _ in range(data.int()):
-		grade = data.str()
-		balance = data.str()
-		pieces = [data.str() for _ in range(4)]
-		mfg = data.str()
-		prefix = data.str()
-		title = data.str()
-		values = [data.int() for _ in range(5)]
-		# values[2] seems to be 1 if equipped, 0 if not
-		# Can't find item level though
-		# print(grade.split(".")[-1], mfg.split(".")[-1], values)
-	unknowns = data.int(), data.int()
-	# print("-- Unknowns between items and weapons:", unknowns)
-	# Weapons
-	for _ in range(data.int()):
-		grade = data.str()
-		mfg = data.str()
-		type = data.str()
-		pieces = [data.str() for _ in range(8)]
-		material = data.str()
-		prefix = data.str()
-		title = data.str()
-		values = [data.int() for _ in range(5)]
-		# values[2] seems to be 1-4 if equipped, 0 if not
-		# Still can't find item level
-		# print(grade.split(".")[-1], mfg.split(".")[-1], values)
 	unknown = data.hollerith() # always 1347 bytes long, unknown meaning
 	fasttravels = [data.str() for _ in range(data.int())] # Doesn't include DLCs that have yet to be tagged up
 	last_location = data.str() # You'll spawn at this location
