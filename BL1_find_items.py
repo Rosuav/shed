@@ -159,7 +159,7 @@ def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
 	savefile = decode_dataclass(data, Savefile)
 	assert savefile.last_location in savefile.fasttravels
-	print("%s (%s)" % (savefile.name, savefile.cls.split("_")[-1]))
+	print("%s (level %d %s)" % (savefile.name, savefile.level, savefile.cls.split("_")[-1]))
 	# print(", ".join(hex(x) for x in savefile.unknown13))
 	# print(*savefile.bank_weapons, sep="\n")
 	assert len(data) == 0
