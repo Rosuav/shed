@@ -51,6 +51,13 @@ def decode_dataclass(data, typ):
 		return ret
 	if typ is int:
 		return data.int()
+	if isinstance(typ, range):
+		# Bounded integer
+		l = len(typ)
+		ret = data.int(1 if l <= 256 else 2 if l <= 65536 else 4)
+		# TODO: Support signed numbers eg range(-128, 127)
+		assert ret in typ
+		return ret
 	if typ is bytes:
 		return data.hollerith()
 	if typ is str:
@@ -95,7 +102,12 @@ class Weapon:
 	material: str
 	prefix: str
 	title: str
-	values: (int,) * 5 # Again, values[2] seems to be the equip slot (1-4 or 0)
+	ammo: int
+	quality: range(65536)
+	level: range(65536)
+	slot: int # 1-4 or 0 for backpack
+	junk: int
+	locked: int
 
 @dataclass
 class BankItem: # Bank items have things in a different order. Weird.
@@ -160,6 +172,8 @@ def parse_savefile(fn):
 	savefile = decode_dataclass(data, Savefile)
 	assert savefile.last_location in savefile.fasttravels
 	print("%s (level %d %s)" % (savefile.name, savefile.level, savefile.cls.split("_")[-1]))
+	for weapon in sorted(savefile.weapons, key=lambda w: w.slot or 5):
+		print("%d: [%d-%d] %s %s" % (weapon.slot, weapon.level, weapon.quality, weapon.prefix.split(".")[-1], weapon.title.split(".")[-1]))
 	# print(", ".join(hex(x) for x in savefile.unknown13))
 	# print(*savefile.bank_weapons, sep="\n")
 	assert len(data) == 0
