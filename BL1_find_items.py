@@ -129,10 +129,10 @@ class Savefile:
 	sig: b"WSG"
 	ver: b"\2\0\0\0"
 	type: 4
-	unknown1: 4
+	revision: int
 	cls: str
 	level: int
-	unknown2: 4
+	xp: int
 	zeroes1: bytes(8)
 	unknown3: 8
 	skills: [Skill]
@@ -141,9 +141,10 @@ class Savefile:
 	zeroes3: bytes(4)
 	ammo: [Ammo]
 	items: [Item]
-	unknown5: (int, int)
+	backpacksize: int
+	weaponslots: int
 	weapons: [Weapon]
-	unknown6: bytes # always 1347 bytes long, unknown meaning
+	unknown6: bytes # always 1347 bytes long, unknown meaning - something to do with challenges?
 	fasttravels: [str] # Doesn't include DLCs that have yet to be tagged up
 	last_location: str # You'll spawn at this location
 	zeroes4: bytes(12)
@@ -156,8 +157,13 @@ class Savefile:
 	timestamp: str # Last saved? I think?
 	name: str
 	colours: (int, int, int)
-	unknown10: 0x69
+	enhancedblock: 0x55 # ???
+	unknown10: int
+	promocodes: [int]
+	promocodes_new: [int]
+	unknown10a: 8
 	echo_recordings: [(str, int, int)] # No idea what the ints mean, probably flags about having heard them or something
+	shim: print
 	unknown11: [int, 0x43211234] # Unknown values - more of them if you've finished the game??
 	unknown12: 9
 	bank_weapons: [(14, str, str, str, 13, str, str, str, 13, str, str, str, 3, print)]
