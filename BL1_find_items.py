@@ -57,6 +57,9 @@ def decode_dataclass(data, typ):
 		return data.str()
 	if typ is float:
 		return struct.unpack("f", data.get(4))[0]
+	if typ is print:
+		print(data.peek()[:16], len(data))
+		return None
 	raise TypeError("need to implement: %r %r" % (type(type), typ))
 
 @dataclass
@@ -76,7 +79,7 @@ class Ammo:
 @dataclass
 class Item: # Can't find item level
 	grade: str
-	balance: str
+	type: str
 	pieces: (str,) * 4
 	mfg: str
 	prefix: str
@@ -93,6 +96,15 @@ class Weapon:
 	prefix: str
 	title: str
 	values: (int,) * 5 # Again, values[2] seems to be the equip slot (1-4 or 0)
+
+@dataclass
+class BankItem: # Bank items have things in a different order. Weird.
+	type: str
+	grade: str
+	mfg: str
+	pieces: (str,) * 4
+	prefix: str
+	title: str
 
 @dataclass
 class Mission:
@@ -136,10 +148,10 @@ class Savefile:
 	echo_recordings: [(str, int, int)] # No idea what the ints mean, probably flags about having heard them or something
 	unknown11: [int, 0x43211234] # Unknown values - more of them if you've finished the game??
 	unknown12: 9
-	bank_weapons: [int] # not actually integers
+	bank_weapons: [(14, str, str, str, 13, str, str, str, 13, str, str, str, 3, print)]
 	unknown13: 42
 	unknown: int
-	unknown_weapons: [Weapon] # Bank weapons maybe?? It's possible the last four bytes of the previous 'unknown' is number of bank items.
+	unknown_weapons: [Weapon] # Some sort of special weapons
 	unknown99: (int,) * 6
 	zeroes6: bytes(80)
 
