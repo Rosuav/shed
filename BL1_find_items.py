@@ -246,11 +246,12 @@ def parse_savefile(fn):
 	# print(", ".join(hex(x) for x in savefile.unknown13))
 	# print(*savefile.bank_weapons, sep="\n")
 	assert len(data) == 0
-	savefile.name = "PATCHED"
-	for ammo in savefile.ammo:
-		if ammo.amount > 10: ammo.amount -= 1.0
-	synthesized = encode_dataclass(savefile, Savefile)
-	with open(os.path.basename(fn), "wb") as f: f.write(synthesized)
+	if 0:
+		savefile.name = "PATCHED"
+		for ammo in savefile.ammo:
+			if ammo.amount > 10: ammo.amount -= 1.0
+		synthesized = encode_dataclass(savefile, Savefile)
+		with open(os.path.basename(fn), "wb") as f: f.write(synthesized)
 	return ""
 
 dir = os.path.expanduser("~/.steam/steam/steamapps/compatdata/729040/pfx/drive_c/users/steamuser/My Documents/My Games/Borderlands Game of the Year/Binaries/SaveData")
