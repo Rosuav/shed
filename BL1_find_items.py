@@ -67,7 +67,7 @@ def decode_dataclass(data, typ):
 	if typ is print:
 		print(data.peek()[:16], len(data))
 		return None
-	raise TypeError("need to implement: %r %r" % (type(type), typ))
+	raise TypeError("need to implement: %r %r" % (type(typ), typ))
 
 def encode_dataclass(data, typ):
 	if hasattr(typ, "__dataclass_fields__"):
