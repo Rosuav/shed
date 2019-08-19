@@ -236,7 +236,7 @@ class Savefile:
 	unknown8: b"\x27\0\0\0"
 	unknown8a: int # Higher on more-experienced players, up to 45 on completion of main plot
 	missions: [MissionBlock]
-	unknown9: int
+	playtime: int
 	timestamp: str # Last saved? I think?
 	name: str
 	colours: (int, int, int)
