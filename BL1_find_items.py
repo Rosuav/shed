@@ -188,13 +188,12 @@ class Savefile:
 	promocodes_new: [int]
 	unknown10a: 8
 	echo_recordings: [(str, int, int)] # No idea what the ints mean, probably flags about having heard them or something
-	shim: print
 	unknown11: [int, 0x43211234] # Unknown values - more of them if you've finished the game??
 	unknown12: 9
 	bank_weapons: [(14, str, str, str, 13, str, str, str, 13, str, str, str, 3, print)]
 	unknown13: 42
-	unknown: int
-	unknown_weapons: [Weapon] # Some sort of special weapons
+	dlc_items: [Item] # DLC-only items??
+	dlc_weapons: [Weapon] # Ditto
 	unknown99: (int,) * 6
 	zeroes6: bytes(80)
 
@@ -203,7 +202,7 @@ def parse_savefile(fn):
 	savefile = decode_dataclass(data, Savefile)
 	assert savefile.last_location in savefile.fasttravels
 	print("%s (level %d %s, $%d)" % (savefile.name, savefile.level, savefile.cls.split("_")[-1], savefile.money))
-	for weapon in sorted(savefile.weapons, key=lambda w: w.slot or 5):
+	for weapon in sorted(savefile.weapons + savefile.dlc_weapons, key=lambda w: w.slot or 5):
 		print("%d: [%d-%d] %s %s" % (weapon.slot, weapon.level, weapon.quality, weapon.prefix.split(".")[-1], weapon.title.split(".")[-1]))
 	# print(", ".join(hex(x) for x in savefile.unknown13))
 	# print(*savefile.bank_weapons, sep="\n")
