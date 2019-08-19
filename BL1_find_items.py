@@ -184,8 +184,15 @@ class BankItem: # Bank items have things in a different order. Weird.
 @dataclass
 class Mission:
 	mission: str
-	unknowns: (int, int, int) # Always 4, 0, 0 for done missions, I think? Maybe a status or something.
+	progress: int # 4 for done missions
+	unknown: (int, int)
 	goals: [(str, int)] # Always 0 of these for done missions
+
+@dataclass
+class MissionBlock:
+	id: int # Sequentially numbered blocks
+	current_mission: str # I think? Maybe?
+	missions: [Mission]
 
 @dataclass
 class Challenges:
@@ -228,10 +235,8 @@ class Savefile:
 	savefile_index: int # Possibly needs to correspond to the file name??
 	unknown8: b"\x27\0\0\0"
 	unknown8a: int # Higher on more-experienced players, up to 45 on completion of main plot
-	unknown8b: (int, int) # Always (3, 0)
-	current_mission: str # I think? Maybe?
-	missions: [Mission]
-	unknown9: ((int, str), (int, str), (int,)*4, (int, str), (int, str), (int,) * 5) # ?? Seem to be more missions?
+	missions: [MissionBlock]
+	unknown9: int
 	timestamp: str # Last saved? I think?
 	name: str
 	colours: (int, int, int)
@@ -259,7 +264,6 @@ def parse_savefile(fn):
 		print("%d: [%d-%d] %s %s" % (weapon.slot, weapon.level, weapon.quality, weapon.prefix.split(".")[-1], weapon.title.split(".")[-1]))
 	# print(", ".join(hex(x) for x in savefile.unknown13))
 	# print(*savefile.bank_weapons, sep="\n")
-	print(savefile.unknown8)
 	assert len(data) == 0
 	assert encode_dataclass(savefile, Savefile) == data.data
 	if 0:
