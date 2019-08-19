@@ -134,7 +134,8 @@ class Savefile:
 	level: int
 	xp: int
 	zeroes1: bytes(8)
-	unknown3: 8
+	money: int
+	unknown3: 4
 	skills: [Skill]
 	zeroes2: bytes(8)
 	unknown4: int
@@ -177,7 +178,7 @@ def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
 	savefile = decode_dataclass(data, Savefile)
 	assert savefile.last_location in savefile.fasttravels
-	print("%s (level %d %s)" % (savefile.name, savefile.level, savefile.cls.split("_")[-1]))
+	print("%s (level %d %s, $%d)" % (savefile.name, savefile.level, savefile.cls.split("_")[-1], savefile.money))
 	for weapon in sorted(savefile.weapons, key=lambda w: w.slot or 5):
 		print("%d: [%d-%d] %s %s" % (weapon.slot, weapon.level, weapon.quality, weapon.prefix.split(".")[-1], weapon.title.split(".")[-1]))
 	# print(", ".join(hex(x) for x in savefile.unknown13))
