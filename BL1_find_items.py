@@ -69,6 +69,45 @@ def decode_dataclass(data, typ):
 		return None
 	raise TypeError("need to implement: %r %r" % (type(type), typ))
 
+def encode_dataclass(data, typ):
+	if hasattr(typ, "__dataclass_fields__"):
+		ret = []
+		for field in typ.__dataclass_fields__.values():
+			ret.append(encode_dataclass(getattr(data, field.name), field.type))
+		return b"".join(ret)
+	if isinstance(typ, list):
+		if len(typ) == 2:
+			# Hack, as above
+			# Decode up to a sentinel
+			assert data[-1] == typ[1]
+			return b"".join(encode_dataclass(val, typ[0]) for val in data)
+		return encode_dataclass(len(data), int) + b"".join(encode_dataclass(val, typ[0]) for val in data)
+	if isinstance(typ, tuple):
+		return b"".join(encode_dataclass(val, t) for val, t in zip(data, typ))
+	if isinstance(typ, int):
+		assert len(data) == typ
+		return data
+	if isinstance(typ, bytes):
+		assert data == typ
+		return data
+	if typ is int:
+		return data.to_bytes(4, "little")
+	if isinstance(typ, range):
+		# Bounded integer
+		l = len(typ)
+		assert data in typ
+		# TODO as above, signed integers
+		return data.to_bytes(1 if l <= 256 else 2 if l <= 65536 else 4, "little")
+	if typ is bytes:
+		return encode_dataclass(len(data), int) + data
+	if typ is str:
+		return encode_dataclass(data.encode("ascii") + b"\x00", bytes)
+	if typ is float:
+		return struct.pack("f", data)
+	if typ is print:
+		return b""
+	raise TypeError("need to implement: %r %r" % (type(type), typ))
+
 # For anyone reading this file to try to understand the save file format:
 # Firstly, be sure to also read the WillowTree# source code, which is more
 # comprehensive but less comprehensible than this - you can find it at
@@ -207,6 +246,11 @@ def parse_savefile(fn):
 	# print(", ".join(hex(x) for x in savefile.unknown13))
 	# print(*savefile.bank_weapons, sep="\n")
 	assert len(data) == 0
+	savefile.name = "PATCHED"
+	for ammo in savefile.ammo:
+		if ammo.amount > 10: ammo.amount -= 1.0
+	synthesized = encode_dataclass(savefile, Savefile)
+	with open(os.path.basename(fn), "wb") as f: f.write(synthesized)
 	return ""
 
 dir = os.path.expanduser("~/.steam/steam/steamapps/compatdata/729040/pfx/drive_c/users/steamuser/My Documents/My Games/Borderlands Game of the Year/Binaries/SaveData")
