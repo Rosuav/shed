@@ -189,20 +189,18 @@ class Mission:
 
 @dataclass
 class Savefile:
-	sig: b"WSG"
-	ver: b"\2\0\0\0"
-	type: 4
+	sig: b"WSG" # If it's not, this might be an Xbox save file
+	ver: b"\2\0\0\0" # If it's not, this might be a big-endian PS3 save file
+	type: b"PLYR"
 	revision: int
 	cls: str
 	level: int
 	xp: int
 	zeroes1: bytes(8)
 	money: int
-	unknown3: 4
+	finished_once: int # 1 if you've finished the first playthrough
 	skills: [Skill]
-	zeroes2: bytes(8)
-	unknown4: int
-	zeroes3: bytes(4)
+	vehicle_info: (int,) * 4 # Vehicle info
 	ammo: [Ammo]
 	items: [Item]
 	backpacksize: int
