@@ -195,7 +195,7 @@ class Challenges:
 	@dataclass
 	class Challenge:
 		id: range(65536)
-		type: range(256)
+		type: range(256) # Either 1 or 5, usually 1
 		value: int
 	count: b"\xbf\0" # Number of entries - it's 16-bit but otherwise same as saying [Challenge]
 	challenges: (Challenge,) * 191
@@ -225,7 +225,10 @@ class Savefile:
 	zeroes4: bytes(12)
 	unknown7: int
 	zeroes5: bytes(4)
-	unknown8: (int,) * 5 # [1-4, 39, ??, 3, 0] where the middle one is higher on more-experienced players
+	savefile_index: int # Possibly needs to correspond to the file name??
+	unknown8: b"\x27\0\0\0"
+	unknown8a: int # Higher on more-experienced players, up to 45 on completion of main plot
+	unknown8b: (int, int) # Always (3, 0)
 	current_mission: str # I think? Maybe?
 	missions: [Mission]
 	unknown9: ((int, str), (int, str), (int,)*4, (int, str), (int, str), (int,) * 5) # ?? Seem to be more missions?
@@ -256,6 +259,7 @@ def parse_savefile(fn):
 		print("%d: [%d-%d] %s %s" % (weapon.slot, weapon.level, weapon.quality, weapon.prefix.split(".")[-1], weapon.title.split(".")[-1]))
 	# print(", ".join(hex(x) for x in savefile.unknown13))
 	# print(*savefile.bank_weapons, sep="\n")
+	print(savefile.unknown8)
 	assert len(data) == 0
 	assert encode_dataclass(savefile, Savefile) == data.data
 	if 0:
