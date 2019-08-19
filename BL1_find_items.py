@@ -69,6 +69,30 @@ def decode_dataclass(data, typ):
 		return None
 	raise TypeError("need to implement: %r %r" % (type(type), typ))
 
+# For anyone reading this file to try to understand the save file format:
+# Firstly, be sure to also read the WillowTree# source code, which is more
+# comprehensive but less comprehensible than this - you can find it at
+# http://willowtree.sourceforge.net. Everything in here came either from my
+# own explorations with a hex editor or from reading the WillowTree# source.
+# Secondly, these classes represent different structures within the file;
+# fields are laid out sequentially with no padding.
+# Annotation	Meaning
+# int		32-bit unsigned integer
+# float		32-bit IEEE binary floating-point
+# bytes		Hollerith byte string consisting of a 32-bit length followed
+#		by that many bytes of raw data
+# str		Hollerith text string: 32-bit length, that many bytes of ASCII
+#		data, then b"\0" (included in the length)
+# b"..."	Exactly those bytes. Used for signatures etc.
+# range(N)	Integer within the given range, taking up the minimum space
+#		(so a range(65536) is a 16-bit integer)
+# AnyClassName	One instance of the named class (potentially recursive)
+# (x,y,z)	The given values in that exact order. Identical in the file to
+#		having the same three annotations separately identified.
+# [x]		Hollerith array: 32-bit length, then that many instances of
+#		whatever is in the list (so [int] would make an array of ints).
+# [x, marker]	HACK. Reads type x until it matches the marker. :(
+
 @dataclass
 class Skill:
 	name: str
