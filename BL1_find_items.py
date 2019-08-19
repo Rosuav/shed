@@ -244,6 +244,7 @@ def parse_savefile(fn):
 	# print(", ".join(hex(x) for x in savefile.unknown13))
 	# print(*savefile.bank_weapons, sep="\n")
 	assert len(data) == 0
+	assert encode_dataclass(savefile, Savefile) == data.data
 	if 0:
 		savefile.name = "PATCHED"
 		for ammo in savefile.ammo:
