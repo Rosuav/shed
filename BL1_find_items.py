@@ -188,6 +188,19 @@ class Mission:
 	goals: [(str, int)] # Always 0 of these for done missions
 
 @dataclass
+class Challenges:
+	outer_length: b"\x43\x05\0\0" # Length of this entire structure (not counting itself)
+	id: b"\3\0\0\0"
+	inner_length: b"\x3b\x05\0\0" # Length of the rest of the structure. Yes, exactly 8 less than outer_length.
+	@dataclass
+	class Challenge:
+		id: range(65536)
+		type: range(256)
+		value: int
+	count: b"\xbf\0" # Number of entries - it's 16-bit but otherwise same as saying [Challenge]
+	challenges: (Challenge,) * 191
+
+@dataclass
 class Savefile:
 	sig: b"WSG" # If it's not, this might be an Xbox save file
 	ver: b"\2\0\0\0" # If it's not, this might be a big-endian PS3 save file
@@ -206,7 +219,7 @@ class Savefile:
 	backpacksize: int
 	weaponslots: int
 	weapons: [Weapon]
-	unknown6: bytes # always 1347 bytes long, unknown meaning - something to do with challenges?
+	challenges: Challenges
 	fasttravels: [str] # Doesn't include DLCs that have yet to be tagged up
 	last_location: str # You'll spawn at this location
 	zeroes4: bytes(12)
