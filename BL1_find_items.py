@@ -270,6 +270,16 @@ def parse_savefile(fn):
 		savefile.name = "PATCHED"
 		for ammo in savefile.ammo:
 			if ammo.amount > 10: ammo.amount -= 1.0
+		newweaps = []
+		for weapon in savefile.weapons:
+			if weapon.slot:
+				for quality in range(weapon.quality, 6):
+					newweap = Weapon(**vars(weapon))
+					newweap.quality = quality
+					newweap.slot = 0
+					# print(newweap)
+					newweaps.append(newweap)
+		savefile.weapons.extend(newweaps) # Don't change the list while we're iterating over it
 		synthesized = encode_dataclass(savefile, Savefile)
 		with open(os.path.basename(fn), "wb") as f: f.write(synthesized)
 	return ""
