@@ -277,7 +277,7 @@ def parse_savefile(fn):
 	if 0:
 		savefile.name = "PATCHED"
 		'''
-		for quality in (3,4,5,5):
+		for quality in range(2, 6):
 			savefile.items.append(Item(
 				grade="gd_itemgrades.Gear.ItemGrade_Gear_Shield",
 				type='gd_shields.A_Item.Item_Shield',
