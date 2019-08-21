@@ -275,8 +275,28 @@ def parse_savefile(fn):
 	assert encode_dataclass(savefile, Savefile) == data.data
 	if 0:
 		savefile.name = "PATCHED"
+		'''
+		for quality in (3,4,5,5):
+			savefile.items.append(Item(
+				grade="gd_itemgrades.Gear.ItemGrade_Gear_Shield",
+				type='gd_shields.A_Item.Item_Shield',
+				pieces=[
+					"gd_shields.Body.body3b_power",
+					"gd_shields.LeftSide.leftside4",
+					"gd_shields.RightSide.rightside4",
+					"gd_shields.ManufacturerMaterials.Material_Torgue_3",
+				],
+				mfg='gd_manufacturers.Manufacturers.Torgue',
+				prefix="gd_shields.Prefix.Prefix_Max4_Impenetrable",
+				title="gd_shields.Title.Title_Torgue3_MachoShield",
+				unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
+			))
+		'''
+		'''
 		for ammo in savefile.ammo:
 			if ammo.amount > 10: ammo.amount -= 1.0
+		'''
+		'''
 		newweaps = []
 		for weapon in savefile.weapons:
 			if weapon.slot:
@@ -287,6 +307,7 @@ def parse_savefile(fn):
 					# print(newweap)
 					newweaps.append(newweap)
 		savefile.weapons.extend(newweaps) # Don't change the list while we're iterating over it
+		'''
 		synthesized = encode_dataclass(savefile, Savefile)
 		with open(os.path.basename(fn), "wb") as f: f.write(synthesized)
 	return ""
