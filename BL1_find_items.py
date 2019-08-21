@@ -271,6 +271,7 @@ def parse_savefile(fn):
 		print("%d: [%d-%d] %s %s" % (item.slot, item.level, item.quality, item.prefix.split(".")[-1], item.title.split(".")[-1]))
 	# print(", ".join(hex(x) for x in savefile.unknown13))
 	# print(*savefile.bank_weapons, sep="\n")
+	print(len(savefile.unknown11), savefile.unknown11)
 	assert len(data) == 0
 	assert encode_dataclass(savefile, Savefile) == data.data
 	if 0:
