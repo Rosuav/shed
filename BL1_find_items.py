@@ -154,7 +154,12 @@ class Item: # Can't find item level
 	mfg: str
 	prefix: str
 	title: str
-	values: (int,) * 5 # values[2] seems to be equipped state (1 or 0)
+	unknown: int
+	quality: range(65536)
+	level: range(65536)
+	slot: int # 1 if equipped or 0 for backpack
+	junk: int
+	locked: int
 
 @dataclass
 class Weapon:
@@ -262,6 +267,8 @@ def parse_savefile(fn):
 	print("%s (level %d %s, $%d)" % (savefile.name, savefile.level, savefile.cls.split("_")[-1], savefile.money))
 	for weapon in sorted(savefile.weapons + savefile.dlc_weapons, key=lambda w: w.slot or 5):
 		print("%d: [%d-%d] %s %s" % (weapon.slot, weapon.level, weapon.quality, weapon.prefix.split(".")[-1], weapon.title.split(".")[-1]))
+	for item in sorted(savefile.items + savefile.dlc_items, key=lambda w: w.slot or 5):
+		print("%d: [%d-%d] %s %s" % (item.slot, item.level, item.quality, item.prefix.split(".")[-1], item.title.split(".")[-1]))
 	# print(", ".join(hex(x) for x in savefile.unknown13))
 	# print(*savefile.bank_weapons, sep="\n")
 	assert len(data) == 0
