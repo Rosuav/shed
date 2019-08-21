@@ -294,6 +294,58 @@ def parse_savefile(fn):
 			))
 		'''
 		'''
+		for quality in range(3, 6):
+			savefile.items.append(Item(
+				grade="gd_itemgrades.Gear.ItemGrade_Gear_ComDeck_Brick",
+				type='gd_CommandDecks.A_Item.Item_CommandDeck_Brick',
+				pieces=[
+					"gd_CommandDecks.Body_Brick.Brick_Warmonger",
+					"gd_CommandDecks.LeftSide.leftside6b",
+					"gd_CommandDecks.RightSide.rightside6",
+					"gd_CommandDecks.ManufacturerMaterials.Material_Torgue_2",
+				],
+				mfg='gd_manufacturers.Manufacturers.Torgue',
+				prefix="gd_CommandDecks.Prefix.Prefix_Brick_Warmonger",
+				title="gd_CommandDecks.Title.Title_ComDeckBrick",
+				unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
+			))
+		'''
+		'''
+		for quality in range(3, 6):
+			savefile.items.append(Item(
+				grade="gd_itemgrades.Gear.ItemGrade_Gear_ComDeck_Lilith",
+				type='gd_CommandDecks.A_Item.Item_CommandDeck_Lilith',
+				pieces=[
+					"gd_CommandDecks.Body_Lilith.Lilith_Mercenary",
+					"gd_CommandDecks.LeftSide.leftside6",
+					"gd_CommandDecks.RightSide.rightside6",
+					"gd_CommandDecks.ManufacturerMaterials.Material_Dahl_3",
+				],
+				mfg='gd_manufacturers.Manufacturers.Dahl',
+				prefix="gd_CommandDecks.Prefix.Prefix_Lilith_Mercenary",
+				title="gd_CommandDecks.Title.Title_ComDeckLilith",
+				unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
+			))
+		'''
+		'''
+		import itertools
+		for quality, left, mfg, mat in itertools.product(range(3, 6), ["leftside6", "leftside6c"], ["Pangolin", "Maliwan"], "23"):
+			savefile.items.append(Item(
+				grade="gd_itemgrades.Gear.ItemGrade_Gear_ComDeck_Mordecai",
+				type='gd_CommandDecks.A_Item.Item_CommandDeck_Mordecai',
+				pieces=[
+					"gd_CommandDecks.Body_Mordecai.Mordecai_Survivor",
+					"gd_CommandDecks.LeftSide." + left,
+					"gd_CommandDecks.RightSide.rightside6",
+					"gd_CommandDecks.ManufacturerMaterials.Material_%s_%s" % (mfg, mat),
+				],
+				mfg='gd_manufacturers.Manufacturers.' + mfg,
+				prefix="gd_CommandDecks.Prefix.Prefix_Mordecai_Survivor",
+				title="gd_CommandDecks.Title.Title_ComDeckMordecai",
+				unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
+			))
+		'''
+		'''
 		for ammo in savefile.ammo:
 			if ammo.amount > 10: ammo.amount -= 1.0
 		'''
