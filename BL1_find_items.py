@@ -189,7 +189,7 @@ class BankItem: # Bank items have things in a different order. Weird.
 @dataclass
 class Mission:
 	mission: str
-	progress: int # 4 for done missions
+	progress: int # 1 = active, 2 = complete, 4 = turned in. Not sure if bitwise or enumeration.
 	unknown: (int, int)
 	goals: [(str, int)] # Always 0 of these for done missions
 
