@@ -277,6 +277,14 @@ def parse_savefile(fn):
 	if 0:
 		savefile.name = "PATCHED"
 		'''
+		for block in savefile.missions:
+			for mission in block.missions:
+				if mission.progress == 1:
+					if mission.mission == "dlc3_MainMissions.MainMissions.M_dlc3_PrisonInfiltrate":
+						mission.goals[0] = ('None', 1)
+					print(mission)
+		'''
+		'''
 		for quality in range(2, 6):
 			savefile.items.append(Item(
 				grade="gd_itemgrades.Gear.ItemGrade_Gear_Shield",
