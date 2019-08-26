@@ -21,7 +21,12 @@ def ping():
 	info = json.JSONDecoder().raw_decode(text)[0]
 	campaign = info["feed"]["campaign"][0]
 	currency = campaign["currencycode"]
-	print("Current total: %d %s" % (campaign["current_amount"], currency))
+	total = "%d %s" % (campaign["current_amount"], currency)
+	if "" not in seen:
+		print("Current total:", total)
+	else:
+		if seen[""] != total: print("\x1b[1;32mNew total: " + total + "\x1b[0m")
+	seen[""] = total
 	# Scan the donations oldest first. New ones will get added underneath.
 	for dono in reversed(info["feed"]["donations"]):
 		id = dono["donation_id"]
