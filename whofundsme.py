@@ -2,7 +2,6 @@
 import json
 import time
 import textwrap
-from pprint import pprint
 import requests
 
 POLL_INTERVAL = 60 # seconds
