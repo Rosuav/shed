@@ -79,7 +79,7 @@ The Quotes
 - Chandra Nalaar (Chandra's Fury - Magic Origins)
 
 [CENSORED] never believed in using her "inside voice".
-- Chandra Nalaar ([Chandra's Outrage](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Chandra's Outrage))
+- Chandra Nalaar ([Chandra's Outrage](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=226585))
 
 "Which do you think is the better deterrent: a moat of water or one of fire?"
 - Chandra Nalaar ([Circle of Flame](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Circle of Flame))
@@ -106,7 +106,7 @@ The Quotes
 - Chandra Nalaar ([Magma Rift](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Magma Rift))
 
 "Who'd want to ignite things one at a time?"
-- Chandra Nalaar ([Pyroclasm](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Pyroclasm))
+- Chandra Nalaar ([Pyroclasm](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=208009))
 
 "I like it here. You always get a little more for your mana."
 - Chandra Nalaar ([Rumbling Aftershocks](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Rumbling Aftershocks))
