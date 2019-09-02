@@ -12,8 +12,8 @@ $header: #007f00;
 body {background: $body-background;}
 h1, h2, h3, h4, h5, h6 {color: $header !important;}
 
-/* Improve colour contrast for anchors
-a {color: #3366f5 !important;}
+/* Improve colour contrast for anchors */
+a {color: #3366f5;}
 
 /* Give alternating highlight colours to table rows for Death Whistle */
 tr:nth-child(odd)  {background: #fff !important;}
