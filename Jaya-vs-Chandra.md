@@ -19,19 +19,19 @@ The Quotes
 - Jaya Ballard ([Chicken Egg](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Chicken Egg))
 
 "I strive for elegance and speed in my work."
-- Jaya Ballard ([Flare](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Flare))
+- Jaya Ballard ([Flare](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=2621))
 
 "Oh, no - not /you/ again?!"
-- Jaya Ballard ([Gorilla Chieftain](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Gorilla Chieftain))
+- Jaya Ballard ([Gorilla Chieftain](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=3143))
 
 "Frankly, destruction is best left to professionals."
-- Jaya Ballard ([Gorilla Shaman](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Gorilla Shaman))
+- Jaya Ballard ([Gorilla Shaman](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=3171))
 
 "The only 'art' these beasts possess is the art of noise!"
-- Jaya Ballard ([Gorilla War Cry](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Gorilla War Cry))
+- Jaya Ballard ([Gorilla War Cry](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=3173))
 
 "Yes, I think 'toast' is an appropriate description."
-- Jaya Ballard ([Incinerate](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Incinerate))
+- Jaya Ballard ([Incinerate](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=2630))
 
 "Some have said there is no subtlety to destruction. You know what? They're dead."
 - Jaya Ballard ([Inferno](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Inferno))
@@ -46,22 +46,22 @@ The Quotes
 - Jaya Ballard ([Meteor Shower](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Meteor Shower))
 
 "And /I/ say north is where I /want/ it to be!"
-- Jaya Ballard ([Mystic Compass](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Mystic Compass))
+- Jaya Ballard ([Mystic Compass](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=3050))
 
 "If you'd been there, you would've run from that deer, too!"
 - Jaya Ballard ([Panic](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Panic))
 
 "Just the thing for those pesky water mages."
-- Jaya Ballard ([Pyroblast](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Pyroblast))
+- Jaya Ballard ([Pyroblast](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=2649))
 
 "Leaves more room for the big ones to fight in, you know."
-- Jaya Ballard ([Pyroclasm](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Pyroclasm))
+- Jaya Ballard ([Pyroclasm](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=2650))
 
 "Anybody want some... /toast/?"
-- Jaya Ballard ([Pyrokinesis](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Pyrokinesis))
+- Jaya Ballard ([Pyrokinesis](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=3180))
 
 "All my spells smell like burnt hair lately."
-- Jaya Ballard ([Simian Spirit Guide](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Simian Spirit Guide))
+- Jaya Ballard ([Simian Spirit Guide](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=124474))
 
 "Of course you should fight fire with fire. You should fight /everything/ with fire."
 - Jaya Ballard ([Sizzle](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Sizzle))
@@ -70,7 +70,7 @@ The Quotes
 - Jaya Ballard ([Wall of Lava](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Wall of Lava))
 
 "Walls? What walls?"
-- Jaya Ballard ([Word of Blasting](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Word of Blasting))
+- Jaya Ballard ([Word of Blasting](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=2660))
 
 "I asked if they wanted to do things the easy way. I meant easy for me."
 - Chandra Nalaar (Chandra's Fury - M13)
