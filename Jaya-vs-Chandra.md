@@ -63,6 +63,9 @@ The Quotes
 "All my spells smell like burnt hair lately."
 - Jaya Ballard ([Simian Spirit Guide](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=124474))
 
+"It's rarely worth questioning where the mana comes from. Just be grateful."
+- Jaya Ballard ([Simian Spirit Guide](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=442137))
+
 "Of course you should fight fire with fire. You should fight /everything/ with fire."
 - Jaya Ballard ([Sizzle](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Sizzle))
 
@@ -80,6 +83,9 @@ The Quotes
 
 [CENSORED] never believed in using her "inside voice".
 - Chandra Nalaar ([Chandra's Outrage](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=226585))
+
+"There's plenty of fire to go around."
+- Chandra Nalaar ([Chandra's Outrage](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=466884))
 
 "Which do you think is the better deterrent: a moat of water or one of fire?"
 - Chandra Nalaar ([Circle of Flame](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Circle of Flame))
