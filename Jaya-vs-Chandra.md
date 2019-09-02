@@ -76,10 +76,10 @@ The Quotes
 - Jaya Ballard ([Word of Blasting](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=2660))
 
 "I asked if they wanted to do things the easy way. I meant easy for me."
-- Chandra Nalaar (Chandra's Fury - M13)
+- Chandra Nalaar ([Chandra's Fury](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=249682))
 
 "They started it."
-- Chandra Nalaar (Chandra's Fury - Magic Origins)
+- Chandra Nalaar ([Chandra's Fury](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=398632))
 
 [CENSORED] never believed in using her "inside voice".
 - Chandra Nalaar ([Chandra's Outrage](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=226585))
@@ -100,10 +100,10 @@ The Quotes
 - Chandra Nalaar ([Flames of the Firebrand](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Flames of the Firebrand))
 
 "Spontaneous combustion is a myth. If you burst into flame, someone wanted you to."
-- Chandra Nalaar (Incinerate - M12)
+- Chandra Nalaar ([Incinerate](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=234075))
 
 "Who said there are no assurances in life? I assure you this is going to hurt."
-- Chandra Nalaar (Incinerate - Jace vs Chandra)
+- Chandra Nalaar ([Incinerate](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=393844))
 
 "Those who wish to invade [CENSORED], please take it up with my servant."
 - Chandra Nalaar ([Inferno Elemental](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Inferno Elemental))
