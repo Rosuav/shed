@@ -1,5 +1,10 @@
 # Devi Subs
 
+** Archived ** This document existed to solve a problem that has now been solved by
+Twitch upstream - sub streaks no longer reset when you miss a month. Of course, you
+are still most welcome to gift-sub as you choose, but this page will not be kept
+up-to-date any more.
+
 Calling the ButtSquad! This is your ButtSignal!
 
 ![The secret buttsignal...](https://static-cdn.jtvnw.net/emoticons/v1/1293027/3.0)
