@@ -1,0 +1,21 @@
+---
+---
+
+$body-background: #eaeaea;
+$body-foreground: #151515;
+$header: #007f00;
+
+@import "{{ site.theme }}";
+
+body {
+	background: $body-background;
+}
+
+a {
+	color: #3366f5;
+}
+
+h1, h2, h3, h4, h5, h6 {color: $header !important;}
+
+tr:nth-child(odd)  {background: #fff !important;}
+tr:nth-child(even) {background: #f6f8fa !important;}
