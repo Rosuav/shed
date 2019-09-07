@@ -15,7 +15,7 @@ int main(int argc, array(string) argv)
 	nextword: foreach (words, string w)
 	{
 		foreach (counter(w); string l; int n) if (n > ltrcount[l]) continue nextword;
-		if (sizeof(w) <= best) continue;
+		if (sizeof(w) <= best && sizeof(w) < sizeof(ltrs)) continue;
 		write("%d %s\n", sizeof(w), w);
 		best = sizeof(w);
 	}
