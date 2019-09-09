@@ -196,12 +196,6 @@ def decode_dataclass(data, typ):
 			values[field.name] = decode_dataclass(data, field.type)
 		return typ(**values)
 	if isinstance(typ, list):
-		if len(typ) == 2:
-			# Hack because I have no idea what's going on here
-			# Decode up to a sentinel
-			ret = [decode_dataclass(data, typ[0])]
-			while ret[-1] != typ[1]: ret.append(decode_dataclass(data, typ[0]))
-			return ret
 		return [decode_dataclass(data, typ[0]) for _ in range(data.int())]
 	if isinstance(typ, tuple):
 		return tuple(decode_dataclass(data, t) for t in typ)
@@ -238,11 +232,6 @@ def encode_dataclass(data, typ):
 			ret.append(encode_dataclass(getattr(data, field.name), field.type))
 		return b"".join(ret)
 	if isinstance(typ, list):
-		if len(typ) == 2:
-			# Hack, as above
-			# Decode up to a sentinel
-			assert data[-1] == typ[1]
-			return b"".join(encode_dataclass(val, typ[0]) for val in data)
 		return encode_dataclass(len(data), int) + b"".join(encode_dataclass(val, typ[0]) for val in data)
 	if isinstance(typ, tuple):
 		return b"".join(encode_dataclass(val, t) for val, t in zip(data, typ))
@@ -292,7 +281,6 @@ def encode_dataclass(data, typ):
 #		having the same three annotations separately identified.
 # [x]		Hollerith array: 32-bit length, then that many instances of
 #		whatever is in the list (so [int] would make an array of ints).
-# [x, marker]	HACK. Reads type x until it matches the marker. :(
 
 @dataclass
 class Skill:
