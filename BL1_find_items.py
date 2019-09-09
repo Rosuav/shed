@@ -433,6 +433,9 @@ def parse_savefile(fn):
 	return ""
 
 def main(args):
+	# TODO: Support the non-GOTY version too?
+	# TODO: Locate paths case insensitively in case there's differences
+	# GOTY non-enhanced: /steam/steamapps/compatdata/8980/pfx/drive_c/users/steamuser/My Documents/my games/borderlands/savedata
 	dir = os.path.expanduser(args.path + "/steam/steamapps/compatdata/729040/pfx/drive_c/users/steamuser/My Documents/My Games/Borderlands Game of the Year/Binaries/SaveData")
 	for fn in sorted(os.listdir(dir)):
 		if not fn.endswith(".sav"): continue
