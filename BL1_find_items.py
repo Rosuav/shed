@@ -433,7 +433,7 @@ def parse_savefile(fn):
 	return ""
 
 def main(args):
-	dir = os.path.expanduser("~/.steam/steam/steamapps/compatdata/729040/pfx/drive_c/users/steamuser/My Documents/My Games/Borderlands Game of the Year/Binaries/SaveData")
+	dir = os.path.expanduser(args.path + "/steam/steamapps/compatdata/729040/pfx/drive_c/users/steamuser/My Documents/My Games/Borderlands Game of the Year/Binaries/SaveData")
 	for fn in sorted(os.listdir(dir)):
 		if not fn.endswith(".sav"): continue
 		print(fn, end="... ")
