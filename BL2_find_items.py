@@ -21,7 +21,7 @@ from fnmatch import fnmatch
 from dataclasses import dataclass # ImportError? Upgrade to Python 3.7 or pip install dataclasses
 from pprint import pprint
 import lzo # ImportError? pip install python-lzo
-from BL1_find_items import FunctionArg
+from BL1_find_items import FunctionArg, Consumable
 
 # python-lzo 1.12 on Python 3.8 causes a DeprecationWarning regarding arg parsing with integers.
 import warnings; warnings.filterwarnings("ignore")
@@ -241,25 +241,6 @@ def get_asset(fn, cache={}):
 		with open(path, "rb") as f: cache[fn] = json.load(f)
 	return cache[fn]
 
-class Consumable:
-	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
-	def __init__(self, data):
-		self.data = data
-		self.eaten = 0
-		self.left = len(data)
-	def get(self, num):
-		"""Destructively read the next num bytes/chars of data"""
-		if num > self.left: raise ValueError("Out of data!")
-		ret = self.data[self.eaten : self.eaten + num]
-		self.eaten += num
-		self.left -= num
-		return ret
-	def __len__(self): return self.left
-	def peek(self): return self.data[self.eaten:] # Doubles as "convert to bytes/str"
-	@classmethod
-	def from_bits(cls, data):
-		"""Create a bitfield consumable from packed eight-bit data"""
-		return cls(''.join(format(x, "08b") for x in data))
 class ConsumableLE(Consumable):
 	"""Little-endian bitwise consumable"""
 	def get(self, num):
