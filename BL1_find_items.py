@@ -383,7 +383,7 @@ class Savefile:
 	cls: str
 	level: int
 	xp: int
-	zeroes1: bytes(8)
+	zeroes1: bytes(8) # Unspent skill points?
 	money: int
 	finished_once: int # 1 if you've finished the first playthrough
 	skills: [Skill]
@@ -411,9 +411,8 @@ class Savefile:
 	unknown10: int
 	promocodes: [int]
 	promocodes_new: [int]
-	unknown10a: 8
-	echo_recordings: [(str, int, int)] # No idea what the ints mean, probably flags about having heard them or something
-	unknown11: [int, 0x43211234] # Unknown values - more of them if you've finished the game??
+	echo_recordings: [(int, [(str, int, int)])] # No idea what the ints mean, probably flags about having heard them or something
+	unknown11: (int, b"\x34\x12\x21\x43")
 	unknown12: 9
 	bank_weapons: [(14, str, str, str, 13, str, str, str, 13, str, str, str, 3, print)]
 	unknown13: 42
@@ -440,7 +439,7 @@ def parse_savefile(fn):
 				print("%d: [%d-%d] %s %s" % (item.slot, item.level, item.quality, item.prefix.split(".")[-1], item.title.split(".")[-1]))
 	# print(", ".join(hex(x) for x in savefile.unknown13))
 	# print(*savefile.bank_weapons, sep="\n")
-	print(len(savefile.unknown11), savefile.unknown11)
+	print(savefile.unknown12)
 	assert len(data) == 0
 	assert encode_dataclass(savefile, Savefile) == data.data
 	if args.synth is not None:
