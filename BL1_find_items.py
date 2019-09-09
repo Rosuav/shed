@@ -283,6 +283,15 @@ def encode_dataclass(data, typ):
 #		whatever is in the list (so [int] would make an array of ints).
 
 @dataclass
+class BankString:
+	mask: 1 # Always seems to use a mask of 32 or 0 (b" " or b"\0")
+	# Segments are usually just normal strings (complete with their NUL
+	# termination included in the length), but can have a length of zero.
+	segments: (bytes,)*6
+	def __repr__(self):
+		return repr(".".join(s.rstrip(b"\x00").decode("ascii") for s in self.segments if s))
+
+@dataclass
 class Skill:
 	name: str
 	level: int
@@ -400,9 +409,12 @@ class Savefile:
 	promocodes: [int]
 	promocodes_new: [int]
 	echo_recordings: [(int, [(str, int, int)])] # No idea what the ints mean, probably flags about having heard them or something
-	unknown11: (int, b"\x34\x12\x21\x43")
-	unknown12: 9
-	bank_weapons: [(14, str, str, str, 13, str, str, str, 13, str, str, str, 3, print)]
+	dlc_block_len: int # Total length of all the DLC blocks (up to just before zeroes6)
+	bank_sig: b"\x34\x12\x21\x43"
+	bank_block_len: int # == 5 + len(encoded(bank_weapons))
+	unknown12: b"\x02"
+	bank_capacity: int
+	bank_weapons: [(1, BankString, BankString, BankString, int, (BankString,)*11, bytes(7), 5, int)]
 	unknown13: 42
 	dlc_items: [Item] # DLC-only items??
 	dlc_weapons: [Weapon] # Ditto
@@ -427,7 +439,8 @@ def parse_savefile(fn):
 				print("%d: [%d-%d] %s %s" % (item.slot, item.level, item.quality, item.prefix.split(".")[-1], item.title.split(".")[-1]))
 	# print(", ".join(hex(x) for x in savefile.unknown13))
 	# print(*savefile.bank_weapons, sep="\n")
-	print(savefile.unknown12)
+	print(savefile.bank_block_len, savefile.unknown12, savefile.bank_capacity)
+	print(savefile.bank_weapons)
 	assert len(data) == 0
 	assert encode_dataclass(savefile, Savefile) == data.data
 	if args.synth is not None:
