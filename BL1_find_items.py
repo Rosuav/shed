@@ -407,7 +407,7 @@ def parse_savefile(fn):
 		with open(os.path.basename(fn), "wb") as f: f.write(synthesized)
 	return ""
 
-def main():
+def main(args):
 	dir = os.path.expanduser("~/.steam/steam/steamapps/compatdata/729040/pfx/drive_c/users/steamuser/My Documents/My Games/Borderlands Game of the Year/Binaries/SaveData")
 	for fn in sorted(os.listdir(dir)):
 		if not fn.endswith(".sav"): continue
@@ -417,4 +417,14 @@ def main():
 		print()
 
 if __name__ == '__main__':
-	main()
+	import argparse
+	parser = argparse.ArgumentParser(description="Borderlands 1 save file reader")
+	parser.add_argument("--path", help="Set path to Steam", default="~/.steam")
+	# parser.add_argument("--pieces", help="Show the individual pieces inside weapons/items", action="store_true")
+	# parser.add_argument("--raw", help="Show the raw details of weapons/items (spammy - use loot filters)", action="store_true")
+	# parser.add_argument("--synth", help="Synthesize a modified save file", type=synthesizer, nargs="*")
+	# parser.add_argument("-l", "--loot-filter", help="Show loot, optionally filtered to only what's interesting", type=loot_filter, nargs="*")
+	# parser.add_argument("-f", "--file", help="Process only one save file")
+	args = parser.parse_args()
+	print(args)
+	main(args)
