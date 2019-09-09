@@ -1,6 +1,40 @@
 import os.path
 import struct
+import inspect
 from dataclasses import dataclass # ImportError? Upgrade to Python 3.7 or pip install dataclasses
+
+class FunctionArg:
+	def __init__(self, desc="keyword", other_args=0):
+		self.desc = desc
+		self.functions = {}
+		self.other_args = other_args # Number of args given to the function that aren't from the cmdline
+	def __repr__(self): return self.desc
+	def __call__(self, func_or_arg):
+		if isinstance(func_or_arg, str):
+			# We've been given a command-line argument (argparse mode).
+			fn, *args = func_or_arg.split(":")
+			if fn not in self.functions:
+				raise argparse.ArgumentTypeError("Unrecognized %r - valid: %s"
+					% (fn, ', '.join(sorted(self.functions))))
+			func = self.functions[fn]
+			max = func.__code__.co_argcount - self.other_args
+			min = max - len(func.__defaults__ or ())
+			if func.__code__.co_flags & inspect.CO_VARARGS:
+				max = float("inf")
+			if min == max != len(args):
+				# Special case some messages for readability
+				if min == 0:
+					raise argparse.ArgumentTypeError("%s does not take arguments" % fn)
+				raise argparse.ArgumentTypeError("%s%s requires exactly %d arg%s" %
+					(fn, ":X" * min, min, "s" * (min!=1)))
+			if len(args) < min:
+				raise argparse.ArgumentTypeError("%s requires at least %d arg%s" % (fn, min, "s" * (min!=1)))
+			if len(args) > max:
+				raise argparse.ArgumentTypeError("%s requires at most %d arg%s" % (fn, max, "s" * (max!=1)))
+			return func, args
+		# Else assume we've been given a function to retain (decorator mode)
+		self.functions[func_or_arg.__name__] = func_or_arg
+		return func_or_arg
 
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
