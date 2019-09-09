@@ -49,9 +49,13 @@ class Consumable:
 		self.eaten += num
 		self.left -= num
 		return ret
+
+	# Read integers, and some length-preceded string formats, assuming we have
+	# a collection of bytes here. Don't call these if the original data was text.
 	def int(self, size=4, order="little"): return int.from_bytes(self.get(size), order)
 	def hollerith(self, size=4, order="little"): return self.get(self.int(size, order))
 	def str(self): return self.hollerith().rstrip(b"\x00").decode("ascii")
+
 	def __len__(self): return self.left
 	def peek(self): return self.data[self.eaten:] # Doubles as "convert to bytes/str"
 	@classmethod
