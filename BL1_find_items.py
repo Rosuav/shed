@@ -36,6 +36,17 @@ class FunctionArg:
 		self.functions[func_or_arg.__name__] = func_or_arg
 		return func_or_arg
 
+loot_filter = FunctionArg("filter", 1)
+
+@loot_filter
+def type(item, type): return type in item.type
+del type # I want the filter to be called type, but not to override type()
+
+@loot_filter
+def eq(item, slot="any"):
+	if slot == "any": return item.slot > 0 # By default, show everything that's equipped.
+	return int(slot) == item.slot # Or say "eq:3" to select item in equip slot 3.
+
 synthesizer = FunctionArg("synth", 1)
 
 @synthesizer
@@ -416,10 +427,17 @@ def parse_savefile(fn):
 	savefile = decode_dataclass(data, Savefile)
 	assert savefile.last_location in savefile.fasttravels
 	print("%s (level %d %s, $%d)" % (savefile.name, savefile.level, savefile.cls.split("_")[-1], savefile.money))
-	for weapon in sorted(savefile.weapons + savefile.dlc_weapons, key=lambda w: w.slot or 5):
-		print("%d: [%d-%d] %s %s" % (weapon.slot, weapon.level, weapon.quality, weapon.prefix.split(".")[-1], weapon.title.split(".")[-1]))
-	for item in sorted(savefile.items + savefile.dlc_items, key=lambda w: w.slot or 5):
-		print("%d: [%d-%d] %s %s" % (item.slot, item.level, item.quality, item.prefix.split(".")[-1], item.title.split(".")[-1]))
+	if args.loot_filter is not None:
+		for weapon in sorted(savefile.weapons + savefile.dlc_weapons, key=lambda w: w.slot or 5):
+			for filter, filterargs in args.loot_filter:
+				if not filter(weapon, *filterargs): break
+			else:
+				print("%d: [%d-%d] %s %s" % (weapon.slot, weapon.level, weapon.quality, weapon.prefix.split(".")[-1], weapon.title.split(".")[-1]))
+		for item in sorted(savefile.items + savefile.dlc_items, key=lambda w: w.slot or 5):
+			for filter, filterargs in args.loot_filter:
+				if not filter(item, *filterargs): break
+			else:
+				print("%d: [%d-%d] %s %s" % (item.slot, item.level, item.quality, item.prefix.split(".")[-1], item.title.split(".")[-1]))
 	# print(", ".join(hex(x) for x in savefile.unknown13))
 	# print(*savefile.bank_weapons, sep="\n")
 	print(len(savefile.unknown11), savefile.unknown11)
@@ -451,7 +469,7 @@ if __name__ == '__main__':
 	# parser.add_argument("--pieces", help="Show the individual pieces inside weapons/items", action="store_true")
 	# parser.add_argument("--raw", help="Show the raw details of weapons/items (spammy - use loot filters)", action="store_true")
 	parser.add_argument("--synth", help="Synthesize a modified save file", type=synthesizer, nargs="*")
-	# parser.add_argument("-l", "--loot-filter", help="Show loot, optionally filtered to only what's interesting", type=loot_filter, nargs="*")
+	parser.add_argument("-l", "--loot-filter", help="Show loot, optionally filtered to only what's interesting", type=loot_filter, nargs="*")
 	# parser.add_argument("-f", "--file", help="Process only one save file")
 	args = parser.parse_args()
 	print(args)
