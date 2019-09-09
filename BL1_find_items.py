@@ -46,6 +46,109 @@ def burnammo(savefile):
 	for ammo in savefile.ammo:
 		if ammo.amount > 10: ammo.amount -= 1.0
 
+@synthesizer
+def fix_prison_jump(savefile):
+	"""Fix a weird glitch where you can't get into the Knoxx DLC prison
+
+	Marks the first goal (finding the spot to jump) as done. The glitch
+	had the first goal not done but the second done, and the mission
+	wouldn't progress.
+	"""
+	for block in savefile.missions:
+		for mission in block.missions:
+			if mission.progress == 1:
+				if mission.mission == "dlc3_MainMissions.MainMissions.M_dlc3_PrisonInfiltrate":
+					mission.goals[0] = ('None', 1)
+				print(mission)
+
+@synthesizer
+def create_shields(savefile):
+	"""Synthesize a bunch of similar shields to compare Quality values"""
+	for quality in range(6):
+		savefile.items.append(Item(
+			grade="gd_itemgrades.Gear.ItemGrade_Gear_Shield",
+			type='gd_shields.A_Item.Item_Shield',
+			pieces=[
+				"gd_shields.Body.body3b_power",
+				"gd_shields.LeftSide.leftside4",
+				"gd_shields.RightSide.rightside4",
+				"gd_shields.ManufacturerMaterials.Material_Torgue_3",
+			],
+			mfg='gd_manufacturers.Manufacturers.Torgue',
+			prefix="gd_shields.Prefix.Prefix_Max4_Impenetrable",
+			title="gd_shields.Title.Title_Torgue3_MachoShield",
+			unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
+		))
+
+@synthesizer
+def create_class_mods(savefile, who):
+	# TODO: Deduplicate
+	if who.casefold() == "brick":
+		for quality in range(3, 6):
+			savefile.items.append(Item(
+				grade="gd_itemgrades.Gear.ItemGrade_Gear_ComDeck_Brick",
+				type='gd_CommandDecks.A_Item.Item_CommandDeck_Brick',
+				pieces=[
+					"gd_CommandDecks.Body_Brick.Brick_Warmonger",
+					"gd_CommandDecks.LeftSide.leftside6b",
+					"gd_CommandDecks.RightSide.rightside6",
+					"gd_CommandDecks.ManufacturerMaterials.Material_Torgue_2",
+				],
+				mfg='gd_manufacturers.Manufacturers.Torgue',
+				prefix="gd_CommandDecks.Prefix.Prefix_Brick_Warmonger",
+				title="gd_CommandDecks.Title.Title_ComDeckBrick",
+				unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
+			))
+	elif who.casefold() == "lilith":
+		for quality in range(3, 6):
+			savefile.items.append(Item(
+				grade="gd_itemgrades.Gear.ItemGrade_Gear_ComDeck_Lilith",
+				type='gd_CommandDecks.A_Item.Item_CommandDeck_Lilith',
+				pieces=[
+					"gd_CommandDecks.Body_Lilith.Lilith_Mercenary",
+					"gd_CommandDecks.LeftSide.leftside6",
+					"gd_CommandDecks.RightSide.rightside6",
+					"gd_CommandDecks.ManufacturerMaterials.Material_Dahl_3",
+				],
+				mfg='gd_manufacturers.Manufacturers.Dahl',
+				prefix="gd_CommandDecks.Prefix.Prefix_Lilith_Mercenary",
+				title="gd_CommandDecks.Title.Title_ComDeckLilith",
+				unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
+			))
+	else: raise ValueError("Dunno who you want class mods for - %r" % who)
+
+@synthesizer
+def create_cmod_variants(savefile):
+	import itertools
+	for quality, left, mfg, mat in itertools.product(range(3, 6), ["leftside6", "leftside6c"], ["Pangolin", "Maliwan"], "23"):
+		savefile.items.append(Item(
+			grade="gd_itemgrades.Gear.ItemGrade_Gear_ComDeck_Mordecai",
+			type='gd_CommandDecks.A_Item.Item_CommandDeck_Mordecai',
+			pieces=[
+				"gd_CommandDecks.Body_Mordecai.Mordecai_Survivor",
+				"gd_CommandDecks.LeftSide." + left,
+				"gd_CommandDecks.RightSide.rightside6",
+				"gd_CommandDecks.ManufacturerMaterials.Material_%s_%s" % (mfg, mat),
+			],
+			mfg='gd_manufacturers.Manufacturers.' + mfg,
+			prefix="gd_CommandDecks.Prefix.Prefix_Mordecai_Survivor",
+			title="gd_CommandDecks.Title.Title_ComDeckMordecai",
+			unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
+		))
+
+@synthesizer
+def boost_weapons(savefile):
+	newweaps = []
+	for weapon in savefile.weapons:
+		if weapon.slot:
+			for quality in range(weapon.quality, 6):
+				newweap = Weapon(**vars(weapon))
+				newweap.quality = quality
+				newweap.slot = 0
+				# print(newweap)
+				newweaps.append(newweap)
+	savefile.weapons.extend(newweaps) # Don't change the list while we're iterating over it
+
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
 	def __init__(self, data):
@@ -325,95 +428,6 @@ def parse_savefile(fn):
 	if args.synth is not None:
 		savefile.name = "PATCHED"
 		for synth, synthargs in args.synth: synth(savefile, *synthargs)
-		'''
-		for block in savefile.missions:
-			for mission in block.missions:
-				if mission.progress == 1:
-					if mission.mission == "dlc3_MainMissions.MainMissions.M_dlc3_PrisonInfiltrate":
-						mission.goals[0] = ('None', 1)
-					print(mission)
-		'''
-		'''
-		for quality in range(2, 6):
-			savefile.items.append(Item(
-				grade="gd_itemgrades.Gear.ItemGrade_Gear_Shield",
-				type='gd_shields.A_Item.Item_Shield',
-				pieces=[
-					"gd_shields.Body.body3b_power",
-					"gd_shields.LeftSide.leftside4",
-					"gd_shields.RightSide.rightside4",
-					"gd_shields.ManufacturerMaterials.Material_Torgue_3",
-				],
-				mfg='gd_manufacturers.Manufacturers.Torgue',
-				prefix="gd_shields.Prefix.Prefix_Max4_Impenetrable",
-				title="gd_shields.Title.Title_Torgue3_MachoShield",
-				unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
-			))
-		'''
-		'''
-		for quality in range(3, 6):
-			savefile.items.append(Item(
-				grade="gd_itemgrades.Gear.ItemGrade_Gear_ComDeck_Brick",
-				type='gd_CommandDecks.A_Item.Item_CommandDeck_Brick',
-				pieces=[
-					"gd_CommandDecks.Body_Brick.Brick_Warmonger",
-					"gd_CommandDecks.LeftSide.leftside6b",
-					"gd_CommandDecks.RightSide.rightside6",
-					"gd_CommandDecks.ManufacturerMaterials.Material_Torgue_2",
-				],
-				mfg='gd_manufacturers.Manufacturers.Torgue',
-				prefix="gd_CommandDecks.Prefix.Prefix_Brick_Warmonger",
-				title="gd_CommandDecks.Title.Title_ComDeckBrick",
-				unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
-			))
-		'''
-		'''
-		for quality in range(3, 6):
-			savefile.items.append(Item(
-				grade="gd_itemgrades.Gear.ItemGrade_Gear_ComDeck_Lilith",
-				type='gd_CommandDecks.A_Item.Item_CommandDeck_Lilith',
-				pieces=[
-					"gd_CommandDecks.Body_Lilith.Lilith_Mercenary",
-					"gd_CommandDecks.LeftSide.leftside6",
-					"gd_CommandDecks.RightSide.rightside6",
-					"gd_CommandDecks.ManufacturerMaterials.Material_Dahl_3",
-				],
-				mfg='gd_manufacturers.Manufacturers.Dahl',
-				prefix="gd_CommandDecks.Prefix.Prefix_Lilith_Mercenary",
-				title="gd_CommandDecks.Title.Title_ComDeckLilith",
-				unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
-			))
-		'''
-		'''
-		import itertools
-		for quality, left, mfg, mat in itertools.product(range(3, 6), ["leftside6", "leftside6c"], ["Pangolin", "Maliwan"], "23"):
-			savefile.items.append(Item(
-				grade="gd_itemgrades.Gear.ItemGrade_Gear_ComDeck_Mordecai",
-				type='gd_CommandDecks.A_Item.Item_CommandDeck_Mordecai',
-				pieces=[
-					"gd_CommandDecks.Body_Mordecai.Mordecai_Survivor",
-					"gd_CommandDecks.LeftSide." + left,
-					"gd_CommandDecks.RightSide.rightside6",
-					"gd_CommandDecks.ManufacturerMaterials.Material_%s_%s" % (mfg, mat),
-				],
-				mfg='gd_manufacturers.Manufacturers.' + mfg,
-				prefix="gd_CommandDecks.Prefix.Prefix_Mordecai_Survivor",
-				title="gd_CommandDecks.Title.Title_ComDeckMordecai",
-				unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
-			))
-		'''
-		'''
-		newweaps = []
-		for weapon in savefile.weapons:
-			if weapon.slot:
-				for quality in range(weapon.quality, 6):
-					newweap = Weapon(**vars(weapon))
-					newweap.quality = quality
-					newweap.slot = 0
-					# print(newweap)
-					newweaps.append(newweap)
-		savefile.weapons.extend(newweaps) # Don't change the list while we're iterating over it
-		'''
 		synthesized = encode_dataclass(savefile, Savefile)
 		with open(os.path.basename(fn), "wb") as f: f.write(synthesized)
 	return ""
