@@ -380,22 +380,3 @@ for fn in sorted(os.listdir(dir)):
 	try: print(parse_savefile(os.path.join(dir, fn)))
 	except SaveFileFormatError as e: print(e.args[0])
 	print()
-
-''' Gear
-1: 32 Volcano - Maliwan sniper
-2: 20 Hellfire - Maliwan SMG
-3: 37 Eridian Lightning
-4: 36 Torgue launcher
--: 34 Maliwan SMG
--: 33 Hyperion Repeater
--: 28 Eridian Cannon
-e: 34 Pangolin shield
-e: 31 Anshin transfusion grenade
-e: 16 Dahl class mod, Mercenary
--: 31 Tediore shield
-
-Money 1102561 0x10d2e1 or float \x08\x97\x86\x49
-'''
-
-# 000020c5 43 05
-# 0000260c 32 00 00 00
