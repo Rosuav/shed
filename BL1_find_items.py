@@ -373,10 +373,14 @@ def parse_savefile(fn):
 		with open(os.path.basename(fn), "wb") as f: f.write(synthesized)
 	return ""
 
-dir = os.path.expanduser("~/.steam/steam/steamapps/compatdata/729040/pfx/drive_c/users/steamuser/My Documents/My Games/Borderlands Game of the Year/Binaries/SaveData")
-for fn in sorted(os.listdir(dir)):
-	if not fn.endswith(".sav"): continue
-	print(fn, end="... ")
-	try: print(parse_savefile(os.path.join(dir, fn)))
-	except SaveFileFormatError as e: print(e.args[0])
-	print()
+def main():
+	dir = os.path.expanduser("~/.steam/steam/steamapps/compatdata/729040/pfx/drive_c/users/steamuser/My Documents/My Games/Borderlands Game of the Year/Binaries/SaveData")
+	for fn in sorted(os.listdir(dir)):
+		if not fn.endswith(".sav"): continue
+		print(fn, end="... ")
+		try: print(parse_savefile(os.path.join(dir, fn)))
+		except SaveFileFormatError as e: print(e.args[0])
+		print()
+
+if __name__ == '__main__':
+	main()
