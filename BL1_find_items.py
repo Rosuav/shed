@@ -36,6 +36,16 @@ class FunctionArg:
 		self.functions[func_or_arg.__name__] = func_or_arg
 		return func_or_arg
 
+synthesizer = FunctionArg("synth", 1)
+
+@synthesizer
+def money(savefile): savefile.money += 5000000
+
+@synthesizer
+def burnammo(savefile):
+	for ammo in savefile.ammo:
+		if ammo.amount > 10: ammo.amount -= 1.0
+
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
 	def __init__(self, data):
@@ -312,8 +322,9 @@ def parse_savefile(fn):
 	print(len(savefile.unknown11), savefile.unknown11)
 	assert len(data) == 0
 	assert encode_dataclass(savefile, Savefile) == data.data
-	if 0:
+	if args.synth is not None:
 		savefile.name = "PATCHED"
+		for synth, synthargs in args.synth: synth(savefile, *synthargs)
 		'''
 		for block in savefile.missions:
 			for mission in block.missions:
@@ -392,10 +403,6 @@ def parse_savefile(fn):
 			))
 		'''
 		'''
-		for ammo in savefile.ammo:
-			if ammo.amount > 10: ammo.amount -= 1.0
-		'''
-		'''
 		newweaps = []
 		for weapon in savefile.weapons:
 			if weapon.slot:
@@ -426,7 +433,7 @@ if __name__ == '__main__':
 	parser.add_argument("--path", help="Set path to Steam", default="~/.steam")
 	# parser.add_argument("--pieces", help="Show the individual pieces inside weapons/items", action="store_true")
 	# parser.add_argument("--raw", help="Show the raw details of weapons/items (spammy - use loot filters)", action="store_true")
-	# parser.add_argument("--synth", help="Synthesize a modified save file", type=synthesizer, nargs="*")
+	parser.add_argument("--synth", help="Synthesize a modified save file", type=synthesizer, nargs="*")
 	# parser.add_argument("-l", "--loot-filter", help="Show loot, optionally filtered to only what's interesting", type=loot_filter, nargs="*")
 	# parser.add_argument("-f", "--file", help="Process only one save file")
 	args = parser.parse_args()
