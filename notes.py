@@ -29,7 +29,7 @@ with sr.Microphone() as source:
 	# )
 print("Got notes.")
 
-desc = " ".join(sys.argv[1:])
+desc = " ".join(arg for arg in sys.argv[1:] if not arg.startswith("-"))
 fn = "%02d - " % note_id + desc
 with open(block + "/%s.flac" % fn, "wb") as f: f.write(audio.get_flac_data())
 
