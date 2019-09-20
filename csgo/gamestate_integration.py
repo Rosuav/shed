@@ -52,8 +52,8 @@ configs = {
 		handler: "file"
 	},
 	("map", "mode"): {
-		"casual": "buy hegrenade; buy flashbang; buy molotov",
-		"competitive": "buy hegrenade; buy flashbang; buy smokegrenade; buy molotov",
+		"casual": "buy hegrenade; buy smokegrenade; buy molotov",
+		"competitive": "buy hegrenade; buy smokegrenade; buy flashbang; buy molotov",
 		handler: "file"
 	},
 	("map", "phase"): {
