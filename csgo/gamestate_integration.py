@@ -47,8 +47,8 @@ def toggle_money(state):
 configs = {
 	# Becomes gsi_player_team.cfg
 	("player", "team"): {
-		"T": "buy ak47",
-		...: "buy aug",
+		"T": "buy mac10",
+		...: "buy mag7; buy hegrenade",
 		handler: "file"
 	},
 	("map", "mode"): {
