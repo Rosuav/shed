@@ -11,7 +11,10 @@ if "--gsi" in sys.argv:
 	# if so, what we should use as our description
 	import requests
 	desc = requests.get("http://localhost:27013/status").text
-	print("Using desc: ", desc)
+	if desc == "n/a":
+		# We're not playing. When running under GSI control (ie NOT
+		# explicitly called upon by the terminal), ignore these times.
+		sys.exit(0)
 	if desc.startswith("--new-block "):
 		desc = desc[12:] # == len(the above)
 		force_new_block = True
