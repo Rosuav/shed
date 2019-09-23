@@ -42,20 +42,21 @@ with sr.Microphone() as source:
 	#	["/home/rosuav/voice-tinkering/snowboy/resources/models/snowboy.umdl"]
 	#))
 print("Got notes.")
+log = open(NOTES_DIR + "/notes.log", "a")
 
 fn = "%02d - " % note_id + desc
+print("[%s]" % block, fn, file=log, flush=True)
 with open(block + "/%s.flac" % fn, "wb") as f: f.write(audio.get_flac_data())
 
 try: sphinx = r.recognize_sphinx(audio)
 except sr.UnknownValueError: sphinx = ""
 except sr.RequestError as e: sphinx = repr(e)
 
+print("Sphinx:", sphinx, file=log, flush=True)
+
 # Maybe TODO: Set an API key with key="...."
 try: google = r.recognize_google(audio)
 except sr.UnknownValueError: google = ""
 except sr.RequestError as e: google = repr(e)
 
-with open(NOTES_DIR + "/notes.log", "a") as f:
-	print("[%s]" % block, fn, file=f)
-	print("Sphinx:", sphinx, file=f)
-	print("Google:", google, file=f)
+print("Google:", google, file=log)
