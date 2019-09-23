@@ -4,11 +4,23 @@ import os.path
 import sys
 import speech_recognition as sr
 
+force_new_block = "--new-block" in sys.argv
+desc = " ".join(arg for arg in sys.argv[1:] if not arg.startswith("-"))
+if "--gsi" in sys.argv:
+	# Call on the GSI server to find out if we're in a CS:GO match, and
+	# if so, what we should use as our description
+	import requests
+	desc = requests.get("http://localhost:27013/status").text
+	print("Using desc: ", desc)
+	if desc.startswith("--new-block "):
+		desc = desc[12:] # == len(the above)
+		force_new_block = True
+
 NOTES_DIR = os.path.expanduser(os.environ.get("NOTES_DIR", "~/tmp/notes"))
 os.makedirs(NOTES_DIR, exist_ok=True)
 blocks = sorted(fn for fn in os.listdir(NOTES_DIR) if fn != "notes.log")
 
-if not blocks or "--new-block" in sys.argv:
+if not blocks or force_new_block:
 	next = int(blocks[-1] if blocks else 0) + 1
 	blocks.append(str(next))
 	os.mkdir(NOTES_DIR + "/" + blocks[-1])
@@ -22,14 +34,12 @@ r = sr.Recognizer()
 # Can I increase the gain at all?
 with sr.Microphone() as source:
 	print("Listening for notes...")
-	audio = r.listen(source)
-	# snowboy_configuration=(
-		# "/home/rosuav/snowboy-1.3.0/examples/Python3",
-		# ["/home/rosuav/snowboy-1.3.0/resources/models/snowboy.umdl"]
-	# )
+	audio = r.listen(source)#, snowboy_configuration=(
+	#	"/home/rosuav/voice-tinkering/snowboy/examples/Python3",
+	#	["/home/rosuav/voice-tinkering/snowboy/resources/models/snowboy.umdl"]
+	#))
 print("Got notes.")
 
-desc = " ".join(arg for arg in sys.argv[1:] if not arg.startswith("-"))
 fn = "%02d - " % note_id + desc
 with open(block + "/%s.flac" % fn, "wb") as f: f.write(audio.get_flac_data())
 
