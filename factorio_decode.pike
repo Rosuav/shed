@@ -27,7 +27,7 @@ int main()
 	//And now we reverse the process.
 	data = Standards.JSON.encode(info);
 	data = Gz.compress(data, 0, 9);
-	data = "0" + MIME.encode_base64(data);
+	data = "0" + MIME.encode_base64(data, 1);
 	//xclip will fork itself into the background, but only if we aren't controlling
 	//its stdout. So don't use Process.run() here.
 	Stdio.File pipe = Stdio.File();
