@@ -6,12 +6,26 @@ constant lower_tech = ([
 	"express-splitter": "splitter",
 	"express-underground-belt": "underground-belt",
 	"stack-inserter": "inserter",
+	"assembling-machine-3": "assembling-machine-2",
 ]);
 
 void replace_entities(mapping info, mapping(string:string) changes)
 {
 	foreach (info->blueprint->entities, mapping ent)
+	{
 		ent->name = changes[ent->name] || ent->name;
+		if (ent->name == "assembling-machine-2" && ent->items)
+		{
+			//Attempt to cap the modules at 2. It's nonspecific WHICH
+			//two modules you'll get, if there are multiple types.
+			int available = 2;
+			mapping items = ([]);
+			foreach (ent->items; string module; int n)
+				if (available) //Once we run out of available slots, just stop adding modules
+					available -= (items[module] = min(n, available));
+			ent->items = items;
+		}
+	}
 }
 
 int main()
