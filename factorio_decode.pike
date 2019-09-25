@@ -5,6 +5,7 @@ constant lower_tech = ([
 	"express-transport-belt": "transport-belt",
 	"express-splitter": "splitter",
 	"express-underground-belt": "underground-belt",
+	"express-loader": "loader",
 	"stack-inserter": "inserter",
 	"assembling-machine-3": "assembling-machine-2",
 ]);
