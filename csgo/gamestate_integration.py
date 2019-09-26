@@ -29,6 +29,11 @@ def toggle_music(state):
 		data += cur
 	sock.close()
 
+def mode_switch(mode):
+	if pw:
+		# Since "pause" toggles pause, we use "frame", which is idempotent.
+		toggle_music("frame" if mode == "playing" else "play")
+
 # NOTE: Money calculation is inactive if player_state is disabled in the config
 show_money = False
 last_money = 0
@@ -57,12 +62,12 @@ configs = {
 		handler: "file"
 	},
 	("map", "phase"): {
-		"warmup": "frame", # Optionally pause as soon as warmup starts
-		"live": "frame", # Since "pause" toggles pause, we use "frame", which is idempotent.
-		"gameover": "frame", # Stay paused until you actually leave the game
-		"intermission": "frame", # Stay paused during the half-time switch too
-		...: "play",
-		handler: pw and toggle_music
+		"warmup": "playing",
+		"live": "playing",
+		"gameover": "playing",
+		"intermission": "playing",
+		...: "idle",
+		handler: mode_switch
 	},
 	("player", "name"): {...: ..., handler: toggle_money},
 	("player", "state", "money"): {...: ..., handler: plot_money},
