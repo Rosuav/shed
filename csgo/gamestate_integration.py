@@ -2,6 +2,7 @@ import itertools
 import json
 import os
 import socket
+import subprocess
 from flask import Flask, request # ImportError? Try "pip install flask".
 app = Flask(__name__)
 
@@ -30,9 +31,13 @@ def toggle_music(state):
 	sock.close()
 
 def mode_switch(mode):
-	if pw:
+	if pw: # If we have a VLC password, manage the music
 		# Since "pause" toggles pause, we use "frame", which is idempotent.
 		toggle_music("frame" if mode == "playing" else "play")
+	# Manage whether or not the note taker is listening for a global hotkey
+	command = ["xfconf-query", "-c", "xfce4-keyboard-shortcuts", "-p", "/commands/custom/<Alt>d"]
+	if mode == "idle": subprocess.run(command + ["--reset"])
+	else: subprocess.run(command + ["-n", "-t", "string", "-s", "/home/rosuav/shed/notes.py --gsi"])
 
 # NOTE: Money calculation is inactive if player_state is disabled in the config
 show_money = False
