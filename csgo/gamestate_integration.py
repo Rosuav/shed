@@ -30,11 +30,19 @@ def toggle_music(state):
 		data += cur
 	sock.close()
 
+last_mode = None
 def mode_switch(mode):
 	if pw: # If we have a VLC password, manage the music
 		# Since "pause" toggles pause, we use "frame", which is idempotent.
 		toggle_music("frame" if mode == "playing" else "play")
 	# Manage whether or not the note taker is listening for a global hotkey
+	global last_mode
+	if last_mode == mode: return
+	last_mode = mode
+	logging.log(25, "Setting mode to %s", mode)
+	# NOTE: This autoconfiguration may require env var DBUS_SESSION_BUS_ADDRESS to
+	# be appropriately set. It usually will be when running within the GUI, but if
+	# this script is run in the background somewhere, be sure to propagate it.
 	command = ["xfconf-query", "-c", "xfce4-keyboard-shortcuts", "-p", "/commands/custom/<Alt>d"]
 	if mode == "idle": subprocess.run(command + ["--reset"])
 	else: subprocess.run(command + ["-n", "-t", "string", "-s", "/home/rosuav/shed/notes.py --gsi"])
@@ -156,5 +164,6 @@ def update_configs():
 if __name__ == "__main__":
 	import logging
 	logging.basicConfig(level=24) # use logging.INFO to see timestamped lines every request
+	logging.getLogger("werkzeug").setLevel(logging.WARNING)
 	import os; logging.log(25, "I am %d / %d", os.getuid(), os.getgid())
 	app.run(host="127.0.0.1", port=27014)
