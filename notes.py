@@ -60,3 +60,15 @@ except sr.UnknownValueError: google = ""
 except sr.RequestError as e: google = repr(e)
 
 print("Google:", google, file=log)
+
+# Attempt to boost the volume and re-transcribe
+try: import numpy
+except ImportError: sys.exit(0) # No numpy? Whatever, no biggie.
+# Assume that the data is signed integers
+dtype = {1: numpy.int8, 2: numpy.int16, 4: numpy.int32}[audio.sample_width]
+data = numpy.frombuffer(audio.frame_data, dtype=dtype)
+for factor in (2, 4, 8, 16):
+	audio.frame_data = (data * factor).tobytes()
+	try: sphinx = r.recognize_sphinx(audio)
+	except (sr.UnknownValueError, sr.RequestError): continue
+	print("Sphinx*%d:" % factor, sphinx, file=log, flush=True)
