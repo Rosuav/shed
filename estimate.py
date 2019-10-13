@@ -23,12 +23,11 @@ def magnitude(x):
 	return log10(x)
 
 frac = [0]
-residue = orig = float("0." + sys.argv[1])
-for _ in digits: # No more than six terms for a six-digit number - no point
+residue = orig = Fraction("0." + sys.argv[1])
+while residue:
 	t = 1/residue
 	frac.append(int(t))
 	residue = t - int(t)
 	vulg = vulgarize(frac)
 	error = magnitude((vulg - orig) / orig)
 	print("%15s %+6.2f %r" % (vulg, error, frac))
-	if residue == 0: break # If it's getting arbitrarily close, that's fine, but if it actually hits zero, stop before crashing.
