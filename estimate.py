@@ -3,11 +3,12 @@ from fractions import Fraction
 from math import log10
 
 digits = sys.argv[1]
-print("Estimating 0.%s as a fraction..." % digits)
+print("Estimating %s as a fraction..." % digits)
 
 def vulgarize(rpt):
 	"""Calculate a vulgar fraction for a given continued fraction"""
 	f = Fraction(0)
+	if tuple(rpt) == (0,): return f # Avoid dividing by zero
 	for term in reversed(rpt):
 		f = 1 / (term + f)
 	return 1/f
@@ -22,12 +23,13 @@ def magnitude(x):
 	if x == 0: return 0
 	return log10(x)
 
-frac = [0]
-residue = orig = Fraction("0." + sys.argv[1])
+frac = []
+orig = Fraction(digits)
+residue = 1/orig
 while residue:
 	t = 1/residue
 	frac.append(int(t))
 	residue = t - int(t)
 	vulg = vulgarize(frac)
 	error = magnitude((vulg - orig) / orig)
-	print("%15s %+6.2f %r" % (vulg, error, frac))
+	print(f"%{len(digits)*2}s %+6.2f %r" % (vulg, error, frac))
