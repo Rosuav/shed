@@ -67,7 +67,7 @@ except ImportError: sys.exit(0) # No numpy? Whatever, no biggie.
 # Assume that the data is signed integers
 dtype = {1: numpy.int8, 2: numpy.int16, 4: numpy.int32}[audio.sample_width]
 data = numpy.frombuffer(audio.frame_data, dtype=dtype)
-for factor in (2, 4, 8, 16):
+for factor in (2, 3, 4): # Going beyond 4 doesn't seem to help much
 	audio.frame_data = (data * factor).tobytes()
 	try: sphinx = r.recognize_sphinx(audio)
 	except (sr.UnknownValueError, sr.RequestError): continue
