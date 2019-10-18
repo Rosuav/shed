@@ -69,6 +69,6 @@ dtype = {1: numpy.int8, 2: numpy.int16, 4: numpy.int32}[audio.sample_width]
 data = numpy.frombuffer(audio.frame_data, dtype=dtype)
 for factor in (2, 3, 4): # Going beyond 4 doesn't seem to help much
 	audio.frame_data = (data * factor).tobytes()
-	try: sphinx = r.recognize_sphinx(audio)
+	try: sphinxamp = r.recognize_sphinx(audio)
 	except (sr.UnknownValueError, sr.RequestError): continue
-	print("Sphinx*%d:" % factor, sphinx, file=log, flush=True)
+	if sphinxamp != sphinx: print("Sphinx*%d:" % factor, sphinxamp, file=log, flush=True)
