@@ -31,5 +31,5 @@ while residue:
 	frac.append(int(t))
 	residue = t - int(t)
 	vulg = vulgarize(frac)
-	error = magnitude((vulg - orig) / orig)
+	error = magnitude(vulg - orig)
 	print(f"%{len(digits)*2}s %+6.2f %r" % (vulg, error, frac))
