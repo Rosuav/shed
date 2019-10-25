@@ -76,5 +76,5 @@ for factor in (2, 3, 4): # Going beyond 4 doesn't seem to help much
 # Attempt to get more variants from Sphinx
 # ("hypstr"? Whatever. LOL!)
 options = [b.hypstr for b in r.recognize_sphinx(audio, show_all=True).nbest()]
-for sphinx in options[:10]:
+for sphinx in options[:5]:
 	print("    - %s" % sphinx)
