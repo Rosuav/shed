@@ -48,18 +48,22 @@ fn = "%02d - " % note_id + desc
 print("[%s]" % block, fn, file=log, flush=True)
 with open(block + "/%s.flac" % fn, "wb") as f: f.write(audio.get_flac_data())
 
-try: sphinx = r.recognize_sphinx(audio)
-except sr.UnknownValueError: sphinx = ""
-except sr.RequestError as e: sphinx = repr(e)
+try: d = r.recognize_sphinx(audio, show_all=True)
+except sr.UnknownValueError: pass
+except sr.RequestError as e: print("Sphinx:", e, file=log, flush=True)
 
-print("Sphinx:", sphinx, file=log, flush=True)
+options = [b.hypstr for b in d.nbest()]
+seen = {}
+for txt in options[:5]:
+	print("Sphinx: %s" % txt, file=log, flush=True)
+	seen[txt] = 1
 
 # Maybe TODO: Set an API key with key="...."
 try: google = r.recognize_google(audio)
 except sr.UnknownValueError: google = ""
 except sr.RequestError as e: google = repr(e)
 
-print("Google:", google, file=log)
+print("Google:", google, file=log, flush=True)
 
 # Attempt to boost the volume and re-transcribe
 try: import numpy
@@ -69,12 +73,9 @@ dtype = {1: numpy.int8, 2: numpy.int16, 4: numpy.int32}[audio.sample_width]
 data = numpy.frombuffer(audio.frame_data, dtype=dtype)
 for factor in (2, 3, 4): # Going beyond 4 doesn't seem to help much
 	audio.frame_data = (data * factor).tobytes()
-	try: sphinxamp = r.recognize_sphinx(audio)
+	try: d = r.recognize_sphinx(audio, show_all=True)
 	except (sr.UnknownValueError, sr.RequestError): continue
-	if sphinxamp != sphinx: print("Sphinx*%d:" % factor, sphinxamp, file=log, flush=True)
-
-# Attempt to get more variants from Sphinx
-# ("hypstr"? Whatever. LOL!)
-options = [b.hypstr for b in r.recognize_sphinx(audio, show_all=True).nbest()]
-for sphinx in options[:5]:
-	print("    - %s" % sphinx)
+	for i, txt in enumerate([b.hypstr for b in d.nbest()][:5], 1):
+		if txt not in seen:
+			print("Sphinx*%d#%d: %s" % (factor, i, txt), file=log, flush=True)
+			seen[txt] = factor
