@@ -39,7 +39,7 @@ for node in tree:
 	cultures[culture].append(stats)
 
 for culture, items in cultures.items():
-	items.sort(key=lambda item: -int(item["value"]))
+	items.sort(key=lambda item: (-int(item["value"]), item["page"]))
 	print(culture)
 	for item in items:
 		base = int(item["value"])
