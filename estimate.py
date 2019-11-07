@@ -2,9 +2,6 @@ import sys
 from fractions import Fraction
 from math import log10
 
-digits = sys.argv[1]
-print("Estimating %s as a fraction..." % digits)
-
 def vulgarize(rpt):
 	"""Calculate a vulgar fraction for a given continued fraction"""
 	f = Fraction(0)
@@ -22,6 +19,14 @@ def magnitude(x):
 	if x < 0: return -log10(-x)
 	if x == 0: return 0
 	return log10(x)
+
+digits = sys.argv[1]
+if "," in digits:
+	digits = [int(d.strip()) for d in digits.split(",")]
+	frac = vulgarize(digits)
+	print(frac, digits, float(frac))
+	sys.exit(0)
+print("Estimating %s as a fraction..." % digits)
 
 frac = []
 orig = Fraction(digits)
