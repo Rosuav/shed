@@ -4,7 +4,7 @@ import os.path
 import sys
 import speech_recognition as sr
 
-force_new_block = "--new-block" in sys.argv
+new_block = "--new-block" in sys.argv
 desc = " ".join(arg for arg in sys.argv[1:] if not arg.startswith("-"))
 if "--gsi" in sys.argv:
 	# Call on the GSI server to find out if we're in a CS:GO match, and
@@ -17,13 +17,14 @@ if "--gsi" in sys.argv:
 		sys.exit(0)
 	if desc.startswith("--new-block "):
 		desc = desc[12:] # == len(the above)
-		force_new_block = True
+		new_block = True
 
 NOTES_DIR = os.path.expanduser(os.environ.get("NOTES_DIR", "~/tmp/notes"))
 os.makedirs(NOTES_DIR, exist_ok=True)
 blocks = sorted(fn for fn in os.listdir(NOTES_DIR) if fn != "notes.log")
 
-if not blocks or force_new_block:
+if not blocks: new_block = True
+if new_block:
 	next = int(blocks[-1] if blocks else 0) + 1
 	blocks.append(str(next))
 	os.mkdir(NOTES_DIR + "/" + blocks[-1])
@@ -43,6 +44,7 @@ with sr.Microphone() as source:
 	#))
 print("Got notes.")
 log = open(NOTES_DIR + "/notes.log", "a")
+if new_block: print("-" * 65, file=log)
 
 fn = "%02d - " % note_id + desc
 print("[%s]" % block, fn, file=log, flush=True)
