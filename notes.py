@@ -67,6 +67,8 @@ except sr.RequestError as e: google = repr(e)
 
 print("Google:", google, file=log, flush=True)
 
+sys.exit(0) # Boosting volume doesn't really seem to help much.
+
 # Attempt to boost the volume and re-transcribe
 try: import numpy
 except ImportError: sys.exit(0) # No numpy? Whatever, no biggie.
