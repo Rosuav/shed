@@ -1,0 +1,49 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Twitch Redemptions</title>
+</head>
+<body>
+<ul id=output></ul>
+<audio id=alert src="https://uploads.twitchalerts.com/sound-defaults/new-message.ogg"></audio>
+<script src="https://github.com/tmijs/tmi.js/releases/download/v1.5.0/tmi.js"></script>
+<script type=module>
+import choc, {set_content} from "https://rosuav.github.io/shed/chocfactory.js";
+const {LI} = choc;
+
+let messages = [];
+
+const [channel, vol] = window.location.hash.split(",");
+if (channel === "") set_content("#output", LI("Add #channelname to the URL to select a channel!"));
+else
+{
+	document.getElementById("alert").volume = parseInt(vol === "" ? "100" : vol, 10) / 100;
+	const client = new tmi.Client({
+		//options: { debug: true },
+		connections: {
+			reconnect: true,
+			secure: true
+		},
+		identity: {
+			username: 'mustardmine',
+			password: 'oauth:qfrum72rrjlhu8pmse632mheyjjbn1' //Read-only access token
+		},
+		channels: [ channel.replace("#", "") ]
+	});
+	client.connect();
+	client.on('message', (channel, tags, message, self) => {
+		if (self) return;
+		if (message === "!clear" && (tags.broadcaster || tags.moderator))
+			messages = [];
+		else if (tags["custom-reward-id"])
+		{
+			messages = [...messages.slice(-5), message];
+			document.getElementById("alert").play();
+		}
+		else return;
+		set_content("#output", messages.map(LI));
+	});
+}
+</script>
+</body>
+</html>
