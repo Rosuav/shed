@@ -26,9 +26,15 @@ B-?\\) B-) B)
 R-?\\) R) R-)
 """
 emote_list = None
-old_emotes = { # Add older emotes here:
+old_emotes = { # Add older Twitch emotes here:
 	"devicatEH": 1291575, "devicatGRR": 1291582,
 	"devicatSPOOK": 1291574, "devicatNOM": 819947,
+	"devicatCCB": 1857241, "devicatTYVM": 1857245,
+	"devicatCHII": 1857246, "devicatSMUG": 1857248,
+	"devicatCAKE": 1857251,
+}
+old_ffz = { # Add older FFZ emotes here:
+	"DeviCry": 70993, "DeviSquee": 70996, "DeviFear": 70998, "DeviRawr": 70999,
 }
 def get_emote_list():
 	global emote_list
@@ -118,6 +124,9 @@ def load_ffz(*channels):
 	for channel in channels:
 		_load_emotes(channel + " FFZ", "/ffz_%s.json" % channel,
 			"https://api.betterttv.net/2/frankerfacez_emotes/channels/" + channel, _xfrm_ffz)
+	for name, id in old_ffz.items():
+		if name not in emote_list:
+			emote_list[name] = "https://cdn.betterttv.net/frankerfacez_emote/%s/1" % id
 
 def convert_emotes(msg):
 	emotes = get_emote_list()
