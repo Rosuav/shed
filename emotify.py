@@ -48,6 +48,7 @@ def get_emote_list():
 		req = requests.get("https://api.twitch.tv/kraken/chat/emoticons", headers={
 			"Client-ID": config.CLIENT_ID,
 			"Accept": "application/vnd.twitchtv.v5+json",
+			"Accept-Encoding": None, # The Twitch servers don't like how python-requests is okay with compressed responses (???)
 		})
 		req.raise_for_status()
 		data = req.json()
