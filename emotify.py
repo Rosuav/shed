@@ -31,7 +31,7 @@ old_emotes = { # Add older Twitch emotes here:
 	"devicatSPOOK": 1291574, "devicatNOM": 819947,
 	"devicatCCB": 1857241, "devicatTYVM": 1857245,
 	"devicatCHII": 1857246, "devicatSMUG": 1857248,
-	"devicatCAKE": 1857251,
+	"devicatCAKE": 1857251, "devicatGIFT": 1112114,
 }
 old_ffz = { # Add older FFZ emotes here:
 	"DeviCry": 70993, "DeviSquee": 70996, "DeviFear": 70998, "DeviRawr": 70999,
