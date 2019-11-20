@@ -31,6 +31,7 @@ print("Estimating %s as a fraction..." % digits)
 frac = []
 orig = Fraction(digits)
 residue = 1/orig
+accuracy = []
 while residue:
 	t = 1/residue
 	frac.append(int(t))
@@ -38,3 +39,29 @@ while residue:
 	vulg = vulgarize(frac)
 	error = magnitude(vulg - orig)
 	print(f"%{len(digits)*2}s %+6.2f %r" % (vulg, error, frac))
+	if vulg != orig:
+		# Estimate the accuracy by showing, in effect, how many
+		# correct digits there are before there's an error.
+		# (Accuracy becomes immeasurable for the last term.)
+		accuracy.append(-log10(abs(vulg - orig)))
+
+if "--graph" in sys.argv:
+	import matplotlib.pyplot as plt
+	# Convert accuracy into accuracy-gained-last-time
+	# From three terms [a, b, c], we look at the accuracy gained by
+	# adding term b, and then plot that alongside c.
+	from operator import sub
+	accuracy = [0] + list(map(sub, accuracy, [0] + accuracy[:-1]))
+	# Different y-scales - see https://matplotlib.org/gallery/api/two_scales.html
+	fig, ax1 = plt.subplots()
+	ax1.set_xlabel("N Terms")
+	ax1.set_ylabel("Term", color="tab:red")
+	ax1.set_yscale("log") # Since accuracy is already, in effect, logarithmic, do the same here.
+	ax1.plot(frac, color="tab:red")
+	ax1.tick_params(axis="y", labelcolor="tab:red")
+	ax2 = ax1.twinx()
+	ax2.set_ylabel("Accuracy gained", color="tab:blue")
+	ax2.plot(accuracy, color="tab:blue")
+	ax2.tick_params(axis="y", labelcolor="tab:blue")
+	fig.tight_layout()
+	plt.show()
