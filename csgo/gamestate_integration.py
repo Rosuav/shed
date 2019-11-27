@@ -66,7 +66,7 @@ configs = {
 	# Becomes gsi_player_team.cfg
 	("player", "team"): {
 		"T": "buy mac10",
-		...: "buy mag7; buy hegrenade",
+		...: "buy mag7",
 		handler: "file"
 	},
 	("map", "mode"): {
