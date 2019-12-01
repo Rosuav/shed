@@ -8,6 +8,7 @@ import config
 
 emote_count = None
 while emote_count is None or emote_count == len(emotes):
+	# TODO: Have a way to query a set of channels and get their emote set IDs
 	req = requests.get("https://api.twitch.tv/kraken/chat/emoticon_images?emotesets=317117,317121,317122,1184925,1184926,1184927", headers={
 		"Client-ID": config.CLIENT_ID,
 		"Accept": "application/vnd.twitchtv.v5+json",
