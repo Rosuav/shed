@@ -21,7 +21,12 @@ file_volumes = {
 }
 -- Similarly, map a URI to the number of microseconds of leading silence.
 leading_silence = {
-	-- [ silence-data-goes-here ] --
+	-- [ start-silence-data-goes-here ] --
+}
+-- And again for trailing silence. These are all independent; the file will not
+-- be listed in trailing_silence[] if it has none (or has <250ms).
+trailing_silence = {
+	-- [ end-silence-data-goes-here ] --
 }
 
 function activate()
@@ -64,6 +69,8 @@ function input_changed()
 		-- Skip leading silence if we're at the start (in the first 20ms)
 		if time < 20000 then vlc.var.set(input, "time", skip) end
 	end
+	-- TODO: If we're currently playing and the time-to-end-of-track is
+	-- less than trailing_silence[fn], skip to next track.
 end
 
 function playing_changed(status)

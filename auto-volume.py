@@ -64,6 +64,7 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	try:
 		with open(CACHE_FILE) as f: file_info = json.load(f)
+		file_info[...]=0
 	except FileNotFoundError: pass
 	for path in args.paths:
 		if os.path.isdir(path): parse_dir(path, force=args.all)
@@ -80,10 +81,15 @@ if __name__ == "__main__":
 			vol = [ "[%r]=%s," % ("file://" + fn, file_info[fn]["vol"] * 2.56)
 				for fn in sorted(file_info) ]
 			data = before + "\n\t".join(vol) + after
-			# Patch in silence data
-			before, after = data.split("-- [ silence-data-goes-here ] --", 1)
+			# Patch in lead silence data
+			before, after = data.split("-- [ start-silence-data-goes-here ] --", 1)
 			sil = [ "[%r]=%s," % ("file://" + fn, file_info[fn]["lead"] * 1000)
 				for fn in sorted(file_info) if file_info[fn].get("lead")]
+			data = before + "\n\t".join(sil) + after
+			# Patch in trail silence data
+			before, after = data.split("-- [ end-silence-data-goes-here ] --", 1)
+			sil = [ "[%r]=%s," % ("file://" + fn, file_info[fn]["trail"] * 1000)
+				for fn in sorted(file_info) if file_info[fn].get("trail")]
 			data = before + "\n\t".join(sil) + after
 			out.write(data)
 	if args.play:
