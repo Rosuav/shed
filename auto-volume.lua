@@ -11,11 +11,11 @@ function descriptor()
 end
 
 -- Map a URI to its volume as returned by Python. The "volume" is the average
--- dbFS as returned by pydub, multiplied by 2.56. The dbFS figure approximates
+-- dBFS as returned by pydub, multiplied by 2.56. The dBFS figure approximates
 -- to a volume percentage variance - to get comparable perceived volume between
--- two files with dbFS of -30 and -20, set VLC's volume 10% lower on the louder
+-- two files with dBFS of -30 and -20, set VLC's volume 10% lower on the louder
 -- one. Here in the Lua plugin, we don't see volume as a percentage, but as a
--- value scaled to 256, so the dbFS values are all rescaled to this basis.
+-- value scaled to 256, so the dBFS values are all rescaled to this basis.
 file_volumes = {
 	-- [ data-goes-here ] --
 }
