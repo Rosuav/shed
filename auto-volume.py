@@ -23,8 +23,10 @@ def parse_file(fn, *, force=False):
 		for el in ET.parse(fn).getroot().findall(".//*/{http://xspf.org/ns/0/}location"):
 			parse_file(unquote(urlparse(el.text).path), force=force)
 		return
-	if fn[-4] == "." and fn[-3:].lower() in {"mid", "kar", "xml", "txt", "jpg"}:
-		# These files are almost certainly going to be unparseable. Save ourselves the trouble.
+	if fn[-4] == "." and fn[-3:].lower() in {"mid", "kar", "xml", "txt", "jpg", "srt"}:
+		# These files are almost certainly going to be unparseable. Save ourselves
+		# the trouble. I think there's an issue with files that ffmpeg claims to
+		# parse, but which turn out to have no audio tracks???
 		return
 
 	try:
