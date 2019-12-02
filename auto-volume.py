@@ -1,7 +1,7 @@
 # Build auto-volume.lua from the template and a JSON file of data
 import os
 import re
-import shutil
+import argparse
 import pydub
 
 # Expects a series of paths as arguments. Files will be checked;
@@ -11,38 +11,31 @@ import pydub
 file_info = {}
 # TODO: Read from auto-volume.json
 
-def parse(fn):
-	if fn is "directory":
-		for fn in os.listdir(fn):
-			parse(fn)
-		return
-	open(fn)
-	# do stuff
-	if 0:
-		m = desired_volume is None and re.search(r"\( audio volume: ([0-9]+) \)$", line)
-		if m:
-			vol = int(m[1]) / 2.56 # Rescale from 0-255 to percentage
-			assert last_dbfs is not None # This should come AFTER we find the filename
-			desired_volume = vol + last_dbfs
-			print("vol", vol, "desired", desired_volume)
-		m = re.search(r"\( new input: file://(.+) \)$", line)
-		if not m: continue
-		if m[1] == fn: continue # Same file as before
-		fn = m[1]
-		print(abbrev(fn + " ... parsing..."), end="\r")
-		try:
-			audio = pydub.AudioSegment.from_file(fn)
-			print("%s: %.2f dB (max %.2f)" % (fn, audio.dBFS, audio.max_dBFS))
-			last_dbfs = audio.dBFS
-			if desired_volume is not None:
-				vol = desired_volume - audio.dBFS
-				print("Setting volume to", vol)
-				writer.write(b"volume %d\n" % int(vol * 2.56 + 0.5))
-				await writer.drain()
-		except pydub.exceptions.CouldntDecodeError:
-			print(fn, "... unable to parse")
+def parse_file(fn, *, force=False):
+	fn = os.path.abspath(fn)
+	if fn in file_info and not force: return
+	try:
+		audio = pydub.AudioSegment.from_file(fn)
+		print("%s: %.2f dB (max %.2f)" % (fn, audio.dBFS, audio.max_dBFS))
+		# TODO: Also figure out if there's leading silence
+	except pydub.exceptions.CouldntDecodeError:
+		print(fn, "... unable to parse")
 
-# TODO: argparse.
-# --all -> process even if we already have data
-# --play -> exec to VLC after processing
-# and of course, filenames
+# CAUTION: This will recurse into symlinked directories. Don't symlink back to the
+# parent or you'll get a lovely little infinite loop.
+def parse_dir(path, *, force=False):
+	for child in os.scandir(path):
+		if child.is_dir(): parse_dir(child.path, force=force)
+		else: parse_file(child.path, force=force)
+
+if __name__ == "__main__":
+	parser = argparse.ArgumentParser(description="VLC Auto-Volume pre-parser")
+	parser.add_argument("-a", "--all", help="Parse all files even if we've seen them already", action="store_true")
+	parser.add_argument("--play", help="Invoke VLC after parsing", action="store_true")
+	parser.add_argument("paths", metavar="file", nargs='+', help="File/dir to process")
+	args = parser.parse_args()
+	for path in args.paths:
+		if os.path.isdir(path): parse_dir(path, force=args.all)
+		else: parse_file(path, force=args.all)
+	if args.play:
+		os.execvp("vlc", args.paths)
