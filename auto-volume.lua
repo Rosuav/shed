@@ -38,8 +38,9 @@ function input_changed()
 		return
 	end
 	vlc.msg.info("[AutoVol] Volume is " .. vlc.volume.get())
-	vlc.msg.info("[AutoVol] Input changed to: " .. vlc.strings.decode_uri(item:uri()))
-	local vol = file_volumes[item:uri()]
+	local fn = vlc.strings.decode_uri(item:uri())
+	vlc.msg.info("[AutoVol] Input changed to: " .. fn)
+	local vol = file_volumes[fn]
 	-- TODO: What if there's one track that we don't have data for?
 	if vol then
 		vlc.msg.info("[AutoVol] Got volume: " .. vol)
@@ -50,7 +51,7 @@ function input_changed()
 		end
 		last_volume = vol
 	end
-	local skip = leading_silence[item:uri()]
+	local skip = leading_silence[fn]
 	if skip then vlc.msg.dbg("Skip silence: " .. skip) end
 end
 
