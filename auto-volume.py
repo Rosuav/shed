@@ -27,14 +27,17 @@ def parse_file(fn, *, force=False):
 	try:
 		audio = pydub.AudioSegment.from_file(fn)
 		print("%s: %.2f dB (max %.2f)" % (fn, audio.dBFS, audio.max_dBFS))
-		# Find leading silence by iteratively scanning the start of the track
+		# Find leading/trailing silence by iteratively scanning the start/end
 		# until we find some actual audio. Total silence shows up as -inf, but
 		# teeny bits of sound might show up with extremely negative values.
 		# Tweak the threshold of -100 until it's satisfactory.
 		for head in range(10, len(audio), 10):
 			if audio[:head].dBFS > -100: break
+		for tail in range(10, len(audio), 10):
+			if audio[-tail:].dBFS > -100: break
 		head = max(head - 250, 0) # Skip all but a quarter-second of silence
-		file_info[fn] = {"vol": audio.dBFS, "lead": head}
+		tail = max(tail - 250, 0)
+		file_info[fn] = {"vol": audio.dBFS, "lead": head, "trail": tail}
 		file_info[...] = True
 	except pydub.exceptions.CouldntDecodeError:
 		print(fn, "... unable to parse")
