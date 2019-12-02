@@ -17,9 +17,12 @@ end
 -- one. Here in the Lua plugin, we don't see volume as a percentage, but as a
 -- value scaled to 256, so the dBFS values are all rescaled to this basis.
 file_volumes = {
-	-- [ data-goes-here ] --
+	-- [ volume-data-goes-here ] --
 }
-leading_silence = { } -- Ditto for leading silence
+-- Similarly, map a URI to the number of microseconds of leading silence.
+leading_silence = {
+	-- [ silence-data-goes-here ] --
+}
 
 function activate()
 	vlc.msg.dbg("[AutoVol] Activated")
@@ -52,7 +55,15 @@ function input_changed()
 		last_volume = vol
 	end
 	local skip = leading_silence[fn]
-	if skip then vlc.msg.dbg("Skip silence: " .. skip) end
+	if skip then
+		vlc.msg.info("[AutoVol] Skip silence: " .. skip)
+		-- I think vlc.player.get_time() is the normal way to do this now, but
+		-- it doesn't work in my version of VLC. Must be newer.
+		local input = vlc.object.input()
+		local time = vlc.var.get(input, "time")
+		-- Skip leading silence if we're at the start (in the first 20ms)
+		if time < 20000 then vlc.var.set(input, "time", skip) end
+	end
 end
 
 function playing_changed(status)

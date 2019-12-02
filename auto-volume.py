@@ -27,9 +27,15 @@ def parse_file(fn, *, force=False):
 	try:
 		audio = pydub.AudioSegment.from_file(fn)
 		print("%s: %.2f dB (max %.2f)" % (fn, audio.dBFS, audio.max_dBFS))
-		file_info[fn] = {"vol": audio.dBFS}
+		# Find leading silence by iteratively scanning the start of the track
+		# until we find some actual audio. Total silence shows up as -inf, but
+		# teeny bits of sound might show up with extremely negative values.
+		# Tweak the threshold of -100 until it's satisfactory.
+		for silence in range(10, len(audio), 10):
+			if audio[:silence].dBFS > -100: break
+		silence = max(silence - 250, 0) # Skip all but a quarter-second of silence
+		file_info[fn] = {"vol": audio.dBFS, "silence": silence}
 		file_info[...] = True
-		# TODO: Also figure out if there's leading silence
 	except pydub.exceptions.CouldntDecodeError:
 		print(fn, "... unable to parse")
 	except KeyError:
@@ -65,9 +71,17 @@ if __name__ == "__main__":
 			json.dump(file_info, f)
 		with open(os.path.expanduser("~/.local/share/vlc/lua/extensions/auto-volume.lua"), "w") as out, \
 				open(TEMPLATE_FILE) as template:
-			before, after = template.read().split("-- [ data-goes-here ] --", 1)
-			data = [ "[%r]=%s," % ("file://" + fn, file_info[fn]["vol"] * 2.56)
+			data = template.read()
+			# Patch in volume data
+			before, after = data.split("-- [ volume-data-goes-here ] --", 1)
+			vol = [ "[%r]=%s," % ("file://" + fn, file_info[fn]["vol"] * 2.56)
 				for fn in sorted(file_info) ]
-			out.write(before + "\n\t".join(data) + after)
+			data = before + "\n\t".join(vol) + after
+			# Patch in silence data
+			before, after = data.split("-- [ silence-data-goes-here ] --", 1)
+			sil = [ "[%r]=%s," % ("file://" + fn, file_info[fn]["silence"] * 1000)
+				for fn in sorted(file_info) if file_info[fn].get("silence")]
+			data = before + "\n\t".join(sil) + after
+			out.write(data)
 	if args.play:
 		os.execvp("vlc", ["vlc"] + args.paths)
