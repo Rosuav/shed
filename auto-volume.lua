@@ -12,6 +12,10 @@ end
 
 sock = nil
 line_buffer = ""
+-- TODO: Make this into a *template* and have Python actually prepopulate this.
+-- Also record any leading silence on the track, and maybe trailing silence.
+-- Then this script can lose the socket connection, lose the latency, and just
+-- use prerecorded data to manage volumes.
 file_volumes = { } -- Map a URI to its volume as returned by Python
 
 -- Read a line from the socket, buffering as needed
