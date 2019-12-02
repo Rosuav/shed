@@ -12,4 +12,4 @@ files = [unquote(urlparse(el.text).path)
 			.findall(".//*/{http://xspf.org/ns/0/}location")
 	]
 random.shuffle(files)
-os.execvp("vlc", files)
+os.execvp("vlc", ["vlc"] + files)

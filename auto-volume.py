@@ -70,4 +70,4 @@ if __name__ == "__main__":
 				for fn in sorted(file_info) ]
 			out.write(before + "\n\t".join(data) + after)
 	if args.play:
-		os.execvp("vlc", args.paths)
+		os.execvp("vlc", ["vlc"] + args.paths)
