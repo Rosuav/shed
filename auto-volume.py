@@ -3,6 +3,8 @@ import os
 import re
 import json
 import argparse
+import xml.etree.ElementTree as ET
+from urllib.parse import unquote, urlparse
 import pydub
 
 # Expects a series of paths as arguments. Files will be checked;
@@ -16,6 +18,12 @@ file_info = {}
 def parse_file(fn, *, force=False):
 	fn = os.path.abspath(fn)
 	if fn in file_info and not force: return
+	# TODO: Detect playlists more reliably (and handle m3u too)
+	if fn.endswith(".xspf"):
+		for el in ET.parse(fn).getroot().findall(".//*/{http://xspf.org/ns/0/}location"):
+			parse_file(unquote(urlparse(el.text).path), force=force)
+		return
+
 	try:
 		audio = pydub.AudioSegment.from_file(fn)
 		print("%s: %.2f dB (max %.2f)" % (fn, audio.dBFS, audio.max_dBFS))
