@@ -23,6 +23,9 @@ def parse_file(fn, *, force=False):
 		for el in ET.parse(fn).getroot().findall(".//*/{http://xspf.org/ns/0/}location"):
 			parse_file(unquote(urlparse(el.text).path), force=force)
 		return
+	if fn.lower().endswith(".mid") or fn.endswith(".kar") or fn.endswith(".xml"):
+		# These files are almost certainly going to be unparseable. Save ourselves the trouble.
+		return
 
 	try:
 		audio = pydub.AudioSegment.from_file(fn)
