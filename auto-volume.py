@@ -46,10 +46,12 @@ def parse_file(fn, *, force=False):
 		# Can be fixed by using FFMPEG to change container format to MKV
 		# (use "-c copy" to avoid transcoding the actual data). For now,
 		# just skip these files (they'll be re-attempted next time).
-		if fn.endswith("webm"):
-			print(fn, "... KeyError parse failure:")
-			return
-		raise
+		# It seems to be an issue with files containing vp9 video?? Not
+		# always webm containers. Maybe pydub is querying a list of
+		# tracks, finding that [0] is video and [1] is audio, but then
+		# is getting back only the audio track, because the video is
+		# unparseable??? Debug this later. For now, just move on.
+		print(fn, "... KeyError parse failure")
 
 # CAUTION: This will recurse into symlinked directories. Don't symlink back to the
 # parent or you'll get a lovely little infinite loop.
