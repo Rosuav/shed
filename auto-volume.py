@@ -31,10 +31,10 @@ def parse_file(fn, *, force=False):
 		# until we find some actual audio. Total silence shows up as -inf, but
 		# teeny bits of sound might show up with extremely negative values.
 		# Tweak the threshold of -100 until it's satisfactory.
-		for silence in range(10, len(audio), 10):
-			if audio[:silence].dBFS > -100: break
-		silence = max(silence - 250, 0) # Skip all but a quarter-second of silence
-		file_info[fn] = {"vol": audio.dBFS, "silence": silence}
+		for head in range(10, len(audio), 10):
+			if audio[:head].dBFS > -100: break
+		head = max(head - 250, 0) # Skip all but a quarter-second of silence
+		file_info[fn] = {"vol": audio.dBFS, "lead": head}
 		file_info[...] = True
 	except pydub.exceptions.CouldntDecodeError:
 		print(fn, "... unable to parse")
@@ -79,8 +79,8 @@ if __name__ == "__main__":
 			data = before + "\n\t".join(vol) + after
 			# Patch in silence data
 			before, after = data.split("-- [ silence-data-goes-here ] --", 1)
-			sil = [ "[%r]=%s," % ("file://" + fn, file_info[fn]["silence"] * 1000)
-				for fn in sorted(file_info) if file_info[fn].get("silence")]
+			sil = [ "[%r]=%s," % ("file://" + fn, file_info[fn]["lead"] * 1000)
+				for fn in sorted(file_info) if file_info[fn].get("lead")]
 			data = before + "\n\t".join(sil) + after
 			out.write(data)
 	if args.play:
