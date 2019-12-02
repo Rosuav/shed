@@ -10,6 +10,7 @@ import pydub
 # will be ignored.
 
 CACHE_FILE = os.path.abspath(os.path.join(__file__, "../auto-volume.json"))
+TEMPLATE_FILE = os.path.abspath(os.path.join(__file__, "../auto-volume.lua"))
 file_info = {}
 
 def parse_file(fn, *, force=False):
@@ -18,7 +19,7 @@ def parse_file(fn, *, force=False):
 	try:
 		audio = pydub.AudioSegment.from_file(fn)
 		print("%s: %.2f dB (max %.2f)" % (fn, audio.dBFS, audio.max_dBFS))
-		file_info[fn] = audio.dBFS
+		file_info[fn] = {"vol": audio.dBFS}
 		file_info[...] = True
 		# TODO: Also figure out if there's leading silence
 	except pydub.exceptions.CouldntDecodeError:
@@ -47,5 +48,11 @@ if __name__ == "__main__":
 		del file_info[...] # Remove the flag from the cache file
 		with open(CACHE_FILE, "w") as f:
 			json.dump(file_info, f)
+		with open(os.path.expanduser("~/.local/share/vlc/lua/extensions/auto-volume.lua"), "w") as out, \
+				open(TEMPLATE_FILE) as template:
+			before, after = template.read().split("-- [ data-goes-here ] --", 1)
+			data = [ "[%r]=%s," % ("file://" + fn, file_info[fn]["vol"] * 2.56)
+				for fn in sorted(file_info) ]
+			out.write(before + "\n\t".join(data) + after)
 	if args.play:
 		os.execvp("vlc", args.paths)
