@@ -42,7 +42,7 @@ def parse_file(fn, *, force=False):
 	except pydub.exceptions.CouldntDecodeError:
 		print(fn, "... unable to parse")
 	except KeyError:
-		# There's some sort of problem with parsing webm files.
+		# There's some sort of problem with parsing some webm files.
 		# Can be fixed by using FFMPEG to change container format to MKV
 		# (use "-c copy" to avoid transcoding the actual data).
 		if fn.endswith("webm"):
