@@ -55,6 +55,10 @@ def parse_file(fn, *, force=False):
 		# is getting back only the audio track, because the video is
 		# unparseable??? Debug this later. For now, just move on.
 		print(fn, "... KeyError parse failure")
+	except:
+		# If anything else goes wrong, show which file failed.
+		print(fn)
+		raise
 
 # CAUTION: This will recurse into symlinked directories. Don't symlink back to the
 # parent or you'll get a lovely little infinite loop.
