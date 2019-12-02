@@ -15,6 +15,7 @@ end
 -- Then this script can lose the socket connection, lose the latency, and just
 -- use prerecorded data to manage volumes.
 file_volumes = { } -- Map a URI to its volume as returned by Python
+leading_silence = { } -- Ditto for leading silence
 
 function activate()
 	vlc.msg.dbg("[AutoVol] Activated")
@@ -39,6 +40,8 @@ function input_changed()
 	-- Use the change between those values to adjust the volume, thus
 	-- respecting any manual volume change.
 	-- TODO: What if there's one track that we don't have data for?
+	local skip = leading_silence[item:uri()]
+	if skip then vlc.msg.dbg("Skip silence: " .. skip) end
 end
 
 function playing_changed(status)
