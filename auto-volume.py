@@ -44,9 +44,11 @@ def parse_file(fn, *, force=False):
 	except KeyError:
 		# There's some sort of problem with parsing some webm files.
 		# Can be fixed by using FFMPEG to change container format to MKV
-		# (use "-c copy" to avoid transcoding the actual data).
+		# (use "-c copy" to avoid transcoding the actual data). For now,
+		# just skip these files (they'll be re-attempted next time).
 		if fn.endswith("webm"):
-			print("Possible parse failure:", fn)
+			print(fn, "... KeyError parse failure:")
+			return
 		raise
 
 # CAUTION: This will recurse into symlinked directories. Don't symlink back to the
@@ -64,7 +66,6 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	try:
 		with open(CACHE_FILE) as f: file_info = json.load(f)
-		file_info[...]=0
 	except FileNotFoundError: pass
 	for path in args.paths:
 		if os.path.isdir(path): parse_dir(path, force=args.all)
