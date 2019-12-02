@@ -32,6 +32,13 @@ def parse_file(fn, *, force=False):
 		# TODO: Also figure out if there's leading silence
 	except pydub.exceptions.CouldntDecodeError:
 		print(fn, "... unable to parse")
+	except KeyError:
+		# There's some sort of problem with parsing webm files.
+		# Can be fixed by using FFMPEG to change container format to MKV
+		# (use "-c copy" to avoid transcoding the actual data).
+		if fn.endswith("webm"):
+			print("Possible parse failure:", fn)
+		raise
 
 # CAUTION: This will recurse into symlinked directories. Don't symlink back to the
 # parent or you'll get a lovely little infinite loop.
