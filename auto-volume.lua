@@ -55,7 +55,6 @@ function input_changed()
 		if last_volume ~= nil then
 			vlc.msg.info("[AutoVol] Prev volume: " .. last_volume)
 			vlc.volume.set(math.floor(vlc.volume.get() - vol + last_volume))
-			vlc.msg.info("[AutoVol] Volume set to " .. vlc.volume.get())
 		end
 		last_volume = vol
 	end
