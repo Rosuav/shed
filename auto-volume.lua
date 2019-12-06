@@ -54,6 +54,11 @@ function input_changed()
 		vlc.msg.info("[AutoVol] Got volume: " .. vol)
 		if last_volume ~= nil then
 			vlc.msg.info("[AutoVol] Prev volume: " .. last_volume)
+			-- Since this continually floors, it will tend (over time) to
+			-- reduce the overall volume. TODO: Retain the "lost volume"
+			-- and re-add it next time before flooring. This lost volume
+			-- will be a fraction of 1/256th of 100%, represented as a
+			-- small floating-point value. Easy to lose, but it compounds!
 			vlc.volume.set(math.floor(vlc.volume.get() - vol + last_volume))
 		end
 		last_volume = vol
