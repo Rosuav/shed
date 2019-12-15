@@ -8,6 +8,7 @@ while True:
 	print("1. View DHCP logs")
 	print("2. Tail DHCP logs")
 	print("3. Enter TOTP")
+	print("0. Exit")
 	cmd = input("Pick an action: ")
 	if cmd == "1":
 		subprocess.run(["journalctl", "-uisc-dhcp-server", "-n25", "--no-pager"])
@@ -16,5 +17,7 @@ while True:
 		print("** Unable to exec to journalctl **")
 	elif cmd == "3":
 		print("Not yet implemented")
+	elif cmd == "0":
+		break
 	else:
 		print("Unrecognized option.")
