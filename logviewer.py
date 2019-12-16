@@ -15,6 +15,7 @@ def cmd(c):
 @cmd("")
 def menu():
 	while True:
+		print()
 		print("1. View DHCP logs")
 		print("2. Tail DHCP logs")
 		print("149. Shell (requires authentication)")
