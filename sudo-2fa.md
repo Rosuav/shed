@@ -13,3 +13,7 @@ Goals:
   - Can use sudo but only with a 2FA token
   - The TOTP shared secret is controlled by the owner of the primary account
 * It should be reasonably innocuous to log in to the secondary account w/o 2FA
+
+Demo VM on Sikorsky (with no world access):
+* Primary account: rosuav / large-early-druid-guys
+* Secondary account: support / news-learned-sorry-natural
