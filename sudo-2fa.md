@@ -28,6 +28,8 @@ In order to guard just one group, add the following lines to /etc/pam.d/sudo:
     auth sufficient pam_succeed_if.so user notingroup sudo2fa
     auth required pam_google_authenticator.so
 
+The sudo2fa group has to be mentioned in sudoers *without* the NOPASSWD: flag.
+
 Alternatively, use the "nullok" parameter to the Google Authenticator plugin
 to allow it to quietly ignore 2FA on any user that does not have it set up.
 
