@@ -23,7 +23,7 @@ array(int) map_coords(array(float) pos, array(float) ofs)
 
 constant color = ([
 	"func_hostage_rescue": ({255, 255, 0, 100}),
-	"point_dz_weaponspawn": ({0, 255, 255, 0}),
+	"point_dz_weaponspawn": ({0, 255, 255, 230}),
 ]);
 
 int main()
@@ -38,8 +38,13 @@ int main()
 		if (!color[cls]) continue;
 		[int x1, int y1] = map_coords(pos, min);
 		[int x2, int y2] = map_coords(pos, max);
-		//write("%s: %d,%d - %d,%d\n", cls, x1, y1, x2, y2);
-		img->box(x1, y1, x2 + 1, y2 + 1, @color[cls]);
+		if (x1 == x2 && y1 == y2) //Point entity, or near enough
+		{
+			//Spread out in a circle, adding intensity
+			for (int r = 1; r < 8; ++r)
+				img->circle(x1, y1, r, r, @color[cls]);
+		}
+		else img->box(x1, y1, x2 + 1, y2 + 1, @color[cls]); //Simple box
 	}
 	Stdio.write_file("../tmp/dz_blacksite_annotated.tiff", Image.TIFF.encode(img));
 }
