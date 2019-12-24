@@ -16,6 +16,10 @@ array(int) map_coords(array(float) pos, array(float) ofs)
 {
 	//The third coordinate in the position is irrelevant; map the other two
 	//to pixel positions.
+	//In theory, the offsets and scale factors could be figured out from the
+	//min/max dimensions of trigger_survival_playarea, and the pixel size of
+	//the image file. There'll probably be a hard-coded inversion of the Y
+	//axis, but everything else should be detectable.
 	int x = (int)((pos[0] + ofs[0] + 8192.0) * 1024 / 16384); //Add offset, multiply by pixel width, divide by hammer unit width
 	int y = (int)((pos[1] + ofs[1] - 8192.0) * 1024 / -16384); //Ditto height
 	return ({x, y});
