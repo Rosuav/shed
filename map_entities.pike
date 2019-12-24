@@ -22,6 +22,7 @@ array(int) map_coords(array(float) pos, array(float) ofs)
 }
 
 constant color = ([
+	//"trigger_survival_playarea": ({0, 255, 0, 200}),
 	"func_hostage_rescue": ({255, 255, 0, 100}),
 	"point_dz_weaponspawn": ({0, 255, 255, 230}),
 ]);
