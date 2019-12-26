@@ -45,9 +45,10 @@ void handle_trigger_survival_playarea(Image.Image img, array(float) pos, array(f
 Image.Fonts.Font font;
 constant map_location_names = ([
 	"Tower1": "Tower One",
-	//"BigBridge": "Bridge", //??
-	"APC": "APC",
+	"BigBridge": "Bridge", "FishingDocks": "Fishing", "MilitaryBase": "Base", "RadarDome": "Dome", "OldVillage": "Village",
+	"APC": "APC", //To prevent it being translated to "A P C" (see the TODO below)
 	"Medina": "Town", //Sirocco changed the name of this in the localizations, but kept the internal name
+	"LittleW": "Dubyah",
 ]);
 void handle_info_map_region(Image.Image img, array(float) pos, array(float) min, array(float) max, string tail)
 {
