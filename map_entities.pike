@@ -57,7 +57,7 @@ void handle_info_map_region(Image.Image img, array(float) pos, array(float) min,
 	//TODO maybe: Add a space before any capital letter (so "BoatLaunch" becomes "Boat Launch")
 	//for any that aren't in the mapping
 	tail = map_location_names[tail] || tail;
-	Image.Image text = font->write(tail);
+	Image.Image text = font->write(tail, "");
 	[int x, int y] = map_coords(pos, min); //Should be a point entity so the mins and maxs should all be zero
 	x -= text->xsize() / 2; y -= text->ysize() / 2; //Center the text
 	img->paste_alpha_color(text, 0, 255, 255, x, y);
@@ -120,6 +120,9 @@ void generate(string map)
 		int r = (int)((loc->radius * img_width * img_height / map_width / map_height) ** 0.5);
 		[int x, int y] = map_coords(loc->pos, ({0, 0, 0}));
 		img->circle(x, y, r, r, @color["info_map_region_boundary"]);
+		Image.Image text = font->write("", sprintf("%d + %d", loc->loot, loc->near));
+		x -= text->xsize() / 2; y -= text->ysize() / 2; //Center the text
+		img->paste_alpha_color(text, 0, 255, 255, x, y);
 	}
 	sort(lootinfo);
 	write(lootinfo * "");
