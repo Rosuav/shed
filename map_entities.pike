@@ -31,13 +31,15 @@ constant color = ([
 	//"trigger_survival_playarea": ({0, 255, 0, 200}),
 	"func_hostage_rescue": ({255, 255, 0, 100}),
 	"point_dz_weaponspawn": ({0, 255, 255, 230}),
+	"info_map_region": ({0, 255, 0, 230}),
 ]);
 
 void generate(string map)
 {
 	write("Generating for dz_%s...\n", map);
 	array entities = parse_entity_log("../tmp/" + map + "_entities.log");
-	Image.Image img = Image.decode(Stdio.read_file("../tmp/Map_dz_" + map + ".tiff"));
+	//The radar images can be grabbed from steamcmd_linux/csgo/csgo/resource/overviews/dz_*_radar.dds
+	Image.Image img = Image.decode(Stdio.read_file("../tmp/radars/dz_" + map + ".tiff"));
 	img_width = img->xsize(); img_height = img->ysize();
 	foreach (entities, array ent)
 	{
