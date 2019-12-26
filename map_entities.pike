@@ -6,7 +6,7 @@ array parse_entity_log(string fn)
 	foreach (Stdio.read_file(fn) / "\n", string line)
 	{
 		if (line == "") continue;
-		array cur = array_sscanf(line, "%s: %f,%f,%f [%f,%f,%f - %f,%f,%f]");
+		array cur = array_sscanf(line, "%s: %f,%f,%f [%f,%f,%f - %f,%f,%f]%*[ ]%s");
 		if (cur && sizeof(cur)) ret += ({cur});
 	}
 	return ret;
@@ -34,7 +34,7 @@ constant color = ([
 	"info_map_region": ({0, 255, 0, 230}),
 ]);
 
-void handle_trigger_survival_playarea(array(float) pos, array(float) min, array(float) max)
+void handle_trigger_survival_playarea(array(float) pos, array(float) min, array(float) max, string tail)
 {
 	map_left = pos[0] + min[0]; map_top = pos[1] + min[1];
 	map_width = max[0] - min[0]; map_height = max[1] - min[1];
@@ -53,7 +53,7 @@ void generate(string map)
 	{
 		string cls = ent[0];
 		array(float) pos = ent[1..3], min = ent[4..6], max = ent[7..9];
-		if (function f = this["handle_" + cls]) f(pos, min, max);
+		if (function f = this["handle_" + cls]) f(pos, min, max, ent[10]);
 		if (!color[cls]) continue;
 		[int x1, int y1] = map_coords(pos, min);
 		[int x2, int y2] = map_coords(pos, max);
