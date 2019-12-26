@@ -31,11 +31,9 @@ constant color = ([
 	"point_dz_weaponspawn": ({0, 255, 255, 230}),
 ]);
 
-constant map = "blacksite";
-
-int main()
+void generate(string map)
 {
-	//TODO: Parse args
+	write("Generating for dz_%s...\n", map);
 	array entities = parse_entity_log("../tmp/" + map + "_entities.log");
 	Image.Image img = Image.decode(Stdio.read_file("../tmp/Map_dz_" + map + ".tiff"));
 	foreach (entities, array ent)
@@ -54,4 +52,11 @@ int main()
 		else img->box(x1, y1, x2 + 1, y2 + 1, @color[cls]); //Simple box
 	}
 	Stdio.write_file("../tmp/dz_" + map + "_annotated.tiff", Image.TIFF.encode(img));
+}
+
+int main()
+{
+	generate("blacksite");
+	generate("sirocco");
+	generate("junglety");
 }
