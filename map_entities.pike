@@ -44,11 +44,11 @@ void handle_trigger_survival_playarea(Image.Image img, array(float) pos, array(f
 
 Image.Fonts.Font font;
 constant map_location_names = ([
-	"Tower1": "Tower One",
-	"BigBridge": "Bridge", "FishingDocks": "Fishing", "MilitaryBase": "Base", "RadarDome": "Dome", "OldVillage": "Village",
+	"BigBridge": "Bridge", "FishingDocks": "Fishing", "MilitaryBase": "Base", "RadarDome": "Dome",
+	"OldVillage": "Village", "StorageTanks": "Tanks", "PipelineBeach": "Pipelines", "PumpStation": "Pumps",
+	"Tower1": "Tower One", "LittleW": "Dubyah",
 	"APC": "APC", //To prevent it being translated to "A P C" (see the TODO below)
 	"Medina": "Town", //Sirocco changed the name of this in the localizations, but kept the internal name
-	"LittleW": "Dubyah",
 ]);
 multiset uninteresting = (< >);
 array locations;
@@ -134,9 +134,10 @@ int main()
 	//think the font alias system works here.
 	Image.Fonts.set_font_dirs(({"/usr/share/fonts/truetype/dejavu"}));
 	font = Image.Fonts.open_font("DejaVu Sans", 16, Image.Fonts.BOLD);
+	//Blacksite would be improved by adding another region at -925.00,-800.00 called "Hut".
 	uninteresting = (<"Bridge", "Cove", "Trench", "Hatch", "Forest", "Canyon", "Overlook", "Boardwalk", "Docks", "Crane">);
 	generate("blacksite");
-	uninteresting = (<"Bridge", "Catwalk", "Pumps", "Dome", "Fishing">);
+	uninteresting = (<"Catwalk", "Pumps", "Dome", "Fishing">);
 	generate("sirocco");
 	uninteresting = (<"APC", "Bridge">);
 	generate("junglety");
