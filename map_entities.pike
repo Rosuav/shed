@@ -29,12 +29,12 @@ array(int) map_coords(array(float) pos, array(float) ofs)
 
 constant color = ([
 	//"trigger_survival_playarea": ({0, 255, 0, 200}),
-	"func_hostage_rescue": ({255, 255, 0, 100}),
-	"point_dz_weaponspawn": ({0, 255, 255, 230}),
-	"info_map_region": ({0, 255, 0, 230}),
+	"func_hostage_rescue": ({128, 0, 0, 100}),
+	"point_dz_weaponspawn": ({192, 192, 0, 230}),
+	//"info_map_region": ({0, 255, 0, 230}),
 ]);
 
-void handle_trigger_survival_playarea(array(float) pos, array(float) min, array(float) max, string tail)
+void handle_trigger_survival_playarea(Image.Image img, array(float) pos, array(float) min, array(float) max, string tail)
 {
 	map_left = pos[0] + min[0]; map_top = pos[1] + min[1];
 	map_width = max[0] - min[0]; map_height = max[1] - min[1];
@@ -42,19 +42,23 @@ void handle_trigger_survival_playarea(array(float) pos, array(float) min, array(
 	//write("Pixel bounds: %d,%d - %d,%d\n", @map_coords(pos, min), @map_coords(pos, max));
 }
 
+Image.Fonts.Font font;
 constant map_location_names = ([
 	"Tower1": "Tower One",
 	//"BigBridge": "Bridge", //??
 	"APC": "APC",
 	"Medina": "Town", //Sirocco changed the name of this in the localizations, but kept the internal name
 ]);
-void handle_info_map_region(array(float) pos, array(float) min, array(float) max, string tail)
+void handle_info_map_region(Image.Image img, array(float) pos, array(float) min, array(float) max, string tail)
 {
 	tail -= "#SurvivalMapLocation_";
 	//TODO maybe: Add a space before any capital letter (so "BoatLaunch" becomes "Boat Launch")
 	//for any that aren't in the mapping
 	tail = map_location_names[tail] || tail;
-	write("%s: %d,%d\n", tail, @map_coords(pos, min));
+	Image.Image text = font->write(tail);
+	[int x, int y] = map_coords(pos, min); //Should be a point entity so the mins and maxs should all be zero
+	x -= text->xsize() / 2; y -= text->ysize() / 2; //Center the text
+	img->paste_alpha_color(text, 0, 255, 255, x, y);
 }
 
 void generate(string map)
@@ -68,7 +72,7 @@ void generate(string map)
 	{
 		string cls = ent[0];
 		array(float) pos = ent[1..3], min = ent[4..6], max = ent[7..9];
-		if (function f = this["handle_" + cls]) f(pos, min, max, ent[10]);
+		if (function f = this["handle_" + cls]) f(img, pos, min, max, ent[10]);
 		if (!color[cls]) continue;
 		[int x1, int y1] = map_coords(pos, min);
 		[int x2, int y2] = map_coords(pos, max);
@@ -85,6 +89,10 @@ void generate(string map)
 
 int main()
 {
+	//Hack: Pick up a font. I'd rather say "give me any basic Sans Serif" but I don't
+	//think the font alias system works here.
+	Image.Fonts.set_font_dirs(({"/usr/share/fonts/truetype/dejavu"}));
+	font = Image.Fonts.open_font("DejaVu Sans", 16, Image.Fonts.BOLD);
 	generate("blacksite");
 	generate("sirocco");
 	generate("junglety");
