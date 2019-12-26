@@ -19,14 +19,14 @@ takes all of that and creates annotated images, seen below.
 The locations deemed "uninteresting" were chosen manually, and in some cases
 are a little arbitrary. Feel free to redefine this.
 
---
+---
 
 ![Blacksite](dz_blacksite_annotated.png)
 
---
+---
 
 ![Sirocco](dz_sirocco_annotated.png)
 
---
+---
 
 ![Junglety](dz_junglety_annotated.png)
