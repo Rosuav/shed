@@ -34,24 +34,26 @@ constant color = ([
 	"info_map_region": ({0, 255, 0, 230}),
 ]);
 
+void handle_trigger_survival_playarea(array(float) pos, array(float) min, array(float) max)
+{
+	map_left = pos[0] + min[0]; map_top = pos[1] + min[1];
+	map_width = max[0] - min[0]; map_height = max[1] - min[1];
+	//write("Map dimensions: %.2f,%.2f sz %.2f,%.2f\n", map_left, map_top, map_width, map_height);
+	//write("Pixel bounds: %d,%d - %d,%d\n", @map_coords(pos, min), @map_coords(pos, max));
+}
+
 void generate(string map)
 {
 	write("Generating for dz_%s...\n", map);
-	array entities = parse_entity_log("../tmp/" + map + "_entities.log");
+	array entities = parse_entity_log(map + "_entities.log");
 	//The radar images can be grabbed from steamcmd_linux/csgo/csgo/resource/overviews/dz_*_radar.dds
-	Image.Image img = Image.decode(Stdio.read_file("../tmp/radars/dz_" + map + ".tiff"));
+	Image.Image img = Image.decode(Stdio.read_file("dz_" + map + ".tiff"));
 	img_width = img->xsize(); img_height = img->ysize();
 	foreach (entities, array ent)
 	{
 		string cls = ent[0];
 		array(float) pos = ent[1..3], min = ent[4..6], max = ent[7..9];
-		if (cls == "trigger_survival_playarea")
-		{
-			map_left = pos[0] + min[0]; map_top = pos[1] + min[1];
-			map_width = max[0] - min[0]; map_height = max[1] - min[1];
-			//write("Map dimensions: %.2f,%.2f sz %.2f,%.2f\n", map_left, map_top, map_width, map_height);
-			//write("Pixel bounds: %d,%d - %d,%d\n", @map_coords(pos, min), @map_coords(pos, max));
-		}
+		if (function f = this["handle_" + cls]) f(pos, min, max);
 		if (!color[cls]) continue;
 		[int x1, int y1] = map_coords(pos, min);
 		[int x2, int y2] = map_coords(pos, max);
@@ -63,7 +65,7 @@ void generate(string map)
 		}
 		else img->box(x1, y1, x2 + 1, y2 + 1, @color[cls]); //Simple box
 	}
-	Stdio.write_file("../tmp/dz_" + map + "_annotated.tiff", Image.TIFF.encode(img));
+	Stdio.write_file("dz_" + map + "_annotated.tiff", Image.TIFF.encode(img));
 }
 
 int main()
