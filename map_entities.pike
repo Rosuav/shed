@@ -51,16 +51,13 @@ constant map_location_names = ([
 	"Medina": "Town", //Sirocco changed the name of this in the localizations, but kept the internal name
 ]);
 multiset uninteresting = (< >);
-array locations;
+array locations, drawme;
 void handle_info_map_region(Image.Image img, array(float) pos, array(float) min, array(float) max, string tail)
 {
 	tail -= "#SurvivalMapLocation_";
 	tail = map_location_names[tail] || String.trim(Regexp.replace("[A-Z]", tail, lambda(string s) {return " " + s;}));
-	Image.Image text = font->write(tail, "");
 	[int x, int y] = map_coords(pos, min); //Should be a point entity so the mins and maxs should all be zero
-	x -= text->xsize() / 2; y -= text->ysize() / 2; //Center the text
-	img->paste_alpha_color(text, 0, 0, 0, x + 2, y + 2);
-	img->paste_alpha_color(text, 255, 255, 255, x, y);
+	drawme += ({ ({ tail, x, y}) });
 	if (uninteresting[tail]) return;
 	//Find the nearest other location. However far it is to there, half that
 	//distance is the "grab radius" of this location. Note that, since we do
@@ -97,7 +94,7 @@ void generate(string map)
 	//The radar images can be grabbed from steamcmd_linux/csgo/csgo/resource/overviews/dz_*_radar.dds
 	Image.Image img = Image.decode(Stdio.read_file("dz_" + map + ".tiff"));
 	img_width = img->xsize(); img_height = img->ysize();
-	locations = ({ }); //Reset the locations for each new map
+	locations = drawme = ({ }); //Reset the locations for each new map
 	foreach (entities, array ent)
 	{
 		string cls = ent[0];
@@ -113,6 +110,13 @@ void generate(string map)
 				img->circle(x1, y1, r, r, @color[cls]);
 		}
 		else img->box(x1, y1, x2 + 1, y2 + 1, @color[cls]); //Simple box
+	}
+	foreach (drawme, [string txt, int x, int y])
+	{
+		Image.Image text = font->write(txt, "");
+		x -= text->xsize() / 2; y -= text->ysize() / 2; //Center the text
+		img->paste_alpha_color(text, 0, 0, 0, x + 2, y + 2);
+		img->paste_alpha_color(text, 255, 255, 255, x, y);
 	}
 	foreach (locations, mapping loc)
 	{
