@@ -42,6 +42,21 @@ void handle_trigger_survival_playarea(array(float) pos, array(float) min, array(
 	//write("Pixel bounds: %d,%d - %d,%d\n", @map_coords(pos, min), @map_coords(pos, max));
 }
 
+constant map_location_names = ([
+	"Tower1": "Tower One",
+	//"BigBridge": "Bridge", //??
+	"APC": "APC",
+	"Medina": "Town", //Sirocco changed the name of this in the localizations, but kept the internal name
+]);
+void handle_info_map_region(array(float) pos, array(float) min, array(float) max, string tail)
+{
+	tail -= "#SurvivalMapLocation_";
+	//TODO maybe: Add a space before any capital letter (so "BoatLaunch" becomes "Boat Launch")
+	//for any that aren't in the mapping
+	tail = map_location_names[tail] || tail;
+	write("%s: %d,%d\n", tail, @map_coords(pos, min));
+}
+
 void generate(string map)
 {
 	write("Generating for dz_%s...\n", map);
