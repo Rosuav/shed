@@ -47,7 +47,7 @@ constant map_location_names = ([
 	"BigBridge": "Bridge", "FishingDocks": "Fishing", "MilitaryBase": "Base", "RadarDome": "Dome",
 	"OldVillage": "Village", "StorageTanks": "Tanks", "PipelineBeach": "Pipelines", "PumpStation": "Pumps",
 	"Tower1": "Tower One", "LittleW": "Dubyah",
-	"APC": "APC", //To prevent it being translated to "A P C" (see the TODO below)
+	"APC": "APC", //To prevent it being translated to "A P C" (see the regex below)
 	"Medina": "Town", //Sirocco changed the name of this in the localizations, but kept the internal name
 ]);
 multiset uninteresting = (< >);
@@ -55,9 +55,7 @@ array locations;
 void handle_info_map_region(Image.Image img, array(float) pos, array(float) min, array(float) max, string tail)
 {
 	tail -= "#SurvivalMapLocation_";
-	//TODO maybe: Add a space before any capital letter (so "BoatLaunch" becomes "Boat Launch")
-	//for any that aren't in the mapping
-	tail = map_location_names[tail] || tail;
+	tail = map_location_names[tail] || String.trim(Regexp.replace("[A-Z]", tail, lambda(string s) {return " " + s;}));
 	Image.Image text = font->write(tail, "");
 	[int x, int y] = map_coords(pos, min); //Should be a point entity so the mins and maxs should all be zero
 	x -= text->xsize() / 2; y -= text->ysize() / 2; //Center the text
