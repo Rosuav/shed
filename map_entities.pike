@@ -116,7 +116,7 @@ void generate(string map)
 		Image.Image text = font->write(txt, "");
 		x -= text->xsize() / 2; y -= text->ysize() / 2; //Center the text
 		img->paste_alpha_color(text, 0, 0, 0, x + 2, y + 2);
-		img->paste_alpha_color(text, 255, 255, 255, x, y);
+		img->paste_alpha_color(text, 128, 255, 255, x, y);
 	}
 	foreach (locations, mapping loc)
 	{
@@ -137,7 +137,7 @@ int main()
 	//Hack: Pick up a font. I'd rather say "give me any basic Sans Serif" but I don't
 	//think the font alias system works here.
 	Image.Fonts.set_font_dirs(({"/usr/share/fonts/truetype/dejavu"}));
-	font = Image.Fonts.open_font("DejaVu Sans", 16, Image.Fonts.BOLD);
+	font = Image.Fonts.open_font("DejaVu Sans", 18, Image.Fonts.BOLD);
 	//Blacksite would be improved by adding another region at -925.00,-800.00 called "Hut".
 	uninteresting = (<"Bridge", "Cove", "Trench", "Hatch", "Forest", "Canyon", "Overlook", "Boardwalk", "Docks", "Crane">);
 	generate("blacksite");
