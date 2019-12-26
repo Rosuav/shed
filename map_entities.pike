@@ -61,7 +61,8 @@ void handle_info_map_region(Image.Image img, array(float) pos, array(float) min,
 	Image.Image text = font->write(tail, "");
 	[int x, int y] = map_coords(pos, min); //Should be a point entity so the mins and maxs should all be zero
 	x -= text->xsize() / 2; y -= text->ysize() / 2; //Center the text
-	img->paste_alpha_color(text, 0, 255, 255, x, y);
+	img->paste_alpha_color(text, 0, 0, 0, x + 2, y + 2);
+	img->paste_alpha_color(text, 255, 255, 255, x, y);
 	if (uninteresting[tail]) return;
 	//Find the nearest other location. However far it is to there, half that
 	//distance is the "grab radius" of this location. Note that, since we do
@@ -122,6 +123,7 @@ void generate(string map)
 		img->circle(x, y, r, r, @color["info_map_region_boundary"]);
 		Image.Image text = font->write("", sprintf("%d + %d", loc->loot, loc->near));
 		x -= text->xsize() / 2; y -= text->ysize() / 2; //Center the text
+		img->paste_alpha_color(text, 0, 0, 0, x + 2, y + 2);
 		img->paste_alpha_color(text, 0, 255, 255, x, y);
 	}
 	write("%d locations.\n", sizeof(locations));
