@@ -11,7 +11,7 @@ As of 2019-12-26, the three maps available in CS:GO's Danger Zone are:
   spawns, which causes some small problems for the map.
 
 In order to analyze the loot distribution, I created a quick dump of all the
-loot spawns and the map named locations. This was done using [this code](https://github.com/Rosuav/TF2BuffBot/blob/3d8fc6a/drzed.sp#L1695)
+loot spawns and the map named locations. This was done using [this code](https://github.com/Rosuav/TF2BuffBot/blob/3d8fc6a/drzed.sp#L1695-L1726)
 once for each map. The maps themselves come from the dz_*_radar.dds files in
 the dedicated server directory. Then [map_entities.pike](https://github.com/Rosuav/shed/blob/master/map_entities.pike)
 takes all of that and creates annotated images, seen below.
