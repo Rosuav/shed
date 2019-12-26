@@ -12,16 +12,18 @@ array parse_entity_log(string fn)
 	return ret;
 }
 
+float map_left, map_top, map_width, map_height;
+int img_width, img_height;
 array(int) map_coords(array(float) pos, array(float) ofs)
 {
 	//The third coordinate in the position is irrelevant; map the other two
 	//to pixel positions.
-	//In theory, the offsets and scale factors could be figured out from the
-	//min/max dimensions of trigger_survival_playarea, and the pixel size of
-	//the image file. There'll probably be a hard-coded inversion of the Y
-	//axis, but everything else should be detectable.
-	int x = (int)((pos[0] + ofs[0] + 8192.0) * 1024 / 16384); //Add offset, multiply by pixel width, divide by hammer unit width
-	int y = (int)((pos[1] + ofs[1] - 8192.0) * 1024 / -16384); //Ditto height
+	//We invert the Y axis because Hammer and bitmaps are oriented differently.
+	//Other than that, this is simply interpolating points in the bounds given
+	//by the survival_playarea entity (which is assumed to be in the file ahead
+	//of anything that actually matters).
+	int x = (int)((pos[0] + ofs[0] - map_left) * img_width / map_width);
+	int y = (int)((pos[1] + ofs[1] + map_top) * img_height / -map_height);
 	return ({x, y});
 }
 
@@ -36,10 +38,18 @@ void generate(string map)
 	write("Generating for dz_%s...\n", map);
 	array entities = parse_entity_log("../tmp/" + map + "_entities.log");
 	Image.Image img = Image.decode(Stdio.read_file("../tmp/Map_dz_" + map + ".tiff"));
+	img_width = img->xsize(); img_height = img->ysize();
 	foreach (entities, array ent)
 	{
 		string cls = ent[0];
 		array(float) pos = ent[1..3], min = ent[4..6], max = ent[7..9];
+		if (cls == "trigger_survival_playarea")
+		{
+			map_left = pos[0] + min[0]; map_top = pos[1] + min[1];
+			map_width = max[0] - min[0]; map_height = max[1] - min[1];
+			//write("Map dimensions: %.2f,%.2f sz %.2f,%.2f\n", map_left, map_top, map_width, map_height);
+			//write("Pixel bounds: %d,%d - %d,%d\n", @map_coords(pos, min), @map_coords(pos, max));
+		}
 		if (!color[cls]) continue;
 		[int x1, int y1] = map_coords(pos, min);
 		[int x2, int y2] = map_coords(pos, max);
