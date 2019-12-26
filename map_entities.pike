@@ -50,6 +50,7 @@ constant map_location_names = ([
 	"Medina": "Town", //Sirocco changed the name of this in the localizations, but kept the internal name
 	"LittleW": "Dubyah",
 ]);
+multiset uninteresting = (< >);
 array locations;
 void handle_info_map_region(Image.Image img, array(float) pos, array(float) min, array(float) max, string tail)
 {
@@ -61,6 +62,7 @@ void handle_info_map_region(Image.Image img, array(float) pos, array(float) min,
 	[int x, int y] = map_coords(pos, min); //Should be a point entity so the mins and maxs should all be zero
 	x -= text->xsize() / 2; y -= text->ysize() / 2; //Center the text
 	img->paste_alpha_color(text, 0, 255, 255, x, y);
+	if (uninteresting[tail]) return;
 	//Find the nearest other location. However far it is to there, half that
 	//distance is the "grab radius" of this location. Note that, since we do
 	//these sequentially, we may also need to update the other location's
@@ -113,10 +115,8 @@ void generate(string map)
 		}
 		else img->box(x1, y1, x2 + 1, y2 + 1, @color[cls]); //Simple box
 	}
-	array lootinfo = ({ });
 	foreach (locations, mapping loc)
 	{
-		lootinfo += ({sprintf("%2d+%2d loot in %s [rad %.2f]\n", loc->loot, loc->near, loc->name, loc->radius ** 0.5)});
 		int r = (int)((loc->radius * img_width * img_height / map_width / map_height) ** 0.5);
 		[int x, int y] = map_coords(loc->pos, ({0, 0, 0}));
 		img->circle(x, y, r, r, @color["info_map_region_boundary"]);
@@ -124,8 +124,7 @@ void generate(string map)
 		x -= text->xsize() / 2; y -= text->ysize() / 2; //Center the text
 		img->paste_alpha_color(text, 0, 255, 255, x, y);
 	}
-	sort(lootinfo);
-	write(lootinfo * "");
+	write("%d locations.\n", sizeof(locations));
 	Stdio.write_file("dz_" + map + "_annotated.tiff", Image.TIFF.encode(img));
 }
 
@@ -135,7 +134,10 @@ int main()
 	//think the font alias system works here.
 	Image.Fonts.set_font_dirs(({"/usr/share/fonts/truetype/dejavu"}));
 	font = Image.Fonts.open_font("DejaVu Sans", 16, Image.Fonts.BOLD);
+	uninteresting = (<"Bridge", "Cove", "Trench", "Hatch", "Forest", "Canyon", "Overlook", "Boardwalk", "Docks", "Crane">);
 	generate("blacksite");
+	uninteresting = (<"Bridge", "Catwalk", "Pumps", "Dome", "Fishing">);
 	generate("sirocco");
+	uninteresting = (<"APC", "Bridge">);
 	generate("junglety");
 }
