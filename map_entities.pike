@@ -31,7 +31,7 @@ constant color = ([
 	//"trigger_survival_playarea": ({0, 255, 0, 200}),
 	"func_hostage_rescue": ({128, 0, 0, 100}),
 	"point_dz_weaponspawn": ({192, 192, 0, 230}),
-	//"info_map_region": ({0, 255, 0, 230}),
+	"info_map_region_boundary": ({0, 255, 0}),
 ]);
 
 void handle_trigger_survival_playarea(Image.Image img, array(float) pos, array(float) min, array(float) max, string tail)
@@ -50,6 +50,7 @@ constant map_location_names = ([
 	"Medina": "Town", //Sirocco changed the name of this in the localizations, but kept the internal name
 	"LittleW": "Dubyah",
 ]);
+array locations;
 void handle_info_map_region(Image.Image img, array(float) pos, array(float) min, array(float) max, string tail)
 {
 	tail -= "#SurvivalMapLocation_";
@@ -60,6 +61,32 @@ void handle_info_map_region(Image.Image img, array(float) pos, array(float) min,
 	[int x, int y] = map_coords(pos, min); //Should be a point entity so the mins and maxs should all be zero
 	x -= text->xsize() / 2; y -= text->ysize() / 2; //Center the text
 	img->paste_alpha_color(text, 0, 255, 255, x, y);
+	//Find the nearest other location. However far it is to there, half that
+	//distance is the "grab radius" of this location. Note that, since we do
+	//these sequentially, we may also need to update the other location's
+	//radius. (We store distance squared, not distance, for convenience.)
+	float best = map_width * map_height + 1;
+	foreach (locations, mapping loc)
+	{
+		float dist = (loc->pos[0] - pos[0]) ** 2 + (loc->pos[1] - pos[1]) ** 2;
+		float radius = dist / 4;
+		if (radius < best) best = radius;
+		if (radius < loc->radius) loc->radius = radius;
+	}
+	locations += ({ (["pos": pos, "name": tail, "loot": 0, "near": 0, "radius": best]) });
+}
+
+void handle_point_dz_weaponspawn(Image.Image img, array(float) pos, array(float) min, array(float) max, string tail)
+{
+	float best = map_width * map_height + 1; //distance-squared
+	mapping bestloc;
+	foreach (locations, mapping loc)
+	{
+		float dist = (loc->pos[0] - pos[0]) ** 2 + (loc->pos[1] - pos[1]) ** 2;
+		if (dist < best) {best = dist; bestloc = loc;}
+	}
+	if (best > bestloc->maxdist) bestloc->maxdist = best;
+	if (best > bestloc->radius) bestloc->near++; else bestloc->loot++;
 }
 
 void generate(string map)
@@ -69,6 +96,7 @@ void generate(string map)
 	//The radar images can be grabbed from steamcmd_linux/csgo/csgo/resource/overviews/dz_*_radar.dds
 	Image.Image img = Image.decode(Stdio.read_file("dz_" + map + ".tiff"));
 	img_width = img->xsize(); img_height = img->ysize();
+	locations = ({ }); //Reset the locations for each new map
 	foreach (entities, array ent)
 	{
 		string cls = ent[0];
@@ -85,6 +113,16 @@ void generate(string map)
 		}
 		else img->box(x1, y1, x2 + 1, y2 + 1, @color[cls]); //Simple box
 	}
+	array lootinfo = ({ });
+	foreach (locations, mapping loc)
+	{
+		lootinfo += ({sprintf("%2d+%2d loot in %s [rad %.2f]\n", loc->loot, loc->near, loc->name, loc->radius ** 0.5)});
+		int r = (int)((loc->radius * img_width * img_height / map_width / map_height) ** 0.5);
+		[int x, int y] = map_coords(loc->pos, ({0, 0, 0}));
+		img->circle(x, y, r, r, @color["info_map_region_boundary"]);
+	}
+	sort(lootinfo);
+	write(lootinfo * "");
 	Stdio.write_file("dz_" + map + "_annotated.tiff", Image.TIFF.encode(img));
 }
 
