@@ -1,5 +1,7 @@
 //Take a list of entities and an image, and create an overlay
 
+mixed _ignore_ = Gz.crc32; //Force the Gz module to be loaded, thus activating Image.PNG
+
 array parse_entity_log(string fn)
 {
 	array ret = ({ });
@@ -92,7 +94,7 @@ void generate(string map)
 	write("Generating for dz_%s...\n", map);
 	array entities = parse_entity_log(map + "_entities.log");
 	//The radar images can be grabbed from steamcmd_linux/csgo/csgo/resource/overviews/dz_*_radar.dds
-	Image.Image img = Image.decode(Stdio.read_file("dz_" + map + ".tiff"));
+	Image.Image img = Image.decode(Stdio.read_file("dz_" + map + ".png"));
 	img_width = img->xsize(); img_height = img->ysize();
 	locations = drawme = ({ }); //Reset the locations for each new map
 	foreach (entities, array ent)
@@ -129,7 +131,7 @@ void generate(string map)
 		img->paste_alpha_color(text, 0, 255, 255, x, y);
 	}
 	write("%d locations.\n", sizeof(locations));
-	Stdio.write_file("dz_" + map + "_annotated.tiff", Image.TIFF.encode(img));
+	Stdio.write_file("dz_" + map + "_annotated.png", Image.PNG.encode(img));
 }
 
 int main()
