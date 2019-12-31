@@ -21,7 +21,7 @@ if "--gsi" in sys.argv:
 
 NOTES_DIR = os.path.expanduser(os.environ.get("NOTES_DIR", "~/tmp/notes"))
 os.makedirs(NOTES_DIR, exist_ok=True)
-blocks = sorted(fn for fn in os.listdir(NOTES_DIR) if fn != "notes.log")
+blocks = sorted(int(fn) for fn in os.listdir(NOTES_DIR) if fn != "notes.log")
 
 if not blocks: new_block = True
 if new_block:
