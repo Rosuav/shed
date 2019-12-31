@@ -59,14 +59,16 @@
 			"consecutive_round_losses": 0,
 			"timeouts_remaining": 1,
 			"matches_won_this_series": 0,
-			"name": ".XanaX eSports"
+			"name": ".XanaX eSports",
+			"flag": "DK"
 		},
 		"team_t": {
 			"score": 0,
 			"consecutive_round_losses": 0,
 			"timeouts_remaining": 1,
 			"matches_won_this_series": 0,
-			"name": "Last Echo Force"
+			"name": "Last Echo Force",
+			"flag": "KZ"
 		},
 		"num_matches_to_win_series": 0,
 		"current_spectators": 0,
