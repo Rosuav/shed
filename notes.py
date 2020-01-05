@@ -21,7 +21,17 @@ if "--gsi" in sys.argv:
 
 NOTES_DIR = os.path.expanduser(os.environ.get("NOTES_DIR", "~/tmp/notes"))
 os.makedirs(NOTES_DIR, exist_ok=True)
-blocks = sorted(int(fn) for fn in os.listdir(NOTES_DIR) if fn != "notes.log")
+
+def safe_int(n):
+	"""Sort key for probably-numeric strings
+
+	Sorts unparseable strings first in lexicographical order, then
+	everything that intifies in numerical order.
+	"""
+	try: return (1, int(n))
+	except (ValueError, TypeError): return (0, n)
+
+blocks = sorted((fn for fn in os.listdir(NOTES_DIR) if fn != "notes.log"), key=safe_int)
 
 if not blocks: new_block = True
 if new_block:
