@@ -50,11 +50,12 @@ fn = "%02d - " % note_id + desc
 print("[%s]" % block, fn, file=log, flush=True)
 with open(block + "/%s.flac" % fn, "wb") as f: f.write(audio.get_flac_data())
 
+d = None
 try: d = r.recognize_sphinx(audio, show_all=True)
 except sr.UnknownValueError: pass
 except sr.RequestError as e: print("Sphinx:", e, file=log, flush=True)
 
-options = [b.hypstr for b in d.nbest()]
+options = [b.hypstr for b in d.nbest()] if d else []
 seen = {}
 for txt in options[:5]:
 	print("Sphinx: %s" % txt, file=log, flush=True)
