@@ -17,7 +17,7 @@ if "--gsi" in sys.argv:
 		sys.exit(0)
 	if desc.startswith("--new-block "):
 		desc = desc[12:] # == len(the above)
-		new_block = True
+		new_block = 1
 
 NOTES_DIR = os.path.expanduser(os.environ.get("NOTES_DIR", "~/tmp/notes"))
 os.makedirs(NOTES_DIR, exist_ok=True)
@@ -33,9 +33,10 @@ def safe_int(n):
 
 blocks = sorted(os.listdir(NOTES_DIR), key=safe_int)
 
-if not blocks: new_block = True
+try: int(blocks[-1])
+except (IndexError, ValueError): new_block = 2
 if new_block:
-	next = int(blocks[-1] if blocks else 0) + 1
+	next = int(blocks[-1] if new_block != 2 else 0) + 1
 	blocks.append(str(next))
 	os.mkdir(NOTES_DIR + "/" + blocks[-1])
 block = NOTES_DIR + "/" + blocks[-1] # Use the latest block (which we may have just created)
