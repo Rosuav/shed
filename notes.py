@@ -44,6 +44,20 @@ notes = os.listdir(block)
 notes.sort()
 note_id = int(notes[-1].split("-")[0]) + 1 if notes else 1
 
+# Get rid of the ALSA warnings by preloading it with stderr muted
+def silence_pyaudio():
+	devnull = os.open(os.devnull, os.O_WRONLY)
+	old_stderr = os.dup(2)
+	sys.stderr.flush()
+	os.dup2(devnull, 2)
+	os.close(devnull)
+	try:
+		import pyaudio; pyaudio.PyAudio()
+	finally:
+		os.dup2(old_stderr, 2)
+		os.close(old_stderr)
+silence_pyaudio()
+
 r = sr.Recognizer()
 # Can I increase the gain at all?
 with sr.Microphone() as source:
