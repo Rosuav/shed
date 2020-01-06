@@ -45,7 +45,7 @@ def mode_switch(mode):
 	# this script is run in the background somewhere, be sure to propagate it.
 	command = ["xfconf-query", "-c", "xfce4-keyboard-shortcuts", "-p", "/commands/custom/<Alt>d"]
 	if mode == "idle": subprocess.run(command + ["--reset"])
-	else: subprocess.run(command + ["-n", "-t", "string", "-s", "/home/rosuav/shed/notes.py --gsi"])
+	else: subprocess.run(command + ["-n", "-t", "string", "-s", "/home/rosuav/shed/notes.py --gsi 2>>/home/rosuav/tmp/notes/notes.err"])
 
 # NOTE: Money calculation is inactive if player_state is disabled in the config
 show_money = False

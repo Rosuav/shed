@@ -31,7 +31,7 @@ def safe_int(n):
 	try: return (1, int(n))
 	except (ValueError, TypeError): return (0, n)
 
-blocks = sorted((fn for fn in os.listdir(NOTES_DIR) if fn != "notes.log"), key=safe_int)
+blocks = sorted(os.listdir(NOTES_DIR), key=safe_int)
 
 if not blocks: new_block = True
 if new_block:
