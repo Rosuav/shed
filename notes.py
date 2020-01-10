@@ -11,14 +11,13 @@ if "--gsi" in sys.argv:
 	# Call on the GSI server to find out if we're in a CS:GO match, and
 	# if so, what we should use as our description
 	import requests
-	desc = requests.get("http://localhost:27013/status").text
-	if desc == "n/a":
+	data = requests.get("http://localhost:27013/status.json").json()
+	if not data["playing"]:
 		# We're not playing. When running under GSI control (ie NOT
 		# explicitly called upon by the terminal), ignore these times.
 		sys.exit(0)
-	if desc.startswith("--new-block "):
-		desc = desc[12:] # == len(the above)
-		new_block = 1
+	if data["new_match"]: new_block = 1
+	desc = data["desc"]
 
 NOTES_DIR = os.path.expanduser(os.environ.get("NOTES_DIR", "~/tmp/notes"))
 os.makedirs(NOTES_DIR, exist_ok=True)
