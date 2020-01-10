@@ -11,13 +11,14 @@ if "--gsi" in sys.argv:
 	# Call on the GSI server to find out if we're in a CS:GO match, and
 	# if so, what we should use as our description
 	import requests
-	data = requests.get("http://localhost:27013/status.json").json()
-	if not data["playing"]:
+	gsi_data = requests.get("http://localhost:27013/status.json").json()
+	if not gsi_data["playing"]:
 		# We're not playing. When running under GSI control (ie NOT
 		# explicitly called upon by the terminal), ignore these times.
 		sys.exit(0)
-	if data["new_match"]: new_block = 1
-	desc = data["desc"]
+	if gsi_data["new_match"]: new_block = 1
+	desc = gsi_data["desc"]
+else: gsi_data = {}
 
 NOTES_DIR = os.path.expanduser(os.environ.get("NOTES_DIR", "~/tmp/notes"))
 os.makedirs(NOTES_DIR, exist_ok=True)
@@ -102,6 +103,8 @@ meta["recordings"].append({
 	"sphinx": options[:5],
 	"google": google,
 })
+for key in "round", "spec", "score", "time":
+	if key in gsi_data: meta["recordings"][-1][key] = gsi_data[key]
 with open(block + "/metadata.json", "w") as f:
 	json.dump(meta, f, sort_keys=True, indent=2)
 
