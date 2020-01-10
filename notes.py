@@ -2,6 +2,7 @@
 # NOTE: May require the system Python 3 rather than using 3.9
 import os.path
 import sys
+import json
 import speech_recognition as sr
 
 new_block = "--new-block" in sys.argv
@@ -92,6 +93,19 @@ except sr.UnknownValueError: google = ""
 except sr.RequestError as e: google = repr(e)
 
 print("Google:", google, file=log, flush=True)
+
+try:
+	with open(block + "/metadata.json") as f: meta = json.load(f)
+except (FileNotFoundError, json.decoder.JSONDecodeError): meta = {}
+if "recordings" not in meta: meta["recordings"] = []
+meta["recordings"].append({
+	"id": note_id,
+	"desc": desc,
+	"sphinx": options[:5],
+	"google": google,
+})
+with open(block + "/metadata.json", "w") as f:
+	json.dump(meta, f, sort_keys=True, indent=2)
 
 sys.exit(0) # Boosting volume doesn't really seem to help much.
 
