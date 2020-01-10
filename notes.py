@@ -100,6 +100,7 @@ if "recordings" not in meta: meta["recordings"] = []
 meta["recordings"].append({
 	"id": note_id,
 	"desc": desc,
+	"filename": "/%s.flac" % fn,
 	"sphinx": options[:5],
 	"google": google,
 })
