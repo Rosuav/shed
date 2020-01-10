@@ -42,8 +42,7 @@ if new_block:
 	os.mkdir(NOTES_DIR + "/" + blocks[-1])
 block = NOTES_DIR + "/" + blocks[-1] # Use the latest block (which we may have just created)
 
-notes = os.listdir(block)
-notes.sort()
+notes = sorted(fn for fn in os.listdir(block) if fn[0] in "0123456789")
 note_id = int(notes[-1].split("-")[0]) + 1 if notes else 1
 
 # Get rid of the ALSA warnings by preloading it with stderr muted
