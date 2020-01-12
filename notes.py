@@ -109,6 +109,10 @@ for key in "round", "spec", "score", "time":
 with open(block + "/metadata.json", "w") as f:
 	json.dump(meta, f, sort_keys=True, indent=2)
 
+if "--gsi" in sys.argv:
+	# Signal the GSI server to load new metadata, if appropriate
+	requests.post("http://localhost:27013/metadata/" + blocks[-1], json=meta)
+
 sys.exit(0) # Boosting volume doesn't really seem to help much.
 
 # Attempt to boost the volume and re-transcribe
