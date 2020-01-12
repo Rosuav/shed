@@ -69,7 +69,9 @@ with sr.Microphone() as source:
 	#))
 print("Got notes.")
 log = open(NOTES_DIR + "/notes.log", "a")
-if new_block: print("-" * 65, file=log)
+if new_block:
+	print("-" * 65, file=log)
+	print("http://localhost:27013/static/notes.html#" + blocks[-1], file=log)
 
 fn = "%02d - " % note_id + desc
 print("[%s]" % block, fn, file=log, flush=True)
