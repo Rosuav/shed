@@ -106,7 +106,7 @@ meta["recordings"].append({
 	"sphinx": options[:5],
 	"google": google,
 })
-for key in "round", "spec", "score", "time":
+for key in "round", "spec", "score", "time", "bombtime":
 	if key in gsi_data: meta["recordings"][-1][key] = gsi_data[key]
 with open(block + "/metadata.json", "w") as f:
 	json.dump(meta, f, sort_keys=True, indent=2)
