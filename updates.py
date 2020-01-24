@@ -25,9 +25,22 @@ def show_packages(scr, upgrades, auto):
 
 	print()
 	if auto: print("Plus %d auto-installed packages." % auto)
+	print("Select packages to upgrade, then Enter to apply.")
+	print("Press I for more info on a package [TODO]")
+	pkg = 0
+	install = [False] * len(upgrades)
 	while True:
+		scr.move(pkg + 2, 1)
 		key = scr.getkey()
-		if key == "Q" or key == "q": break
+		if key == "Q" or key == "q": return []
+		if key == "\n": break
+		if key == "KEY_UP":   pkg = (pkg - 1) % len(upgrades)
+		if key == "KEY_DOWN": pkg = (pkg + 1) % len(upgrades)
+		if key == " ":
+			install[pkg] = not install[pkg]
+			scr.addstr(pkg + 2, 1, "X" if install[pkg] else " ")
+		# scr.addstr(len(upgrades) + 7, 0, repr(key))
+	return [pkg for pkg, keep in zip(upgrades, install) if keep]
 
 def main():
 	cache = apt.Cache()
@@ -47,7 +60,9 @@ def main():
 		return
 
 	global curses; import curses
-	curses.wrapper(show_packages, upgrades, auto)
+	upgrades = curses.wrapper(show_packages, upgrades, auto)
+	if not upgrades: return
+	print(upgrades)
 
 if __name__ == "__main__":
 	main()
