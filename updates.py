@@ -19,6 +19,7 @@ def show_packages(scr, upgrades, auto):
 	fmt = "[ ] " + "  ".join("%%-%ds" % col for col in widths.values())
 	print(fmt % tuple(widths), curses.A_BOLD)
 	print("--- " + "  ".join("-" * col for col in widths.values()))
+	# TODO: Cope with more packages than lines on the screen (scroll? paginate?)
 	for d in desc:
 		print(fmt % tuple(d.values()))
 
