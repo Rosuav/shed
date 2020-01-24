@@ -3,6 +3,31 @@
 from collections import OrderedDict # Starting with Python 3.7, we could just use vanilla dicts
 import apt # ImportError? apt install python3-apt
 
+def describe(pkg):
+	# Python 3.7 equivalent:
+	# return {"Name": pkg.name, "Installed": pkg.installed.version, "Candidate": pkg.candidate.version}
+	return OrderedDict((("Name", pkg.name), ("Current", pkg.installed.version), ("Target", pkg.candidate.version)))
+
+def show_packages(scr, upgrades, auto):
+	def print(s="", *args):
+		scr.addstr(str(s) + "\n", *args)
+	desc = [describe(pkg) for pkg in upgrades]
+	widths = OrderedDict((x, len(x)) for x in desc[0]) # Start with header widths
+	for d in desc:
+		for col in d:
+			widths[col] = max(widths[col], len(d[col]))
+	fmt = "[ ] " + "  ".join("%%-%ds" % col for col in widths.values())
+	print(fmt % tuple(widths), curses.A_BOLD)
+	print("--- " + "  ".join("-" * col for col in widths.values()))
+	for d in desc:
+		print(fmt % tuple(d.values()))
+
+	print()
+	if auto: print("Plus %d auto-installed packages." % auto)
+	while True:
+		key = scr.getkey()
+		if key == "Q" or key == "q": break
+
 def main():
 	cache = apt.Cache()
 	cache.open()
@@ -20,24 +45,8 @@ def main():
 		print("Everything up-to-date.")
 		return
 
-	def describe(pkg):
-		# Python 3.7 equivalent:
-		# return {"Name": pkg.name, "Installed": pkg.installed.version, "Candidate": pkg.candidate.version}
-		return OrderedDict((("Name", pkg.name), ("Current", pkg.installed.version), ("Target", pkg.candidate.version)))
-
-	desc = [describe(pkg) for pkg in upgrades]
-	widths = OrderedDict((x, len(x)) for x in desc[0]) # Start with header widths
-	for d in desc:
-		for col in d:
-			widths[col] = max(widths[col], len(d[col]))
-	fmt = "  ".join("%%-%ds" % col for col in widths.values())
-	print(fmt % tuple(widths))
-	print("  ".join("-" * col for col in widths.values()))
-	for d in desc:
-		print(fmt % tuple(d.values()))
-
-	print()
-	if auto: print("Plus %d auto-installed packages." % auto)
+	global curses; import curses
+	curses.wrapper(show_packages, upgrades, auto)
 
 if __name__ == "__main__":
 	main()
