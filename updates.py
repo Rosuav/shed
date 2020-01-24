@@ -47,6 +47,8 @@ def show_packages(scr, upgrades, auto):
 			pass
 		# TODO: Have a way to mark auto from here? What about remove?
 		# action[pkg] = "A"
+		# Remove should be equiv of "apt --purge autoremove pkgname" if poss
+		# (but ideally shouldn't disrupt other autoremovables).
 		# scr.addstr(len(upgrades) + 7, 0, repr(key))
 	return [pkg for pkg, ac in zip(upgrades, action) if ac == "I"]
 
