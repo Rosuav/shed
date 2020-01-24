@@ -62,7 +62,9 @@ def main():
 	global curses; import curses
 	upgrades = curses.wrapper(show_packages, upgrades, auto)
 	if not upgrades: return
-	print(upgrades)
+	for pkg in upgrades:
+		pkg.mark_upgrade()
+	cache.commit()
 
 if __name__ == "__main__":
 	main()
