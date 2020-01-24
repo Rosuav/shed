@@ -45,6 +45,7 @@ def show_packages(scr, upgrades, auto):
 			# and ideally, the list of other packages that would be
 			# upgraded along with this one (its out-of-date deps).
 			pass
+		# TODO: Have a way to mark auto from here? What about remove?
 		# scr.addstr(len(upgrades) + 7, 0, repr(key))
 	return [pkg for pkg, keep in zip(upgrades, install) if keep]
 
