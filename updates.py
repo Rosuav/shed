@@ -39,6 +39,12 @@ def show_packages(scr, upgrades, auto):
 		if key == " ":
 			install[pkg] = not install[pkg]
 			scr.addstr(pkg + 2, 1, "X" if install[pkg] else " ")
+		if key == "I" or key == "i":
+			# TODO: Show a new window with package info
+			# Show the from and to versions, optionally the changelog,
+			# and ideally, the list of other packages that would be
+			# upgraded along with this one (its out-of-date deps).
+			pass
 		# scr.addstr(len(upgrades) + 7, 0, repr(key))
 	return [pkg for pkg, keep in zip(upgrades, install) if keep]
 
@@ -64,6 +70,8 @@ def main():
 	if not upgrades: return
 	for pkg in upgrades:
 		pkg.mark_upgrade()
+	# TODO: Show progress while it downloads? Not sure why the default progress
+	# isn't being shown. Might need to subclass apt.progress.text.AcquireProgress?
 	cache.commit()
 
 if __name__ == "__main__":
