@@ -7,10 +7,14 @@ import apt # ImportError? apt install python3-apt
 cache = apt.Cache()
 cache.open()
 upgrades = []
+auto = 0
 for pkg in cache:
 	if not pkg.is_installed: continue # This is checking upgrades only
 	if pkg.candidate == pkg.installed: continue # Already up-to-date
-	if pkg.is_auto_installed: continue # Ignore autoinstalled packages
+	if pkg.is_auto_installed:
+		# Ignore (but summarize) autoinstalled packages
+		auto += 1
+		continue
 	upgrades.append(pkg)
 if not upgrades:
 	print("Everything up-to-date.")
@@ -31,3 +35,6 @@ print(fmt % tuple(widths))
 print("  ".join("-" * col for col in widths.values()))
 for d in desc:
 	print(fmt % tuple(d.values()))
+
+print()
+if auto: print("Plus %d auto-installed packages." % auto)
