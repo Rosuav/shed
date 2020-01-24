@@ -28,7 +28,7 @@ def show_packages(scr, upgrades, auto):
 	print("Select packages to upgrade, then Enter to apply.")
 	print("Press I for more info on a package [TODO]")
 	pkg = 0
-	install = [False] * len(upgrades)
+	action = [" "] * len(upgrades)
 	while True:
 		scr.move(pkg + 2, 1)
 		key = scr.getkey()
@@ -37,8 +37,8 @@ def show_packages(scr, upgrades, auto):
 		if key == "KEY_UP":   pkg = (pkg - 1) % len(upgrades)
 		if key == "KEY_DOWN": pkg = (pkg + 1) % len(upgrades)
 		if key == " ":
-			install[pkg] = not install[pkg]
-			scr.addstr(pkg + 2, 1, "X" if install[pkg] else " ")
+			action[pkg] = " " if action[pkg] == "I" else "I"
+			scr.addstr(pkg + 2, 1, action[pkg])
 		if key == "I" or key == "i":
 			# TODO: Show a new window with package info
 			# Show the from and to versions, optionally the changelog,
@@ -46,8 +46,9 @@ def show_packages(scr, upgrades, auto):
 			# upgraded along with this one (its out-of-date deps).
 			pass
 		# TODO: Have a way to mark auto from here? What about remove?
+		# action[pkg] = "A"
 		# scr.addstr(len(upgrades) + 7, 0, repr(key))
-	return [pkg for pkg, keep in zip(upgrades, install) if keep]
+	return [pkg for pkg, ac in zip(upgrades, action) if ac == "I"]
 
 def main():
 	cache = apt.Cache()
@@ -69,6 +70,7 @@ def main():
 	global curses; import curses
 	upgrades = curses.wrapper(show_packages, upgrades, auto)
 	if not upgrades: return
+	# if "simulate": print(upgrades); return
 	for pkg in upgrades:
 		pkg.mark_upgrade()
 	# TODO: Show progress while it downloads? Not sure why the default progress
