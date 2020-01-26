@@ -19,7 +19,9 @@ def show_packages(scr, upgrades, auto):
 	fmt = "[ ] " + "  ".join("%%-%ds" % col for col in widths.values())
 	print(fmt % tuple(widths), curses.A_BOLD)
 	print("--- " + "  ".join("-" * col for col in widths.values()))
-	# TODO: Also adjust for insufficient width?
+	# TODO: Also adjust for insufficient width? Currently will quietly
+	# truncate lines at the available width, which isn't bad if it's
+	# just a character or two, but could be wasteful with long pkgnames.
 	pkg = 0
 	action = [" "] * len(upgrades)
 	lastheight = None
@@ -44,8 +46,8 @@ def show_packages(scr, upgrades, auto):
 			# Update (only if the page has changed)
 			for i, d in enumerate(desc[pagestart : pagestart + perpage]):
 				scr.addstr(i + 2, 0, fmt % tuple(d.values()))
-			# Erase any spare space
-			for i in range(i + 1, perpage):
+			# Erase any spare space, including the mandatory blank at the end
+			for i in range(i + 1, perpage + 1):
 				# Is this the best way to clear a line??
 				scr.move(i + 2, 0)
 				scr.clrtoeol()
