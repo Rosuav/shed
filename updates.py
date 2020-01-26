@@ -16,8 +16,8 @@ def show_packages(scr, upgrades, auto):
 	for d in desc:
 		for col in d:
 			widths[col] = max(widths[col], len(d[col]))
-	fmt = "[ ] " + "  ".join("%%-%ds" % col for col in widths.values())
-	print(fmt % tuple(widths), curses.A_BOLD)
+	fmt = "[%s] " + "  ".join("%%-%ds" % col for col in widths.values())
+	print(fmt % ("*", *widths), curses.A_BOLD)
 	print("--- " + "  ".join("-" * col for col in widths.values()))
 	# TODO: Also adjust for insufficient width? Currently will quietly
 	# truncate lines at the available width, which isn't bad if it's
@@ -48,7 +48,7 @@ def show_packages(scr, upgrades, auto):
 			lastpage = pagestart
 			# Update (only if the page has changed)
 			for i, d in enumerate(desc[pagestart : pagestart + perpage]):
-				scr.addstr(i + 2, 0, fmt % tuple(d.values()))
+				scr.addstr(i + 2, 0, fmt % (action[pagestart + i], *d.values()))
 			# Erase any spare space, including the mandatory blank at the end
 			for i in range(i + 1, perpage + 1):
 				# Is this the best way to clear a line??
