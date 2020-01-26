@@ -36,6 +36,7 @@ def show_packages(scr, upgrades, auto):
 		if key == "\n": break
 		if key == "KEY_UP":   pkg = (pkg - 1) % len(upgrades)
 		if key == "KEY_DOWN": pkg = (pkg + 1) % len(upgrades)
+		if key == "KEY_MOUSE": TODO = curses.getmouse()
 		if key == " ":
 			action[pkg] = " " if action[pkg] == "I" else "I"
 			scr.addstr(pkg + 2, 1, action[pkg])
