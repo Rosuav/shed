@@ -19,24 +19,40 @@ def show_packages(scr, upgrades, auto):
 	fmt = "[ ] " + "  ".join("%%-%ds" % col for col in widths.values())
 	print(fmt % tuple(widths), curses.A_BOLD)
 	print("--- " + "  ".join("-" * col for col in widths.values()))
-	# TODO: Cope with more packages than lines on the screen (scroll? paginate?)
-	for d in desc:
-		print(fmt % tuple(d.values()))
-
+	# TODO: Repeat this any time there's a resize
+	# TODO: Also adjust for insufficient width?
+	height, _ = scr.getmaxyx()
+	perpage = min(height - 8, len(upgrades))
+	scr.move(perpage + 2, 0)
 	print()
 	if auto: print("Plus %d auto-installed packages." % auto)
 	print("Select packages to upgrade, then Enter to apply.")
 	print("Press I for more info on a package [TODO]")
 	pkg = 0
 	action = [" "] * len(upgrades)
+	lastpage = None
 	while True:
-		scr.move(pkg + 2, 1)
+		pagestart = pkg - pkg % perpage
+		if pagestart != lastpage:
+			lastpage = pagestart
+			# Update (only if the page has changed)
+			for i, d in enumerate(desc[pagestart : pagestart + perpage]):
+				scr.addstr(i + 2, 0, fmt % tuple(d.values()))
+			# Erase any spare space
+			for i in range(i + 1, perpage):
+				# Is this the best way to clear a line??
+				scr.move(i + 2, 0)
+				scr.clrtoeol()
+			scr.setscrreg(2, perpage + 4)
+
+		scr.move((pkg % perpage) + 2, 1)
 		key = scr.getkey()
 		if key == "Q" or key == "q": return []
 		if key == "\n": break
 		if key == "KEY_UP":   pkg = (pkg - 1) % len(upgrades)
 		if key == "KEY_DOWN": pkg = (pkg + 1) % len(upgrades)
 		if key == "KEY_MOUSE": TODO = curses.getmouse()
+		if key == "KEY_RESIZE": TODO = ...
 		if key == " ":
 			action[pkg] = " " if action[pkg] == "I" else "I"
 			scr.addstr(pkg + 2, 1, action[pkg])
@@ -50,7 +66,7 @@ def show_packages(scr, upgrades, auto):
 		# action[pkg] = "A"
 		# Remove should be equiv of "apt --purge autoremove pkgname" if poss
 		# (but ideally shouldn't disrupt other autoremovables).
-		# scr.addstr(len(upgrades) + 7, 0, repr(key))
+		# scr.addstr(height - 2, 0, repr(key))
 	return [pkg for pkg, ac in zip(upgrades, action) if ac == "I"]
 
 def main():
