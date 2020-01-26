@@ -19,19 +19,25 @@ def show_packages(scr, upgrades, auto):
 	fmt = "[ ] " + "  ".join("%%-%ds" % col for col in widths.values())
 	print(fmt % tuple(widths), curses.A_BOLD)
 	print("--- " + "  ".join("-" * col for col in widths.values()))
-	# TODO: Repeat this any time there's a resize
 	# TODO: Also adjust for insufficient width?
-	height, _ = scr.getmaxyx()
-	perpage = min(height - 8, len(upgrades))
-	scr.move(perpage + 2, 0)
-	print()
-	if auto: print("Plus %d auto-installed packages." % auto)
-	print("Select packages to upgrade, then Enter to apply.")
-	print("Press I for more info on a package [TODO]")
 	pkg = 0
 	action = [" "] * len(upgrades)
-	lastpage = None
+	lastheight = None
 	while True:
+		height, _ = scr.getmaxyx()
+		if height != lastheight:
+			# Note that a resize event is sent through as a pseudo-key, so
+			# this will trigger immediately, without waiting for the next
+			# actual key.
+			lastheight, lastpage = height, None
+			scr.setscrreg(0, height - 1)
+			perpage = min(height - 8, len(upgrades))
+			scr.move(perpage + 2, 0)
+			scr.clrtobot()
+			print()
+			if auto: print("Plus %d auto-installed packages." % auto)
+			print("Select packages to upgrade, then Enter to apply.")
+			print("Press I for more info on a package [TODO]")
 		pagestart = pkg - pkg % perpage
 		if pagestart != lastpage:
 			lastpage = pagestart
@@ -52,7 +58,6 @@ def show_packages(scr, upgrades, auto):
 		if key == "KEY_UP":   pkg = (pkg - 1) % len(upgrades)
 		if key == "KEY_DOWN": pkg = (pkg + 1) % len(upgrades)
 		if key == "KEY_MOUSE": TODO = curses.getmouse()
-		if key == "KEY_RESIZE": TODO = ...
 		if key == " ":
 			action[pkg] = " " if action[pkg] == "I" else "I"
 			scr.addstr(pkg + 2, 1, action[pkg])
@@ -66,7 +71,7 @@ def show_packages(scr, upgrades, auto):
 		# action[pkg] = "A"
 		# Remove should be equiv of "apt --purge autoremove pkgname" if poss
 		# (but ideally shouldn't disrupt other autoremovables).
-		# scr.addstr(height - 2, 0, repr(key))
+		# scr.addstr(height - 2, 0, repr(key)); scr.clrtoeol()
 	return [pkg for pkg, ac in zip(upgrades, action) if ac == "I"]
 
 def main():
