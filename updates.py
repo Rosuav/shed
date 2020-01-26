@@ -25,6 +25,9 @@ def show_packages(scr, upgrades, auto):
 	pkg = 0
 	action = [" "] * len(upgrades)
 	lastheight = None
+	def toggle(pkg, act):
+		action[pkg] = " " if action[pkg] == act else act
+		scr.addstr(pkg % perpage + 2, 1, action[pkg])
 	while True:
 		height, _ = scr.getmaxyx()
 		if height != lastheight:
@@ -60,9 +63,7 @@ def show_packages(scr, upgrades, auto):
 		if key == "KEY_UP":   pkg = (pkg - 1) % len(upgrades)
 		if key == "KEY_DOWN": pkg = (pkg + 1) % len(upgrades)
 		if key == "KEY_MOUSE": TODO = curses.getmouse()
-		if key == " ":
-			action[pkg] = " " if action[pkg] == "I" else "I"
-			scr.addstr(pkg + 2, 1, action[pkg])
+		if key == " ": toggle(pkg, "I")
 		if key == "I" or key == "i":
 			# TODO: Show a new window with package info
 			# Show the from and to versions, optionally the changelog,
