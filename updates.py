@@ -25,6 +25,7 @@ def show_packages(scr, upgrades, auto):
 	pkg = 0
 	action = [" "] * len(upgrades)
 	lastheight = None
+	popup = None
 	def toggle(pkg, act):
 		action[pkg] = " " if action[pkg] == act else act
 		scr.addstr(pkg % perpage + 2, 1, action[pkg])
@@ -42,7 +43,7 @@ def show_packages(scr, upgrades, auto):
 			print()
 			if auto: print("Plus %d auto-installed packages." % auto)
 			print("Select packages to upgrade, then Enter to apply.")
-			print("Press I for more info on a package [TODO]")
+			print("Press ? for help, or I for more info on a package [TODO]")
 		pagestart = pkg - pkg % perpage
 		if pagestart != lastpage:
 			lastpage = pagestart
@@ -58,12 +59,27 @@ def show_packages(scr, upgrades, auto):
 
 		scr.move((pkg % perpage) + 2, 1)
 		key = scr.getkey()
+		if popup:
+			# Restricted key handling when a popup is open
+			if key in "?Qq":
+				popup = None
+				scr.touchwin()
+				scr.refresh()
+				curses.curs_set(2)
+			continue
 		if key == "Q" or key == "q": return []
 		if key == "\n": break
 		if key == "KEY_UP":   pkg = (pkg - 1) % len(upgrades)
 		if key == "KEY_DOWN": pkg = (pkg + 1) % len(upgrades)
 		if key == "KEY_MOUSE": TODO = curses.getmouse()
 		if key == " ": toggle(pkg, "I")
+		if key == "?":
+			popup = curses.newwin(5, 20, 2, 1)
+			popup.erase()
+			popup.border()
+			popup.touchwin()
+			popup.refresh()
+			curses.curs_set(0)
 		if key == "I" or key == "i":
 			# TODO: Show a new window with package info
 			# Show the from and to versions, optionally the changelog,
