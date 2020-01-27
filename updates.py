@@ -94,6 +94,8 @@ def show_packages(scr, cache, upgrades, auto):
 		if key == "\n": break
 		if key == "KEY_UP":   pkg = (pkg - 1) % len(upgrades)
 		if key == "KEY_DOWN": pkg = (pkg + 1) % len(upgrades)
+		if key == "KEY_PPAGE": pkg = pkg if pkg < perpage else pkg - perpage
+		if key == "KEY_NPAGE": pkg = pkg if pkg >= len(upgrades) - perpage else pkg + perpage
 		if key == "KEY_MOUSE": TODO = curses.getmouse()
 		if key == " ": toggle(pkg, "I")
 		if key == "?":
@@ -127,7 +129,6 @@ def show_packages(scr, cache, upgrades, auto):
 					info.append("* %s [from %s to %s]" % (p.fullname, p.installed, p.candidate))
 			cache.clear()
 			make_popup(info)
-		# TODO: PageUp/PageDn
 		# TODO: Have a way to mark auto from here? What about remove?
 		# action[pkg] = "A"
 		# Remove should be equiv of "apt --purge autoremove pkgname" if poss
