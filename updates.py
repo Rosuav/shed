@@ -49,7 +49,7 @@ def show_packages(scr, upgrades, auto):
 		popup.erase()
 		popup.border()
 		for i, line in enumerate(lines):
-			popup.addstr(i + 1, 1, line)
+			popup.addstr(i + 1, 1, line[:width - 6])
 		popup.refresh()
 		curses.curs_set(0)
 	while True:
