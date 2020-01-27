@@ -21,6 +21,7 @@ Press 'A' to mark a package as automatically installed. (unimpl)
 Press 'R' to remove a package. (unimpl)"""
 
 def show_packages(scr, cache, upgrades, auto):
+	"""Returns True after making cache changes, or False to ignore and do nothing"""
 	def print(s="", *args):
 		scr.addstr(str(s) + "\n", *args)
 	desc = [describe(pkg) for pkg in upgrades]
@@ -91,7 +92,7 @@ def show_packages(scr, cache, upgrades, auto):
 				scr.refresh()
 				curses.curs_set(2)
 			continue
-		if key == "Q" or key == "q": return []
+		if key == "Q" or key == "q": return False
 		if key == "\n": break
 		if key == "KEY_UP":   pkg = (pkg - 1) % len(upgrades)
 		if key == "KEY_DOWN": pkg = (pkg + 1) % len(upgrades)
@@ -146,7 +147,11 @@ def show_packages(scr, cache, upgrades, auto):
 		# Remove should be equiv of "apt --purge autoremove pkgname" if poss
 		# (but ideally shouldn't disrupt other autoremovables).
 		# scr.addstr(height - 2, 0, repr(key)); scr.clrtoeol()
-	return [pkg for pkg, ac in zip(upgrades, action) if ac == "I"]
+	changes = False
+	for pkg, ac in zip(upgrades, action):
+		if ac != " ": changes = True
+		if ac == "I": pkg.mark_upgrade()
+	return changes
 
 def main():
 	cache = apt.Cache()
@@ -168,9 +173,7 @@ def main():
 	global curses; import curses
 	upgrades = curses.wrapper(show_packages, cache, upgrades, auto)
 	if not upgrades: return
-	# if "simulate": print(upgrades); return
-	for pkg in upgrades:
-		pkg.mark_upgrade()
+	# if "simulate": print(cache.get_changes()); return
 	# TODO: Show progress while it downloads? Not sure why the default progress
 	# isn't being shown. Might need to subclass apt.progress.text.AcquireProgress?
 	cache.commit()
