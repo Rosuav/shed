@@ -29,8 +29,17 @@ def show_packages(scr, upgrades, auto):
 	def toggle(pkg, act):
 		action[pkg] = " " if action[pkg] == act else act
 		scr.addstr(pkg % perpage + 2, 1, action[pkg])
+	def make_popup(lines):
+		nonlocal popup
+		popup = curses.newwin(min(height - 3, 8), width - 4, 2, 2)
+		popup.erase()
+		popup.border()
+		for i, line in enumerate(lines):
+			popup.addstr(i + 1, 1, line)
+		popup.refresh()
+		curses.curs_set(0)
 	while True:
-		height, _ = scr.getmaxyx()
+		height, width = scr.getmaxyx() # Also used by make_popup()
 		if height != lastheight:
 			# Note that a resize event is sent through as a pseudo-key, so
 			# this will trigger immediately, without waiting for the next
@@ -74,12 +83,7 @@ def show_packages(scr, upgrades, auto):
 		if key == "KEY_MOUSE": TODO = curses.getmouse()
 		if key == " ": toggle(pkg, "I")
 		if key == "?":
-			popup = curses.newwin(5, 20, 2, 1)
-			popup.erase()
-			popup.border()
-			popup.touchwin()
-			popup.refresh()
-			curses.curs_set(0)
+			make_popup(["Hello, world", "Testing testing", "This would be help info"])
 		if key == "I" or key == "i":
 			# TODO: Show a new window with package info
 			# Show the from and to versions, optionally the changelog,
