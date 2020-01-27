@@ -20,7 +20,7 @@ Press 'I' on any package to see more info about it.
 Press 'A' to mark a package as automatically installed. (unimpl)
 Press 'R' to remove a package. (unimpl)"""
 
-def show_packages(scr, upgrades, auto):
+def show_packages(scr, cache, upgrades, auto):
 	def print(s="", *args):
 		scr.addstr(str(s) + "\n", *args)
 	desc = [describe(pkg) for pkg in upgrades]
@@ -84,7 +84,7 @@ def show_packages(scr, upgrades, auto):
 		key = scr.getkey()
 		if popup:
 			# Restricted key handling when a popup is open
-			if key in "?Qq":
+			if key in "?QqIi":
 				popup = None
 				scr.touchwin()
 				scr.refresh()
@@ -103,7 +103,31 @@ def show_packages(scr, upgrades, auto):
 			# Show the from and to versions, optionally the changelog,
 			# and ideally, the list of other packages that would be
 			# upgraded along with this one (its out-of-date deps).
-			pass
+
+			# Note: get_changelog() appears to be broken. No idea why.
+			# Neither the default URI nor the hand-checked one below
+			# work; not sure if it's failing to download or failing to
+			# parse afterwards, but it gets no useful info.
+			# http://packages.debian.org/changelogs/pool/%(src_section)s/%(prefix)s/%(src_pkg)s/%(src_pkg)s_%(src_ver)s/changelog
+			# http://metadata.ftp-master.debian.org/changelogs/%(src_section)s/%(prefix)s/%(src_pkg)s/%(src_pkg)s_%(src_ver)s_changelog
+
+			sel = upgrades[pkg]
+			info = ["Upgrading %s from %s to %s" % (sel.fullname, sel.installed, sel.candidate)]
+			try: sel.mark_upgrade()
+			except apt.package.apt_pkg.Error as e:
+				info.append("Unable to upgrade this package:")
+				info.append(e.args[0])
+			# Should I recognize packages by equality, identity, or name?
+			changes = [p for p in cache.get_changes() if p != sel]
+			if changes:
+				info.append("")
+				info.append("Additional packages to upgrade:")
+				for p in changes:
+					if p.installed == p.candidate: continue # For some reason, it sometimes marks "changes" that aren't changes at all.
+					info.append("* %s [from %s to %s]" % (p.fullname, p.installed, p.candidate))
+			cache.clear()
+			make_popup(info)
+		# TODO: PageUp/PageDn
 		# TODO: Have a way to mark auto from here? What about remove?
 		# action[pkg] = "A"
 		# Remove should be equiv of "apt --purge autoremove pkgname" if poss
@@ -129,7 +153,7 @@ def main():
 		return
 
 	global curses; import curses
-	upgrades = curses.wrapper(show_packages, upgrades, auto)
+	upgrades = curses.wrapper(show_packages, cache, upgrades, auto)
 	if not upgrades: return
 	# if "simulate": print(upgrades); return
 	for pkg in upgrades:
