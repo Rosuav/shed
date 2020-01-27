@@ -42,7 +42,8 @@ def show_packages(scr, cache, upgrades, auto):
 	popup = None
 	def toggle(pkg, act):
 		action[pkg] = " " if action[pkg] == act else act
-		scr.addstr(pkg % perpage + 2, 1, action[pkg])
+		if pkg >= pagestart and pkg < pagestart + perpage:
+			scr.addstr(pkg % perpage + 2, 1, action[pkg])
 	def make_popup(lines):
 		nonlocal popup
 		lines = lines[:height - 5] # Truncate if we don't have enough screen space
@@ -54,6 +55,7 @@ def show_packages(scr, cache, upgrades, auto):
 			popup.addstr(i + 1, 1, line[0][:width - 6], *line[1:])
 		popup.refresh()
 		curses.curs_set(0)
+	nonautodeps = []
 	while True:
 		height, width = scr.getmaxyx() # Also used by make_popup()
 		if height != lastheight:
@@ -86,8 +88,13 @@ def show_packages(scr, cache, upgrades, auto):
 		key = scr.getkey()
 		if popup:
 			# Restricted key handling when a popup is open
-			if key in "?QqIi":
+			if key in "Aa" and nonautodeps:
+				for i, p in enumerate(upgrades):
+					if p in nonautodeps:
+						toggle(i, "A")
+			if key in "?QqIiAa":
 				popup = None
+				nonautodeps = []
 				scr.touchwin()
 				scr.refresh()
 				curses.curs_set(2)
@@ -100,6 +107,7 @@ def show_packages(scr, cache, upgrades, auto):
 		if key == "KEY_NPAGE": pkg = len(upgrades) - 1 if pkg >= len(upgrades) - perpage else pkg + perpage
 		if key == "KEY_MOUSE": TODO = curses.getmouse()
 		if key == " ": toggle(pkg, "I")
+		if key in "Aa": toggle(pkg, "A")
 		if key == "?":
 			make_popup(HELP_INFO.split("\n"))
 		if key == "I" or key == "i":
@@ -126,7 +134,7 @@ def show_packages(scr, cache, upgrades, auto):
 			if changes:
 				info.append("")
 				info.append("Additional packages to upgrade:")
-				nonauto = 0
+				nonautodeps = []
 				for p in changes:
 					if p.installed == p.candidate: continue # For some reason, it sometimes marks "changes" that aren't changes at all.
 					info.append("* %s from %s to %s" % (
@@ -136,14 +144,14 @@ def show_packages(scr, cache, upgrades, auto):
 					))
 					if not p.is_auto_installed:
 						info[-1] = (info[-1], curses.A_BOLD)
-						nonauto += 1
-				if nonauto:
+						nonautodeps.append(p)
+				if nonautodeps:
 					info.append("")
-					info.append(("%d dependencies were not auto-installed." % nonauto, curses.A_BOLD))
+					info.append(("%d dependencies were not auto-installed." % len(nonautodeps), curses.A_BOLD))
+					info.append(("Press 'A' to mark those deps as auto.", curses.A_BOLD))
 			cache.clear()
 			make_popup(info)
-		# TODO: Have a way to mark auto from here? What about remove?
-		# action[pkg] = "A"
+		# TODO: Have a way to remove packages?
 		# Remove should be equiv of "apt --purge autoremove pkgname" if poss
 		# (but ideally shouldn't disrupt other autoremovables).
 		# scr.addstr(height - 2, 0, repr(key)); scr.clrtoeol()
@@ -151,6 +159,7 @@ def show_packages(scr, cache, upgrades, auto):
 	for pkg, ac in zip(upgrades, action):
 		if ac != " ": changes = True
 		if ac == "I": pkg.mark_upgrade()
+		elif ac == "A": pkg.mark_auto()
 	return changes
 
 def main():
@@ -173,7 +182,7 @@ def main():
 	global curses; import curses
 	upgrades = curses.wrapper(show_packages, cache, upgrades, auto)
 	if not upgrades: return
-	# if "simulate": print(cache.get_changes()); return
+	# if "simulate": print(cache.get_changes()); return # Note that this doesn't report on mark-auto actions
 	# TODO: Show progress while it downloads? Not sure why the default progress
 	# isn't being shown. Might need to subclass apt.progress.text.AcquireProgress?
 	cache.commit()
