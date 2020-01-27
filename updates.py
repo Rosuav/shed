@@ -108,6 +108,7 @@ def show_packages(scr, cache, upgrades, auto):
 		if key == "KEY_MOUSE": TODO = curses.getmouse()
 		if key == " ": toggle(pkg, "I")
 		if key in "Aa": toggle(pkg, "A")
+		if key in "Rr": toggle(pkg, "R")
 		if key == "?":
 			make_popup(HELP_INFO.split("\n"))
 		if key == "I" or key == "i":
@@ -151,15 +152,22 @@ def show_packages(scr, cache, upgrades, auto):
 					info.append(("Press 'A' to mark those deps as auto.", curses.A_BOLD))
 			cache.clear()
 			make_popup(info)
-		# TODO: Have a way to remove packages?
-		# Remove should be equiv of "apt --purge autoremove pkgname" if poss
-		# (but ideally shouldn't disrupt other autoremovables).
 		# scr.addstr(height - 2, 0, repr(key)); scr.clrtoeol()
 	changes = False
+	if "R" in actions:
+		# Don't bother running through the packages (slow) if we aren't removing any
+		already_auto_removable = {pkg.fullname for pkg in cache if pkg.is_auto_removable}
 	for pkg, ac in zip(upgrades, actions):
 		if ac != " ": changes = True
 		if ac == "I": pkg.mark_upgrade()
 		elif ac == "A": pkg.mark_auto()
+		elif ac == "R": pkg.mark_delete(purge=True)
+	if "R" in actions:
+		# Remove should be equiv of "apt --purge autoremove pkgname" but
+		# doesn't remove anything that was already autoremovable
+		for pkg in cache:
+			if pkg.is_auto_removable and pkg.fullname not in already_auto_removable:
+				pkg.mark_delete(purge=True)
 	return changes
 
 def main():
