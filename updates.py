@@ -193,7 +193,12 @@ def main():
 	# if "simulate": print(cache.get_changes()); return # Note that this doesn't report on mark-auto actions
 	# TODO: Show progress while it downloads? Not sure why the default progress
 	# isn't being shown. Might need to subclass apt.progress.text.AcquireProgress?
-	cache.commit()
+	try: cache.commit()
+	except apt.cache.LockFailedException:
+		print("Cannot apply changes when not root.")
+		for pkg in cache.get_changes():
+			print("*", pkg.fullname) # TODO: Say what change was requested
+		# TODO: Provide a 'sudo apt' command that would do the changes
 
 if __name__ == "__main__":
 	main()
