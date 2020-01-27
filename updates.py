@@ -37,13 +37,13 @@ def show_packages(scr, cache, upgrades, auto):
 	# truncate lines at the available width, which isn't bad if it's
 	# just a character or two, but could be wasteful with long pkgnames.
 	pkg = 0
-	action = [" "] * len(upgrades)
+	actions = [" "] * len(upgrades)
 	lastheight = None
 	popup = None
 	def toggle(pkg, act):
-		action[pkg] = " " if action[pkg] == act else act
+		actions[pkg] = " " if actions[pkg] == act else act
 		if pkg >= pagestart and pkg < pagestart + perpage:
-			scr.addstr(pkg % perpage + 2, 1, action[pkg])
+			scr.addstr(pkg % perpage + 2, 1, actions[pkg])
 	def make_popup(lines):
 		nonlocal popup
 		lines = lines[:height - 5] # Truncate if we don't have enough screen space
@@ -76,7 +76,7 @@ def show_packages(scr, cache, upgrades, auto):
 			lastpage = pagestart
 			# Update (only if the page has changed)
 			for i, d in enumerate(desc[pagestart : pagestart + perpage]):
-				scr.addstr(i + 2, 0, fmt % ((action[pagestart + i],) + tuple(d.values())))
+				scr.addstr(i + 2, 0, fmt % ((actions[pagestart + i],) + tuple(d.values())))
 			# Erase any spare space, including the mandatory blank at the end
 			for i in range(i + 1, perpage + 1):
 				# Is this the best way to clear a line??
@@ -156,7 +156,7 @@ def show_packages(scr, cache, upgrades, auto):
 		# (but ideally shouldn't disrupt other autoremovables).
 		# scr.addstr(height - 2, 0, repr(key)); scr.clrtoeol()
 	changes = False
-	for pkg, ac in zip(upgrades, action):
+	for pkg, ac in zip(upgrades, actions):
 		if ac != " ": changes = True
 		if ac == "I": pkg.mark_upgrade()
 		elif ac == "A": pkg.mark_auto()
