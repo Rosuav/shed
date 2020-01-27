@@ -49,7 +49,8 @@ def show_packages(scr, cache, upgrades, auto):
 		popup.erase()
 		popup.border()
 		for i, line in enumerate(lines):
-			popup.addstr(i + 1, 1, line[:width - 6])
+			if not isinstance(line, tuple): line = (line,)
+			popup.addstr(i + 1, 1, line[0][:width - 6], *line[1:])
 		popup.refresh()
 		curses.curs_set(0)
 	while True:
@@ -127,10 +128,12 @@ def show_packages(scr, cache, upgrades, auto):
 				for p in changes:
 					if p.installed == p.candidate: continue # For some reason, it sometimes marks "changes" that aren't changes at all.
 					info.append("* %s from %s to %s" % (
-						p.fullname if p.is_auto_installed else "##" + p.fullname + "##",
+						p.fullname,
 						p.installed.version if p.installed else "(none)",
 						p.candidate.version,
 					))
+					if not p.is_auto_installed:
+						info[-1] = (info[-1] + " <=", curses.A_BOLD)
 			cache.clear()
 			make_popup(info)
 		# TODO: Have a way to mark auto from here? What about remove?
