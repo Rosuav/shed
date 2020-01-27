@@ -8,6 +8,18 @@ def describe(pkg):
 	# return {"Name": pkg.name, "Installed": pkg.installed.version, "Candidate": pkg.candidate.version}
 	return OrderedDict((("Name", pkg.name), ("Current", pkg.installed.version), ("Target", pkg.candidate.version)))
 
+HELP_INFO = """Top-level package manager
+
+This tool lists all packages that aren't marked auto, and have updates
+available. Press Q at any time to exit without touching your system;
+if you have no need to make changes, this script can be run without
+root privileges.
+
+Press Space to select or deselect a package for upgrade.
+Press 'I' on any package to see more info about it.
+Press 'A' to mark a package as automatically installed. (unimpl)
+Press 'R' to remove a package. (unimpl)"""
+
 def show_packages(scr, upgrades, auto):
 	def print(s="", *args):
 		scr.addstr(str(s) + "\n", *args)
@@ -31,7 +43,8 @@ def show_packages(scr, upgrades, auto):
 		scr.addstr(pkg % perpage + 2, 1, action[pkg])
 	def make_popup(lines):
 		nonlocal popup
-		popup = curses.newwin(min(height - 3, 8), width - 4, 2, 2)
+		lines = lines[:height - 3] # Truncate if we don't have enough screen space
+		popup = curses.newwin(len(lines) + 2, width - 4, 2, 2)
 		popup.erase()
 		popup.border()
 		for i, line in enumerate(lines):
@@ -83,7 +96,7 @@ def show_packages(scr, upgrades, auto):
 		if key == "KEY_MOUSE": TODO = curses.getmouse()
 		if key == " ": toggle(pkg, "I")
 		if key == "?":
-			make_popup(["Hello, world", "Testing testing", "This would be help info"])
+			make_popup(HELP_INFO.split("\n"))
 		if key == "I" or key == "i":
 			# TODO: Show a new window with package info
 			# Show the from and to versions, optionally the changelog,
