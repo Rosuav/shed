@@ -114,7 +114,7 @@ def show_packages(scr, cache, upgrades, auto):
 			# http://metadata.ftp-master.debian.org/changelogs/%(src_section)s/%(prefix)s/%(src_pkg)s/%(src_pkg)s_%(src_ver)s_changelog
 
 			sel = upgrades[pkg]
-			info = ["Upgrading %s from %s to %s" % (sel.fullname, sel.installed, sel.candidate)]
+			info = ["Upgrading %s from %s to %s" % (sel.fullname, sel.installed.version, sel.candidate.version)]
 			try: sel.mark_upgrade()
 			except apt.package.apt_pkg.Error as e:
 				info.append("Unable to upgrade this package:")
@@ -126,7 +126,11 @@ def show_packages(scr, cache, upgrades, auto):
 				info.append("Additional packages to upgrade:")
 				for p in changes:
 					if p.installed == p.candidate: continue # For some reason, it sometimes marks "changes" that aren't changes at all.
-					info.append("* %s [from %s to %s]" % (p.fullname, p.installed, p.candidate))
+					info.append("* %s from %s to %s" % (
+						p.fullname,
+						p.installed.version if p.installed else "(none)",
+						p.candidate.version,
+					))
 			cache.clear()
 			make_popup(info)
 		# TODO: Have a way to mark auto from here? What about remove?
