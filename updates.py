@@ -127,7 +127,7 @@ def show_packages(scr, cache, upgrades, auto):
 				for p in changes:
 					if p.installed == p.candidate: continue # For some reason, it sometimes marks "changes" that aren't changes at all.
 					info.append("* %s from %s to %s" % (
-						p.fullname,
+						p.fullname if p.is_auto_installed else "##" + p.fullname + "##",
 						p.installed.version if p.installed else "(none)",
 						p.candidate.version,
 					))
