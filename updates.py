@@ -44,7 +44,7 @@ def show_packages(scr, upgrades, auto):
 		scr.addstr(pkg % perpage + 2, 1, action[pkg])
 	def make_popup(lines):
 		nonlocal popup
-		lines = lines[:height - 3] # Truncate if we don't have enough screen space
+		lines = lines[:height - 5] # Truncate if we don't have enough screen space
 		popup = curses.newwin(len(lines) + 2, width - 4, 2, 2)
 		popup.erase()
 		popup.border()
