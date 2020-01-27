@@ -125,6 +125,7 @@ def show_packages(scr, cache, upgrades, auto):
 			if changes:
 				info.append("")
 				info.append("Additional packages to upgrade:")
+				nonauto = 0
 				for p in changes:
 					if p.installed == p.candidate: continue # For some reason, it sometimes marks "changes" that aren't changes at all.
 					info.append("* %s from %s to %s" % (
@@ -133,7 +134,11 @@ def show_packages(scr, cache, upgrades, auto):
 						p.candidate.version,
 					))
 					if not p.is_auto_installed:
-						info[-1] = (info[-1] + " <=", curses.A_BOLD)
+						info[-1] = (info[-1], curses.A_BOLD)
+						nonauto += 1
+				if nonauto:
+					info.append("")
+					info.append(("%d dependencies were not auto-installed." % nonauto, curses.A_BOLD))
 			cache.clear()
 			make_popup(info)
 		# TODO: Have a way to mark auto from here? What about remove?
