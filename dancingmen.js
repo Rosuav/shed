@@ -25,6 +25,8 @@ function check_response(req) {
 			const age = +new Date() - whenwhere[2];
 			const desc = whenwhere[4];
 			console.log(name, "was at", desc, describe(age));
+			//TODO: Pre-code a lat/long for origin and destination, and interpolate.
+			//Assume a one-hour trip. Predict arrival time.
 		});
 	}
 }
