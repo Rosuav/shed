@@ -10,6 +10,7 @@ function describe(ms) {
 	return Math.floor(days) + " days ago";
 }
 
+let locations = null;
 function check_response(req) {
 	if (req.responseURL.slice(34, 42) === "view/loc") {
 		console.log("Got one!");
@@ -17,6 +18,7 @@ function check_response(req) {
 		//assert req.responseText.slice(0,5) === ")]}'\n"
 		const data = JSON.parse(req.responseText.slice(5));
 		console.log(window.data = data);
+		if (!locations) locations = JSON.parse(localStorage.getItem("dancingmen_locations"));
 		data[0].forEach(info => {
 			const who = info[0];
 			const name = who[3];
@@ -27,9 +29,22 @@ function check_response(req) {
 			console.log(name, "was at", desc, describe(age));
 			//TODO: Pre-code a lat/long for origin and destination, and interpolate.
 			//Assume a one-hour trip. Predict arrival time.
+			locations.forEach(([loc, lat, lon]) => {
+				const dist = ((lat - latitude) ** 2 + (lon - longitude) ** 2) ** 0.5;
+				console.log(loc, dist);
+			});
 		});
 	}
+	if (req.responseURL.slice(36, 45) === "story/pre") {
+		//console.log("Got dest:", req);
+		const data = JSON.parse(req.responseText.slice(5));
+		//console.log(window.destdata = data);
+		const locs = [data[19][0], data[19][1], ...data[19][2]].filter(x => x && x.length >= 31);
+		locations = locs.map(l => [l[2], l[0][2], l[0][3]]);
+		localStorage.setItem("dancingmen_locations", JSON.stringify(locations));
+	}
 }
+
 const trampoline = XMLHttpRequest.prototype.open;
 XMLHttpRequest.prototype.open = function() {
 	this.addEventListener("readystatechange", function() {
