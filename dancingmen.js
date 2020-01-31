@@ -13,11 +13,11 @@ function describe(ms) {
 let locations = null;
 function check_response(req) {
 	if (req.responseURL.slice(34, 42) === "view/loc") {
-		console.log("Got one!");
+		//console.log("Got one!");
 		//This is *not* an API. It returns what appears to be deliberately malformed JSON.
 		//assert req.responseText.slice(0,5) === ")]}'\n"
 		const data = JSON.parse(req.responseText.slice(5));
-		console.log(window.data = data);
+		//console.log(window.data = data);
 		if (!locations) locations = JSON.parse(localStorage.getItem("dancingmen_locations"));
 		data[0].forEach(info => {
 			const who = info[0];
