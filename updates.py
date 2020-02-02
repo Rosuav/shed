@@ -72,7 +72,7 @@ def show_packages(scr, cache, upgrades, auto):
 			print()
 			if auto: print("Plus %d auto-installed packages." % auto)
 			print("Select packages to upgrade, then Enter to apply.")
-			print("Press ? for help, or I for more info on a package [TODO]")
+			print("Press ? for help, or Q to quit without making any changes")
 		pagestart = pkg - pkg % perpage
 		if pagestart != lastpage:
 			lastpage = pagestart
