@@ -154,7 +154,7 @@ def show_packages(scr, cache, upgrades, auto):
 			# Mark this package auto, mark it for deletion. See what needs to be
 			# deleted. Filter to only those which are not auto. List those as the
 			# deps of this package.
-			# TODO: Disambiguate "A to mark my deps auto" from "A to mark me auto".
+			# TODO: Disambiguate "A to mark my deps auto" from "A to mark me auto"?
 			cache.clear()
 			make_popup(info)
 		# scr.addstr(height - 2, 0, repr(key)); scr.clrtoeol()
