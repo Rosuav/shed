@@ -18,7 +18,9 @@ root privileges.
 Press Space to select or deselect a package for upgrade.
 Press 'I' on any package to see more info about it.
 Press 'A' to mark a package as automatically installed.
-Press 'R' to remove a package."""
+Press 'R' to remove a package.
+Press 'Q' to go back, or to quit the program.
+"""
 
 def show_packages(scr, cache, upgrades, auto):
 	"""Returns True after making cache changes, or False to ignore and do nothing"""
