@@ -22,6 +22,25 @@ Press 'R' to remove a package.
 Press 'Q' to go back, or to quit the program.
 """
 
+def find_ultimate_dependency(cache, deps):
+	"""Find any one manually-installed package that ultimately caused at
+	least one of the given deps to be installed. Returns "" if none found.
+	"""
+	depchain = {dep: dep for dep in deps}
+	while depchain:
+		newchain = {}
+		for dep, path in depchain.items():
+			for parent in cache[dep]._pkg.rev_depends_list:
+				if parent.dep_type_untranslated != "Depends": continue
+				n = parent.parent_pkg.name
+				if not cache[n].installed: continue
+				if not cache[n].is_auto_installed:
+					# Found one!
+					return path + " --> " + n
+				newchain[n] = path + " - " + n
+		depchain = newchain
+	return ""
+
 def show_packages(scr, cache, upgrades, auto):
 	"""Returns True after making cache changes, or False to ignore and do nothing"""
 	def print(s="", *args):
@@ -196,11 +215,11 @@ def show_packages(scr, cache, upgrades, auto):
 					info.append(("* " + dep, curses.A_BOLD))
 					got_nonauto = True
 				else: info.append("* " + dep)
-			# TODO: If got_nonauto is still False, trace up the chain of
-			# hard deps until we find something that wasn't auto-installed.
-			# So, for instance, if libfoo depends on libbar, libbar depends
-			# on libspam, and I installed libspam-dev manually, report the
-			# full chain. Possibly only do this for deps?
+			if deps and not got_nonauto:
+				# Trace the chain of deps and find something, anything, that
+				# was manually installed. Keep going till we get somewhere or
+				# run out of dependencies to look at.
+				info.append(find_ultimate_dependency(cache, deps) or "No ultimate cause found.")
 			make_popup(info)
 		# scr.addstr(height - 2, 0, repr(key)); scr.clrtoeol()
 	changes = False
