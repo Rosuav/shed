@@ -165,23 +165,26 @@ def show_packages(scr, cache, upgrades, auto):
 			#    that is a hard dep of a non-auto package), this can be marked auto.
 			# 3) If this is a Recommends/Suggests only, say which package.
 			p = upgrades[pkg]._pkg # Is there a non-private way to find the underlying package?
-			deps, recs, sugs = [], [], []
+			deps, recs, sugs = {}, {}, {}
 			for dep in p.rev_depends_list:
-				inst = cache[dep.parent_pkg.name] # Note: Using get_fullname() would be better than name, but it doesn't work on older apts
+				# Note: Using get_fullname() would be better than name, but it doesn't work on older apts
+				n = dep.parent_pkg.name
+				inst = cache[n]
 				if not inst.installed: continue
 				type = dep.dep_type_untranslated
 				if type == "Depends":
 					# Hard dependency. Definite reason to install something
-					deps.append(dep.parent_pkg)
+					# TODO: Keep the most interesting, not the last seen, version?
+					deps[n] = dep.parent_ver
 				elif type == "Recommends":
 					# Soft dependency. If there are no hard deps, then this would be
 					# why the package was installed, but it shouldn't be marked auto.
-					recs.append(dep.parent_pkg)
+					recs[n] = dep.parent_ver
 				elif type == "Suggests":
 					# Even softer dependency. As with Recommends but even more so.
 					# A "Suggests" dep won't be shown unless there are no Deps *or*
 					# Recs.
-					sugs.append(dep.parent_pkg)
+					sugs[n] = dep.parent_ver
 			info = ["Why was %s installed?" % upgrades[pkg].name, ""]
 			if deps: info.append("Depended on by:")
 			elif recs: info.append("Recommended by:")
@@ -189,10 +192,10 @@ def show_packages(scr, cache, upgrades, auto):
 			else: info.append("Presumably manual installation") # No deps.
 			got_nonauto = False
 			for dep in deps or recs or sugs: # Pick the highest-priority category only
-				if not cache[dep.name].is_auto_installed: # As above re get_fullname()
-					info.append(("* " + dep.name, curses.A_BOLD))
+				if not cache[dep].is_auto_installed:
+					info.append(("* " + dep, curses.A_BOLD))
 					got_nonauto = True
-				else: info.append("* " + dep.name)
+				else: info.append("* " + dep)
 			# TODO: If got_nonauto is still False, trace up the chain of
 			# hard deps until we find something that wasn't auto-installed.
 			# So, for instance, if libfoo depends on libbar, libbar depends
