@@ -189,7 +189,7 @@ def show_packages(scr, cache, upgrades, auto):
 			else: info.append("Presumably manual installation") # No deps.
 			got_nonauto = False
 			for dep in deps or recs or sugs: # Pick the highest-priority category only
-				if not cache[dep.get_fullname()].is_auto_installed:
+				if not cache[dep.name].is_auto_installed: # As above re get_fullname()
 					info.append(("* " + dep.name, curses.A_BOLD))
 					got_nonauto = True
 				else: info.append("* " + dep.name)
