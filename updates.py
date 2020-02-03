@@ -152,12 +152,52 @@ def show_packages(scr, cache, upgrades, auto):
 					info.append("")
 					info.append(("%d dependencies were not auto-installed." % len(nonautodeps), curses.A_BOLD))
 					info.append(("Press 'A' to mark those deps as auto.", curses.A_BOLD))
-			# TODO: "aptitude why" info.
+			# TODO: Disambiguate "A to mark my deps auto" from "A to mark me auto"?
+			cache.clear()
+			make_popup(info)
+		if key in "Ww":
+			# Similar info to "aptitude why".
 			# Mark this package auto, mark it for deletion. See what needs to be
 			# deleted. Filter to only those which are not auto. List those as the
 			# deps of this package.
-			# TODO: Disambiguate "A to mark my deps auto" from "A to mark me auto"?
-			cache.clear()
+			# 1) Find out why this package was installed
+			# 2) If this is a hard dep of a non-auto package (or of an auto package
+			#    that is a hard dep of a non-auto package), this can be marked auto.
+			# 3) If this is a Recommends/Suggests only, say which package.
+			p = upgrades[pkg]._pkg # Is there a non-private way to find the underlying package?
+			deps, recs, sugs = [], [], []
+			for dep in p.rev_depends_list:
+				inst = cache[dep.parent_pkg.get_fullname()]
+				if not inst.installed: continue
+				type = dep.dep_type_untranslated
+				if type == "Depends":
+					# Hard dependency. Definite reason to install something
+					deps.append(dep.parent_pkg)
+				elif type == "Recommends":
+					# Soft dependency. If there are no hard deps, then this would be
+					# why the package was installed, but it shouldn't be marked auto.
+					recs.append(dep.parent_pkg)
+				elif type == "Suggests":
+					# Even softer dependency. As with Recommends but even more so.
+					# A "Suggests" dep won't be shown unless there are no Deps *or*
+					# Recs.
+					sugs.append(dep.parent_pkg)
+			info = ["Why was %s installed?" % upgrades[pkg].name, ""]
+			if deps: info.append("Depended on by:")
+			elif recs: info.append("Recommended by:")
+			elif sugs: info.append("Suggested by:")
+			else: info.append("Presumably manual installation") # No deps.
+			got_nonauto = False
+			for dep in deps or recs or sugs: # Pick the highest-priority category only
+				if not cache[dep.get_fullname()].is_auto_installed:
+					info.append(("* " + dep.name, curses.A_BOLD))
+					got_nonauto = True
+				else: info.append("* " + dep.name)
+			# TODO: If got_nonauto is still False, trace up the chain of
+			# hard deps until we find something that wasn't auto-installed.
+			# So, for instance, if libfoo depends on libbar, libbar depends
+			# on libspam, and I installed libspam-dev manually, report the
+			# full chain. Possibly only do this for deps?
 			make_popup(info)
 		# scr.addstr(height - 2, 0, repr(key)); scr.clrtoeol()
 	changes = False
