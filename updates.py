@@ -219,7 +219,9 @@ def show_packages(scr, cache, upgrades, auto):
 				# Trace the chain of deps and find something, anything, that
 				# was manually installed. Keep going till we get somewhere or
 				# run out of dependencies to look at.
-				info.append(find_ultimate_dependency(cache, deps) or "No ultimate cause found.")
+				cause = find_ultimate_dependency(cache, deps)
+				if cause: info.extend(["", "Installed because:", cause])
+				else: info.extend(["", "No ultimate installation cause found - everything's autoinstalled."])
 			make_popup(info)
 		# scr.addstr(height - 2, 0, repr(key)); scr.clrtoeol()
 	changes = False
