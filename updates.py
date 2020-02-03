@@ -167,7 +167,7 @@ def show_packages(scr, cache, upgrades, auto):
 			p = upgrades[pkg]._pkg # Is there a non-private way to find the underlying package?
 			deps, recs, sugs = [], [], []
 			for dep in p.rev_depends_list:
-				inst = cache[dep.parent_pkg.get_fullname()]
+				inst = cache[dep.parent_pkg.name] # Note: Using get_fullname() would be better than name, but it doesn't work on older apts
 				if not inst.installed: continue
 				type = dep.dep_type_untranslated
 				if type == "Depends":
