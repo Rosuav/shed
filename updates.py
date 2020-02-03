@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 # requires system Python and the python3-apt package
+import textwrap
 from collections import OrderedDict # Starting with Python 3.7, we could just use vanilla dicts
 import apt # ImportError? apt install python3-apt
 
@@ -146,7 +147,9 @@ def show_packages(scr, cache, upgrades, auto):
 			# http://metadata.ftp-master.debian.org/changelogs/%(src_section)s/%(prefix)s/%(src_pkg)s/%(src_pkg)s_%(src_ver)s_changelog
 
 			sel = upgrades[pkg]
-			info = ["Upgrading %s from %s to %s" % (sel.fullname, sel.installed.version, sel.candidate.version)]
+			info = ["Upgrading %s from %s to %s" % (sel.fullname, sel.installed.version, sel.candidate.version), ""]
+			for line in sel.candidate.description.split("\n"):
+				info.extend(textwrap.fill(line, width - 6).split("\n"))
 			try: sel.mark_upgrade()
 			except apt.package.apt_pkg.Error as e:
 				info.append("Unable to upgrade this package:")
