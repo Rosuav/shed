@@ -5,3 +5,4 @@ yt-queue
 *.pyc
 *.json
 moonlighter.txt
+gpu-log.json
