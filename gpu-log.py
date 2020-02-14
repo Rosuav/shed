@@ -49,7 +49,7 @@ def log_stats():
 	try:
 		status = requests.get("http://localhost:27013/status.json?silent=true").json()
 	except requests.exceptions.RequestException:
-		status = {"playing": ""}
+		status = {"playing": False}
 	entry["in-cs-match"] = status["playing"]
 	entry["cs-status"] = status.get("desc", "")
 
