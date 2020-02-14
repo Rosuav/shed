@@ -1,6 +1,7 @@
 import collections
 import itertools
 import json
+import sys
 import matplotlib.pyplot as plt
 
 with open("gpu-log.json") as f:
@@ -31,7 +32,6 @@ data = [d for d in data if 1581666922 <= d["timestamp"] <= 1581668008]
 print(len(data), "data points.")
 
 def graph_processes():
-	# Find all process names that ever exist
 	processes = collections.defaultdict(lambda: [0] * len(data))
 	processes["All"] # Put it first. It should perfectly track the Total, which comes from the vram figure.
 	for i, entry in enumerate(data):
@@ -53,6 +53,8 @@ def graph(data, **kw):
 		size = len(data) // MAX_GRAPH_POINTS + bool(len(data) % MAX_GRAPH_POINTS) # round up, crude way, no floats involved
 		data = [avg(data[pos : pos + size]) for pos in range(0, len(data), size)]
 	plt.plot(data, **kw)
+
+# graph_processes(); sys.exit(0)
 
 graph([d["vram"] for d in data], label="VRAM used")
 graph([d["vram-util"] for d in data], label="VRAM active")
