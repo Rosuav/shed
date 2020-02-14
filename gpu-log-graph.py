@@ -4,6 +4,21 @@ import json
 import sys
 import matplotlib.pyplot as plt
 
+
+"""
+Attempting to diagnose a weird problem. The main symptom is that the frame rate in CS:GO plummets,
+and VRAM utilization falls to single digits of percent while GPU utilization stays pegged. This
+has only ever been noted when Surviving Mars (aka MarsSteam) is also running, but it may or may not
+actually be related to that specifically. Closing Mars doesn't solve the problem.
+
+Once the problem has been triggered, it can be poked at by changing graphics settings in CS:GO. This
+does not solve the problem but can affect the resultant frame rate. The ONLY way to solve it is to
+restart CS:GO, upon which everything is absolutely perfectly clean.
+
+During the problem period, csgo_linux64 has very high "sm" (which seems to correspond to GPU usage),
+but other than that, nothing seems particularly odd.
+"""
+
 with open("gpu-log.json") as f:
 	# Note that this is actually jsonlines, not pure JSON
 	data = [json.loads(l) for l in f if l]
