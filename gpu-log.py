@@ -46,7 +46,10 @@ def log_stats():
 	entry["processes"] = [dict(zip(fields, line)) for line in lines[2:]]
 
 	# CS:GO activity indication
-	status = requests.get("http://localhost:27013/status.json?silent=true").json()
+	try:
+		status = requests.get("http://localhost:27013/status.json?silent=true").json()
+	except requests.exceptions.RequestException:
+		status = {"playing": ""}
 	entry["in-cs-match"] = status["playing"]
 	entry["cs-status"] = status.get("desc", "")
 
