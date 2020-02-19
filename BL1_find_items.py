@@ -1,3 +1,4 @@
+import argparse
 import os.path
 import struct
 import inspect
@@ -463,7 +464,6 @@ def main(args):
 		print()
 
 if __name__ == '__main__':
-	import argparse
 	parser = argparse.ArgumentParser(description="Borderlands 1 save file reader")
 	parser.add_argument("--path", help="Set path to Steam", default="~/.steam")
 	# parser.add_argument("--pieces", help="Show the individual pieces inside weapons/items", action="store_true")
