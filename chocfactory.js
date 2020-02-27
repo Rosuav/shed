@@ -7,7 +7,7 @@ Usage in HTML:
 <script defer src="/path/to/your/script.js"></script>
 
 Usage in a module:
-import choc, {set_content} from "https://rosuav.github.io/shed/chocfactory.js";
+import choc, {set_content, on} from "https://rosuav.github.io/shed/chocfactory.js";
 
 
 Once imported, the chocolate factory can be used in a number of ways:
@@ -95,5 +95,5 @@ choc = new Proxy(choc, {get: function(obj, prop) {
 export default choc;
 
 //For non-module scripts, allow some globals to be used
-window.choc = choc; window.set_content = set_content;
+window.choc = choc; window.set_content = set_content; window.on = on;
 window.chocify = tags => tags.split(" ").forEach(tag => window[tag] = choc[tag]);
