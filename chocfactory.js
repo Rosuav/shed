@@ -60,6 +60,16 @@ export function set_content(elem, children) {
 	return elem;
 }
 
+const handlers = {};
+export function on(event, selector, handler) {
+	if (handlers[event]) return handlers[event].push([selector, handler]);
+	handlers[event] = [[selector, handler]];
+	document.addEventListener(event, e => {
+		handlers[event].forEach([s, h] => e.target.matches(s) && h(e));
+	});
+	return 1;
+}
+
 let choc = function(tag, attributes, children) {
 	const ret = document.createElement(tag);
 	//If called as choc(tag, children), assume all attributes are defaults
