@@ -36,7 +36,8 @@ to the document, so dynamically-created objects can still respond to events.
     on("click", ".some-class", e => {console.log("Hello");});
 To distinguish between multiple objects that potentially match, e.match
 will be set to the object that received the event. (This is distinct from
-e.target and e.currentTarget.)
+e.target and e.currentTarget.) NOTE: e.match is wiped after the event
+handler returns. For asynchronous use, capture it in a variable first.
 
 The MIT License (MIT)
 
@@ -86,6 +87,7 @@ export function on(event, selector, handler) {
 			handlers[event].forEach(([s, h]) => cur.matches(s) && h(e));
 			cur = cur.parentNode;
 		}
+		e.match = null; //Signal that you can't trust the match ref any more
 	});
 	return 1;
 }
