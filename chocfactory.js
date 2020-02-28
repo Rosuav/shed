@@ -65,7 +65,14 @@ export function on(event, selector, handler) {
 	if (handlers[event]) return handlers[event].push([selector, handler]);
 	handlers[event] = [[selector, handler]];
 	document.addEventListener(event, e => {
-		handlers[event].forEach(([s, h]) => e.target.matches(s) && h(e));
+		//Reimplement bubbling ourselves
+		const top = e.currentTarget; //Generic in case we later allow this to attach to other than document
+		let cur = e.target;
+		while (cur !== top) {
+			e.matchedTarget = cur; //We can't mess with e.currentTarget without synthesizing our own event object. Easier to make a new property.
+			handlers[event].forEach(([s, h]) => cur.matches(s) && h(e));
+			cur = cur.parentNode;
+		}
 	});
 	return 1;
 }
