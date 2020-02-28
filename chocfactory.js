@@ -11,19 +11,32 @@ import choc, {set_content, on} from "https://rosuav.github.io/shed/chocfactory.j
 
 
 Once imported, the chocolate factory can be used in a number of ways:
-* choc("TAG", attr, children)
-* choc.TAG(attr, children)
-* const {TAG} = choc; TAG(attr, children)
-* chocify("TAG"); TAG(attr, children) // in non-module scripts only
+* const {TAG} = choc; TAG(attr, contents) // recommended
+* choc.TAG(attr, contents)
+* choc("TAG", attr, contents)
+* chocify("TAG"); TAG(attr, contents) // deprecated, non-module scripts only
 
-The chocify function takes a blank-delimited list of tag names and creates
-attributes on the window object as shorthands. In non-module scripts, these
-will be available as globals. Use of destructuring is recommended instead.
+Example:
+const {FORM, LABEL, INPUT} = choc;
+let el = FORM(LABEL(["Speak thy mind:", INPUT({name: "thought"})]))
 
 Regardless of how it's called, choc will return a newly-created element with
-the given tag, attributes, and children.
+the given tag, attributes, and contents. Both attributes and contents are
+optional, but if both are given, must be in that order.
 
-TODO: Document the rest of how you use this.
+To replace the contents of a DOM element:
+    set_content(element, contents);
+The element can be either an actual DOM element or a selector. The contents
+can be a DOM element (eg created by choc() above), or a text string, or an
+array of elements and/or strings. Text strings will NOT be interpreted as
+HTML, and thus can safely contain untrusted content.
+
+Hooking events can be done by selector. Internally this attaches the event
+to the document, so dynamically-created objects can still respond to events.
+    on("click", ".some-class", e => {console.log("Hello");});
+To distinguish between multiple objects that potentially match, e.matchedTarget
+will be set to the object that received the event. (This is distinct from
+e.target and e.currentTarget.)
 
 The MIT License (MIT)
 
