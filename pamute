@@ -4,6 +4,9 @@
 # Can be run over SSH, and should make swift work of those crashed-but-noisy programs.
 # Requires Python 3.5 or better.
 
+# TODO: Expand this to be able to 'move-sink-input' and then make pamute a symlink.
+# Can I check which sink an input is connected to, and make it a toggle?
+
 import os
 import re
 import subprocess
