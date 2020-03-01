@@ -48,6 +48,8 @@ for line in info.split("\n"):
 		# Continuation line. If it starts with "\t\t", it's a nested continuation.
 		if line.startswith("\tmuted: "):
 			muted = line == "\tmuted: yes"
+		m = re.match('\tsink: ([0-9]+) ', line)
+		if m: sink = int(m.group(1))
 		m = re.match('\t\tapplication.(name|icon_name|process.binary|process.id) = "(.*)"$', line)
 		if not m: continue
 		prog = m.group(2).casefold()
@@ -73,3 +75,4 @@ for line in info.split("\n"):
 			index = line.split("index:")[1]
 			muted = None
 			ignore = False
+			sink = None
