@@ -14,10 +14,6 @@ import subprocess
 import sys
 
 prog = os.path.basename(sys.argv[0])
-if len(sys.argv) < 2:
-	print("USAGE: %s application_name [1|0]" % prog, file=sys.stderr)
-	sys.exit(1)
-
 mode = {"pamute": "mute", "pasink": "sink"}.get(prog)
 app = status = None
 
@@ -26,6 +22,14 @@ for arg in sys.argv[1:]:
 	elif arg == "--sink": mode = "sink"
 	elif app is None: app = arg.casefold()
 	elif arg in ("0", "1"): status = arg # TODO: For pasink, allow higher numbers (but don't conflict with PID detection)
+if not mode:
+	print("USAGE: %s {--mute,--sink} application_name [1|0]" % prog, file=sys.stderr)
+	sys.exit(1)
+if not app:
+	# Normally it'll be called with a program name that specifies the action, so don't
+	# clutter the usage info with --mute/--sink.
+	print("USAGE: %s application_name [1|0]" % prog, file=sys.stderr)
+	sys.exit(1)
 
 if app == "--complete":
 	if len(sys.argv) >= 5: completeme = sys.argv[3]
