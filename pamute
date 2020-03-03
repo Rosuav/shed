@@ -80,7 +80,7 @@ for line in info.split("\n"):
 			else: new = status
 			if mode == "mute":
 				subprocess.run(["pacmd", "set-sink-input-mute", index, new], check=True)
-				if mute == "1": print("Muted.")
+				if not muted: print("Muted.")
 				else: print("Unmuted.")
 			else:
 				message = subprocess.run(["pacmd", "move-sink-input", index, new],
