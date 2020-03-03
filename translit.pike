@@ -53,6 +53,7 @@ array preprocess=({
 	"є ye je", "Є YE JE", //Possibly only for Ukrainian? I can't find a canonical one-character representation in ISO-9 (which is for Russian).
 	"х h kh", "Х H Kh KH", //Pronounced "kh" but transliterated "h" in ISO-9
 	"Э È E`","э è e`", //Used only in Russian and Belarusian; Е is more common (keyed as E).
+	"ё ë e\"", "Ё Ë E\"", //Not sure of the best keying for these
 })[*]/" ";
 mapping preprocess_r2c=(["'":"’","\"":"″"]); //The rest is done in create() - not main() as this may be imported by other scripts
 mapping preprocess_c2r=mkmapping(@Array.columns(preprocess,({0,1})));
@@ -496,6 +497,14 @@ void translit_window(string lang, string|void initialtext, string|void srtfile, 
 				{
 					//Something's wrong. We're going to spam the screen a lot with these, unless the job's all done.
 					write("Mismatched:\n%{%s\n%}",string_to_utf8(lines[*]));
+					//Optionally autocorrect it. Good if we've tweaked the transliteration.
+					if (0) //TODO: Have a parameter or something
+					{
+						if (0 == 2) lines[2] = latin_to(lines[3]); //Which one should be adjusted?
+						else lines[3] = to_latin(lines[2]);
+						data[i] = lines * "\n";
+						Stdio.write_file(srtfile, string_to_utf8(String.trim_all_whites(data*"\n\n")+"\n"));
+					}
 				}
 			}
 		}
