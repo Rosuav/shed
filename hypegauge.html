@@ -77,6 +77,21 @@ ComfyJS.onChat = ( user, message, flags, self, extra ) => {
 	}
 };
 
+ComfyJS.onCheer = ( user, message, bits, flags, extra ) => {
+	cheer_cur += bits;
+	redraw();
+};
+
+ComfyJS.onSub = ComfyJS.onResub = ComfyJS.onSubGift = () => {
+	++subs_cur;
+	redraw();
+};
+
+ComfyJS.onSubMysteryGift = ( gifterUser, numbOfSubs, senderCount, subTierInfo, extra ) => {
+	subs_cur += numbOfSubs;
+	redraw();
+};
+
 function load_config(cfg) {
 	if (cfg === "") {
 		//TODO: Show all the config pages
