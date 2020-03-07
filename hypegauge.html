@@ -1,0 +1,94 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Hype Gauge</title>
+<style>
+#gauges {
+	display: flex;
+	height: 500px;
+	
+}
+#gauges div {
+	width: 50px;
+	height: 100%;
+	background: url(pawprints.png) no-repeat;
+}
+</style>
+</head>
+<body>
+<div id=comments style="display: none">
+This is a hype gauge for Eclectic Scribbles. It listens to chat for the following events:
+* Cheers
+* Subs/resubs/gift subs
+* The channel bot greeting a new follower
+
+It then counts those events, aiming for a threshold set by the URL parameters.
+
+buppymaster: MustardMine, Thank you for the follow!
+
+Configuring this gauge will be done by viewing it in a browser, and then getting a URL.
+
+Uses ComfyJS from InstaFluff.
+
+Uses pawprints image crafted by me using a template pawprint from Eclectic.
+</div>
+<div id=gauges>
+<div id=follow></div>
+<div id=cheer></div>
+<div id=subs></div>
+</div>
+<script type=module>
+//import choc, {set_content} from "https://rosuav.github.io/shed/chocfactory.js";
+import "https://cdn.jsdelivr.net/npm/comfy.js/dist/comfy.min.js"; const ComfyJS = window.ComfyJS;
+//const {A, IMG, INPUT, LABEL, LI, OPTION, OPTGROUP, SPAN} = choc;
+
+let follow_cur = 0, follow_max = 100;
+let cheer_cur = 0, cheer_max = 100;
+let subs_cur = 0, subs_max = 100;
+function update(id, cur, max) {
+	const elem = document.getElementById(id);
+	if (!elem) return;
+	const height = elem.clientHeight;
+	if (cur >= max) elem.style.backgroundPositionY = "0";
+	else elem.style.backgroundPositionY = Math.floor((max - cur) * height / max) + "px";
+	//elem.innerHTML = cur + " / " + max;
+}
+
+function redraw() {
+	//TODO: Have a static image, and then crop it down with CSS.
+	//The image should have a height of 100% by default, but be
+	//truncated at a proportion of cur/max.
+	update("follow", follow_cur, follow_max);
+	update("cheer", cheer_cur, cheer_max);
+	update("subs", subs_cur, subs_max);
+}
+
+ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
+	if (!flags.mod && !flags.broadcaster) return;
+	if (command === "setfollow") {follow_cur = +message; redraw();}
+	if (command === "setcheer") {cheer_cur = +message; redraw();}
+	if (command === "setsubs") {subs_cur = +message; redraw();}
+};
+
+ComfyJS.onChat = ( user, message, flags, self, extra ) => {
+	if (user === "buppymaster" && message.endsWith(", Thank you for the follow!")) {
+		++follow_cur;
+		redraw();
+	}
+};
+
+function load_config(cfg) {
+	if (cfg === "") {
+		//TODO: Show all the config pages
+		return;
+	}
+	//Parse the cfg and set the follow_max, cheer_max, and sub_max values
+	//TODO: Retain the 'cur' values unless it's been a new day
+	redraw();
+	//ComfyJS.Init("EclecticScribbles");
+	ComfyJS.Init("MustardMine");
+}
+load_config(window.location.hash.slice(1));
+</script>
+</body>
+</html>
