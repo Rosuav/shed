@@ -3,83 +3,97 @@
 <head>
 <title>Hype Gauge</title>
 <style>
+* {box-sizing: border-box;}
+body {margin: 0;}
 #gauges {
 	display: flex;
 	height: 500px;
-	
 }
 #gauges div {
 	width: 50px;
 	height: 100%;
+	/* This image should be the exact size of the bar (50x500) */
 	background: url(pawprints.png) no-repeat;
 }
 </style>
 </head>
 <body>
-<div id=comments style="display: none">
-This is a hype gauge for Eclectic Scribbles. It listens to chat for the following events:
-* Cheers
-* Subs/resubs/gift subs
-* The channel bot greeting a new follower
-
-It then counts those events, aiming for a threshold set by the URL parameters.
-
-buppymaster: MustardMine, Thank you for the follow!
-
-Configuring this gauge will be done by viewing it in a browser, and then getting a URL.
-
-Uses ComfyJS from InstaFluff.
-
-Uses pawprints image crafted by me using a template pawprint from Eclectic.
-</div>
-<div id=gauges>
+<section id=config style="display: none">
+<p>This is a hype gauge for Eclectic Scribbles. It listens to chat for the following events:</p>
+<ul><li>Cheers</li><li>Subs/resubs/gift subs</li><li>The channel bot greeting a new follower</li></ul>
+<p>It then counts those events. Configure this gauge here, then use the URL in a browser source in OBS.</p>
+<p>Uses ComfyJS from InstaFluff. Uses pawprints image crafted by me using a template pawprint from Eclectic.</p>
+<form>
+<ul>
+<li><label>Channel name: <input name=chan placeholder="eg rosuav"></label></li>
+<li><label>Follower goal: <input name=follow placeholder="eg 50"></label></li>
+<li><label>Cheer goal: <input name=cheer placeholder="eg 2500"></label></li>
+<li><label>Sub/resub goal: <input name=subs placeholder="eg 10"></label></li>
+</ul>
+<p>Use this URL in a browser source: <input readonly id=url size=120></p>
+</form>
+</section>
+<section id=gauges>
 <div id=follow></div>
 <div id=cheer></div>
 <div id=subs></div>
-</div>
-<script type=module>
-//import choc, {set_content} from "https://rosuav.github.io/shed/chocfactory.js";
-import "https://cdn.jsdelivr.net/npm/comfy.js/dist/comfy.min.js"; const ComfyJS = window.ComfyJS;
-//const {A, IMG, INPUT, LABEL, LI, OPTION, OPTGROUP, SPAN} = choc;
+</section>
+<script src="https://cdn.jsdelivr.net/npm/comfy.js/dist/comfy.min.js"></script>
+<script>
+document.forms[0].onsubmit = e => e.preventDefault();
+document.forms[0].oninput = e => {
+	const params = new URLSearchParams(new FormData(e.currentTarget));
+	const url = window.location.href.split("#")[0] + "#" + params;
+	document.getElementById("url").value = url;
+};
 
-let follow_cur = 0, follow_max = 100;
-let cheer_cur = 0, cheer_max = 100;
-let subs_cur = 0, subs_max = 100;
+let follow_cur = 0, follow_max = 0;
+let cheer_cur = 0, cheer_max = 0;
+let subs_cur = 0, subs_max = 0;
 function update(id, cur, max) {
 	const elem = document.getElementById(id);
 	if (!elem) return;
+	if (!max) return elem.style.width = "0"; //Hide bars we aren't using
 	const height = elem.clientHeight;
 	if (cur >= max) elem.style.backgroundPositionY = "0";
 	else elem.style.backgroundPositionY = Math.floor((max - cur) * height / max) + "px";
-	//elem.innerHTML = cur + " / " + max;
+	//elem.innerHTML = cur + " / " + max; //Should the numbers be shown too?
+	//console.log(id + ": " + cur + " / " + max);
 }
 
 function redraw() {
-	//TODO: Have a static image, and then crop it down with CSS.
-	//The image should have a height of 100% by default, but be
-	//truncated at a proportion of cur/max.
 	update("follow", follow_cur, follow_max);
 	update("cheer", cheer_cur, cheer_max);
 	update("subs", subs_cur, subs_max);
 }
 
+//Save and redraw. Do this after any change to the stats.
+function save() {
+	window.localStorage.setItem("hypegauge_lastday", new Date().toLocaleDateString());
+	window.localStorage.setItem("hypegauge_follow", follow_cur);
+	window.localStorage.setItem("hypegauge_cheer", cheer_cur);
+	window.localStorage.setItem("hypegauge_subs", subs_cur);
+	redraw();
+}
+
 ComfyJS.onCommand = ( user, command, message, flags, extra ) => {
 	if (!flags.mod && !flags.broadcaster) return;
-	if (command === "setfollow") {follow_cur = +message; redraw();}
-	if (command === "setcheer") {cheer_cur = +message; redraw();}
-	if (command === "setsubs") {subs_cur = +message; redraw();}
+	if (command === "setfollow") {follow_cur = +message; save();}
+	if (command === "setcheer") {cheer_cur = +message; save();}
+	if (command === "setsubs") {subs_cur = +message; save();}
 };
 
 ComfyJS.onChat = ( user, message, flags, self, extra ) => {
+	//TODO: Allow this to be customized (probably with a regex rather than endsWith)
 	if (user === "buppymaster" && message.endsWith(", Thank you for the follow!")) {
 		++follow_cur;
-		redraw();
+		save();
 	}
 };
 
 ComfyJS.onCheer = ( user, message, bits, flags, extra ) => {
 	cheer_cur += bits;
-	redraw();
+	save();
 };
 
 ComfyJS.onSub = ComfyJS.onResub = ComfyJS.onSubGift = () => {
@@ -89,19 +103,29 @@ ComfyJS.onSub = ComfyJS.onResub = ComfyJS.onSubGift = () => {
 
 ComfyJS.onSubMysteryGift = ( gifterUser, numbOfSubs, senderCount, subTierInfo, extra ) => {
 	subs_cur += numbOfSubs;
-	redraw();
+	save();
 };
 
 function load_config(cfg) {
-	if (cfg === "") {
-		//TODO: Show all the config pages
+	const params = new URLSearchParams(cfg);
+	const chan = params.get("chan");
+	if (!chan || chan === "") {
+		//Assume that if we don't have a channel set, we're in config mode
+		document.getElementById("config").style.display = "block";
+		document.getElementById("gauges").style.display = "none";
 		return;
 	}
-	//Parse the cfg and set the follow_max, cheer_max, and sub_max values
-	//TODO: Retain the 'cur' values unless it's been a new day
+	follow_max = parseInt(params.get("follow") || "0");
+	cheer_max = parseInt(params.get("cheer") || "0");
+	subs_max = parseInt(params.get("subs") || "0");
+	//Retain the 'cur' values unless it's been a new day
+	if (window.localStorage.getItem("hypegauge_lastday") === new Date().toLocaleDateString()) {
+		follow_cur = +window.localStorage.getItem("hypegauge_follow");
+		cheer_cur = +window.localStorage.getItem("hypegauge_cheer");
+		subs_cur = +window.localStorage.getItem("hypegauge_subs");
+	}
 	redraw();
-	//ComfyJS.Init("EclecticScribbles");
-	ComfyJS.Init("MustardMine");
+	ComfyJS.Init(chan);
 }
 load_config(window.location.hash.slice(1));
 </script>
