@@ -67,6 +67,13 @@ with sr.Microphone() as source:
 	#	"/home/rosuav/voice-tinkering/snowboy/examples/Python3",
 	#	["/home/rosuav/voice-tinkering/snowboy/resources/models/snowboy.umdl"]
 	#))
+
+# Discard crazily-long entries. They seem to happen if the recognizer doesn't
+# get a proper silence to start with or something, and it just records forever.
+if len(audio.frame_data) / audio.sample_width / audio.sample_rate > 60.0:
+	# More than sixty seconds? Throw it away.
+	sys.exit(0)
+
 print("Got notes.")
 log = open(NOTES_DIR + "/notes.log", "a")
 if new_block:
