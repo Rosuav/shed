@@ -54,6 +54,7 @@ array preprocess=({
 	"х h kh", "Х H Kh KH", //Pronounced "kh" but transliterated "h" in ISO-9
 	"Э È E`","э è e`", //Used only in Russian and Belarusian; Е is more common (keyed as E).
 	"ё ë e\"", "Ё Ë E\"", //Not sure of the best keying for these
+	"ᲅ ṫ \\t", //Doesn't have an ISO-9 transliteration, doesn't have an uppercase form.
 })[*]/" ";
 mapping preprocess_r2c=(["'":"’","\"":"″"]); //The rest is done in create() - not main() as this may be imported by other scripts
 mapping preprocess_c2r=mkmapping(@Array.columns(preprocess,({0,1})));
