@@ -116,11 +116,12 @@ for N in (5, 10, 15, 20):
 	print(N, stdev(N) / N)
 	# x = np.linspace(mu - 3*sigma, mu + 3*sigma, 11)
 	p = [p * n / 2**N * 2 for n, p in enumerate(pascal(N) + [0])]
-	samples = []
-	for n, count in enumerate(pascal(N)): samples.extend(count * [n])
-	# mu / N, sigma / N
-	muN, sigmaN = 0.5, statistics.stdev(samples)/N
-	print(N, sigmaN)
+	if 0: # Slow calculation of the same figure stdev gives
+		samples = []
+		for n, count in enumerate(pascal(N)): samples.extend(count * [n])
+		# mu / N, sigma / N
+		muN, sigmaN = 0.5, statistics.stdev(samples)/N
+		print(N, sigmaN)
 	x = np.linspace(0, 1.0, len(p))
 	# plt.plot(x, stats.norm.pdf(x, muN, sigmaN), label=str(N))
 	# plt.plot(x, p, label=f"Actual [{N}]")
