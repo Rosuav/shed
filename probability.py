@@ -112,8 +112,9 @@ def pascal(n):
 for N in (5, 10, 15, 20):
 	print(N, stdev(N) / N)
 	x = np.linspace(0, 1.0, N + 2)
-	p = [p * n / 2**N * 2 for n, p in enumerate(pascal(N) + [0])]
-	plt.plot(x, p, label=f"Actual [{N}]")
+	if N < 50:
+		p = [p * n / 2**N * 2 for n, p in enumerate(pascal(N) + [0])]
+		plt.plot(x, p, label=f"Actual [{N}]")
 	if 0: # Slow calculation of the same figure stdev gives
 		samples = []
 		for n, count in enumerate(pascal(N)): samples.extend(count * [n])
