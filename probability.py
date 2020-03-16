@@ -99,13 +99,6 @@ print(choosehalf(10))
 N = 1_000_000_000
 half = 5_000_000_000
 def stdev(N):
-	p = [p * n / 2**N * 2 for n, p in enumerate(pascal(N) + [0])]
-	samples = []
-	for n, count in enumerate(pascal(N)): samples.extend(count * [n])
-	# return statistics.variance(samples) ** 0.5
-	# _, ss = statistics._ss(samples)
-	c = N / 2
-	_, ss, _ = statistics._sum((x-c)**2 for x in samples)
 	ss = 0
 	for n, count in enumerate(pascal(N)): ss += count * (n - N/2) ** 2
 	return (ss / (2**N-1)) ** 0.5
