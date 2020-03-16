@@ -84,6 +84,8 @@ def choose(n, k):
 	return num // denom
 def approxchoose(n, k):
 	# Approximate n choose k for large n and k
+	# Returns values a smidge too high, and has to be special-cased for N choose 0 and N choose N
+	if k == 0 or k == n: return 1
 	return (n / (2 * math.pi * k * (n-k))) ** 0.5 * (n ** n) / (k ** k * (n - k) ** (n - k))
 def choosehalf(n):
 	# Approximate 2n choose n
@@ -100,19 +102,28 @@ N = 1_000_000_000
 half = 5_000_000_000
 def stdev(N):
 	ss = 0
-	# Last step: How do we do this part without actually calculating
-	# the Nth row of Pascal's Triangle?
-	for n, count in enumerate(pascal(N)): ss += count * (n - N/2) ** 2
+	for n in range(N):
+		ss += approxchoose(N, n) * (n - N/2) ** 2
 	return (ss / (2**N-1)) ** 0.5
 
 def pascal(n):
 	if n == 0: return [1]
 	p = [0] + pascal(n - 1) + [0]
 	return [p[i] + p[i + 1] for i in range(len(p) - 1)]
+
+if 0:
+	# Calculate the error in the approxchoose function by comparing against
+	# the corresponding row in Pascal's Triangle
+	N = 20
+	for n, count in enumerate(pascal(N)):
+		print(f"%{len(str(N))}d %.5f" % (n, approxchoose(N, n) / count), count)
+	import sys; sys.exit(0)
+
 # statistics.NormalDist(0.5, stdev(N))
 # for N in (4, 10, 20, 100, 1_000_000, 1_000_000_000, 1_000_000_000_000):
-for N in (5, 10, 15, 20):
-	print(N, stdev(N) / N)
+for N in (5, 10, 15, 20, 50, 75, 100):
+	sigmaN = stdev(N) / N
+	print(N, sigmaN)
 	x = np.linspace(0, 1.0, N + 2)
 	if N < 50:
 		p = [p * n / 2**N * 2 for n, p in enumerate(pascal(N) + [0])]
@@ -123,7 +134,7 @@ for N in (5, 10, 15, 20):
 		# mu / N, sigma / N
 		muN, sigmaN = 0.5, statistics.stdev(samples)/N
 		print(N, sigmaN)
-	plt.plot(x, stats.norm.pdf(x, 0.5, stdev(N) / N), label=str(N))
+	plt.plot(x, stats.norm.pdf(x, 0.5, sigmaN), label=str(N))
 # What is the first derivative of the PDF of (1e9 choose 5e8) at 0.5?
 # f''(x) = 1/sqrt(2*pi)*e**(-1/2x^2) * (x^2-1)
 # 499_000_000 <= x <= 501_000_000 ?? What probability?
