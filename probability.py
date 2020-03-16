@@ -100,6 +100,8 @@ N = 1_000_000_000
 half = 5_000_000_000
 def stdev(N):
 	ss = 0
+	# Last step: How do we do this part without actually calculating
+	# the Nth row of Pascal's Triangle?
 	for n, count in enumerate(pascal(N)): ss += count * (n - N/2) ** 2
 	return (ss / (2**N-1)) ** 0.5
 
