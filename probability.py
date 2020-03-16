@@ -106,6 +106,8 @@ def stdev(N):
 	# _, ss = statistics._ss(samples)
 	c = N / 2
 	_, ss, _ = statistics._sum((x-c)**2 for x in samples)
+	ss = 0
+	for n, count in enumerate(pascal(N)): ss += count * (n - N/2) ** 2
 	return (ss / (2**N-1)) ** 0.5
 
 def pascal(n):
