@@ -110,21 +110,17 @@ def pascal(n):
 # statistics.NormalDist(0.5, stdev(N))
 # for N in (4, 10, 20, 100, 1_000_000, 1_000_000_000, 1_000_000_000_000):
 for N in (5, 10, 15, 20):
-	print()
-	# print(N, stdev(N), (stdev(N) - 0.5) * N * 100 * 100)
-	mu = 0.5
 	print(N, stdev(N) / N)
-	# x = np.linspace(mu - 3*sigma, mu + 3*sigma, 11)
+	x = np.linspace(0, 1.0, N + 2)
 	p = [p * n / 2**N * 2 for n, p in enumerate(pascal(N) + [0])]
+	plt.plot(x, p, label=f"Actual [{N}]")
 	if 0: # Slow calculation of the same figure stdev gives
 		samples = []
 		for n, count in enumerate(pascal(N)): samples.extend(count * [n])
 		# mu / N, sigma / N
 		muN, sigmaN = 0.5, statistics.stdev(samples)/N
 		print(N, sigmaN)
-	x = np.linspace(0, 1.0, N + 2)
-	# plt.plot(x, stats.norm.pdf(x, muN, sigmaN), label=str(N))
-	# plt.plot(x, p, label=f"Actual [{N}]")
+	plt.plot(x, stats.norm.pdf(x, 0.5, stdev(N) / N), label=str(N))
 # What is the first derivative of the PDF of (1e9 choose 5e8) at 0.5?
 # f''(x) = 1/sqrt(2*pi)*e**(-1/2x^2) * (x^2-1)
 # 499_000_000 <= x <= 501_000_000 ?? What probability?
@@ -132,5 +128,5 @@ for N in (5, 10, 15, 20):
 # CDF: What is the probability that x < 501e6 ?
 # What is the spread around the mean such that CDF(x+spread) - CDF(x-spread) == 0.99?
 
-# plt.legend()
-# plt.show()
+plt.legend()
+plt.show()
