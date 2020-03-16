@@ -122,7 +122,7 @@ for N in (5, 10, 15, 20):
 		# mu / N, sigma / N
 		muN, sigmaN = 0.5, statistics.stdev(samples)/N
 		print(N, sigmaN)
-	x = np.linspace(0, 1.0, len(p))
+	x = np.linspace(0, 1.0, N + 2)
 	# plt.plot(x, stats.norm.pdf(x, muN, sigmaN), label=str(N))
 	# plt.plot(x, p, label=f"Actual [{N}]")
 # What is the first derivative of the PDF of (1e9 choose 5e8) at 0.5?
