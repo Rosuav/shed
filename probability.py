@@ -103,8 +103,10 @@ def stdev(N):
 	samples = []
 	for n, count in enumerate(pascal(N)): samples.extend(count * [n])
 	# return statistics.variance(samples) ** 0.5
-	T, ss = statistics._ss(samples)
-	return statistics._convert(ss/(2**N-1), T) ** 0.5
+	# _, ss = statistics._ss(samples)
+	c = N / 2
+	_, ss, _ = statistics._sum((x-c)**2 for x in samples)
+	return (ss / (2**N-1)) ** 0.5
 
 def pascal(n):
 	if n == 0: return [1]
