@@ -1,17 +1,24 @@
 //Take a list of entities and an image, and create an overlay
 
+//TODO: Make these configurable eg by environment variable
+constant CSGO_SERVER_ROOT = "/home/rosuav/tf2server/steamcmd_linux/csgo/csgo";
+constant WORK_DIR = "/tmp";
+
 mixed _ignore_ = Gz.crc32; //Force the Gz module to be loaded, thus activating Image.PNG
 
-array parse_entity_log(string fn)
+//Returns [mapname, entities]
+array(string|array) parse_entity_log(string fn)
 {
+	string mapname = 0;
 	array ret = ({ });
 	foreach (Stdio.read_file(fn) / "\n", string line)
 	{
 		if (line == "") continue;
+		if (sscanf(line, "Searching dz_%s for ", string map) && map) mapname = map;
 		array cur = array_sscanf(line, "%s: %f,%f,%f [%f,%f,%f - %f,%f,%f]%*[ ]%s");
 		if (cur && sizeof(cur)) ret += ({cur});
 	}
-	return ret;
+	return ({mapname, ret});
 }
 
 float map_left, map_top, map_width, map_height;
@@ -52,6 +59,12 @@ constant map_location_names = ([
 	"APC": "APC", //To prevent it being translated to "A P C" (see the regex below)
 	"Medina": "Town", //Sirocco changed the name of this in the localizations, but kept the internal name
 ]);
+mapping(string:multiset(string)) permap_uninteresting = ([
+	//Blacksite would be improved by adding another region at -925.00,-800.00 called "Hut".
+	"blacksite": (<"Bridge", "Cove", "Trench", "Hatch", "Forest", "Canyon", "Overlook", "Boardwalk", "Docks", "Crane">),
+	"sirocco": (<"Catwalk", "Pumps", "Dome", "Fishing">),
+	"junglety": (<"APC", "Bridge">),
+]);
 multiset uninteresting = (< >);
 array locations, drawme;
 void handle_info_map_region(Image.Image img, array(float) pos, array(float) min, array(float) max, string tail)
@@ -89,12 +102,22 @@ void handle_point_dz_weaponspawn(Image.Image img, array(float) pos, array(float)
 	if (best > bestloc->radius) bestloc->near++; else bestloc->loot++;
 }
 
-void generate(string map)
+void generate()
 {
+	//By default, we get the map name from the single entity file. TODO: Allow
+	//'snapshot' entity files for when we're doing heavy changes.
+	[string map, array entities] = parse_entity_log(CSGO_SERVER_ROOT + "/entities.log");
+	uninteresting = permap_uninteresting[map];
+	if (!uninteresting) error("Unknown map file %O\n", map);
 	write("Generating for dz_%s...\n", map);
-	array entities = parse_entity_log(map + "_entities.log");
-	//The radar images can be grabbed from steamcmd_linux/csgo/csgo/resource/overviews/dz_*_radar.dds
-	Image.Image img = Image.decode(Stdio.read_file("dz_" + map + ".png"));
+	string pngfile = WORK_DIR + "/dz_" + map + ".png";
+	string png = Stdio.read_file(pngfile);
+	if (!png)
+	{
+		//TODO: Grab radar image from steamcmd_linux/csgo/csgo/resource/overviews/dz_*_radar.dds
+		error("No radar file\n");
+	}
+	Image.Image img = Image.decode(png);
 	img_width = img->xsize(); img_height = img->ysize();
 	locations = drawme = ({ }); //Reset the locations for each new map
 	foreach (entities, array ent)
@@ -131,7 +154,7 @@ void generate(string map)
 		img->paste_alpha_color(text, 0, 255, 255, x, y);
 	}
 	write("%d locations.\n", sizeof(locations));
-	Stdio.write_file("dz_" + map + "_annotated.png", Image.PNG.encode(img));
+	Stdio.write_file("entity_map/dz_" + map + "_annotated.png", Image.PNG.encode(img));
 }
 
 int main()
@@ -140,11 +163,5 @@ int main()
 	//think the font alias system works here.
 	Image.Fonts.set_font_dirs(({"/usr/share/fonts/truetype/dejavu"}));
 	font = Image.Fonts.open_font("DejaVu Sans", 18, Image.Fonts.BOLD);
-	//Blacksite would be improved by adding another region at -925.00,-800.00 called "Hut".
-	uninteresting = (<"Bridge", "Cove", "Trench", "Hatch", "Forest", "Canyon", "Overlook", "Boardwalk", "Docks", "Crane">);
-	generate("blacksite");
-	uninteresting = (<"Catwalk", "Pumps", "Dome", "Fishing">);
-	generate("sirocco");
-	uninteresting = (<"APC", "Bridge">);
-	generate("junglety");
+	generate();
 }
