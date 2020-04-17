@@ -8,7 +8,8 @@ As of 2020-02-05, the three maps available in CS:GO's Danger Zone are:
 * Sirocco - the one that introduced us to exo-jump. Not as many named locations
   as on Blacksite, but they cover a bit more area each. Also well known.
 * Junglety - created by community mapper michal3210. Formerly had only 300ish
-  loot spawns, which caused some small problems for the map; see [Feb 2020 Jungle Update](jungle202002).
+  loot spawns, which caused some small problems for the map; see [Feb 2020 Jungle Update](jungle202002)
+  and the subsequent [Apr 2020 Jungle Update](jungle202004).
 
 In order to analyze the loot distribution, I created a quick dump of all the
 loot spawns and the map named locations. This was done using [this code](https://github.com/Rosuav/TF2BuffBot/blob/3d8fc6a/drzed.sp#L1695-L1726)
