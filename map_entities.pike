@@ -114,8 +114,11 @@ void generate()
 	string png = Stdio.read_file(pngfile);
 	if (!png)
 	{
-		//TODO: Grab radar image from steamcmd_linux/csgo/csgo/resource/overviews/dz_*_radar.dds
-		error("No radar file\n");
+		string dds = sprintf("%s/resource/overviews/dz_%s_radar.dds", CSGO_SERVER_ROOT, map);
+		int rc = Process.create_process(({"convert", dds, pngfile}))->wait();
+		if (rc) error("Error converting DDS to PNG [rc=%d]\n", rc);
+		png = Stdio.read_file(pngfile);
+		if (!png) error("Conversion from DDS to PNG resulted in no file\n");
 	}
 	Image.Image img = Image.decode(png);
 	img_width = img->xsize(); img_height = img->ysize();
