@@ -30,11 +30,16 @@ def graph_audio(fn, ofs):
 		x = np.linspace(0.0, len(frames) / wav.getsampwidth(), len(frames))
 		graph(x, frames, ofs)
 
+# Generate files with: sox -n -r 8000 a440.wav synth 5 sine 440
+# However that makes an unreadable file, so instead:
+# sox -n -r 8000 -t wav - synth 5 sine 440 | ffmpeg -i - a440.wav
 graph_audio("../tmp/wavs/a220.wav", -20000)
 graph_audio("../tmp/wavs/c275.wav", -10000)
-graph_audio("../tmp/wavs/chord.wav", 0)
 graph_audio("../tmp/wavs/e330.wav", +10000)
 graph_audio("../tmp/wavs/a440.wav", +20000)
+# To create the combined chord:
+# sox -m a220.wav c275.wav e330.wav a440.wav -t wav - | ffmpeg -i - chord.wav
+graph_audio("../tmp/wavs/chord.wav", 0)
 # graph(x, np.sin(x2pi * 50), 1)
 # graph(x, np.sin(x2pi * 75), -1)
 # graph(x, np.sin(x2pi * 50) + np.sin(x2pi * 75), 0)
