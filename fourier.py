@@ -36,7 +36,27 @@ graph_audio("../tmp/wavs/a440.wav", +20000)
 # To create the combined chord:
 # sox -m a220.wav c275.wav e330.wav a440.wav -t wav - | ffmpeg -i - chord.wav
 data, params = graph_audio("../tmp/wavs/chord.wav", 0)
-synth_data = ifft(fft(data)).astype(data.dtype) # Transform, do nothing, and transform back
+
+data, params = graph_audio("../tmp/wavs/mermaid.wav", 0)
+
+pieces = []
+for piece in np.array_split(data, len(data) // 1000):
+	# In theory, this should give me back 75% of the samples but
+	# following the same frequency pattern. It doesn't seem to
+	# work though - it just pitches the audio down, same as any
+	# naive resampling would do. What am I doing wrong?
+	freqs = fft(piece)
+	l = len(freqs)
+	# Trim out the middle of the array, removing one eighth either
+	# side of the middle. This should speed up the audio by 25%.
+	# Trimming just the end of the array - eg by giving another
+	# parameter to ifft() - has the same incorrect result of pitch
+	# changing the audio. I don't get it.
+	freqs = np.delete(freqs, slice(l * 3 // 8, l * 5 // 8))
+	newpiece = ifft(freqs).astype(piece.dtype)
+	pieces.append(newpiece)
+	
+synth_data = np.concatenate(pieces)
 print(data[:32])
 print(synth_data[:32])
 with wave.open("../tmp/wavs/generated.wav", "wb") as wav:
