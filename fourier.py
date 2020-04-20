@@ -20,13 +20,8 @@ def graph(x, y, ofs):
 
 def graph_audio(fn, ofs):
 	with wave.open(fn) as wav:
-		print("Channels:", wav.getnchannels())
-		print("Sample width:", wav.getsampwidth())
-		print("Frame rate:", wav.getframerate())
-		print("Num frames:", wav.getnframes())
 		dtype = {1: np.int8, 2: np.int16, 4: np.int32}[wav.getsampwidth()]
 		frames = np.frombuffer(wav.readframes(wav.getnframes()), dtype=dtype)
-		print("Got frames:", len(frames))
 		x = np.linspace(0.0, len(frames) / wav.getsampwidth(), len(frames))
 		graph(x, frames, ofs)
 
