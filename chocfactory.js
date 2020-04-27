@@ -1,4 +1,4 @@
-/* Chocolate Factory v0.1
+/* Chocolate Factory v0.2
 
 DOM object builder. (Thanks to DeviCat for the name!)
 
@@ -7,7 +7,7 @@ Usage in HTML:
 <script defer src="/path/to/your/script.js"></script>
 
 Usage in a module:
-import choc, {set_content, on} from "https://rosuav.github.io/shed/chocfactory.js";
+import choc, {set_content, on, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
 
 
 Once imported, the chocolate factory can be used in a number of ways:
@@ -29,7 +29,9 @@ To replace the contents of a DOM element:
 The element can be either an actual DOM element or a selector. The contents
 can be a DOM element (eg created by choc() above), or a text string, or an
 array of elements and/or strings. Text strings will NOT be interpreted as
-HTML, and thus can safely contain untrusted content.
+HTML, and thus can safely contain untrusted content. Note that this will
+update a single element only, and will raise an error if multiple elements
+match. (Changed in v0.2: Now raises if duplicates, instead of ignoring them.)
 
 Hooking events can be done by selector. Internally this attaches the event
 to the document, so dynamically-created objects can still respond to events.
@@ -38,6 +40,13 @@ To distinguish between multiple objects that potentially match, e.match
 will be set to the object that received the event. (This is distinct from
 e.target and e.currentTarget.) NOTE: e.match is wiped after the event
 handler returns. For asynchronous use, capture it in a variable first.
+
+For other manipulations of DOM objects, start by locating one by its selector:
+    DOM('input[name="thought"]').value = "..."
+This is like document.querySelector(), but ensures that there is only one
+matching element, thus avoiding the risk of catching the wrong one. (It's also
+shorter. Way shorter.)
+
 
 The MIT License (MIT)
 
@@ -62,8 +71,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+export function DOM(sel) {
+	const elems = document.querySelectorAll(sel);
+	if (elems.length > 1) throw new Error("Expected a single element '" + sel + "' but got " + elems.length);
+	return elems[0]; //Will return undefined if there are no matching elements.
+}
+
 export function set_content(elem, children) {
-	if (typeof elem === "string") elem = document.querySelector(elem);
+	if (typeof elem === "string") elem = DOM(elem);
 	while (elem.lastChild) elem.removeChild(elem.lastChild);
 	if (!Array.isArray(children)) children = [children];
 	for (let child of children) {
@@ -105,6 +120,7 @@ let choc = function(tag, attributes, children) {
 	if (children) set_content(ret, children);
 	return ret;
 }
+choc.__version__ = "0.2";
 
 //Interpret choc.DIV(attr, chld) as choc("DIV", attr, chld)
 //This is basically what Python would do as choc.__getattr__()
@@ -117,5 +133,5 @@ choc = new Proxy(choc, {get: function(obj, prop) {
 export default choc;
 
 //For non-module scripts, allow some globals to be used
-window.choc = choc; window.set_content = set_content; window.on = on;
+window.choc = choc; window.set_content = set_content; window.on = on; window.DOM = DOM;
 window.chocify = tags => tags.split(" ").forEach(tag => window[tag] = choc[tag]);
