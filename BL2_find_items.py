@@ -460,8 +460,10 @@ class Asset:
 		if self.grade == self.stage: lvl = "Lvl %d" % self.grade
 		else: lvl = "Level %d/%d" % (self.grade, self.stage)
 		type = self.type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
-		return "%s %s (%s)" % (lvl, self.get_title(), type) + ("\n" + " + ".join(filter(None, self.pieces))) * args.pieces
-	if args.raw: del __repr__
+		ret = "%s %s (%s)" % (lvl, self.get_title(), type) + ("\n" + " + ".join(filter(None, self.pieces))) * args.pieces
+		if args.raw: ret += "\n" + ", ".join("%s=%r" % (f, getattr(self, f)) for f in self.__dataclass_fields__)
+		return ret
+	#if args.raw: del __repr__ # For a truly-raw view (debugging mode).
 
 def decode_tree(bits):
 	"""Decode a (sub)tree from the given sequence of bits
