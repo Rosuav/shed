@@ -32,10 +32,18 @@ old_emotes = { # Add older Twitch emotes here:
 	"devicatCCB": 1857241, "devicatTYVM": 1857245,
 	"devicatCHII": 1857246, "devicatSMUG": 1857248,
 	"devicatCAKE": 1857251, "devicatGIFT": 1112114,
+	# Or renames:
+	"devicatBOX": "devicatGift", "devicatSALUT": "devicatBubble", "devicatCUP": "devicatTea",
+	"devicatSPARKLE": "devicatShiny", "devicatGLO": "devicatGlo1",
 }
 old_ffz = { # Add older FFZ emotes here:
 	"DeviCry": 70993, "DeviSquee": 70996, "DeviFear": 70998, "DeviRawr": 70999,
 }
+
+# 20200514: Devi renamed a bunch of her emotes, lowercasing their emote IDs.
+for tail in "Love Shy Grr UwU Eh Cozy Lurk Hiyo Cool Nom LoL Hug Aww Cry Spook Butt Glo2 Pow Magic Hypu Flag Tada Lvlup".split():
+	old_emotes["devicat" + tail.upper()] = "devicat" + tail
+
 def get_emote_list():
 	global emote_list
 	if emote_list: return emote_list
@@ -64,7 +72,12 @@ def get_emote_list():
 		for em in reversed(data["emoticons"])}
 	for name, id in old_emotes.items():
 		if name not in emote_list:
-			emote_list[name] = "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0" % id
+			if isinstance(id, str):
+				# Alias an old name to a new name (will bomb if the replacement doesn't exist)
+				emote_list[name] = emote_list[id]
+			else:
+				# Provide the emote ID for a legacy emote
+				emote_list[name] = "https://static-cdn.jtvnw.net/emoticons/v1/%s/1.0" % id
 	for trn in TRANSLATIONS.split("\n"):
 		pat, *em = trn.split(" ")
 		for e in em: emote_list[e] = emote_list[pat]
