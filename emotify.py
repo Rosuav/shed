@@ -145,6 +145,12 @@ def convert_emotes(msg):
 	emotes = get_emote_list()
 	words = msg.split()
 	for i, word in enumerate(words):
+		if "_" in word:
+			base, tag = word.split("_", 1)
+			if base in emotes and len(tag) == 2:
+				words[i] = '![%s](%s "%s")' % (word, emotes[base].replace("/1.0", "_" + tag + "/1.0"), word)
+				continue
+			# Otherwise fall through. Maybe there are actual emotes with underscores.
 		if word not in emotes: continue
 		words[i] = '![%s](%s "%s")' % (word, emotes[word], word) # Assumes emote names never contain double quotes
 	return " ".join(words)
