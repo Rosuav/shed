@@ -32,8 +32,9 @@ old_emotes = { # Add older Twitch emotes here:
 	"devicatCCB": 1857241, "devicatTYVM": 1857245,
 	"devicatCHII": 1857246, "devicatSMUG": 1857248,
 	"devicatCAKE": 1857251, "devicatGIFT": 1112114,
+	"devicatHYPU": 302139016, "devicatHypu": 302139016,
 	# Or renames:
-	"devicatBOX": "devicatGift", "devicatSALUT": "devicatBubble", "devicatCUP": "devicatTea",
+	"devicatBOX": "devicatGift", "devicatCUP": "devicatTea",
 	"devicatSPARKLE": "devicatShiny", "devicatGLO": "devicatGlo1",
 }
 old_ffz = { # Add older FFZ emotes here:
@@ -41,7 +42,7 @@ old_ffz = { # Add older FFZ emotes here:
 }
 
 # 20200514: Devi renamed a bunch of her emotes, lowercasing their emote IDs.
-for tail in "Love Shy Grr UwU Eh Cozy Lurk Hiyo Cool Nom LoL Hug Aww Cry Spook Butt Glo2 Pow Magic Hypu Flag Tada Lvlup".split():
+for tail in "Love Shy Grr UwU Eh Cozy Lurk Hiyo Cool Nom LoL Hug Aww Cry Spook Butt Glo2 Pow Magic Flag Tada Lvlup".split():
 	old_emotes["devicat" + tail.upper()] = "devicat" + tail
 
 def get_emote_list():
@@ -123,7 +124,7 @@ def load_bttv(*channels):
 
 def _xfrm_ffz(data):
 	"""Helper for load_ffz - parse a FFZ-format JSON file"""
-	return {em["code"]: em["images"]["1x"] for em in data["emotes"]}
+	return {em["code"]: em["images"]["1x"] for em in data}
 
 def load_ffz(*channels):
 	"""Load FrankerFaceZ emotes for zero or more channels
@@ -133,10 +134,10 @@ def load_ffz(*channels):
 
 	Mutates the emote list used by convert_emotes().
 	"""
-	_load_emotes("FFZ global", "/ffz.json", "https://api.betterttv.net/2/frankerfacez_emotes/global", _xfrm_ffz)
+	_load_emotes("FFZ global", "/ffz.json", "https://api.betterttv.net/3/cached/frankerfacez/emotes/global", _xfrm_ffz)
 	for channel in channels:
 		_load_emotes(channel + " FFZ", "/ffz_%s.json" % channel,
-			"https://api.betterttv.net/2/frankerfacez_emotes/channels/" + channel, _xfrm_ffz)
+			"https://api.betterttv.net/3/cached/frankerfacez/users/twitch/" + channel, _xfrm_ffz)
 	for name, id in old_ffz.items():
 		if name not in emote_list:
 			emote_list[name] = "https://cdn.betterttv.net/frankerfacez_emote/%s/1" % id
