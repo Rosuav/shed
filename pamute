@@ -21,7 +21,7 @@ for arg in sys.argv[1:]:
 	if arg == "--mute": mode = "mute"
 	elif arg == "--sink": mode = "sink"
 	elif app is None: app = arg.casefold()
-	elif arg in ("0", "1"): status = arg # TODO: For pasink, allow higher numbers (but don't conflict with PID detection)
+	elif arg in ("0", "1", "2"): status = arg # TODO: For pasink, allow higher numbers (but don't conflict with PID detection)
 if not mode:
 	print("USAGE: %s {--mute,--sink} application_name [1|0]" % prog, file=sys.stderr)
 	sys.exit(1)
