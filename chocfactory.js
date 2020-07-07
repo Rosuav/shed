@@ -83,7 +83,7 @@ export function set_content(elem, children) {
 	if (!Array.isArray(children)) children = [children];
 	for (let child of children) {
 		if (!child || child === "") continue;
-		if (typeof child === "string") child = document.createTextNode(child);
+		if (typeof child === "string" || typeof elem === "number") child = document.createTextNode(child);
 		elem.appendChild(child);
 	}
 	return elem;
