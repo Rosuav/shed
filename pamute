@@ -17,6 +17,13 @@ prog = os.path.basename(sys.argv[0])
 mode = {"pamute": "mute", "pasink": "sink"}.get(prog)
 app = status = None
 
+# Put shorter and more human-friendly descriptions for the sinks here if desired.
+# (Would it be better to use the device.description?)
+descriptions = {
+	"alsa_output.pci-0000_00_1f.3.iec958-stereo": "SPDIF",
+	"alsa_output.usb-Kingston_HyperX_7.1_Audio_00000000-00.analog-stereo": "Headset",
+}
+
 for arg in sys.argv[1:]:
 	if arg == "--mute": mode = "mute"
 	elif arg == "--sink": mode = "sink"
@@ -51,12 +58,17 @@ if app == "--complete":
 if mode == "sink":
 	# List all available sinks and know which one is the default
 	info = subprocess.run(["pacmd", "list-sinks"], check=True, stdout=subprocess.PIPE, encoding="utf-8").stdout
-	options = []; dflt = None
+	options = []; optdesc = {}
+	idx = None
 	for line in info.split("\n"):
+		if idx is not None and line.startswith("\tname: "):
+			optdesc[idx] += " - " + descriptions.get(line[8:-1], line[8:-1])
 		m = re.match(r' *(\*?) index: ([0-9]+)\w*$', line)
 		if not m: continue
-		options.append(int(m.group(2)))
-		if m.group(1): dflt = m.group(2)
+		idx = m.group(2)
+		options.append(int(idx))
+		if m.group(1): optdesc[idx] = idx + " (default)"
+		else: optdesc[idx] = idx + " (nondefault)"
 else:
 	# For muting, the options are just "yes" and "no"
 	options = [0, 1]
@@ -101,7 +113,7 @@ for line in info.split("\n"):
 				message = subprocess.run(["pacmd", "move-sink-input", index, new],
 					check=True, capture_output=True, encoding="UTF-8").stdout.strip()
 				if message: print(message) # It will print to stdout but doesn't return failure.
-				else: print("Sent to sink", new, "(default)" if new == dflt else "(nondefault)")
+				else: print("Sent to sink", optdesc[new])
 	else:
 		if "index:" in line:
 			index = line.split("index:")[1]
