@@ -76,6 +76,7 @@ for line in info.split("\n"):
 					sys.exit(1)
 				# For mute, it's always a toggle. For sink, if you have three or more,
 				# "toggle" will always set to sink 0 if it's not 0, else 1.
+				# TODO: For sink, "pacmd list-sinks|grep index", and rotate around them.
 				new = "01"[not current]
 			else: new = status
 			if mode == "mute":
