@@ -26,6 +26,8 @@ F744EBA426017EF8F669D38303D536D6D99CA428
 FA17F48B15DD17D6011AF3B64D3A28E353C89E3E
 
 """
+import base64
+import os
 import random
 
 img1 = """
@@ -98,17 +100,28 @@ def generate_filenames(img, key, width=0):
 		return generate_filenames(img, width + 2)
 	return filenames
 
-def generate_files(filenames):
+def generate_files(filenames, pat):
 	n = len(filenames)
 	if not n: return
 	sizes = random.sample(range(n, n * 100), n)
 	sizes.sort(reverse=True)
 	for fn, size in zip(filenames, sizes):
 		print(f"%{len(str(len(filenames)))+3}d %s" % (size, fn))
+		with open(pat % fn, "wb") as f:
+			# Generate enough random data to get 'size' bytes of
+			# base 64. We have to get *exactly* that many, in case
+			# two files need to differ by only one byte (b64 can't
+			# generate certain byte sizes).
+			data = base64.b64encode(random.randbytes(4 * (size // 3) + 1))
+			data = data.strip(b"=")[:size]
+			f.write(data)
 
 width = max(len(l) for l in img1 + img2 + img3 + img4) + 5
 width += width % 2
-generate_files(generate_filenames(img1, key="W", width=width))
-generate_files(generate_filenames(img2, key="X", width=width))
-generate_files(generate_filenames(img3, key="Y", width=width))
-generate_files(generate_filenames(img4, key="Z", width=width))
+os.makedirs("mess", exist_ok=True)
+for fn in os.listdir("mess"):
+	if fn.endswith(".pub"): os.unlink("mess/" + fn)
+generate_files(generate_filenames(img1, key="W", width=width), "mess/%s.pub")
+generate_files(generate_filenames(img2, key="X", width=width), "mess/%s.pub")
+generate_files(generate_filenames(img3, key="Y", width=width), "mess/%s.pub")
+generate_files(generate_filenames(img4, key="Z", width=width), "mess/%s.pub")

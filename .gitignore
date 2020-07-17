@@ -6,3 +6,4 @@ yt-queue
 *.json
 moonlighter.txt
 gpu-log.json
+mess/*
