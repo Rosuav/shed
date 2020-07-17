@@ -96,8 +96,10 @@ def generate_filenames(img, key, width=0):
 		filenames.append("".join(fn))
 	if len(set(filenames)) < len(filenames):
 		# Oops, got a collision. Try again, with slightly longer file names
-		# to reduce the chance of recollision.
-		return generate_filenames(img, width + 2)
+		# to reduce the chance of recollision. Note that collisions *across*
+		# groups can't happen if they have unique keys, but just in case, the
+		# file writing would bomb if it ran into that problem.
+		return generate_filenames(img, key, width + 2)
 	return filenames
 
 def generate_files(filenames, pat):
@@ -107,7 +109,7 @@ def generate_files(filenames, pat):
 	sizes.sort(reverse=True)
 	for fn, size in zip(filenames, sizes):
 		print(f"%{len(str(len(filenames)))+3}d %s" % (size, fn))
-		with open(pat % fn, "wb") as f:
+		with open(pat % fn, "xb") as f:
 			# Generate enough random data to get 'size' bytes of
 			# base 64. We have to get *exactly* that many, in case
 			# two files need to differ by only one byte (b64 can't
