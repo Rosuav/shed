@@ -36,25 +36,26 @@ int main(int argc, array(string) argv)
 		"-filter_complex", "[0:v]drawbox=c=black:t=fill[black]; [black][0:s:" + substrack + "]overlay=shortest=1[v]",
 		"-map", "[v]", "-c:v", "png", "-f", "image2pipe", "/dev/fd/3",
 	}), (["fds": pipes->pipe(Stdio.PROP_IPC)]));
-	int frm = 0, transcribed = 0, smallcnt;
-	string prev, smallest; //Save two PNG image blobs and ignore any that match
-	string prevtext;
+	int frm = 0, transcribed = 0, dupcnt = 0;
+	array(string) prev = ({0}) * sizeof(pipes); //Retain the most recent frame from each pipe to detect duplicates
+	string curtext = ""; int startframe;
 	while (1)
 	{
 		string png = read_png(pipes[0]);
 		if (!png) break;
-		//write("-- end of PNG file --\n");
-		//write("%O\n", Image.PNG.decode(png));
 		++frm;
-		if (!prev) prev = smallest = png;
-		else if (png == prev) continue; //Duplicate frame
-		else if (png == smallest) {++smallcnt; continue;} //Probably an empty frame
-		else if (sizeof(png) < sizeof(smallest)) smallest = png; //Recognize an empty frame by its data size
-		prev = png;
+		if (png == prev[0]) {++dupcnt; continue;} //Duplicate frame (there'll be lots of these)
+		prev[0] = png;
 		++transcribed;
 		mapping rc = Process.run(({"tesseract", "stdin", "stdout", "-l" + lang}), (["stdin": png]));
-		if (rc->stdout != "" && rc->stdout != prevtext) write("[%d] Subs: %s\n", frm, prevtext = rc->stdout);
+		if (String.trim(rc->stdout) == curtext) continue; //The image is different but the transcription is the same.
+		if (curtext != "")
+		{
+			//Complete line of subtitles! (Ignore silence, it doesn't need to be output.)
+			write("[%d-%d] %s\n", startframe, frm - 1, curtext);
+		}
+		curtext = String.trim(rc->stdout); startframe = frm;
 	}
-	write("\n\nTotal frames: %d\nTranscribed: %d\nIgnored b/c smallest: %d\n", frm, transcribed, smallcnt);
+	write("\n\nTotal frames: %d\nTranscribed: %d\nIgnored duplicate frames: %d\n\n", frm, transcribed, dupcnt);
 	proc->wait();
 }
