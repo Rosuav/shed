@@ -32,7 +32,7 @@ int main(int argc, array(string) argv)
 	array pipes = ({Stdio.File()});
 	object proc = Process.create_process(({
 		"/home/rosuav/ffmpeg-git-20200617-amd64-static/ffmpeg", //Newer FFMPEG than the system one
-		"-y", "-i", fn, //Need -y so it'll "overwrite" the pipe
+		"-i", fn,
 		"-filter_complex", "[0:v]drawbox=c=black:t=fill[black]; [black][0:s:" + substrack + "]overlay=shortest=1[v]",
 		"-map", "[v]", "-c:v", "png", "-f", "image2pipe", "pipe:3",
 	}), (["fds": pipes->pipe(Stdio.PROP_IPC)]));
