@@ -34,7 +34,7 @@ int main(int argc, array(string) argv)
 		"/home/rosuav/ffmpeg-git-20200617-amd64-static/ffmpeg", //Newer FFMPEG than the system one
 		"-y", "-i", fn, //Need -y so it'll "overwrite" the pipe
 		"-filter_complex", "[0:v]drawbox=c=black:t=fill[black]; [black][0:s:" + substrack + "]overlay=shortest=1[v]",
-		"-map", "[v]", "-c:v", "png", "-f", "image2pipe", "/dev/fd/3",
+		"-map", "[v]", "-c:v", "png", "-f", "image2pipe", "pipe:3",
 	}), (["fds": pipes->pipe(Stdio.PROP_IPC)]));
 	int frm = 0, transcribed = 0, dupcnt = 0;
 	array(string) prev = ({0}) * sizeof(pipes); //Retain the most recent frame from each pipe to detect duplicates
