@@ -39,7 +39,8 @@ int main(int argc, array(string) argv)
 	int frm = 0, transcribed = 0, dupcnt = 0;
 	array(string) prev = ({0}) * sizeof(pipes); //Retain the most recent frame from each pipe to detect duplicates
 	string curtext = ""; int startframe;
-	while (1)
+	int halt = 0; signal(2, lambda() {halt = 1; catch {proc->kill(2);};});
+	while (!halt)
 	{
 		string png = read_png(pipes[0]);
 		if (!png) break;
