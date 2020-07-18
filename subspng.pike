@@ -22,6 +22,30 @@ string read_png(Stdio.File pipe)
 	}
 	return png;
 }
+
+mapping(int:float) frame_times = ([]);
+
+void watch_stderr(object pipe)
+{
+	string buf = "";
+	while (1)
+	{
+		string data = pipe->read(256, 1);
+		if (!data || data == "") break;
+		buf += data;
+		while (sscanf(buf, "%s\n%s", string line, buf) == 2)
+		{
+			//Possibly-interesting line of output
+			//werror(">> " + line + "\n");
+			if (sscanf(line, "[Parsed_showinfo_0 @ 0x%*x] n: %d pts: %*d pts_time:%f", int frame, float time))
+				frame_times[frame] = time;
+		}
+		//Handle status lines by passing them straight through to our own stderr
+		while (sscanf(buf, "%s\r%s", string line, buf) == 2)
+			werror(line + "\r");
+	}
+}
+
 int main(int argc, array(string) argv)
 {
 	if (argc < 4) exit(0, "USAGE: pike %s filename lang track [track...]\n");
@@ -30,15 +54,17 @@ int main(int argc, array(string) argv)
 	string substrack = argv[3]; //TODO: Support multiple
 
 	array pipes = ({Stdio.File()});
+	object stderr = Stdio.File();
 	object proc = Process.create_process(({
 		"/home/rosuav/ffmpeg-git-20200617-amd64-static/ffmpeg", //Newer FFMPEG than the system one
 		"-i", fn,
-		"-filter_complex", "[0:v]drawbox=c=black:t=fill[black]; [black][0:s:" + substrack + "]overlay=shortest=1[v]",
+		"-filter_complex", "[0:v]showinfo, drawbox=c=black:t=fill[black]; [black][0:s:" + substrack + "]overlay=shortest=1[v]",
 		"-map", "[v]", "-c:v", "png", "-f", "image2pipe", "pipe:3",
-	}), (["fds": pipes->pipe(Stdio.PROP_IPC)]));
+	}), (["fds": pipes->pipe(Stdio.PROP_IPC), "stderr": stderr->pipe(Stdio.PROP_IPC)]));
 	int frm = 0, transcribed = 0, dupcnt = 0;
 	array(string) prev = ({0}) * sizeof(pipes); //Retain the most recent frame from each pipe to detect duplicates
 	string curtext = ""; int startframe;
+	Thread.Thread(watch_stderr, stderr);
 	int halt = 0; signal(2, lambda() {halt = 1; catch {proc->kill(2);};});
 	while (!halt)
 	{
