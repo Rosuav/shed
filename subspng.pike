@@ -2,13 +2,13 @@ string read_png(Stdio.File pipe)
 {
 	string png = pipe->read(8);
 	if (!png || png == "") return 0; //Done!
-	if (png != "\x89PNG\r\n\x1A\n") {write("Bad header %O\n", png); return 0;}
+	if (png != "\x89PNG\r\n\x1A\n") {werror("Bad header %O\n", png); return 0;}
 	//Gather chunks till we find IEND
 	while (1)
 	{
 		sscanf(pipe->read(4), "%4c", int size);
 		string type = pipe->read(4);
-		//write("Chunk %s size %d\n", type, size);
+		//werror("Chunk %s size %d\n", type, size);
 		string data = "";
 		while (sizeof(data) < size)
 		{
@@ -36,9 +36,13 @@ void watch_stderr(object pipe)
 		while (sscanf(buf, "%s\n%s", string line, buf) == 2)
 		{
 			//Possibly-interesting line of output
-			//werror(">> " + line + "\n");
-			if (sscanf(line, "[Parsed_showinfo_0 @ 0x%*x] n: %d pts: %*d pts_time:%f", int frame, float time))
+			if (sscanf(line, "[Parsed_showinfo_0 @ 0x%*x] n:%d pts:%*d pts_time:%f", int frame, float time) && time)
+			{
 				frame_times[frame] = time;
+				continue;
+			}
+			if (has_prefix(line, "[Parsed_showinfo_0 @ ")) continue;
+			werror(line + "\n"); //Optionally emit all unknown lines
 		}
 		//Handle status lines by passing them straight through to our own stderr
 		while (sscanf(buf, "%s\r%s", string line, buf) == 2)
@@ -46,43 +50,71 @@ void watch_stderr(object pipe)
 	}
 }
 
+string srttime(float tm)
+{
+	if (!tm) return "*ERROR*"; //Let it get written out, but with an obvious marker
+	int min = (int)(tm / 60);
+	return replace(sprintf("%02d:%02d:%06f", min / 60, min % 60, tm % 60), ".", ",");
+}
+
 int main(int argc, array(string) argv)
 {
 	if (argc < 4) exit(0, "USAGE: pike %s filename lang track [track...]\n");
 	string fn = argv[1];
 	string lang = argv[2];
-	string substrack = argv[3]; //TODO: Support multiple
+	array(string) substrack = argv[3..];
 
-	array pipes = ({Stdio.File()});
+	array pipes = (({Stdio.File}) * sizeof(substrack))();
 	object stderr = Stdio.File();
-	object proc = Process.create_process(({
+	array args = ({
 		"/home/rosuav/ffmpeg-git-20200617-amd64-static/ffmpeg", //Newer FFMPEG than the system one
 		"-i", fn,
-		"-filter_complex", "[0:v]showinfo, drawbox=c=black:t=fill[black]; [black][0:s:" + substrack + "]overlay=shortest=1[v]",
-		"-map", "[v]", "-c:v", "png", "-f", "image2pipe", "pipe:3",
-	}), (["fds": pipes->pipe(Stdio.PROP_IPC), "stderr": stderr->pipe(Stdio.PROP_IPC)]));
+		"-filter_complex", sprintf(
+			//Set up a black background by taking the video track and covering it.
+			//This also grabs frame timings via showinfo,
+			"[0:v]showinfo, drawbox=c=black:t=fill, split"
+			"%{[black%s]%}"
+			"%<{; [black%s][0:s:%<s]overlay=shortest=1[v%<s]%}",
+			substrack)
+	});
+	foreach (substrack; int i; string t) args += ({"-map", "[v" + t + "]", "-c:v", "png", "-f", "image2pipe", "pipe:" + (i+3)});
+	object proc = Process.create_process(args, (["fds": pipes->pipe(Stdio.PROP_IPC), "stderr": stderr->pipe(Stdio.PROP_IPC)]));
 	int frm = 0, transcribed = 0, dupcnt = 0;
 	array(string) prev = ({0}) * sizeof(pipes); //Retain the most recent frame from each pipe to detect duplicates
 	string curtext = ""; int startframe;
 	Thread.Thread(watch_stderr, stderr);
 	int halt = 0; signal(2, lambda() {halt = 1; catch {proc->kill(2);};});
+	array subs = ({ });
 	while (!halt)
 	{
 		string png = read_png(pipes[0]);
 		if (!png) break;
+		read_png(pipes[1..][*]); //Discard for now
 		++frm;
 		if (png == prev[0]) {++dupcnt; continue;} //Duplicate frame (there'll be lots of these)
 		prev[0] = png;
 		++transcribed;
 		mapping rc = Process.run(({"tesseract", "stdin", "stdout", "-l" + lang}), (["stdin": png]));
-		if (String.trim(rc->stdout) == curtext) continue; //The image is different but the transcription is the same.
+		string txt = String.trim(utf8_to_string(rc->stdout));
+		if (txt == curtext) continue; //The image is different but the transcription is the same.
 		if (curtext != "")
 		{
 			//Complete line of subtitles! (Ignore silence, it doesn't need to be output.)
-			write("[%d-%d] %s\n", startframe, frm - 1, curtext);
+			werror("[%d-%d] %s\e[K\n", startframe, frm - 1, curtext);
+			subs += ({ ({startframe, frm - 1, curtext}) });
 		}
-		curtext = String.trim(rc->stdout); startframe = frm;
+		curtext = txt; startframe = frm;
 	}
-	write("\n\nTotal frames: %d\nTranscribed: %d\nIgnored duplicate frames: %d\n\n", frm, transcribed, dupcnt);
+	if (curtext != "") subs += ({ ({startframe, frm - 1, curtext}) });
+	werror("\n\nTotal frames: %d\nTranscribed: %d (%d%%)\nIgnored duplicate frames: %d\n\n",
+		frm, transcribed, transcribed * 100 / (frm || 1), dupcnt);
 	proc->wait();
+	werror("Parsed %d timestamps.\n", sizeof(frame_times));
+	//In theory, some of this could be done earlier, as long as the corresponding frame
+	//times have been parsed. Since stderr parsing is asynchronous, it's easiest to just
+	//do all the output after ffmpeg has terminated.
+	foreach (subs, [int start, int end, string text])
+	{
+		write("%s --> %s\n%s\n\n", srttime(frame_times[start]), srttime(frame_times[end]), string_to_utf8(text));
+	}
 }
