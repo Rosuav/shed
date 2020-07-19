@@ -73,6 +73,7 @@ int main(int argc, array(string) argv)
 		"-filter_complex", sprintf(
 			//Set up a black background by taking the video track and covering it.
 			//This also grabs frame timings via showinfo,
+			//Any solid colour could be used here, but black seems to give the best results.
 			"[0:v]showinfo, drawbox=c=black:t=fill, split=%d"
 			"%{[black%s]%}"
 			"%<{; [black%s][0:s:%<s]overlay=shortest=1[v%<s]%}",
