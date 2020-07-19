@@ -115,9 +115,11 @@ int main(int argc, array(string) argv)
 				break;
 			}
 			if (txt == curtext) break; //The image is different but the transcription is the same.
-			if (curtext != "")
+			if (curtext != "" && (source == i || startframe < frm - threshold))
 			{
 				//Complete line of subtitles! (Ignore silence, it doesn't need to be output.)
+				//If there's a low priority line that started within the threshold of a high
+				//priority one, suppress it.
 				werror("[%d-%d %d] %s\e[K\n", startframe, frm - 1, source, replace(curtext, "\n", " "));
 				subs += ({ ({startframe, frm - 1, curtext}) });
 			}
