@@ -82,7 +82,7 @@ int main(int argc, array(string) argv)
 	object proc = Process.create_process(args, (["fds": pipes->pipe(Stdio.PROP_IPC), "stderr": stderr->pipe(Stdio.PROP_IPC)]));
 	int frm = 0, transcribed = 0, dupcnt = 0;
 	array(string) prev = ({0}) * sizeof(pipes); //Retain the most recent frame from each pipe to detect duplicates
-	string curtext = ""; int startframe;
+	string curtext = ""; int startframe, source;
 	Thread.Thread(watch_stderr, stderr);
 	int halt = 0; signal(2, lambda() {halt = 1; catch {proc->kill(2);};});
 	array subs = ({ });
@@ -117,10 +117,10 @@ int main(int argc, array(string) argv)
 			if (curtext != "")
 			{
 				//Complete line of subtitles! (Ignore silence, it doesn't need to be output.)
-				werror("[%d-%d %d] %s\e[K\n", startframe, frm - 1, i, replace(curtext, "\n", " "));
+				werror("[%d-%d %d] %s\e[K\n", startframe, frm - 1, source, replace(curtext, "\n", " "));
 				subs += ({ ({startframe, frm - 1, curtext}) });
 			}
-			curtext = txt; startframe = frm;
+			curtext = txt; startframe = frm; source = i;
 			silence[i] = curtext == "";
 			break;
 		}
