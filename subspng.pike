@@ -73,12 +73,13 @@ int main(int argc, array(string) argv)
 		"-filter_complex", sprintf(
 			//Set up a black background by taking the video track and covering it.
 			//This also grabs frame timings via showinfo,
-			"[0:v]showinfo, drawbox=c=black:t=fill, split"
+			"[0:v]showinfo, drawbox=c=black:t=fill, split=%d"
 			"%{[black%s]%}"
 			"%<{; [black%s][0:s:%<s]overlay=shortest=1[v%<s]%}",
-			substrack)
+			sizeof(substrack), substrack)
 	});
 	foreach (substrack; int i; string t) args += ({"-map", "[v" + t + "]", "-c:v", "png", "-f", "image2pipe", "pipe:" + (i+3)});
+	//werror("Args: %O\n", args);
 	object proc = Process.create_process(args, (["fds": pipes->pipe(Stdio.PROP_IPC), "stderr": stderr->pipe(Stdio.PROP_IPC)]));
 	int frm = 0, transcribed = 0, dupcnt = 0;
 	array(string) prev = ({0}) * sizeof(pipes); //Retain the most recent frame from each pipe to detect duplicates
