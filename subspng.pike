@@ -63,6 +63,7 @@ int main(int argc, array(string) argv)
 	string fn = argv[1];
 	string lang = argv[2];
 	array(string) substrack = argv[3..];
+	int threshold = 20; //Number of frames of silence before the next subs track will be checked
 
 	array pipes = (({Stdio.File}) * sizeof(substrack))();
 	object stderr = Stdio.File();
@@ -85,25 +86,44 @@ int main(int argc, array(string) argv)
 	Thread.Thread(watch_stderr, stderr);
 	int halt = 0; signal(2, lambda() {halt = 1; catch {proc->kill(2);};});
 	array subs = ({ });
+	array(int) silence = ({threshold}) * sizeof(substrack);
 	while (!halt)
 	{
-		string png = read_png(pipes[0]);
-		if (!png) break;
-		read_png(pipes[1..][*]); //Discard for now
+		array(string) frames = read_png(pipes[*]);
+		if (has_value(frames, 0)) break; //Most likely, EOF will be signalled by an entire array of zeroes
+		//If first one translates to "", increment silence[0]. If silence[0] >= threshold,
+		//OCR the second, and so on. Zero out the silence marker when we have nonsilence.
+		//It might be worth zeroing out all future silence markers too, but not worth it -
+		//it won't make any practical difference, far as I know.
 		++frm;
-		if (png == prev[0]) {++dupcnt; continue;} //Duplicate frame (there'll be lots of these)
-		prev[0] = png;
-		++transcribed;
-		mapping rc = Process.run(({"tesseract", "stdin", "stdout", "-l" + lang}), (["stdin": png]));
-		string txt = String.trim(utf8_to_string(rc->stdout));
-		if (txt == curtext) continue; //The image is different but the transcription is the same.
-		if (curtext != "")
+		foreach (frames; int i; string png)
 		{
-			//Complete line of subtitles! (Ignore silence, it doesn't need to be output.)
-			werror("[%d-%d] %s\e[K\n", startframe, frm - 1, curtext);
-			subs += ({ ({startframe, frm - 1, curtext}) });
+			if (png == prev[i])
+			{
+				//Duplicate frame (there'll be lots of these)
+				if (silence[i] && ++silence[i] >= threshold) continue; //Duplicate blank - move on to the next
+				break; //Duplicate lyric or short silence - we're done.
+			}
+			prev[i] = png;
+			++transcribed; //Yes, we could potentially transcribe multiple frames, but only if the images change while being blank
+			mapping rc = Process.run(({"tesseract", "stdin", "stdout", "-l" + lang}), (["stdin": png]));
+			string txt = String.trim(utf8_to_string(rc->stdout));
+			if (txt == "" && silence[i]) //It's more silence, even though the image wasn't a complete duplicate
+			{
+				if (++silence[i] >= threshold) continue;
+				break;
+			}
+			if (txt == curtext) break; //The image is different but the transcription is the same.
+			if (curtext != "")
+			{
+				//Complete line of subtitles! (Ignore silence, it doesn't need to be output.)
+				werror("[%d-%d %d] %s\e[K\n", startframe, frm - 1, i, replace(curtext, "\n", " "));
+				subs += ({ ({startframe, frm - 1, curtext}) });
+			}
+			curtext = txt; startframe = frm;
+			silence[i] = curtext == "";
+			break;
 		}
-		curtext = txt; startframe = frm;
 	}
 	if (curtext != "") subs += ({ ({startframe, frm - 1, curtext}) });
 	werror("\n\nTotal frames: %d\nTranscribed: %d (%d%%)\nIgnored duplicate frames: %d\n\n",
