@@ -3,6 +3,7 @@ import json
 import os
 import socket
 import subprocess
+import re
 from flask import Flask, request # ImportError? Try "pip install flask".
 app = Flask(__name__)
 
@@ -62,6 +63,53 @@ def toggle_money(state):
 	show_money = state == "Rosuav"
 	# logging.log(28, "Watching: %r", state)
 
+def current_round_only_if_spectating(data):
+	# Yeah it's a bit weird. Return the current round number IF we are
+	# currently spectating a competitive match, otherwise None.
+	if "allplayers" in data and data.get("map", {}).get("mode") == "competitive":
+		round = int(data.get("map", {}).get("round", 0))
+		if data.get("round", {}).get("phase") in ("freezetime", "live"):
+			# CS:GO numbers rounds from 0, but we'd prefer to number them from 1.
+			# However, when the round is over, CS:GO snaps it to the next number
+			# even though we'd rather not call it round N until the start of the
+			# freeze time for that round.
+			round += 1
+		# print("Spectating compet round", round)
+		return round
+	# print("Not spectating compet")
+
+def update_demo_ticks(round):
+	if round is None: return
+	try:
+		with open("../demoticks.log") as f:
+			ticks = []
+			for line in f:
+				if line.strip() == "Important Ticks in demo:":
+					# Start of a new dump. We need to take the very last one.
+					# Ideally, the file should be pruned periodically. Or even
+					# better, have the F10 key truncate the file before writing
+					# the demo info to it, but I don't know how to do that.
+					ticks = []
+					continue
+				m = re.match("Tick: ([0-9]+)  Event: round_start", line)
+				if not m: continue
+				ticks.append(int(m.group(1)))
+			round = int(round)
+			# ticks[0] should be the start of warmup
+			for name, ofs in (("previous", -1), ("next", +1)):
+				r = round + ofs
+				with open("gsi_%s_round.cfg" % name, "wt") as cfg:
+					if round < len(ticks):
+						print('echo "Going to %s round %d (tick %d)"' % (name, r, ticks[r]), file=cfg)
+						print("demo_goto", ticks[r], "p", file=cfg)
+					else:
+						print('echo "No such round %d"' % r, file=cfg)
+	except FileNotFoundError:
+		pass
+	except ValueError as e:
+		print("Demotick parse error:", e)
+		# Leave the files unchanged
+
 configs = {
 	# Becomes gsi_player_team.cfg
 	("player", "team"): {
@@ -84,6 +132,7 @@ configs = {
 	},
 	("player", "name"): {...: ..., handler: toggle_money},
 	("player", "state", "money"): {...: ..., handler: plot_money},
+	current_round_only_if_spectating: {...: ..., handler: update_demo_ticks},
 }
 
 # Some GSI elements function as arrays, even if they're implemented as
@@ -137,19 +186,22 @@ def update_configs():
 	# print(request.json.get('player', {}).get('weapons'))
 	for path, options in configs.items():
 		data = request.json
-		# If any part of the path isn't found, data will be None
-		for key in path: data = data and data.get(key)
+		if isinstance(path, tuple):
+			# If any part of the path isn't found, data will be None
+			for key in path: data = data and data.get(key)
+		else:
+			data = path(data)
 		if data == last_known_cfg.get(path): continue
 		last_known_cfg[path] = data
 		# logging.log(24, "New value for %s: %s", "-".join(path), data)
 		cfg = options.get(data, options.get(..., ""))
 		if cfg == ...: cfg = data
-		filename = "gsi_" + "_".join(path) + ".cfg"
 		func = options.get(handler)
 		if func == "file":
 			# We read from the filesystem every time. The last_known_cfg
 			# cache will show changes that don't affect the actual state,
 			# but those should not trigger the other handlers.
+			filename = "gsi_" + "_".join(path) + ".cfg"
 			try:
 				with open(filename) as f: prevcfg = f.read()
 			except FileNotFoundError:
