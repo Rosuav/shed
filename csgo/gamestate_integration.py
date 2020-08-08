@@ -106,7 +106,7 @@ def update_demo_ticks(round):
 				with open("gsi_%s_round.cfg" % name, "wt") as cfg:
 					if r < len(ticks):
 						print('echo "Going to %s round %d (tick %d)"' % (name, r, ticks[r]), file=cfg)
-						print("demo_goto", ticks[r], "p", file=cfg)
+						print("demo_goto", ticks[r], file=cfg)
 					else:
 						print('echo "No such round %d"' % r, file=cfg)
 	except FileNotFoundError:
