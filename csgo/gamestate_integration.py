@@ -91,6 +91,11 @@ def update_demo_ticks(round):
 					# the demo info to it, but I don't know how to do that.
 					ticks = []
 					continue
+				# The bomb will never be picked up in warmup. We need a shim at slot 0,
+				# for which the warmup round_start event normally suffices; but if that
+				# hasn't been seen, slip a zero in there so we can ignore it.
+				m = re.match("Tick: ([0-9]+)  Event: bomb_pickup", line)
+				if m and not ticks: ticks.append(0)
 				m = re.match("Tick: ([0-9]+)  Event: round_start", line)
 				if not m: continue
 				ticks.append(int(m.group(1)))
@@ -99,7 +104,7 @@ def update_demo_ticks(round):
 			for name, ofs in (("previous", -1), ("next", +1)):
 				r = round + ofs
 				with open("gsi_%s_round.cfg" % name, "wt") as cfg:
-					if round < len(ticks):
+					if r < len(ticks):
 						print('echo "Going to %s round %d (tick %d)"' % (name, r, ticks[r]), file=cfg)
 						print("demo_goto", ticks[r], "p", file=cfg)
 					else:
