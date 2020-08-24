@@ -111,3 +111,12 @@ have considered. Attempting to modify the game may see you branded as a cheater
     life.
   - It's VERY easy, when editing save files, to do weird things that can crash
     the game. There's no info on what you can and can't do.
+* Overwatch
+  - As an esport-level game, it's going to survive fairly well. But it will
+    die if its owners stop developing it. There's no way for the community to
+    keep it alive.
+* Valorant
+  - Same as Overwatch. By not permitting custom maps, much less server-side
+    modding, these games limit themselves to being nothing more than their
+    creators design them to be. In contrast, TF2 and CS:GO have become more
+    than Valve could ever have imagined.
