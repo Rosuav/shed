@@ -44,6 +44,17 @@ enable and disable them.
   - You can download [the demo](https://factorio.com/download) and play with
     the Lua files right there. No need to get a special custom content creation
     tool or anything - all you need is a text editor.
+* Entrepreneur
+  - Lots of the key data comes from easily edited files. It's easy to mess with
+    anything you like, although some things seem to be tied to the UI fairly
+    closely.
+  - The format of those files is rigid and fragile, but fortunately they are
+    well-commented and you can easily just tweak things within the existing
+    framework.
+* Galactic Civilisations (series)
+  - SO VERY moddable! You can mess around with basically everything.
+  - Most of the edit files are XML, which means you probably want to get a tool
+    to edit them with, but that's easy enough.
 
 The Okay (Ignoring)
 -------------------
@@ -77,6 +88,11 @@ in figuring out what anything means.
   - If you DO edit your save files, they load up just fine. You can even edit
     saves in multiplayer and it's fine with that. It probably doesn't much care
     what you do.
+* Anno 1602
+  - You can mess around a lot with the built-in scenario editor, but to change
+    the island definitions, you need an external program. You can do a lot, but
+    be careful, as you can crash the game. It doesn't really *support* modding,
+    but it doesn't object to it either.
 
 The Bad (Hostile)
 -----------------
