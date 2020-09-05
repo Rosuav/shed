@@ -146,6 +146,17 @@ def create_one(savefile):
 		material="StatPenalty.StatPenalty_A0_B0_C2",
 		pfx="Prefix_Merc.Prefix_Hoarder_02_LuckyHoarder", title="Title.Title_ClassMod",
 	)
+	# or:
+	synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=0, categories=("GD_Shields",),
+		type="A_Item.Shield_Absorption_05_LegendaryShock", balance="Shields.ItemGrade_Gear_Shield_Absorption_05_LegendaryShock",
+		brand="Manufacturers.Vladof", grade=30, stage=30,
+		pieces=["Body.Body8_Pangolin", "Battery.Battery8_Pangolin",
+			"Capacitor.Capacitor5_Maliwan_ShockRes_Legendary",
+			"Accessory.Accessory3_Absorption_LegendaryShock",
+			None, None, None, None],
+		material="Material.Material5_Legendary_AbsorptionShock",
+		pfx="Prefixes.Prefix_Capacity_Pangolin05", title="Titles.Title_Shield",
+	)
 	packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
 	savefile.packed_item_data.append(packed)
 
