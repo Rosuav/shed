@@ -37,6 +37,7 @@ int main()
 			//Otherwise drop it. There are some unindented lines that we don't care about.
 		}
 	}
+	sort(networks->Quality, networks);
 	//Every piece of string data (ie everything except Quality) will begin "0; ". This can be ignored.
 	//Okay. So now we know about networks. Let's zip through this and key them all by SSID.
 	mapping(string:mapping(string:int|string)) network_info = ([]);
