@@ -137,7 +137,7 @@ def create_many(savefile):
 		savefile.packed_item_data.append(packed)
 
 @synthesizer
-def create_one(savefile):
+def create_item(savefile):
 	synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=0, categories=("GD_ClassMods",),
 		type="A_Item_Merc.ClassMod_Merc_Hoarder", balance="ClassMods.BalDef_ClassMod_Mercenary_04_VeryRare",
 		brand="Manufacturers.Vladof", grade=33, stage=33,
@@ -159,6 +159,13 @@ def create_one(savefile):
 	)
 	packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
 	savefile.packed_item_data.append(packed)
+
+@synthesizer
+def create_weap(savefile):
+	synth = Asset(seed=random.randrange(1<<31), is_weapon=1, setid=0, categories=('GD_Weap_Shotgun', 'GD_Weap_Shotgun', 'GD_Weap_Shared_Names'), type='A_Weapons.WT_Jakobs_Shotgun', balance='A_Weapons.SG_Jakobs_4_VeryRare', brand='Manufacturers.Jakobs', grade=22, stage=22, pieces=['Body.SG_Body_Jakobs_5', 'Grip.SG_Grip_Tediore', 'Barrel.SG_Barrel_Bandit', 'Sight.SG_Sight_Jakobs', 'Stock.SG_Stock_Hyperion', None, 'Accessory.SG_Accessory_VerticalGrip', None], material='ManufacturerMaterials.Mat_Jakobs_5', pfx='Name.Prefix_Jakobs.Prefix_VerticalGrip_Stability', title='Name.Title_Jakobs.Title_Barrel_Bandit_TripleBarrel'
+	)
+	packed = PackedWeaponData(serial=synth.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
+	savefile.packed_weapon_data.append(packed)
 
 # Asset(seed=874029394, is_weapon=False, setid=0, categories=('GD_Shields', 'GD_ItemGrades', 'GD_Weap_Shared_Names'), type='A_Item.Shield_Juggernaut', balance='Shields.ItemGrade_Gear_Shield_Juggernaut_04_VeryRare', brand='Manufacturers.Pangolin', grade=44, stage=44, pieces=['Body.Body5_Anshin', 'Battery.Battery1_Tediore', 'Capacitor.Capacitor5_Anshin', 'Accessory.Accessory8_Juggernaut', None, None, None, None], material='Material.Material4_VeryRare_Juggernaut', pfx='Prefixes.Prefix_Special_Pangolin05', title='Titles.Title_Juggernaut01_JuggernautShield')
 
