@@ -26,6 +26,17 @@ def shortest_token_set_ratio(query, choice):
 	"""Like fuzz.token_set_ratio, but breaks ties by choosing the shortest"""
 	return fuzz.token_set_ratio(query, choice) * 1000 + 1000 - len(choice)
 def show_matches(target):
+	# For numeric targets, reverse the lookup
+	try:
+		target = int(target)
+		# TODO: Cache the reverse lookup in its own dict?
+		for name, id in appids.items():
+			if id == target:
+				print(name)
+				break
+		return
+	except ValueError:
+		pass
 	for name, score in process.extract(target, appnames, limit=10, scorer=shortest_token_set_ratio):
 		print("\t[%3d%% - %7s] %s" % (score//1000, appids[name], name))
 
