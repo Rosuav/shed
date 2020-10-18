@@ -14,6 +14,20 @@ TODO:
 * Alternatively, thread them all off. Can they share the microphone??
 """
 
+# Get rid of the ALSA warnings by preloading it with stderr muted
+def silence_pyaudio():
+	devnull = os.open(os.devnull, os.O_WRONLY)
+	old_stderr = os.dup(2)
+	sys.stderr.flush()
+	os.dup2(devnull, 2)
+	os.close(devnull)
+	try:
+		import pyaudio; pyaudio.PyAudio()
+	finally:
+		os.dup2(old_stderr, 2)
+		os.close(old_stderr)
+
+recog = None
 def take_notes(*, desc, new_match=False, **extra):
 	NOTES_DIR = os.path.expanduser(os.environ.get("NOTES_DIR", "~/tmp/notes"))
 	os.makedirs(NOTES_DIR, exist_ok=True)
@@ -40,25 +54,15 @@ def take_notes(*, desc, new_match=False, **extra):
 	notes = sorted(fn for fn in os.listdir(block) if fn[0] in "0123456789")
 	note_id = int(notes[-1].split("-")[0]) + 1 if notes else 1
 
-	# Get rid of the ALSA warnings by preloading it with stderr muted
-	def silence_pyaudio():
-		devnull = os.open(os.devnull, os.O_WRONLY)
-		old_stderr = os.dup(2)
-		sys.stderr.flush()
-		os.dup2(devnull, 2)
-		os.close(devnull)
-		try:
-			import pyaudio; pyaudio.PyAudio()
-		finally:
-			os.dup2(old_stderr, 2)
-			os.close(old_stderr)
-	silence_pyaudio()
+	global recog
+	if recog is None:
+		silence_pyaudio()
+		recog = sr.Recognizer()
 
-	r = sr.Recognizer()
 	# Can I increase the gain at all?
 	with sr.Microphone() as source:
 		print("Listening for notes...")
-		audio = r.listen(source)#, snowboy_configuration=(
+		audio = recog.listen(source)#, snowboy_configuration=(
 		#	"/home/rosuav/voice-tinkering/snowboy/examples/Python3",
 		#	["/home/rosuav/voice-tinkering/snowboy/resources/models/snowboy.umdl"]
 		#))
@@ -81,7 +85,7 @@ def take_notes(*, desc, new_match=False, **extra):
 	with open(block + "/%s.flac" % fn, "wb") as f: f.write(audio.get_flac_data())
 
 	d = None
-	try: d = r.recognize_sphinx(audio, show_all=True)
+	try: d = recog.recognize_sphinx(audio, show_all=True)
 	except sr.UnknownValueError: pass
 	except sr.RequestError as e: print("Sphinx:", e, file=log, flush=True)
 
@@ -92,7 +96,7 @@ def take_notes(*, desc, new_match=False, **extra):
 		seen[txt] = 1
 
 	# Maybe TODO: Set an API key with key="...."
-	try: google = r.recognize_google(audio)
+	try: google = recog.recognize_google(audio)
 	except sr.UnknownValueError: google = ""
 	except sr.RequestError as e: google = repr(e)
 
