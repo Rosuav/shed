@@ -62,10 +62,7 @@ def take_notes(*, desc, new_match=False, **extra):
 	# Can I increase the gain at all?
 	with sr.Microphone() as source:
 		print("Listening for notes...")
-		audio = recog.listen(source)#, snowboy_configuration=(
-		#	"/home/rosuav/voice-tinkering/snowboy/examples/Python3",
-		#	["/home/rosuav/voice-tinkering/snowboy/resources/models/snowboy.umdl"]
-		#))
+		audio = recog.listen(source)
 
 	# Discard crazily-long entries. They seem to happen if the recognizer doesn't
 	# get a proper silence to start with or something, and it just records forever.
