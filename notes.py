@@ -127,6 +127,10 @@ if "--gsi" in sys.argv:
 	if gsi_data["playing"]:
 		# When running under GSI control (ie NOT explicitly called
 		# upon by the terminal), take notes only when in a match.
+		# If possible, trigger the notetaker server, otherwise start
+		# (and be) it.
+		# Server should ping GSI every 60 seconds ish, and if we're
+		# no longer playing, shut itself down.
 		take_notes(**gsi_data)
 else:
 	desc = " ".join(arg for arg in sys.argv[1:] if not arg.startswith("-"))
