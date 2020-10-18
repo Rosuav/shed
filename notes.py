@@ -118,23 +118,6 @@ def take_notes(*, desc, new_match=False, **extra):
 		# Signal the GSI server to load new metadata, if appropriate
 		requests.post("http://localhost:27013/metadata/" + blocks[-1], json=meta)
 
-	sys.exit(0) # Boosting volume doesn't really seem to help much.
-
-	# Attempt to boost the volume and re-transcribe
-	try: import numpy
-	except ImportError: sys.exit(0) # No numpy? Whatever, no biggie.
-	# Assume that the data is signed integers
-	dtype = {1: numpy.int8, 2: numpy.int16, 4: numpy.int32}[audio.sample_width]
-	data = numpy.frombuffer(audio.frame_data, dtype=dtype)
-	for factor in (2, 3, 4): # Going beyond 4 doesn't seem to help much
-		audio.frame_data = (data * factor).tobytes()
-		try: d = r.recognize_sphinx(audio, show_all=True)
-		except (sr.UnknownValueError, sr.RequestError): continue
-		for i, txt in enumerate([b.hypstr for b in d.nbest()][:5], 1):
-			if txt not in seen:
-				print("Sphinx*%d#%d: %s" % (factor, i, txt), file=log, flush=True)
-				seen[txt] = factor
-
 if "--gsi" in sys.argv:
 	# Call on the GSI server to find out if we're in a CS:GO match, and
 	# if so, what we should use as our description
