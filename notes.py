@@ -5,6 +5,7 @@ import sys
 import json
 import socket
 import threading
+import time
 import requests
 import speech_recognition as sr
 
@@ -124,6 +125,18 @@ def take_notes(*, desc, new_match=False, **extra):
 		# Signal the GSI server to load new metadata, if appropriate
 		requests.post("http://localhost:27013/metadata/" + blocks[-1], json=meta)
 
+def watchdog(status):
+	"""Wait until it's been 5-10 mins since the last action, and GSI says we're inactive"""
+	while True:
+		time.sleep(300)
+		gsi_data = requests.get("http://localhost:27013/status.json").json()
+		print("Watchdog check:", gsi_data["playing"])
+		if gsi_data["playing"]: continue
+		if not status[0]: break
+		status[0] = False
+	print("Watchdog close")
+	socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM).sendto(b"!", TRIGGER_SOCKET)
+
 if "--gsi" in sys.argv:
 	# Try to connect to the trigger socket. If it fails, start the server.
 	# Note that this can get into a race situation. I don't know how to
@@ -139,16 +152,20 @@ if "--gsi" in sys.argv:
 		try:
 			server.bind(TRIGGER_SOCKET)
 			print("Listening")
+			status = [True]
+			threading.Thread(target=watchdog, args=(status,), daemon=True).start()
 			while True:
 				# Do one note-taking now, and then wait for the socket
 				gsi_data = requests.get("http://localhost:27013/status.json").json()
 				if gsi_data["playing"]:
 					# In case of issues, spawn separate threads to take the notes
 					threading.Thread(target=take_notes, kwargs=gsi_data).start()
-				# TODO: If it's been ten minutes since the last request *and* if GSI
-				# says we're not playing, shut down.
-				server.recvfrom(1024)
+				# Wait for the next trigger (or the watchdog shutdown signal)
+				data, _ = server.recvfrom(1024)
+				if data == b"!": break # Signal from the other thread (or another process) to shut down
+				status[0] = True
 				print("Got trigger")
+			break
 		except OSError as e:
 			if e.errno == 98: continue # Address already in use - try reconnecting
 			else: raise
