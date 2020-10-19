@@ -4,6 +4,7 @@ import os.path
 import sys
 import json
 import socket
+import threading
 import requests
 import speech_recognition as sr
 
@@ -142,7 +143,8 @@ if "--gsi" in sys.argv:
 				# Do one note-taking now, and then wait for the socket
 				gsi_data = requests.get("http://localhost:27013/status.json").json()
 				if gsi_data["playing"]:
-					take_notes(**gsi_data)
+					# In case of issues, spawn separate threads to take the notes
+					threading.Thread(target=take_notes, kwargs=gsi_data).start()
 				# TODO: If it's been ten minutes since the last request *and* if GSI
 				# says we're not playing, shut down.
 				server.recvfrom(1024)
