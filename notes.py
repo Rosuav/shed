@@ -3,7 +3,11 @@
 import os.path
 import sys
 import json
+import socket
+import requests
 import speech_recognition as sr
+
+TRIGGER_SOCKET = "/tmp/stenographer"
 
 """
 TODO:
@@ -120,18 +124,36 @@ def take_notes(*, desc, new_match=False, **extra):
 		requests.post("http://localhost:27013/metadata/" + blocks[-1], json=meta)
 
 if "--gsi" in sys.argv:
-	# Call on the GSI server to find out if we're in a CS:GO match, and
-	# if so, what we should use as our description
-	import requests
-	gsi_data = requests.get("http://localhost:27013/status.json").json()
-	if gsi_data["playing"]:
-		# When running under GSI control (ie NOT explicitly called
-		# upon by the terminal), take notes only when in a match.
-		# If possible, trigger the notetaker server, otherwise start
-		# (and be) it.
-		# Server should ping GSI every 60 seconds ish, and if we're
-		# no longer playing, shut itself down.
-		take_notes(**gsi_data)
+	# Try to connect to the trigger socket. If it fails, start the server.
+	# Note that this can get into a race situation. I don't know how to
+	# perfectly solve this, so we just retry a few times.
+	for _ in range(4):
+		client = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+		try: client.sendto(b"*", TRIGGER_SOCKET)
+		except FileNotFoundError: pass # Socket doesn't exist
+		except ConnectionRefusedError: os.unlink(TRIGGER_SOCKET) # Socket exists in the file system but isn't listened on
+		else: print("Triggered server"); break # Done! The server's been triggered.
+
+		server = socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM)
+		try:
+			server.bind(TRIGGER_SOCKET)
+			print("Listening")
+			while True:
+				# Do one note-taking now, and then wait for the socket
+				gsi_data = requests.get("http://localhost:27013/status.json").json()
+				if gsi_data["playing"]:
+					take_notes(**gsi_data)
+				# TODO: If it's been ten minutes since the last request *and* if GSI
+				# says we're not playing, shut down.
+				server.recvfrom(1024)
+				print("Got trigger")
+		except OSError as e:
+			if e.errno == 98: continue # Address already in use - try reconnecting
+			else: raise
+		finally:
+			server.close()
+			try: os.unlink(TRIGGER_SOCKET)
+			except FileNotFoundError: pass
 else:
 	desc = " ".join(arg for arg in sys.argv[1:] if not arg.startswith("-"))
 	take_notes(desc=desc, new_match="--new-block" in sys.argv)
