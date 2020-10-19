@@ -11,15 +11,6 @@ import speech_recognition as sr
 
 TRIGGER_SOCKET = "/tmp/stenographer"
 
-"""
-TODO:
-* Have an ongoing process that holds the microphone device open
-* Signal it. Worst case, listen on a Unix socket, and have something open it.
-* Record notes, then go back to the loop. This will prevent multiple concurrent notesings though.
-* May need a timeout, eg max 30 seconds of notes (to prevent it getting stuck)
-* Alternatively, thread them all off. Can they share the microphone??
-"""
-
 # Get rid of the ALSA warnings by preloading it with stderr muted
 def silence_pyaudio():
 	devnull = os.open(os.devnull, os.O_WRONLY)
