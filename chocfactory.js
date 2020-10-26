@@ -114,9 +114,9 @@ export function on(event, selector, handler) {
 }
 
 //Apply some patches to <dialog> tags to make them easier to use. Accepts keyword args in a config object:
-//	fix_dialogs({closeclasses: "dialog_cancel dialog_close", clickoutside: true});
+//	fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: true});
 //For older browsers, this adds showModal() and close() methods
-//If cfg.close_selector, will hook events from all links/buttons with those classes to close the dialog
+//If cfg.close_selector, will hook events from all links/buttons matching it to close the dialog
 //If cfg.click_outside, any click outside a dialog will also close it. (May not work on older browsers.)
 export function fix_dialogs(cfg) {
 	if (!cfg) cfg = {};
@@ -136,7 +136,7 @@ export function fix_dialogs(cfg) {
 			e.preventDefault();
 		}
 	});
-	if (cfg.close_classes) on("click", cfg.close_classes, e => e.match.closest("dialog").close());
+	if (cfg.close_selector) on("click", cfg.close_selector, e => e.match.closest("dialog").close());
 }
 
 let choc = function(tag, attributes, children) {
