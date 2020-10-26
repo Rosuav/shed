@@ -1,4 +1,4 @@
-/* Chocolate Factory v0.2
+/* Chocolate Factory v0.3
 
 DOM object builder. (Thanks to DeviCat for the name!)
 
@@ -47,10 +47,16 @@ This is like document.querySelector(), but ensures that there is only one
 matching element, thus avoiding the risk of catching the wrong one. (It's also
 shorter. Way shorter.)
 
+If you use the <dialog> tag, consider fix_dialogs(). It adds basic support to
+browsers which lack it, and can optionally provide automatic behaviour for
+close buttons and/or clicking outside the dialog to close it.
+    fix_dialogs({close_selector: "button.close,input[type=submit]"});
+    fix_dialogs({click_outside: true});
+
 
 The MIT License (MIT)
 
-Copyright (c) 2019 Chris Angelico
+Copyright (c) 2020 Chris Angelico
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -107,6 +113,32 @@ export function on(event, selector, handler) {
 	return 1;
 }
 
+//Apply some patches to <dialog> tags to make them easier to use. Accepts keyword args in a config object:
+//	fix_dialogs({closeclasses: "dialog_cancel dialog_close", clickoutside: true});
+//For older browsers, this adds showModal() and close() methods
+//If cfg.close_selector, will hook events from all links/buttons with those classes to close the dialog
+//If cfg.click_outside, any click outside a dialog will also close it. (May not work on older browsers.)
+export function fix_dialogs(cfg) {
+	if (!cfg) cfg = {};
+	//For browsers with only partial support for the <dialog> tag, add the barest minimum.
+	//On browsers with full support, there are many advantages to using dialog rather than
+	//plain old div, but this way, other browsers at least have it pop up and down.
+	document.querySelectorAll("dialog").forEach(dlg => {
+		if (!dlg.showModal) dlg.showModal = function() {this.style.display = "block";}
+		if (!dlg.close) dlg.close = function() {this.style.removeProperty("display");}
+	});
+	if (cfg.click_outside) on("click", "dialog", e => {
+		let rect = e.match.getBoundingClientRect();
+		if (e.clientY < rect.top || e.clientY > rect.top + rect.height
+				|| e.clientX < rect.left || e.clientX > rect.left + rect.width)
+		{
+			dlg.close();
+			e.preventDefault();
+		}
+	});
+	if (cfg.close_classes) on("click", cfg.close_classes, e => e.match.closest("dialog").close());
+}
+
 let choc = function(tag, attributes, children) {
 	const ret = document.createElement(tag);
 	//If called as choc(tag, children), assume all attributes are defaults
@@ -120,7 +152,7 @@ let choc = function(tag, attributes, children) {
 	if (children) set_content(ret, children);
 	return ret;
 }
-choc.__version__ = "0.2";
+choc.__version__ = "0.3";
 
 //Interpret choc.DIV(attr, chld) as choc("DIV", attr, chld)
 //This is basically what Python would do as choc.__getattr__()
@@ -133,5 +165,5 @@ choc = new Proxy(choc, {get: function(obj, prop) {
 export default choc;
 
 //For non-module scripts, allow some globals to be used
-window.choc = choc; window.set_content = set_content; window.on = on; window.DOM = DOM;
+window.choc = choc; window.set_content = set_content; window.on = on; window.DOM = DOM; window.fix_dialogs = fix_dialogs;
 window.chocify = tags => tags.split(" ").forEach(tag => window[tag] = choc[tag]);
