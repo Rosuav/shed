@@ -132,7 +132,7 @@ export function fix_dialogs(cfg) {
 		if (e.clientY < rect.top || e.clientY > rect.top + rect.height
 				|| e.clientX < rect.left || e.clientX > rect.left + rect.width)
 		{
-			dlg.close();
+			e.match.close();
 			e.preventDefault();
 		}
 	});
