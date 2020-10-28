@@ -55,14 +55,17 @@ def take_notes(*, desc, new_match=False, **extra):
 	if recog is None:
 		silence_pyaudio()
 		recog = sr.Recognizer()
+		recognizer_instance.dynamic_energy_threshold = False
+		recog.energy_threshold = 25 # My microphone is very good. It doesn't pick up much background.
 
 	# Can I increase the gain at all?
 	with sr.Microphone() as source:
 		print("Listening for notes...")
-		audio = recog.listen(source)
+		audio = recog.listen(source, phrase_time_limit=15.0)
 
 	# Discard crazily-long entries. They seem to happen if the recognizer doesn't
 	# get a proper silence to start with or something, and it just records forever.
+	# (Shouldn't happen since the time limit is 15s, but it's an easy safety net.)
 	if len(audio.frame_data) / audio.sample_width / audio.sample_rate > 60.0:
 		# More than sixty seconds? Throw it away.
 		sys.exit(0)
