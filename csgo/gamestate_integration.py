@@ -37,7 +37,7 @@ last_mode = None
 def mode_switch(mode):
 	if pw: # If we have a VLC password, manage the music
 		# Since "pause" toggles pause, we use "frame", which is idempotent.
-		toggle_music("frame" if mode == "playing" else "play")
+		toggle_music("play" if mode == "idle" else "frame")
 	# If the scoreboard is up, take a series of screenshots.
 	# Find CS:GO window: wmctrl -lG|grep Counter-Strike
 	# ffmpeg -video_size 1920x1080 -framerate 3 -f x11grab -i :0.0+1920,0 -c copy scoreboard.mkv
