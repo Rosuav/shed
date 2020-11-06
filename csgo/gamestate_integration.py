@@ -33,21 +33,72 @@ def toggle_music(state):
 		data += cur
 	sock.close()
 
+screencap_ffmpeg = None
+def screencap():
+	global screencap_ffmpeg
+	# There'll be 15 seconds (interval) or 25 seconds (game over) of scoreboard.
+	# Screencap it and make an animation.
+	# If the scoreboard is up, take a series of screenshots.
+	# Find CS:GO window: wmctrl -lG|grep Counter-Strike
+	# ffmpeg -video_size 1920x1080 -framerate 3 -f x11grab -i :0.0+1920,0 -c copy scoreboard.mkv
+	# Attach these to the last notes. Ideally, take a few frames a second, but play them back slower.
+	try:
+		p = subprocess.run(["wmctrl", "-lG"], capture_output=True, check=True)
+	except (subprocess.CalledProcessError, FileNotFoundError):
+		return
+	for line in p.stdout.decode().split("\n"):
+		# 0x07200005  2 1920 0    1920 1080 sikorsky Counter-Strike: Global Offensive - OpenGL
+		id, desktop, x, y, w, h, user, title = line.split(maxsplit=7)
+		if title.startswith("Counter-Strike: Global Offensive"): break
+	else:
+		# No CS:GO window found; no screencap needed.
+		# I'm not sure how this would happen, since this is triggered by GSI,
+		# but maybe there's a change to the window title or something.
+		return
+	NOTES_DIR = "/home/rosuav/tmp/notes"
+	try:
+		def safe_int(n):
+			try: return int(n)
+			except (ValueError, TypeError): return 0
+		last_block = max(os.listdir(NOTES_DIR), key=safe_int)
+		block = NOTES_DIR + "/" + last_block
+		last = max((fn for fn in os.listdir(block) if fn.startswith("screencap")), default="screencap0.mkv")
+		# sscanf(last, "screencap%d.mkv", int lastid)
+		lastid = int(last.replace("screencap", "").replace(".mkv", ""))
+		fn = f"{block}/screencap{lastid + 1}.mkv"
+	except (FileNotFoundError, ValueError):
+		return # No notes to attach to
+	try:
+		screencap_ffmpeg = subprocess.Popen(["ffmpeg", "-y",
+			"-loglevel", "quiet",
+			"-video_size", w + "x" + h,
+			"-framerate", "2",
+			"-f", "x11grab", "-i", f"{os.environ['DISPLAY']}+{x},{y}",
+			fn,
+		], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+	except FileNotFoundError:
+		return # No FFMPEG
+	logging.log(25, "Screencapping into %s", fn)
+
 last_mode = None
 def mode_switch(mode):
 	if pw: # If we have a VLC password, manage the music
 		# Since "pause" toggles pause, we use "frame", which is idempotent.
 		toggle_music("play" if mode == "idle" else "frame")
-	# If the scoreboard is up, take a series of screenshots.
-	# Find CS:GO window: wmctrl -lG|grep Counter-Strike
-	# ffmpeg -video_size 1920x1080 -framerate 3 -f x11grab -i :0.0+1920,0 -c copy scoreboard.mkv
-	# Attach these to the last notes. Ideally, take a few frames a second, but play them back slower.
 
-	# Manage whether or not the note taker is listening for a global hotkey
 	global last_mode
 	if last_mode == mode: return
 	last_mode = mode
 	logging.log(25, "Setting mode to %s", mode)
+	global screencap_ffmpeg
+	if mode == "screencap":
+		screencap()
+	elif screencap_ffmpeg is not None:
+		logging.log(25, "Terminating screencap")
+		screencap_ffmpeg.send_signal(2)
+		screencap_ffmpeg = None
+
+	# Manage whether or not the note taker is listening for a global hotkey
 	# NOTE: This autoconfiguration may require env var DBUS_SESSION_BUS_ADDRESS to
 	# be appropriately set. It usually will be when running within the GUI, but if
 	# this script is run in the background somewhere, be sure to propagate it.
@@ -137,8 +188,8 @@ configs = {
 	("map", "phase"): {
 		"warmup": "playing",
 		"live": "playing",
-		"gameover": "playing",
-		"intermission": "playing",
+		"gameover": "screencap",
+		"intermission": "screencap",
 		...: "idle",
 		handler: mode_switch
 	},
