@@ -1,7 +1,7 @@
 {
 	"map": {
 		"mode": "competitive",
-		"name": "de_dust2||de_inferno||de_nuke||cs_italy",
+		"name": "de_dust2||de_inferno||de_nuke||cs_italy||de_aztec",
 		"phase": "warmup||live||intermission||gameover",
 		"round": 0,
 		"team_ct": {
@@ -24,7 +24,7 @@
 	},
 	"player": {
 		"steamid": "76561198043731689||76561197960265821||76561197960265822||76561197960265825||76561197960265827||76561197960265831",
-		"name": "Rosuav||unconnected||Minh||Quintin||Garret||Brett||Zach||Wolf||Steel||Gunner||Cliffe||Stone||Crusher",
+		"name": "Rosuav||unconnected||Minh||Quintin||Garret||Brett||Zach||Wolf||Steel||Gunner||Cliffe||Stone||Crusher||Kyle||Quade",
 		"activity": "playing||textinput||menu",
 		"clan": "Rosbot",
 		"observer_slot": 1,

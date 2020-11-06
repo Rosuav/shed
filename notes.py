@@ -99,6 +99,7 @@ def take_notes(*, desc, new_match=False, **extra):
 
 	print("Google:", google, file=log, flush=True)
 
+	# Below duplicated into gamestate_integration.py
 	try:
 		with open(block + "/metadata.json") as f: meta = json.load(f)
 	except (FileNotFoundError, json.decoder.JSONDecodeError): meta = {}

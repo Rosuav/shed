@@ -4,6 +4,7 @@ import os
 import socket
 import subprocess
 import re
+import requests
 from flask import Flask, request # ImportError? Try "pip install flask".
 app = Flask(__name__)
 
@@ -62,10 +63,9 @@ def screencap():
 			except (ValueError, TypeError): return 0
 		last_block = max(os.listdir(NOTES_DIR), key=safe_int)
 		block = NOTES_DIR + "/" + last_block
-		last = max((fn for fn in os.listdir(block) if fn.startswith("screencap")), default="screencap0.mkv")
-		# sscanf(last, "screencap%d.mkv", int lastid)
-		lastid = int(last.replace("screencap", "").replace(".mkv", ""))
-		fn = f"{block}/screencap{lastid + 1}.mkv"
+		notes = sorted(fn for fn in os.listdir(block) if fn[0] in "0123456789")
+		note_id = int(notes[-1].split("-")[0]) + 1 if notes else 1
+		fn = f"/{note_id:02d} - screencap.mkv"
 	except (FileNotFoundError, ValueError):
 		return # No notes to attach to
 	try:
@@ -74,11 +74,27 @@ def screencap():
 			"-video_size", w + "x" + h,
 			"-framerate", "2",
 			"-f", "x11grab", "-i", f"{os.environ['DISPLAY']}+{x},{y}",
-			fn,
+			block + fn,
 		], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 	except FileNotFoundError:
 		return # No FFMPEG
 	logging.log(25, "Screencapping into %s", fn)
+
+	# Largely duplicated from notes.py
+	try:
+		with open(block + "/metadata.json") as f: meta = json.load(f)
+	except (FileNotFoundError, json.decoder.JSONDecodeError): meta = {}
+	if "recordings" not in meta: meta["recordings"] = []
+	meta["recordings"].append({
+		"id": note_id,
+		"filename": fn,
+		"type": "video",
+	})
+	with open(block + "/metadata.json", "w") as f:
+		json.dump(meta, f, sort_keys=True, indent=2)
+
+	# Signal the GSI server to load new metadata, if appropriate
+	requests.post("http://localhost:27013/metadata/" + last_block, json=meta)
 
 last_mode = None
 def mode_switch(mode):
