@@ -51,7 +51,7 @@
 	},
 	"map": {
 		"mode": "competitive",
-		"name": "de_dust2||de_inferno",
+		"name": "de_dust2||de_inferno||de_nuke||cs_italy",
 		"phase": "live||warmup||intermission||gameover",
 		"round": 0,
 		"team_ct": {
