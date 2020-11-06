@@ -1,38 +1,38 @@
 {
 	"map": {
 		"mode": "competitive",
-		"name": "de_dust2",
-		"phase": "warmup",
+		"name": "de_dust2||de_inferno",
+		"phase": "warmup||live||intermission||gameover",
 		"round": 0,
 		"team_ct": {
 			"score": 0,
 			"consecutive_round_losses": 0,
 			"timeouts_remaining": 1,
 			"matches_won_this_series": 0,
-			"name": "The Rosbots"
+			"name": "The Rosbots||Domination Servers Trusted"
 		},
 		"team_t": {
 			"score": 0,
 			"consecutive_round_losses": 0,
 			"timeouts_remaining": 1,
 			"matches_won_this_series": 0,
-			"name": "The Rosbots"
+			"name": "The Rosbots||Domination Servers Trusted"
 		},
 		"num_matches_to_win_series": 0,
 		"current_spectators": 0,
 		"souvenirs_total": 0
 	},
 	"player": {
-		"steamid": "76561198043731689",
-		"name": "Rosuav",
-		"activity": "playing",
+		"steamid": "76561198043731689||76561197960265821||76561197960265822||76561197960265825||76561197960265827||76561197960265831",
+		"name": "Rosuav||unconnected||Minh||Quintin||Garret||Brett||Zach||Wolf||Steel",
+		"activity": "playing||textinput||menu",
 		"clan": "Rosbot",
 		"observer_slot": 1,
-		"team": "CT"
+		"team": "CT||T"
 	},
 	"round": {
-		"phase": "freezetime",
-		"win_team": "CT",
-		"bomb": "planted"
+		"phase": "freezetime||live||over",
+		"win_team": "CT||T",
+		"bomb": "planted||exploded"
 	}
 }

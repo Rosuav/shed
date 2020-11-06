@@ -167,7 +167,6 @@ def check_composite(data, alldata, path):
 		items = zip(itertools.repeat('*'), data.values())
 	else: items = data.items()
 	for key, val in items:
-		# TODO: Track enumerated types by listing up to 10 values seen for string entries
 		t1 = type(val)
 		t2 = type(alldata[key]) if key in alldata else None
 		if t1 is int: t1 = float # Use a single "Number" type as per JSON
@@ -182,6 +181,12 @@ def check_composite(data, alldata, path):
 		# For some types, recurse.
 		if t1 in (list, dict):
 			check_composite(val, alldata[key], p)
+		# Detect enumerated types and give some examples of free-form ones
+		if t1 is str:
+			if val not in alldata[key].split("||") and len(alldata[key] + "||" + val) < 120:
+				logging.log(25, "New value for item -- %s (%s)", p, val)
+				alldata[key] += "||" + val
+				composite_dirty = True
 
 last_known_cfg = {} # Mainly for the sake of logging
 @app.route("/", methods=["POST"])

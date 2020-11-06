@@ -7,9 +7,9 @@
 		"timestamp": 1556547795
 	},
 	"player": {
-		"steamid": "76561198043731689",
-		"name": "Rosuav",
-		"activity": "menu",
+		"steamid": "76561198043731689||76561197960265821||76561197960265822||76561197960265825||76561197960265827||1||76561198197864845",
+		"name": "Rosuav||unconnected||Minh||Quintin||Garret||Brett||GOTV||Stephen Angelico||LaW||Albert||Todd Howard||huunny||HTHS||Zach",
+		"activity": "menu||playing||textinput",
 		"state": {
 			"health": 0,
 			"armor": 0,
@@ -43,23 +43,23 @@
 			"score": 0
 		},
 		"observer_slot": 4,
-		"team": "T",
+		"team": "T||CT",
 		"spectarget": "76561197960265730",
 		"position": "271.68, 1443.93, -0.03",
 		"forward": "0.12, 0.99, 0.09",
-		"clan": "unfrag"
+		"clan": "unfrag||Rosbot"
 	},
 	"map": {
 		"mode": "competitive",
-		"name": "de_dust2",
-		"phase": "live",
+		"name": "de_dust2||de_inferno",
+		"phase": "live||warmup||intermission||gameover",
 		"round": 0,
 		"team_ct": {
 			"score": 0,
 			"consecutive_round_losses": 0,
 			"timeouts_remaining": 1,
 			"matches_won_this_series": 0,
-			"name": ".XanaX eSports",
+			"name": ".XanaX eSports||The Rosbots||Domination Servers Trusted",
 			"flag": "DK"
 		},
 		"team_t": {
@@ -67,7 +67,7 @@
 			"consecutive_round_losses": 0,
 			"timeouts_remaining": 1,
 			"matches_won_this_series": 0,
-			"name": "Last Echo Force",
+			"name": "Last Echo Force||Domination Servers Trusted||The Rosbots",
 			"flag": "KZ"
 		},
 		"num_matches_to_win_series": 0,
@@ -78,15 +78,15 @@
 		}
 	},
 	"round": {
-		"phase": "live",
-		"bomb": "planted",
-		"win_team": "T"
+		"phase": "live||freezetime||over",
+		"bomb": "planted||exploded",
+		"win_team": "T||CT"
 	},
 	"allplayers": {
 		"*": {
-			"name": "Cliffe",
+			"name": "Cliffe||Alffa||LaW||tgL.WookieMan||\u6276\u6211\u8d77\u6765\uff0c\u6211\u8fd8\u80fd\u9001||Ligma||Misguided Munkey||Stephen Angelico||Rosuav||minjee||Ulric||Albert",
 			"observer_slot": 1,
-			"team": "CT",
+			"team": "CT||T",
 			"state": {
 				"health": 64,
 				"armor": 0,
@@ -120,7 +120,7 @@
 			},
 			"position": "318.59, 2087.26, 97.20",
 			"forward": "-0.06, -0.98, -0.20",
-			"clan": "unfrag"
+			"clan": "unfrag||.tgL.||Rosbot"
 		}
 	},
 	"grenades": {
