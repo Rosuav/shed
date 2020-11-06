@@ -72,7 +72,11 @@ def take_notes(*, desc, new_match=False, **extra):
 
 	print("Got notes.")
 	log = open(NOTES_DIR + "/notes.log", "a")
-	if new_match:
+	try: os.stat(block + "/metadata.json")
+	except FileNotFoundError:
+		# If the metadata file doesn't exist, it's a new block. Note that this
+		# won't always correspond to the new_block marker, eg if the recording
+		# goes too long or is just broken.
 		print("-" * 65, file=log)
 		print("http://localhost:27013/static/notes.html#" + blocks[-1], file=log)
 		import webbrowser; webbrowser.open("http://localhost:27013/static/notes.html#" + blocks[-1])
@@ -124,7 +128,7 @@ def watchdog(status):
 	"""Wait until it's been 5-10 mins since the last action, and GSI says we're inactive"""
 	while True:
 		time.sleep(300)
-		gsi_data = requests.get("http://localhost:27013/status.json").json()
+		gsi_data = requests.get("http://localhost:27013/status.json?silent=true").json()
 		print("Watchdog check:", gsi_data["playing"])
 		if gsi_data["playing"]: continue
 		if not status[0]: break
