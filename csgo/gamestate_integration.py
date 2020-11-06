@@ -9,11 +9,13 @@ app = Flask(__name__)
 
 handler = object() # Dict key cookie
 
-composite_file = os.path.dirname(os.readlink(__file__)) + "/composite.json"
-composite = {}
+composite_file = os.path.dirname(os.readlink(__file__)) + "/composite%s.json"
+composite, composite_live = {}, {}
 try:
-	with open(composite_file) as f:
+	with open(composite_file % "") as f:
 		composite = json.load(f)
+	with open(composite_file % "_live") as f:
+		composite_live = json.load(f)
 except OSError: pass
 composite_dirty = False
 
@@ -189,11 +191,18 @@ def update_configs():
 	if "added" in request.json: del request.json["added"]
 	# from pprint import pprint; pprint(request.json)
 	check_composite(request.json, composite, "data")
-	# TODO: if "allplayers" not in data and data.get("map", {}).get("mode") == "competitive": check_composite on a separate file of during-match info
+	if "allplayers" not in request.json and request.json.get("map", {}).get("mode") == "competitive":
+		# Track in-match info as well - only that info that we can see while playing
+		# Note that this won't necessarily catch EVERYTHING (for instance, I might
+		# never happen to spec someone who has a flag set, even though theoretically
+		# that might be seen live), but it'd be most of it.
+		check_composite(request.json, composite_live, "data")
 	global composite_dirty
 	if composite_dirty:
-		with open(composite_file, "w") as f:
+		with open(composite_file % "", "w") as f:
 			json.dump(composite, f, indent="\t")
+		with open(composite_file % "_live", "w") as f:
+			json.dump(composite_live, f, indent="\t")
 		composite_dirty = False
 	# print(request.json.get('player', {}).get('weapons'))
 	for path, options in configs.items():

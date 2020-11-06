@@ -1,0 +1,38 @@
+{
+	"map": {
+		"mode": "competitive",
+		"name": "de_dust2",
+		"phase": "warmup",
+		"round": 0,
+		"team_ct": {
+			"score": 0,
+			"consecutive_round_losses": 0,
+			"timeouts_remaining": 1,
+			"matches_won_this_series": 0,
+			"name": "The Rosbots"
+		},
+		"team_t": {
+			"score": 0,
+			"consecutive_round_losses": 0,
+			"timeouts_remaining": 1,
+			"matches_won_this_series": 0,
+			"name": "The Rosbots"
+		},
+		"num_matches_to_win_series": 0,
+		"current_spectators": 0,
+		"souvenirs_total": 0
+	},
+	"player": {
+		"steamid": "76561198043731689",
+		"name": "Rosuav",
+		"activity": "playing",
+		"clan": "Rosbot",
+		"observer_slot": 1,
+		"team": "CT"
+	},
+	"round": {
+		"phase": "freezetime",
+		"win_team": "CT",
+		"bomb": "planted"
+	}
+}
