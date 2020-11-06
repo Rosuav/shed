@@ -36,6 +36,11 @@ def mode_switch(mode):
 	if pw: # If we have a VLC password, manage the music
 		# Since "pause" toggles pause, we use "frame", which is idempotent.
 		toggle_music("frame" if mode == "playing" else "play")
+	# If the scoreboard is up, take a series of screenshots.
+	# Find CS:GO window: wmctrl -lG|grep Counter-Strike
+	# ffmpeg -video_size 1920x1080 -framerate 3 -f x11grab -i :0.0+1920,0 -c copy scoreboard.mkv
+	# Attach these to the last notes. Ideally, take a few frames a second, but play them back slower.
+
 	# Manage whether or not the note taker is listening for a global hotkey
 	global last_mode
 	if last_mode == mode: return
@@ -160,6 +165,7 @@ def check_composite(data, alldata, path):
 		items = zip(itertools.repeat('*'), data.values())
 	else: items = data.items()
 	for key, val in items:
+		# TODO: Track enumerated types by listing up to 10 values seen for string entries
 		t1 = type(val)
 		t2 = type(alldata[key]) if key in alldata else None
 		if t1 is int: t1 = float # Use a single "Number" type as per JSON
@@ -183,6 +189,7 @@ def update_configs():
 	if "added" in request.json: del request.json["added"]
 	# from pprint import pprint; pprint(request.json)
 	check_composite(request.json, composite, "data")
+	# TODO: if "allplayers" not in data and data.get("map", {}).get("mode") == "competitive": check_composite on a separate file of during-match info
 	global composite_dirty
 	if composite_dirty:
 		with open(composite_file, "w") as f:
