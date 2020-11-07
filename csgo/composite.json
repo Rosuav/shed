@@ -47,11 +47,11 @@
 		"spectarget": "76561197960265730",
 		"position": "271.68, 1443.93, -0.03",
 		"forward": "0.12, 0.99, 0.09",
-		"clan": "unfrag||Rosbot"
+		"clan": "unfrag||Rosbot||Walmart NM"
 	},
 	"map": {
-		"mode": "competitive",
-		"name": "de_dust2||de_inferno||de_nuke||cs_italy||de_aztec",
+		"mode": "competitive||gungameprogressive",
+		"name": "de_dust2||de_inferno||de_nuke||cs_italy||de_aztec||workshop/2126168252/de_dust2||ar_lunacy||de_lake||de_safehouse",
 		"phase": "live||warmup||intermission||gameover",
 		"round": 0,
 		"team_ct": {
@@ -59,16 +59,16 @@
 			"consecutive_round_losses": 0,
 			"timeouts_remaining": 1,
 			"matches_won_this_series": 0,
-			"name": ".XanaX eSports||The Rosbots||Domination Servers Trusted",
-			"flag": "DK"
+			"name": ".XanaX eSports||The Rosbots||Domination Servers Trusted||G2 Esports||Walmart New Mexico",
+			"flag": "DK||FR"
 		},
 		"team_t": {
 			"score": 0,
 			"consecutive_round_losses": 0,
 			"timeouts_remaining": 1,
 			"matches_won_this_series": 0,
-			"name": "Last Echo Force||Domination Servers Trusted||The Rosbots",
-			"flag": "KZ"
+			"name": "Last Echo Force||Domination Servers Trusted||The Rosbots||Team Liquid||Walmart New Mexico",
+			"flag": "KZ||US"
 		},
 		"num_matches_to_win_series": 0,
 		"current_spectators": 0,
@@ -79,7 +79,7 @@
 	},
 	"round": {
 		"phase": "live||freezetime||over",
-		"bomb": "planted||exploded",
+		"bomb": "planted||exploded||defused",
 		"win_team": "T||CT"
 	},
 	"allplayers": {
@@ -120,7 +120,7 @@
 			},
 			"position": "318.59, 2087.26, 97.20",
 			"forward": "-0.06, -0.98, -0.20",
-			"clan": "unfrag||.tgL.||Rosbot"
+			"clan": "unfrag||.tgL.||Rosbot||Walmart NM"
 		}
 	},
 	"grenades": {
