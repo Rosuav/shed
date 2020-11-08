@@ -9,6 +9,14 @@ alias obs='/usr/bin/obs; python3 ~/shed/obs_tidy.py'
 # eg: "make; present" to build, then pop up.
 alias present='wmctrl -ia $WINDOWID'
 
+libpng() {
+    # Fix the libpng bug that breaks CS:GO
+    # If the link already exists, this will error out, showing that it wasn't necessary
+    mkdir -p ~/.steam/root/ubuntu12_32/steam-runtime/pinned_libs_64
+    cd ~/.steam/root/ubuntu12_32/steam-runtime/pinned_libs_64
+    ln -s ~/.local/share/Steam/ubuntu12_32/steam-runtime/amd64/lib/x86_64-linux-gnu/libpng12.so.0.46.0 libpng12.so.0
+}
+
 unautowine() {
     # Remove an autowine, including all its special features
     [ -n "$MAINPATH" ] && export PATH="$MAINPATH"
