@@ -7,6 +7,7 @@ int process()
 	string targetdir;
 	array(string) have = ({ });
 	array(string) cmd = ({"youtube-dl"});
+	mapping video_index = ([]);
 	foreach (Stdio.read_file(script)/"\n", string line)
 	{
 		//Ignore blanks and comments
@@ -36,10 +37,12 @@ int process()
 		sscanf(line, "?v=%s", line);
 		sscanf(line, "v=%s", line);
 		sscanf(line, "%s&", line); //If any of the previous ones has "?v=blah&other-info=junk", trim that off
-		string fetchme = line;
-		if (sscanf(line, "https://vimeo.com/showcase/%*d/video/%s", string vid)
-			|| sscanf(line, "https://vimeo.com/%s", vid))
-				fetchme = "https://vimeo.com/" + (line = vid);
+		array(string) fetchme = ({"--", line});
+		if (sscanf(line, "https://vimeo.com/showcase/%d/video/%s", int showcase, string vid))
+			fetchme = ({"-o", sprintf("%d-%02d", showcase, ++video_index[showcase]) + " - %(title)s-%(id)s.%(ext)s",
+				"--", "https://vimeo.com/" + (line = vid)});
+		else if (sscanf(line, "https://vimeo.com/%s", string vid))
+			fetchme = ({"--", "https://vimeo.com/" + (line = vid)});
 		else if (sizeof(line) != 11)
 		{
 			if (line != "") write("Unrecognized video tag format: %O\n", line);
@@ -50,7 +53,7 @@ int process()
 		foreach (have, string fn) if (has_value(fn, line)) got = 1; //Or should it be stricter?
 		if (got) continue;
 		if (!targetdir || !file_stat(targetdir)) exit(1, "Target directory not specified or not found\n");
-		Process.create_process(cmd + ({"--", fetchme}), (["cwd": targetdir]))->wait();
+		Process.create_process(cmd + fetchme, (["cwd": targetdir]))->wait();
 		return 1; //After processing one file, go back and start reading the script anew. It might have been edited.
 	}
 }
