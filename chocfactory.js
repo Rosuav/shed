@@ -1,4 +1,4 @@
-/* Chocolate Factory v0.4.1
+/* Chocolate Factory v0.4.2
 
 DOM object builder. (Thanks to DeviCat for the name!)
 
@@ -123,9 +123,24 @@ export function fix_dialogs(cfg) {
 	//For browsers with only partial support for the <dialog> tag, add the barest minimum.
 	//On browsers with full support, there are many advantages to using dialog rather than
 	//plain old div, but this way, other browsers at least have it pop up and down.
+	let need_button_fix = false;
 	document.querySelectorAll("dialog").forEach(dlg => {
-		if (!dlg.showModal) dlg.showModal = function() {this.style.display = "block";}
-		if (!dlg.close) dlg.close = function() {this.style.removeProperty("display");}
+		if (!dlg.showModal) {
+			dlg.showModal = function() {this.style.display = "block";}
+			dlg.close = function(ret) {
+				if (ret) e.match.returnValue = ret;
+				this.style.removeProperty("display");
+				e.match.dispatchEvent(new CustomEvent("close", {bubbles: true}));
+			};
+			need_button_fix = true;
+		}
+	});
+	//Ideally, I'd like to feature-detect whether form[method=dialog] actually
+	//works, and do this if it doesn't; we assume that the lack of a showModal
+	//method implies this being also unsupported. New in Choc Factory 0.4.
+	if (need_button_fix) on("click", 'dialog form[method="dialog"] button', e => {
+		e.match.closest("dialog").close(e.match.value);
+		e.preventDefault();
 	});
 	if (cfg.click_outside) on("click", "dialog", e => {
 		let rect = e.match.getBoundingClientRect();
@@ -137,15 +152,6 @@ export function fix_dialogs(cfg) {
 		}
 	});
 	if (cfg.close_selector) on("click", cfg.close_selector, e => e.match.closest("dialog").close());
-	//Ideally, I'd like to feature-detect whether form[method=dialog] actually
-	//works, and do this if it doesn't. New in Choc Factory 0.4.
-	if (navigator.userAgent.includes("Firefox")) {
-		on("click", 'dialog form[method="dialog"] button', e => {
-			e.match.form.returnValue = e.match.value;
-			e.match.closest("dialog").close();
-			e.preventDefault();
-		});
-	}
 }
 
 let choc = function(tag, attributes, children) {
@@ -161,7 +167,7 @@ let choc = function(tag, attributes, children) {
 	if (children) set_content(ret, children);
 	return ret;
 }
-choc.__version__ = "0.4.1";
+choc.__version__ = "0.4.2";
 
 //Interpret choc.DIV(attr, chld) as choc("DIV", attr, chld)
 //This is basically what Python would do as choc.__getattr__()
