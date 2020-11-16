@@ -128,9 +128,9 @@ export function fix_dialogs(cfg) {
 		if (!dlg.showModal) {
 			dlg.showModal = function() {this.style.display = "block";}
 			dlg.close = function(ret) {
-				if (ret) e.match.returnValue = ret;
+				if (ret) this.returnValue = ret;
 				this.style.removeProperty("display");
-				e.match.dispatchEvent(new CustomEvent("close", {bubbles: true}));
+				this.dispatchEvent(new CustomEvent("close", {bubbles: true}));
 			};
 			need_button_fix = true;
 		}
