@@ -1,4 +1,4 @@
-/* Chocolate Factory v0.4
+/* Chocolate Factory v0.4.1
 
 DOM object builder. (Thanks to DeviCat for the name!)
 
@@ -140,9 +140,9 @@ export function fix_dialogs(cfg) {
 	//Ideally, I'd like to feature-detect whether form[method=dialog] actually
 	//works, and do this if it doesn't. New in Choc Factory 0.4.
 	if (navigator.userAgent.includes("Firefox")) {
-		on("click", 'form[method="dialog"] button', e => {
+		on("click", 'dialog form[method="dialog"] button', e => {
 			e.match.form.returnValue = e.match.value;
-			e.match.form.close();
+			e.match.closest("dialog").close();
 			e.preventDefault();
 		});
 	}
@@ -161,7 +161,7 @@ let choc = function(tag, attributes, children) {
 	if (children) set_content(ret, children);
 	return ret;
 }
-choc.__version__ = "0.4";
+choc.__version__ = "0.4.1";
 
 //Interpret choc.DIV(attr, chld) as choc("DIV", attr, chld)
 //This is basically what Python would do as choc.__getattr__()
