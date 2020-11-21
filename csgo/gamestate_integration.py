@@ -137,6 +137,11 @@ def toggle_money(state):
 	show_money = state == "Rosuav"
 	# logging.log(28, "Watching: %r", state)
 
+def playing_phase(data):
+	# If we're spectating, "spec", otherwise the current map phase.
+	if "allplayers" in data: return "spec"
+	return data.get("map", {}).get("phase", "idle")
+
 def current_round_only_if_spectating(data):
 	# Yeah it's a bit weird. Return the current round number IF we are
 	# currently spectating a competitive match, otherwise None.
@@ -201,7 +206,7 @@ configs = {
 		"competitive": "buy hegrenade; buy smokegrenade; buy flashbang; buy molotov",
 		handler: "file"
 	},
-	("map", "phase"): {
+	playing_phase: {
 		"warmup": "playing",
 		"live": "playing",
 		"gameover": "screencap",
