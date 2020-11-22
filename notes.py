@@ -56,7 +56,7 @@ def take_notes(*, desc, new_match=False, **extra):
 		silence_pyaudio()
 		recog = sr.Recognizer()
 		recognizer_instance.dynamic_energy_threshold = False
-		recog.energy_threshold = 25 # My microphone is very good. It doesn't pick up much background.
+		recog.energy_threshold = 50 # My microphone is very good. It doesn't pick up much background.
 
 	# Can I increase the gain at all?
 	with sr.Microphone() as source:
