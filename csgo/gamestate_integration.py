@@ -34,12 +34,10 @@ def toggle_music(state):
 		data += cur
 	sock.close()
 
-screencap_ffmpeg = None
 def screencap():
-	global screencap_ffmpeg
 	# There'll be 15 seconds (interval) or 25 seconds (game over) of scoreboard.
-	# Screencap it and make an animation.
-	# If the scoreboard is up, take a series of screenshots.
+	# Screencap it (rounding up to 30s for safety) and make an animation.
+	# Thus whenever the scoreboard is up, we take a series of screenshots.
 	# Find CS:GO window: wmctrl -lG|grep Counter-Strike
 	# ffmpeg -video_size 1920x1080 -framerate 3 -f x11grab -i :0.0+1920,0 -c copy scoreboard.mkv
 	# Attach these to the last notes. Ideally, take a few frames a second, but play them back slower.
@@ -69,11 +67,12 @@ def screencap():
 	except (FileNotFoundError, ValueError):
 		return # No notes to attach to
 	try:
-		screencap_ffmpeg = subprocess.Popen(["ffmpeg", "-y",
+		subprocess.Popen(["ffmpeg", "-y",
 			"-loglevel", "quiet",
 			"-video_size", w + "x" + h,
 			"-framerate", "2",
 			"-f", "x11grab", "-i", f"{os.environ['DISPLAY']}+{x},{y}",
+			"-t", "30",
 			block + fn,
 		], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 	except FileNotFoundError:
@@ -106,13 +105,11 @@ def mode_switch(mode):
 	if last_mode == mode: return
 	last_mode = mode
 	logging.log(25, "Setting mode to %s", mode)
-	global screencap_ffmpeg
 	if mode == "screencap":
+		# Fire-and-forget the screencapping. Once triggered, this won't untrigger
+		# until we've seen something different, so it's unlikely we'll spam the
+		# notes collection.
 		screencap()
-	elif screencap_ffmpeg is not None:
-		logging.log(25, "Terminating screencap")
-		screencap_ffmpeg.send_signal(2)
-		screencap_ffmpeg = None
 
 	# Manage whether or not the note taker is listening for a global hotkey
 	# NOTE: This autoconfiguration may require env var DBUS_SESSION_BUS_ADDRESS to
