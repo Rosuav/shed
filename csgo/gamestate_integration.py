@@ -3,6 +3,7 @@ import json
 import os
 import socket
 import subprocess
+import threading
 import re
 import requests
 from flask import Flask, request # ImportError? Try "pip install flask".
@@ -67,7 +68,7 @@ def screencap():
 	except (FileNotFoundError, ValueError):
 		return # No notes to attach to
 	try:
-		subprocess.Popen(["ffmpeg", "-y",
+		proc = subprocess.Popen(["ffmpeg", "-y",
 			"-loglevel", "quiet",
 			"-video_size", w + "x" + h,
 			"-framerate", "2",
@@ -78,22 +79,24 @@ def screencap():
 	except FileNotFoundError:
 		return # No FFMPEG
 	logging.log(25, "Screencapping into %s", fn)
+	def wait():
+		proc.wait()
+		# Largely duplicated from notes.py
+		try:
+			with open(block + "/metadata.json") as f: meta = json.load(f)
+		except (FileNotFoundError, json.decoder.JSONDecodeError): meta = {}
+		if "recordings" not in meta: meta["recordings"] = []
+		meta["recordings"].append({
+			"id": note_id,
+			"filename": fn,
+			"type": "video",
+		})
+		with open(block + "/metadata.json", "w") as f:
+			json.dump(meta, f, sort_keys=True, indent=2)
 
-	# Largely duplicated from notes.py
-	try:
-		with open(block + "/metadata.json") as f: meta = json.load(f)
-	except (FileNotFoundError, json.decoder.JSONDecodeError): meta = {}
-	if "recordings" not in meta: meta["recordings"] = []
-	meta["recordings"].append({
-		"id": note_id,
-		"filename": fn,
-		"type": "video",
-	})
-	with open(block + "/metadata.json", "w") as f:
-		json.dump(meta, f, sort_keys=True, indent=2)
-
-	# Signal the GSI server to load new metadata, if appropriate
-	requests.post("http://localhost:27013/metadata/" + last_block, json=meta)
+		# Signal the GSI server to load new metadata, if appropriate
+		requests.post("http://localhost:27013/metadata/" + last_block, json=meta)
+	threading.Thread(target=wait).start()
 
 last_mode = None
 def mode_switch(mode):
