@@ -64,6 +64,7 @@ mapping(string:multiset(string)) permap_uninteresting = ([
 	"blacksite": (<"Bridge", "Cove", "Trench", "Hatch", "Forest", "Canyon", "Overlook", "Boardwalk", "Docks", "Crane">),
 	"sirocco": (<"Catwalk", "Pumps", "Dome", "Fishing">),
 	"junglety": (<"APC", "Bridge">),
+	"frostbite": (<"Tower One", "Canyon">),
 ]);
 multiset uninteresting = (< >);
 array locations, drawme;

@@ -10,6 +10,8 @@ As of 2020-02-05, the three maps available in CS:GO's Danger Zone are:
 * Junglety - created by community mapper michal3210. Formerly had only 300ish
   loot spawns, which caused some small problems for the map; see [Feb 2020 Jungle Update](jungle202002)
   and the subsequent [Apr 2020 Jungle Update](jungle202004).
+* Frostbite - introduced in the Dec 2020 update along with Operation Broken
+  Fang, and unlike Junglety, was launched with over 500 loot spawns.
 
 In order to analyze the loot distribution, I created a quick dump of all the
 loot spawns and the map named locations. This was done using [this code](https://github.com/Rosuav/TF2BuffBot/blob/3d8fc6a/drzed.sp#L1695-L1726)
@@ -31,3 +33,7 @@ are a little arbitrary. Feel free to redefine this.
 ---
 
 ![Junglety](dz_junglety_annotated.png)
+
+---
+
+![Frostbite](dz_frostbite_annotated.png)
