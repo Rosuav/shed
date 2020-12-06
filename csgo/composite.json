@@ -50,7 +50,7 @@
 		"clan": "unfrag||Rosbot||Walmart NM||Dejieatskfc||Mrs.Taglieri||ESL CS||IM BAD! \u27a3||Nzerowi||.fulltilt||M A K \u0130 N E||SALAMALYKUM"
 	},
 	"map": {
-		"mode": "competitive||gungameprogressive||deathmatch||casual||cooperative||survival",
+		"mode": "competitive||gungameprogressive||deathmatch||casual||cooperative||survival||coopmission",
 		"name": "de_dust2||de_inferno||de_nuke||cs_italy||de_aztec||workshop/2126168252/de_dust2||ar_lunacy||de_lake||de_safehouse",
 		"phase": "live||warmup||intermission||gameover",
 		"round": 0,
