@@ -10,6 +10,8 @@ import requests
 import speech_recognition as sr
 
 TRIGGER_SOCKET = "/tmp/stenographer"
+NOTES_DIR = os.path.expanduser(os.environ.get("NOTES_DIR", "~/tmp/notes"))
+os.makedirs(NOTES_DIR, exist_ok=True)
 
 # Get rid of the ALSA warnings by preloading it with stderr muted
 def silence_pyaudio():
@@ -24,20 +26,17 @@ def silence_pyaudio():
 		os.dup2(old_stderr, 2)
 		os.close(old_stderr)
 
+def safe_int(n):
+	"""Sort key for probably-numeric strings
+
+	Sorts unparseable strings first in lexicographical order, then
+	everything that intifies in numerical order.
+	"""
+	try: return (1, int(n))
+	except (ValueError, TypeError): return (0, n)
+
 recog = None
 def take_notes(*, desc, new_match=False, **extra):
-	NOTES_DIR = os.path.expanduser(os.environ.get("NOTES_DIR", "~/tmp/notes"))
-	os.makedirs(NOTES_DIR, exist_ok=True)
-
-	def safe_int(n):
-		"""Sort key for probably-numeric strings
-
-		Sorts unparseable strings first in lexicographical order, then
-		everything that intifies in numerical order.
-		"""
-		try: return (1, int(n))
-		except (ValueError, TypeError): return (0, n)
-
 	blocks = sorted(os.listdir(NOTES_DIR), key=safe_int)
 
 	try: int(blocks[-1])
