@@ -4,7 +4,9 @@ import os.path
 import sys
 import json
 import socket
+import functools
 import threading
+import traceback
 import time
 import requests
 import speech_recognition as sr
@@ -26,6 +28,17 @@ def silence_pyaudio():
 		os.dup2(old_stderr, 2)
 		os.close(old_stderr)
 
+def log_errors(f):
+	@functools.wraps(f)
+	def inner(*a, **kw):
+		try:
+			f(*a, **kw)
+		except:
+			with open(NOTES_DIR + "/notes.err", "a") as err:
+				traceback.print_exc(file=err)
+			raise
+	return inner
+
 def safe_int(n):
 	"""Sort key for probably-numeric strings
 
@@ -36,6 +49,7 @@ def safe_int(n):
 	except (ValueError, TypeError): return (0, n)
 
 recog = None
+@log_errors
 def take_notes(*, desc, new_match=False, **extra):
 	blocks = sorted(os.listdir(NOTES_DIR), key=safe_int)
 
