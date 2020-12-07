@@ -7,6 +7,7 @@ import socket
 import functools
 import threading
 import traceback
+import subprocess
 import time
 import requests
 import speech_recognition as sr
@@ -70,6 +71,10 @@ def take_notes(*, desc, new_match=False, **extra):
 		recog = sr.Recognizer()
 		recog.dynamic_energy_threshold = False
 		recog.energy_threshold = 50 # My microphone is very good. It doesn't pick up much background.
+		if os.stat(NOTES_DIR + "/listening.wav"):
+			# Provide a notification tone. This one works well and is licensed CC0:
+			# https://freesound.org/people/YourFriendJesse/sounds/235911/
+			subprocess.run(["paplay", NOTES_DIR + "/listening.wav", "--volume=24576"])
 
 	# Can I increase the gain at all?
 	with sr.Microphone() as source:
