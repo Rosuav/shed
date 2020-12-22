@@ -73,7 +73,7 @@ def screencap():
 			"-video_size", w + "x" + h,
 			"-framerate", "2",
 			"-f", "x11grab", "-i", f"{os.environ['DISPLAY']}+{x},{y}",
-			"-t", "30",
+			"-t", "40",
 			block + fn,
 		], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 	except FileNotFoundError:
