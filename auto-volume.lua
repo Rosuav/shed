@@ -1,5 +1,4 @@
 -- Install by symlinking into ~/.local/share/vlc/lua/extensions or equivalent
--- Will require the corresponding volume detection Python script to be running.
 
 function descriptor()
 	return { 
