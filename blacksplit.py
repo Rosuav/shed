@@ -11,8 +11,8 @@ INPUT=/path/to/inputfile.mkv
 # Optional picture blackness threshold (a frame is black if this many
 # of its pixels are considered black)
 # picture_black_ratio_th=0.98
-# Optional blackness duration to define a segment. Once we have this
-# much blackness, we count a new segment. Default of 2.0 is too long.
+# Optional blackness duration to define a segment. Once we have this much
+# blackness, we count a new segment. The default (2.0) is usually too long.
 black_min_duration=0.25
 
 # After this are all the chapter definitions.
@@ -30,16 +30,46 @@ OUTPUT=2,chapter2.mkv
 # (and possibly merge some if necessary).
 """
 
+# Abuse of __doc__ :)
+class BadScriptFile(Exception): "Unknown error (shouldn't happen)" 
+class UnknownDirective(BadScriptFile): "Unrecognized directive %r on line %d"
+class MissingInput(BadScriptFile): "No INPUT=filename found"
+# TODO: Bad OUTPUT directive
+
 def black_split(script, append_unknowns):
-	...
+	cfg = {
+		"INPUT": None, # Must be specified
+		"pixel_black_th": "0.10", # Same defaults as ffmpeg uses
+		"picture_black_ratio_th": "0.98",
+		"black_min_duration": "2.0",
+	}
+	outputs = []
+
+	with open(script) as f:
+		for pos, line in enumerate(f, 1):
+			line = line.split("#")[0].strip() # yeah it's naive, no quoting of hashes
+			if not line: continue
+			if "=" in line:
+				key, val = line.split("=", 1)
+				if key in cfg: cfg[key] = val
+				elif key == "OUTPUT": outputs.append(val)
+				else: raise UnknownDirective(line, pos)
+	if cfg["INPUT"] is None: raise MissingInput
+	print(cfg)
+	print(outputs)
+	# ffprobe -f lavfi -i "movie="+fn+",blackdetect=d=0.25:pix_th=0.1[out0]" -show_entries tags=lavfi.black_start,lavfi.black_end -of default=nw=1 -v quiet
 
 if __name__ == "__main__":
 	import sys
 	append = "--append" in sys.argv
-	args = [a for a in sys.argv[1:] if not a.startslike("--")]
+	args = [a for a in sys.argv[1:] if not a.startswith("--")]
 	if "--help" in sys.argv or not args:
 		print("USAGE: python3 %s scriptfile" % sys.argv[0])
 		print("For scriptfile format, see docstring")
 		sys.exit(0)
 	for fn in args:
-		black_split(fn, append)
+		try:
+			black_split(fn, append)
+		except BadScriptFile as e:
+			print(e.__doc__ % e.args)
+			break
