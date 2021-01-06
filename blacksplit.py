@@ -41,12 +41,14 @@ OUTPUT=2,chapter2.mkv
 # (and possibly merge some if necessary).
 """
 import json
+import os
 import subprocess
 
 # Abuse of __doc__ :)
 class BadScriptFile(Exception): "Unknown error (shouldn't happen)" 
 class UnknownDirective(BadScriptFile): "Unrecognized directive %r on line %d"
 class MissingInput(BadScriptFile): "No INPUT=filename found"
+class BadInput(BadScriptFile): "Input file not found - %r on line %d"
 class BadOutput(BadScriptFile): "Invalid OUTPUT directive %r on line %d"
 
 def human_time(s):
@@ -58,7 +60,6 @@ def human_time(s):
 
 def black_split(script, append_unknowns):
 	cfg = {
-		"INPUT": None, # Must be specified
 		"pixel_black_th": "0.10", # Same defaults as ffmpeg uses
 		"picture_black_ratio_th": "0.98",
 		"black_min_duration": "2.0",
@@ -66,7 +67,7 @@ def black_split(script, append_unknowns):
 		"first_track": "1",
 		"output_format": "{n:02d} - {desc}",
 	}
-	outputs = []
+	inputs, outputs = [], []
 
 	with open(script) as f:
 		for pos, line in enumerate(f, 1):
@@ -75,6 +76,10 @@ def black_split(script, append_unknowns):
 			if "=" in line:
 				key, val = line.split("=", 1)
 				if key in cfg: cfg[key] = val
+				elif key == "INPUT":
+					try: os.stat(val)
+					except FileNotFoundError: raise BadInput(val, pos) from None
+					inputs.append(val)
 				elif key == "OUTPUT":
 					if "," not in val: raise BadOutput(line, pos)
 					count, fn = val.split(",", 1)
@@ -85,7 +90,7 @@ def black_split(script, append_unknowns):
 					outputs.extend([...] * (count - 1))
 					outputs.append(fn)
 				else: raise UnknownDirective(line, pos)
-	if cfg["INPUT"] is None: raise MissingInput
+	if not inputs: raise MissingInput
 	min_black = float(cfg["black_min_duration"]) # ValueError if bad duration format
 	bdparams = ":".join(f"{k}={cfg[k]}" for k in "pixel_black_th picture_black_ratio_th black_min_duration".split())
 	cache = { }
@@ -96,66 +101,67 @@ def black_split(script, append_unknowns):
 			if not isinstance(cache, dict): cache = { }
 		except FileNotFoundError:
 			pass
-	cache_key = "%r-%r" % (cfg["INPUT"], bdparams)
-	if cache_key not in cache:
-		print("Finding blackness...") # Hello, blackness, my old... friend??
-		with subprocess.Popen([
-			"ffprobe", "-f", "lavfi",
-			"-i", f"movie={cfg['INPUT']},blackdetect={bdparams}[out0]",
-			"-show_entries", "tags=lavfi.black_start,lavfi.black_end",
-			"-of", "default=nw=1", "-hide_banner",
-		], stdout=subprocess.PIPE, text=True) as proc:
-			cache[cache_key] = []
-			for line in proc.stdout:
-				# TODO: Provide some sort of progress indication?
-				# It'd be jerky (emitting only when a blackness is
-				# found), but better than nothing.
-				cache[cache_key].append(line.rstrip("\n"))
-		if cfg["cache_file"]:
-			with open(cfg["cache_file"], "w") as f:
-				json.dump(cache, f, sort_keys=True, indent=4)
-			print("Saved to cache for next time.")
-	last_start = last_end = None
-	last_end = 0.0
-	output_idx = 0
 	file_no = int(cfg["first_track"])
-	for line in cache[cache_key]:
-		if "=" not in line: continue
-		key, val = line.split("=", 1)
-		# NOTE: The lines sometimes appear to be duplicated. Don't get thrown off by this.
-		if key == "TAG:lavfi.black_start": last_start = float(val)
-		if key == "TAG:lavfi.black_end" and last_start is not None:
-			start, end, last_start = last_start, float(val), None
-			if end - start < min_black: continue
-			output_idx += 1 # Using 1-based indexing for human convenience
-			# NOTE: The "start" and "end" are of the blackness. A chapter runs from
-			# last_end to start, spanning the time of non-blackness between the black.
-			if output_idx > len(outputs):
-				fr, to, dur = human_time(last_end), human_time(start), human_time(start - last_end)
-				if append_unknowns:
-					with open(script, "a") as f:
-						print("# Chapter %d: from %s to %s ==> %s" % (output_idx, fr, to, dur), file=f)
-						print("OUTPUT=1,--", file=f)
-				print("New chapter: from %s to %s, %s" % (fr, to, dur))
+	for inputfile in inputs:
+		cache_key = "%r-%r" % (inputfile, bdparams)
+		if cache_key not in cache:
+			print("Finding blackness...") # Hello, blackness, my old... friend??
+			with subprocess.Popen([
+				"ffprobe", "-f", "lavfi",
+				"-i", f"movie={inputfile},blackdetect={bdparams}[out0]",
+				"-show_entries", "tags=lavfi.black_start,lavfi.black_end",
+				"-of", "default=nw=1", "-hide_banner",
+			], stdout=subprocess.PIPE, text=True) as proc:
+				cache[cache_key] = []
+				for line in proc.stdout:
+					# TODO: Provide some sort of progress indication?
+					# It'd be jerky (emitting only when a blackness is
+					# found), but better than nothing.
+					cache[cache_key].append(line.rstrip("\n"))
+			if cfg["cache_file"]:
+				with open(cfg["cache_file"], "w") as f:
+					json.dump(cache, f, sort_keys=True, indent=4)
+				print("Saved to cache for next time.")
+		last_start = last_end = None
+		last_end = 0.0
+		output_idx = 0
+		for line in cache[cache_key]:
+			if "=" not in line: continue
+			key, val = line.split("=", 1)
+			# NOTE: The lines sometimes appear to be duplicated. Don't get thrown off by this.
+			if key == "TAG:lavfi.black_start": last_start = float(val)
+			if key == "TAG:lavfi.black_end" and last_start is not None:
+				start, end, last_start = last_start, float(val), None
+				if end - start < min_black: continue
+				output_idx += 1 # Using 1-based indexing for human convenience
+				# NOTE: The "start" and "end" are of the blackness. A chapter runs from
+				# last_end to start, spanning the time of non-blackness between the black.
+				if output_idx > len(outputs):
+					fr, to, dur = human_time(last_end), human_time(start), human_time(start - last_end)
+					if append_unknowns:
+						with open(script, "a") as f:
+							print("# Chapter %d: from %s to %s ==> %s" % (output_idx, fr, to, dur), file=f)
+							print("OUTPUT=1,--", file=f)
+					print("New chapter: from %s to %s, %s" % (fr, to, dur))
+					last_end = end
+					continue
+				output = outputs[output_idx - 1]
+				if output is ...:
+					# Continue this into the next one.
+					# That's actually quite simple; we just don't change last_end,
+					# meaning that the start of the next block will include this.
+					continue
+				if output != "--": # An output of "--" means no file to create
+					output = cfg["output_format"].format(n=file_no, desc=output)
+					print("Creating:", output)
+					file_no += 1
+					subprocess.run([
+						"ffmpeg", "-i", inputfile,
+						"-ss", str(last_end), "-t", str(start - last_end),
+						"-c", "copy", output,
+						"-y", "-loglevel", "quiet", "-stats",
+					], check=True)
 				last_end = end
-				continue
-			output = outputs[output_idx - 1]
-			if output is ...:
-				# Continue this into the next one.
-				# That's actually quite simple; we just don't change last_end,
-				# meaning that the start of the next block will include this.
-				continue
-			if output != "--": # An output of "--" means no file to create
-				output = cfg["output_format"].format(n=file_no, desc=output)
-				print("Creating:", output)
-				file_no += 1
-				subprocess.run([
-					"ffmpeg", "-i", cfg["INPUT"],
-					"-ss", str(last_end), "-t", str(start - last_end),
-					"-c", "copy", output,
-					"-y", "-loglevel", "quiet", "-stats",
-				], check=True)
-			last_end = end
 	print("To chain another file:")
 	print("first_track=%d" % file_no)
 
