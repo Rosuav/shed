@@ -109,6 +109,8 @@ def black_split(script, append_unknowns):
 			start, end, last_start = last_start, float(val), None
 			if end - start < min_black: continue
 			output_idx += 1 # Using 1-based indexing for human convenience
+			# NOTE: The "start" and "end" are of the blackness. A chapter runs from
+			# last_end to start, spanning the time of non-blackness between the black.
 			if output_idx >= len(outputs):
 				fr, to, dur = human_time(last_end), human_time(start), human_time(start - last_end)
 				if append_unknowns:
