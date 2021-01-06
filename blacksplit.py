@@ -16,7 +16,15 @@ INPUT=/path/to/inputfile.mkv
 black_min_duration=0.25
 # Rather than reprobe the file repeatedly, save the ffprobe result to a file.
 # If any of the blackdetect parameters change, the cache will be discarded.
+# Note that the cache file can store data from multiple input files and/or
+# multiple blackness detection schemes independently.
 cache_file=some_file.json
+# Create output file names with a pattern for convenience. Use {n} for the
+# file name (numbered from 1 with the first output that isn't "--"), and
+# the description given on the output line is {desc}.
+# output_format={n:02d} - {desc}
+# Numbering for the output file names starts at this index:
+# first_track=1
 
 # After this are all the chapter definitions.
 
@@ -56,6 +64,8 @@ def black_split(script, append_unknowns):
 		"picture_black_ratio_th": "0.98",
 		"black_min_duration": "2.0",
 		"cache_file": None,
+		"first_track": "1",
+		"output_format": "{n:02d} - {desc}",
 	}
 	outputs = []
 
@@ -87,7 +97,8 @@ def black_split(script, append_unknowns):
 			if not isinstance(cache, dict): cache = { }
 		except FileNotFoundError:
 			pass
-	if bdparams not in cache:
+	cache_key = "%r-%r" % (cfg["INPUT"], bdparams)
+	if cache_key not in cache:
 		print("Finding blackness...") # Hello, blackness, my old... friend??
 		with subprocess.Popen([
 			"ffprobe", "-f", "lavfi",
@@ -95,12 +106,12 @@ def black_split(script, append_unknowns):
 			"-show_entries", "tags=lavfi.black_start,lavfi.black_end",
 			"-of", "default=nw=1", "-hide_banner",
 		], stdout=subprocess.PIPE, text=True) as proc:
-			cache[bdparams] = []
+			cache[cache_key] = []
 			for line in proc.stdout:
 				# TODO: Provide some sort of progress indication?
 				# It'd be jerky (emitting only when a blackness is
 				# found), but better than nothing.
-				cache[bdparams].append(line.rstrip("\n"))
+				cache[cache_key].append(line.rstrip("\n"))
 		if cfg["cache_file"]:
 			with open(cfg["cache_file"], "w") as f:
 				json.dump(cache, f, sort_keys=True, indent=4)
@@ -108,7 +119,8 @@ def black_split(script, append_unknowns):
 	last_start = last_end = None
 	last_end = 0.0
 	output_idx = 0
-	for line in cache[bdparams]:
+	file_no = int(cfg["first_track"])
+	for line in cache[cache_key]:
 		if "=" not in line: continue
 		key, val = line.split("=", 1)
 		# NOTE: The lines sometimes appear to be duplicated. Don't get thrown off by this.
@@ -125,7 +137,7 @@ def black_split(script, append_unknowns):
 					with open(script, "a") as f:
 						print("# Chapter %d: from %s to %s ==> %s" % (output_idx, fr, to, dur), file=f)
 						print("OUTPUT=1,--", file=f)
-				print("Next chapter: from %s to %s, %s" % (fr, to, dur))
+				print("New chapter: from %s to %s, %s" % (fr, to, dur))
 				last_end = end
 				continue
 			output = outputs[output_idx - 1]
@@ -134,9 +146,19 @@ def black_split(script, append_unknowns):
 				# That's actually quite simple; we just don't change last_end,
 				# meaning that the start of the next block will include this.
 				continue
-			print("Taking chapter from %s to %s" % (human_time(last_end), human_time(start)))
-			print("Output to %s" % output)
+			if output != "--": # An output of "--" means no file to create
+				output = cfg["output_format"].format(n=file_no, desc=output)
+				print("Creating:", output)
+				file_no += 1
+				subprocess.run([
+					"ffmpeg", "-i", cfg["INPUT"],
+					"-ss", str(last_end), "-t", str(start - last_end),
+					"-c", "copy", output,
+					"-y", "-loglevel", "quiet", "-stats",
+				], check=True)
 			last_end = end
+	print("To chain another file:")
+	print("first_track=%d" % file_no)
 
 if __name__ == "__main__":
 	import sys
