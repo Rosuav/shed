@@ -125,6 +125,7 @@ def black_split(script, append_unknowns):
 		last_start = last_end = None
 		last_end = 0.0
 		output_idx = 0
+		append_desc = "# %s:\n" % inputfile
 		for line in cache[cache_key]:
 			if "=" not in line: continue
 			key, val = line.split("=", 1)
@@ -140,8 +141,10 @@ def black_split(script, append_unknowns):
 					fr, to, dur = human_time(last_end), human_time(start), human_time(start - last_end)
 					if append_unknowns:
 						with open(script, "a") as f:
-							print("# Chapter %d: from %s to %s ==> %s" % (output_idx, fr, to, dur), file=f)
+							print("%s# Chapter %d: from %s to %s ==> %s" %
+								(append_desc, output_idx, fr, to, dur), file=f)
 							print("OUTPUT=1,--", file=f)
+							append_desc = ""
 					print("New chapter: from %s to %s, %s" % (fr, to, dur))
 					last_end = end
 					continue
