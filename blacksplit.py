@@ -39,7 +39,7 @@ import subprocess
 class BadScriptFile(Exception): "Unknown error (shouldn't happen)" 
 class UnknownDirective(BadScriptFile): "Unrecognized directive %r on line %d"
 class MissingInput(BadScriptFile): "No INPUT=filename found"
-# TODO: Bad OUTPUT directive
+class BadOutput(BadScriptFile): "Invalid OUTPUT directive %r on line %d"
 
 def human_time(s):
 	"""Convert floating-point seconds into human-readable time"""
@@ -66,7 +66,15 @@ def black_split(script, append_unknowns):
 			if "=" in line:
 				key, val = line.split("=", 1)
 				if key in cfg: cfg[key] = val
-				elif key == "OUTPUT": outputs.append(val)
+				elif key == "OUTPUT":
+					if "," not in val: raise BadOutput(line, pos)
+					count, fn = val.split(",", 1)
+					try: count = int(count)
+					except ValueError: raise BadOutput(line, pos)
+					if count < 1: raise BadOutput(line, pos)
+					# If count is 3, add two Ellipsis entries and then the file name
+					outputs.extend([...] * (count - 1))
+					outputs.append(fn)
 				else: raise UnknownDirective(line, pos)
 	if cfg["INPUT"] is None: raise MissingInput
 	min_black = float(cfg["black_min_duration"]) # ValueError if bad duration format
@@ -111,15 +119,23 @@ def black_split(script, append_unknowns):
 			output_idx += 1 # Using 1-based indexing for human convenience
 			# NOTE: The "start" and "end" are of the blackness. A chapter runs from
 			# last_end to start, spanning the time of non-blackness between the black.
-			if output_idx >= len(outputs):
+			if output_idx > len(outputs):
 				fr, to, dur = human_time(last_end), human_time(start), human_time(start - last_end)
 				if append_unknowns:
 					with open(script, "a") as f:
 						print("# Chapter %d: from %s to %s ==> %s" % (output_idx, fr, to, dur), file=f)
 						print("OUTPUT=1,--", file=f)
 				print("Next chapter: from %s to %s, %s" % (fr, to, dur))
-			else:
-				output = outputs[output_idx - 1]
+				last_end = end
+				continue
+			output = outputs[output_idx - 1]
+			if output is ...:
+				# Continue this into the next one.
+				# That's actually quite simple; we just don't change last_end,
+				# meaning that the start of the next block will include this.
+				continue
+			print("Taking chapter from %s to %s" % (human_time(last_end), human_time(start)))
+			print("Output to %s" % output)
 			last_end = end
 
 if __name__ == "__main__":
