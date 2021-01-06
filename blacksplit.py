@@ -14,6 +14,9 @@ INPUT=/path/to/inputfile.mkv
 # Optional blackness duration to define a segment. Once we have this much
 # blackness, we count a new segment. The default (2.0) is usually too long.
 black_min_duration=0.25
+# Rather than reprobe the file repeatedly, save the ffprobe result to a file.
+# If any of the blackdetect parameters change, the cache will be discarded.
+cache_file=some_file.json
 
 # After this are all the chapter definitions.
 
@@ -29,6 +32,8 @@ OUTPUT=2,chapter2.mkv
 # and specifying no output; all you have to do is edit the file names
 # (and possibly merge some if necessary).
 """
+import json
+import subprocess
 
 # Abuse of __doc__ :)
 class BadScriptFile(Exception): "Unknown error (shouldn't happen)" 
@@ -42,6 +47,7 @@ def black_split(script, append_unknowns):
 		"pixel_black_th": "0.10", # Same defaults as ffmpeg uses
 		"picture_black_ratio_th": "0.98",
 		"black_min_duration": "2.0",
+		"cache_file": None,
 	}
 	outputs = []
 
@@ -55,9 +61,56 @@ def black_split(script, append_unknowns):
 				elif key == "OUTPUT": outputs.append(val)
 				else: raise UnknownDirective(line, pos)
 	if cfg["INPUT"] is None: raise MissingInput
-	print(cfg)
-	print(outputs)
-	# ffprobe -f lavfi -i "movie="+fn+",blackdetect=d=0.25:pix_th=0.1[out0]" -show_entries tags=lavfi.black_start,lavfi.black_end -of default=nw=1 -v quiet
+	min_black = float(cfg["black_min_duration"]) # ValueError if bad duration format
+	bdparams = ":".join(f"{k}={cfg[k]}" for k in "pixel_black_th picture_black_ratio_th black_min_duration".split())
+	cache = { }
+	if cfg["cache_file"]:
+		try:
+			with open(cfg["cache_file"]) as f:
+				cache = json.load(f)
+			if not isinstance(cache, dict): cache = { }
+		except FileNotFoundError:
+			pass
+	if bdparams not in cache:
+		print("Finding blackness...") # Hello, blackness, my old... friend??
+		with subprocess.Popen([
+			"ffprobe", "-f", "lavfi",
+			"-i", f"movie={cfg['INPUT']},blackdetect={bdparams}[out0]",
+			"-show_entries", "tags=lavfi.black_start,lavfi.black_end",
+			"-of", "default=nw=1", "-hide_banner",
+		], stdout=subprocess.PIPE, text=True) as proc:
+			cache[bdparams] = []
+			for line in proc.stdout:
+				# TODO: Provide some sort of progress indication?
+				# It'd be jerky (emitting only when a blackness is
+				# found), but better than nothing.
+				cache[bdparams].append(line.rstrip("\n"))
+		if cfg["cache_file"]:
+			with open(cfg["cache_file"], "w") as f:
+				json.dump(cache, f, sort_keys=True, indent=4)
+			print("Saved to cache for next time.")
+	last_start = last_end = None
+	end = 0.0
+	output_idx = 0
+	for line in cache[bdparams]:
+		if "=" not in line: continue
+		key, val = line.split("=", 1)
+		# NOTE: The lines sometimes appear to be duplicated. Don't get thrown off by this.
+		if key == "TAG:lavfi.black_start": last_start = float(val)
+		if key == "TAG:lavfi.black_end" and last_start is not None:
+			start, end, last_start, last_end = last_start, float(val), None, end
+			if end - start < min_black: continue
+			print(start, end, end - start)
+			output_idx += 1 # Using 1-based indexing for human convenience
+			if output_idx >= len(outputs):
+				if append_unknowns:
+					with open(script, "a") as f:
+						print("# Chapter %d: from %.3f to %.3f" % (output_idx, last_end, start), file=f)
+						print("OUTPUT=1,--", file=f)
+				print("Next chapter: from %.3f to %.3f" % (last_end, start))
+			else:
+				output = outputs[output_idx - 1]
+				
 
 if __name__ == "__main__":
 	import sys
