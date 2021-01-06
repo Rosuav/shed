@@ -41,6 +41,14 @@ class UnknownDirective(BadScriptFile): "Unrecognized directive %r on line %d"
 class MissingInput(BadScriptFile): "No INPUT=filename found"
 # TODO: Bad OUTPUT directive
 
+def human_time(s):
+	"""Convert floating-point seconds into human-readable time"""
+	m = int(s) / 60
+	sec = "%.3f" % (s % 60)
+	if s < 60.0: return sec
+	if m < 60: return "%d:%s" % (m, sec)
+	return "%d:%02d:%s" % (m // 60, m % 60, sec)
+
 def black_split(script, append_unknowns):
 	cfg = {
 		"INPUT": None, # Must be specified
@@ -90,7 +98,7 @@ def black_split(script, append_unknowns):
 				json.dump(cache, f, sort_keys=True, indent=4)
 			print("Saved to cache for next time.")
 	last_start = last_end = None
-	end = 0.0
+	last_end = 0.0
 	output_idx = 0
 	for line in cache[bdparams]:
 		if "=" not in line: continue
@@ -98,19 +106,19 @@ def black_split(script, append_unknowns):
 		# NOTE: The lines sometimes appear to be duplicated. Don't get thrown off by this.
 		if key == "TAG:lavfi.black_start": last_start = float(val)
 		if key == "TAG:lavfi.black_end" and last_start is not None:
-			start, end, last_start, last_end = last_start, float(val), None, end
+			start, end, last_start = last_start, float(val), None
 			if end - start < min_black: continue
-			print(start, end, end - start)
 			output_idx += 1 # Using 1-based indexing for human convenience
 			if output_idx >= len(outputs):
+				fr, to, dur = human_time(last_end), human_time(start), human_time(start - last_end)
 				if append_unknowns:
 					with open(script, "a") as f:
-						print("# Chapter %d: from %.3f to %.3f" % (output_idx, last_end, start), file=f)
+						print("# Chapter %d: from %s to %s ==> %s" % (output_idx, fr, to, dur), file=f)
 						print("OUTPUT=1,--", file=f)
-				print("Next chapter: from %.3f to %.3f" % (last_end, start))
+				print("Next chapter: from %s to %s, %s" % (fr, to, dur))
 			else:
 				output = outputs[output_idx - 1]
-				
+			last_end = end
 
 if __name__ == "__main__":
 	import sys
