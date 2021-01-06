@@ -51,11 +51,10 @@ class BadOutput(BadScriptFile): "Invalid OUTPUT directive %r on line %d"
 
 def human_time(s):
 	"""Convert floating-point seconds into human-readable time"""
+	if s < 60.0: return "%.3f" % s
 	m = int(s) / 60
-	sec = "%.3f" % (s % 60)
-	if s < 60.0: return sec
-	if m < 60: return "%d:%s" % (m, sec)
-	return "%d:%02d:%s" % (m // 60, m % 60, sec)
+	if m < 60: return "%d:%06.3f" % (m, s % 60)
+	return "%d:%02d:%06.3f" % (m // 60, m % 60, s % 60)
 
 def black_split(script, append_unknowns):
 	cfg = {
