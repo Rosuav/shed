@@ -102,6 +102,7 @@ def black_split(script, append_unknowns):
 		except FileNotFoundError:
 			pass
 	file_no = int(cfg["first_track"])
+	output_idx = 0
 	for inputfile in inputs:
 		cache_key = "%r-%r" % (inputfile, bdparams)
 		if cache_key not in cache:
@@ -124,8 +125,7 @@ def black_split(script, append_unknowns):
 				print("Saved to cache for next time.")
 		last_start = last_end = None
 		last_end = 0.0
-		output_idx = 0
-		append_desc = "# %s:\n" % inputfile
+		append_desc = "\n# %s:\n" % inputfile
 		for line in cache[cache_key]:
 			if "=" not in line: continue
 			key, val = line.split("=", 1)
