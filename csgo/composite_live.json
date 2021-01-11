@@ -1,7 +1,7 @@
 {
 	"map": {
 		"mode": "competitive",
-		"name": "de_dust2||de_inferno||de_nuke||cs_italy||de_aztec||dz_frostbite",
+		"name": "de_dust2||de_inferno||de_nuke||cs_italy||de_aztec||dz_frostbite||cs_agency",
 		"phase": "warmup||live||intermission||gameover",
 		"round": 0,
 		"team_ct": {
