@@ -1,4 +1,4 @@
-/* Chocolate Factory v0.4.2
+/* Chocolate Factory v0.4.3
 
 DOM object builder. (Thanks to DeviCat for the name!)
 
@@ -143,6 +143,10 @@ export function fix_dialogs(cfg) {
 		e.preventDefault();
 	});
 	if (cfg.click_outside) on("click", "dialog", e => {
+		//NOTE: Sometimes, clicking on a <select> will give spurious clientX/clientY
+		//values. Since clicking outside is always going to send the message directly
+		//to the dialog (not to one of its children), check for that case.
+		if (e.match !== e.target) return;
 		let rect = e.match.getBoundingClientRect();
 		if (e.clientY < rect.top || e.clientY > rect.top + rect.height
 				|| e.clientX < rect.left || e.clientX > rect.left + rect.width)
@@ -167,7 +171,7 @@ let choc = function(tag, attributes, children) {
 	if (children) set_content(ret, children);
 	return ret;
 }
-choc.__version__ = "0.4.2";
+choc.__version__ = "0.4.3";
 
 //Interpret choc.DIV(attr, chld) as choc("DIV", attr, chld)
 //This is basically what Python would do as choc.__getattr__()
