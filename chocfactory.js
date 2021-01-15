@@ -1,4 +1,4 @@
-/* Chocolate Factory v0.4.3
+/* Chocolate Factory v0.4.4
 
 DOM object builder. (Thanks to DeviCat for the name!)
 
@@ -166,12 +166,14 @@ let choc = function(tag, attributes, children) {
 	if (attributes) for (let attr in attributes) {
 		if (attr.startsWith("data-")) //Simplistic - we don't transform "data-foo-bar" into "fooBar" per HTML.
 			ret.dataset[attr.slice(5)] = attributes[attr];
+		else if (attr === "form") //Setting the form attribute on an element has to be done differently.
+			ret.setAttribute("form", attributes[attr]);
 		else ret[attr] = attributes[attr];
 	}
 	if (children) set_content(ret, children);
 	return ret;
 }
-choc.__version__ = "0.4.3";
+choc.__version__ = "0.4.4";
 
 //Interpret choc.DIV(attr, chld) as choc("DIV", attr, chld)
 //This is basically what Python would do as choc.__getattr__()
