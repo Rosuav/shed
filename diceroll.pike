@@ -21,6 +21,13 @@ constant tests = #"
 #roll 8d7/10 + 5d7/10/10
 #roll stats
 #roll stats 6/7 3/4d6
+#roll alias greatsword 2d6 +1 ench +3 STR +1d6 Flame
+roll test
+roll test 20
+roll test 20 10000
+roll cheat d20 + 3
+roll cheat
+roll eyes
 ";
 
 mapping tagonly(string tag) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": tag])})]);} //Magically get it from the charsheet eg "roll init"
@@ -39,11 +46,12 @@ mapping pluscharsheet(mapping dice, string sign, string ... tag) {return plusrol
 mapping rollmode(string mode, string|void _, string|void arg) {return (["tag": arg || "", "fmt": mode]);}
 mapping addflag(string flag, string _, mapping dice) {return dice | ([flag: 1]);}
 mapping addflagval(string flag, string _1, string val, string _2, mapping dice) {return dice | ([flag: val]);}
+mapping testroll(string mode, string _1, string max, string _2, string avg) {return (["fmt": mode, "max": (int)(max || 20), "avg": (int)(avg || 10000)]);}
 //These words, if at the start of a dice roll, will be treated as keywords. Anywhere
 //else, they're just words. It means that "roll quiet d20" is easier to distinguish
 //from "roll floof + 20", although technically there's no situation in which it would
 //actually be ambiguous.
-multiset(string) leadwords = (multiset)("quiet shield table note as" / " ");
+multiset(string) leadwords = (multiset)("quiet shield table note as cheat uncheat test eyes" / " ");
 
 int main(int argc, array(string) argv) {
 	Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("diceroll.grammar");
@@ -74,9 +82,12 @@ int main(int argc, array(string) argv) {
 		string|array shownext() {string lead = diceroll[..8]; mixed ret = next(); write("%O ==>%{ %O%}\n", lead, Array.arrayify(ret)); return ret;}
 		write("************\n%s\n", diceroll);
 		sscanf(diceroll, "roll %s", diceroll);
-		mapping result = parser->parse(has_value(argv, "-v") ? shownext : next, this);
+		mapping|string result = parser->parse(has_value(argv, "-v") ? shownext : next, this);
 		write("%O\n", result);
 		/*
+		Certain special forms are not handled by this grammar:
+		- roll eyes
+		- roll cheat (without other arguments)
 		The resulting mapping has the following optional attributes:
 		- tag => A display tag (no effect on the outcome of the roll)
 		- quiet => 1 if the roll should be made quietly
