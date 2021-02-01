@@ -5,7 +5,10 @@ flaggeddice: "quiet" rollable {addflag};
 flaggeddice: "shield" rollable {addflag};
 
 rollable: multidice;
-rollable: "table" " " words {rolltable}; /* eg "roll table medium magic" */
+rollable: "table" " " words {rollmode}; /* eg "roll table medium magic" */
+rollable: "note" {rollmode}; /* roll off the first note in your inventory */
+rollable: "note" " " "digits" {rollmode}; /* eg "roll note 2" */
+rollable: "note" " " words {rollmode}; /* eg "roll note wondrousitem" */
 
 /* Note that there's one form that isn't acceptable: "roll init d20". This */
 /* form would make no sense, or would be ambiguous, depending on point of view. */

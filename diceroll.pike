@@ -8,11 +8,16 @@ constant tests = #"
 #roll 6d -1d Soak +6d Threshold
 #roll (withering talons) 9d
 #roll weapon_dmg - 1d soak + 6d threshold
-roll init
+#roll init
 #roll weapon_dcs + 1 Excellent + 7d Excellency +1 Willpower
-roll table medium magic
-roll quiet 2d6 + 4
-roll shield d20 - 3
+#roll table medium magic
+#roll quiet 2d6 + 4
+#roll shield d20 - 3
+roll note
+roll note 3
+roll note wondrousitem
+# Below are not working or attempted yet
+#roll 8d7/10 + 5d7/10/10
 ";
 
 mapping tagonly(string tag) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": tag])})]);} //Magically get it from the charsheet eg "roll init"
@@ -28,13 +33,13 @@ mapping NdM(string n, string _, string|void m) {return (["dice": (int)n, "sides"
 mapping dM(string _, string m) {return NdM("1", _, m);}
 mapping N(string n) {return NdM(n, "d", "1");} //Note that "10d" renders as "10d0" but "10" renders as "10d1".
 mapping pluscharsheet(mapping dice, string sign, string ... tag) {return plusroll(dice, sign, (["fmt": "charsheet"]), " ", tag[-1]);}
-mapping rolltable(string _1, string _2, string table) {return (["tag": table, "fmt": "table"]);}
+mapping rollmode(string mode, string|void _, string|void arg) {return (["tag": arg || "", "fmt": mode]);}
 mapping addflag(string flag, mapping dice) {return dice | ([flag: 1]);}
 //These words, if at the start of a dice roll, will be treated as keywords. Anywhere
 //else, they're just words. It means that "roll quiet d20" is easier to distinguish
 //from "roll floof + 20", although technically there's no situation in which it would
 //actually be ambiguous.
-multiset(string) leadwords = (multiset)("quiet shield table" / " ");
+multiset(string) leadwords = (multiset)("quiet shield table note" / " ");
 
 int main(int argc, array(string) argv) {
 	Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("diceroll.grammar");
