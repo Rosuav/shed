@@ -61,7 +61,7 @@ int main(int argc, array(string) argv) {
 			at_start = 0; //Anything other than a word or whitespace means we're not at the start.
 			sscanf(diceroll, "%1s%s", string char, diceroll); return char;
 		}
-		string|array shownext() {mixed ret = next(); write("==>%{ %O%}\n", Array.arrayify(ret)); return ret;}
+		string|array shownext() {string lead = diceroll[..8]; mixed ret = next(); write("%O ==>%{ %O%}\n", lead, Array.arrayify(ret)); return ret;}
 		write("************\n%s\n", diceroll);
 		sscanf(diceroll, "roll %s", diceroll);
 		mapping result = parser->parse(has_value(argv, "-v") ? shownext : next, this);
