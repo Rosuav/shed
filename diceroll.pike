@@ -1,18 +1,18 @@
 //Testbed for a new diceroller for Minstrel Hall
 constant tests = #"
 #roll (damage) 2d6 + d6 Backstab + d10 Fire
-roll d20 + 2 STR + 3 BAB - 2 PA
-roll WIT + 5d Awareness
-roll 2d
-roll PER + Survival
-roll 6d -1d Soak +6d Threshold
-roll (withering talons) 9d
+#roll d20 + 2 STR + 3 BAB - 2 PA
+#roll WIT + 5d Awareness
+#roll 2d
+#roll PER + Survival
+#roll 6d -1d Soak +6d Threshold
+#roll (withering talons) 9d
 roll weapon_dmg - 1d soak + 6d threshold
 roll init
 roll weapon_dcs + 1 Excellent + 7d Excellency +1 Willpower
 ";
 
-mapping tagonly(string tag) {return (["tag": tag, "roll": ({(["fmt": "charsheet"])})]);} //Magically get it from the charsheet eg "roll init"
+mapping tagonly(string tag) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": tag])})]);} //Magically get it from the charsheet eg "roll init"
 mapping no_tag(mapping firstroll) {return (["roll": ({firstroll})]);}
 mapping taggeddice(string tag, mapping firstroll) {return tagonly(tag) | no_tag(firstroll);}
 mapping plusroll(mapping dice, string sign, mapping roll, string|void _, string|void tag) {
@@ -23,6 +23,8 @@ string joinwords(string ... words) {return words * "";}
 mixed take2(mixed _, mixed ret) {return ret;}
 mapping NdM(string n, string _, string|void m) {return (["dice": (int)n, "sides": (int)m]);} //in the case of "10d", sides == 0
 mapping dM(string _, string m) {return NdM("1", _, m);}
+mapping N(string n) {return NdM(n, "d", "1");} //Note that "10d" renders as "10d0" but "10" renders as "10d1".
+mapping pluscharsheet(mapping dice, string sign, string ... tag) {return plusroll(dice, sign, (["fmt": "charsheet"]), " ", tag[-1]);}
 
 int main() {
 	Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("diceroll.grammar");
@@ -39,7 +41,7 @@ int main() {
 				return " "; //Otherwise, treat all non-EOL whitespace as a single space
 			}
 			if (sscanf(diceroll, "%[0-9]%s", string digits, diceroll) && digits != "") return ({"digits", digits});
-			if (sscanf(diceroll, "%[A-Za-z]%s", string word, diceroll) && word != "") {
+			if (sscanf(diceroll, "%[A-Z_a-z]%s", string word, diceroll) && word != "") {
 				if (word == "d") return "d"; //The letter "d" on its own isn't a word, it's probably a dice-roll marker
 				return ({"word", word});
 			}
@@ -50,6 +52,6 @@ int main() {
 		sscanf(diceroll, "roll %s", diceroll);
 		mixed result = parser->parse(shownext, this);
 		write("************\n%O\n************\n", result);
-		break;
+		//break;
 	}
 }

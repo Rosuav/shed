@@ -9,10 +9,13 @@ multidice: dice {no_tag}; /* "roll d20" */
 
 multidice: multidice sign dice {plusroll}; /* After any of the above forms, further dice can be added */
 multidice: multidice sign dice " " "word" {plusroll}; /* With or without a tag */
+multidice: multidice sign "word" {pluscharsheet}; /* Charsheet entries can have implicit dice */
+multidice: multidice sign " " "word" {pluscharsheet};
 
 dice1: "digits" "d" "digits" {NdM};
 dice1: "digits" "d" {NdM};
 dice1: "d" "digits" {dM};
+dice1: "digits" {N};
 dice: dice1;
 dice: " " dice1 {take2};
 
