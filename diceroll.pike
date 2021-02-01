@@ -44,6 +44,7 @@ multiset(string) leadwords = (multiset)("quiet shield table note" / " ");
 int main(int argc, array(string) argv) {
 	Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("diceroll.grammar");
 	write("Grammar parsed successfully.\n");
+	//TODO: Walk the grammar and find all leading keywords rather than hard coding them
 	foreach (tests / "\n", string diceroll) if (diceroll != "" && diceroll[0] != '#') {
 		int at_start = 1;
 		string|array next() {
@@ -76,6 +77,7 @@ int main(int argc, array(string) argv) {
 		- tag => A display tag (no effect on the outcome of the roll)
 		- quiet => 1 if the roll should be made quietly
 		- shield => 1 if the roll should be "behind the shield"
+		- fmt => special roll format with custom code. Only specific keywords possible.
 		It also has an array, result->roll, which has a sequence of roll parts.
 		Each roll part is a mapping. If part->fmt == "charsheet", it will have
 		part->tag which, combined with the charsheet, defines the dice to be
