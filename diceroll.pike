@@ -50,7 +50,18 @@ int main() {
 		//string|array shownext() {mixed ret = next(); write("==>%{ %O%}\n", Array.arrayify(ret)); return ret;}
 		write("************\n%s\n", diceroll);
 		sscanf(diceroll, "roll %s", diceroll);
-		mixed result = parser->parse(next, this);
+		mapping result = parser->parse(next, this);
 		write("%O\n", result);
+		/*
+		The resulting mapping has the following optional attributes:
+		- tag => A display tag (no effect on the outcome of the roll)
+		It also has an array, result->roll, which has a sequence of roll parts.
+		Each roll part is a mapping. If part->fmt == "charsheet", it will have
+		part->tag which, combined with the charsheet, defines the dice to be
+		rolled; otherwise, it has part->dice and part->sides. When sides is 0,
+		the actual roll pattern comes from the charsheet; when it is 1, it's a
+		constant (4d1 will always have a value of exactly 4). The part may have
+		a tag for display purposes (same one used for fmt charsheet).
+		*/
 	}
 }
