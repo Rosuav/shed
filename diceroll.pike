@@ -36,7 +36,7 @@ mapping addflag(string flag, mapping dice) {return dice | ([flag: 1]);}
 //actually be ambiguous.
 multiset(string) leadwords = (multiset)("quiet shield table" / " ");
 
-int main() {
+int main(int argc, array(string) argv) {
 	Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("diceroll.grammar");
 	write("Grammar parsed successfully.\n");
 	foreach (tests / "\n", string diceroll) if (diceroll != "" && diceroll[0] != '#') {
@@ -61,10 +61,10 @@ int main() {
 			at_start = 0; //Anything other than a word or whitespace means we're not at the start.
 			sscanf(diceroll, "%1s%s", string char, diceroll); return char;
 		}
-		//string|array shownext() {mixed ret = next(); write("==>%{ %O%}\n", Array.arrayify(ret)); return ret;}
+		string|array shownext() {mixed ret = next(); write("==>%{ %O%}\n", Array.arrayify(ret)); return ret;}
 		write("************\n%s\n", diceroll);
 		sscanf(diceroll, "roll %s", diceroll);
-		mapping result = parser->parse(next, this);
+		mapping result = parser->parse(has_value(argv, "-v") ? shownext : next, this);
 		write("%O\n", result);
 		/*
 		The resulting mapping has the following optional attributes:
