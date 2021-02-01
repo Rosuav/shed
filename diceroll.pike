@@ -1,6 +1,6 @@
 //Testbed for a new diceroller for Minstrel Hall
 constant tests = #"
-roll (damage) 2d6 + d6 Backstab + d10 Fire
+#roll (damage) 2d6 + d6 Backstab + d10 Fire
 roll d20 + 2 STR + 3 BAB - 2 PA
 roll WIT + 5d Awareness
 roll 2d
@@ -27,7 +27,7 @@ mapping dM(string _, string m) {return NdM("1", _, m);}
 int main() {
 	Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("diceroll.grammar");
 	write("Grammar parsed successfully.\n");
-	foreach (tests / "\n", string diceroll) if (diceroll!= "") {
+	foreach (tests / "\n", string diceroll) if (diceroll != "" && diceroll[0] != '#') {
 		string|array next() {
 			if (diceroll == "") return "";
 			if (sscanf(diceroll, "%[ \t]%s", string ws, diceroll) && ws != "") {
