@@ -13,11 +13,14 @@ constant tests = #"
 #roll table medium magic
 #roll quiet 2d6 + 4
 #roll shield d20 - 3
-roll note
-roll note 3
-roll note wondrousitem
+#roll note
+#roll note 3
+#roll note wondrousitem
+#roll as rosuav spot + 4
 # Below are not working or attempted yet
 #roll 8d7/10 + 5d7/10/10
+#roll stats
+#roll stats 6/7 3/4d6
 ";
 
 mapping tagonly(string tag) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": tag])})]);} //Magically get it from the charsheet eg "roll init"
@@ -34,12 +37,13 @@ mapping dM(string _, string m) {return NdM("1", _, m);}
 mapping N(string n) {return NdM(n, "d", "1");} //Note that "10d" renders as "10d0" but "10" renders as "10d1".
 mapping pluscharsheet(mapping dice, string sign, string ... tag) {return plusroll(dice, sign, (["fmt": "charsheet"]), " ", tag[-1]);}
 mapping rollmode(string mode, string|void _, string|void arg) {return (["tag": arg || "", "fmt": mode]);}
-mapping addflag(string flag, mapping dice) {return dice | ([flag: 1]);}
+mapping addflag(string flag, string _, mapping dice) {return dice | ([flag: 1]);}
+mapping addflagval(string flag, string _1, string val, string _2, mapping dice) {return dice | ([flag: val]);}
 //These words, if at the start of a dice roll, will be treated as keywords. Anywhere
 //else, they're just words. It means that "roll quiet d20" is easier to distinguish
 //from "roll floof + 20", although technically there's no situation in which it would
 //actually be ambiguous.
-multiset(string) leadwords = (multiset)("quiet shield table note" / " ");
+multiset(string) leadwords = (multiset)("quiet shield table note as" / " ");
 
 int main(int argc, array(string) argv) {
 	Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("diceroll.grammar");
@@ -78,6 +82,7 @@ int main(int argc, array(string) argv) {
 		- quiet => 1 if the roll should be made quietly
 		- shield => 1 if the roll should be "behind the shield"
 		- fmt => special roll format with custom code. Only specific keywords possible.
+		- as => alternate charsheet to roll from (instead of the caller's)
 		It also has an array, result->roll, which has a sequence of roll parts.
 		Each roll part is a mapping. If part->fmt == "charsheet", it will have
 		part->tag which, combined with the charsheet, defines the dice to be
@@ -88,6 +93,7 @@ int main(int argc, array(string) argv) {
 
 		** CHANGES FROM CURRENT **
 		You can no longer "roll major magic". Instead: "roll table major magic".
+		Similarly, "roll kwd" (which gave the list of those) is now "roll table".
 		*/
 	}
 }

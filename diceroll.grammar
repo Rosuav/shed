@@ -1,10 +1,12 @@
 diceroll: flaggeddice;
 
 flaggeddice: rollable;
-flaggeddice: "quiet" rollable {addflag};
-flaggeddice: "shield" rollable {addflag};
+flaggeddice: "quiet" " " rollable {addflag};
+flaggeddice: "shield" " " rollable {addflag};
+flaggeddice: "as" " " "word" " " rollable {addflagval};
 
 rollable: multidice;
+rollable: "table" {rollmode}; /* List available tables */
 rollable: "table" " " words {rollmode}; /* eg "roll table medium magic" */
 rollable: "note" {rollmode}; /* roll off the first note in your inventory */
 rollable: "note" " " "digits" {rollmode}; /* eg "roll note 2" */
