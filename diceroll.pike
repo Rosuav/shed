@@ -1,12 +1,12 @@
 //Testbed for a new diceroller for Minstrel Hall
 constant tests = #"
-#roll (damage) 2d6 + d6 Backstab + d10 Fire
-#roll d20 + 2 STR + 3 BAB - 2 PA
-#roll WIT + 5d Awareness
-#roll 2d
-#roll PER + Survival
-#roll 6d -1d Soak +6d Threshold
-#roll (withering talons) 9d
+roll (damage) 2d6 + d6 Backstab + d10 Fire
+roll d20 + 2 STR + 3 BAB - 2 PA
+roll WIT + 5d Awareness
+roll 2d
+roll PER + Survival
+roll 6d -1d Soak +6d Threshold
+roll (withering talons) 9d
 roll weapon_dmg - 1d soak + 6d threshold
 roll init
 roll weapon_dcs + 1 Excellent + 7d Excellency +1 Willpower
@@ -47,11 +47,10 @@ int main() {
 			}
 			sscanf(diceroll, "%1s%s", string char, diceroll); return char;
 		}
-		string|array shownext() {mixed ret = next(); write("==>%{ %O%}\n", Array.arrayify(ret)); return ret;}
-		write("************\n%s\n************\n", diceroll);
+		//string|array shownext() {mixed ret = next(); write("==>%{ %O%}\n", Array.arrayify(ret)); return ret;}
+		write("************\n%s\n", diceroll);
 		sscanf(diceroll, "roll %s", diceroll);
-		mixed result = parser->parse(shownext, this);
-		write("************\n%O\n************\n", result);
-		//break;
+		mixed result = parser->parse(next, this);
+		write("%O\n", result);
 	}
 }
