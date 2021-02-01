@@ -1,4 +1,11 @@
-diceroll: multidice;
+diceroll: flaggeddice;
+
+flaggeddice: rollable;
+flaggeddice: "quiet" rollable {addflag};
+flaggeddice: "shield" rollable {addflag};
+
+rollable: multidice;
+rollable: "table" " " words {rolltable}; /* eg "roll table medium magic" */
 
 /* Note that there's one form that isn't acceptable: "roll init d20". This */
 /* form would make no sense, or would be ambiguous, depending on point of view. */

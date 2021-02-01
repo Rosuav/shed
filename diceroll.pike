@@ -1,15 +1,18 @@
 //Testbed for a new diceroller for Minstrel Hall
 constant tests = #"
-roll (damage) 2d6 + d6 Backstab + d10 Fire
-roll d20 + 2 STR + 3 BAB - 2 PA
-roll WIT + 5d Awareness
-roll 2d
-roll PER + Survival
-roll 6d -1d Soak +6d Threshold
-roll (withering talons) 9d
-roll weapon_dmg - 1d soak + 6d threshold
+#roll (damage) 2d6 + d6 Backstab + d10 Fire
+#roll d20 + 2 STR + 3 BAB - 2 PA
+#roll WIT + 5d Awareness
+#roll 2d
+#roll PER + Survival
+#roll 6d -1d Soak +6d Threshold
+#roll (withering talons) 9d
+#roll weapon_dmg - 1d soak + 6d threshold
 roll init
-roll weapon_dcs + 1 Excellent + 7d Excellency +1 Willpower
+#roll weapon_dcs + 1 Excellent + 7d Excellency +1 Willpower
+roll table medium magic
+roll quiet 2d6 + 4
+roll shield d20 - 3
 ";
 
 mapping tagonly(string tag) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": tag])})]);} //Magically get it from the charsheet eg "roll init"
@@ -25,11 +28,19 @@ mapping NdM(string n, string _, string|void m) {return (["dice": (int)n, "sides"
 mapping dM(string _, string m) {return NdM("1", _, m);}
 mapping N(string n) {return NdM(n, "d", "1");} //Note that "10d" renders as "10d0" but "10" renders as "10d1".
 mapping pluscharsheet(mapping dice, string sign, string ... tag) {return plusroll(dice, sign, (["fmt": "charsheet"]), " ", tag[-1]);}
+mapping rolltable(string _1, string _2, string table) {return (["tag": table, "fmt": "table"]);}
+mapping addflag(string flag, mapping dice) {return dice | ([flag: 1]);}
+//These words, if at the start of a dice roll, will be treated as keywords. Anywhere
+//else, they're just words. It means that "roll quiet d20" is easier to distinguish
+//from "roll floof + 20", although technically there's no situation in which it would
+//actually be ambiguous.
+multiset(string) leadwords = (multiset)("quiet shield table" / " ");
 
 int main() {
 	Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("diceroll.grammar");
 	write("Grammar parsed successfully.\n");
 	foreach (tests / "\n", string diceroll) if (diceroll != "" && diceroll[0] != '#') {
+		int at_start = 1;
 		string|array next() {
 			if (diceroll == "") return "";
 			if (sscanf(diceroll, "%[ \t]%s", string ws, diceroll) && ws != "") {
@@ -42,9 +53,12 @@ int main() {
 			}
 			if (sscanf(diceroll, "%[0-9]%s", string digits, diceroll) && digits != "") return ({"digits", digits});
 			if (sscanf(diceroll, "%[A-Z_a-z]%s", string word, diceroll) && word != "") {
+				if (at_start && leadwords[word]) return word;
+				else at_start = 0; //Once we've had any non-lead word, we're not at the start any more.
 				if (word == "d") return "d"; //The letter "d" on its own isn't a word, it's probably a dice-roll marker
 				return ({"word", word});
 			}
+			at_start = 0; //Anything other than a word or whitespace means we're not at the start.
 			sscanf(diceroll, "%1s%s", string char, diceroll); return char;
 		}
 		//string|array shownext() {mixed ret = next(); write("==>%{ %O%}\n", Array.arrayify(ret)); return ret;}
@@ -55,6 +69,8 @@ int main() {
 		/*
 		The resulting mapping has the following optional attributes:
 		- tag => A display tag (no effect on the outcome of the roll)
+		- quiet => 1 if the roll should be made quietly
+		- shield => 1 if the roll should be "behind the shield"
 		It also has an array, result->roll, which has a sequence of roll parts.
 		Each roll part is a mapping. If part->fmt == "charsheet", it will have
 		part->tag which, combined with the charsheet, defines the dice to be
@@ -62,6 +78,9 @@ int main() {
 		the actual roll pattern comes from the charsheet; when it is 1, it's a
 		constant (4d1 will always have a value of exactly 4). The part may have
 		a tag for display purposes (same one used for fmt charsheet).
+
+		** CHANGES FROM CURRENT **
+		You can no longer "roll major magic". Instead: "roll table major magic".
 		*/
 	}
 }
