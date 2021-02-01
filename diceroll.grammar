@@ -1,0 +1,24 @@
+diceroll: multidice;
+
+/* Note that there's one form that isn't acceptable: "roll init d20". This */
+/* form would make no sense, or would be ambiguous, depending on point of view. */
+multidice: "word" {tagonly}; /* "roll init", equivalent to "roll (init)" */
+multidice: tag {tagonly}; /* "roll (init)" */
+multidice: tag dice {taggeddice}; /* "roll (Goblin init) d20" */
+multidice: dice {no_tag}; /* "roll d20" */
+
+multidice: multidice sign dice {plusroll}; /* After any of the above forms, further dice can be added */
+multidice: multidice sign dice " " "word" {plusroll}; /* With or without a tag */
+
+dice1: "digits" "d" "digits" {NdM};
+dice1: "digits" "d" {NdM};
+dice1: "d" "digits" {dM};
+dice: dice1;
+dice: " " dice1 {take2};
+
+sign: "+";
+sign: "-";
+
+words: "word";
+words: words " " "word" {joinwords};
+tag: "(" words ")" {take2};
