@@ -25,8 +25,9 @@ constant tests = #"
 #roll eyes
 roll (search) take10 + 5
 roll d20 + 2 (STR) + 3 (BAB) - 2 (PA)
+roll 8d7/10 + 5d7/10
+roll b10 8d7/10 + 5d7/10
 # Below are not working or attempted yet
-#roll 8d7/10 + 5d7/10/10
 #roll stats
 #roll stats 6/7 3/4d6
 #roll alias greatsword 2d6 +1 ench +3 STR +1d6 Flame
@@ -44,6 +45,7 @@ mapping plusroll(mapping dice, string sign, mapping roll, string|void _, string|
 string joinwords(string ... words) {return words * "";}
 mixed take2(mixed _, mixed ret) {return ret;}
 mapping NdM(string n, string _, string|void m) {return (["dice": (int)n, "sides": (int)m]);} //in the case of "10d", sides == 0
+mapping NdTM(string n, string _1, string t, string _2, string m) {return NdM(n, _1, m) | (["threshold": t]);} //Exalted-style "d10, goal is 7"
 mapping dM(string _, string m) {return NdM("1", _, m);}
 mapping N(string n) {return NdM(n, "d", "1");} //Note that "10d" renders as "10d0" but "10" renders as "10d1".
 mapping takeN(string _, string n) {return NdM("1", "d", "20") | (["fmt": "take", "result": (int)n]);}
@@ -51,13 +53,14 @@ mapping pluscharsheet(mapping dice, string sign, string ... tag) {return plusrol
 mapping rollmode(string mode, string|void _, string|void arg) {return (["tag": arg || "", "fmt": mode]);}
 mapping addflag(string flag, string _, mapping dice) {return dice | ([flag: 1]);}
 mapping addflagval(string flag, string _1, string val, string _2, mapping dice) {return dice | ([flag: val]);}
+mapping addflagval_compact(string flag, string val, string _2, mapping dice) {return dice | ([flag: val]);}
 mapping testroll(string mode, string _1, string max, string _2, string avg) {return (["fmt": mode, "max": (int)(max || 20), "avg": (int)(avg || 10000)]);}
 //These words, if at the start of a dice roll, will be treated as keywords. Anywhere
 //else, they're just words. It means that "roll quiet d20" is easier to distinguish
 //from "roll floof + 20", although technically there's no situation in which it would
 //actually be ambiguous. Note that "roll as foo cheat" doesn't work, but "roll cheat as foo"
 //does; but due to this disambiguation, "roll as cheat" will always fail.
-multiset(string) leadwords = (multiset)("quiet shield table note as cheat uncheat test eyes eval" / " ");
+multiset(string) leadwords = (multiset)("quiet shield table note as cheat uncheat test eyes eval b" / " ");
 
 int main(int argc, array(string) argv) {
 	Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("diceroll.grammar");
@@ -83,7 +86,7 @@ int main(int argc, array(string) argv) {
 				if (word == "take" && diceroll != "" && has_value("0123456789", diceroll[0])) return "take"; //eg "take20"
 				return ({"word", word});
 			}
-			at_start = 0; //Anything other than a word or whitespace means we're not at the start.
+			at_start = 0; //Anything other than a lead word, digits, or whitespace means we're not at the start.
 			sscanf(diceroll, "%1s%s", string char, diceroll); return char;
 		}
 		string|array shownext() {string lead = diceroll[..8]; mixed ret = next(); write("%O ==>%{ %O%}\n", lead, Array.arrayify(ret)); return ret;}
@@ -113,6 +116,10 @@ int main(int argc, array(string) argv) {
 		You can no longer "roll major magic". Instead: "roll table major magic".
 		Similarly, "roll kwd" (which gave the list of those) is now "roll table".
 		"roll glitch" was a redirect advising the use of threshold mode.
+		Threshold rolls (5d7/10) no longer have a "bonus" mode that lists extra
+		bonus successes (5d7/10/10). Instead, the roll itself should say whether
+		you get double 10s or double 9s or whatever: "roll b10 5d7/10". More
+		likely, though, people will just ignore this and manually count extras.
 		*/
 	}
 }

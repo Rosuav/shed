@@ -14,6 +14,7 @@ flaggeddice: "shield" " " flaggeddice {addflag};
 flaggeddice: "as" " " "word" " " flaggeddice {addflagval};
 flaggeddice: "cheat" " " flaggeddice {addflag};
 flaggeddice: "uncheat" " " flaggeddice {addflag};
+flaggeddice: "b" "digits" " " flaggeddice {addflagval_compact};
 
 rollable: multidice;
 rollable: "table" {rollmode}; /* List available tables */
@@ -33,6 +34,7 @@ multidice: multidice sign dice " " shorttag {plusroll}; /* With or without a tag
 multidice: multidice sign "word" {pluscharsheet}; /* Charsheet entries can have implicit dice */
 multidice: multidice sign " " "word" {pluscharsheet};
 
+dice1: "digits" "d" "digits" "/" "digits" {NdTM};
 dice1: "digits" "d" "digits" {NdM};
 dice1: "digits" "d" {NdM};
 dice1: "d" "digits" {dM};
