@@ -17,17 +17,21 @@ constant tests = #"
 #roll note 3
 #roll note wondrousitem
 #roll as rosuav spot + 4
+#roll test
+#roll test 20
+#roll test 20 10000
+#roll cheat d20 + 3
+#roll cheat
+#roll eyes
+roll (search) take10 + 5
 # Below are not working or attempted yet
 #roll 8d7/10 + 5d7/10/10
 #roll stats
 #roll stats 6/7 3/4d6
 #roll alias greatsword 2d6 +1 ench +3 STR +1d6 Flame
-roll test
-roll test 20
-roll test 20 10000
-roll cheat d20 + 3
-roll cheat
-roll eyes
+#roll unalias greatsword
+#roll unalias \"greatsword\"
+#roll d20 + 2 (STR) + 3 (BAB) - 2 (PA)
 ";
 
 mapping tagonly(string tag) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": tag])})]);} //Magically get it from the charsheet eg "roll init"
@@ -42,6 +46,7 @@ mixed take2(mixed _, mixed ret) {return ret;}
 mapping NdM(string n, string _, string|void m) {return (["dice": (int)n, "sides": (int)m]);} //in the case of "10d", sides == 0
 mapping dM(string _, string m) {return NdM("1", _, m);}
 mapping N(string n) {return NdM(n, "d", "1");} //Note that "10d" renders as "10d0" but "10" renders as "10d1".
+mapping takeN(string _, string n) {return NdM("1", "d", "20") | (["fmt": "take", "result": (int)n]);}
 mapping pluscharsheet(mapping dice, string sign, string ... tag) {return plusroll(dice, sign, (["fmt": "charsheet"]), " ", tag[-1]);}
 mapping rollmode(string mode, string|void _, string|void arg) {return (["tag": arg || "", "fmt": mode]);}
 mapping addflag(string flag, string _, mapping dice) {return dice | ([flag: 1]);}
@@ -51,7 +56,7 @@ mapping testroll(string mode, string _1, string max, string _2, string avg) {ret
 //else, they're just words. It means that "roll quiet d20" is easier to distinguish
 //from "roll floof + 20", although technically there's no situation in which it would
 //actually be ambiguous.
-multiset(string) leadwords = (multiset)("quiet shield table note as cheat uncheat test eyes" / " ");
+multiset(string) leadwords = (multiset)("quiet shield table note as cheat uncheat test eyes eval" / " ");
 
 int main(int argc, array(string) argv) {
 	Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("diceroll.grammar");
@@ -74,6 +79,7 @@ int main(int argc, array(string) argv) {
 				if (at_start && leadwords[word]) return word;
 				else at_start = 0; //Once we've had any non-lead word, we're not at the start any more.
 				if (word == "d") return "d"; //The letter "d" on its own isn't a word, it's probably a dice-roll marker
+				if (word == "take" && diceroll != "" && has_value("0123456789", diceroll[0])) return "take"; //eg "take20"
 				return ({"word", word});
 			}
 			at_start = 0; //Anything other than a word or whitespace means we're not at the start.
@@ -105,6 +111,7 @@ int main(int argc, array(string) argv) {
 		** CHANGES FROM CURRENT **
 		You can no longer "roll major magic". Instead: "roll table major magic".
 		Similarly, "roll kwd" (which gave the list of those) is now "roll table".
+		"roll glitch" was a redirect advising the use of threshold mode.
 		*/
 	}
 }
