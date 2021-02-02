@@ -23,13 +23,15 @@ constant tests = #"
 #roll cheat d20 + 3
 #roll cheat
 #roll eyes
-roll (search) take10 + 5
-roll d20 + 2 (STR) + 3 (BAB) - 2 (PA)
-roll 8d7/10 + 5d7/10
-roll b10 8d7/10 + 5d7/10
+#roll (search) take10 + 5
+#roll d20 + 2 (STR) + 3 (BAB) - 2 (PA)
+#roll 8d7/10 + 5d7/10
+#roll b10 8d7/10 + 5d7/10
 # Below are not working or attempted yet
-#roll stats
-#roll stats 6/7 3/4d6
+roll stats
+roll stats 6 3d6
+roll stats 6 3/4d6
+roll stats 6/7 3/4d6
 #roll alias greatsword 2d6 +1 ench +3 STR +1d6 Flame
 #roll unalias greatsword
 #roll unalias \"greatsword\"
@@ -44,6 +46,7 @@ mapping plusroll(mapping dice, string sign, mapping roll, string|void _, string|
 }
 string joinwords(string ... words) {return words * "";}
 mixed take2(mixed _, mixed ret) {return ret;}
+array firstlast(mixed ... ret) {return ({ret[0], ret[-1]});}
 mapping NdM(string n, string _, string|void m) {return (["dice": (int)n, "sides": (int)m]);} //in the case of "10d", sides == 0
 mapping NdTM(string n, string _1, string t, string _2, string m) {return NdM(n, _1, m) | (["threshold": t]);} //Exalted-style "d10, goal is 7"
 mapping dM(string _, string m) {return NdM("1", _, m);}
@@ -55,12 +58,14 @@ mapping addflag(string flag, string _, mapping dice) {return dice | ([flag: 1]);
 mapping addflagval(string flag, string _1, string val, string _2, mapping dice) {return dice | ([flag: val]);}
 mapping addflagval_compact(string flag, string val, string _2, mapping dice) {return dice | ([flag: val]);}
 mapping testroll(string mode, string _1, string max, string _2, string avg) {return (["fmt": mode, "max": (int)(max || 20), "avg": (int)(avg || 10000)]);}
+mapping stats(string _1, string _2, array statcount, string _3, array dicecount, string _, string sides) {return (["fmt": "stats", "statcount": statcount, "dicecount": dicecount, "sides": (int)sides]);}
+mapping defaultstats(string _1) {return stats(_1, " ", ({6, 7}), " ", ({3, 4}), "d", "6");}
 //These words, if at the start of a dice roll, will be treated as keywords. Anywhere
 //else, they're just words. It means that "roll quiet d20" is easier to distinguish
 //from "roll floof + 20", although technically there's no situation in which it would
 //actually be ambiguous. Note that "roll as foo cheat" doesn't work, but "roll cheat as foo"
 //does; but due to this disambiguation, "roll as cheat" will always fail.
-multiset(string) leadwords = (multiset)("quiet shield table note as cheat uncheat test eyes eval b" / " ");
+multiset(string) leadwords = (multiset)("quiet shield table note as cheat uncheat test eyes eval b stats" / " ");
 
 int main(int argc, array(string) argv) {
 	Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("diceroll.grammar");

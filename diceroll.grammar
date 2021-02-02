@@ -6,6 +6,13 @@ command: "test" {testroll};
 command: "test" " " "digits" {testroll};
 command: "test" " " "digits" " " "digits" {testroll};
 command: "eval" " " words {rollmode};
+command: stats;
+
+/* "roll stats" variants */
+stats: "stats" {defaultstats};
+stats: "stats" " " statsroll " " statsroll "d" "digits" {stats};
+statsroll: "digits" {firstlast};
+statsroll: "digits" "/" "digits" {firstlast};
 
 /* Stackable flags */
 flaggeddice: rollable;
