@@ -1,17 +1,17 @@
-diceroll: flaggeddice;
+command: flaggeddice;
+command: "cheat" {rollmode};
+command: "eyes" {rollmode};
+command: "test" {testroll};
+command: "test" " " "digits" {testroll};
+command: "test" " " "digits" " " "digits" {testroll};
+command: "eval" " " words {rollmode};
 
 flaggeddice: rollable;
-flaggeddice: "quiet" " " rollable {addflag};
-flaggeddice: "shield" " " rollable {addflag};
-flaggeddice: "as" " " "word" " " rollable {addflagval};
-flaggeddice: "cheat" " " rollable {addflag};
-flaggeddice: "uncheat" " " rollable {addflag};
-flaggeddice: "cheat" {rollmode};
-flaggeddice: "eyes" {rollmode};
-flaggeddice: "test" {testroll};
-flaggeddice: "test" " " "digits" {testroll};
-flaggeddice: "test" " " "digits" " " "digits" {testroll};
-flaggeddice: "eval" " " words {rollmode};
+flaggeddice: "quiet" " " flaggeddice {addflag};
+flaggeddice: "shield" " " flaggeddice {addflag};
+flaggeddice: "as" " " "word" " " flaggeddice {addflagval};
+flaggeddice: "cheat" " " flaggeddice {addflag};
+flaggeddice: "uncheat" " " flaggeddice {addflag};
 
 rollable: multidice;
 rollable: "table" {rollmode}; /* List available tables */
