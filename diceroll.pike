@@ -55,7 +55,8 @@ mapping testroll(string mode, string _1, string max, string _2, string avg) {ret
 //These words, if at the start of a dice roll, will be treated as keywords. Anywhere
 //else, they're just words. It means that "roll quiet d20" is easier to distinguish
 //from "roll floof + 20", although technically there's no situation in which it would
-//actually be ambiguous.
+//actually be ambiguous. Note that "roll as foo cheat" doesn't work, but "roll cheat as foo"
+//does; but due to this disambiguation, "roll as cheat" will always fail.
 multiset(string) leadwords = (multiset)("quiet shield table note as cheat uncheat test eyes eval" / " ");
 
 int main(int argc, array(string) argv) {

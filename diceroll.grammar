@@ -1,4 +1,5 @@
 command: flaggeddice;
+/* Special commands that don't combine with regular dice rolls */
 command: "cheat" {rollmode};
 command: "eyes" {rollmode};
 command: "test" {testroll};
@@ -6,6 +7,7 @@ command: "test" " " "digits" {testroll};
 command: "test" " " "digits" " " "digits" {testroll};
 command: "eval" " " words {rollmode};
 
+/* Stackable flags */
 flaggeddice: rollable;
 flaggeddice: "quiet" " " flaggeddice {addflag};
 flaggeddice: "shield" " " flaggeddice {addflag};
