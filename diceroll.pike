@@ -24,6 +24,7 @@ constant tests = #"
 #roll cheat
 #roll eyes
 roll (search) take10 + 5
+roll d20 + 2 (STR) + 3 (BAB) - 2 (PA)
 # Below are not working or attempted yet
 #roll 8d7/10 + 5d7/10/10
 #roll stats
@@ -31,7 +32,6 @@ roll (search) take10 + 5
 #roll alias greatsword 2d6 +1 ench +3 STR +1d6 Flame
 #roll unalias greatsword
 #roll unalias \"greatsword\"
-#roll d20 + 2 (STR) + 3 (BAB) - 2 (PA)
 ";
 
 mapping tagonly(string tag) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": tag])})]);} //Magically get it from the charsheet eg "roll init"

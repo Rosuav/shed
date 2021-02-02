@@ -22,13 +22,12 @@ rollable: "note" " " words {rollmode}; /* eg "roll note wondrousitem" */
 
 /* Note that there's one form that isn't acceptable: "roll init d20". This */
 /* form would make no sense, or would be ambiguous, depending on point of view. */
-multidice: "word" {tagonly}; /* "roll init", equivalent to "roll (init)" */
-multidice: tag {tagonly}; /* "roll (init)" */
+multidice: shorttag {tagonly}; /* "roll init" or "roll (init)"; also "roll (search) + 2" */
 multidice: tag dice {taggeddice}; /* "roll (Goblin init) d20" */
 multidice: dice {no_tag}; /* "roll d20" */
 
 multidice: multidice sign dice {plusroll}; /* After any of the above forms, further dice can be added */
-multidice: multidice sign dice " " "word" {plusroll}; /* With or without a tag */
+multidice: multidice sign dice " " shorttag {plusroll}; /* With or without a tag */
 multidice: multidice sign "word" {pluscharsheet}; /* Charsheet entries can have implicit dice */
 multidice: multidice sign " " "word" {pluscharsheet};
 
@@ -46,3 +45,6 @@ sign: "-";
 words: "word";
 words: words " " "word" {joinwords};
 tag: "(" words ")" {take2};
+/* In some contexts, you can omit the parens on a tag if it's a single word. */
+shorttag: "word";
+shorttag: tag;
