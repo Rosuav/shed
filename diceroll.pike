@@ -27,14 +27,13 @@ constant tests = #"
 #roll d20 + 2 (STR) + 3 (BAB) - 2 (PA)
 #roll 8d7/10 + 5d7/10
 #roll b10 8d7/10 + 5d7/10
-# Below are not working or attempted yet
-roll stats
-roll stats 6 3d6
-roll stats 6 3/4d6
-roll stats 6/7 3/4d6
-#roll alias greatsword 2d6 +1 ench +3 STR +1d6 Flame
-#roll unalias greatsword
-#roll unalias \"greatsword\"
+#roll stats
+#roll stats 6 3d6
+#roll stats 6 3/4d6
+#roll stats 6/7 3/4d6
+roll alias greatsword 2d6 +1 ench +3 STR +1d6 Flame
+roll unalias greatsword
+roll unalias \"greatsword\"
 ";
 
 mapping tagonly(string tag) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": tag])})]);} //Magically get it from the charsheet eg "roll init"
@@ -60,12 +59,13 @@ mapping addflagval_compact(string flag, string val, string _2, mapping dice) {re
 mapping testroll(string mode, string _1, string max, string _2, string avg) {return (["fmt": mode, "max": (int)(max || 20), "avg": (int)(avg || 10000)]);}
 mapping stats(string _1, string _2, array statcount, string _3, array dicecount, string _, string sides) {return (["fmt": "stats", "statcount": statcount, "dicecount": dicecount, "sides": (int)sides]);}
 mapping defaultstats(string _1) {return stats(_1, " ", ({6, 7}), " ", ({3, 4}), "d", "6");}
+mapping rollalias(string cmd, string _1, string alias, string _2, string expansion) {return (["fmt": cmd, "alias": alias, "expansion": expansion]);}
 //These words, if at the start of a dice roll, will be treated as keywords. Anywhere
 //else, they're just words. It means that "roll quiet d20" is easier to distinguish
 //from "roll floof + 20", although technically there's no situation in which it would
 //actually be ambiguous. Note that "roll as foo cheat" doesn't work, but "roll cheat as foo"
 //does; but due to this disambiguation, "roll as cheat" will always fail.
-multiset(string) leadwords = (multiset)("quiet shield table note as cheat uncheat test eyes eval b stats" / " ");
+multiset(string) leadwords = (multiset)("quiet shield table note as cheat uncheat test eyes eval b stats alias unalias" / " ");
 
 int main(int argc, array(string) argv) {
 	Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("diceroll.grammar");
@@ -92,6 +92,17 @@ int main(int argc, array(string) argv) {
 				return ({"word", word});
 			}
 			at_start = 0; //Anything other than a lead word, digits, or whitespace means we're not at the start.
+			if (sscanf(diceroll, "\"%[^\"]\"%s", string str, diceroll)) {
+				//TODO: Allow backslashes inside quoted strings?
+				//Current definition is simple: a quoted string acts like a single word.
+				//This allows quoted strings to appear in a variety of contexts where
+				//multi-word tokens wouldn't work; it also allows them to disambiguate
+				//when a bare word would be taken as a keyword. It does, however, create
+				//odd situations, eg <roll "foo"bar> which is tokenized as two abutted
+				//words - an otherwise-impossible sequence of tokens. That's up to the
+				//user, I think.
+				return ({"word", str});
+			}
 			sscanf(diceroll, "%1s%s", string char, diceroll); return char;
 		}
 		string|array shownext() {string lead = diceroll[..8]; mixed ret = next(); write("%O ==>%{ %O%}\n", lead, Array.arrayify(ret)); return ret;}
@@ -100,9 +111,6 @@ int main(int argc, array(string) argv) {
 		mapping|string result = parser->parse(has_value(argv, "-v") ? shownext : next, this);
 		write("%O\n", result);
 		/*
-		Certain special forms are not handled by this grammar:
-		- roll eyes
-		- roll cheat (without other arguments)
 		The resulting mapping has the following optional attributes:
 		- tag => A display tag (no effect on the outcome of the roll)
 		- quiet => 1 if the roll should be made quietly
