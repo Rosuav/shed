@@ -7,6 +7,7 @@ command: "test" " " "digits" {testroll};
 command: "test" " " "digits" " " "digits" {testroll};
 command: "eval" " " words {rollmode};
 command: stats;
+command: "alias" {rollalias};
 command: "alias" " " "word" {rollalias};
 command: "alias" " " "word" " " flaggeddice {rollalias};
 command: "unalias" " " "word" {rollalias};

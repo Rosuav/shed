@@ -21,6 +21,7 @@ constant tests = #"
 #roll test 20
 #roll test 20 10000
 #roll cheat d20 + 3
+#roll uncheat d20 + 3
 #roll cheat
 #roll eyes
 #roll (search) take10 + 5
@@ -31,7 +32,9 @@ constant tests = #"
 #roll stats 6 3d6
 #roll stats 6 3/4d6
 #roll stats 6/7 3/4d6
+roll alias
 roll alias greatsword 2d6 +1 ench +3 STR +1d6 Flame
+roll alias \"greatsword\"
 roll unalias greatsword
 roll unalias \"greatsword\"
 ";
