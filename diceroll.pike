@@ -66,7 +66,7 @@ mapping addflag(string flag, string _, mapping dice) {return dice | ([flag: 1]);
 mapping addflagval(string flag, string _1, string val, string _2, mapping dice) {return dice | ([flag: val]);}
 mapping addflagval_compact(string flag, string val, string _2, mapping dice) {return dice | ([flag: val]);}
 mapping testroll(string mode, string _1, string max, string _2, string avg) {return (["fmt": mode, "max": (int)(max || 20), "avg": (int)(avg || 10000)]);}
-mapping stats(string _1, string _2, array statcount, string _3, array dicecount, string _, string sides) {return (["fmt": "stats", "statcount": statcount, "dicecount": dicecount, "sides": (int)sides]);}
+mapping stats(string _1, string _2, array statcount, string _3, array dicecount, string _, string sides) {return (["fmt": "stats", "statcount": (array(int))statcount, "dicecount": (array(int))dicecount, "sides": (int)sides]);}
 mapping defaultstats(string _1) {return stats(_1, " ", ({6, 7}), " ", ({3, 4}), "d", "6");}
 mapping rollalias(string cmd, string _1, string alias, string _2, string expansion) {return (["fmt": cmd, "alias": alias, "expansion": expansion]);}
 //These words, if at the start of a dice roll, will be treated as keywords. Anywhere
@@ -98,7 +98,7 @@ string reconstitute(mapping info) {
 		case "stats": return sprintf("stats %d/%d %d/%dd%d", @info->statcount, @info->dicecount, info->sides);
 	}
 	foreach ("quiet shield cheat uncheat" / " ", string flag)
-		if (info->flag) ret += flag + " ";
+		if (info[flag]) ret += flag + " ";
 	if (info->as) ret += "as " + word(info->as) + " ";
 	if (info->b) ret += "b" + info->b + " ";
 	int skipfirst = 0;
