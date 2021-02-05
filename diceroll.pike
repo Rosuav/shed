@@ -76,6 +76,54 @@ mapping rollalias(string cmd, string _1, string alias, string _2, string expansi
 //does; but due to this disambiguation, "roll as cheat" will always fail.
 multiset(string) leadwords = (multiset)("quiet shield table note as cheat uncheat test eyes eval b stats alias unalias" / " ");
 
+string word(string w) {if (!has_value(w, ' ')) return w; return sprintf("\"%s\"", w);}
+//Reconstitute a roll command from the AST. This will always produce
+//a string which, if parsed, will yield the same AST; to the greatest
+//extent possible, it should return something elegant and clean. In
+//the face of multiple options, usually choose the one a human would
+//most prefer to type; it's acceptable to explicitly state some
+//defaults, but don't overdo it.
+string reconstitute(mapping info) {
+	string ret = "";
+	switch (info->fmt) {
+		case "cheat": case "eyes": case "eval": case "table": case "note":
+			if (info->tag != "") return info->fmt + " " + info->tag;
+			return info->fmt;
+		case "test": return sprintf("test %d %d", info->max, info->avg);
+		case "alias": case "unalias":
+			ret = info->fmt;
+			if (info->alias) ret += " " + word(info->alias);
+			if (info->expansion) ret += " " + reconstitute(info->expansion);
+			return ret;
+		case "stats": return sprintf("stats %d/%d %d/%dd%d", @info->statcount, @info->dicecount, info->sides);
+	}
+	foreach ("quiet shield cheat uncheat" / " ", string flag)
+		if (info->flag) ret += flag + " ";
+	if (info->as) ret += "as " + word(info->as) + " ";
+	if (info->b) ret += "b" + info->b + " ";
+	int skipfirst = 0;
+	if (info->tag) {
+		if (info->roll[0]->fmt == "charsheet" && info->roll[0]->tag == info->tag) { //Implicit charsheet roll
+			ret += info->tag + " "; //Omit the parens for this format. Not strictly necessary but looks better.
+			skipfirst = 1;
+		}
+		else ret += sprintf("(%s) ", info->tag);
+	}
+	foreach (info->roll; int i; mapping r) {
+		if (!i && skipfirst) continue; //Implicit charsheet roll
+		if (i) ret += r->sign == "-" ? "- " : "+ "; //Don't rely on r->sign being "+", it won't always be set
+		if (r->fmt == "charsheet") {ret += word(r->tag) + " "; continue;}
+		if (r->fmt == "take") ret += "take" + r->result + " ";
+		else if (r->threshold) ret += sprintf("%dd%d/%d ", r->dice, r->threshold, r->sides);
+		else if (!r->sides) ret += sprintf("%dd ", r->dice);
+		else if (r->sides == 1) ret += sprintf("%d ", r->dice);
+		else if (r->dice == 1) ret += sprintf("d%d ", r->sides);
+		else ret += sprintf("%dd%d ", r->dice, r->sides);
+		if (r->tag) ret += sprintf("(%s) ", r->tag);
+	}
+	return ret[..<1]; //It'll have a space at the end.
+}
+
 int main(int argc, array(string) argv) {
 	Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("diceroll.grammar");
 	write("Grammar parsed successfully.\n");
@@ -118,7 +166,13 @@ int main(int argc, array(string) argv) {
 		write("************\n%s\n", diceroll);
 		sscanf(diceroll, "roll %s", diceroll);
 		mapping|string result = parser->parse(has_value(argv, "-v") ? shownext : next, this);
-		write("%O\n", result);
+		//write("%O\n", result);
+		write("roll %s\n", reconstitute(result));
+		//Verify the reconstitution by reparsing it
+		string parse1 = Standards.JSON.encode(result);
+		at_start = 1; diceroll = reconstitute(result);
+		string parse2 = Standards.JSON.encode(parser->parse(next, this));
+		if (parse1 != parse2) write("%s\n%s\n", parse1, parse2);
 		/*
 		The resulting mapping has the following optional attributes:
 		- tag => A display tag (no effect on the outcome of the roll)
