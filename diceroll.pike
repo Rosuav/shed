@@ -2,21 +2,27 @@
 constant tests = #"
 #roll (damage) 2d6 + d6 Backstab + d10 Fire
 #roll d20 + 2 STR + 3 BAB - 2 PA
-#roll WIT + 5d Awareness
+roll WIT + 5d Awareness
 #roll 2d
 #roll PER + Survival
 #roll 6d -1d Soak +6d Threshold
 #roll (withering talons) 9d
 #roll weapon_dmg - 1d soak + 6d threshold
+#roll d20 - d6 - 2d8
 #roll init
 #roll weapon_dcs + 1 Excellent + 7d Excellency +1 Willpower
+#roll table
 #roll table medium magic
 #roll quiet 2d6 + 4
 #roll shield d20 - 3
 #roll note
 #roll note 3
 #roll note wondrousitem
-#roll as rosuav spot + 4
+roll as rosuav spot + 4
+roll init
+roll search + 2
+roll (search) + 2
+roll (search) d20 + 2
 #roll test
 #roll test 20
 #roll test 20 10000
@@ -32,11 +38,11 @@ constant tests = #"
 #roll stats 6 3d6
 #roll stats 6 3/4d6
 #roll stats 6/7 3/4d6
-roll alias
-roll alias greatsword 2d6 +1 ench +3 STR +1d6 Flame
-roll alias \"greatsword\"
-roll unalias greatsword
-roll unalias \"greatsword\"
+#roll alias
+#roll alias greatsword 2d6 +1 ench +3 STR +1d6 Flame
+#roll alias \"greatsword\"
+#roll unalias greatsword
+#roll unalias \"greatsword\"
 ";
 
 mapping tagonly(string tag) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": tag])})]);} //Magically get it from the charsheet eg "roll init"
@@ -50,7 +56,7 @@ string joinwords(string ... words) {return words * "";}
 mixed take2(mixed _, mixed ret) {return ret;}
 array firstlast(mixed ... ret) {return ({ret[0], ret[-1]});}
 mapping NdM(string n, string _, string|void m) {return (["dice": (int)n, "sides": (int)m]);} //in the case of "10d", sides == 0
-mapping NdTM(string n, string _1, string t, string _2, string m) {return NdM(n, _1, m) | (["threshold": t]);} //Exalted-style "d10, goal is 7"
+mapping NdTM(string n, string _1, string t, string _2, string m) {return NdM(n, _1, m) | (["threshold": (int)t]);} //Exalted-style "d10, goal is 7"
 mapping dM(string _, string m) {return NdM("1", _, m);}
 mapping N(string n) {return NdM(n, "d", "1");} //Note that "10d" renders as "10d0" but "10" renders as "10d1".
 mapping takeN(string _, string n) {return NdM("1", "d", "20") | (["fmt": "take", "result": (int)n]);}
