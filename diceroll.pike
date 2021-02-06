@@ -2,7 +2,7 @@
 constant tests = #"
 #roll (damage) 2d6 + d6 Backstab + d10 Fire
 #roll d20 + 2 STR + 3 BAB - 2 PA
-roll WIT + 5d Awareness
+#roll WIT + 5d Awareness
 #roll 2d
 #roll PER + Survival
 #roll 6d -1d Soak +6d Threshold
@@ -18,11 +18,11 @@ roll WIT + 5d Awareness
 #roll note
 #roll note 3
 #roll note wondrousitem
-roll as rosuav spot + 4
-roll init
-roll search + 2
-roll (search) + 2
-roll (search) d20 + 2
+#roll as rosuav spot + 4
+#roll init
+#roll search + 2
+#roll (search) + 2
+#roll (search) d20 + 2
 #roll test
 #roll test 20
 #roll test 20 10000
@@ -38,11 +38,17 @@ roll (search) d20 + 2
 #roll stats 6 3d6
 #roll stats 6 3/4d6
 #roll stats 6/7 3/4d6
-#roll alias
-#roll alias greatsword 2d6 +1 ench +3 STR +1d6 Flame
-#roll alias \"greatsword\"
-#roll unalias greatsword
-#roll unalias \"greatsword\"
+roll alias
+roll alias greatsword 2d6 +1 ench +3 STR +1d6 Flame
+roll alias \"greatsword\"
+roll unalias greatsword
+roll unalias \"greatsword\"
+roll greatsword
+roll alias \"foo bar fum\" d20 + 3 Foo + 2 Bar + 5 Fum
+#roll foo bar fum
+roll \"foo bar fum\"
+roll (foo bar fum)
+roll attack_1_crit
 ";
 
 mapping tagonly(string tag) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": tag])})]);} //Magically get it from the charsheet eg "roll init"
@@ -103,10 +109,8 @@ string reconstitute(mapping info) {
 	if (info->b) ret += "b" + info->b + " ";
 	int skipfirst = 0;
 	if (info->tag) {
-		if (info->roll[0]->fmt == "charsheet" && info->roll[0]->tag == info->tag) { //Implicit charsheet roll
-			ret += info->tag + " "; //Omit the parens for this format. Not strictly necessary but looks better.
-			skipfirst = 1;
-		}
+		skipfirst = info->roll[0]->fmt == "charsheet" && info->roll[0]->tag == info->tag; //Implicit charsheet roll
+		if (skipfirst && !has_value(info->tag, ' ')) ret += word(info->tag) + " "; //Omit the parens for this format. Not strictly necessary but looks better.
 		else ret += sprintf("(%s) ", info->tag);
 	}
 	foreach (info->roll; int i; mapping r) {
@@ -146,7 +150,9 @@ int main(int argc, array(string) argv) {
 				else at_start = 0; //Once we've had any non-lead word, we're not at the start any more.
 				if (word == "d") return "d"; //The letter "d" on its own isn't a word, it's probably a dice-roll marker
 				if (word == "take" && diceroll != "" && has_value("0123456789", diceroll[0])) return "take"; //eg "take20"
-				return ({"word", word});
+				//Digits are allowed inside a word, if and only if it's not "dN" or "takeN"
+				sscanf(diceroll, "%[A-Z_a-z0-9]%s", string moreword, diceroll);
+				return ({"word", word + moreword});
 			}
 			at_start = 0; //Anything other than a lead word, digits, or whitespace means we're not at the start.
 			if (sscanf(diceroll, "\"%[^\"]\"%s", string str, diceroll)) {

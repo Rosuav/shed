@@ -9,7 +9,7 @@ command: "eval" " " words {rollmode};
 command: stats;
 command: "alias" {rollalias};
 command: "alias" " " "word" {rollalias};
-command: "alias" " " "word" " " flaggeddice {rollalias};
+command: "alias" " " "word" " " multidice {rollalias};
 command: "unalias" " " "word" {rollalias};
 
 /* "roll stats" variants */
