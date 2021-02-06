@@ -38,17 +38,23 @@ constant tests = #"
 #roll stats 6 3d6
 #roll stats 6 3/4d6
 #roll stats 6/7 3/4d6
-roll alias
-roll alias greatsword 2d6 +1 ench +3 STR +1d6 Flame
-roll alias \"greatsword\"
-roll unalias greatsword
-roll unalias \"greatsword\"
-roll greatsword
-roll alias \"foo bar fum\" d20 + 3 Foo + 2 Bar + 5 Fum
+#roll alias
+#roll alias greatsword 2d6 +1 ench +3 STR +1d6 Flame
+#roll alias \"greatsword\"
+#roll unalias greatsword
+#roll unalias \"greatsword\"
+#roll greatsword
+#roll alias \"foo bar fum\" d20 + 3 Foo + 2 Bar + 5 Fum
 #roll foo bar fum
-roll \"foo bar fum\"
-roll (foo bar fum)
-roll attack_1_crit
+#roll \"foo bar fum\"
+#roll (foo bar fum)
+#roll attack_1_crit
+roll spot
+roll (spot)
+roll (spot) d20 + spot
+roll weapon_wth
+roll (weapon_wth)
+roll (weapon_wth) 0 + weapon_wth
 ";
 
 mapping tagonly(string tag) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": tag])})]);} //Magically get it from the charsheet eg "roll init"
