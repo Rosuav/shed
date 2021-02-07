@@ -55,7 +55,8 @@ constant tests = #"
 #roll weapon_wth
 #roll (weapon_wth)
 #roll (weapon_wth) 0 + weapon_wth
-#roll 5d DEX + 3d Stealth
+roll DEX + Stealth
+roll 5d DEX + 3d Stealth
 roll (Case Scene) PER + Investigation
 ";
 
@@ -179,8 +180,9 @@ int main(int argc, array(string) argv) {
 		string|array shownext() {string lead = diceroll[..8]; mixed ret = next(); write("%O ==>%{ %O%}\n", lead, Array.arrayify(ret)); return ret;}
 		write("************\n%s\n", diceroll);
 		sscanf(diceroll, "roll %s", diceroll);
-		mapping|string result = parser->parse(has_value(argv, "-v") ? shownext : next, this);
-		//write("%O\n", result);
+		//TODO: If parsing fails and reports an error, return 0 or raise an error
+		mixed result = parser->parse(has_value(argv, "-v") ? shownext : next, this);
+		if (!mappingp(result)) {write("Error result: %O\n", result); continue;}
 		write("roll %s\n", reconstitute(result));
 		//Verify the reconstitution by reparsing it
 		string parse1 = Standards.JSON.encode(result);
