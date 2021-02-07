@@ -60,7 +60,8 @@ roll 5d DEX + 3d Stealth
 roll (Case Scene) PER + Investigation
 ";
 
-mapping tagonly(string tag) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": tag])})]);} //Magically get it from the charsheet eg "roll init"
+mapping taggedcharsheet(string tag, string _, string kwd) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": kwd])})]);}
+mapping tagonly(string tag) {return taggedcharsheet(tag, " ", tag);} //Shorthand - "roll init" == "roll (init) init"
 mapping no_tag(mapping firstroll) {return (["roll": ({firstroll})]);}
 mapping taggeddice(string tag, mapping firstroll) {return tagonly(tag) | no_tag(firstroll);}
 mapping plusroll(mapping dice, string sign, mapping roll, string|void _, string|void tag) {
@@ -188,6 +189,7 @@ int main(int argc, array(string) argv) {
 			write("Error in parsing: %s", describe_error(ex));
 			continue;
 		}
+		if (has_value(argv, "-v")) write("%O\n", result);
 		write("roll %s\n", reconstitute(result));
 		//Verify the reconstitution by reparsing it
 		string parse1 = Standards.JSON.encode(result);

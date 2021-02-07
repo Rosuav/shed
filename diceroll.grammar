@@ -38,6 +38,7 @@ rollable: "note" " " words {rollmode}; /* eg "roll note wondrousitem" */
 /* form would make no sense, or would be ambiguous, depending on point of view. */
 multidice: shorttag {tagonly}; /* "roll init" or "roll (init)"; also "roll (search) + 2" */
 multidice: tag dice {taggeddice}; /* "roll (Goblin init) d20" */
+multidice: tag " " "word" {taggedcharsheet}; /* "roll (where aaaaaare you) search" */
 multidice: dice {no_tag}; /* "roll d20" */
 /* TODO: Add "word" optionally after these, where appropriate */
 
