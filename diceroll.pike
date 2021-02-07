@@ -137,8 +137,11 @@ string reconstitute(mapping info) {
 	return ret[..<1]; //It'll have a space at the end.
 }
 
+void throw_errors(int level, string subsystem, string msg, mixed ... args) {if (level >= 2) error(msg + "\n", @args);}
+
 int main(int argc, array(string) argv) {
 	Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("diceroll.grammar");
+	parser->set_error_handler(throw_errors);
 	write("Grammar parsed successfully.\n");
 	//TODO: Walk the grammar and find all leading keywords rather than hard coding them
 	foreach (tests / "\n", string diceroll) if (diceroll != "" && diceroll[0] != '#') {
@@ -180,9 +183,11 @@ int main(int argc, array(string) argv) {
 		string|array shownext() {string lead = diceroll[..8]; mixed ret = next(); write("%O ==>%{ %O%}\n", lead, Array.arrayify(ret)); return ret;}
 		write("************\n%s\n", diceroll);
 		sscanf(diceroll, "roll %s", diceroll);
-		//TODO: If parsing fails and reports an error, return 0 or raise an error
-		mixed result = parser->parse(has_value(argv, "-v") ? shownext : next, this);
-		if (!mappingp(result)) {write("Error result: %O\n", result); continue;}
+		mapping result;
+		if (mixed ex = catch {result = parser->parse(has_value(argv, "-v") ? shownext : next, this);}) {
+			write("Error in parsing: %s", describe_error(ex));
+			continue;
+		}
 		write("roll %s\n", reconstitute(result));
 		//Verify the reconstitution by reparsing it
 		string parse1 = Standards.JSON.encode(result);
