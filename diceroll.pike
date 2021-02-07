@@ -62,10 +62,12 @@ roll (Case Scene) PER + Investigation
 
 mapping taggedcharsheet(string tag, string _, string kwd) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": kwd])})]);}
 mapping tagonly(string tag) {return taggedcharsheet(tag, " ", tag);} //Shorthand - "roll init" == "roll (init) init"
+mapping no_tag_with_tag(mapping firstroll, string _, string tag) {return (["roll": ({firstroll | (["tag": tag])})]);} //No tag on the overall roll, but one on the dice
 mapping no_tag(mapping firstroll) {return (["roll": ({firstroll})]);}
 mapping taggeddice(string tag, mapping firstroll) {return tagonly(tag) | no_tag(firstroll);}
+mapping taggeddice_with_tag(string tag, mapping firstroll, string _, string dicetag) {return tagonly(tag) | no_tag_with_tag(firstroll, _, dicetag);}
 mapping plusroll(mapping dice, string sign, mapping roll, string|void _, string|void tag) {
-	dice->roll += ({roll | (["sign": sign, "tag": tag])});
+	dice->roll += ({roll | (["sign": sign]) | (tag ? (["tag": tag]) : ([]))});
 	return dice;
 }
 string joinwords(string ... words) {return words * "";}
