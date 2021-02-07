@@ -55,7 +55,8 @@ constant tests = #"
 #roll weapon_wth
 #roll (weapon_wth)
 #roll (weapon_wth) 0 + weapon_wth
-roll 5d DEX + 3d Stealth
+#roll 5d DEX + 3d Stealth
+roll (Case Scene) PER + Investigation
 ";
 
 mapping tagonly(string tag) {return (["tag": tag, "roll": ({(["fmt": "charsheet", "tag": tag])})]);} //Magically get it from the charsheet eg "roll init"

@@ -39,6 +39,7 @@ rollable: "note" " " words {rollmode}; /* eg "roll note wondrousitem" */
 multidice: shorttag {tagonly}; /* "roll init" or "roll (init)"; also "roll (search) + 2" */
 multidice: tag dice {taggeddice}; /* "roll (Goblin init) d20" */
 multidice: dice {no_tag}; /* "roll d20" */
+/* TODO: Add "word" optionally after these, where appropriate */
 
 multidice: multidice sign dice {plusroll}; /* After any of the above forms, further dice can be added */
 multidice: multidice sign dice " " shorttag {plusroll}; /* With or without a tag */
