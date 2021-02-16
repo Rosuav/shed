@@ -65,6 +65,7 @@ def parse_file(fn, *, force=False):
 # CAUTION: This will recurse into symlinked directories. Don't symlink back to the
 # parent or you'll get a lovely little infinite loop.
 def parse_dir(path, *, force=False):
+	if path.endswith("/.git"): return # Don't descend into git directories, you'll just waste time
 	for child in os.scandir(path):
 		if child.is_dir(): parse_dir(child.path, force=force)
 		else: parse_file(child.path, force=force)
