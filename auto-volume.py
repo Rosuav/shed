@@ -29,6 +29,12 @@ def parse_file(fn, *, force=False):
 		# parse, but which turn out to have no audio tracks???
 		return
 
+	try: fn.encode("utf-8")
+	except UnicodeEncodeError:
+		print("Filename does not encode cleanly, won't work in Lua")
+		print(repr(fn))
+		return
+
 	try:
 		audio = pydub.AudioSegment.from_file(fn)
 		print("%s: %.2f dB (max %.2f)" % (fn, audio.dBFS, audio.max_dBFS))
@@ -59,7 +65,7 @@ def parse_file(fn, *, force=False):
 		print(fn, "... KeyError parse failure")
 	except:
 		# If anything else goes wrong, show which file failed.
-		print(fn)
+		print(repr(fn))
 		raise
 
 # CAUTION: This will recurse into symlinked directories. Don't symlink back to the
