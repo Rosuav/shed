@@ -44,6 +44,14 @@ import json
 import os
 import subprocess
 
+# TODO: Diffing mode
+# Take the existing settings as the baseline, and diff the black detection against
+# something specified on the command line. For instance: "--diff pixel_black_th=0.08"
+# to see what it'd be like with a different per-pixel threshold. Use the cache for
+# both sides if possible. Do a diffing of the info that goes into the comment lines:
+# "Chapter N: from 28:52.770 to 28:55.650 ==> 2.880" - ignore the chapter numbers,
+# and just compare the timestamps. A naive diff should be sufficient here.
+
 # Abuse of __doc__ :)
 class BadScriptFile(Exception): "Unknown error (shouldn't happen)" 
 class UnknownDirective(BadScriptFile): "Unrecognized directive %r on line %d"
