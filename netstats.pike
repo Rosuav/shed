@@ -1,5 +1,7 @@
-int main()
+int main(int argc, array(string) argv)
 {
+	float rate = 1.0;
+	if (argc > 1 && (float)argv[1] != 0.0) rate = (float)argv[1];
 	mapping lastinfo=([]);
 	System.Timer timer=System.Timer();
 	int have_comments = 0;
@@ -68,6 +70,6 @@ int main()
 		}
 		lastinfo=info;
 		write("\n");
-		sleep(10);
+		sleep(rate);
 	}
 }
