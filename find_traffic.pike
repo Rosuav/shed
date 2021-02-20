@@ -1,6 +1,7 @@
 void allow(int addr, int len, string mark)
 {
         string block=sprintf("%d.%d.%d.%d/%d",addr>>24,(addr>>16)&255,(addr>>8)&255,addr&255,len);
+	//string block = sprintf("%d:%d", addr, addr + (1<<(16-len)) - 1);
         write("Allowing: %s\n",block);
         Process.create_process(({"iptables","-I","INPUT","--src",block,"-j","ACCEPT", "-m", "comment", "--comment", mark}))->wait();
 }
@@ -15,10 +16,11 @@ int main()
 		if (sscanf(line, "%d %*s/* probe: %d */", int idx, int probe) == 3) deleteme += ({idx});
 	foreach (reverse(deleteme), int idx) Process.create_process(({"iptables","-D","INPUT",(string)idx}))->wait();
 	//TODO: Do the above on Ctrl-C too
-        for (int len=1;len<=32;++len)
+	int size = 32; //To probe TCP or UDP port numbers, change size to 16 and adjust allow()
+        for (int len=1;len<=size;++len)
         {
                 allow(addr, len, "probe: 0");
-                allow(addr+(1<<(32-len)), len, "probe: 1");
+                allow(addr+(1<<(size-len)), len, "probe: 1");
 		array(int) idx = ({-1, -1}), pkt = ({0, 0}), bytes = ({0, 0});
 		while (1)
 		{
@@ -34,7 +36,7 @@ int main()
 			int traf0 = count_packets ? pkt[0] * 5 : bytes[0]; //Packet count is scaled by 5 for the sake
 			int traf1 = count_packets ? pkt[1] * 5 : bytes[1]; //of the "insufficient traffic" check
 			if (traf0 < 10000 && traf1 < 10000) {write("Insufficient traffic to be confident; waiting for more.\n"); continue;}
-			if (traf1>traf0) addr+=(1<<(32-len));
+			if (traf1>traf0) addr+=(1<<(size-len));
 			break;
 		}
                 Process.create_process(({"iptables","-D","INPUT",(string)max(idx[0], idx[1])}))->wait();
