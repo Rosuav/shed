@@ -1,3 +1,5 @@
+float diff(float|int now, float|int last, float tm) {return (now - last) / tm;}
+
 int main(int argc, array(string) argv)
 {
 	float rate = 1.0;
@@ -13,15 +15,15 @@ int main(int argc, array(string) argv)
 		foreach (Process.run(({"iptables","-nvxL"}))->stdout/"\n",string line)
 		{
 			if (line=="") continue;
-			if (sscanf(line,"Chain %s (policy %*[A-Z] %*d packets, %s bytes)",string ch,string bytes))
+			if (sscanf(line,"Chain %s (policy %*[A-Z] %d packets, %d bytes)", string ch, int packets, int bytes))
 			{
 				if (info[chain])
 				{
-					if (lastinfo[chain]) write("%12f/s %s\n",((int)info[chain]-(int)lastinfo[chain])/tm,chain);
-					else write("New: %12s %s\n",info[chain],chain);
+					if (lastinfo[chain]) write("%12f/s %9f/s %s\n", @diff(info[chain][*], lastinfo[chain][*], tm), chain);
+					else write("New: %11d %9d %s\n", @info[chain], chain);
 				}
 				chain=ch;
-				if (!have_comments) info[chain] = bytes;
+				if (!have_comments) info[chain] = ({bytes, packets});
 				continue;
 			}
 			if (has_prefix(String.trim_all_whites(line),"pkts")) continue; //Column headings - ignore
@@ -52,21 +54,14 @@ int main(int argc, array(string) argv)
 				if (target!="ACCEPT") desc+=" "+target;
 				while (info[desc]) desc+="*"; //Force disambiguation. If this marker is coming up, it probably means the above info needs to be cleaned up.
 			}
-			info[desc]=bytes; //Retain the string so we can easily distinguish absence from a value of "0"
-			if (lastinfo[desc]) write("%12f/s %s\n",((int)bytes-(int)lastinfo[desc])/tm,desc);
-			else write("New: %12s %s\n",bytes,desc);
-			if (have_comments) //Show packet counts only if the rules have been filtered down (else it gets spammy fast)
-			{
-				desc += " pkts";
-				info[desc] = pkts;
-				if (lastinfo[desc]) write("%12f/s %s\n",((int)pkts-(int)lastinfo[desc])/tm,desc);
-				else write("New: %12s %s\n",pkts,desc);
-			}
+			info[desc] = ({(int)bytes, (int)pkts});
+			if (lastinfo[desc]) write("%12f/s %9f/s %s\n", @diff(info[desc][*], lastinfo[desc][*], tm), desc);
+			else write("New: %11d %9d %s\n", @info[desc], desc);
 		}
 		if (info[chain])
 		{
-			if (lastinfo[chain]) write("%12f/s %s\n",((int)info[chain]-(int)lastinfo[chain])/tm,chain);
-			else write("New: %12s %s\n",info[chain],chain);
+			if (lastinfo[chain]) write("%12f/s %9f/s %s\n", @diff(info[chain][*], lastinfo[chain][*], tm), chain);
+			else write("New: %11d %9d %s\n", @info[chain], chain);
 		}
 		lastinfo=info;
 		write("\n");
