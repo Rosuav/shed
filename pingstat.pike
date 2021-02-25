@@ -37,11 +37,15 @@ void update_averages(int|float add) {
 		averages[i] = (averages[i] * (min(last_weight + d, p) - d) + add) / min(t, p);
 		//if (t < p / 2) continue; //Hide the ones that aren't interesting yet
 		int pct = (int)(averages[i] * 100.0);
-		if (pct < 0) msg += " --";
-		else if (pct >= 100) msg += " OK";
-		else msg += " " + pct;
+		if (pct < 0) msg += " \e[1;31m--"; //Below zero is a calculation oddity
+		else if (pct < 50) msg += " \e[1;31m" + pct; //Below half is terrible!
+		else if (pct < 80) msg += " \e[0;31m" + pct; //Non-bold red
+		else if (pct < 90) msg += " \e[0;38;2;255;187;170m" + pct; //Orange (256 color mode)
+		else if (pct < 99) msg += " \e[1;33m" + pct; //Yellow for up to 98%
+		else if (pct < 100) msg += " \e[1;32m" + pct; //99% can be a rounding error, even if all's good.
+		else msg += " \e[1;32mOK"; //100% and above get shown as "OK" to keep the display tidy
 	}
-	write("Avg:%s (%.0fs)\e[K\r", msg, t);
+	write("Avg:%s \e[0m(%.0fs)\e[K\r", msg, t);
 	last_weight = t;
 }
 
