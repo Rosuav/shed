@@ -1,7 +1,7 @@
 {
 	"map": {
 		"mode": "competitive",
-		"name": "de_dust2||de_inferno||de_nuke||cs_italy||de_aztec||dz_frostbite||cs_agency",
+		"name": "de_dust2||de_inferno||de_nuke||cs_italy||de_aztec||dz_frostbite||cs_agency||de_train",
 		"phase": "warmup||live||intermission||gameover",
 		"round": 0,
 		"team_ct": {
@@ -28,7 +28,20 @@
 		"activity": "playing||textinput||menu",
 		"clan": "Rosbot||ESL CS||Monke!||crepito||LosVL||\ud604\uc6d4\uc758 \uc0c1||RE3E||H\u03b1cks.||Don Pablo||wanted \u061cby",
 		"observer_slot": 1,
-		"team": "CT||T"
+		"team": "CT||T",
+		"state": {
+			"health": 0,
+			"armor": 0,
+			"helmet": false,
+			"flashed": 0,
+			"smoked": 0,
+			"burning": 0,
+			"money": 65000,
+			"round_kills": 0,
+			"round_killhs": 0,
+			"equip_value": 0,
+			"defusekit": true
+		}
 	},
 	"round": {
 		"phase": "freezetime||live||over",
