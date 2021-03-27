@@ -133,7 +133,7 @@ def take_notes(*, desc, new_match=False, **extra):
 		"sphinx": options[:5],
 		"google": google,
 	})
-	for key in "round", "spec", "score", "time", "bombtime":
+	for key in "round", "spec", "score", "time", "bombtime", "player_state":
 		if key in extra: meta["recordings"][-1][key] = extra[key]
 	with open(block + "/metadata.json", "w") as f:
 		json.dump(meta, f, sort_keys=True, indent=2)
