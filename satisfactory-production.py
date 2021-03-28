@@ -263,4 +263,27 @@ Get Residue
 - <Heavy Oil Rubber> 3 Crude + 2 Water/6s = 4 Residue + 1 Rubber; Refinery "Heavy Oil Residue" + Refinery "Residual Rubber" * 50%
 '''
 
-import sys, pprint; pprint.pprint(producers["Turbofuel"]); sys.exit(0)
+if __name__ == "__main__":
+	import sys
+	if len(sys.argv) < 2:
+		print("Specify one or more target items")
+		sys.exit(0)
+	for target in sys.argv[1:]:
+		print()
+		print("PRODUCING:", target)
+		print("====================================")
+		for recipe in producers[target]:
+			for input, qty in recipe["costs"].most_common():
+				if isinstance(input, str):
+					print("Requires %s at %.2f%%" % (input, qty * 100.0))
+			for result, qty in recipe["makes"].most_common():
+				if qty != int(qty): qty = float(qty)
+				print("Produces %s/min %s" % (qty, result))
+			for step, qty in recipe["recipes"]:
+				print("%s - %s at %.2f%%" % (
+					step.__name__.replace("_", " "),
+					step.building.__name__.replace("_", " "),
+					qty * 100.0,
+				))
+			print()
+
