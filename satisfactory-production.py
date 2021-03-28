@@ -2,8 +2,9 @@
 # Requires Python 3.7, maybe newer
 # I spent WAY too much time and had WAY too much fun doing this. Deal with it.
 
-from collections import defaultdict
+from collections import defaultdict, Counter
 from fractions import Fraction
+import itertools
 
 consumers = defaultdict(list)
 producers = defaultdict(list)
@@ -14,28 +15,82 @@ class Building:
 		super().__init_subclass__()
 		print("Building:", bldg.__name__)
 		def make_recipe(recip):
-			print(recip.__name__.replace("_", " "), "is made in a", bldg.__name__)
-			needs, makes = defaultdict(int), defaultdict(int)
+			print(recip.__name__.replace("_", " "), "is made in a", bldg.__name__.replace("_", " "))
+			recip.building = bldg
+			makes = defaultdict(int)
 			per_minute = None
-			for item, qty in recip.__dict__.items():
+			needs, needqty = [], []
+			for item, qty in recip.__annotations__.items():
 				if item.startswith("_"): continue
+				qty = int(qty)
 				if item == "time":
-					recip.time = qty
-					per_minute = Fraction(60, time)
-					if per_minute == int(per_minute): per_minute = int(per_minute)
+					per_minute = Fraction(60, qty)
 					continue
 				item = item.strip("_")
 				if per_minute is None:
-					needs[item] += qty
-					consumers[item].append(recip)
+					if not producers[item]:
+						raise Exception("Don't know how to obtain %s for %s" % (item, recip.__name__))
+					needs.append(producers[item])
+					needqty.append(qty)
+					makes[item] -= qty
 				else:
 					makes[item] += qty
-					producers[item].append(recip)
-			recip.needs = {i: q * per_minute for i, q in needs.items()}
-			recip.makes = {i: q * per_minute for i, q in makes.items()}
+			# Scan the requirements and exclude any that are strictly worse
+			# than others. This is O(n²) in the number of options, which are
+			# the product of all options, but there shouldn't ever be TOO
+			# many; the strictly-worse check will guard against loops. Note
+			# that many requirements will have only a single producer.
+			for requirements in itertools.product(*needs):
+				net = Counter({i: q * per_minute for i, q in makes.items()})
+				recipes = []
+				for req, qty in zip(requirements, needqty):
+					ratio = Fraction(qty * per_minute, req["per_minute"])
+					for i, q in req["makes"].items():
+						net[i] += q * ratio
+					for r, q in req["recipes"]:
+						recipes.append((r, q * ratio))
+				if -net:
+					raise Exception("Shouldn't happen! Makes a negative qty! " + recip.__name__)
+				net -= Counter() # Clean out any that have hit zero
+				recipes.append((recip, 1))
+				# Cost is defined as the total production cost per building,
+				# penalized by multiplying by the number of stages. This will
+				# strongly discourage complex recipes that involve too much
+				# messing around.
+				costs = Counter()
+				costs["stages"] = len(recipes)
+				for r, q in recipes: costs[r.building] += q * len(recipes)
+				for item, qty in net.items():
+					for alternate in producers[item]:
+						if alternate["costs"]["stages"] == 1: break # Items that can be directly obtained should be.
+						if (qty <= alternate["per_minute"]
+							and (costs[Extractor], costs) > (alternate["costs"][Extractor], alternate["costs"])
+						):
+							# Producing the same (or less) of the primary output
+							# from more base materials, or from the same base
+							# materials with more production cost, is not worth it.
+							break
+						if net <= alternate["makes"] and costs >= alternate["costs"]:
+							# Strictly worse. Skip it. Note that a recipe may be
+							# strictly worse for one product while being viable
+							# for another; this is very common with byproducts,
+							# such as run-off water from aluminium production -
+							# you wouldn't want to obtain water that way, even
+							# though technically you could.
+							break
+					else:
+						producers[item].append({
+							"per_minute": qty,
+							"makes": net,
+							"recipes": recipes,
+							"costs": costs,
+						})
 		bldg.__init_subclass__ = classmethod(make_recipe)
 
 
+# TODO: Record power costs for each of these
+# TODO: Treat each extractor as a unique cost, so costing 1 Oil is different from costing 1 Water.
+class Extractor(Building): ... # All primary or manual production goes here.
 class Refinery(Building): ...
 class Blender(Building): ...
 class Packager(Building): ...
@@ -49,6 +104,14 @@ class Packager(Building): ...
 # If the same item is an ingredient and a product, suffix one with "_", eg with
 # the production of uranium pellets (Sulfuric_Acid: 8, ..., Sulfuric_Acid_: 2).
 
+# Primary production
+class Crude(Extractor):
+	time: 1
+	Crude: 2 # Should vary by purity
+class Water(Extractor):
+	time: 1
+	Water: 2
+
 # Basic crude refinement
 class Plastic(Refinery):
 	Crude: 3
@@ -60,7 +123,7 @@ class Rubber(Refinery):
 	Crude: 3
 	time: 6
 	Residue: 2
-	Plastic: 2
+	Rubber: 2
 
 class Fuel(Refinery):
 	Crude: 6
@@ -92,16 +155,20 @@ class Diluted_Fuel(Blender):
 	time: 6
 	Fuel: 10
 
-class Diluted_Packaged_Fuel(Refinery):
-	Residue: 1
-	Packaged_Water: 2
-	time: 2
-	Packaged_Fuel: 2
+class Canister(Extractor): # Mythical, since a package/unpackage cycle shouldn't need a constant influx
+	time: 1
+	Canister: 2
+
 class Package_Water(Packager):
 	Water: 2
 	Canister: 2
 	time: 2
 	Packaged_Water: 2
+class Diluted_Packaged_Fuel(Refinery):
+	Residue: 1
+	Packaged_Water: 2
+	time: 2
+	Packaged_Fuel: 2
 class Unpackage_Fuel(Packager):
 	Packaged_Fuel: 2
 	time: 2
@@ -130,6 +197,8 @@ class Recycled_Plastic(Refinery):
 	Rubber: 6
 	time: 12
 	Plastic: 12
+
+import sys, pprint; pprint.pprint(producers["Plastic"]); sys.exit(0)
 
 class Recycled_Rubber(Refinery):
 	Fuel: 6
