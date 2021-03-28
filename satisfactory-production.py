@@ -10,6 +10,7 @@ consumers = defaultdict(list)
 producers = defaultdict(list)
 
 class Building:
+	resource = None
 	@classmethod
 	def __init_subclass__(bldg):
 		super().__init_subclass__()
@@ -42,23 +43,21 @@ class Building:
 			# that many requirements will have only a single producer.
 			for requirements in itertools.product(*needs):
 				net = Counter({i: q * per_minute for i, q in makes.items()})
+				costs = Counter()
+				if recip.resource: costs[recip.resource] = 1
 				recipes = []
 				for req, qty in zip(requirements, needqty):
 					ratio = Fraction(qty * per_minute, req["per_minute"])
 					for i, q in req["makes"].items():
 						net[i] += q * ratio
+					for i, q in req["costs"].items():
+						costs[i] += q * ratio
 					for r, q in req["recipes"]:
 						recipes.append((r, q * ratio))
 				if -net:
 					raise Exception("Shouldn't happen! Makes a negative qty! " + recip.__name__)
 				net -= Counter() # Clean out any that have hit zero
 				recipes.append((recip, 1))
-				# Cost is defined as the total production cost per building,
-				# penalized by multiplying by the number of stages. This will
-				# strongly discourage complex recipes that involve too much
-				# messing around.
-				costs = Counter()
-				costs["stages"] = len(recipes)
 				for r, q in recipes: costs[r.building] += q * len(recipes)
 				for item, qty in net.items():
 					for alternate in producers[item]:
@@ -89,11 +88,11 @@ class Building:
 
 
 # TODO: Record power costs for each of these
-# TODO: Treat each extractor as a unique cost, so costing 1 Oil is different from costing 1 Water.
-class Extractor(Building): ... # All primary or manual production goes here.
+class Extractor(Building): ...
 class Refinery(Building): ...
 class Blender(Building): ...
 class Packager(Building): ...
+class Assembler(Building): ...
 
 # class Recipe_Name(BuildingThatMakesIt):
 #   Ingredient1: Qty
@@ -106,9 +105,11 @@ class Packager(Building): ...
 
 # Primary production
 class Crude(Extractor):
+	resource = "Oil"
 	time: 1
-	Crude: 2 # Should vary by purity
+	Crude: 1 # Should vary by purity
 class Water(Extractor):
+	resource = "Water"
 	time: 1
 	Water: 2
 
@@ -156,8 +157,9 @@ class Diluted_Fuel(Blender):
 	Fuel: 10
 
 class Canister(Extractor): # Mythical, since a package/unpackage cycle shouldn't need a constant influx
+	resource = "Canisters"
 	time: 1
-	Canister: 2
+	Canister: 1
 
 class Package_Water(Packager):
 	Water: 2
@@ -198,13 +200,25 @@ class Recycled_Plastic(Refinery):
 	time: 12
 	Plastic: 12
 
-import sys, pprint; pprint.pprint(producers["Plastic"]); sys.exit(0)
-
 class Recycled_Rubber(Refinery):
 	Fuel: 6
 	Plastic: 6
 	time: 12
 	Rubber: 12
+
+class Sulfur(Extractor):
+	resource = "Sulfur"
+	time: 1
+	Sulfur: 1
+class Coal(Extractor):
+	resource = "Coal"
+	time: 1
+	Coal: 1
+class Compacted(Assembler):
+	Coal: 5
+	Sulfur: 5
+	time: 12
+	Compacted: 5
 
 # Making Turbofuel
 class Turbofuel(Refinery):
@@ -248,3 +262,5 @@ Get Residue
 - "Rubber" 3 Crude/6s = 2 Residue + 2 Rubber
 - <Heavy Oil Rubber> 3 Crude + 2 Water/6s = 4 Residue + 1 Rubber; Refinery "Heavy Oil Residue" + Refinery "Residual Rubber" * 50%
 '''
+
+import sys, pprint; pprint.pprint(producers["Turbofuel"]); sys.exit(0)
