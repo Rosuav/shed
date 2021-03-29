@@ -7,6 +7,7 @@
 # not save files from consoles (they may be big-endian, and/or use another
 # compression algorithm). Currently the path is hard-coded for Linux though.
 import argparse
+import base64
 import binascii
 import collections
 import hashlib
@@ -232,16 +233,52 @@ def create_all_weapons(savefile):
 		packed = PackedWeaponData(serial=synth.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
 		savefile.packed_weapon_data.append(packed)
 
+@synthesizer
+def give_weapon(savefile, definition):
+	[id, *changes] = definition.split("-")
+	serial = base64.b64decode(id.strip("{}").encode("ascii") + b"====")
+	if changes:
+		obj = Asset.decode_asset_library(serial)
+		for change in changes:
+			if not change: continue
+			c = change[0].lower()
+			if c == "l": obj.grade = obj.stage = int(change[1:])
+			# TODO: Add other changes as needed
+		serial = obj.encode_asset_library()
+	packed = PackedWeaponData(serial=serial, quickslot=0, mark=1, unknown4=0)
+	savefile.packed_weapon_data.append(packed)
+
+@synthesizer
+def give_item(savefile, definition):
+	[id, *changes] = definition.split("-")
+	serial = base64.b64decode(id.strip("{}").encode("ascii") + b"====")
+	if changes:
+		obj = Asset.decode_asset_library(serial)
+		for change in changes:
+			if not change: continue
+			c = change[0].lower()
+			if c == "l": obj.grade = obj.stage = int(change[1:])
+			# TODO: Add other changes as needed
+		serial = obj.encode_asset_library()
+	packed = PackedItemData(serial=serial, quantity=1, equipped=0, mark=1)
+	savefile.packed_item_data.append(packed)
+
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
 	action="store_const", const="borderlands 2", dest="game")
 parser.add_argument("-p", "--tps", help="Read Borderlands The Pre-Sequel savefiles",
 	action="store_const", const="borderlands the pre-sequel", dest="game")
 parser.set_defaults(game="borderlands 2")
+parser.add_argument("--proton", help="Read savefiles from Proton installation",
+	action="store_const", const="proton", dest="platform")
+parser.add_argument("--native", help="Read savefiles from native Linux installation",
+	action="store_const", const="native", dest="platform")
+parser.set_defaults(platform="native")
 parser.add_argument("--player", help="Choose which player (by Steam ID) to view savefiles of")
 parser.add_argument("--verify", help="Verify code internals by attempting to back-encode", action="store_true")
 parser.add_argument("--pieces", help="Show the individual pieces inside weapons/items", action="store_true")
 parser.add_argument("--raw", help="Show the raw details of weapons/items (spammy - use loot filters)", action="store_true")
+parser.add_argument("--itemids", help="Show the IDs of weapons/items", action="store_true")
 parser.add_argument("--synth", help="Synthesize a modified save file", type=synthesizer, nargs="*")
 parser.add_argument("-l", "--loot-filter", help="Show loot, optionally filtered to only what's interesting", type=loot_filter, nargs="*")
 parser.add_argument("-f", "--file", help="Process only one save file")
@@ -479,6 +516,7 @@ class Asset:
 		else: lvl = "Level %d/%d" % (self.grade, self.stage)
 		type = self.type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
 		ret = "%s %s (%s)" % (lvl, self.get_title(), type) + ("\n" + " + ".join(filter(None, self.pieces))) * args.pieces
+		if args.itemids: ret += " {%s}" % base64.b64encode(self.encode_asset_library()).decode("ascii").strip("=")
 		if args.raw: ret += "\n" + ", ".join("%s=%r" % (f, getattr(self, f)) for f in self.__dataclass_fields__)
 		return ret
 	#if args.raw: del __repr__ # For a truly-raw view (debugging mode).
@@ -913,7 +951,12 @@ def parse_savefile(fn):
 		with open("synthesized.sav", "wb") as f: f.write(comp)
 	return ret
 
-dir = os.path.expanduser("~/.local/share/aspyr-media/" + GAME + "/willowgame/savedata")
+if args.platform == "native":
+	dir = os.path.expanduser("~/.local/share/aspyr-media/" + GAME + "/willowgame/savedata")
+else:
+	appid = "261640" if GAME == "borderlands the pre-sequel" else "49520"
+	dir = os.path.expanduser("~/.steam/steam/steamapps/compatdata/" + appid +
+		"/pfx/drive_c/users/steamuser/My Documents/My Games/Borderlands 2/WillowGame/SaveData")
 if args.player == "list":
 	print("Player IDs available:")
 	for player in sorted(os.listdir(dir)):
