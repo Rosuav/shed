@@ -78,22 +78,24 @@ def boost(savefile):
 @synthesizer
 def invdup(savefile, level):
 	"""Duplicate inventory at a new level for comparison"""
-	level = int(level)
-	if level < 1: raise ValueError("C'mon, get on my level, man")
+	levels = [int(l) for l in level.split(",") if l]
+	if not levels: raise ValueError("C'mon, get on my level, man")
 	for weapon in savefile.packed_weapon_data:
 		weap = Asset.decode_asset_library(weapon.serial)
-		if weap.grade != level and not weapon.quickslot:
-			weap.grade = weap.stage = level
-			weap.seed = random.randrange(1<<31)
-			packed = PackedWeaponData(serial=weap.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
-			savefile.packed_weapon_data.append(packed)
+		if weap.grade not in levels and not weapon.quickslot:
+			for level in levels:
+				weap.grade = weap.stage = level
+				weap.seed = random.randrange(1<<31)
+				packed = PackedWeaponData(serial=weap.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
+				savefile.packed_weapon_data.append(packed)
 	for item in savefile.packed_item_data:
 		it = Asset.decode_asset_library(item.serial)
-		if it and it.grade != level and not item.equipped:
-			it.grade = it.stage = level
-			it.seed = random.randrange(1<<31)
-			packed = PackedItemData(serial=it.encode_asset_library(), quantity=1, equipped=0, mark=1)
-			savefile.packed_item_data.append(packed)
+		if it and it.grade not in levels and not item.equipped:
+			for level in levels:
+				it.grade = it.stage = level
+				it.seed = random.randrange(1<<31)
+				packed = PackedItemData(serial=it.encode_asset_library(), quantity=1, equipped=0, mark=1)
+				savefile.packed_item_data.append(packed)
 
 @synthesizer
 def create_many(savefile):
