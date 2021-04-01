@@ -66,7 +66,7 @@ def human_time(s):
 	if m < 60: return "%d:%06.3f" % (m, s % 60)
 	return "%d:%02d:%06.3f" % (m // 60, m % 60, s % 60)
 
-def black_split(script, append_unknowns):
+def black_split(script, *, append=False, createonly=False):
 	cfg = {
 		"pixel_black_th": "0.10", # Same defaults as ffmpeg uses
 		"picture_black_ratio_th": "0.98",
@@ -163,12 +163,19 @@ def black_split(script, append_unknowns):
 					# meaning that the start of the next block will include this.
 					continue
 				if output != "--": # An output of "--" means no file to create
+					output, *args = output.split("; ")
+					args = dict(arg.split("=", 1) for arg in args)
 					output = cfg["output_format"].format(n=file_no, desc=output)
-					print("Creating:", output)
 					file_no += 1
+					if createonly and os.path.exists(output):
+						print("Skipping:", output)
+						last_end = end
+						continue
+					print("Creating:", output)
 					subprocess.run([
 						"ffmpeg", "-i", inputfile,
-						"-ss", str(last_end), "-t", str(start - last_end),
+						"-ss", str(last_end + int(args.get("trimstart", 0))),
+						"-t", str(start - last_end - int(args.get("trimend", 0))),
 						"-c", "copy", output,
 						"-y", "-loglevel", "quiet", "-stats",
 					], check=True)
@@ -178,7 +185,7 @@ def black_split(script, append_unknowns):
 
 if __name__ == "__main__":
 	import sys
-	append = "--append" in sys.argv
+	flags = {flg.strip("-"): True for flg in sys.argv if flg.startswith("--")}
 	args = [a for a in sys.argv[1:] if not a.startswith("--")]
 	if "--help" in sys.argv or not args:
 		print("USAGE: python3 %s scriptfile" % sys.argv[0])
@@ -186,7 +193,7 @@ if __name__ == "__main__":
 		sys.exit(0)
 	for fn in args:
 		try:
-			black_split(fn, append)
+			black_split(fn, **flags)
 		except BadScriptFile as e:
 			print(e.__doc__ % e.args)
 			break
