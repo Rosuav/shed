@@ -34,11 +34,13 @@ OUTPUT=1,chapter1.mkv
 OUTPUT=1,--
 # There's a black moment inside this logical chapter, so write out two
 # consecutive chapters as a single file.
-OUTPUT=2,chapter2.mkv
+OUTPUT=2,chapter2.mkv; trimstart=2; trimend=4
 # Etc. If blacksplit.py is run with the --append parameter, it will
 # add null entries to this file, annotated with timing marker comments,
 # and specifying no output; all you have to do is edit the file names
 # (and possibly merge some if necessary).
+# If the black detection isn't perfect, adjust it with a trim marker
+# (number of seconds, start and/or end). These values may be negative.
 """
 import json
 import os
