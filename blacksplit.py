@@ -149,7 +149,7 @@ def black_split(script, *, append=False, createonly=False):
 				# last_end to start, spanning the time of non-blackness between the black.
 				if output_idx > len(outputs):
 					fr, to, dur = human_time(last_end), human_time(start), human_time(start - last_end)
-					if append_unknowns:
+					if append:
 						with open(script, "a") as f:
 							print("%s# Chapter %d: from %s to %s ==> %s" %
 								(append_desc, output_idx, fr, to, dur), file=f)
@@ -174,10 +174,12 @@ def black_split(script, *, append=False, createonly=False):
 						last_end = end
 						continue
 					print("Creating:", output)
+					skipstart = int(args.get("trimstart", 0))
+					skipend = skipstart + int(args.get("trimend", 0)) # Since humans want to think about trims, not lengths
 					subprocess.run([
 						"ffmpeg", "-i", inputfile,
-						"-ss", str(last_end + int(args.get("trimstart", 0))),
-						"-t", str(start - last_end - int(args.get("trimend", 0))),
+						"-ss", str(last_end + skipstart),
+						"-t", str(start - last_end - skipend),
 						"-c", "copy", output,
 						"-y", "-loglevel", "quiet", "-stats",
 					], check=True)
