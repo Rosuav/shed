@@ -349,6 +349,13 @@ class Radio_Control_System(Manufacturer):
 	time: 40
 	Radio_Control_Unit: 3
 
+class Radio_Connection_Unit(Manufacturer):
+	Heat_Sink: 4
+	HS_Connector: 2
+	Quartz: 12
+	time: 16
+	Radio_Control_Unit: 1
+
 '''
 Ways to get Fuel
 - "Diluted Fuel" Blender 5 Residue + 10 Water/6s = 10
