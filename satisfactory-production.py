@@ -266,7 +266,7 @@ Get Residue
 if __name__ == "__main__":
 	import sys
 	if len(sys.argv) < 2:
-		print("Specify one or more target items")
+		print("\nERROR: Must specify one or more target items")
 		sys.exit(0)
 	for target in sys.argv[1:]:
 		print()
