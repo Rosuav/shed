@@ -104,7 +104,10 @@ class Extractor(Building): ...
 class Refinery(Building): ...
 class Blender(Building): ...
 class Packager(Building): ...
+class Constructor(Building): ...
 class Assembler(Building): ...
+class Smelter(Building): ...
+class Foundry(Building): ...
 
 # class Recipe_Name(BuildingThatMakesIt):
 #   Ingredient1: Qty
@@ -252,6 +255,90 @@ class Turbo_Blend_Fuel(Blender):
 	Coke: 3
 	time: 8
 	Turbofuel: 6
+
+
+class Bauxite(Extractor):
+	resource = "Bauxite"
+	time: 1
+	Bauxite: 1 # Should vary by purity
+
+class Alumina_Solution(Refinery):
+	Bauxite: 12
+	Water: 18
+	time: 6
+	Alumina: 12
+	Silica: 5
+class Sloppy_Alumina(Refinery):
+	Bauxite: 15
+	Water: 15
+	time: 6
+	Alumina: 18
+
+class Sulfuric_Acid(Refinery):
+	Sulfur: 5
+	Water: 5
+	time: 6
+	Sulfuric_Acid: 5
+
+class Instant_Scrap(Blender):
+	Bauxite: 15
+	Coal: 10
+	Sulfuric_Acid: 5
+	Water: 11
+	time: 6
+	Alum_Scrap: 30
+	Water_: 4
+
+class Aluminum_Scrap(Refinery):
+	Alumina: 4
+	Coal: 2
+	time: 1
+	Alum_Scrap: 6
+	Water: 2
+
+class Electrode_Scrap(Refinery):
+	Alumina: 12
+	Coke: 4
+	time: 4
+	Alum_Scrap: 20
+	Water: 7
+
+class Aluminum_Ingot(Foundry):
+	Alum_Scrap: 6
+	Silica: 5
+	time: 4
+	Alum_Ingot: 4
+
+class Pure_Alum_Ingot(Smelter):
+	Alum_Scrap: 2
+	time: 2
+	Alum_Ingot: 1
+
+class Copper_Ingot(Extractor):
+	# Can't be bothered. Get your ingots whichever way works for you.
+	# It'd be too complicated to try to list all the ways of obtaining
+	# copper (smelting ore, refining ore, alloying it with iron) in
+	# every recipe that uses copper.
+	resource = "Copper"
+	time: 1
+	Copper_Ingot: 1
+
+class Alclad_Sheet(Assembler):
+	Alum_Ingot: 3
+	Copper_Ingot: 1
+	time: 6
+	Alclad_Sheet: 3
+
+class Alum_Casing(Constructor):
+	Alum_Ingot: 3
+	time: 2
+	Alum_Casing: 2
+
+class Alclad_Casing(Assembler):
+	Alum_Ingot: 20
+	Copper_Ingot: 10
+	time: 8
+	Alum_Casing: 15
 
 '''
 Ways to get Fuel
