@@ -356,6 +356,24 @@ class Radio_Connection_Unit(Manufacturer):
 	time: 16
 	Radio_Control_Unit: 1
 
+class Cooling_System(Blender):
+	Heat_Sink: 2
+	Rubber: 2
+	Water: 5
+	Nitrogen: 25
+	time: 10
+	Cooling_System: 1
+
+class Cooling_Device(Blender):
+	Heat_Sink: 5
+	Motor: 1
+	Nitrogen: 24
+	time: 32
+	Cooling_System: 2
+
+# TODO: Add recipes for Battery, Fused Mod Frame, Heat Sink, Turbo Motor, Supercomputer
+# and maybe the new project parts, Electromagnetic Control Rod, and others used by Build Tool
+
 '''
 Ways to get Fuel
 - "Diluted Fuel" Blender 5 Residue + 10 Water/6s = 10
