@@ -9,37 +9,50 @@ import itertools
 consumers = defaultdict(list)
 producers = defaultdict(list)
 
-try:
-	Counter() <= Counter() # Fully supported on Python 3.10+
-except TypeError:
-	# Older Pythons can't do multiset comparisons. Subtracting
-	# one counter from another will give an empty counter (since
-	# negatives are excluded) if it's a subset, so we use that.
-	class Counter(Counter):
+class Counter(Counter):
+	try:
+		Counter() <= Counter() # Fully supported on Python 3.10+
+	except TypeError:
+		# Older Pythons can't do multiset comparisons. Subtracting
+		# one counter from another will give an empty counter (since
+		# negatives are excluded) if it's a subset, so we use that.
 		def __le__(self, other):
 			return not (self - other)
 		def __gt__(self, other):
 			return not (self <= other)
+	try:
+		Counter() * 3 # Not supported on any known Python, but hey, might happen!
+	except TypeError:
+		# It's convenient to be able to multiply a counter by a number to
+		# scale it. Any numeric type should be a valid scalar. I take no
+		# responsibility for confusion caused by complex scalars :)
+		def __mul__(self, other):
+			return type(self)({k: v*other for k,v in self.items()})
 
 def auto_producer(*items):
 	# If anything is called on as a resource without being generated,
 	# describe it as a fundamental need.
 	for item in items:
+		# print("\x1b[1;32mAutoproducer:", item, "\x1b[0m")
 		producers[item].append({
-			"per_minute": 60,
 			"makes": Counter({item: 60}),
 			"recipes": [],
 			"costs": Counter({item: 1}),
 		})
+
+# If you're building on existing infrastructure, it may be easiest to
+# declare some items as intrinsically available. They will be treated
+# as primary production, eg "Requires 600/min Rubber".
+# auto_producer("Rubber", "Coke")
 
 class Building:
 	resource = None
 	@classmethod
 	def __init_subclass__(bldg):
 		super().__init_subclass__()
-		print("Building:", bldg.__name__)
+		# print("Building:", bldg.__name__)
 		def make_recipe(recip):
-			print(recip.__name__.replace("_", " "), "is made in a", bldg.__name__.replace("_", " "))
+			# print(recip.__name__.replace("_", " "), "is made in a", bldg.__name__.replace("_", " "))
 			recip.building = bldg
 			makes = defaultdict(int)
 			per_minute = None
@@ -71,7 +84,7 @@ class Building:
 				if recip.resource: costs[recip.resource] = 1
 				recipes = []
 				for req, qty in zip(requirements, needqty):
-					ratio = Fraction(qty * per_minute, req["per_minute"])
+					ratio = Fraction(qty * per_minute, 60)
 					for i, q in req["makes"].items():
 						net[i] += q * ratio
 					for i, q in req["costs"].items():
@@ -82,18 +95,13 @@ class Building:
 					raise Exception("Shouldn't happen! Makes a negative qty! " + recip.__name__)
 				net -= Counter() # Clean out any that have hit zero
 				recipes.append((recip, 1))
-				for r, q in recipes: costs[r.building] += q * len(recipes)
 				for item, qty in net.items():
+					ratio = Fraction(60, qty)
+					scaled_costs = costs * ratio # Cost to produce 60/min of this product
 					for alternate in producers[item]:
-						if alternate["costs"]["stages"] == 1: break # Items that can be directly obtained should be.
-						if (qty <= alternate["per_minute"]
-							and (costs[Extractor], costs) > (alternate["costs"][Extractor], alternate["costs"])
-						):
-							# Producing the same (or less) of the primary output
-							# from more base materials, or from the same base
-							# materials with more production cost, is not worth it.
-							break
-						if net <= alternate["makes"] and costs >= alternate["costs"]:
+						if not alternate["recipes"]: break # Anything directly obtained should always be so.
+						alt_costs = alternate["costs"]
+						if scaled_costs >= alt_costs:
 							# Strictly worse. Skip it. Note that a recipe may be
 							# strictly worse for one product while being viable
 							# for another; this is very common with byproducts,
@@ -101,18 +109,23 @@ class Building:
 							# you wouldn't want to obtain water that way, even
 							# though technically you could.
 							break
+						if scaled_costs < alt_costs:
+							# Strictly better. Remove the other one (after the loop).
+							# It shouldn't be possible to be strictly better than
+							# one recipe AND strictly worse than another, so we can
+							# assume that we'll never break after hitting this.
+							alternate["deprecated"] = 1
 					else:
 						producers[item].append({
-							"per_minute": qty,
-							"makes": net,
-							"recipes": recipes,
-							"costs": costs,
+							"makes": net * ratio,
+							"recipes": [(r, q * ratio) for r,q in recipes],
+							"costs": scaled_costs,
 						})
+					producers[item] = [p for p in producers[item] if "deprecated" not in p]
 		bldg.__init_subclass__ = classmethod(make_recipe)
 
 
 # TODO: Record power costs for each of these
-class Extractor(Building): ...
 class Refinery(Building): ...
 class Blender(Building): ...
 class Packager(Building): ...
@@ -130,12 +143,6 @@ class Foundry(Building): ...
 #   Product2: Qty
 # If the same item is an ingredient and a product, suffix one with "_", eg with
 # the production of uranium pellets (Sulfuric_Acid: 8, ..., Sulfuric_Acid_: 2).
-
-# Primary production
-class Crude(Extractor):
-	resource = "Oil"
-	time: 1
-	Crude: 1 # Should vary by purity
 
 # Basic crude refinement
 class Plastic(Refinery):
@@ -180,10 +187,10 @@ class Diluted_Fuel(Blender):
 	time: 6
 	Fuel: 10
 
-class Canister(Extractor): # Mythical, since a package/unpackage cycle shouldn't need a constant influx
-	resource = "Canisters"
-	time: 1
-	Canister: 1
+class Canister(Constructor):
+	Plastic: 2
+	time: 4
+	Canister: 4
 
 class Package_Water(Packager):
 	Water: 2
@@ -230,14 +237,6 @@ class Recycled_Rubber(Refinery):
 	time: 12
 	Rubber: 12
 
-class Sulfur(Extractor):
-	resource = "Sulfur"
-	time: 1
-	Sulfur: 1
-class Coal(Extractor):
-	resource = "Coal"
-	time: 1
-	Coal: 1
 class Compacted(Assembler):
 	Coal: 5
 	Sulfur: 5
@@ -265,11 +264,6 @@ class Turbo_Blend_Fuel(Blender):
 	time: 8
 	Turbofuel: 6
 
-
-class Bauxite(Extractor):
-	resource = "Bauxite"
-	time: 1
-	Bauxite: 1 # Should vary by purity
 
 class Alumina_Solution(Refinery):
 	Bauxite: 12
@@ -322,15 +316,6 @@ class Pure_Alum_Ingot(Smelter):
 	Alum_Scrap: 2
 	time: 2
 	Alum_Ingot: 1
-
-class Copper_Ingot(Extractor):
-	# Can't be bothered. Get your ingots whichever way works for you.
-	# It'd be too complicated to try to list all the ways of obtaining
-	# copper (smelting ore, refining ore, alloying it with iron) in
-	# every recipe that uses copper.
-	resource = "Copper"
-	time: 1
-	Copper_Ingot: 1
 
 class Alclad_Sheet(Assembler):
 	Alum_Ingot: 3
@@ -398,9 +383,11 @@ if __name__ == "__main__":
 		for recipe in producers[target]:
 			for input, qty in recipe["costs"].most_common():
 				if isinstance(input, str):
-					print("Requires %s at %.2f/min" % (input, qty * 60.0))
+					qty *= 60
+					if qty != int(qty): qty = "%.2f" % float(qty)
+					print("Requires %s at %s/min" % (input, qty))
 			for result, qty in recipe["makes"].most_common():
-				if qty != int(qty): qty = float(qty)
+				if qty != int(qty): qty = "%.2f" % float(qty)
 				print("Produces %s/min %s" % (qty, result))
 			for step, qty in recipe["recipes"]:
 				print("%s - %s at %.2f%%" % (
