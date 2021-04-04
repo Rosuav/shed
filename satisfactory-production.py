@@ -385,7 +385,7 @@ if __name__ == "__main__":
 		sys.exit(0)
 	for target in sys.argv[1:]:
 		print()
-		print("PRODUCING:", target)
+		print("PRODUCING: 60/min", target)
 		print("====================================")
 		for recipe in producers[target]:
 			for input, qty in recipe["costs"].most_common():
@@ -394,8 +394,9 @@ if __name__ == "__main__":
 					if qty != int(qty): qty = "%.2f" % float(qty)
 					print("Requires %s at %s/min" % (input, qty))
 			for result, qty in recipe["makes"].most_common():
+				if result == target: continue # They'll all produce 60/min of the target
 				if qty != int(qty): qty = "%.2f" % float(qty)
-				print("Produces %s/min %s" % (qty, result))
+				print("Also produces %s/min %s" % (qty, result))
 			for step, qty in recipe["recipes"]:
 				print("%s - %s at %.2f%%" % (
 					step.__name__.replace("_", " "),
