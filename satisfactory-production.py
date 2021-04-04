@@ -43,7 +43,7 @@ def auto_producer(*items):
 # If you're building on existing infrastructure, it may be easiest to
 # declare some items as intrinsically available. They will be treated
 # as primary production, eg "Requires 600/min Rubber".
-# auto_producer("Rubber", "Coke")
+# auto_producer("Rubber", "Coke", "Alum_Ingot")
 
 class Building:
 	resource = None
