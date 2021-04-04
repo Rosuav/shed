@@ -9,6 +9,18 @@ import itertools
 consumers = defaultdict(list)
 producers = defaultdict(list)
 
+try:
+	Counter() <= Counter() # Fully supported on Python 3.10+
+except TypeError:
+	# Older Pythons can't do multiset comparisons. Subtracting
+	# one counter from another will give an empty counter (since
+	# negatives are excluded) if it's a subset, so we use that.
+	class Counter(Counter):
+		def __le__(self, other):
+			return not (self - other)
+		def __gt__(self, other):
+			return not (self <= other)
+
 class Building:
 	resource = None
 	@classmethod
