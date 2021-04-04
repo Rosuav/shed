@@ -21,6 +21,17 @@ except TypeError:
 		def __gt__(self, other):
 			return not (self <= other)
 
+def auto_producer(*items):
+	# If anything is called on as a resource without being generated,
+	# describe it as a fundamental need.
+	for item in items:
+		producers[item].append({
+			"per_minute": 60,
+			"makes": Counter({item: 60}),
+			"recipes": [],
+			"costs": Counter({item: 1}),
+		})
+
 class Building:
 	resource = None
 	@classmethod
@@ -42,7 +53,8 @@ class Building:
 				item = item.strip("_")
 				if per_minute is None:
 					if not producers[item]:
-						raise Exception("Don't know how to obtain %s for %s" % (item, recip.__name__))
+						# raise Exception("Don't know how to obtain %s for %s" % (item, recip.__name__))
+						auto_producer(item)
 					needs.append(producers[item])
 					needqty.append(qty)
 					makes[item] -= qty
@@ -106,6 +118,7 @@ class Blender(Building): ...
 class Packager(Building): ...
 class Constructor(Building): ...
 class Assembler(Building): ...
+class Manufacturer(Building): ...
 class Smelter(Building): ...
 class Foundry(Building): ...
 
@@ -123,10 +136,6 @@ class Crude(Extractor):
 	resource = "Oil"
 	time: 1
 	Crude: 1 # Should vary by purity
-class Water(Extractor):
-	resource = "Water"
-	time: 1
-	Water: 2
 
 # Basic crude refinement
 class Plastic(Refinery):
@@ -340,6 +349,21 @@ class Alclad_Casing(Assembler):
 	time: 8
 	Alum_Casing: 15
 
+class Radio_Control_Unit(Manufacturer):
+	Alum_Casing: 32
+	Oscillator: 1
+	Computer: 1
+	time: 48
+	Radio_Control_Unit: 2
+
+class Radio_Control_System(Manufacturer):
+	Oscillator: 1
+	Circuit_Board: 10
+	Alum_Casing: 60
+	Rubber: 30
+	time: 40
+	Radio_Control_Unit: 3
+
 '''
 Ways to get Fuel
 - "Diluted Fuel" Blender 5 Residue + 10 Water/6s = 10
@@ -374,7 +398,7 @@ if __name__ == "__main__":
 		for recipe in producers[target]:
 			for input, qty in recipe["costs"].most_common():
 				if isinstance(input, str):
-					print("Requires %s at %.2f%%" % (input, qty * 100.0))
+					print("Requires %s at %.2f/min" % (input, qty * 60.0))
 			for result, qty in recipe["makes"].most_common():
 				if qty != int(qty): qty = float(qty)
 				print("Produces %s/min %s" % (qty, result))
