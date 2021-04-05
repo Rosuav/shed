@@ -34,16 +34,21 @@ def auto_producer(*items):
 	# describe it as a fundamental need.
 	for item in items:
 		# print("\x1b[1;32mAutoproducer:", item, "\x1b[0m")
-		producers[item].append({
+		producers[item] = [{
 			"makes": Counter({item: 60}),
 			"recipes": [],
 			"costs": Counter({item: 1}),
-		})
+			"sources": producers[item], # If you want to delve deeper, check here.
+		}]
 
 # If you're building on existing infrastructure, it may be easiest to
 # declare some items as intrinsically available. They will be treated
-# as primary production, eg "Requires 600/min Rubber".
-# auto_producer("Rubber", "Coke", "Alum_Ingot")
+# as primary production, eg "Requires Circuit_Board at 600/min". Note
+# that some items become intrinsic part way through to put a limit on
+# the ever-growing complexity of recipes; it's not very useful to say
+# that a Supercomputer requires X Crude and Y Bauxite with a gigantic
+# matrix of different Xs and Ys.
+# auto_producer("Circuit_Board")
 
 class Building:
 	resource = None
@@ -132,6 +137,7 @@ class Packager(Building): ...
 class Constructor(Building): ...
 class Assembler(Building): ...
 class Manufacturer(Building): ...
+class Particle_Accelerator(Building): ...
 class Smelter(Building): ...
 class Foundry(Building): ...
 
@@ -264,6 +270,9 @@ class Turbo_Blend_Fuel(Blender):
 	time: 8
 	Turbofuel: 6
 
+# Petroleum products are sufficiently complicated that it's worth calculating
+# them first, and then treating them as fundamentals for everything else.
+auto_producer("Plastic", "Rubber", "Coke", "Fuel")
 
 class Alumina_Solution(Refinery):
 	Bauxite: 12
@@ -339,6 +348,9 @@ class Alclad_Casing(Assembler):
 	time: 8
 	Alum_Casing: 15
 
+# As with petroleum, simplify future recipes by making these fundamental.
+auto_producer("Alum_Ingot", "Alum_Casing", "Alclad_Sheet")
+
 class Heat_Sink(Assembler):
 	Alclad_Sheet: 5
 	Copper_Sheet: 3
@@ -388,30 +400,161 @@ class Cooling_Device(Blender):
 	time: 32
 	Cooling_System: 2
 
-# TODO: Add recipes for Battery, Fused Mod Frame, Turbo Motor, Supercomputer
-# and maybe the new project parts, Electromagnetic Control Rod, and others used by Build Tool
+class Battery(Blender):
+	Sulfuric_Acid: 3
+	Alumina: 2
+	Alum_Casing: 1
+	time: 3
+	Battery: 1
+	Water: 2
 
-'''
-Ways to get Fuel
-- "Diluted Fuel" Blender 5 Residue + 10 Water/6s = 10
-  - <Heavy Oil Rubber> * 125%
-  - Net: 3.75 Crude + 12.5 Water/6s = 10 Fuel + 1.25 Rubber; Refinery*125% + Refinery*62.5% + Blender
-- "Diluted Packaged Fuel" 1 Residue + 2 Water/2s = 2, also needs 2xPackager at same clock speed
-  - <Heavy Oil Rubber> * 75%
-  - Net: 2.25 Crude + 7.5 Water/6s = 6 Fuel + 0.75 Rubber; Refinery*75% + Refinery*37.5% + Refinery + Packager + Packager
-- "Residual Fuel" 6 Residue/6s = 4
-  - "Rubber" * 3
-  - Net: 9 Crude/6s = 4 Fuel + 6 Rubber; Refinery*300% + Refinery
-- "Fuel" 6 Crude/6s = 4 + 3 Resin
-  - "Residual Rubber" * 50%
-  - Net: 6 Crude + 3 Water/6s = 4 Fuel + 3 Rubber; Refinery + Refinery * 50%
+class Classic_Battery(Manufacturer):
+	Sulfur: 6
+	Alclad_Sheet: 7
+	Plastic: 8
+	Wire: 12
+	time: 8
+	Battery: 4
 
-The only ways to get Resin are from Crude, and the only ways to use it involve Water.
+class Electromagnetic_Control_Rod(Assembler):
+	Stator: 3
+	AI_Limiter: 2
+	time: 15
+	Control_Rod: 2
 
-Get Residue
-- "Rubber" 3 Crude/6s = 2 Residue + 2 Rubber
-- <Heavy Oil Rubber> 3 Crude + 2 Water/6s = 4 Residue + 1 Rubber; Refinery "Heavy Oil Residue" + Refinery "Residual Rubber" * 50%
-'''
+class Electromagnetic_Connection_Rod(Assembler):
+	Stator: 2
+	HS_Connector: 1
+	time: 15
+	Control_Rod: 2
+
+class Supercomputer(Manufacturer): # TODO: Verify that the recipe hasn't changed in Experimental
+	Computer: 2
+	AI_Limiter: 2
+	HS_Connector: 3
+	Plastic: 28
+	time: 32
+	Supercomputer: 1
+
+class OC_Supercomputer(Assembler):
+	Radio_Control_Unit: 3
+	Cooling_System: 3
+	time: 20
+	Supercomputer: 1
+
+class Super_State_Computer(Manufacturer):
+	Computer: 3
+	Control_Rod: 2
+	Battery: 20
+	Wire: 45
+	time: 50
+	Supercomputer: 2
+
+class Nitric_Acid(Blender):
+	Nitrogen: 24
+	Water: 6
+	Iron_Plate: 1
+	time: 6
+	Nitric_Acid: 6
+
+class Fused_Modular_Frame(Blender):
+	Heavy_Frame: 1
+	Alum_Casing: 50
+	Nitrogen: 25
+	time: 40
+	Fused_Frame: 1
+
+class Heat_Fused_Frame(Blender):
+	Heavy_Frame: 1
+	Alum_Ingot: 50
+	Nitric_Acid: 8
+	Fuel: 10
+	time: 20
+	Fused_Frame: 1
+
+class Pressure_Conversion_Cube(Assembler):
+	Fused_Frame: 1
+	Radio_Control_Unit: 2
+	time: 60
+	Pressure_Conversion_Cube: 1
+
+class Fluid_Tank(Constructor):
+	Alum_Ingot: 1
+	time: 1
+	Fluid_Tank: 1
+
+class Packaged_Nitrogen_Gas(Packager):
+	Nitrogen: 4
+	Fluid_Tank: 1
+	time: 1
+	Packaged_Nitrogen_Gas: 1
+
+class Turbo_Motor(Manufacturer):
+	Cooling_System: 4
+	Radio_Control_Unit: 2
+	Motor: 4
+	Rubber: 24
+	time: 32
+	Turbo_Motor: 1
+
+class Turbo_Rigour_Motor(Manufacturer): # TODO: Is this still a thing in Experimental?
+	Motor: 7
+	Radio_Control_Unit: 5
+	AI_Limiter: 9
+	Stator: 7
+	time: 64
+	Turbo_Motor: 3
+
+class Turbo_Electric_Motor(Manufacturer):
+	Motor: 7
+	Radio_Control_Unit: 9
+	Control_Rod: 5
+	Rotor: 7
+	time: 64
+	Turbo_Motor: 3
+
+class Turbo_Pressure_Motor(Manufacturer):
+	Motor: 4
+	Pressure_Conversion_Cube: 1
+	Packaged_Nitrogen_Gas: 24
+	Stator: 8
+	time: 32
+	Turbo_Motor: 2
+
+# Project parts, final tier
+class Copper_Powder(Constructor):
+	Copper_Ingot: 30
+	time: 6
+	Copper_Powder: 5
+
+class Assembly_Director_System(Assembler):
+	Adaptive_Control_Unit: 2
+	Supercomputer: 1
+	time: 80
+	Assembly_Director_System: 1
+
+class Magnetic_Field_Generator(Manufacturer):
+	Versatile_Framework: 5
+	Control_Rod: 2
+	Battery: 10
+	time: 120
+	Magnetic_Field_Generator: 2
+
+class Nuclear_Pasta(Particle_Accelerator):
+	Copper_Powder: 200
+	Pressure_Conversion_Cube: 1
+	time: 120
+	Nuclear_Pasta: 1
+
+class Thermal_Propulsion_Rocket(Manufacturer):
+	Modular_Engine: 5
+	Turbo_Motor: 2
+	Cooling_System: 6
+	Fused_Frame: 2
+	time: 120
+	Thermal_Propulsion_Rocket: 2
+
+
 
 if __name__ == "__main__":
 	import sys
@@ -422,7 +565,12 @@ if __name__ == "__main__":
 		print()
 		print("PRODUCING: 60/min", target)
 		print("====================================")
-		for recipe in producers[target]:
+		p = producers[target]
+		if p and "sources" in p[0]:
+			# It's been made fundamental for the benefit of future recipes,
+			# but we want the actual sources.
+			p = p[0]["sources"]
+		for recipe in p:
 			for input, qty in recipe["costs"].most_common():
 				if isinstance(input, str):
 					qty *= 60
