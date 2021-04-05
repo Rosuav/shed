@@ -283,6 +283,11 @@ class Sulfuric_Acid(Refinery):
 	time: 6
 	Sulfuric_Acid: 5
 
+class Silica(Constructor):
+	Quartz: 3
+	time: 8
+	Silica: 5
+
 class Instant_Scrap(Blender):
 	Bauxite: 15
 	Coal: 10
@@ -334,6 +339,18 @@ class Alclad_Casing(Assembler):
 	time: 8
 	Alum_Casing: 15
 
+class Heat_Sink(Assembler):
+	Alclad_Sheet: 5
+	Copper_Sheet: 3
+	time: 8
+	Heat_Sink: 1
+
+class Heat_Exchanger(Assembler):
+	Alum_Casing: 3
+	Rubber: 3
+	time: 6
+	Heat_Sink: 1
+
 class Radio_Control_Unit(Manufacturer):
 	Alum_Casing: 32
 	Oscillator: 1
@@ -371,7 +388,7 @@ class Cooling_Device(Blender):
 	time: 32
 	Cooling_System: 2
 
-# TODO: Add recipes for Battery, Fused Mod Frame, Heat Sink, Turbo Motor, Supercomputer
+# TODO: Add recipes for Battery, Fused Mod Frame, Turbo Motor, Supercomputer
 # and maybe the new project parts, Electromagnetic Control Rod, and others used by Build Tool
 
 '''
