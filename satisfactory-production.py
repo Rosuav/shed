@@ -281,10 +281,10 @@ class Alumina_Solution(Refinery):
 	Alumina: 12
 	Silica: 5
 class Sloppy_Alumina(Refinery):
-	Bauxite: 15
-	Water: 15
-	time: 6
-	Alumina: 18
+	Bauxite: 10
+	Water: 10
+	time: 3
+	Alumina: 12
 
 class Sulfuric_Acid(Refinery):
 	Sulfur: 5
