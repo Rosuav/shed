@@ -274,6 +274,11 @@ class Turbo_Blend_Fuel(Blender):
 # them first, and then treating them as fundamentals for everything else.
 auto_producer("Plastic", "Rubber", "Coke", "Fuel")
 
+class Silica(Constructor):
+	Quartz: 3
+	time: 8
+	Silica: 5
+
 class Alumina_Solution(Refinery):
 	Bauxite: 12
 	Water: 18
@@ -291,11 +296,6 @@ class Sulfuric_Acid(Refinery):
 	Water: 5
 	time: 6
 	Sulfuric_Acid: 5
-
-class Silica(Constructor):
-	Quartz: 3
-	time: 8
-	Silica: 5
 
 class Instant_Scrap(Blender):
 	Bauxite: 15
@@ -349,7 +349,7 @@ class Alclad_Casing(Assembler):
 	Alum_Casing: 15
 
 # As with petroleum, simplify future recipes by making these fundamental.
-auto_producer("Alum_Ingot", "Alum_Casing", "Alclad_Sheet")
+auto_producer("Alum_Ingot", "Alum_Casing", "Alclad_Sheet", "Silica")
 
 class Heat_Sink(Assembler):
 	Alclad_Sheet: 5
@@ -554,6 +554,81 @@ class Thermal_Propulsion_Rocket(Manufacturer):
 	time: 120
 	Thermal_Propulsion_Rocket: 2
 
+# Nuclear power
+auto_producer("Heat_Sink", "Pressure_Conversion_Cube", "Control_Rod")
+
+class Encased_Uranium_Cell(Blender):
+	Uranium: 10
+	Concrete: 3
+	Sulfuric_Acid: 8
+	time: 12
+	Encased_Uranium_Cell: 5
+	Sulfuric_Acid_: 2
+
+class Infused_Uranium_Cell(Manufacturer):
+	Uranium: 4
+	Silica: 3
+	Sulfur: 5
+	Quickwire: 15
+	time: 12
+	Encased_Uranium_Cell: 4
+
+class Uranium_Fuel_Rod(Manufacturer):
+	Encased_Uranium_Cell: 50
+	Encased_Beam: 3
+	Control_Rod: 5
+	time: 150
+	Nuclear_Fuel_Rod: 1
+
+class Nonfissile_Uranium(Blender):
+	Nuclear_Waste: 15
+	Silica: 10
+	Nitric_Acid: 6
+	Sulfuric_Acid: 6
+	time: 24
+	Nonfissile_Uranium: 20
+	Water: 6
+
+class Fertile_Uranium(Blender):
+	Uranium: 5
+	Nuclear_Waste: 5
+	Nitric_Acid: 3
+	Sulfuric_Acid: 5
+	time: 12
+	Nonfissile_Uranium: 20
+	Water: 8
+
+class Plutonium_Pellet(Particle_Accelerator):
+	Nonfissile_Uranium: 100
+	Nuclear_Waste: 25
+	time: 60
+	Plutonium_Pellet: 30
+
+class Encased_Plutonium_Cell(Assembler):
+	Plutonium_Pellet: 2
+	Concrete: 4
+	time: 12
+	Encased_Plutonium_Cell: 1
+
+class Instant_Plutonium_Cell(Particle_Accelerator):
+	Nonfissile_Uranium: 150
+	Alum_Casing: 20
+	time: 120
+	Encased_Plutonium_Cell: 20
+
+class Plutonium_Fuel_Rod(Manufacturer):
+	Encased_Plutonium_Cell: 30
+	Steel_Beam: 18
+	Control_Rod: 6
+	Heat_Sink: 10
+	time: 240
+	Plutonium_Fuel_Rod: 1
+
+class Plutonium_Fuel_Unit(Assembler):
+	Encased_Plutonium_Cell: 20
+	Pressure_Conversion_Cube: 1
+	time: 120
+	Plutonium_Fuel_Rod: 1
 
 
 if __name__ == "__main__":
