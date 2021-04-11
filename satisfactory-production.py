@@ -580,6 +580,14 @@ class Uranium_Fuel_Rod(Manufacturer):
 	time: 150
 	Nuclear_Fuel_Rod: 1
 
+class Nuclear_Fuel_Unit(Manufacturer):
+	Encased_Uranium_Cell: 100
+	Control_Rod: 10
+	Oscillator: 3
+	Beacon: 6
+	time: 300
+	Nuclear_Fuel_Rod: 3
+
 class Nonfissile_Uranium(Blender):
 	Nuclear_Waste: 15
 	Silica: 10
