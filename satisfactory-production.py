@@ -644,10 +644,15 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		print("\nERROR: Must specify one or more target items")
 		sys.exit(0)
+	def num(n): return ("%d" if n == int(n) else "%.2f") % n
 	for target in sys.argv[1:]:
+		target, sep, goal = target.partition("=")
+		goal = Fraction(goal) if sep else 60
+		ratio = Fraction(goal, 60)
 		print()
-		print("PRODUCING: 60/min", target)
-		print("====================================")
+		header = "PRODUCING: %s/min %s" % (num(goal), target.replace("_", " "))
+		print(header)
+		print("=" * len(header))
 		p = producers[target]
 		if p and "sources" in p[0]:
 			# It's been made fundamental for the benefit of future recipes,
@@ -656,18 +661,15 @@ if __name__ == "__main__":
 		for recipe in p:
 			for input, qty in recipe["costs"].most_common():
 				if isinstance(input, str):
-					qty *= 60
-					if qty != int(qty): qty = "%.2f" % float(qty)
-					print("Requires %s at %s/min" % (input, qty))
+					print("Requires %s at %s/min" % (input, num(qty * goal)))
 			for result, qty in recipe["makes"].most_common():
 				if result == target: continue # They'll all produce 60/min of the target
-				if qty != int(qty): qty = "%.2f" % float(qty)
-				print("Also produces %s/min %s" % (qty, result))
+				print("Also produces %s/min %s" % (num(qty * ratio), result))
 			for step, qty in recipe["recipes"]:
 				print("%s - %s at %.2f%%" % (
 					step.__name__.replace("_", " "),
 					step.building.__name__.replace("_", " "),
-					qty * 100.0,
+					qty * ratio * 100.0,
 				))
 			print()
 
