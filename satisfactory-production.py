@@ -451,11 +451,11 @@ class Super_State_Computer(Manufacturer):
 	Supercomputer: 2
 
 class Nitric_Acid(Blender):
-	Nitrogen: 24
-	Water: 6
+	Nitrogen: 12
+	Water: 3
 	Iron_Plate: 1
 	time: 6
-	Nitric_Acid: 6
+	Nitric_Acid: 3
 
 class Fused_Modular_Frame(Blender):
 	Heavy_Frame: 1
