@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+"""Move a relative symlink from one directory to another, keeping it relative
+
+Note: This fails atomicity by creating the new and then removing the original.
+"""
+
+import os
+import sys
+if len(sys.argv) < 3 or not os.path.isdir(sys.argv[-1]):
+	print("USAGE: lnmv symlink [symlink [symlink...]] targetdir/")
+	sys.exit(1)
+
+_, *links, target = sys.argv
+
+for link in links:
+	hardpath = os.path.realpath(link)
+	newpath = os.path.relpath(hardpath, target)
+	os.symlink(newpath, os.path.join(target, os.path.basename(link)))
+	os.unlink(link)
