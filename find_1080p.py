@@ -6,6 +6,6 @@ for fn in sys.argv[1:]:
 		print(fn + ": Unable to parse")
 		continue
 	for strm in info["streams"]:
-		if strm["codec_type"] == "video" and strm["height"] >= 1000: break
+		if strm["codec_type"] == "video" and strm["height"] * strm["width"] >= 1_500_000: break
 	else: continue
 	print("%s: %dx%d" % (fn, strm["width"], strm["height"]))
