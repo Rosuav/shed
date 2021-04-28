@@ -236,36 +236,19 @@ def create_all_weapons(savefile):
 		savefile.packed_weapon_data.append(packed)
 
 @synthesizer
-def give_weapon(savefile, definitions):
+def give(savefile, definitions):
 	for definition in definitions.split(","):
 		[id, *changes] = definition.split("-")
 		serial = base64.b64decode(id.strip("{}").encode("ascii") + b"====")
-		if changes:
-			obj = Asset.decode_asset_library(serial)
-			for change in changes:
-				if not change: continue
-				c = change[0].lower()
-				if c == "l": obj.grade = obj.stage = int(change[1:])
-				# TODO: Add other changes as needed
-			serial = obj.encode_asset_library()
-		packed = PackedWeaponData(serial=serial, quickslot=0, mark=1, unknown4=0)
-		savefile.packed_weapon_data.append(packed)
-
-@synthesizer
-def give_item(savefile, definitions):
-	for definition in definitions.split(","):
-		[id, *changes] = definition.split("-")
-		serial = base64.b64decode(id.strip("{}").encode("ascii") + b"====")
-		if changes:
-			obj = Asset.decode_asset_library(serial)
-			for change in changes:
-				if not change: continue
-				c = change[0].lower()
-				if c == "l": obj.grade = obj.stage = int(change[1:])
-				# TODO: Add other changes as needed
-			serial = obj.encode_asset_library()
-		packed = PackedItemData(serial=serial, quantity=1, equipped=0, mark=1)
-		savefile.packed_item_data.append(packed)
+		obj = Asset.decode_asset_library(serial)
+		for change in changes:
+			if not change: continue
+			c = change[0].lower()
+			if c == "l": obj.grade = obj.stage = int(change[1:])
+			# TODO: Add other changes as needed
+		if changes: serial = obj.encode_asset_library()
+		if obj.is_weapon: savefile.packed_weapon_data.append(PackedWeaponData(serial=serial, quickslot=0, mark=1, unknown4=0))
+		else: savefile.packed_item_data.append(PackedItemData(serial=serial, quantity=1, equipped=0, mark=1))
 
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
