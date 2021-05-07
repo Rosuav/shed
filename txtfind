@@ -26,8 +26,11 @@ if len(sys.argv) < 2:
 with open(sys.argv[1]) as f:
 	textfile = f.read()
 
-tracefile = open("/tmp/txtfind.log", "w")
-def trace(*a, **kw): print(*a, **kw, file=tracefile, flush=True)
+if 0:
+	tracefile = open("/tmp/txtfind.log", "w")
+	def trace(*a, **kw): print(*a, **kw, file=tracefile, flush=True)
+else:
+	def trace(*a, **kw): pass
 
 handlers = { }
 def keyhandler(*keys):
@@ -130,10 +133,6 @@ def main(stdscr):
 		if key == "\x1b": break
 		func = handlers.get(key)
 		if func: func(key)
-		elif len(key) == 1:
-			# Single-character. Most likely, add to search term.
-			trace("One-character: %r" % key)
-		else:
-			trace("Unknown key %r" % key)
+		else: trace("Unknown key %r" % key)
 
 curses.wrapper(main)
