@@ -66,16 +66,37 @@ def main(stdscr):
 	stdscr.clear()
 	curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 	found_text = curses.color_pair(1) | curses.A_BOLD
+	curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+	separator = curses.color_pair(2) | curses.A_BOLD
 	while True:
 		regex = r"\b" + r"\W+".join(search)
+		stdscr.move(0, 0)
 		if regex != r"\b":
-			pos = 0
+			pos = need_context = 0
 			for match in re.finditer(regex, textfile, re.I):
-				stdscr.addstr(pos, 0, textfile[match.start():match.end()], found_text)
-				stdscr.clrtoeol()
-				pos += 1
-				if pos >= curses.LINES - 1: break
-			stdscr.addstr(pos, 0, "----")
+				# Inefficient, but I don't care :)
+				before = textfile[pos:match.start()]
+				lines = before.split("\n")
+				if len(lines) < CONTEXT_LINES + need_context:
+					# A nearby match. The contexts meet.
+					stdscr.addstr(before)
+				else:
+					# A distant match. If there's a previous search, give its After context,
+					# and always give our Before context.
+					for line in lines[:need_context]:
+						stdscr.addstr(line + "\n")
+					stdscr.addstr("--\n", separator)
+					for line in lines[-CONTEXT_LINES:-1]:
+						stdscr.addstr(line + "\n")
+					stdscr.addstr(lines[-1]) # Last one, leave cursor on the same line
+					need_context = CONTEXT_LINES
+				stdscr.addstr(textfile[match.start():match.end()], found_text)
+				pos = match.end()
+				if stdscr.getyx()[0] >= stdscr.getmaxyx()[0] - CONTEXT_LINES - need_context: break
+			for line in textfile[pos:].split("\n"):
+				if stdscr.getyx()[0] >= stdscr.getmaxyx()[0] - 1: break
+				stdscr.addstr(line + "\n")
+			if stdscr.getyx()[0] < stdscr.getmaxyx()[0] - 1: stdscr.addstr("--\n", separator)
 		stdscr.clrtobot()
 		stdscr.addstr(curses.LINES - 1, 0, "> " + " ".join(search), curses.A_BOLD)
 		stdscr.clrtoeol()
