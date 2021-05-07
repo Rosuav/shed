@@ -15,11 +15,14 @@ TODO: Progressive text search
 '''
 import curses
 import sys
+import re
+
+CONTEXT_LINES = 3 # Or should this be adjustable?
 
 if len(sys.argv) < 2:
 	sys.exit(1, "USAGE: %s filename" % sys.argv[0])
 with open(sys.argv[1]) as f:
-	textfile = f.readlines()
+	textfile = f.read()
 
 tracefile = open("/tmp/txtfind.log", "w")
 def trace(*a, **kw): print(*a, **kw, file=tracefile, flush=True)
@@ -64,14 +67,18 @@ def main(stdscr):
 	curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
 	found_text = curses.color_pair(1) | curses.A_BOLD
 	while True:
-		stdscr.addstr(1, 0, "Hello, ")
-		stdscr.addstr("world", found_text)
-		stdscr.addstr("!")
-		for i, term in enumerate(search):
-			stdscr.addstr(i + 3, 0, term)
-			stdscr.clrtoeol()
+		regex = r"\b" + r"\W+".join(search)
+		if regex != r"\b":
+			pos = 0
+			for match in re.finditer(regex, textfile, re.I):
+				stdscr.addstr(pos, 0, textfile[match.start():match.end()], found_text)
+				stdscr.clrtoeol()
+				pos += 1
+				if pos >= curses.LINES - 1: break
+			stdscr.addstr(pos, 0, "----")
 		stdscr.clrtobot()
-		stdscr.addstr(curses.LINES - 1, 0, "> ", curses.A_BOLD)
+		stdscr.addstr(curses.LINES - 1, 0, "> " + " ".join(search), curses.A_BOLD)
+		stdscr.clrtoeol()
 		stdscr.refresh()
 		key = stdscr.getkey()
 		if key == "\x1b": break
