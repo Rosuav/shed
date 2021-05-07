@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+'''
+TODO: Progressive text search
+- Give it a file name
+- Type letters/digits/apostrophe, or space, or punctuation, or Enter/Up/Down
+- If letter/digit, add to search term
+- If space, add separator
+- If punctuation, add to filter? maybe? Hyphen requires hyphen, double quote allows any quote (incl backtick b/c people), comma allows semicolon
+- Enter/Down = next, Up = prev. Reset to start on search change? Or keep position (not index)?
+- Search for a sequence of words. They may be separated by any amount of non-newline whitespace, punctuation, etc.
+- Two newlines is a hard separator - no hit crosses that boundary
+- Match based on Unicode casefold, but show the original
+- Search term <<i'm sure i can't be mabel>> finds Alice falling down rabbit hole despite line break
+- Search term <<"a dog's not mad>> finds the conversation with the Cat - even though it's opened with a single quote
+'''
