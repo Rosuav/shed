@@ -17,7 +17,10 @@ import curses
 
 def main(stdscr):
 	stdscr.clear()
-	stdscr.addstr(1, 0, "Hello, world!")
+	curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
+	stdscr.addstr(1, 0, "Hello, ")
+	stdscr.addstr("world", curses.color_pair(1) | curses.A_BOLD)
+	stdscr.addstr("!")
 	stdscr.addstr(curses.LINES - 1, 0, "> ", curses.A_BOLD)
 	stdscr.refresh()
 	stdscr.getkey()
