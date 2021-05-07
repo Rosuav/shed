@@ -39,11 +39,17 @@ def keyrange(start, end):
 	return keyhandler(*(chr(k) for k in range(ord(start), ord(end) + 1)))
 
 search = [""]
+skip_matches = 0
 
-@keyhandler("KEY_UP", "KEY_DOWN")
-def scroll(key):
-	# TODO: Next/previous search result
-	trace("Scrolling!", key)
+@keyhandler("KEY_UP")
+def scroll_up(key):
+	global skip_matches
+	if skip_matches: skip_matches -= 1
+
+@keyhandler("KEY_DOWN", "\n")
+def scroll_up(key):
+	global skip_matches
+	skip_matches += 1
 
 @keyrange("A", "Z")
 @keyrange("a", "z")
@@ -72,8 +78,11 @@ def main(stdscr):
 		regex = r"\b" + r"\W+".join(search)
 		stdscr.move(0, 0)
 		if regex != r"\b":
-			pos = need_context = 0
+			pos = need_context = skipped = 0
 			for match in re.finditer(regex, textfile, re.I):
+				if skipped < skip_matches:
+					skipped += 1
+					continue
 				# Inefficient, but I don't care :)
 				before = textfile[pos:match.start()]
 				lines = before.split("\n")
@@ -93,7 +102,7 @@ def main(stdscr):
 				stdscr.addstr(textfile[match.start():match.end()], found_text)
 				pos = match.end()
 				if stdscr.getyx()[0] >= stdscr.getmaxyx()[0] - CONTEXT_LINES - need_context: break
-			for line in textfile[pos:].split("\n"):
+			for line in textfile[pos:].split("\n")[:need_context]:
 				if stdscr.getyx()[0] >= stdscr.getmaxyx()[0] - 1: break
 				stdscr.addstr(line + "\n")
 			if stdscr.getyx()[0] < stdscr.getmaxyx()[0] - 1: stdscr.addstr("--\n", separator)
