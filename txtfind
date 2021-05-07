@@ -14,15 +14,73 @@ TODO: Progressive text search
 - Search term <<"a dog's not mad>> finds the conversation with the Cat - even though it's opened with a single quote
 '''
 import curses
+import sys
+
+if len(sys.argv) < 2:
+	sys.exit(1, "USAGE: %s filename" % sys.argv[0])
+with open(sys.argv[1]) as f:
+	textfile = f.readlines()
+
+tracefile = open("/tmp/txtfind.log", "w")
+def trace(*a, **kw): print(*a, **kw, file=tracefile, flush=True)
+
+handlers = { }
+def keyhandler(*keys):
+	def wrapper(func):
+		for key in keys: handlers[key] = func
+		return func
+	return wrapper
+
+def keyrange(start, end):
+	# Or should this record the range and do inequality checks??
+	return keyhandler(*(chr(k) for k in range(ord(start), ord(end) + 1)))
+
+search = [""]
+
+@keyhandler("KEY_UP", "KEY_DOWN")
+def scroll(key):
+	# TODO: Next/previous search result
+	trace("Scrolling!", key)
+
+@keyrange("A", "Z")
+@keyrange("a", "z")
+@keyrange("0", "9")
+@keyhandler("'")
+def search_char(key):
+	search[-1] += key
+
+@keyhandler("KEY_BACKSPACE")
+def search_unchar(key):
+	if search[-1]: search[-1] = search[-1][:-1]
+	elif search: search.pop()
+
+@keyhandler(" ")
+def search_newterm(key):
+	search.append("")
 
 def main(stdscr):
+	curses.set_escdelay(25) # What's the smallest timeout that won't result in spurious exits?
 	stdscr.clear()
 	curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
-	stdscr.addstr(1, 0, "Hello, ")
-	stdscr.addstr("world", curses.color_pair(1) | curses.A_BOLD)
-	stdscr.addstr("!")
-	stdscr.addstr(curses.LINES - 1, 0, "> ", curses.A_BOLD)
-	stdscr.refresh()
-	stdscr.getkey()
+	found_text = curses.color_pair(1) | curses.A_BOLD
+	while True:
+		stdscr.addstr(1, 0, "Hello, ")
+		stdscr.addstr("world", found_text)
+		stdscr.addstr("!")
+		for i, term in enumerate(search):
+			stdscr.addstr(i + 3, 0, term)
+			stdscr.clrtoeol()
+		stdscr.clrtobot()
+		stdscr.addstr(curses.LINES - 1, 0, "> ", curses.A_BOLD)
+		stdscr.refresh()
+		key = stdscr.getkey()
+		if key == "\x1b": break
+		func = handlers.get(key)
+		if func: func(key)
+		elif len(key) == 1:
+			# Single-character. Most likely, add to search term.
+			trace("One-character: %r" % key)
+		else:
+			trace("Unknown key %r" % key)
 
 curses.wrapper(main)
