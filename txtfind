@@ -13,3 +13,12 @@ TODO: Progressive text search
 - Search term <<i'm sure i can't be mabel>> finds Alice falling down rabbit hole despite line break
 - Search term <<"a dog's not mad>> finds the conversation with the Cat - even though it's opened with a single quote
 '''
+from curses import wrapper
+
+def main(stdscr):
+	stdscr.clear()
+	stdscr.addstr(1, 0, "Hello, world!")
+	stdscr.refresh()
+	stdscr.getkey()
+
+wrapper(main)
