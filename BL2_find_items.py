@@ -256,6 +256,7 @@ def give(savefile, definitions):
 
 @synthesizer
 def crossproduct(savefile, baseid):
+	baseid, *lockdown = baseid.split(",")
 	obj = Asset.decode_asset_library(unarmor_serial(baseid))
 	cls = "Weapon" if obj.is_weapon else "Item"
 	print()
@@ -278,7 +279,13 @@ def crossproduct(savefile, baseid):
 		pieces = [p or parts.get(part) for p, part in zip(pieces, partnames)]
 		checkme = allbal[checkme].get("base")
 	pieces = [p or [None] for p in pieces] # Any still unfound, just leave None in them
-	#pieces[1] = ["GD_Weap_Pistol.Grip.Pistol_Grip_Bandit"] # Lock some if necessary
+	for fixed in lockdown:
+		for p in pieces:
+			if fixed in p:
+				p[:] = [fixed]
+				break
+		else:
+			print("Couldn't find %r to lock down" % fixed)
 	pprint(pieces)
 	print("Will create", math.prod(len(p) for p in pieces), "objects.")
 	for pieces in itertools.product(*pieces):
