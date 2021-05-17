@@ -241,6 +241,7 @@ def give(savefile, definitions):
 		[id, *changes] = definition.split("-")
 		serial = base64.b64decode(id.strip("{}").encode("ascii") + b"====")
 		obj = Asset.decode_asset_library(serial)
+		obj.seed = random.randrange(1<<31) # If any changes are made, rerandomize the seed too
 		for change in changes:
 			if not change: continue
 			c = change[0].lower()
