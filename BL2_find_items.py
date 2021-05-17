@@ -279,7 +279,7 @@ def crossproduct(savefile, baseid):
 		checkme = allbal[checkme].get("base")
 	pieces = [p or [None] for p in pieces] # Any still unfound, just leave None in them
 	#pieces[1] = ["GD_Weap_Pistol.Grip.Pistol_Grip_Bandit"] # Lock some if necessary
-	#pprint(pieces)
+	pprint(pieces)
 	for pieces in itertools.product(*pieces):
 		obj.seed = random.randrange(1<<31)
 		obj.grade = obj.stage = 41
@@ -322,7 +322,7 @@ GAME = args.game
 library = {
 	"*": {
 		# Good for anyone
-		"hwAAADLKv4T3Nj+nwWj5D93eEsI037K1X4yK8cYDK8sWhOzS7cRJ": "Lucid Florentine", # V
+		"hwAAADLKv4T3Nj+nwWj5D93eEsI037K1X4yK8cYDK8sWhOzS7cRJ": "Lucid Florentine", # Best
 		"hwAAADIKvoT3NjynwWgFbZDeYkkhn4u8XMwIu9UDK6MWhOxyZrFJ": "Bulets Go Fasterifed Slagga", # Florentine and Slagga are both slag-em-up SMGs
 		"hwAAADKKvoT5NjunwWhxDgXdssM0KLK9XOwK+tQDK6MWrOwC7KRJ": "Bladed Tattler", # V
 		"hwAAADIHS+32Aj7PwWjhy0mUAdMnG2S8mOMOut0DK4+3zajR/ZdJ": "Rapid Infinity", # V
