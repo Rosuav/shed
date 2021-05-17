@@ -239,6 +239,7 @@ def create_all_weapons(savefile):
 
 @synthesizer
 def give(savefile, definitions):
+	"""Synthesize every part variant (only parts) based on a particular item/weapon"""
 	for definition in definitions.split(","):
 		[id, *changes] = definition.split("-")
 		serial = unarmor_id(id)
@@ -252,6 +253,31 @@ def give(savefile, definitions):
 		if changes: serial = obj.encode_asset_library()
 		if obj.is_weapon: savefile.packed_weapon_data.append(PackedWeaponData(serial=serial, quickslot=0, mark=1, unknown4=0))
 		else: savefile.packed_item_data.append(PackedItemData(serial=serial, quantity=1, equipped=0, mark=1))
+
+@synthesizer
+def crossproduct(savefile, baseid):
+	obj = Asset.decode_asset_library(unarmor_serial(baseid))
+	cls = "Weapon" if obj.is_weapon else "Item"
+	print()
+	print("Basis:", obj)
+	allbal = get_asset(cls + " Balance")
+	for cat in obj.categories:
+		try:
+			bal = allbal[cat + "." + obj.balance]
+			break
+		except KeyError: pass
+	else:
+		raise Exception("couldn't find balance") # shouldn't happen, will be ugly
+	pprint(bal)
+	p = bal["parts"]
+	partnames = "body grip barrel sight stock elemental acc1 acc2" if obj.is_weapon else "alpha beta gamma delta epsilon zeta eta theta"
+	pieces = [p.get(x, [None]) for x in partnames.split()]
+	for pieces in itertools.product(*pieces):
+		obj.seed = random.randrange(1<<31)
+		obj.pieces = [piece and strip_prefix(piece) for piece in pieces]
+		print(obj)
+		packed = PackedItemData(serial=obj.encode_asset_library(), quantity=1, equipped=0, mark=1)
+		savefile.packed_item_data.append(packed)
 
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
@@ -293,22 +319,23 @@ library = {
 		"BwAAADI+S20AZS3fO3dt34kdgMHMtQqOBQUK/BfdR5k": "Skin of the Ancients", # V
 		"BwAAADICsRH5mSU8wOjSjJ4fogH5Ohu+EzziescQoXq3uy5RbvU": "Sticky Lobbed Bonus Package", # V. Want a longbow probably, short fuse.
 		"BwAAADLCshH5WSU8wOjSzIkfogEXyRu+EzziescQoXo3tS5RbvU": "Lobbed Bonus Package", # Only 9 children (cf 10 on the above)
-		"BwAAADLCudH52S+8IhTTDKHfpQHpUxu2E0jiWscQ4X33uq5N7vY": "Longbow Breath of Terramorphous",
-		"BwAAADLCuhH52daANxTTDKEfpQGIyhu5E0biWscQ4Xr3ui5Rbvc": "Longbow Pandemic",
-		"BwAAADJCvDLxmSU8wOjSDKFfgyJbuBi6EQnKascQIW/Uuq5QbvU": "Longbow Meteor Shower",
+		"BwAAADLCudH52S+8IhTTDKHfpQHpUxu2E0jiWscQ4X33uq5N7vY": "Longbow Breath of Terramorphous", # V
+		"BwAAADLCuhH52daANxTTDKEfpQGIyhu5E0biWscQ4Xr3ui5Rbvc": "Longbow Pandemic", # V
+		"BwAAADJCvDLxmSU8wOjSDKFfgyJbuBi6EQnKascQIW/Uuq5QbvU": "Longbow Meteor Shower", # V
 		"BwAAADIBS20A5SK/O1cVT4ECi6gcxQqOBQSK/Bfdx24": "The Afterburner",
 		"BwAAADIFS20A5dYAwOjWS7qYugbmPhu7DWqq+cUQYWcwsSlYaeg": "Chitinous Turtle Shield", # V. Massive capacity, slow recharge. Is it best?
-		"BwAAADLCshH52dbAN1TfzH4jgiAlwxK8CQ+q6sYQYZkLt49NLv4": "Fire Storm",
-		"BwAAADLCstH52daAN9TfzH6jgCBJjxK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt",
-		"BwAAADLCshH52daAN9TfzH4jgCCRihK8CQWq6sYQYZkLtY9NLv4": "Fireball",
+		"BwAAADLCshH52dbAN1TfzH4jgiAlwxK8CQ+q6sYQYZkLt49NLv4": "Fire Storm", # V
+		"BwAAADLCstH52daAN9TfzH6jgCBJjxK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt", # V
+		"BwAAADLCshH52daAN9TfzH4jgCCRihK8CQWq6sYQYZkLtY9NLv4": "Fireball", # V
+		"BwAAADLCstH5WS68N9TfzH7jgCDRYRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile", # Best
 		# Snipers
 		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano", # V
 		"hwAAADJNsQrjKkifwWiBjYAY08si6di8n8yLu8cDKzv23C1D5DJN": "Fashionable Chère-amie", # V
 		# Of dubious but potential value
-		"BwAAADIBS20A5S0fPHd5SYkfgMXMtQqOBQSK/JcqOGg": "Heart of the Ancients",
+		"BwAAADIBS20A5S0fPHd5SYkfgMXMtQqOBQSK/JcqOGg": "Heart of the Ancients", # V
 		# Unconfirmed or uncategorized
 		"BwAAADIiS20A5dYAwOjK7H6jgCEtFRK8Cgm6CsYQoWfwtmlW6fQ": "Blockade",
-		"BwAAADLCstH52dbAN1TfzH7jgSCC+RK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning",
+		"BwAAADLCstH52dbAN1TfzH7jgSCC+RK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning", # V
 		"BwAAADLCstH52daAN1TfzH7jgSBNXhK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning",
 		"hwAAADIHS231Aj7PwWgVywGYwdYn/qS8nQMMutMDK4uw1aiB+fdK": "Corrosive Teapot", # V
 		"hwAAADIHS231Aj7PwWgVywGYwdYnaGC8nQMMutMDK4uw1aiB+bdJ": "Corrosive Teapot",
@@ -316,8 +343,6 @@ library = {
 		"hwAAADIHS231Aj7PwWgVywGYwdYnE4O8nQMMutMDK4uwNaiB+ZdJ": "Corrosive Teapot",
 		"hwAAADIHS231Aj7PwWgVywGYwdYnNHi8nQMMutMDK4uw7aiB+fdK": "Corrosive Teapot",
 		"hwAAADIHS231Aj7PwWgVywGYwdYn7au8nQMMutMDK4uw3aiB+ddK": "Corrosive Teapot", # TODO: Cross-product the grip and sight
-		"BwAAADLCstH5WS48ONTfzH7jgCA5mRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile", # V
-		"BwAAADLCstH5WS68N9TfzH7jgCDRYRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile",
 		"BwAAADI+S20AZS+/OldkWoEUi/wcxQqOBQTKBSjdR5k": "Proficiency Relic", # One of these is purple, one is white
 		"BwAAADI+S20AZS//PVcugYEUi9IcxQqOBQTKBSjdR5k": "Proficiency Relic",
 		"BwAAADLCutH52dbANxTTjKFfpQHD7Bu5EzriWscQ4Xp3uq5QLv4": "Rubberized Fire Bee",
