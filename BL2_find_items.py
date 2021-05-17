@@ -278,84 +278,50 @@ GAME = args.game
 
 # Library of item IDs. Everything here is seed=grade=stage=50 for consistency.
 # TODO: Have an easy way to pick and choose, and have them set to the player's level (and randomize the seed)
-# TODO: Check variants of each of these and pick out the best
+# TODO: Check variants of each of these and pick out the best. The "# V" tag means I haven't checked variants.
 library = {
 	"*": {
-		"hwAAADLNsYrjKkqfwWh9jtAY08AiuJ+8n2yLu8cDK9f13C2j7VJN": "Banbury Jericho",
-		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano",
-		"hwAAADKKvoT5NjunwWhxDgXdssM0KLK9XOwK+tQDK6MWrOwC7KRJ": "Bladed Tattler",
+		# Good for anyone
+		"hwAAADLKv4T3Nj+nwWj5D93eEsI037K1X4yK8cYDK8sWhOzS7cRJ": "Lucid Florentine", # V
+		"hwAAADIKvoT3NjynwWgFbZDeYkkhn4u8XMwIu9UDK6MWhOxyZrFJ": "Bulets Go Fasterifed Slagga", # Florentine and Slagga are both slag-em-up SMGs
+		"hwAAADKKvoT5NjunwWhxDgXdssM0KLK9XOwK+tQDK6MWrOwC7KRJ": "Bladed Tattler", # V
+		"hwAAADIHS+32Aj7PwWjhy0mUAdMnG2S8mOMOut0DK4+3zajR/ZdJ": "Rapid Infinity", # V
+		"hwAAADLClhT5FjHnwWg5bene4E4lbRm8nSIJxdMDKw8WpengZrVJ": "Onslaught Veruc", # V
+		"hwAAADKKvgT4Nj+nwWiJr9XeckI2scu4XoyK89oDK8MWrOyybQZI": "Corporate Yellow Jacket", # V
+		"BwAAADI+S20AZS3fO3dt34kdgMHMtQqOBQUK/BfdR5k": "Skin of the Ancients", # V
+		"BwAAADICsRH5mSU8wOjSjJ4fogH5Ohu+EzziescQoXq3uy5RbvU": "Sticky Lobbed Bonus Package", # V. Want a longbow probably, short fuse.
+		"BwAAADLCshH5WSU8wOjSzIkfogEXyRu+EzziescQoXo3tS5RbvU": "Lobbed Bonus Package", # Only 9 children (cf 10 on the above)
+		"BwAAADLCudH52S+8IhTTDKHfpQHpUxu2E0jiWscQ4X33uq5N7vY": "Longbow Breath of Terramorphous",
+		"BwAAADLCuhH52daANxTTDKEfpQGIyhu5E0biWscQ4Xr3ui5Rbvc": "Longbow Pandemic",
+		"BwAAADJCvDLxmSU8wOjSDKFfgyJbuBi6EQnKascQIW/Uuq5QbvU": "Longbow Meteor Shower",
+		"BwAAADIBS20A5SK/O1cVT4ECi6gcxQqOBQSK/Bfdx24": "The Afterburner",
+		"BwAAADIFS20A5dYAwOjWS7qYugbmPhu7DWqq+cUQYWcwsSlYaeg": "Chitinous Turtle Shield", # V. Massive capacity, slow recharge. Is it best?
+		"BwAAADLCshH52dbAN1TfzH4jgiAlwxK8CQ+q6sYQYZkLt49NLv4": "Fire Storm",
+		"BwAAADLCstH52daAN9TfzH6jgCBJjxK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt",
+		"BwAAADLCshH52daAN9TfzH4jgCCRihK8CQWq6sYQYZkLtY9NLv4": "Fireball",
+		# Snipers
+		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano", # V
+		"hwAAADJNsQrjKkifwWiBjYAY08si6di8n8yLu8cDKzv23C1D5DJN": "Fashionable Chère-amie", # V
+		# Of dubious but potential value
+		"BwAAADIBS20A5S0fPHd5SYkfgMXMtQqOBQSK/JcqOGg": "Heart of the Ancients",
+		# Unconfirmed or uncategorized
 		"BwAAADIiS20A5dYAwOjK7H6jgCEtFRK8Cgm6CsYQoWfwtmlW6fQ": "Blockade",
-		"BwAAADI+S20AJSnfO3fkSYkcgMPMlQqOBQSK/VcqeJk": "Blood of the Ancients",
-		"BwAAADI+S20AJSmfPXcvwYkcgMPMtQqOBQSK/RfdR5k": "Blood of the Ancients",
-		"BwAAADI+S20ApS3fO3fPg4kegMfM1QqOBQSK/9coeJk": "Bone of the Ancients",
-		"BwAAADI+S20ApS0fPHc48YkegMfMtQqORQTK/9coeJk": "Bone of the Ancients",
-		"BwAAADI+S20ApS2fPXf+c4kegMfMtQqORQTK/9coeJk": "Bone of the Ancients",
-		"hwAAADIKvoT3NjynwWgFbZDeYkkhn4u8XMwIu9UDK6MWhOxyZrFJ": "Bulets Go Fasterifed Slagga",
 		"BwAAADLCstH52dbAN1TfzH7jgSCC+RK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning",
 		"BwAAADLCstH52daAN1TfzH7jgSBNXhK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning",
-		"BwAAADI+S20A5dYAwKjOzpsdgAPwuBuUEX6r+cYQIWO1tGxQLAs": "Chrono Binder Class Mod",
-		"hwAAADIKvgT5Nj2nwWh9bXjdwksh2f+8X4wIu8cDK8sWnOxybZFJ": "Consummate SubMalevolent Grace",
-		"hwAAADIHS231Aj7PwWgVywGYwdYn/qS8nQMMutMDK4uw1aiB+fdK": "Corrosive Teapot",
+		"hwAAADIHS231Aj7PwWgVywGYwdYn/qS8nQMMutMDK4uw1aiB+fdK": "Corrosive Teapot", # V
 		"hwAAADIHS231Aj7PwWgVywGYwdYnaGC8nQMMutMDK4uw1aiB+bdJ": "Corrosive Teapot",
 		"hwAAADIHS231Aj7PwWgVywGYwdYnmA68nQMMutMDK4uw3aiB+VdJ": "Corrosive Teapot",
 		"hwAAADIHS231Aj7PwWgVywGYwdYnE4O8nQMMutMDK4uwNaiB+ZdJ": "Corrosive Teapot",
 		"hwAAADIHS231Aj7PwWgVywGYwdYnNHi8nQMMutMDK4uw7aiB+fdK": "Corrosive Teapot",
-		"hwAAADIHS231Aj7PwWgVywGYwdYn7au8nQMMutMDK4uw3aiB+ddK": "Corrosive Teapot",
-		"hwAAADJNsQrjKkifwWiBjYAY08si6di8n8yLu8cDKzv23C1D5DJN": "Fashionable Chère-amie",
-		"BwAAADICsRH52dYAOFTfzH4jgiDWcBK8CQ+q6sYQYZkLt49NLv4": "Fire Storm",
-		"BwAAADLCshH52dbAN1TfzH4jgiAlwxK8CQ+q6sYQYZkLt49NLv4": "Fire Storm",
-		"BwAAADICsRH52dbAN9TfzH4jgCCKwRK8CQWq6sYQYZkLtY9NLv4": "Fireball",
-		"BwAAADLCshH52daAN9TfzH4jgCCRihK8CQWq6sYQYZkLtY9NLv4": "Fireball",
-		"BwAAADLCshH52dbAN9TfzH4jgCBeLRK8CQWq6sYQYZkLtY9NLv4": "Fireball",
-		"BwAAADIBS20A5S0fPHd5SYkfgMXMtQqOBQSK/JcqOGg": "Heart of the Ancients",
-		"BwAAADICuNH52S/8NxTTDJ/fpQGdixu2E0jiWscQ4X13pe5QbvY": "Homing Breath of Terramorphous",
-		"BwAAADI+S20A5dYAwOjOzqAdgANdoxuVEYKr2ccQoWO1t6xRLAs": "Legendary Berserker Class Mod",
-		"BwAAADI+S20A5dYAwKjODoE8gAN1wBG8HAcK6sYQoWO1tGxQLAs": "Legendary Binder",
-		"BwAAADI+S20A5dYAwCjJjpkdgAN6CRubEXyr+cYQoWN1tuxQLAs": "Legendary Siren Class Mod",
-		"BwAAADLCstH52dbAN9TfzH6jgCCGKBK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt",
-		"BwAAADLCstH52dYAONTfzH6jgCChdxK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt",
-		"BwAAADLCstH52daAN9TfzH6jgCBJjxK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt",
-		"BwAAADICsdH52daAN9TfzH6jgCCdYxK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt",
-		"BwAAADICsdH52dYAONTfzH6jgCB1mxK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt",
-		"BwAAADLCshH5WSU8wOjSzIkfogEXyRu+EzziescQoXo3tS5RbvU": "Lobbed Bonus Package",
-		"BwAAADICuNH52S/8NxTTzInfpQH+CRu2E0jiWscQ4X03ta5Q7vY": "Lobbed Breath of Terramorphous",
-		"BwAAADLCudH52S+8IhTTDKHfpQHpUxu2E0jiWscQ4X33uq5N7vY": "Longbow Breath of Terramorphous",
-		"BwAAADICuRH5WSU8OJTSDKFfpwFzOBu9EyriescQoXz3ui5RbvU": "Longbow MIRV",
-		"BwAAADLCuhH52daANxTTDKEfpQGIyhu5E0biWscQ4Xr3ui5Rbvc": "Longbow Pandemic",
-		"hwAAADLKv4T3Nj+nwWj5D93eEsI037K1X4yK8cYDK8sWhOzS7cRJ": "Lucid Florentine",
-		"BwAAADLCstH5WS48ONTfzH7jgCA5mRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile",
-		"BwAAADICsdH5WS48ONTfzH7jgCDtdRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile",
+		"hwAAADIHS231Aj7PwWgVywGYwdYn7au8nQMMutMDK4uw3aiB+ddK": "Corrosive Teapot", # TODO: Cross-product the grip and sight
+		"BwAAADLCstH5WS48ONTfzH7jgCA5mRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile", # V
 		"BwAAADLCstH5WS68N9TfzH7jgCDRYRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile",
-		"BwAAADKCvTL5GSU8wOjSDJ9fgyIygRi6EQnKascQIW9UpS5RbvU": "Meteor Shower",
-		"BwAAADJCvDLxmSU8wOjSDKFfgyJbuBi6EQnKascQIW/Uuq5QbvU": "Meteor Shower",
-		"hwAAADLClhT5FjHnwWg5bene4E4lbRm8nSIJxdMDKw8WpengZrVJ": "Onslaught Veruc",
-		"BwAAADI+S20AZS+/OldkWoEUi/wcxQqOBQTKBSjdR5k": "Proficiency Relic",
+		"BwAAADI+S20AZS+/OldkWoEUi/wcxQqOBQTKBSjdR5k": "Proficiency Relic", # One of these is purple, one is white
 		"BwAAADI+S20AZS//PVcugYEUi9IcxQqOBQTKBSjdR5k": "Proficiency Relic",
-		"hwAAADIHS+32Aj7PwWjhy0mUAdMnG2S8mOMOut0DK4+3zajR/ZdJ": "Rapid Infinity",
 		"BwAAADLCutH52dbANxTTjKFfpQHD7Bu5EzriWscQ4Xp3uq5QLv4": "Rubberized Fire Bee",
-		"BwAAADI+S20AZS3fO3dt34kdgMHMtQqOBQUK/BfdR5k": "Skin of the Ancients",
-		"BwAAADI+S20A5dYAwCjJDog8gANNZh22HAUK6sYQoWM1t+xQLAs": "Slayer of Terramorphous", # Hmm, whose is this
-		"BwAAADICsRH5mSU8wOjSjJ4fogH5Ohu+EzziescQoXq3uy5RbvU": "Sticky Lobbed Bonus Package",
-		"hwAAADLKvwT4NjinwWi5b4DYwkshUzq8X2wKu8cDKwsUhOxCbZFJ": "Storming SubMalevolent Grace",
-		"BwAAADIBS20A5SI/PFeulIECi6gcxQqOBQSK/Bfdx24": "The Afterburner",
-		"BwAAADIBS20A5SJ/PFdhM4ECi6gcxQqOBQSK/Bfdx24": "The Afterburner",
-		"BwAAADIBS20A5SL/O1fa6IECi6gcxQqOBQSK/Bfdx24": "The Afterburner",
-		"BwAAADIBS20A5SK/O1cVT4ECi6gcxQqOBQSK/Bfdx24": "The Afterburner",
 		"BwAAADIFS20A5dYAwGicy37j2gaYxRuqDW6qOccQYWewtilW6aM": "The Bee",
 		"BwAAADIFS20A5dYAwGicy37j2ga32xuqDW6qOccQYWcwsalV6aM": "The Bee",
 		"BwAAADIFS20A5dYAwOiey36j2QZEUxuuDVaqWccQ4WQwsKkEKaA": "The Transformer",
-		"BwAAADIFS20A5dYAwOjWy7qYugY4lxu7DWqq+cUQoWcwsSlYaeg": "Armored Turtle Shield",
-		"BwAAADIFS20A5dYAwOjWC4+YugaqsRu7DWqq+cUQYWdwsalXaeg": "Blast proof Turtle Shield",
-		"BwAAADIFS20A5dYAwOjWS7qYugbmPhu7DWqq+cUQYWcwsSlYaeg": "Chitinous Turtle Shield",
-		"BwAAADIFS20A5dYAwKjWS7qYugbyrxu7DTSq+cUQYWcwsKlWaeg": "Chitinous Turtle Shield",
-		"BwAAADIFS20A5dYAwOjWi72YugbZuhu7DWqq+cUQIWfwtqlVaeg": "Nimble Turtle Shield",
-		"BwAAADIFS20A5dYAwOjWi72YugbpDxu7DWqq+cUQYWbwtmlWaeg": "Nimble Turtle Shield",
-		"BwAAADIFS20A5dYAwOjWy76YugaTWxu7DWqq+cUQ4WcwsSlWaeg": "Selected Turtle Shield",
-		"BwAAADIFS20A5dYAwGjfS72Yugaq+xu7DRSq+cUQ4WQwtmlWaeg": "Sluggish Turtle Shield",
-		"BwAAADIFS20A5dYAwGjfy72Yuga1Vhu7DRSq+cUQ4WbwtulVaeg": "Sprinting Turtle Shield",
-		"BwAAADIFS20A5dYAwOjWi7+YugaBFhu7DWqq+cUQIWcwsOlVaeg": "Symmetrical Turtle Shield",
-		"BwAAADIFS20A5dYAwOjWy36jugYuyBu7DWqq+cUQoWewtqlWaeg": "Turtle Shield",
-		"hwAAADKKvgT4Nj+nwWiJr9XeckI2scu4XoyK89oDK8MWrOyybQZI": "Corporate Yellow Jacket",
 		"BwAAADLCstH5WS58ONTfTIsfpgENAhu9E1Ti+sYQYXo3pa5N7vA": "Shock Kiss of Death",
 	},
 	"Mechromancer": {
@@ -364,6 +330,8 @@ library = {
 		"BwAAADIFS20A5dYAwCjOb4E8gCJh9Ri8EQXKSscQ4WcwsSlXaew": "Sponge",
 		"BwAAADLCuhHxWS48wOjSzH5jrwGGwRu1E0LiescQYZkLuq5QbvU": "Rolling Thunder",
 		"BwAAADI+S20A5dYAwOjJzogdgAPgyRm9HQcC6sYQoWO1tGxQLAs": "Slayer of Terramorphous",
+		"BwAAADI+S20ApS3fO3fPg4kegMfM1QqOBQSK/9coeJk": "Bone of the Ancients", # V
+		"BwAAADI+S20ApS2fPXf+c4kegMfMtQqORQTK/9coeJk": "Bone of the Ancients",
 	},
 	"Siren": {
 		"hwAAADLKvwT5NjunwWgtbRjdok4hex68XywJu8cDK8sWrOzSZtFJ": "Acuminous Hellfire",
@@ -371,6 +339,9 @@ library = {
 		"BwAAADI+S20A5dYAwOjJzogdgAME0xudEXKr+cYQoWO1t+xQLAs": "Slayer Of Terramorphous", # Neither of these is strictly better. TODO: Look at their parts.
 		"BwAAADI+S20A5dYAwOjJzogdgAN1BhudEXKr+cYQoWM1tyxRLAs": "Slayer Of Terramorphous",
 		"BwAAADI+S20A5dYAwOjOjoI8gAOMIhGpHAkK6sYQoWM1t6xQLAs": "Legendary Catalyst",
+		"BwAAADI+S20A5dYAwKjODoE8gAN1wBG8HAcK6sYQoWO1tGxQLAs": "Legendary Binder",
+		"BwAAADI+S20A5dYAwCjJjpkdgAN6CRubEXyr+cYQoWN1tuxQLAs": "Legendary Siren",
+		"BwAAADI+S20A5dYAwKjOzpsdgAPwuBuUEX6r+cYQIWO1tGxQLAs": "Chrono Binder",
 	},
 	"Assassin": {
 		"BwAAADI+S20A5dYAwOjJzogdgAOmFhufEZarmccQoWN1t2xQLAs": "Slayer Of Terramorphous",
@@ -379,11 +350,15 @@ library = {
 	"Merc": {
 		"BwAAADI+S20A5dYAwKjOzogdgAM/jBueEYCr2ccQoWN1t6xQLAs": "Slayer Of Terramorphous",
 		"BwAAADI+S20A5dYAwCjJjqMdgAM3AhugEY6rWccQoW/1t2xRLAs": "Unhinged Hoarder",
+		"BwAAADI+S20AJSnfO3fkSYkcgMPMlQqOBQSK/VcqeJk": "Blood of the Ancients", # V
+		"BwAAADI+S20AJSmfPXcvwYkcgMPMtQqOBQSK/RfdR5k": "Blood of the Ancients", # Neither is strictly better
 	},
 	"Soldier": {
+		"BwAAADI+S20A5dYAwOjOzqAdgANdoxuVEYKr2ccQoWO1t6xRLAs": "Legendary Berserker Class Mod",
 		"BwAAADI+S20A5dYAwOjJzogdgAN14hu8EWyruccQoWO1tOxQLAs": "Slayer Of Terramorphous",
 	},
 	"Psycho": {
+		"BwAAADI+S20A5dYAwCjJDog8gANNZh22HAUK6sYQoWM1t+xQLAs": "Slayer of Terramorphous",
 		"BwAAADI+S20A5dYAwOjJDog8gAN2DR22HAUK6sYQoWO1t6xQLAs": "Slayer of Terramorphous",
 	},
 }
