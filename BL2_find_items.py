@@ -280,6 +280,7 @@ def crossproduct(savefile, baseid):
 	pieces = [p or [None] for p in pieces] # Any still unfound, just leave None in them
 	#pieces[1] = ["GD_Weap_Pistol.Grip.Pistol_Grip_Bandit"] # Lock some if necessary
 	pprint(pieces)
+	print("Will create", math.prod(len(p) for p in pieces), "objects.")
 	for pieces in itertools.product(*pieces):
 		obj.seed = random.randrange(1<<31)
 		obj.grade = obj.stage = 41
