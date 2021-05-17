@@ -278,11 +278,12 @@ def crossproduct(savefile, baseid):
 		pieces = [p or parts.get(part) for p, part in zip(pieces, partnames)]
 		checkme = allbal[checkme].get("base")
 	pieces = [p or [None] for p in pieces] # Any still unfound, just leave None in them
+	#pieces[1] = ["GD_Weap_Pistol.Grip.Pistol_Grip_Bandit"] # Lock some if necessary
+	#pprint(pieces)
 	for pieces in itertools.product(*pieces):
 		obj.seed = random.randrange(1<<31)
 		obj.grade = obj.stage = 41
 		obj.pieces = [piece and strip_prefix(piece) for piece in pieces]
-		print(obj)
 		if obj.is_weapon:
 			packed = PackedWeaponData(serial=obj.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
 			savefile.packed_weapon_data.append(packed)
@@ -348,12 +349,7 @@ library = {
 		"BwAAADIiS20A5dYAwOjK7H6jgCEtFRK8Cgm6CsYQoWfwtmlW6fQ": "Blockade",
 		"BwAAADLCstH52dbAN1TfzH7jgSCC+RK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning", # V
 		"BwAAADLCstH52daAN1TfzH7jgSBNXhK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning",
-		"hwAAADIHS231Aj7PwWgVywGYwdYn/qS8nQMMutMDK4uw1aiB+fdK": "Corrosive Teapot", # V
-		"hwAAADIHS231Aj7PwWgVywGYwdYnaGC8nQMMutMDK4uw1aiB+bdJ": "Corrosive Teapot",
-		"hwAAADIHS231Aj7PwWgVywGYwdYnmA68nQMMutMDK4uw3aiB+VdJ": "Corrosive Teapot",
-		"hwAAADIHS231Aj7PwWgVywGYwdYnE4O8nQMMutMDK4uwNaiB+ZdJ": "Corrosive Teapot",
-		"hwAAADIHS231Aj7PwWgVywGYwdYnNHi8nQMMutMDK4uw7aiB+fdK": "Corrosive Teapot",
-		"hwAAADIHS231Aj7PwWgVywGYwdYn7au8nQMMutMDK4uw3aiB+ddK": "Corrosive Teapot", # TODO: Cross-product the grip and sight
+		"hwAAADIHS231AtYAwGgVywGYwdYnYey8nQMMutMDK4uw7aiB+fdK": "Corrosive Teapot", # Bandit grip and Jakobs sight - other options available
 		"BwAAADI+S20AZS+/OldkWoEUi/wcxQqOBQTKBSjdR5k": "Proficiency Relic", # One of these is purple, one is white
 		"BwAAADI+S20AZS//PVcugYEUi9IcxQqOBQTKBSjdR5k": "Proficiency Relic",
 		"BwAAADLCutH52dbANxTTjKFfpQHD7Bu5EzriWscQ4Xp3uq5QLv4": "Rubberized Fire Bee",
