@@ -46,6 +46,8 @@ def title(item, tit): return item.title is not None and tit in item.title
 synthesizer = FunctionArg("synth", 1)
 
 def strip_prefix(str): return str.split(".", 1)[1]
+def armor_serial(serial): return base64.b64encode(serial).decode("ascii").strip("=")
+def unarmor_serial(id): return base64.b64decode(id.strip("{}").encode("ascii") + b"====")
 
 @synthesizer
 def money(savefile): savefile.money[0] += 5000000 # Add more dollars
@@ -239,7 +241,7 @@ def create_all_weapons(savefile):
 def give(savefile, definitions):
 	for definition in definitions.split(","):
 		[id, *changes] = definition.split("-")
-		serial = base64.b64decode(id.strip("{}").encode("ascii") + b"====")
+		serial = unarmor_id(id)
 		obj = Asset.decode_asset_library(serial)
 		obj.seed = random.randrange(1<<31) # If any changes are made, rerandomize the seed too
 		for change in changes:
@@ -592,7 +594,7 @@ class Asset:
 		else: lvl = "Level %d/%d" % (self.grade, self.stage)
 		type = self.type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
 		ret = "%s %s (%s)" % (lvl, self.get_title(), type) + ("\n" + " + ".join(filter(None, self.pieces))) * args.pieces
-		if args.itemids: ret += " {%s}" % base64.b64encode(self.encode_asset_library()).decode("ascii").strip("=")
+		if args.itemids: ret += " {%s}" % armor_serial(self.encode_asset_library())
 		if args.raw: ret += "\n" + ", ".join("%s=%r" % (f, getattr(self, f)) for f in self.__dataclass_fields__)
 		return ret
 	#if args.raw: del __repr__ # For a truly-raw view (debugging mode).
