@@ -268,16 +268,27 @@ def crossproduct(savefile, baseid):
 		except KeyError: pass
 	else:
 		raise Exception("couldn't find balance") # shouldn't happen, will be ugly
-	pprint(bal)
-	p = bal["parts"]
-	partnames = "body grip barrel sight stock elemental acc1 acc2" if obj.is_weapon else "alpha beta gamma delta epsilon zeta eta theta"
-	pieces = [p.get(x, [None]) for x in partnames.split()]
+	# Build up a full list of available parts
+	# Assumes that the "mode" is always "Selective" as I don't know how "Additive works exactly
+	checkme = cat + "." + obj.balance
+	partnames = ("body grip barrel sight stock elemental acc1 acc2" if obj.is_weapon else "alpha beta gamma delta epsilon zeta eta theta").split()
+	pieces = [None] * len(partnames)
+	while checkme:
+		parts = allbal[checkme]["parts"]
+		pieces = [p or parts.get(part) for p, part in zip(pieces, partnames)]
+		checkme = allbal[checkme].get("base")
+	pieces = [p or [None] for p in pieces] # Any still unfound, just leave None in them
 	for pieces in itertools.product(*pieces):
 		obj.seed = random.randrange(1<<31)
+		obj.grade = obj.stage = 41
 		obj.pieces = [piece and strip_prefix(piece) for piece in pieces]
 		print(obj)
-		packed = PackedItemData(serial=obj.encode_asset_library(), quantity=1, equipped=0, mark=1)
-		savefile.packed_item_data.append(packed)
+		if obj.is_weapon:
+			packed = PackedWeaponData(serial=obj.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
+			savefile.packed_weapon_data.append(packed)
+		else:
+			packed = PackedItemData(serial=obj.encode_asset_library(), quantity=1, equipped=0, mark=1)
+			savefile.packed_item_data.append(packed)
 
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
