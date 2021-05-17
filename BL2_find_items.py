@@ -355,6 +355,8 @@ library = {
 		"BwAAADIFS20A5dYAwGjfy72Yuga1Vhu7DRSq+cUQ4WbwtulVaeg": "Sprinting Turtle Shield",
 		"BwAAADIFS20A5dYAwOjWi7+YugaBFhu7DWqq+cUQIWcwsOlVaeg": "Symmetrical Turtle Shield",
 		"BwAAADIFS20A5dYAwOjWy36jugYuyBu7DWqq+cUQoWewtqlWaeg": "Turtle Shield",
+		"hwAAADKKvgT4Nj+nwWiJr9XeckI2scu4XoyK89oDK8MWrOyybQZI": "Corporate Yellow Jacket",
+		"BwAAADLCstH5WS58ONTfTIsfpgENAhu9E1Ti+sYQYXo3pa5N7vA": "Shock Kiss of Death",
 	},
 	"Mechromancer": {
 		"hwAAADLLrwYA5SKvwWh9L3VcaEA0Hiu9HIyI+dADK8s05K6Sb0RI": "Captain Blade's Orphan Maker",
@@ -366,7 +368,7 @@ library = {
 	"Siren": {
 		"hwAAADLKvwT5NjunwWgtbRjdok4hex68XywJu8cDK8sWrOzSZtFJ": "Acuminous Hellfire",
 		"BwAAADIFS20A5dYAwOjFy36jlwaOWhu9DQCq+cYQIWYwsKlW6fs": "Flame of the Firehawk",
-		"BwAAADI+S20A5dYAwOjJzogdgAME0xudEXKr+cYQoWO1t+xQLAs": "Slayer Of Terramorphous",
+		"BwAAADI+S20A5dYAwOjJzogdgAME0xudEXKr+cYQoWO1t+xQLAs": "Slayer Of Terramorphous", # Neither of these is strictly better. TODO: Look at their parts.
 		"BwAAADI+S20A5dYAwOjJzogdgAN1BhudEXKr+cYQoWM1tyxRLAs": "Slayer Of Terramorphous",
 		"BwAAADI+S20A5dYAwOjOjoI8gAOMIhGpHAkK6sYQoWM1t6xQLAs": "Legendary Catalyst",
 	},
@@ -1088,4 +1090,6 @@ if args.library:
 		obj.grade = obj.stage = obj.seed = 50
 		serial = obj.encode_asset_library()
 		id = base64.b64encode(serial).decode("ascii").strip("=")
-		print('\t\t"%s": "%s",' % (id, obj.get_title()))
+		for clsitems in library.values():
+			if id in clsitems: break
+		else: print('\t\t"%s": "%s",' % (id, obj.get_title()))
