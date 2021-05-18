@@ -361,6 +361,7 @@ library = {
 		"BwAAADLCshH52daAN9TfzH4jgCCRihK8CQWq6sYQYZkLtY9NLv4": "Fireball", # V
 		"BwAAADLCstH5WS68N9TfzH7jgCDRYRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile", # Best (other than the extremely rare upgraded version)
 		"BwAAADLCstH52daAN1TfzH7jgSBNXhK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning",
+		"BwAAADLCuhH52daAIhTTDKFfpQEo1Ru5EzriWscQ4Xr3uq5NLv4": "Longbow Fire Bee",
 		# Snipers
 		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano",
 		"hwAAADJNsQrjKkifwWiBjYAY08si6di8n8yLu8cDKzv23C1D5DJN": "Fashionable Chère-amie", # V
@@ -370,7 +371,6 @@ library = {
 		# Unconfirmed or uncategorized
 		"BwAAADIiS20A5dYAwOjK7H6jgCEtFRK8Cgm6CsYQoWfwtmlW6fQ": "Blockade",
 		"BwAAADI+S20AZS+/OldkWoEUi/wcxQqOBQTKBSjdR5k": "Proficiency Relic",
-		"BwAAADLCutH52dbANxTTjKFfpQHD7Bu5EzriWscQ4Xp3uq5QLv4": "Rubberized Fire Bee",
 		"BwAAADIFS20A5dYAwGicy37j2gaYxRuqDW6qOccQYWewtilW6aM": "The Bee",
 		"BwAAADIFS20A5dYAwGicy37j2ga32xuqDW6qOccQYWcwsalV6aM": "The Bee",
 		"BwAAADIFS20A5dYAwOiey36j2QZEUxuuDVaqWccQ4WQwsKkEKaA": "The Transformer",
@@ -642,8 +642,9 @@ class Asset:
 		if self.grade == self.stage: lvl = "Lvl %d" % self.grade
 		else: lvl = "Level %d/%d" % (self.grade, self.stage)
 		type = self.type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
-		ret = "%s %s (%s)" % (lvl, self.get_title(), type) + ("\n" + " + ".join(filter(None, self.pieces))) * args.pieces
+		ret = "%s %s (%s)" % (lvl, self.get_title(), type)
 		if args.itemids: ret += " {%s}" % armor_serial(self.encode_asset_library())
+		if args.pieces: ret += "\n" + " + ".join(filter(None, self.pieces))
 		if args.raw: ret += "\n" + ", ".join("%s=%r" % (f, getattr(self, f)) for f in self.__dataclass_fields__)
 		return ret
 	#if args.raw: del __repr__ # For a truly-raw view (debugging mode).
