@@ -244,13 +244,13 @@ def give(savefile, definitions):
 	"""Synthesize every part variant (only parts) based on a particular item/weapon"""
 	for definition in definitions.split(","):
 		[id, *changes] = definition.split("-")
-		serial = unarmor_id(id)
+		serial = unarmor_serial(id)
 		obj = Asset.decode_asset_library(serial)
 		obj.seed = random.randrange(1<<31) # If any changes are made, rerandomize the seed too
 		for change in changes:
 			if not change: continue
 			c = change[0].lower()
-			if c == "l": obj.grade = obj.stage = int(change[1:])
+			if c == "l": obj.grade = obj.stage = int(change[1:] or savefile.level)
 			# TODO: Add other changes as needed
 		if changes: serial = obj.encode_asset_library()
 		if obj.is_weapon: savefile.packed_weapon_data.append(PackedWeaponData(serial=serial, quickslot=0, mark=1, unknown4=0))
@@ -380,11 +380,8 @@ library = { # BL2 items
 		"hwAAADJNsQrjKkifwWiBjYAY08si6di8n8yLu8cDKzv23C1D5DJN": "Fashionable Chère-amie", # V
 		"hwAAADKNsQoA5dYAwGidjDhd4s8iQdS8mCyKu9EDK2P17C3D7zJN": "Kull Trespasser",
 		# Unconfirmed or uncategorized
-		"hwAAADJEr5j3DjzXwWjpr/FYUUcmn9+8XCOKxdkDK3vUtW4xa3ZI": "Multi-Use Launcher",
 		"hwAAADIErpj3Dj/XwWihrbFeUUcm6Oi8XCOIxdkDKwPWvW4Ba9ZI": "Bonus Launcher",
 		"hwAAADJErxj2Dj/XwWjRr6FeoUkmifO8XyOOxdUDKzvWrW6xZrZI": "Roket Pawket PRAZMA CANON",
-		"hwAAADKErxj3DjDXwWiRrTFdAUomi228WGOIxccDKzPWrW7Ra7ZI": "Parataxis Panorama",
-		"hwAAADIErhj3DjPXwWhdrwldIUUmhNm8WAOLxccDK/fUlW4Ba3ZI": "Punitory Projectile",
 		"hwAAADJEr5j3DjDXwWi5rUFdgUomLA68XYOIxd8DKwvWlW7Ba7ZI": "fwap a Duuurp!",
 		"BwAAADIBS20A5S0fPHd5SYkfgMXMtQqOBQSK/JcqOGg": "Heart of the Ancients", # V
 		"BwAAADIBS20A5S3fO3dA4okbgM3MtQqOBQSK/JcqOGg": "Heart of the Ancients",
@@ -1149,7 +1146,7 @@ def parse_savefile(fn):
 		])
 		comp = len(reconstructed).to_bytes(4, "big") + lzo.compress(reconstructed, 1, False)
 		comp = hashlib.sha1(comp).digest() + comp
-		with open("synthesized.sav", "wb") as f: f.write(comp)
+		with open("synthesized-%s.sav" % (args.file or ""), "wb") as f: f.write(comp)
 	return ret
 
 if args.platform == "native":
