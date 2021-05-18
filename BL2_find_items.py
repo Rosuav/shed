@@ -329,6 +329,7 @@ parser.add_argument("--itemids", help="Show the IDs of weapons/items", action="s
 parser.add_argument("--synth", help="Synthesize a modified save file", type=synthesizer, nargs="*")
 parser.add_argument("-l", "--loot-filter", help="Show loot, optionally filtered to only what's interesting", type=loot_filter, nargs="*")
 parser.add_argument("-f", "--file", help="Process only one save file")
+parser.add_argument("--dir", help="Specify the savefile directory explicitly (ignores --proton/--native and --player)")
 parser.add_argument("--library", help="Add an item ID to the library")
 args = parser.parse_args()
 print(args)
@@ -1109,7 +1110,7 @@ if args.file:
 		try: print(parse_savefile(args.file))
 		except SaveFileFormatError as e: print(e.args[0])
 		sys.exit(0)
-dir = os.path.join(dir, args.player or os.listdir(dir)[0]) # If this bombs, you might not have any saves
+dir = args.dir or os.path.join(dir, args.player or os.listdir(dir)[0]) # If this bombs, you might not have any saves
 file = (args.file or "").replace(".sav", "")
 for fn in sorted(os.listdir(dir)):
 	if not fn.endswith(".sav"): continue
