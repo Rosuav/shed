@@ -27,21 +27,23 @@ from BL1_find_items import FunctionArg, Consumable
 # python-lzo 1.12 on Python 3.8 causes a DeprecationWarning regarding arg parsing with integers.
 import warnings; warnings.filterwarnings("ignore")
 
-loot_filter = FunctionArg("filter", 1)
+loot_filter = FunctionArg("filter", 2)
 
 @loot_filter
-def level(item, minlvl, maxlvl=None):
+def level(usage, item, minlvl, maxlvl=None):
 	minlvl = int(minlvl)
 	if maxlvl is None: maxlvl = minlvl + 5
 	return minlvl <= item.grade <= int(maxlvl)
 
 @loot_filter
-def type(item, type): return type in item.type
+def type(usage, item, type): return type in item.type
 del type # I want the filter to be called type, but not to override type()
 
 @loot_filter
-def title(item, tit): return item.title is not None and tit in item.title
+def title(usage, item, tit): return item.title is not None and tit in item.title
 
+@loot_filter
+def loose(usage, item): return not usage.is_equipped() and usage.is_carried()
 
 synthesizer = FunctionArg("synth", 1)
 
@@ -275,6 +277,7 @@ def crossproduct(savefile, baseid):
 	partnames = ("body grip barrel sight stock elemental acc1 acc2" if obj.is_weapon else "alpha beta gamma delta epsilon zeta eta theta").split()
 	pieces = [None] * len(partnames)
 	while checkme:
+		print(checkme)
 		parts = allbal[checkme]["parts"]
 		pieces = [p or parts.get(part) for p, part in zip(pieces, partnames)]
 		checkme = allbal[checkme].get("base")
@@ -290,7 +293,7 @@ def crossproduct(savefile, baseid):
 	total = 1
 	for i, (n, opts) in enumerate(zip(partnames, pieces)):
 		for p in opts:
-			if p and p.endswith(obj.pieces[i]): p = "\x1b[1m%s\x1b[0m" % p
+			if p and obj.pieces[i] and p.endswith(obj.pieces[i]): p = "\x1b[1m%s\x1b[0m" % p
 			print(n, p)
 			n = " " * len(n)
 		total *= len(opts)
@@ -361,6 +364,7 @@ library = {
 		# Snipers
 		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano",
 		"hwAAADJNsQrjKkifwWiBjYAY08si6di8n8yLu8cDKzv23C1D5DJN": "Fashionable Chère-amie", # V
+		"hwAAADKNsQoA5dYAwGidjDhd4s8iQdS8mCyKu9EDK2P17C3D7zJN": "Kull Trespasser",
 		# Of dubious but potential value
 		"BwAAADIBS20A5S0fPHd5SYkfgMXMtQqOBQSK/JcqOGg": "Heart of the Ancients", # V
 		# Unconfirmed or uncategorized
@@ -380,16 +384,16 @@ library = {
 		"BwAAADI+S20A5dYAwOjJzogdgAPgyRm9HQcC6sYQoWO1tGxQLAs": "Slayer of Terramorphous",
 		"BwAAADI+S20ApS3fO3fPg4kegMfM1QqOBQSK/9coeJk": "Bone of the Ancients", # V
 		"BwAAADI+S20ApS2fPXf+c4kegMfMtQqORQTK/9coeJk": "Bone of the Ancients",
+		"BwAAADI+S20A5dYAwOjOjoI8gAM37hGpHAkK6sYQoWO1tGxQLAs": "Legendary Catalyst",
 	},
 	"Siren": {
 		"hwAAADLKvwT5NjunwWgtbRjdok4hex68XywJu8cDK8sWrOzSZtFJ": "Acuminous Hellfire",
 		"BwAAADIFS20A5dYAwOjFy36jlwaOWhu9DQCq+cYQIWYwsKlW6fs": "Flame of the Firehawk",
-		"BwAAADI+S20A5dYAwOjJzogdgAME0xudEXKr+cYQoWO1t+xQLAs": "Slayer Of Terramorphous", # Neither of these is strictly better. TODO: Look at their parts.
-		"BwAAADI+S20A5dYAwOjJzogdgAN1BhudEXKr+cYQoWM1tyxRLAs": "Slayer Of Terramorphous",
-		"BwAAADI+S20A5dYAwOjOjoI8gAOMIhGpHAkK6sYQoWM1t6xQLAs": "Legendary Catalyst",
+		"BwAAADI+S20A5dYAwOjJzogdgAM/+xudEXKr+cYQoWO1tGxQLAs": "Slayer Of Terramorphous Class Mod",
 		"BwAAADI+S20A5dYAwKjODoE8gAN1wBG8HAcK6sYQoWO1tGxQLAs": "Legendary Binder",
-		"BwAAADI+S20A5dYAwCjJjpkdgAN6CRubEXyr+cYQoWN1tuxQLAs": "Legendary Siren",
-		"BwAAADI+S20A5dYAwKjOzpsdgAPwuBuUEX6r+cYQIWO1tGxQLAs": "Chrono Binder",
+		"BwAAADI+S20A5dYAwCjJjpkdgAMXxxubEXyr+cYQoWO1tGxQLAs": "Legendary Siren",
+		"BwAAADI+S20A5dYAwKjOzpsdgAPwuBuUEX6r+cYQIWO1tGxQLAs": "Chrono Binder", # Left tree focus
+		"BwAAADI+S20A5dYAwKjODpodgAMyehuUEX6r+cYQoWG1tGxQLAs": "Hell Binder", # Right tree focus
 	},
 	"Assassin": {
 		"BwAAADI+S20A5dYAwOjJzogdgAOmFhufEZarmccQoWN1t2xQLAs": "Slayer Of Terramorphous",
@@ -397,9 +401,8 @@ library = {
 	},
 	"Merc": {
 		"BwAAADI+S20A5dYAwKjOzogdgAM/jBueEYCr2ccQoWN1t6xQLAs": "Slayer Of Terramorphous",
-		"BwAAADI+S20A5dYAwCjJjqMdgAM3AhugEY6rWccQoW/1t2xRLAs": "Unhinged Hoarder",
-		"BwAAADI+S20AJSnfO3fkSYkcgMPMlQqOBQSK/VcqeJk": "Blood of the Ancients", # V
-		"BwAAADI+S20AJSmfPXcvwYkcgMPMtQqOBQSK/RfdR5k": "Blood of the Ancients", # Neither is strictly better
+		"BwAAADI+S20A5dYAwCjJjqMdgAPh4RugEY6rWccQoW+1tGxQLAs": "Unhinged Hoarder", # Need a purple hoarder to compare
+		"BwAAADI+S20AJSlfPXdifokcgMPMlQqOBQSK/RcqeJk": "Blood of the Ancients", # SMG and Launcher ammo - other options available
 	},
 	"Soldier": {
 		"BwAAADI+S20A5dYAwOjOzqAdgANdoxuVEYKr2ccQoWO1t6xRLAs": "Legendary Berserker Class Mod",
@@ -866,6 +869,8 @@ class BankSlot(ProtoBuf):
 	# Yes, that's all there is. Just a serial number. Packaged up in a protobuf.
 	def prefix(self): return "Bank: "
 	def order(self): return 8
+	def is_equipped(self): return False
+	def is_carried(self): return False
 
 @dataclass
 class PackedItemData(ProtoBuf):
@@ -875,6 +880,8 @@ class PackedItemData(ProtoBuf):
 	mark: int
 	def prefix(self): return "Equipped: " if self.equipped else ""
 	def order(self): return 5 if self.equipped else 6
+	def is_equipped(self): return self.equipped
+	def is_carried(self): return True
 
 @dataclass
 class PackedWeaponData(ProtoBuf):
@@ -884,6 +891,8 @@ class PackedWeaponData(ProtoBuf):
 	unknown4: int = None
 	def prefix(self): return "Weapon %d: " % self.quickslot if self.quickslot else ""
 	def order(self): return self.quickslot or 6
+	def is_equipped(self): return self.quickslot
+	def is_carried(self): return True
 
 @dataclass
 class SaveFile(ProtoBuf):
@@ -1047,7 +1056,7 @@ def parse_savefile(fn):
 		it = Asset.decode_asset_library(item.serial)
 		if not it: continue
 		for filter, filterargs in args.loot_filter:
-			if not filter(it, *filterargs): break
+			if not filter(item, it, *filterargs): break
 		else:
 			items.append((item.order(), -it.grade, item.prefix() + repr(it)))
 	ret = "Level %d (%dxp) %s: \x1b[1;31m%s\x1b[0m (%d+%d items)" % (savefile.level, savefile.exp, cls,
