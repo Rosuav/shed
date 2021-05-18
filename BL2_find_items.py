@@ -340,23 +340,23 @@ library = {
 		"hwAAADLKv4T3Nj+nwWj5D93eEsI037K1X4yK8cYDK8sWhOzS7cRJ": "Lucid Florentine", # Best
 		"hwAAADIKvoT3NjynwWgFbZDeYkkhn4u8XMwIu9UDK6MWhOxyZrFJ": "Bulets Go Fasterifed Slagga", # Florentine and Slagga are both slag-em-up SMGs
 		"hwAAADKKvoT5NjunwWhxDgXdssM0KLK9XOwK+tQDK6MWrOwC7KRJ": "Bladed Tattler", # V
-		"hwAAADIHS+32Aj7PwWjhy0mUAdMnG2S8mOMOut0DK4+3zajR/ZdJ": "Rapid Infinity", # V
+		"hwAAADIHS+32AtYAwGjhy0mUAdMnD5q8mOMOut0DK4+33ajR/fdK": "Rapid Infinity",
 		"hwAAADLClhT5FjHnwWg5bene4E4lbRm8nSIJxdMDKw8WpengZrVJ": "Onslaught Veruc", # V
 		"hwAAADKKvgT4Nj+nwWiJr9XeckI2scu4XoyK89oDK8MWrOyybQZI": "Corporate Yellow Jacket", # V
 		"BwAAADI+S20AZS3fO3dt34kdgMHMtQqOBQUK/BfdR5k": "Skin of the Ancients", # V
-		"BwAAADICsRH5mSU8wOjSjJ4fogH5Ohu+EzziescQoXq3uy5RbvU": "Sticky Lobbed Bonus Package", # V. Want a longbow probably, short fuse.
-		"BwAAADLCshH5WSU8wOjSzIkfogEXyRu+EzziescQoXo3tS5RbvU": "Lobbed Bonus Package", # Only 9 children (cf 10 on the above)
+		"BwAAADIBS20A5SK/O1cVT4ECi6gcxQqOBQSK/Bfdx24": "The Afterburner",
+		"BwAAADIFS20A5dYAwOjWS7qYugbmPhu7DWqq+cUQYWcwsSlYaeg": "Chitinous Turtle Shield", # V. Massive capacity, slow recharge. Is it best?
+		"hwAAADIHS231AtYAwGgVywGYwdYnYey8nQMMutMDK4uw7aiB+fdK": "Corrosive Teapot", # Bandit grip and Jakobs sight - other options available
+		# Grenades
+		"BwAAADLCuhHxmSU8wOjSDKEfogGraRu+EzziescQoXr3uq5NbvU": "Longbow Bonus Package",
 		"BwAAADLCudH52S+8IhTTDKHfpQHpUxu2E0jiWscQ4X33uq5N7vY": "Longbow Breath of Terramorphous", # V
 		"BwAAADLCuhH52daANxTTDKEfpQGIyhu5E0biWscQ4Xr3ui5Rbvc": "Longbow Pandemic", # V
 		"BwAAADJCvDLxmSU8wOjSDKFfgyJbuBi6EQnKascQIW/Uuq5QbvU": "Longbow Meteor Shower", # V
-		"BwAAADIBS20A5SK/O1cVT4ECi6gcxQqOBQSK/Bfdx24": "The Afterburner",
-		"BwAAADIFS20A5dYAwOjWS7qYugbmPhu7DWqq+cUQYWcwsSlYaeg": "Chitinous Turtle Shield", # V. Massive capacity, slow recharge. Is it best?
 		"BwAAADLCshH52dbAN1TfzH4jgiAlwxK8CQ+q6sYQYZkLt49NLv4": "Fire Storm", # V
 		"BwAAADLCstH52daAN9TfzH6jgCBJjxK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt", # V
 		"BwAAADLCshH52daAN9TfzH4jgCCRihK8CQWq6sYQYZkLtY9NLv4": "Fireball", # V
-		"BwAAADLCstH5WS68N9TfzH7jgCDRYRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile", # Best
-		"BwAAADLCstH52daAN1TfzH7jgSBNXhK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning", # Best
-		"hwAAADIHS231AtYAwGgVywGYwdYnYey8nQMMutMDK4uw7aiB+fdK": "Corrosive Teapot", # Bandit grip and Jakobs sight - other options available
+		"BwAAADLCstH5WS68N9TfzH7jgCDRYRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile", # Best (other than the extremely rare upgraded version)
+		"BwAAADLCstH52daAN1TfzH7jgSBNXhK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning",
 		# Snipers
 		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano", # V
 		"hwAAADJNsQrjKkifwWiBjYAY08si6di8n8yLu8cDKzv23C1D5DJN": "Fashionable Chère-amie", # V
