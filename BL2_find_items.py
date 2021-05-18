@@ -367,6 +367,7 @@ library = { # BL2 items
 		"BwAAADLCuhHxWS48wOjSzH5jrwGGwRu1E0LiescQYZkLuq5QbvU": "Rolling Thunder",
 		"BwAAADLCutH52dbAN9TZzInfpAE8chu/Ez7iuscQIX03ta5Nrv8": "Lobbed Bouncing Bonny", # V
 		# Shields
+		"BwAAADIiS20A5dYAwOjK7H6jgCHvxxK8Cgm6CsYQoWQwselV6fQ": "Blockade",
 		"BwAAADIiS20A5dYAwOjK7H6jgCEtFRK8Cgm6CsYQoWfwtmlW6fQ": "Blockade",
 		"BwAAADIFS20A5dYAwGicy37j2gaYxRuqDW6qOccQYWewtilW6aM": "The Bee",
 		"BwAAADIFS20A5dYAwGicy37j2ga32xuqDW6qOccQYWcwsalV6aM": "The Bee",
@@ -379,12 +380,34 @@ library = { # BL2 items
 		"hwAAADJNsQrjKkifwWiBjYAY08si6di8n8yLu8cDKzv23C1D5DJN": "Fashionable Chère-amie", # V
 		"hwAAADKNsQoA5dYAwGidjDhd4s8iQdS8mCyKu9EDK2P17C3D7zJN": "Kull Trespasser",
 		# Unconfirmed or uncategorized
+		"hwAAADJEr5j3DjzXwWjpr/FYUUcmn9+8XCOKxdkDK3vUtW4xa3ZI": "Multi-Use Launcher",
+		"hwAAADIErpj3Dj/XwWihrbFeUUcm6Oi8XCOIxdkDKwPWvW4Ba9ZI": "Bonus Launcher",
+		"hwAAADJErxj2Dj/XwWjRr6FeoUkmifO8XyOOxdUDKzvWrW6xZrZI": "Roket Pawket PRAZMA CANON",
+		"hwAAADKErxj3DjDXwWiRrTFdAUomi228WGOIxccDKzPWrW7Ra7ZI": "Parataxis Panorama",
+		"hwAAADIErhj3DjPXwWhdrwldIUUmhNm8WAOLxccDK/fUlW4Ba3ZI": "Punitory Projectile",
+		"hwAAADJEr5j3DjDXwWi5rUFdgUomLA68XYOIxd8DKwvWlW7Ba7ZI": "fwap a Duuurp!",
 		"BwAAADIBS20A5S0fPHd5SYkfgMXMtQqOBQSK/JcqOGg": "Heart of the Ancients", # V
+		"BwAAADIBS20A5S3fO3dA4okbgM3MtQqOBQSK/JcqOGg": "Heart of the Ancients",
 		"BwAAADI+S20AZS+/OldkWoEUi/wcxQqOBQTKBSjdR5k": "Proficiency Relic",
+		"BwAAADI+S20A5SO/OlcyAoEci+wcxQqOBQTKBSjdR5k": "Vitality Relic",
+		"BwAAADI+S20AJSK/O1f9WYEbi/4cpQqOxfu1/BfdR5k": "Tenacity Relic",
+		"hwAAADLClhT3Fj/nwWgBbWHeQE4l+Eu8nIIOxdUDK6MWpekQYLVJ": "Wyld Asss BlASSter",
+		"hwAAADJKvgT5Nj+nwWh9bdjewksh0OW8X4wIu8cDK8sWjOxybfFJ": "Lucid SubMalevolent Grace",
+		"hwAAADLKv4T4Nj6nwWh9bQDeAkQh1k28X4wIu8cDK8sWhOwSbbFJ": "Apt Venom",
+		"hwAAADIHS232AjTPwWjhy6GfAdMn3hS8mOMOut0DK4+3NajR/XdJ": "Purging Infinity",
+		"hwAAADIKvoT3NjinwWjpbLDYEk8h0pa8X4wJu8cDKx8WrOwSYPFJ": "Feculent Chulainn",
+		"hwAAADIHS20A5TLPwWjVywme8dMnwOq8mQMPut8DK7+3Jagx/fdK": "Stiff Unkempt Harold",
+		"BwAAADIFS20A5dYAwOjQy7OYrwaMDxu5DWaqGcYQoWfwtulXae4": "Patent Adaptive Shield",
+		"hwAAADLNsQrkKkifwWgdL4UYg0A0wIO9n6yL+cYDKzv27C2jbARN": "Fashionable Pimpernel",
+		"hwAAADIKvgT4NjinwWj5L13YMkI0xaK1X2wK9sYDKx8WhOzybeRJ": "Miss Moxxi's Crit",
+		"hwAAADIClRT4FjvnwWjNLx3foEI031G/mAKK99wDK/cWnelQbWRJ": "Corrosive Kitten",
+		"hwAAADIClRT3FjvnwWjNL33foEI00QG/mAKK99wDK/cWlelQbQRI": "Slag Kitten",
+		"hwAAADJNsQrjKk2fwWhVjuAYo8Aick+8nSyLu9MDK//17C2j7TJN": "Pacifying Strike",
 	},
 	"Mechromancer": {
 		"hwAAADLLqAYA5dYAwGh9L3VcaEA0OkK9HIyI+dADK8s05K6Sb8RJ": "Captain Blade's Orphan Maker",
 		"BwAAADI+S20A5dYAwCjOToo8gAPythm2HQECKscQoWO1tGxQLAs": "Legendary Mechromancer",
+		"BwAAADI+S20A5dYAwOjJToo8gAO5CBm2HQECKscQoWM1t2xRLAs": "Legendary Mechromancer Title.Title_ClassMod", # V
 		"BwAAADI+S20A5dYAwOjJzogdgAPgyRm9HQcC6sYQoWO1tGxQLAs": "Slayer of Terramorphous",
 		"BwAAADI+S20ApS3fO3fPg4kegMfM1QqOBQSK/9coeJk": "Bone of the Ancients", # V
 		"BwAAADI+S20ApS2fPXf+c4kegMfMtQqORQTK/9coeJk": "Bone of the Ancients",
@@ -404,11 +427,15 @@ library = { # BL2 items
 	"Merc": {
 		"BwAAADI+S20A5dYAwKjOzogdgAM/jBueEYCr2ccQoWN1t6xQLAs": "Slayer Of Terramorphous",
 		"BwAAADI+S20A5dYAwCjJjqMdgAPh4RugEY6rWccQoW+1tGxQLAs": "Unhinged Hoarder", # This is blue. Need a purple hoarder to enhance.
+		"BwAAADI+S20A5dYAwCjODqMdgANq2RugEY6rWccQoWA1t+xQLAs": "Loaded Hoarder Class Mod", # V
+		"BwAAADI+S20A5dYAwCjJDoI8gAOEIBG7HA0KascQoWO1tyxRLAs": "Legendary Gunzerker Title.Title_ClassMod", # V
 		"BwAAADI+S20AJSlfPXdifokcgMPMlQqOBQSK/RcqeJk": "Blood of the Ancients", # SMG and Launcher ammo - other options available
 	},
 	"Soldier": {
+		"BwAAADI+S20A5dYAwOjJzqAdgAMAXhuVEYKr2ccQoWO1t6xQLAs": "Legendary Berserker Class Mod", # V
 		"BwAAADI+S20A5dYAwOjOzqAdgANdoxuVEYKr2ccQoWO1t6xRLAs": "Legendary Berserker Class Mod",
 		"BwAAADI+S20A5dYAwOjJzogdgAN14hu8EWyruccQoWO1tOxQLAs": "Slayer Of Terramorphous",
+		"BwAAADI+S20A5dYAwKjOTosdgAOj/Ru9EXSruccQIWB1tmxQLAs": "Diehard Veteran Class Mod",
 	},
 	"Psycho": {
 		"BwAAADI+S20A5dYAwCjJDog8gANNZh22HAUK6sYQoWM1t+xQLAs": "Slayer of Terramorphous",
