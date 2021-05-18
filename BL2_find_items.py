@@ -274,14 +274,14 @@ def crossproduct(savefile, baseid):
 	# Build up a full list of available parts
 	# Assumes that the "mode" is always "Selective" as I don't know how "Additive works exactly
 	checkme = cat + "." + obj.balance
-	partnames = ("body grip barrel sight stock elemental acc1 acc2" if obj.is_weapon else "alpha beta gamma delta epsilon zeta eta theta").split()
+	partnames = ("body grip barrel sight stock elemental accessory1 accessory2" if obj.is_weapon else "alpha beta gamma delta epsilon zeta eta theta").split()
 	pieces = [None] * len(partnames)
 	while checkme:
 		print(checkme)
 		parts = allbal[checkme]["parts"]
 		pieces = [p or parts.get(part) for p, part in zip(pieces, partnames)]
 		checkme = allbal[checkme].get("base")
-	pieces = [p or [None] for p in pieces] # Any still unfound, just leave None in them
+	pieces = [p1 or [p2] for p1, p2 in zip(pieces, obj.pieces)] # Any still unfound, just leave the current piece (or None) in them
 	for fixed in lockdown:
 		for p in pieces:
 			if fixed in p:
