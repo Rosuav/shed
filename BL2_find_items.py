@@ -621,6 +621,7 @@ class Asset:
 		return data[:5] + bogocrypt(self.seed, (crc.to_bytes(2, "big") + data[7:]).rstrip(b"\xFF"), "encrypt")
 
 	def get_title(self):
+		if self.type == "ItemDefs.ID_Ep4_FireHawkMessage": return "FireHawkMessage" # This isn't a real thing and doesn't work properly. (It'll be in the bank when you find out about the Firehawk.)
 		typeinfo = get_asset("Weapon Types" if self.is_weapon else "Item Types")[_category(self.type) + "." + self.type]
 		if typeinfo.get("has_full_name"):
 			# The item's type fully defines its title. This happens with a number
@@ -1122,7 +1123,9 @@ if file == "synth":
 	try: print(parse_savefile("synthesized.sav"))
 	except SaveFileFormatError as e: print(e.args[0])
 if args.library:
-	for id in args.library.split(","):
+	if args.library == "input": lib = iter(input, "")
+	else: lib = args.library.split(",")
+	for id in lib:
 		if '{' in id: id = id.split("{")[1].split("}")[0]
 		if not id: continue
 		serial = base64.b64decode(id.encode("ascii") + b"====")
