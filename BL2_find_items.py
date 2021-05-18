@@ -299,6 +299,7 @@ def crossproduct(savefile, baseid):
 		obj.seed = random.randrange(1<<31)
 		obj.grade = obj.stage = savefile.level
 		obj.pieces = [piece and strip_prefix(piece) for piece in pieces]
+		if total < 10: print(">", obj)
 		if obj.is_weapon:
 			packed = PackedWeaponData(serial=obj.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
 			savefile.packed_weapon_data.append(packed)
@@ -351,21 +352,20 @@ library = {
 		"BwAAADLCuhHxmSU8wOjSDKEfogGraRu+EzziescQoXr3uq5NbvU": "Longbow Bonus Package",
 		"BwAAADLCudH52S+8IhTTDKHfpQHpUxu2E0jiWscQ4X33uq5N7vY": "Longbow Breath of Terramorphous", # V
 		"BwAAADLCuhH52daANxTTDKEfpQGIyhu5E0biWscQ4Xr3ui5Rbvc": "Longbow Pandemic", # V
-		"BwAAADJCvDLxmSU8wOjSDKFfgyJbuBi6EQnKascQIW/Uuq5QbvU": "Longbow Meteor Shower", # V
+		"BwAAADJCvDLxmSU8wOjSDKFfgyJbuBi6EQnKascQIW/Uuq5QbvU": "Longbow Meteor Shower",
 		"BwAAADLCshH52dbAN1TfzH4jgiAlwxK8CQ+q6sYQYZkLt49NLv4": "Fire Storm", # V
 		"BwAAADLCstH52daAN9TfzH6jgCBJjxK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt", # V
 		"BwAAADLCshH52daAN9TfzH4jgCCRihK8CQWq6sYQYZkLtY9NLv4": "Fireball", # V
 		"BwAAADLCstH5WS68N9TfzH7jgCDRYRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile", # Best (other than the extremely rare upgraded version)
 		"BwAAADLCstH52daAN1TfzH7jgSBNXhK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning",
 		# Snipers
-		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano", # V
+		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano",
 		"hwAAADJNsQrjKkifwWiBjYAY08si6di8n8yLu8cDKzv23C1D5DJN": "Fashionable Chère-amie", # V
 		# Of dubious but potential value
 		"BwAAADIBS20A5S0fPHd5SYkfgMXMtQqOBQSK/JcqOGg": "Heart of the Ancients", # V
 		# Unconfirmed or uncategorized
 		"BwAAADIiS20A5dYAwOjK7H6jgCEtFRK8Cgm6CsYQoWfwtmlW6fQ": "Blockade",
-		"BwAAADI+S20AZS+/OldkWoEUi/wcxQqOBQTKBSjdR5k": "Proficiency Relic", # One of these is purple, one is white
-		"BwAAADI+S20AZS//PVcugYEUi9IcxQqOBQTKBSjdR5k": "Proficiency Relic",
+		"BwAAADI+S20AZS+/OldkWoEUi/wcxQqOBQTKBSjdR5k": "Proficiency Relic",
 		"BwAAADLCutH52dbANxTTjKFfpQHD7Bu5EzriWscQ4Xp3uq5QLv4": "Rubberized Fire Bee",
 		"BwAAADIFS20A5dYAwGicy37j2gaYxRuqDW6qOccQYWewtilW6aM": "The Bee",
 		"BwAAADIFS20A5dYAwGicy37j2ga32xuqDW6qOccQYWcwsalV6aM": "The Bee",
@@ -373,8 +373,8 @@ library = {
 		"BwAAADLCstH5WS58ONTfTIsfpgENAhu9E1Ti+sYQYXo3pa5N7vA": "Shock Kiss of Death",
 	},
 	"Mechromancer": {
-		"hwAAADLLrwYA5SKvwWh9L3VcaEA0Hiu9HIyI+dADK8s05K6Sb0RI": "Captain Blade's Orphan Maker",
-		"BwAAADI+S20A5dYAwCjOToo8gAOksRm2HQECKscQoWN1tyxRLAs": "Legendary Mechromancer ClassMod",
+		"hwAAADLLqAYA5dYAwGh9L3VcaEA0OkK9HIyI+dADK8s05K6Sb8RJ": "Captain Blade's Orphan Maker",
+		"BwAAADI+S20A5dYAwCjOToo8gAPythm2HQECKscQoWO1tGxQLAs": "Legendary Mechromancer",
 		"BwAAADIFS20A5dYAwCjOb4E8gCJh9Ri8EQXKSscQ4WcwsSlXaew": "Sponge",
 		"BwAAADLCuhHxWS48wOjSzH5jrwGGwRu1E0LiescQYZkLuq5QbvU": "Rolling Thunder",
 		"BwAAADI+S20A5dYAwOjJzogdgAPgyRm9HQcC6sYQoWO1tGxQLAs": "Slayer of Terramorphous",
