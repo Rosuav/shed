@@ -286,11 +286,18 @@ def crossproduct(savefile, baseid):
 				break
 		else:
 			print("Couldn't find %r to lock down" % fixed)
-	pprint(pieces)
-	print("Will create", math.prod(len(p) for p in pieces), "objects.")
+	# Show the available options and which one is in the basis object
+	total = 1
+	for i, (n, opts) in enumerate(zip(partnames, pieces)):
+		for p in opts:
+			if p and p.endswith(obj.pieces[i]): p = "\x1b[1m%s\x1b[0m" % p
+			print(n, p)
+			n = " " * len(n)
+		total *= len(opts)
+	print("Will create", total, "objects.")
 	for pieces in itertools.product(*pieces):
 		obj.seed = random.randrange(1<<31)
-		obj.grade = obj.stage = 41
+		obj.grade = obj.stage = savefile.level
 		obj.pieces = [piece and strip_prefix(piece) for piece in pieces]
 		if obj.is_weapon:
 			packed = PackedWeaponData(serial=obj.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
@@ -348,6 +355,8 @@ library = {
 		"BwAAADLCstH52daAN9TfzH6jgCBJjxK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt", # V
 		"BwAAADLCshH52daAN9TfzH4jgCCRihK8CQWq6sYQYZkLtY9NLv4": "Fireball", # V
 		"BwAAADLCstH5WS68N9TfzH7jgCDRYRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile", # Best
+		"BwAAADLCstH52daAN1TfzH7jgSBNXhK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning", # Best
+		"hwAAADIHS231AtYAwGgVywGYwdYnYey8nQMMutMDK4uw7aiB+fdK": "Corrosive Teapot", # Bandit grip and Jakobs sight - other options available
 		# Snipers
 		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano", # V
 		"hwAAADJNsQrjKkifwWiBjYAY08si6di8n8yLu8cDKzv23C1D5DJN": "Fashionable Chère-amie", # V
@@ -355,9 +364,6 @@ library = {
 		"BwAAADIBS20A5S0fPHd5SYkfgMXMtQqOBQSK/JcqOGg": "Heart of the Ancients", # V
 		# Unconfirmed or uncategorized
 		"BwAAADIiS20A5dYAwOjK7H6jgCEtFRK8Cgm6CsYQoWfwtmlW6fQ": "Blockade",
-		"BwAAADLCstH52dbAN1TfzH7jgSCC+RK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning", # V
-		"BwAAADLCstH52daAN1TfzH7jgSBNXhK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning",
-		"hwAAADIHS231AtYAwGgVywGYwdYnYey8nQMMutMDK4uw7aiB+fdK": "Corrosive Teapot", # Bandit grip and Jakobs sight - other options available
 		"BwAAADI+S20AZS+/OldkWoEUi/wcxQqOBQTKBSjdR5k": "Proficiency Relic", # One of these is purple, one is white
 		"BwAAADI+S20AZS//PVcugYEUi9IcxQqOBQTKBSjdR5k": "Proficiency Relic",
 		"BwAAADLCutH52dbANxTTjKFfpQHD7Bu5EzriWscQ4Xp3uq5QLv4": "Rubberized Fire Bee",
