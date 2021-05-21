@@ -22,6 +22,10 @@ string|mapping parse_vdf(string data, int|void verbose) {
 			//How are embedded quotes and/or backslashes handled?
 			return ({"string", str});
 		}
+		//Some files seem to have cvars unquoted. That would require expanding this
+		//to be a full "atom" definition, but I don't know the valid alphabet for an
+		//atom. It would certainly include ASCII letters and underscore, and would
+		//allow non-leading digits, but is 123abc an atom?
 		if (sscanf(data, "%[0-9]%s", string digits, data) && digits != "") {
 			//Is a series of digits an integer, or should it be returned as a string?
 			return ({"string", digits}); //Currently 123 is indistinguishable from "123".
