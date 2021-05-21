@@ -1,0 +1,22 @@
+/* Every file seems to consist of a single key (usually ignored) and
+a value that contains all the data. */
+file: keyvalue;
+
+keyvalue: "string" ws value;
+/*keyvalue: ws "string" ws value;*/
+
+value: "string";
+value: mapping;
+
+mapping: "{" keyvalues "}";
+mapping: "{" keyvalues ws "}";
+
+keyvalues: keyvalue;
+keyvalues: keyvalues ws keyvalue;
+
+space: " ";
+space: "\t";
+space: "\r";
+space: "\n";
+ws: space;
+ws: ws space;
