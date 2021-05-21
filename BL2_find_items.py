@@ -283,6 +283,10 @@ def crossproduct(savefile, baseid):
 		checkme = allbal[checkme].get("base")
 	pieces = [p1 or [p2] for p1, p2 in zip(pieces, obj.pieces)] # Any still unfound, just leave the current piece (or None) in them
 	for fixed in lockdown:
+		if fixed.startswith("-") and fixed[1:] in partnames:
+			# Specify "-delta" to have nothing in slot delta
+			pieces[partnames.index(fixed[1:])][:] = [None]
+			continue
 		for p in pieces:
 			if fixed in p:
 				p[:] = [fixed]
