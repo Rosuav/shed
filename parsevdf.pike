@@ -4,18 +4,18 @@
 Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("parsevdf.grammar"); //Logically this should be "vdf.grammar" but I like my shed to have files in parallel
 mixed take2(mixed _, mixed ret) {return ret;}
 array kv(mixed k, mixed ws, mixed v) {return ({k, v});}
+array kv2(mixed ws, mixed ... args) {return kv(@args);}
 mapping startmap(array kv) {return ([kv[0]: kv[1]]);}
 mapping addmap(mapping map, mixed ws, array kv) {map[kv[0]] = kv[1]; return map;}
 mixed discardkey(array kv) {return kv[1];} //A file has a meaningless key and then everything's in the value.
 
 //External API
-string|mapping parse_vdf(string data) {
-	//data = "\"foo\"\r\n\"bar\"";
+string|mapping parse_vdf(string data, int|void verbose) {
 	string|array next() {
 		if (data == "") return "";
 		if (sscanf(data, "%[ \t\r\n]%s", string ws, data) && ws != "") return " ";
 		if (sscanf(data, "//%[^\n]\n%s", string comment, data) == 2) {
-			return ({"comment", comment});
+			return ({"comment", String.trim(comment)});
 		}
 		if (sscanf(data, "\"%[^\"]\"%s", string str, data) == 2) {
 			//How are embedded quotes and/or backslashes handled?
@@ -29,12 +29,12 @@ string|mapping parse_vdf(string data) {
 	}
 	string|array shownext() {mixed tok = next(); write("%O\n", tok); return tok;}
 	//while (shownext() != ""); return 0; //Dump tokens w/o parsing
-	return parser->parse(shownext, this);
+	return parser->parse(verbose ? shownext : next, this);
 }
 
 //Simple demo
 int main(int argc, array(string) argv) {
 	if (argc < 2) exit(1, "USAGE: pike %s filename.vdf", argv[0]);
-	string|mapping content = parse_vdf(Stdio.read_file(argv[1]));
-	write("%s\n", Standards.JSON.encode(content, 7));
+	string|mapping content = parse_vdf(Stdio.read_file(argv[1]), 1);
+	write("RESULT: %s\n", Standards.JSON.encode(content, 7));
 }

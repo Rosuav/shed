@@ -1,9 +1,10 @@
 /* Every file seems to consist of a single key (usually ignored) and
 a value that contains all the data. */
 file: keyvalue {discardkey};
+file: keyvalue ws {discardkey};
 
 keyvalue: "string" ws value {kv};
-/*keyvalue: ws "string" ws value;*/
+keyvalue: ws "string" ws value {kv2};
 
 value: "string";
 value: mapping;
@@ -12,7 +13,7 @@ mapping: "{" keyvalues "}" {take2};
 mapping: "{" keyvalues ws "}" {take2};
 
 keyvalues: keyvalue {startmap};
-keyvalues: keyvalues ws keyvalue {addmap};
+keyvalues: keyvalues keyvalue {addmap};
 
 /* Collapse all whitespace and comments to a single whitespace */
 ws: " ";
