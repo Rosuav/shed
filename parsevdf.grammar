@@ -9,7 +9,7 @@ keyvalue: ws "string" ws value {kv2};
 value: "string";
 value: mapping;
 
-mapping: "{" keyvalues "}" {take2};
+mapping: "{" ws "}" {emptymapping};
 mapping: "{" keyvalues ws "}" {take2};
 
 keyvalues: keyvalue {startmap};
@@ -17,5 +17,6 @@ keyvalues: keyvalues keyvalue {addmap};
 
 /* Collapse all whitespace and comments to a single whitespace */
 ws: " ";
+ws: "comment";
 ws: ws " ";
 ws: ws "comment";

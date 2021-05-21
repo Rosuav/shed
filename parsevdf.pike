@@ -6,7 +6,8 @@ mixed take2(mixed _, mixed ret) {return ret;}
 array kv(mixed k, mixed ws, mixed v) {return ({k, v});}
 array kv2(mixed ws, mixed ... args) {return kv(@args);}
 mapping startmap(array kv) {return ([kv[0]: kv[1]]);}
-mapping addmap(mapping map, mixed ws, array kv) {map[kv[0]] = kv[1]; return map;}
+mapping addmap(mapping map, array kv) {map[kv[0]] = kv[1]; return map;}
+mapping emptymapping() {return ([]);}
 mixed discardkey(array kv) {return kv[1];} //A file has a meaningless key and then everything's in the value.
 
 //External API
@@ -15,7 +16,7 @@ string|mapping parse_vdf(string data, int|void verbose) {
 		if (data == "") return "";
 		if (sscanf(data, "%[ \t\r\n]%s", string ws, data) && ws != "") return " ";
 		if (sscanf(data, "//%[^\n]\n%s", string comment, data) == 2) {
-			return ({"comment", String.trim(comment)});
+			return ({"comment", String.trim(comment)}); //Returned as a separate token to aid debugging
 		}
 		if (sscanf(data, "\"%[^\"]\"%s", string str, data) == 2) {
 			//How are embedded quotes and/or backslashes handled?
@@ -35,6 +36,6 @@ string|mapping parse_vdf(string data, int|void verbose) {
 //Simple demo
 int main(int argc, array(string) argv) {
 	if (argc < 2) exit(1, "USAGE: pike %s filename.vdf", argv[0]);
-	string|mapping content = parse_vdf(Stdio.read_file(argv[1]), 1);
+	string|mapping content = parse_vdf(Stdio.read_file(argv[1]));
 	write("RESULT: %s\n", Standards.JSON.encode(content, 7));
 }
