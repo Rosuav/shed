@@ -2,12 +2,19 @@
 
 //Internals
 Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("parsevdf.grammar"); //Logically this should be "vdf.grammar" but I like my shed to have files in parallel
+mixed take2(mixed _, mixed ret) {return ret;}
+array kv(mixed k, mixed ws, mixed v) {return ({k, v});}
+mapping startmap(array kv) {return ([kv[0]: kv[1]]);}
+mapping addmap(mapping map, mixed ws, array kv) {map[kv[0]] = kv[1]; return map;}
+mixed discardkey(array kv) {return kv[1];} //A file has a meaningless key and then everything's in the value.
 
 //External API
 string|mapping parse_vdf(string data) {
+	//data = "\"foo\"\r\n\"bar\"";
 	string|array next() {
 		if (data == "") return "";
-		if (sscanf(data, "//%[^n]\n%s", string comment, data) == 2) {
+		if (sscanf(data, "%[ \t\r\n]%s", string ws, data) && ws != "") return " ";
+		if (sscanf(data, "//%[^\n]\n%s", string comment, data) == 2) {
 			return ({"comment", comment});
 		}
 		if (sscanf(data, "\"%[^\"]\"%s", string str, data) == 2) {
@@ -16,16 +23,13 @@ string|mapping parse_vdf(string data) {
 		}
 		if (sscanf(data, "%[0-9]%s", string digits, data) && digits != "") {
 			//Is a series of digits an integer, or should it be returned as a string?
-			return ({"string", digits});
+			return ({"string", digits}); //Currently 123 is indistinguishable from "123".
 		}
 		sscanf(data, "%1s%s", string char, data); return char;
 	}
-	while (1) {
-		mixed tok = next();
-		write("%O\n", tok);
-		if (tok == "") return 0;
-	}
-	return parser->parse(next, this);
+	string|array shownext() {mixed tok = next(); write("%O\n", tok); return tok;}
+	//while (shownext() != ""); return 0; //Dump tokens w/o parsing
+	return parser->parse(shownext, this);
 }
 
 //Simple demo
