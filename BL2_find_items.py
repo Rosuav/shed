@@ -351,20 +351,23 @@ library = { # BL2 items
 		"hwAAADKKvoT5NjunwWhxDgXdssM0KLK9XOwK+tQDK6MWrOwC7KRJ": "Bladed Tattler",
 		"hwAAADIHS+32AtYAwGjhy0mUAdMnD5q8mOMOut0DK4+33ajR/fdK": "Rapid Infinity",
 		"hwAAADLClhT5FjHnwWg5bene4E4lbRm8nSIJxdMDKw8WpengZrVJ": "Onslaught Veruc", # V
-		"hwAAADKKvgT4Nj+nwWiJr9XeckI2scu4XoyK89oDK8MWrOyybQZI": "Corporate Yellow Jacket", # V
+		"hwAAADLKvwT4Nj2nwWiJr3XdckI2/9u4XoyK89oDK8MWjOyybQZI": "Rightsizing Yellow Jacket",
 		"BwAAADI+S20AZS3fO3dt34kdgMHMtQqOBQUK/BfdR5k": "Skin of the Ancients", # V
+		"BwAAADI+S20AZS1fPXezLIkdgMHMtQqOBQXK8xfdR5k": "Skin of the Ancients",
 		"BwAAADIBS20A5SK/O1cVT4ECi6gcxQqOBQSK/Bfdx24": "The Afterburner",
 		"hwAAADIHS231AtYAwGgVywGYwdYnYey8nQMMutMDK4uw7aiB+fdK": "Corrosive Teapot", # Bandit grip and Jakobs sight - other options available
 		"hwAAADLKvwT5NtYAwGgtbVDfok4hoqu8XywJu8cDK8sWhOzSZrFJ": "Fervid Hellfire",
+		"hwAAADIHS20A5TXPwWjVy1Ge8dMnX1a8mQMPut8DK7+3zagx/fdK": "Crammed Unkempt Harold",
 		# Grenades
 		"BwAAADLCuhHxmSU8wOjSDKEfogGraRu+EzziescQoXr3uq5NbvU": "Longbow Bonus Package",
-		"BwAAADLCudH52S+8IhTTDKHfpQHpUxu2E0jiWscQ4X33uq5N7vY": "Longbow Breath of Terramorphous", # V
-		"BwAAADLCuhH52daANxTTDKEfpQGIyhu5E0biWscQ4Xr3ui5Rbvc": "Longbow Pandemic", # V
+		"BwAAADLCudH52S+8IhTTDKHfpQHpUxu2E0jiWscQ4X33uq5N7vY": "Longbow Breath of Terramorphous",
+		"BwAAADLCuhH52daAIhTTDKEfpQHy0xu5E0biWscQ4Xr3uq5N7v8": "Longbow Pandemic",
 		"BwAAADJCvDLxmSU8wOjSDKFfgyJbuBi6EQnKascQIW/Uuq5QbvU": "Longbow Meteor Shower",
 		"BwAAADLCshH52dbAN1TfzH4jgiAlwxK8CQ+q6sYQYZkLt49NLv4": "Fire Storm", # V
 		"BwAAADLCstH52daAN9TfzH6jgCBJjxK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt", # V
 		"BwAAADLCshH52daAN9TfzH4jgCCRihK8CQWq6sYQYZkLtY9NLv4": "Fireball", # V
 		"BwAAADLCstH5WS68N9TfzH7jgCDRYRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile", # Best (other than the extremely rare upgraded version)
+		"BwAAADLCstH5WS68NxTfzH7jgCB58xK8CQOq6sYQYZnLt49Nbv8": "Magic Missile (rare)", # Synthesized, unconfirmed.
 		"BwAAADLCstH52daAN1TfzH7jgSBNXhK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning",
 		"BwAAADLCuhH52daAIhTTDKFfpQEo1Ru5EzriWscQ4Xr3uq5NLv4": "Longbow Fire Bee",
 		"BwAAADLCshH5WS68N9TfTIsfpgHW0Bu9E1Ti+sYQYXo3pa5Nrv8": "Shock Kiss of Death",
@@ -396,7 +399,6 @@ library = { # BL2 items
 		"hwAAADJKvgT5Nj+nwWh9bdjewksh0OW8X4wIu8cDK8sWjOxybfFJ": "Lucid SubMalevolent Grace",
 		"hwAAADLKv4T4Nj6nwWh9bQDeAkQh1k28X4wIu8cDK8sWhOwSbbFJ": "Apt Venom",
 		"hwAAADIKvoT3NjinwWjpbLDYEk8h0pa8X4wJu8cDKx8WrOwSYPFJ": "Feculent Chulainn",
-		"hwAAADIHS20A5TLPwWjVywme8dMnwOq8mQMPut8DK7+3Jagx/fdK": "Stiff Unkempt Harold",
 		"BwAAADIFS20A5dYAwOjQy7OYrwaMDxu5DWaqGcYQoWfwtulXae4": "Patent Adaptive Shield",
 		"hwAAADLNsQrkKkifwWgdL4UYg0A0wIO9n6yL+cYDKzv27C2jbARN": "Fashionable Pimpernel",
 		"hwAAADIKvgT4NjinwWj5L13YMkI0xaK1X2wK9sYDKx8WhOzybeRJ": "Miss Moxxi's Crit",
@@ -425,8 +427,8 @@ library = { # BL2 items
 	},
 	"Merc": {
 		"BwAAADI+S20A5dYAwKjOzogdgAM/jBueEYCr2ccQoWN1t6xQLAs": "Slayer Of Terramorphous",
-		"BwAAADI+S20A5dYAwCjJjqMdgAPh4RugEY6rWccQoW+1tGxQLAs": "Unhinged Hoarder", # This is blue. Need a purple hoarder to enhance.
-		"BwAAADI+S20A5dYAwCjODqMdgANq2RugEY6rWccQoWA1t+xQLAs": "Loaded Hoarder Class Mod", # V
+		"BwAAADI+S20A5dYAwKjOTqMdgANlvhugEYyrWccQoWG1tGxQLAs": "Lucky Hoarder",
+		"BwAAADI+S20A5dYAwKjOzoA8gAPF5RG0HA0KSscQoWO1tGxQLAs": "Legendary Hoarder", # Synthesized, unconfirmed.
 		"BwAAADI+S20A5dYAwCjJDoI8gAOEIBG7HA0KascQoWO1tyxRLAs": "Legendary Gunzerker Title.Title_ClassMod", # V
 		"BwAAADI+S20AJSlfPXdifokcgMPMlQqOBQSK/RcqeJk": "Blood of the Ancients", # SMG and Launcher ammo - other options available
 	},
