@@ -309,9 +309,11 @@ library = { # BL2 items
 		"BwAAADIFS20A5dYAwOjWS7qYugbmPhu7DWqq+cUQYWcwsSlYaeg": "Chitinous Turtle Shield", # Massive capacity, slow recharge.
 		"BwAAADIFS20A5dYAwOjWy76YugZn0hu7DWqq+cUQ4WcwtqlWaeg": "Selected Turtle Shield", # A bit less capacity but better recharge
 		# Snipers
-		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano",
-		"hwAAADJNsQrjKkifwWiBjYAY08si6di8n8yLu8cDKzv23C1D5DJN": "Fashionable Chère-amie", # V
-		"hwAAADKNsQoA5dYAwGidjDhd4s8iQdS8mCyKu9EDK2P17C3D7zJN": "Kull Trespasser",
+		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano", # Hot (obviously)
+		"hwAAADJNsQrkKkufwWiBjagY08siXTC8n8yLu8cDKzv21C1D5FJN": "Monstrous Chère-amie", # Elec
+		"hwAAADKNsQoA5dYAwGidjDhd4s8iQdS8mCyKu9EDK2P17C3D7zJN": "Kull Trespasser", # Hard
+		"hwAAADINsArjKkufwWgdL60Yg0A0ere9n6yL+cYDKzv21C2jbARN": "Monstrous Pimpernel", # Slag
+		"hwAAADLNsYrjKkufwWhFjagY08kiKwG8n0yJu8cDK+/21C3z5DJN": "Monstrous Railer", # Acid
 		# Kabooms
 		"hwAAADJEr5j3Dj/XwWihrbFeUUcm76O8XCOIxdkDKwPWvW4Ba9ZI": "Bonus Launcher",
 		"hwAAADJErxj2Dj/XwWjRr6FeoUkmDs28XyOOxdUDKzvWvW6xZrZI": "Roket Pawket PRAZMA CANON",
@@ -326,10 +328,8 @@ library = { # BL2 items
 		"hwAAADLKv4T4Nj6nwWh9bQDeAkQh1k28X4wIu8cDK8sWhOwSbbFJ": "Apt Venom",
 		"hwAAADIKvoT3NjinwWjpbLDYEk8h0pa8X4wJu8cDKx8WrOwSYPFJ": "Feculent Chulainn",
 		"BwAAADIFS20A5dYAwOjQy7OYrwaMDxu5DWaqGcYQoWfwtulXae4": "Patent Adaptive Shield",
-		"hwAAADLNsQrkKkifwWgdL4UYg0A0wIO9n6yL+cYDKzv27C2jbARN": "Fashionable Pimpernel",
 		"hwAAADIKvgT4NjinwWj5L13YMkI0xaK1X2wK9sYDKx8WhOzybeRJ": "Miss Moxxi's Crit",
 		"hwAAADIClRT4FjvnwWjNLx3foEI031G/mAKK99wDK/cWnelQbWRJ": "Corrosive Kitten",
-		"hwAAADJNsQrjKk2fwWhVjuAYo8Aick+8nSyLu9MDK//17C2j7TJN": "Pacifying Strike",
 	},
 	"Mechromancer": {
 		"hwAAADLLqAYA5dYAwGh9L3VcaEA0OkK9HIyI+dADK8s05K6Sb8RJ": "Captain Blade's Orphan Maker",
