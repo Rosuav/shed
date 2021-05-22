@@ -271,7 +271,7 @@ GAME = args.game
 library = { # BL2 items
 	"*": {
 		# Weapons for anyone
-		"hwAAADLKv4T3Nj+nwWj5D93eEsI037K1X4yK8cYDK8sWhOzS7cRJ": "Lucid Florentine", # Best
+		"hwAAADLKv4T3Nj+nwWj5D93eEsI037K1X4yK8cYDK8sWhOzS7cRJ": "Lucid Florentine",
 		"hwAAADIKvoT3NjynwWgFbZDeYkkhn4u8XMwIu9UDK6MWhOxyZrFJ": "Bulets Go Fasterifed Slagga", # Florentine and Slagga are both slag-em-up SMGs
 		"hwAAADKKvoT5NjunwWhxDgXdssM0KLK9XOwK+tQDK6MWrOwC7KRJ": "Bladed Tattler",
 		"hwAAADIHS+32AtYAwGjhy0mUAdMnD5q8mOMOut0DK4+33ajR/fdK": "Rapid Infinity",
@@ -308,6 +308,7 @@ library = { # BL2 items
 		"BwAAADIFS20A5dYAwOjFy36jlwaOWhu9DQCq+cYQIWYwsKlW6fs": "Flame of the Firehawk",
 		"BwAAADIFS20A5dYAwOjWS7qYugbmPhu7DWqq+cUQYWcwsSlYaeg": "Chitinous Turtle Shield", # Massive capacity, slow recharge.
 		"BwAAADIFS20A5dYAwOjWy76YugZn0hu7DWqq+cUQ4WcwtqlWaeg": "Selected Turtle Shield", # A bit less capacity but better recharge
+		"BwAAADIFS20A5dYAwGidy36j2gYLnxukDXaq+cYQYWcwsOlV6aw": "Black Hole", # V
 		# Snipers
 		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano", # Hot (obviously)
 		"hwAAADJNsQrkKkufwWiBjagY08siXTC8n8yLu8cDKzv21C1D5FJN": "Monstrous Chère-amie", # Elec
@@ -330,6 +331,9 @@ library = { # BL2 items
 		"BwAAADIFS20A5dYAwOjQy7OYrwaMDxu5DWaqGcYQoWfwtulXae4": "Patent Adaptive Shield",
 		"hwAAADIKvgT4NjinwWj5L13YMkI0xaK1X2wK9sYDKx8WhOzybeRJ": "Miss Moxxi's Crit",
 		"hwAAADIClRT4FjvnwWjNLx3foEI031G/mAKK99wDK/cWnelQbWRJ": "Corrosive Kitten",
+		"BwAAADIFS20A5dYAwOjdi5GY0wbHwxuzDYqq+cYQoWcwsKlWabU": "Majestic Corrosive Spike Shield", # V
+		"hwAAADJLrwb1MievwWh9TTiZ4skh5Xu8HeyIutUDK+825K6S5/FJ": "Sledge's Shotgun", # V
+		"hwAAADLLqAbzMiavwWgFTVidIskhXYm8HwyJutkDK8c2/K5y5tFJ": "Original Deliverance", # V
 	},
 	"Mechromancer": {
 		"hwAAADLLqAYA5dYAwGh9L3VcaEA0OkK9HIyI+dADK8s05K6Sb8RJ": "Captain Blade's Orphan Maker",
