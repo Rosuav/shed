@@ -167,6 +167,7 @@ def create_all_weapons(savefile):
 @synthesizer
 def give(savefile, definitions):
 	"""Synthesize every part variant (only parts) based on a particular item/weapon"""
+	print()
 	for definition in definitions.split(","):
 		[id, *changes] = definition.split("-")
 		serial = unarmor_serial(id)
@@ -180,6 +181,7 @@ def give(savefile, definitions):
 		if changes: serial = obj.encode_asset_library()
 		if obj.is_weapon: savefile.packed_weapon_data.append(PackedWeaponData(serial=serial, quickslot=0, mark=1, unknown4=0))
 		else: savefile.packed_item_data.append(PackedItemData(serial=serial, quantity=1, equipped=0, mark=1))
+		print("Giving", obj)
 
 @synthesizer
 def crossproduct(savefile, baseid):
