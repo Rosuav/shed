@@ -321,11 +321,18 @@ library = { # BL2 items
 		"hwAAADJEr5j3Dj/XwWihrbFeUUcm76O8XCOIxdkDKwPWvW4Ba9ZI": "Bonus Launcher",
 		"hwAAADJErxj2Dj/XwWjRr6FeoUkmDs28XyOOxdUDKzvWvW6xZrZI": "Roket Pawket PRAZMA CANON",
 		"hwAAADJEr5j3DjXXwWi5rcldgUomp+u8XYOIxd8DKwvWlW7Ba7ZI": "derp Duuurp!",
-		# Unconfirmed or uncategorized
+		"hwAAADIErpj3DjzXwWjRrylcUkUmgjS8XwOKxdUDK2fUlW7Ba9ZI": "hurty Zooka!",
+		"hwAAADKEr5j3DjzXwWgRrSlcsk4mr128X4OJxdUDK2fUlW7BZnZI": "hurty Roaster",
+		"hwAAADIErpj3DjLXwWhBreldMUgm5Qq8XOOIxdkDKwPWlW5BZ5ZI": "Bustling Bunny",
+		"hwAAADJEr5j3DjPXwWjRrwFdUUcmYiK8XwOKxdUDK2fUtW4Ba9ZI": "Speeedee Launcher",
+		"hwAAADLEr5j3DjHXwWi5rWld0UUmSgG8XYOIxd8DKwvWpW4xa5ZI": "dippity boom",
+		# Relics
 		"BwAAADIBS20A5S1fPXd/xYkbgM3MtQqOBQSK/JcqOGg": "Heart of the Ancients", # SMG variant
 		"BwAAADI+S20AZS+/OldkWoEUi/wcxQqOBQTKBSjdR5k": "Proficiency Relic",
 		"BwAAADI+S20A5SO/OlcyAoEci+wcxQqOBQTKBSjdR5k": "Vitality Relic",
 		"BwAAADI+S20AJSK/O1f9WYEbi/4cpQqOxfu1/BfdR5k": "Tenacity Relic",
+		"BwAAADI+S20AZSO/Old8zIEdi/IcxQqOhQ3KBSjdR5k": "Stockpile Relic", # +4 Grenades, regardless of level
+		# Unconfirmed or uncategorized
 		"hwAAADLClhT3Fj/nwWgBbWHeQE4l+Eu8nIIOxdUDK6MWpekQYLVJ": "Wyld Asss BlASSter",
 		"hwAAADJKvgT5Nj+nwWh9bdjewksh0OW8X4wIu8cDK8sWjOxybfFJ": "Lucid SubMalevolent Grace",
 		"hwAAADLKv4T4Nj6nwWh9bQDeAkQh1k28X4wIu8cDK8sWhOwSbbFJ": "Apt Venom",
@@ -334,16 +341,14 @@ library = { # BL2 items
 		"hwAAADIKvgT4NjinwWj5L13YMkI0xaK1X2wK9sYDKx8WhOzybeRJ": "Miss Moxxi's Crit",
 		"hwAAADIClRT4FjvnwWjNLx3foEI031G/mAKK99wDK/cWnelQbWRJ": "Corrosive Kitten",
 		"BwAAADIFS20A5dYAwOjdi5GY0wbHwxuzDYqq+cYQoWcwsKlWabU": "Majestic Corrosive Spike Shield", # V
-		"hwAAADJLrwb1MievwWh9TTiZ4skh5Xu8HeyIutUDK+825K6S5/FJ": "Sledge's Shotgun", # V
+		"hwAAADLLqAb1MievwWh9TTiZ4skhwIu8HeyIutUDK+82jK6S5/FJ": "Sledge's Shotgun",
 		"hwAAADLLqAbzMiavwWgFTVidIskhXYm8HwyJutkDK8c2/K5y5tFJ": "Original Deliverance", # V
 	},
 	"Mechromancer": {
 		"hwAAADLLqAYA5dYAwGh9L3VcaEA0OkK9HIyI+dADK8s05K6Sb8RJ": "Captain Blade's Orphan Maker",
 		"BwAAADI+S20A5dYAwCjOToo8gAPythm2HQECKscQoWO1tGxQLAs": "Legendary Mechromancer",
-		"BwAAADI+S20A5dYAwOjJToo8gAO5CBm2HQECKscQoWM1t2xRLAs": "Legendary Mechromancer Title.Title_ClassMod", # V
 		"BwAAADI+S20A5dYAwOjJzogdgAPgyRm9HQcC6sYQoWO1tGxQLAs": "Slayer of Terramorphous",
-		"BwAAADI+S20ApS3fO3fPg4kegMfM1QqOBQSK/9coeJk": "Bone of the Ancients", # V
-		"BwAAADI+S20ApS2fPXf+c4kegMfMtQqORQTK/9coeJk": "Bone of the Ancients",
+		"BwAAADI+S20ApS1fPXfwpIkegMfM1QqOBQSK/9coeJk": "Bone of the Ancients",
 		"BwAAADI+S20A5dYAwOjOjoI8gAM37hGpHAkK6sYQoWO1tGxQLAs": "Legendary Catalyst",
 	},
 	"Siren": {
