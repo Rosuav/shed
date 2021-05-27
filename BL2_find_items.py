@@ -55,6 +55,10 @@ def unarmor_serial(id): return base64.b64decode(id.strip("{}").encode("ascii") +
 def money(savefile): savefile.money[0] += 5000000 # Add more dollars
 @synthesizer
 def eridium(savefile): savefile.money[1] += 500 # Add more eridium/moonstones
+@synthesizer
+def seraph(savefile): savefile.money[2] += 500 # Not sure what, if anything, these two would do in TPS
+@synthesizer
+def torgue(savefile): savefile.money[4] += 500
 
 @synthesizer
 def xp(savefile, xp=None):
