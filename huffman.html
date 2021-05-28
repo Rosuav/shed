@@ -10,14 +10,14 @@
 	margin: 5px;
 }
 .node {
-	width: 6em; height: 4em;
-	font-size: 24px;
+	width: 5em; height: 5em;
+	font-size: 18px;
 	text-align: center;
 	padding: 3px;
 	border: 1px solid black;
 }
 p.node-title, p.node-name, p.node-desc, p.node-contact {
-	margin: 0.5em 0;
+	margin: 0.25em 0;
 }
 .Treant .collapse-switch {width: 100%; height: 100%; background: #0f01;}
 .Treant .node.collapsed .collapse-switch {background: #0ff1;}
@@ -33,17 +33,25 @@ data compression and data analysis. Needs a good way to visualize the tree, the 
 - Monocase or as-is
 -->
 <main>
-<input type=file id=analyzeme>
+<p>
+	<input type=file id=analyzeme>
+	<label><input type=radio name=filter id=alpha checked> Simple alpha</label>
+	<label><input type=radio name=filter id=text> Textual characters</label>
+	<label><input type=radio name=filter id=all> All characters</label>
+</p>
 <div id=treedisplay></div>
 </main>
 <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 <script src="https://fperucic.github.io/treant-js/vendor/raphael.js"></script>
 <script src="https://fperucic.github.io/treant-js/Treant.js"></script>
 <script>
-function huffman_tree(text) {
+function huffman_tree(text, alphabet, monocase) {
 	const counts = { };
 	for (let i = 0; i < text.length; ++i) {
-		counts[text[i]] = (counts[text[i]]|0) + 1;
+		let ltr = text[i];
+		if (monocase) ltr = ltr.toLowerCase();
+		if (alphabet && !alphabet.test(ltr)) continue;
+		counts[ltr] = (counts[ltr]|0) + 1;
 	}
 	const nodes = Object.keys(counts).map(key => [counts[key], key])
 	while (nodes.length > 1) {
@@ -60,7 +68,7 @@ function huffman_tree(text) {
 function treantify(tree, path) {
 	if (typeof(tree[1]) == "string") {
 		//Leaf node
-		return {text: {desc: ""+tree[0], contact: path + " => " + tree[1]}};
+		return {text: {desc: ""+tree[0], contact: path, name: tree[1]}};
 	}
 	else {
 		//Subtree
@@ -73,13 +81,17 @@ function treantify(tree, path) {
 document.getElementById("analyzeme").addEventListener("change", function(e) {
 	console.log("Got file");
 	console.log(this.files);
+	let alphabet = null, monocase = false;
+	if (document.getElementById("alpha").checked) {alphabet = /[a-z]/; monocase = true;}
+	else if (document.getElementById("text").checked) alphabet = /\p{Alphabetic}/u;
 	if (this.files.length) this.files[0].text().then(text => {
+		document.getElementById("treedisplay").innerHTML = "";
 		new Treant({
 			chart: {
 				container: "#treedisplay",
 				node: {collapsable: true},
 			},
-			nodeStructure: treantify(huffman_tree(text), ""),
+			nodeStructure: treantify(huffman_tree(text, alphabet, monocase), ""),
 		});
 	})
 }, false);
