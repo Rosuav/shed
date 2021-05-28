@@ -497,14 +497,6 @@ class Turbo_Motor(Manufacturer):
 	time: 32
 	Turbo_Motor: 1
 
-class Turbo_Rigour_Motor(Manufacturer): # TODO: Is this still a thing in Experimental?
-	Motor: 7
-	Radio_Control_Unit: 5
-	AI_Limiter: 9
-	Stator: 7
-	time: 64
-	Turbo_Motor: 3
-
 class Turbo_Electric_Motor(Manufacturer):
 	Motor: 7
 	Radio_Control_Unit: 9
