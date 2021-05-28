@@ -63,6 +63,8 @@ function huffman_tree(text, alphabet, monocase) {
 		//3. Put the merged pair back into the tree as a subtree.
 		nodes.push([left[0] + right[0], [left, right]]);
 	}
+	//function dump(n) {if (typeof(n[1]) == "string") return n[1]; return [dump(n[1][0]), dump(n[1][1])];}
+	//console.log(JSON.stringify(dump(nodes[0])));
 	return nodes[0];
 }
 function treantify(tree, path) {
@@ -79,8 +81,6 @@ function treantify(tree, path) {
 	}
 }
 document.getElementById("analyzeme").addEventListener("change", function(e) {
-	console.log("Got file");
-	console.log(this.files);
 	let alphabet = null, monocase = false;
 	if (document.getElementById("alpha").checked) {alphabet = /[a-z]/; monocase = true;}
 	else if (document.getElementById("text").checked) alphabet = /\p{Alphabetic}/u;
