@@ -303,7 +303,9 @@ library = { # BL2 items
 		"BwAAADLCuhH52daAIhTTDKFfpQEo1Ru5EzriWscQ4Xr3uq5NLv4": "Longbow Fire Bee",
 		"BwAAADLCshH5WS68N9TfTIsfpgHW0Bu9E1Ti+sYQYXo3pa5Nrv8": "Shock Kiss of Death",
 		"BwAAADLCuhHxWS48wOjSzH5jrwGGwRu1E0LiescQYZkLuq5QbvU": "Rolling Thunder",
-		"BwAAADLCutH52dbAN9TZzInfpAE8chu/Ez7iuscQIX03ta5Nrv8": "Lobbed Bouncing Bonny", # V
+		"BwAAADLCutH52daAItTZDJ7fpAHhRBu/Ez7iuscQIX23uq5NLv4": "Sticky Longbow Bouncing Bonny",
+		"BwAAADICvTLxWSW8IhTfDJ5fhCJ0iRi7EQvK6sYQoX23uu5QbvU": "O-Negative",
+		"BwAAADJCs/L52daAItTZDKGfjSJ5qBi5EQ/KqscQ4W7Uuq5Q7v8": "Corrosive Crossfire",
 		# Shields
 		"BwAAADIiS20A5dYAwOjK7H6jgCHvxxK8Cgm6CsYQoWQwselV6fQ": "Blockade",
 		"BwAAADIiS20A5dYAwOjK7H6jgCEtFRK8Cgm6CsYQoWfwtmlW6fQ": "Blockade",
@@ -330,6 +332,7 @@ library = { # BL2 items
 		"hwAAADIErpj3DjLXwWhBreldMUgm5Qq8XOOIxdkDKwPWlW5BZ5ZI": "Bustling Bunny",
 		"hwAAADJEr5j3DjPXwWjRrwFdUUcmYiK8XwOKxdUDK2fUtW4Ba9ZI": "Speeedee Launcher",
 		"hwAAADLEr5j3DjHXwWi5rWld0UUmSgG8XYOIxd8DKwvWpW4xa5ZI": "dippity boom",
+		"hwAAADJErpj3DjPXwWixrQFdEUgmCTC8X6OIxdUDKzvWtW6BZNZI": "Speeedee Badaboom", # Synthesized, unconfirmed
 		# Relics
 		"BwAAADIBS20A5S1fPXd/xYkbgM3MtQqOBQSK/JcqOGg": "Heart of the Ancients", # SMG variant
 		"BwAAADI+S20AZS+/OldkWoEUi/wcxQqOBQTKBSjdR5k": "Proficiency Relic",
