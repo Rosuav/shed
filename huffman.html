@@ -6,7 +6,7 @@
 <style>
 #treedisplay {
 	height: 900px;
-	width: 1400px;
+	width: 1900px;
 	margin: 5px;
 }
 .node {
@@ -32,7 +32,10 @@ data compression and data analysis. Needs a good way to visualize the tree, the 
 - Letters only, alphanumeric, or all characters
 - Monocase or as-is
 -->
-<main><div id=treedisplay></div></main>
+<main>
+<input type=file id=analyzeme>
+<div id=treedisplay></div>
+</main>
 <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 <script src="https://fperucic.github.io/treant-js/vendor/raphael.js"></script>
 <script src="https://fperucic.github.io/treant-js/Treant.js"></script>
@@ -54,10 +57,6 @@ function huffman_tree(text) {
 	}
 	return nodes[0];
 }
-
-const text = "Hello, world";
-const tree = huffman_tree(text);
-console.log(tree);
 function treantify(tree, path) {
 	if (typeof(tree[1]) == "string") {
 		//Leaf node
@@ -71,13 +70,19 @@ function treantify(tree, path) {
 		]};
 	}
 }
-new Treant({
-	chart: {
-		container: "#treedisplay",
-		node: {collapsable: true},
-	},
-	nodeStructure: treantify(tree, ""),
-});
+document.getElementById("analyzeme").addEventListener("change", function(e) {
+	console.log("Got file");
+	console.log(this.files);
+	if (this.files.length) this.files[0].text().then(text => {
+		new Treant({
+			chart: {
+				container: "#treedisplay",
+				node: {collapsable: true},
+			},
+			nodeStructure: treantify(huffman_tree(text), ""),
+		});
+	})
+}, false);
 </script>
 </body>
 </html>
