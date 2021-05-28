@@ -10,7 +10,7 @@
 	margin: 5px;
 }
 .node {
-	width: 5em; height: 5em;
+	width: 5em; height: 6.25em;
 	font-size: 18px;
 	text-align: center;
 	padding: 3px;
@@ -25,12 +25,15 @@ p.node-title, p.node-name, p.node-desc, p.node-contact {
 </head>
 <body>
 <!--
-TODO: Huffman tree visualization as text analysis. Could be an interesting showcase project for stream, talking about
-data compression and data analysis. Needs a good way to visualize the tree, the rest is easy.
-- Do the whole thing in a single file in shed
-- Accept "file upload" and do the calculations in JS
-- Letters only, alphanumeric, or all characters
-- Monocase or as-is
+Crazy thought: If you have predefined trees, you can use them for steganography. (Thanks to Person_in_the_MIRROR for this thought!)
+To do so, preselect two documents which will define two Huffman trees. The first defines bits, the second defines sequences.
+(Could use the same tree for both but there's no need.)
+Then, encode your secret message using the Sequence tree, which gives you a sequence of bits.
+Finally, craft the outer message using the Bits tree. Every alphabetic in the outer message represents one bit, based on the first fork
+in the Bits tree (or its highest-order encoded bit, same difference).
+The Sequence tree needs to encode alphabetics and space, but probably monocase. The Bits tree need only encode alphabetics, to
+allow sentences to be hand-crafted without regard for line, sentence, or word breaks.
+This will result in a roughly 5:1 encoding cost, based on the Sequences tree.
 -->
 <main>
 <p>
@@ -70,14 +73,14 @@ function huffman_tree(text, alphabet, monocase) {
 function treantify(tree, path) {
 	if (typeof(tree[1]) == "string") {
 		//Leaf node
-		return {text: {desc: ""+tree[0], contact: path, name: tree[1]}};
+		return {text: {desc: ""+tree[0], title: ""+(tree[0] * path.length), contact: path, name: '"' + tree[1] + '"'}};
 	}
 	else {
 		//Subtree
-		return {text: {desc: ""+tree[0], contact: "…"}, children: [
-			treantify(tree[1][0], path + "0"),
-			treantify(tree[1][1], path + "1"),
-		]};
+		const left = treantify(tree[1][0], path + "0");
+		const right = treantify(tree[1][1], path + "1");
+		const weight = +left.text.title+ +right.text.title;
+		return {text: {desc: ""+tree[0], title: ""+weight, contact: "…"}, children: [left, right]};
 	}
 }
 document.getElementById("analyzeme").addEventListener("change", function(e) {
