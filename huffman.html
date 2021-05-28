@@ -5,8 +5,8 @@
 <link rel="stylesheet" href="https://fperucic.github.io/treant-js/Treant.css">
 <style>
 #treedisplay {
-	height: 800px;
-	width: 900px;
+	height: 900px;
+	width: 1400px;
 	margin: 5px;
 }
 .node {
@@ -19,7 +19,8 @@
 p.node-title, p.node-name, p.node-desc, p.node-contact {
 	margin: 0.5em 0;
 }
-.Treant .collapse-switch {width: 100%; height: 100%;}
+.Treant .collapse-switch {width: 100%; height: 100%; background: #0f01;}
+.Treant .node.collapsed .collapse-switch {background: #0ff1;}
 </style>
 </head>
 <body>
@@ -36,26 +37,46 @@ data compression and data analysis. Needs a good way to visualize the tree, the 
 <script src="https://fperucic.github.io/treant-js/vendor/raphael.js"></script>
 <script src="https://fperucic.github.io/treant-js/Treant.js"></script>
 <script>
-//Leaf nodes use desc/contact
-//Subtree nodes use title/name
+function huffman_tree(text) {
+	const counts = { };
+	for (let i = 0; i < text.length; ++i) {
+		counts[text[i]] = (counts[text[i]]|0) + 1;
+	}
+	const nodes = Object.keys(counts).map(key => [counts[key], key])
+	while (nodes.length > 1) {
+		//1. Find the two lowest-frequency entries in the counts mapping
+		nodes.sort((a, b) => b[0] - a[0]);
+		const left = nodes.pop();
+		const right = nodes.pop();
+		//2. Merge them by combining their keys and assigning "0" and "1" to each
+		//3. Put the merged pair back into the tree as a subtree.
+		nodes.push([left[0] + right[0], [left, right]]);
+	}
+	return nodes[0];
+}
+
+const text = "Hello, world";
+const tree = huffman_tree(text);
+console.log(tree);
+function treantify(tree, path) {
+	if (typeof(tree[1]) == "string") {
+		//Leaf node
+		return {text: {desc: ""+tree[0], contact: path + " => " + tree[1]}};
+	}
+	else {
+		//Subtree
+		return {text: {desc: ""+tree[0], contact: "…"}, children: [
+			treantify(tree[1][0], path + "0"),
+			treantify(tree[1][1], path + "1"),
+		]};
+	}
+}
 new Treant({
 	chart: {
 		container: "#treedisplay",
 		node: {collapsable: true},
 	},
-	nodeStructure: {
-		text: {title: "Top", name: "16"},
-		children: [{
-			text: {title: "Level 2a", name: "8"},
-		},{
-			text: {title: "Level 2b", name: "8"},
-			children: [{
-				text: {title: "Level 3a", name: "4"},
-			},{
-				text: {title: "Level 3b", name: "4"},
-			}],
-		}],
-	},
+	nodeStructure: treantify(tree, ""),
 });
 </script>
 </body>
