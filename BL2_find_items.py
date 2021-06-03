@@ -323,6 +323,7 @@ library = { # BL2 items
 		"hwAAADKNsQoA5dYAwGidjDhd4s8iQdS8mCyKu9EDK2P17C3D7zJN": "Kull Trespasser", # Hard
 		"hwAAADINsArjKkufwWgdL60Yg0A0ere9n6yL+cYDKzv21C2jbARN": "Monstrous Pimpernel", # Slag
 		"hwAAADLNsYrjKkufwWhFjagY08kiKwG8n0yJu8cDK+/21C3z5DJN": "Monstrous Railer", # Acid
+		"hwAAADINsArkKkufwWhljZgYA8kiXSS8nAyOu9sDKwv21C3z5xJN": "Resource Invader", # Burst-fire elec, good for bosses maybe
 		# Kabooms
 		"hwAAADJEr5j3Dj/XwWihrbFeUUcm76O8XCOIxdkDKwPWvW4Ba9ZI": "Bonus Launcher",
 		"hwAAADJErxj2Dj/XwWjRr6FeoUkmDs28XyOOxdUDKzvWvW6xZrZI": "Roket Pawket PRAZMA CANON",
@@ -350,6 +351,9 @@ library = { # BL2 items
 		"BwAAADIFS20A5dYAwOjdi5GY0wbHwxuzDYqq+cYQoWcwsKlWabU": "Majestic Corrosive Spike Shield", # V
 		"hwAAADLLqAb1MievwWh9TTiZ4skhwIu8HeyIutUDK+82jK6S5/FJ": "Sledge's Shotgun",
 		"hwAAADLLqAbzMiavwWgFTVidIskhXYm8HwyJutkDK8c2/K5y5tFJ": "Original Deliverance", # V
+		"hwAAADKLr4bzMjuvwWj1L5WfIkI0CkG/HqyK99oDK/c27K6ybSRI": "Practicable Slow Hand", # Better damage and fire rate
+		"hwAAADKLr4bzMiSvwWj1L52eIkI0fK6/HqyK99oDK/c27K6ybSRI": "Scalable Slow Hand", # Better accuracy and mag
+		"hwAAADJClhQA5T7nwWjJbDHeAE4lcVO8n2IJxd8DK7MWlemgZtVJ": "Slippery KerBlaster",
 	},
 	"Mechromancer": {
 		"hwAAADLLqAYA5dYAwGh9L3VcaEA0OkK9HIyI+dADK8s05K6Sb8RJ": "Captain Blade's Orphan Maker",
