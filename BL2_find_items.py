@@ -289,13 +289,14 @@ library = { # BL2 items
 		"hwAAADIHS231AtYAwGgVywGYwdYnYey8nQMMutMDK4uw7aiB+fdK": "Corrosive Teapot", # Bandit grip and Jakobs sight - other options available
 		"hwAAADLKvwT5NtYAwGgtbVDfok4hoqu8XywJu8cDK8sWhOzSZrFJ": "Fervid Hellfire",
 		"hwAAADIHS20A5TXPwWjVy1Ge8dMnX1a8mQMPut8DK7+3zagx/fdK": "Crammed Unkempt Harold",
+		"hwAAADIKvgT4Nj2nwWj5L33dMkI07Nm1X2wK9sYDK8sWhOzybYRJ": "Consummate Crit",
 		# Grenades
 		"BwAAADLCuhHxmSU8wOjSDKEfogGraRu+EzziescQoXr3uq5NbvU": "Longbow Bonus Package",
 		"BwAAADLCudH52S+8IhTTDKHfpQHpUxu2E0jiWscQ4X33uq5N7vY": "Longbow Breath of Terramorphous",
 		"BwAAADLCuhH52daAIhTTDKEfpQHy0xu5E0biWscQ4Xr3uq5N7v8": "Longbow Pandemic",
 		"BwAAADJCvDLxmSU8wOjSDKFfgyJbuBi6EQnKascQIW/Uuq5QbvU": "Longbow Meteor Shower",
 		"BwAAADLCshH52dbAN1TfzH4jgiAlwxK8CQ+q6sYQYZkLt49NLv4": "Fire Storm", # V
-		"BwAAADLCstH52daAN9TfzH6jgCBJjxK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt", # V
+		"BwAAADLCstH52daAN9TfzH6jgCBJjxK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt",
 		"BwAAADLCshH52daAN9TfzH4jgCCRihK8CQWq6sYQYZkLtY9NLv4": "Fireball", # V
 		"BwAAADLCstH5WS68N9TfzH7jgCDRYRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile", # Best (other than the extremely rare upgraded version)
 		"BwAAADLCstH5WS68NxTfzH7jgCB58xK8CQOq6sYQYZnLt49Nbv8": "Magic Missile (rare)", # Synthesized, unconfirmed.
@@ -311,6 +312,7 @@ library = { # BL2 items
 		"BwAAADIiS20A5dYAwOjK7H6jgCEtFRK8Cgm6CsYQoWfwtmlW6fQ": "Blockade",
 		"BwAAADIFS20A5dYAwGicy37j2gaYxRuqDW6qOccQYWewtilW6aM": "The Bee",
 		"BwAAADIFS20A5dYAwGicy37j2ga32xuqDW6qOccQYWcwsalV6aM": "The Bee",
+		"BwAAADIFS20A5dYAwGicy37j2gZ9IxuqDW6qOccQYWcwsOlV6aM": "The Bee",
 		"BwAAADIFS20A5dYAwOiey36j2QZEUxuuDVaqWccQ4WQwsKkEKaA": "The Transformer",
 		"BwAAADIFS20A5dYAwCjOb4E8gCJh9Ri8EQXKSscQ4WcwsSlXaew": "Sponge",
 		"BwAAADIFS20A5dYAwOjFy36jlwaOWhu9DQCq+cYQIWYwsKlW6fs": "Flame of the Firehawk",
@@ -1082,7 +1084,7 @@ def parse_savefile(fn):
 	ret += "".join("\n" + desc for order, lvl, desc in items if order >= 0)
 	if args.synth is not None:
 		# Make changes to the save file before synthesizing
-		savefile.preferences.name = "PATCHED" # Easy way to see what's happening
+		# savefile.preferences.name = "PATCHED" # Easy way to see what's happening
 		for synth, synthargs in args.synth: synth(savefile, *synthargs)
 
 		data = savefile.encode_protobuf()
