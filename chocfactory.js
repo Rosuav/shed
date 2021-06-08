@@ -1,4 +1,4 @@
-/* Chocolate Factory v0.4.4
+/* Chocolate Factory v0.5
 
 DOM object builder. (Thanks to DeviCat for the name!)
 
@@ -52,6 +52,9 @@ browsers which lack it, and can optionally provide automatic behaviour for
 close buttons and/or clicking outside the dialog to close it.
     fix_dialogs({close_selector: "button.close,input[type=submit]"});
     fix_dialogs({click_outside: true});
+    //New in v0.5: Clicking outside dialogs closes them, but only if there is
+    //no <form> inside the <dialog>. Guards against accidental closings.
+    fix_dialogs({click_outside: "formless"});
 
 
 The MIT License (MIT)
@@ -147,6 +150,7 @@ export function fix_dialogs(cfg) {
 		//values. Since clicking outside is always going to send the message directly
 		//to the dialog (not to one of its children), check for that case.
 		if (e.match !== e.target) return;
+		if (cfg.click_outside === "formless" && e.match.querySelector("form")) return;
 		let rect = e.match.getBoundingClientRect();
 		if (e.clientY < rect.top || e.clientY > rect.top + rect.height
 				|| e.clientX < rect.left || e.clientX > rect.left + rect.width)
@@ -173,7 +177,7 @@ let choc = function(tag, attributes, children) {
 	if (children) set_content(ret, children);
 	return ret;
 }
-choc.__version__ = "0.4.4";
+choc.__version__ = "0.5";
 
 //Interpret choc.DIV(attr, chld) as choc("DIV", attr, chld)
 //This is basically what Python would do as choc.__getattr__()
