@@ -356,6 +356,8 @@ library = { # BL2 items
 		"hwAAADKLr4bzMjuvwWj1L5WfIkI0CkG/HqyK99oDK/c27K6ybSRI": "Practicable Slow Hand", # Better damage and fire rate
 		"hwAAADKLr4bzMiSvwWj1L52eIkI0fK6/HqyK99oDK/c27K6ybSRI": "Scalable Slow Hand", # Better accuracy and mag
 		"hwAAADJClhQA5T7nwWjJbDHeAE4lcVO8n2IJxd8DK7MWlemgZtVJ": "Slippery KerBlaster",
+		"hwAAADIErpj3Dj7XwWhtL5VeAUA0qgi9XQOI+d4DK0vUlW4hb4RI": "gaa dunk ga 12 Pounder", # V
+		"hwAAADIHS231AjHPwWg1zAGdsdMn3Dq8ncMOutMDK/+37aix4jdJ": "Close Quarters Hornet", # V
 	},
 	"Mechromancer": {
 		"hwAAADLLqAYA5dYAwGh9L3VcaEA0OkK9HIyI+dADK8s05K6Sb8RJ": "Captain Blade's Orphan Maker",
