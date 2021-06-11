@@ -319,6 +319,7 @@ library = { # BL2 items
 		"BwAAADIFS20A5dYAwOjWS7qYugbmPhu7DWqq+cUQYWcwsSlYaeg": "Chitinous Turtle Shield", # Massive capacity, slow recharge.
 		"BwAAADIFS20A5dYAwOjWy76YugZn0hu7DWqq+cUQ4WcwtqlWaeg": "Selected Turtle Shield", # A bit less capacity but better recharge
 		"BwAAADIFS20A5dYAwGidy36j2gYLnxukDXaq+cYQYWcwsOlV6aw": "Black Hole", # V
+		"BwAAADIiS20A5dYAwGjK7H4jgSEQVBK9Cgu66sYQ4WcwsOlXqfU": "Antagonist", # V
 		# Snipers
 		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano", # Hot (obviously)
 		"hwAAADJNsQrkKkufwWiBjagY08siXTC8n8yLu8cDKzv21C1D5FJN": "Monstrous Chère-amie", # Elec
