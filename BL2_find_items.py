@@ -308,8 +308,9 @@ library = { # BL2 items
 		"BwAAADICvTLxWSW8IhTfDJ5fhCJ0iRi7EQvK6sYQoX23uu5QbvU": "O-Negative",
 		"BwAAADJCs/L52daAItTZDKGfjSJ5qBi5EQ/KqscQ4W7Uuq5Q7v8": "Corrosive Crossfire",
 		# Shields
-		"BwAAADIiS20A5dYAwOjK7H6jgCHvxxK8Cgm6CsYQoWQwselV6fQ": "Blockade",
+		"BwAAADIiS20A5dYAwOjK7H6jgCEaBxK8Cgm6CsYQ4WQwsClY6fQ": "Blockade",
 		"BwAAADIiS20A5dYAwOjK7H6jgCEtFRK8Cgm6CsYQoWfwtmlW6fQ": "Blockade",
+		"BwAAADIiS20A5dYAwOjK7H6jgCFlVhK8Cgm6CsYQ4WcwsalW6fQ": "Blockade",
 		"BwAAADIFS20A5dYAwGicy37j2gaYxRuqDW6qOccQYWewtilW6aM": "The Bee",
 		"BwAAADIFS20A5dYAwGicy37j2ga32xuqDW6qOccQYWcwsalV6aM": "The Bee",
 		"BwAAADIFS20A5dYAwGicy37j2gZ9IxuqDW6qOccQYWcwsOlV6aM": "The Bee",
@@ -319,7 +320,7 @@ library = { # BL2 items
 		"BwAAADIFS20A5dYAwOjWS7qYugbmPhu7DWqq+cUQYWcwsSlYaeg": "Chitinous Turtle Shield", # Massive capacity, slow recharge.
 		"BwAAADIFS20A5dYAwOjWy76YugZn0hu7DWqq+cUQ4WcwtqlWaeg": "Selected Turtle Shield", # A bit less capacity but better recharge
 		"BwAAADIFS20A5dYAwGidy36j2gYLnxukDXaq+cYQYWcwsOlV6aw": "Black Hole", # V
-		"BwAAADIiS20A5dYAwGjK7H4jgSEQVBK9Cgu66sYQ4WcwsOlXqfU": "Antagonist", # V
+		"BwAAADIiS20A5dYAwGjK7H4jgSGEjRK9Cgu66sYQ4WcwsalWqfU": "Antagonist",
 		# Snipers
 		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano", # Hot (obviously)
 		"hwAAADJNsQrkKkufwWiBjagY08siXTC8n8yLu8cDKzv21C1D5FJN": "Monstrous Chère-amie", # Elec
@@ -357,8 +358,8 @@ library = { # BL2 items
 		"hwAAADKLr4bzMjuvwWj1L5WfIkI0CkG/HqyK99oDK/c27K6ybSRI": "Practicable Slow Hand", # Better damage and fire rate
 		"hwAAADKLr4bzMiSvwWj1L52eIkI0fK6/HqyK99oDK/c27K6ybSRI": "Scalable Slow Hand", # Better accuracy and mag
 		"hwAAADJClhQA5T7nwWjJbDHeAE4lcVO8n2IJxd8DK7MWlemgZtVJ": "Slippery KerBlaster",
-		"hwAAADIErpj3Dj7XwWhtL5VeAUA0qgi9XQOI+d4DK0vUlW4hb4RI": "gaa dunk ga 12 Pounder", # V
-		"hwAAADIHS231AjHPwWg1zAGdsdMn3Dq8ncMOutMDK/+37aix4jdJ": "Close Quarters Hornet", # V
+		"hwAAADJEr5j3DjPXwWhtLx1dAUA0ayS9XQOI+d4DK0vUlW4hb4RI": "fidle dee 12 Pounder",
+		"hwAAADIHS231AjTPwWg1zHGesdMnRfi8ncMOutMDK/+3xaix4jdJ": "Neutralizing Hornet",
 	},
 	"Mechromancer": {
 		"hwAAADLLqAYA5dYAwGh9L3VcaEA0OkK9HIyI+dADK8s05K6Sb8RJ": "Captain Blade's Orphan Maker",
