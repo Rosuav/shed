@@ -286,9 +286,6 @@ library = { # BL2 items
 		"hwAAADIHS+32AtYAwGjhy0mUAdMnD5q8mOMOut0DK4+33ajR/fdK": "Rapid Infinity",
 		"hwAAADLClhT5FjHnwWg5bene4E4lbRm8nSIJxdMDKw8WpengZrVJ": "Onslaught Veruc", # V
 		"hwAAADLKvwT4Nj2nwWiJr3XdckI2/9u4XoyK89oDK8MWjOyybQZI": "Rightsizing Yellow Jacket",
-		"BwAAADI+S20AZS3fO3dt34kdgMHMtQqOBQUK/BfdR5k": "Skin of the Ancients", # V
-		"BwAAADI+S20AZS1fPXezLIkdgMHMtQqOBQXK8xfdR5k": "Skin of the Ancients",
-		"BwAAADIBS20A5SK/O1cVT4ECi6gcxQqOBQSK/Bfdx24": "The Afterburner",
 		"hwAAADIHS231AtYAwGgVywGYwdYnYey8nQMMutMDK4uw7aiB+fdK": "Corrosive Teapot", # Bandit grip and Jakobs sight - other options available
 		"hwAAADLKvwT5NtYAwGgtbVDfok4hoqu8XywJu8cDK8sWhOzSZrFJ": "Fervid Hellfire",
 		"hwAAADIHS20A5TXPwWjVy1Ge8dMnX1a8mQMPut8DK7+3zagx/fdK": "Crammed Unkempt Harold",
@@ -347,6 +344,8 @@ library = { # BL2 items
 		"BwAAADI+S20A5SO/OlcyAoEci+wcxQqOBQTKBSjdR5k": "Vitality Relic",
 		"BwAAADI+S20AJSK/O1f9WYEbi/4cpQqOxfu1/BfdR5k": "Tenacity Relic",
 		"BwAAADI+S20AZSO/Old8zIEdi/IcxQqOhQ3KBSjdR5k": "Stockpile Relic", # +4 Grenades, regardless of level
+		"BwAAADI+S20AZS1fPXdS+IkdgMHMtQqOBQUK/BfdR5k": "Skin of the Ancients", # Vary the Alpha component to change the element
+		"BwAAADIBS20A5SK/O1cVT4ECi6gcxQqOBQSK/Bfdx24": "The Afterburner",
 		# Unconfirmed or uncategorized
 		"hwAAADLClhT3Fj/nwWgBbWHeQE4l+Eu8nIIOxdUDK6MWpekQYLVJ": "Wyld Asss BlASSter",
 		"hwAAADJKvgT5Nj+nwWh9bdjewksh0OW8X4wIu8cDK8sWjOxybfFJ": "Lucid SubMalevolent Grace",
