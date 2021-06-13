@@ -229,8 +229,11 @@ def crossproduct(savefile, baseid):
 	for i, (n, opts) in enumerate(zip(partnames, pieces)):
 		for p in opts:
 			if p and obj.pieces[i] and p.endswith(obj.pieces[i]): p = "\x1b[1m%s\x1b[0m" % p
+			elif not obj.pieces[i] and p is None: p = "\x1b[1mNone\x1b[0m"
 			print(n, p)
 			n = " " * len(n)
+		if not obj.pieces[i] and None not in opts:
+			print(n, "\x1b[1mNone\x1b[0m")
 		total *= len(opts)
 	print("Will create", total, "objects.")
 	for pieces in itertools.product(*pieces):
