@@ -56,10 +56,10 @@ int hook_prepare_commit_msg(array(string) argv)
 		array(string) stat=Process.run("git diff --cached --stat")->stdout/"\n";
 		if (sizeof(stat)>1 && has_prefix(stat[1]-"s"," 1 file changed") && sscanf(stat[0]," %s |",string fn) && fn && fn!="") //One-file commits have a summary on line 2.
 		{
-			//Two hacks for CJAPrivate repo
+			//Hack for CJAPrivate repo
 			if (int use_hacks=(int)Process.run(({"git","config","--get","rosuav.log-search.use-hacks"}))->stdout)
 			{
-				//Hack: Thinkful invoices usually get simple additions of single lines.
+				//Thinkful invoices usually get simple additions of single lines.
 				if (has_prefix(fn,"Thinkful/Inv"))
 				{
 					string comment;
