@@ -92,7 +92,7 @@ int hook_prepare_commit_msg(array(string) argv)
 			mapping(string:int) tagcnt=([]);
 			for (int i=0;i<sizeof(log)-1;i+=2) //log should be pairs of lines: ({commit + summary, shortstat}) repeated.
 				if (has_prefix(log[i+1]-"s"," 1 file changed")) //Ignore commits that changed any other file
-					if (sscanf(log[i],"%*s %s: %s",string tag,string msg) && msg) tagcnt[String.trim_all_whites(tag-"squash!"-"fixup!")]++;
+					if (sscanf(log[i],"%*s %s: %s",string tag,string msg) && msg) tagcnt[String.trim_all_whites(tag-"squash!"-"fixup!"-"Revert \"")]++;
 			switch (sizeof(tagcnt))
 			{
 				case 0: break; //No tags found, nothing to do.
