@@ -176,6 +176,7 @@ def give(savefile, definitions):
 		[id, *changes] = definition.split("-")
 		serial = unarmor_serial(id)
 		obj = Asset.decode_asset_library(serial)
+		if obj.seed == obj.grade == 50: changes.insert(0, "l") # Can be overridden by another "-l", but normally, assume you want library items at your level.
 		obj.seed = random.randrange(1<<31) # If any changes are made, rerandomize the seed too
 		for change in changes:
 			if not change: continue
