@@ -386,7 +386,7 @@ library = { # BL2 items
 		"BwAAADI+S20A5dYAwKjOzogdgAM/jBueEYCr2ccQoWN1t6xQLAs": "Slayer Of Terramorphous",
 		"BwAAADI+S20A5dYAwKjOTqMdgANlvhugEYyrWccQoWG1tGxQLAs": "Lucky Hoarder",
 		"BwAAADI+S20A5dYAwKjOzoA8gAPF5RG0HA0KSscQoWO1tGxQLAs": "Legendary Hoarder", # Synthesized, unconfirmed.
-		"BwAAADI+S20A5dYAwCjJDoI8gAOEIBG7HA0KascQoWO1tyxRLAs": "Legendary Gunzerker Title.Title_ClassMod", # V
+		"BwAAADI+S20A5dYAwCjJDoI8gAP3KRG7HA0KascQoWO1tGxQLAs": "Legendary Gunzerker",
 		"BwAAADI+S20AJSlfPXdifokcgMPMlQqOBQSK/RcqeJk": "Blood of the Ancients", # SMG and Launcher ammo - other options available
 	},
 	"Soldier": {
