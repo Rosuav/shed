@@ -1107,6 +1107,7 @@ def parse_savefile(fn):
 		])
 		comp = len(reconstructed).to_bytes(4, "big") + lzo.compress(reconstructed, 1, False)
 		comp = hashlib.sha1(comp).digest() + comp
+		# TODO: Have an option to move the original into the current directory, and then write to the original file name
 		with open("synthesized-%s.sav" % (args.file or ""), "wb") as f: f.write(comp)
 	return ret
 
