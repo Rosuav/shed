@@ -29,6 +29,16 @@ class Counter(Counter):
 		def __mul__(self, other):
 			return type(self)({k: v*other for k,v in self.items()})
 
+	try:
+		Counter() - {"spam"} # Also not supported anywhere.
+	except TypeError:
+		# Exclude specific elements from a counter. Roughly equivalent to
+		# self & ~Counter(spam=1) or something like that.
+		def __sub__(self, other):
+			if isinstance(other, set):
+				return type(self)({k:v for k,v in self.items() if k not in other})
+			return super().__sub__(other)
+
 def auto_producer(*items):
 	# If anything is called on as a resource without being generated,
 	# describe it as a fundamental need.
@@ -49,6 +59,12 @@ def auto_producer(*items):
 # that a Supercomputer requires X Crude and Y Bauxite with a gigantic
 # matrix of different Xs and Ys.
 # auto_producer("Circuit_Board")
+
+# If certain items are extremely cheap to obtain (eg if you're in a
+# water-rich area), declare that recipes can be strictly better even
+# though they require more of that resource.
+# cheap_resources = set()
+cheap_resources = {"Water"}
 
 class Building:
 	resource = None
@@ -102,10 +118,10 @@ class Building:
 				recipes.append((recip, 1))
 				for item, qty in net.items():
 					ratio = Fraction(60, qty)
-					scaled_costs = costs * ratio # Cost to produce 60/min of this product
+					scaled_costs = costs * ratio - cheap_resources # Cost to produce 60/min of this product
 					for alternate in producers[item]:
 						if not alternate["recipes"]: break # Anything directly obtained should always be so.
-						alt_costs = alternate["costs"]
+						alt_costs = alternate["costs"] - cheap_resources
 						if scaled_costs >= alt_costs:
 							# Strictly worse. Skip it. Note that a recipe may be
 							# strictly worse for one product while being viable
@@ -270,9 +286,54 @@ class Turbo_Blend_Fuel(Blender):
 	time: 8
 	Turbofuel: 6
 
+class Circuit_Board(Assembler):
+	Copper_Sheet: 2
+	Plastic: 4
+	time: 8
+	Circuit_Board: 1
+
+class Electrode_Circuit_Board(Assembler):
+	Rubber: 6
+	Coke: 9
+	time: 12
+	Circuit_Board: 1
+
+class Silicon_Circuit_Board(Assembler):
+	Copper_Sheet: 11
+	Silica: 11
+	time: 24
+	Circuit_Board: 5
+
+class Caterium_Circuit_Board(Assembler):
+	Plastic: 10
+	Quickwire: 30
+	time: 48
+	Circuit_Board: 7
+
+class Computer(Manufacturer):
+	Circuit_Board: 10
+	Cable: 9
+	Plastic: 18
+	Screw: 52
+	time: 24
+	Computer: 1
+
+class Crystal_Computer(Assembler):
+	Circuit_Board: 8
+	Crystal_Oscillator: 3
+	time: 64
+	Computer: 3
+
+class Caterium_Computer(Manufacturer):
+	Circuit_Board: 7
+	Quickwire: 28
+	Rubber: 12
+	time: 16
+	Computer: 1
+
 # Petroleum products are sufficiently complicated that it's worth calculating
 # them first, and then treating them as fundamentals for everything else.
-auto_producer("Plastic", "Rubber", "Coke", "Fuel")
+auto_producer("Plastic", "Rubber", "Coke", "Fuel", "Circuit_Board", "Computer")
 
 class Silica(Constructor):
 	Quartz: 3
