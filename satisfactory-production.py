@@ -140,7 +140,7 @@ class Building:
 						producers[item].append({
 							"makes": net * ratio,
 							"recipes": [(r, q * ratio) for r,q in recipes],
-							"costs": scaled_costs,
+							"costs": costs * ratio,
 						})
 					producers[item] = [p for p in producers[item] if "deprecated" not in p]
 		bldg.__init_subclass__ = classmethod(make_recipe)
