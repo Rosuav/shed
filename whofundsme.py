@@ -5,7 +5,7 @@ import textwrap
 import requests
 
 POLL_INTERVAL = 60 # seconds
-URL = "https://www.gofundme.com/f/MarvinStream" # TODO: Parameterize
+URL = "https://www.gofundme.com/f/marvincharitystream2021" # TODO: Parameterize
 
 seen = {}
 
@@ -18,7 +18,7 @@ def ping():
 	text = r.text.split("window.initialState = ", 1)[1]
 	text = text.replace("&#039;", "'") # TODO: Decode properly
 	info = json.JSONDecoder().raw_decode(text)[0]
-	campaign = info["feed"]["campaign"][0]
+	campaign = info["feed"]["campaign"]
 	currency = campaign["currencycode"]
 	total = "%d %s" % (campaign["current_amount"], currency)
 	if "" not in seen:
@@ -33,7 +33,7 @@ def ping():
 			continue
 		seen[id] = time.time()
 		print("%s donated %d %s" % (dono["name"], dono["amount"], currency))
-		if dono["comment"]:
+		if dono.get("comment"):
 			# TODO: Wrap to within the display width if available
 			print(textwrap.fill(dono["comment"], initial_indent="-- ", subsequent_indent="-- "))
 
