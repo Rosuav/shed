@@ -847,7 +847,7 @@ class Infused_Uranium_Cell(Manufacturer):
 
 class Uranium_Fuel_Rod(Manufacturer):
 	Encased_Uranium_Cell: 50
-	Encased_Beam: 3
+	Encased_Industrial_Beam: 3
 	Control_Rod: 5
 	time: 150
 	Nuclear_Fuel_Rod: 1
