@@ -273,6 +273,59 @@ class Compacted_Steel_Ingot(Foundry):
 	Steel_Ingot: 10
 # Coke Steel Ingot is down below with petroleum
 
+class Iron_Rod(Constructor):
+	Iron_Ingot: 1
+	time: 4
+	Iron_Rod: 1
+
+class Steel_Beam(Constructor):
+	Steel_Ingot: 4
+	time: 4
+	Steel_Beam: 1
+
+class Steel_Pipe(Constructor):
+	Steel_Ingot: 3
+	time: 6
+	Steel_Pipe: 2
+
+class Steel_Rod(Constructor):
+	Steel_Ingot: 1
+	time: 4
+	Iron_Rod: 4
+
+class Screw(Constructor):
+	Iron_Rod: 1
+	time: 6
+	Screw: 4
+
+class Cast_Screw(Constructor):
+	Iron_Ingot: 5
+	time: 24
+	Screw: 20
+
+class Steel_Screw(Constructor):
+	Steel_Beam: 1
+	time: 12
+	Screw: 52
+
+class Iron_Plate(Constructor):
+	Iron_Ingot: 3
+	time: 6
+	Iron_Plate: 2
+# Other recipes might need to be added
+
+class Reinforced_Iron_Plate(Assembler):
+	Iron_Plate: 6
+	Screw: 12
+	time: 12
+	Reinforced_Iron_Plate: 5
+
+class Stitched_Iron_Plate(Assembler):
+	Iron_Plate: 10
+	Wire: 20
+	time: 32
+	Reinforced_Iron_Plate: 3
+
 # Basic crude refinement
 class Plastic(Refinery):
 	Crude: 3
