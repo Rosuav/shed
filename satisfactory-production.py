@@ -911,6 +911,15 @@ class Plutonium_Fuel_Unit(Assembler):
 	time: 120
 	Plutonium_Fuel_Rod: 1
 
+# Scan for recipes that are probably slowing things down.
+# Recommendation: Look through the ingredients and see if there are recipes
+# that involve the same sub-ingredient. For instance, Fused Frames will
+# always require Heavy Frames, so marking Heavies as fundamental simplifies
+# all recipes involving Fused Frames. The exact choice of which items should
+# be fundamental depends somewhat on factory design, and is art not science.
+for item, recipes in producers.items():
+	if len(recipes) > 50:
+		print("WARNING: %s has %d recipes" % (item, len(recipes)))
 
 if __name__ == "__main__":
 	import sys
