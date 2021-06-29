@@ -259,6 +259,36 @@ class Pure_Caterium_Ingot(Refinery):
 	time: 5
 	Copper_Ingot: 1
 
+class Silica(Constructor):
+	Raw_Quartz: 3
+	time: 8
+	Silica: 5
+
+class Cheap_Silica(Assembler):
+	Raw_Quartz: 3
+	Limestone: 5
+	time: 16
+	Silica: 7
+# Note that Alumina Solution is technically a way of getting silica. But it isn't, really.
+
+class Concrete(Constructor):
+	Limestone: 3
+	time: 4
+	Concrete: 1
+
+class Wet_Concrete(Refinery):
+	Limestone: 6
+	Water: 5
+	time: 3
+	Concrete: 4
+
+class Fine_Concrete(Assembler):
+	Silica: 3
+	Limestone: 12
+	time: 24
+	Concrete: 10
+# Rubber Concrete is down with petroleum
+
 # Steel production
 class Compacted_Coal(Assembler):
 	Coal: 5
@@ -459,6 +489,12 @@ class Recycled_Rubber(Refinery):
 	time: 12
 	Rubber: 12
 
+class Rubber_Concrete(Unavailable):
+	Limestone: 10
+	Rubber: 2
+	time: 12
+	Concrete: 9
+
 # Frames
 class Adhered_Iron_Plate(Assembler):
 	Iron_Plate: 3
@@ -484,6 +520,42 @@ class Steeled_Frame(Assembler):
 	time: 60
 	Modular_Frame: 3
 
+# Heavy Frames
+class Encased_Industrial_Beam(Assembler):
+	Steel_Beam: 4
+	Concrete: 5
+	time: 10
+	Encased_Industrial_Beam: 1
+
+class Encased_Industrial_Pipe(Assembler):
+	Steel_Pipe: 7
+	Concrete: 5
+	time: 15
+	Encased_Industrial_Beam: 1
+
+class Heavy_Modular_Frame(Manufacturer):
+	Modular_Frame: 5
+	Steel_Pipe: 15
+	Encased_Industrial_Beam: 5
+	Screw: 100
+	time: 30
+	Heavy_Modular_Frame: 1
+
+class Heavy_Flexible_Frame(Manufacturer):
+	Modular_Frame: 5
+	Encased_Industrial_Beam: 3
+	Rubber: 20
+	Screw: 104
+	time: 16
+	Heavy_Modular_Frame: 1
+
+class Heavy_Encased_Frame(Manufacturer):
+	Modular_Frame: 8
+	Encased_Industrial_Beam: 10
+	Steel_Pipe: 36
+	Concrete: 22
+	time: 64
+	Heavy_Modular_Frame: 3
 
 # Making Turbofuel
 class Turbofuel(Refinery):
@@ -554,11 +626,6 @@ class Caterium_Computer(Manufacturer):
 # Petroleum products are sufficiently complicated that it's worth calculating
 # them first, and then treating them as fundamentals for everything else.
 auto_producer("Plastic", "Rubber", "Petroleum_Coke", "Fuel", "Circuit_Board", "Computer")
-
-class Silica(Constructor):
-	Quartz: 3
-	time: 8
-	Silica: 5
 
 class Alumina_Solution(Refinery):
 	Bauxite: 12
@@ -717,6 +784,7 @@ class Supercomputer(Manufacturer): # TODO: Verify that the recipe hasn't changed
 	time: 32
 	Supercomputer: 1
 
+auto_producer("Cooling_System", "Heavy_Modular_Frame", "Radio_Control_Unit")
 class OC_Supercomputer(Assembler):
 	Radio_Control_Unit: 3
 	Cooling_System: 3
@@ -739,14 +807,14 @@ class Nitric_Acid(Blender):
 	Nitric_Acid: 3
 
 class Fused_Modular_Frame(Blender):
-	Heavy_Frame: 1
+	Heavy_Modular_Frame: 1
 	Alum_Casing: 50
 	Nitrogen: 25
 	time: 40
 	Fused_Frame: 1
 
 class Heat_Fused_Frame(Blender):
-	Heavy_Frame: 1
+	Heavy_Modular_Frame: 1
 	Alum_Ingot: 50
 	Nitric_Acid: 8
 	Fuel: 10
