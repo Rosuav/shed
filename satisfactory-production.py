@@ -159,7 +159,7 @@ class Manufacturer(Building): ...
 class Particle_Accelerator(Building): ...
 class Smelter(Building): ...
 class Foundry(Building): ...
-class OmniRefinery(Building): ... # With the Space Block mod
+class Omni_Refinery(Building): ... # With the Space Block mod
 
 # class Recipe_Name(BuildingThatMakesIt):
 #   Ingredient1: Qty
@@ -172,46 +172,89 @@ class OmniRefinery(Building): ... # With the Space Block mod
 
 # Omni material production of basic ores. Not part of the vanilla game, and will be
 # ignored if OmniRefinery is marked as "Unavailable" above.
-class Iron_Ore(OmniRefinery):
+class Iron_Ore(Omni_Refinery):
 	Omni_Refined: 10
 	time: 2
 	Iron_Ore: 10
 
-class Limestone(OmniRefinery):
+class Limestone(Omni_Refinery):
 	Omni_Refined: 10
 	time: 2
 	Limestone: 10
 
-class Copper_Ore(OmniRefinery):
+class Copper_Ore(Omni_Refinery):
 	Omni_Refined: 20
 	time: 2
 	Copper_Ore: 10
 
-class Coal(OmniRefinery):
+class Coal(Omni_Refinery):
 	Omni_Refined: 20
 	time: 2
 	Coal: 10
 
-class Water(OmniRefinery):
+class Water(Omni_Refinery):
 	Omni_Refined: 30
 	time: 2
-	Coal: 10
+	Water: 10
 
-class Caterium_Ore(OmniRefinery):
+class Caterium_Ore(Omni_Refinery):
 	Omni_Refined: 60
 	time: 2
 	Caterium_Ore: 10
 
-class Raw_Quartz(OmniRefinery):
+class Raw_Quartz(Omni_Refinery):
 	Omni_Refined: 60
 	time: 2
 	Raw_Quartz: 10
 
-class Sulfur(OmniRefinery):
+class Sulfur(Omni_Refinery):
 	Omni_Refined: 90
 	time: 2
 	Sulfur: 10
 
+# Ingots
+class Iron_Ingot(Smelter):
+	Iron_Ore: 1
+	time: 2
+	Iron_Ingot: 1
+
+class Pure_Iron_Ingot(Refinery):
+	Iron_Ore: 7
+	Water: 4
+	time: 12
+	Iron_Ingot: 13
+
+class Iron_Alloy_Ingot(Foundry):
+	Iron_Ore: 2
+	Copper_Ore: 2
+	time: 6
+	Iron_Ingot: 5
+
+# Steel production
+class Compacted_Coal(Assembler):
+	Coal: 5
+	Sulfur: 5
+	time: 12
+	Compacted_Coal: 5
+
+class Steel_Ingot(Foundry):
+	Iron_Ore: 3
+	Coal: 3
+	time: 4
+	Steel_Ingot: 3
+
+class Solid_Steel_Ingot(Foundry):
+	Iron_Ingot: 2
+	Coal: 2
+	time: 3
+	Steel_Ingot: 3
+
+class Compacted_Steel_Ingot(Foundry):
+	Iron_Ore: 6
+	Compacted_Coal: 3
+	time: 16
+	Steel_Ingot: 10
+# Coke Steel Ingot is down below with petroleum
 
 # Basic crude refinement
 class Plastic(Refinery):
@@ -280,7 +323,13 @@ class Unpackage_Fuel(Packager):
 class Petroleum_Coke(Refinery):
 	Residue: 4
 	time: 6
-	Coke: 12
+	Petroleum_Coke: 12
+
+class Compacted_Steel_Ingot(Foundry):
+	Iron_Ore: 15
+	Petroleum_Coke: 15
+	time: 12
+	Steel_Ingot: 20
 
 class Residual_Plastic(Refinery):
 	Resin: 6
@@ -306,22 +355,16 @@ class Recycled_Rubber(Refinery):
 	time: 12
 	Rubber: 12
 
-class Compacted(Assembler):
-	Coal: 5
-	Sulfur: 5
-	time: 12
-	Compacted: 5
-
 # Making Turbofuel
 class Turbofuel(Refinery):
 	Fuel: 6
-	Compacted: 4
+	Compacted_Coal: 4
 	time: 16
 	Turbofuel: 5
 
 class Turbo_Heavy_Fuel(Refinery):
 	Residue: 5
-	Compacted: 4
+	Compacted_Coal: 4
 	time: 8
 	Turbofuel: 4
 
@@ -329,7 +372,7 @@ class Turbo_Blend_Fuel(Blender):
 	Residue: 4
 	Fuel: 2
 	Sulfur: 3
-	Coke: 3
+	Petroleum_Coke: 3
 	time: 8
 	Turbofuel: 6
 
@@ -341,7 +384,7 @@ class Circuit_Board(Assembler):
 
 class Electrode_Circuit_Board(Assembler):
 	Rubber: 6
-	Coke: 9
+	Petroleum_Coke: 9
 	time: 12
 	Circuit_Board: 1
 
@@ -380,7 +423,7 @@ class Caterium_Computer(Manufacturer):
 
 # Petroleum products are sufficiently complicated that it's worth calculating
 # them first, and then treating them as fundamentals for everything else.
-auto_producer("Plastic", "Rubber", "Coke", "Fuel", "Circuit_Board", "Computer")
+auto_producer("Plastic", "Rubber", "Petroleum_Coke", "Fuel", "Circuit_Board", "Computer")
 
 class Silica(Constructor):
 	Quartz: 3
@@ -423,7 +466,7 @@ class Aluminum_Scrap(Refinery):
 
 class Electrode_Scrap(Refinery):
 	Alumina: 12
-	Coke: 4
+	Petroleum_Coke: 4
 	time: 4
 	Alum_Scrap: 20
 	Water: 7
