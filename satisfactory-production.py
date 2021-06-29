@@ -43,7 +43,7 @@ def auto_producer(*items):
 	# If anything is called on as a resource without being generated,
 	# describe it as a fundamental need.
 	for item in items:
-		# print("\x1b[1;32mAutoproducer:", item, "\x1b[0m")
+		# print("\x1b[1;32mAutoproducer: %s (%d sources)\x1b[0m" % (item, len(producers[item])))
 		producers[item] = [{
 			"makes": Counter({item: 60}),
 			"recipes": [],
