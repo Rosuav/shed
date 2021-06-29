@@ -357,6 +357,7 @@ class Stitched_Iron_Plate(Assembler):
 	Wire: 20
 	time: 32
 	Reinforced_Iron_Plate: 3
+# Adhered Iron Plate is below petroleum
 
 # Basic crude refinement
 class Plastic(Refinery):
@@ -456,6 +457,32 @@ class Recycled_Rubber(Refinery):
 	Plastic: 6
 	time: 12
 	Rubber: 12
+
+# Frames
+class Adhered_Iron_Plate(Assembler):
+	Iron_Plate: 3
+	Rubber: 1
+	time: 16
+	Reinforced_Iron_Plate: 1
+
+class Modular_Frame(Assembler):
+	Reinforced_Iron_Plate: 3
+	Iron_Rod: 12
+	time: 60
+	Modular_Frame: 2
+
+class Bolted_Frame(Assembler):
+	Reinforced_Iron_Plate: 3
+	Screw: 56
+	time: 24
+	Modular_Frame: 2
+
+class Steeled_Frame(Assembler):
+	Reinforced_Iron_Plate: 2
+	Steel_Pipe: 10
+	time: 60
+	Modular_Frame: 3
+
 
 # Making Turbofuel
 class Turbofuel(Refinery):
