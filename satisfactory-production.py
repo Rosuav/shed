@@ -672,7 +672,7 @@ class Steel_Rotor(Assembler):
 
 class Stator(Assembler):
 	Steel_Pipe: 3
-	Wire: 6
+	Wire: 8
 	time: 12
 	Stator: 1
 
