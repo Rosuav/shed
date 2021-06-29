@@ -377,6 +377,28 @@ class Fused_Wire(Assembler):
 	time: 20
 	Wire: 30
 
+class Quickwire(Constructor):
+	Caterium_Ingot: 1
+	time: 5
+	Quickwire: 5
+
+class Fused_Quickwire(Assembler):
+	Caterium_Ingot: 1
+	Copper_Ingot: 5
+	time: 8
+	Quickwire: 12
+
+class Copper_Sheet(Constructor):
+	Copper_Ingot: 2
+	time: 6
+	Copper_Sheet: 1
+
+class Steamed_Copper_Sheet(Refinery):
+	Copper_Ingot: 3
+	Water: 3
+	time: 8
+	Copper_Sheet: 3
+
 class Reinforced_Iron_Plate(Assembler):
 	Iron_Plate: 6
 	Screw: 12
@@ -628,6 +650,52 @@ class Heavy_Encased_Frame(Manufacturer):
 	time: 64
 	Heavy_Modular_Frame: 3
 
+
+# Motors
+class Rotor(Assembler):
+	Iron_Rod: 5
+	Screw: 25
+	time: 15
+	Rotor: 1
+
+class Copper_Rotor(Assembler):
+	Copper_Sheet: 6
+	Screw: 52
+	time: 16
+	Rotor: 3
+
+class Steel_Rotor(Assembler):
+	Steel_Pipe: 2
+	Wire: 6
+	time: 12
+	Rotor: 1
+
+class Stator(Assembler):
+	Steel_Pipe: 3
+	Wire: 6
+	time: 12
+	Stator: 1
+
+class Quickwire_Stator(Assembler):
+	Steel_Pipe: 4
+	Quickwire: 15
+	time: 15
+	Stator: 2
+
+class Motor(Assembler):
+	Rotor: 2
+	Stator: 2
+	time: 12
+	Motor: 1
+
+class Rigour_Motor(Manufacturer):
+	Rotor: 3
+	Stator: 3
+	Oscillator: 1
+	time: 48
+	Motor: 6
+
+# Aluminium
 class Alumina_Solution(Refinery):
 	Bauxite: 12
 	Water: 18
@@ -776,6 +844,12 @@ class Electromagnetic_Connection_Rod(Assembler):
 	HS_Connector: 1
 	time: 15
 	Control_Rod: 2
+
+class Electric_Motor(Assembler):
+	Control_Rod: 1
+	Rotor: 2
+	time: 16
+	Motor: 2
 
 class Supercomputer(Manufacturer): # TODO: Verify that the recipe hasn't changed in Experimental
 	Computer: 2
