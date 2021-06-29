@@ -63,8 +63,8 @@ def auto_producer(*items):
 # If certain items are extremely cheap to obtain (eg if you're in a
 # water-rich area), declare that recipes can be strictly better even
 # though they require more of that resource.
-# cheap_resources = set()
-cheap_resources = {"Water"}
+cheap_resources = set()
+# cheap_resources = {"Water"}
 
 class Building:
 	resource = None
@@ -146,6 +146,9 @@ class Building:
 		bldg.__init_subclass__ = classmethod(make_recipe)
 
 
+# Subclass this instead of Building to quickly disable all recipes requiring this building
+class Unavailable: pass
+
 # TODO: Record power costs for each of these
 class Refinery(Building): ...
 class Blender(Building): ...
@@ -156,6 +159,7 @@ class Manufacturer(Building): ...
 class Particle_Accelerator(Building): ...
 class Smelter(Building): ...
 class Foundry(Building): ...
+class OmniRefinery(Building): ... # With the Space Block mod
 
 # class Recipe_Name(BuildingThatMakesIt):
 #   Ingredient1: Qty
@@ -165,6 +169,49 @@ class Foundry(Building): ...
 #   Product2: Qty
 # If the same item is an ingredient and a product, suffix one with "_", eg with
 # the production of uranium pellets (Sulfuric_Acid: 8, ..., Sulfuric_Acid_: 2).
+
+# Omni material production of basic ores. Not part of the vanilla game, and will be
+# ignored if OmniRefinery is marked as "Unavailable" above.
+class Iron_Ore(OmniRefinery):
+	Omni_Refined: 10
+	time: 2
+	Iron_Ore: 10
+
+class Limestone(OmniRefinery):
+	Omni_Refined: 10
+	time: 2
+	Limestone: 10
+
+class Copper_Ore(OmniRefinery):
+	Omni_Refined: 20
+	time: 2
+	Copper_Ore: 10
+
+class Coal(OmniRefinery):
+	Omni_Refined: 20
+	time: 2
+	Coal: 10
+
+class Water(OmniRefinery):
+	Omni_Refined: 30
+	time: 2
+	Coal: 10
+
+class Caterium_Ore(OmniRefinery):
+	Omni_Refined: 60
+	time: 2
+	Caterium_Ore: 10
+
+class Raw_Quartz(OmniRefinery):
+	Omni_Refined: 60
+	time: 2
+	Raw_Quartz: 10
+
+class Sulfur(OmniRefinery):
+	Omni_Refined: 90
+	time: 2
+	Sulfur: 10
+
 
 # Basic crude refinement
 class Plastic(Refinery):
