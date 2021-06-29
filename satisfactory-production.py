@@ -147,6 +147,7 @@ class Building:
 
 
 # Subclass this instead of Building to quickly disable all recipes requiring this building
+# Similarly, subclass this instead of the actual building to quickly disable one recipe
 class Unavailable: pass
 
 # TODO: Record power costs for each of these
