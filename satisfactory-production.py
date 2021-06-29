@@ -489,74 +489,6 @@ class Recycled_Rubber(Refinery):
 	time: 12
 	Rubber: 12
 
-class Rubber_Concrete(Unavailable):
-	Limestone: 10
-	Rubber: 2
-	time: 12
-	Concrete: 9
-
-# Frames
-class Adhered_Iron_Plate(Assembler):
-	Iron_Plate: 3
-	Rubber: 1
-	time: 16
-	Reinforced_Iron_Plate: 1
-
-class Modular_Frame(Assembler):
-	Reinforced_Iron_Plate: 3
-	Iron_Rod: 12
-	time: 60
-	Modular_Frame: 2
-
-class Bolted_Frame(Assembler):
-	Reinforced_Iron_Plate: 3
-	Screw: 56
-	time: 24
-	Modular_Frame: 2
-
-class Steeled_Frame(Assembler):
-	Reinforced_Iron_Plate: 2
-	Steel_Pipe: 10
-	time: 60
-	Modular_Frame: 3
-
-# Heavy Frames
-class Encased_Industrial_Beam(Assembler):
-	Steel_Beam: 4
-	Concrete: 5
-	time: 10
-	Encased_Industrial_Beam: 1
-
-class Encased_Industrial_Pipe(Assembler):
-	Steel_Pipe: 7
-	Concrete: 5
-	time: 15
-	Encased_Industrial_Beam: 1
-
-class Heavy_Modular_Frame(Manufacturer):
-	Modular_Frame: 5
-	Steel_Pipe: 15
-	Encased_Industrial_Beam: 5
-	Screw: 100
-	time: 30
-	Heavy_Modular_Frame: 1
-
-class Heavy_Flexible_Frame(Manufacturer):
-	Modular_Frame: 5
-	Encased_Industrial_Beam: 3
-	Rubber: 20
-	Screw: 104
-	time: 16
-	Heavy_Modular_Frame: 1
-
-class Heavy_Encased_Frame(Manufacturer):
-	Modular_Frame: 8
-	Encased_Industrial_Beam: 10
-	Steel_Pipe: 36
-	Concrete: 22
-	time: 64
-	Heavy_Modular_Frame: 3
-
 # Making Turbofuel
 class Turbofuel(Refinery):
 	Fuel: 6
@@ -626,6 +558,75 @@ class Caterium_Computer(Manufacturer):
 # Petroleum products are sufficiently complicated that it's worth calculating
 # them first, and then treating them as fundamentals for everything else.
 auto_producer("Plastic", "Rubber", "Petroleum_Coke", "Fuel", "Circuit_Board", "Computer")
+
+class Rubber_Concrete(Unavailable):
+	Limestone: 10
+	Rubber: 2
+	time: 12
+	Concrete: 9
+auto_producer("Concrete")
+
+# Frames
+class Adhered_Iron_Plate(Assembler):
+	Iron_Plate: 3
+	Rubber: 1
+	time: 16
+	Reinforced_Iron_Plate: 1
+
+class Modular_Frame(Assembler):
+	Reinforced_Iron_Plate: 3
+	Iron_Rod: 12
+	time: 60
+	Modular_Frame: 2
+
+class Bolted_Frame(Assembler):
+	Reinforced_Iron_Plate: 3
+	Screw: 56
+	time: 24
+	Modular_Frame: 2
+
+class Steeled_Frame(Assembler):
+	Reinforced_Iron_Plate: 2
+	Steel_Pipe: 10
+	time: 60
+	Modular_Frame: 3
+
+# Heavy Frames
+class Encased_Industrial_Beam(Assembler):
+	Steel_Beam: 4
+	Concrete: 5
+	time: 10
+	Encased_Industrial_Beam: 1
+
+class Encased_Industrial_Pipe(Assembler):
+	Steel_Pipe: 7
+	Concrete: 5
+	time: 15
+	Encased_Industrial_Beam: 1
+
+class Heavy_Modular_Frame(Manufacturer):
+	Modular_Frame: 5
+	Steel_Pipe: 15
+	Encased_Industrial_Beam: 5
+	Screw: 100
+	time: 30
+	Heavy_Modular_Frame: 1
+
+class Heavy_Flexible_Frame(Manufacturer):
+	Modular_Frame: 5
+	Encased_Industrial_Beam: 3
+	Rubber: 20
+	Screw: 104
+	time: 16
+	Heavy_Modular_Frame: 1
+
+class Heavy_Encased_Frame(Manufacturer):
+	Modular_Frame: 8
+	Encased_Industrial_Beam: 10
+	Steel_Pipe: 36
+	Concrete: 22
+	time: 64
+	Heavy_Modular_Frame: 3
 
 class Alumina_Solution(Refinery):
 	Bauxite: 12
