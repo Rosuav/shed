@@ -230,6 +230,23 @@ class Iron_Alloy_Ingot(Foundry):
 	time: 6
 	Iron_Ingot: 5
 
+class Copper_Ingot(Smelter):
+	Copper_Ore: 1
+	time: 2
+	Copper_Ingot: 1
+
+class Pure_Copper_Ingot(Refinery):
+	Copper_Ore: 6
+	Water: 4
+	time: 24
+	Copper_Ingot: 15
+
+class Copper_Alloy_Ingot(Foundry):
+	Copper_Ore: 10
+	Iron_Ore: 5
+	time: 12
+	Copper_Ingot: 20
+
 # Steel production
 class Compacted_Coal(Assembler):
 	Coal: 5
