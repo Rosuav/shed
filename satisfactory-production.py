@@ -247,6 +247,17 @@ class Copper_Alloy_Ingot(Foundry):
 	time: 12
 	Copper_Ingot: 20
 
+class Caterium_Ingot(Smelter):
+	Caterium_Ore: 3
+	time: 4
+	Caterium_Ingot: 1
+
+class Pure_Caterium_Ingot(Refinery):
+	Caterium_Ore: 2
+	Water: 2
+	time: 5
+	Copper_Ingot: 1
+
 # Steel production
 class Compacted_Coal(Assembler):
 	Coal: 5
@@ -314,11 +325,32 @@ class Iron_Plate(Constructor):
 	Iron_Plate: 2
 # Other recipes might need to be added
 
+class Wire(Constructor):
+	Copper_Ingot: 1
+	time: 4
+	Wire: 2
+
+class Iron_Wire(Constructor):
+	Iron_Ingot: 5
+	time: 24
+	Wire: 9
+
+class Caterium_Wire(Constructor):
+	Caterium_Ingot: 1
+	time: 4
+	Wire: 8
+
+class Fused_Wire(Assembler):
+	Copper_Ingot: 4
+	Caterium_Ingot: 1
+	time: 20
+	Wire: 30
+
 class Reinforced_Iron_Plate(Assembler):
 	Iron_Plate: 6
 	Screw: 12
 	time: 12
-	Reinforced_Iron_Plate: 5
+	Reinforced_Iron_Plate: 1
 
 class Stitched_Iron_Plate(Assembler):
 	Iron_Plate: 10
