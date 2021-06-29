@@ -1054,6 +1054,37 @@ class Plutonium_Fuel_Unit(Assembler):
 	time: 120
 	Plutonium_Fuel_Rod: 1
 
+# POC: Power calculation
+# 1 MJ of fuel will provide 1 MW of power for 1 second. Therefore 60 MJ/min
+# of production will provide 1 MW of sustainable power. Note that overclocking
+# doesn't behave linearly with power producers, so when the analysis says 200%,
+# that can be provided by two producers at 100%, or one at about 250%.
+class Alien_Organs(Omni_Refinery):
+	Omni_Organic: 200
+	time: 8
+	Alien_Organs: 1
+
+class Organ_Biomass(Constructor):
+	Alien_Organs: 1
+	time: 8
+	Biomass: 200
+
+class Solid_Biofuel(Constructor):
+	Biomass: 8
+	time: 4
+	Solid_Biofuel: 4
+
+class Power(Building): ...
+class Burn_Solid_Biofuel(Power):
+	Solid_Biofuel: 1
+	time: 1
+	MJ: 450
+
+class MW(Power):
+	MJ: 6000
+	time: 60
+	MW: 100
+
 # Scan for recipes that are probably slowing things down.
 # Recommendation: Look through the ingredients and see if there are recipes
 # that involve the same sub-ingredient. For instance, Fused Frames will
