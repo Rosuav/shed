@@ -213,6 +213,11 @@ class Sulfur(Omni_Refinery):
 	time: 2
 	Sulfur: 10
 
+class Crude_Oil(Omni_Refinery):
+	Omni_Refined: 250
+	time: 6
+	Crude_Oil: 10
+
 # Ingots
 class Iron_Ingot(Smelter):
 	Iron_Ore: 1
@@ -414,31 +419,31 @@ class Stitched_Iron_Plate(Assembler):
 
 # Basic crude refinement
 class Plastic(Refinery):
-	Crude: 3
+	Crude_Oil: 3
 	time: 6
 	Residue: 1
 	Plastic: 2
 
 class Rubber(Refinery):
-	Crude: 3
+	Crude_Oil: 3
 	time: 6
 	Residue: 2
 	Rubber: 2
 
 class Fuel(Refinery):
-	Crude: 6
+	Crude_Oil: 6
 	time: 6
 	Fuel: 4
 	Resin: 3
 
 class Heavy_Oil_Residue(Refinery):
-	Crude: 3
+	Crude_Oil: 3
 	time: 6
 	Residue: 4
 	Resin: 2
 
 class Polymer_Resin(Refinery):
-	Crude: 6
+	Crude_Oil: 6
 	time: 6
 	Residue: 2
 	Resin: 13
