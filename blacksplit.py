@@ -176,9 +176,9 @@ def black_split(script, *, append=False, createonly=False):
 					print("Creating:", output)
 					skipstart = int(args.get("trimstart", 0))
 					skipend = skipstart + int(args.get("trimend", 0)) # Since humans want to think about trims, not lengths
-					subprocess.run([
-						"ffmpeg", "-i", inputfile,
+					subprocess.run(["ffmpeg",
 						"-ss", str(last_end + skipstart),
+						"-i", inputfile,
 						"-t", str(start - last_end - skipend),
 						"-c", "copy", output,
 						"-y", "-loglevel", "quiet", "-stats",
