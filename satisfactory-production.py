@@ -218,6 +218,11 @@ class Crude_Oil(Omni_Refinery):
 	time: 6
 	Crude_Oil: 10
 
+class Bauxite(Omni_Refinery):
+	Omni_Refined: 80
+	time: 2
+	Bauxite: 10
+
 # Ingots
 class Iron_Ingot(Smelter):
 	Iron_Ore: 1
@@ -262,7 +267,7 @@ class Pure_Caterium_Ingot(Refinery):
 	Caterium_Ore: 2
 	Water: 2
 	time: 5
-	Copper_Ingot: 1
+	Caterium_Ingot: 1
 
 class Silica(Constructor):
 	Raw_Quartz: 3
