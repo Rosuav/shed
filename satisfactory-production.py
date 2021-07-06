@@ -89,7 +89,7 @@ class Building:
 					if not producers[item]:
 						# raise Exception("Don't know how to obtain %s for %s" % (item, recip.__name__))
 						auto_producer(item)
-					needs.append(producers[item])
+					needs.append([p for p in producers[item] if not p.get("deprecated")])
 					needqty.append(qty)
 					makes[item] -= qty
 				else:
@@ -119,6 +119,7 @@ class Building:
 				for item, qty in net.items():
 					ratio = Fraction(60, qty)
 					scaled_costs = costs * ratio - cheap_resources # Cost to produce 60/min of this product
+					worse = False
 					for alternate in producers[item]:
 						if not alternate["recipes"]: break # Anything directly obtained should always be so.
 						alt_costs = alternate["costs"] - cheap_resources
@@ -129,6 +130,7 @@ class Building:
 							# such as run-off water from aluminium production -
 							# you wouldn't want to obtain water that way, even
 							# though technically you could.
+							worse = True
 							break
 						if scaled_costs < alt_costs:
 							# Strictly better. Remove the other one (after the loop).
@@ -136,13 +138,12 @@ class Building:
 							# one recipe AND strictly worse than another, so we can
 							# assume that we'll never break after hitting this.
 							alternate["deprecated"] = 1
-					else:
-						producers[item].append({
-							"makes": net * ratio,
-							"recipes": [(r, q * ratio) for r,q in recipes],
-							"costs": costs * ratio,
-						})
-					producers[item] = [p for p in producers[item] if "deprecated" not in p]
+					producers[item].append({
+						"makes": net * ratio,
+						"recipes": [(r, q * ratio) for r,q in recipes],
+						"costs": costs * ratio,
+						"deprecated": worse,
+					})
 		bldg.__init_subclass__ = classmethod(make_recipe)
 
 
@@ -1125,6 +1126,7 @@ if __name__ == "__main__":
 			# but we want the actual sources.
 			p = p[0]["sources"]
 		for recipe in p:
+			if recipe.get("deprecated"): print("\x1b[2m** Strictly worse **")
 			for input, qty in recipe["costs"].most_common():
 				if isinstance(input, str):
 					print("Requires %s at %s/min" % (input, num(qty * goal)))
@@ -1137,5 +1139,4 @@ if __name__ == "__main__":
 					step.building.__name__.replace("_", " "),
 					qty * ratio * 100.0,
 				))
-			print()
-
+			print("\x1b[0m")
