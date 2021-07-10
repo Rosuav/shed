@@ -210,6 +210,13 @@ def crossproduct(savefile, baseid):
 	pieces = [None] * len(partnames)
 	while checkme:
 		print(checkme)
+		if "parts" not in allbal[checkme] and "type" in allbal[checkme]:
+			# Some items don't have their parts in their balance definition, but they have
+			# a type definition that has them instead.
+			typeinfo = get_asset(cls + " Types")[allbal[checkme]["type"]]
+			pieces = [p or typeinfo.get(part + "_parts") for p, part in zip(pieces, partnames)]
+			# Is it possible to have a base but no parts?
+			break
 		parts = allbal[checkme]["parts"]
 		pieces = [p or parts.get(part) for p, part in zip(pieces, partnames)]
 		checkme = allbal[checkme].get("base")
