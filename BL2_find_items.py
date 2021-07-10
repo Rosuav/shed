@@ -188,13 +188,8 @@ def give(savefile, definitions):
 		else: savefile.packed_item_data.append(PackedItemData(serial=serial, quantity=1, equipped=0, mark=1))
 		print("Giving", obj)
 
-@synthesizer
-def crossproduct(savefile, baseid):
-	baseid, *lockdown = baseid.split(",")
-	obj = Asset.decode_asset_library(unarmor_serial(baseid))
+def get_piece_options(obj):
 	cls = "Weapon" if obj.is_weapon else "Item"
-	print()
-	print("Basis:", obj)
 	allbal = get_asset(cls + " Balance")
 	for cat in obj.categories:
 		try:
@@ -206,23 +201,30 @@ def crossproduct(savefile, baseid):
 	# Build up a full list of available parts
 	# Assumes that the "mode" is always "Selective" as I don't know how "Additive works exactly
 	checkme = cat + "." + obj.balance
-	partnames = ("body grip barrel sight stock elemental accessory1 accessory2" if obj.is_weapon else "alpha beta gamma delta epsilon zeta eta theta").split()
-	pieces = [None] * len(partnames)
+	pieces = [None] * len(obj.partnames)
 	while checkme:
 		print(checkme)
 		if "parts" not in allbal[checkme] and "type" in allbal[checkme]:
 			# Some items don't have their parts in their balance definition, but they have
 			# a type definition that has them instead.
 			typeinfo = get_asset(cls + " Types")[allbal[checkme]["type"]]
-			pieces = [p or typeinfo.get(part + "_parts") for p, part in zip(pieces, partnames)]
+			pieces = [p or typeinfo.get(part + "_parts") for p, part in zip(pieces, obj.partnames)]
 			# Is it possible to have a base but no parts?
 			break
 		parts = allbal[checkme]["parts"]
-		pieces = [p or parts.get(part) for p, part in zip(pieces, partnames)]
+		pieces = [p or parts.get(part) for p, part in zip(pieces, obj.partnames)]
 		checkme = allbal[checkme].get("base")
-	pieces = [p1 or [p2] for p1, p2 in zip(pieces, obj.pieces)] # Any still unfound, just leave the current piece (or None) in them
+	return [p1 or [p2] for p1, p2 in zip(pieces, obj.pieces)] # Any still unfound, just leave the current piece (or None) in them
+
+@synthesizer
+def crossproduct(savefile, baseid):
+	baseid, *lockdown = baseid.split(",")
+	obj = Asset.decode_asset_library(unarmor_serial(baseid))
+	print()
+	print("Basis:", obj)
+	pieces = get_piece_options(obj)
 	for fixed in lockdown:
-		if fixed.startswith("-") and fixed[1:] in partnames:
+		if fixed.startswith("-") and fixed[1:] in obj.partnames:
 			# Specify "-delta" to have nothing in slot delta
 			pieces[partnames.index(fixed[1:])][:] = [None]
 			continue
@@ -234,7 +236,7 @@ def crossproduct(savefile, baseid):
 			print("Couldn't find %r to lock down" % fixed)
 	# Show the available options and which one is in the basis object
 	total = 1
-	for i, (n, opts) in enumerate(zip(partnames, pieces)):
+	for i, (n, opts) in enumerate(zip(obj.partnames, pieces)):
 		for p in opts:
 			if p and obj.pieces[i] and p.endswith(obj.pieces[i]): p = "\x1b[1m%s\x1b[0m" % p
 			elif not obj.pieces[i] and p is None: p = "\x1b[1mNone\x1b[0m"
@@ -527,12 +529,15 @@ class Asset:
 	# is, as they seem to be equal (except when grade is 0 and stage is 1?).
 	grade: int
 	stage: int
-	# Weapons: body grip barrel sight stock elemental acc1 acc2
-	# Items: alpha beta gamma delta epsilon zeta eta theta
 	pieces: ["*Parts"] * 8
 	material: "*Parts"
 	pfx: "*Parts"
 	title: "*Parts"
+	# Provide the names corresponding to pieces[]
+	@property
+	def partnames(self):
+		if self.is_weapon: return "body grip barrel sight stock elemental accessory1 accessory2".split()
+		return "alpha beta gamma delta epsilon zeta eta theta".split()
 
 	@classmethod
 	def decode_asset_library(cls, data):
