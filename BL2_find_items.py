@@ -434,6 +434,7 @@ library = { # BL2 items
 # "igAAADJ+ogDSPtYAPme6Lrha4k4gJV28ni4JxtkBKztVdG/CaBC3": "E-GUN",
 # "igAAADJTvrb0UiFvxZeQDh2flMstKU25nq+M/9ABK7s0t6wk7z1J": "Large Spread",
 # "igAAADKWtzzyRg1HP2eeDS3YpcY0kga5WOiI/8QBK1OVj+1F6QRK": "Accessible Cheat Code",
+# "igAAADKWsDzyRghHP2eeDY3YpcY0vJe5WOiI/8QBK1OVn+1F6aRL": "All-In Cheat Code",
 # "igAAADLIr4D8PtYAwGh9LuhaQk4gIsK8nG4JxtcBK8dV/G7ya5BF": "The ZX-1",
 # "igAAADLIsgAA5dYAPmfmDU0dKME0nDO5no6I/9gBK6dUPG3S7sRI": "MINAC's Atonement",
 # "igAAADLIsgD7Pgq3P2eWLDBaQk8ggYK8nY4OxsUBK0NVNG3yYFBI": "Excalibastard",
@@ -444,6 +445,8 @@ library = { # BL2 items
 # "igAAADKIsoD8Pgu3zZeYDxVYAksgRBy5ne6K/9QBK0NVLG0SbFBI": "Catalyzing Lancer Railgun",
 # "igAAADLTvzbzUihvP2fOT8CYRMIhAVi8ng+KxtEBKxc0p6xU7fFK": "Sparkling Volt Thrower",
 # "igAAADIZsaLxeg0/P2fmzyicw8Mja3u8mKiKxNMBK0N1/q3z7VNK": "The Machine",
+# "igAAADKWsDz/RglH0ZfkDjXfBUsvXJu5XmiJ/9YBK7OUj+0VbP9L": "Deft Fox",
+# "igAAADIIsgD7Pgu35ZeYDz1fokggSRW5ne6K/9QBK0NVJG0ibHBI": "Niveous Zero Beam",
 
 # Requires access to the Gibbed data files.
 ASSET_PATH = "../GibbedBL2/Gibbed.Borderlands%s/projects/Gibbed.Borderlands%s.GameInfo/Resources/%s.json"
