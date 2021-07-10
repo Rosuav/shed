@@ -278,9 +278,9 @@ GAME = args.game
 # Library of item IDs. Everything here is seed=grade=stage=50 for consistency.
 # TODO: Have an easy way to pick and choose, and have them set to the player's level (and randomize the seed)
 # TODO: Check variants of each of these and pick out the best. The "# V" tag means I haven't checked variants.
-library = { # BL2 items
-	"*": {
-		# Weapons for anyone
+library = {
+	"borderlands 2": {
+		# Weapons
 		"hwAAADLKv4T3Nj+nwWj5D93eEsI037K1X4yK8cYDK8sWhOzS7cRJ": "Lucid Florentine",
 		"hwAAADIKvoT3NjynwWgFbZDeYkkhn4u8XMwIu9UDK6MWhOxyZrFJ": "Bulets Go Fasterifed Slagga", # Florentine and Slagga are both slag-em-up SMGs
 		"hwAAADKKvoT5NjunwWhxDgXdssM0KLK9XOwK+tQDK6MWrOwC7KRJ": "Bladed Tattler",
@@ -363,39 +363,33 @@ library = { # BL2 items
 		"hwAAADJClhQA5T7nwWjJbDHeAE4lcVO8n2IJxd8DK7MWlemgZtVJ": "Slippery KerBlaster",
 		"hwAAADJEr5j3DjPXwWhtLx1dAUA0ayS9XQOI+d4DK0vUlW4hb4RI": "fidle dee 12 Pounder",
 		"hwAAADIHS231AjTPwWg1zHGesdMnRfi8ncMOutMDK/+3xaix4jdJ": "Neutralizing Hornet",
-	},
-	"Mechromancer": {
+		# Mechromancer:
 		"hwAAADLLqAYA5dYAwGh9L3VcaEA0OkK9HIyI+dADK8s05K6Sb8RJ": "Captain Blade's Orphan Maker",
 		"BwAAADI+S20A5dYAwCjOToo8gAPythm2HQECKscQoWO1tGxQLAs": "Legendary Mechromancer",
 		"BwAAADI+S20A5dYAwOjJzogdgAPgyRm9HQcC6sYQoWO1tGxQLAs": "Slayer of Terramorphous",
 		"BwAAADI+S20ApS1fPXfwpIkegMfM1QqOBQSK/9coeJk": "Bone of the Ancients",
 		"BwAAADI+S20A5dYAwOjOjoI8gAM37hGpHAkK6sYQoWO1tGxQLAs": "Legendary Catalyst",
-	},
-	"Siren": {
+		# Siren:
 		"BwAAADI+S20A5dYAwOjJzogdgAM/+xudEXKr+cYQoWO1tGxQLAs": "Slayer Of Terramorphous Class Mod",
 		"BwAAADI+S20A5dYAwKjODoE8gAN1wBG8HAcK6sYQoWO1tGxQLAs": "Legendary Binder",
 		"BwAAADI+S20A5dYAwCjJjpkdgAMXxxubEXyr+cYQoWO1tGxQLAs": "Legendary Siren",
 		"BwAAADI+S20A5dYAwKjOzpsdgAPwuBuUEX6r+cYQIWO1tGxQLAs": "Chrono Binder", # Left tree focus
 		"BwAAADI+S20A5dYAwKjODpodgAMyehuUEX6r+cYQoWG1tGxQLAs": "Hell Binder", # Right tree focus
-	},
-	"Assassin": {
+		# Assassin:
 		"BwAAADI+S20A5dYAwOjJzogdgAOmFhufEZarmccQoWN1t2xQLAs": "Slayer Of Terramorphous",
 		"BwAAADI+S20A5dYAwGjJzogdgANW6BufEZarmccQoWP1t+xQLAs": "Slayer Of Terramorphous",
-	},
-	"Merc": {
+		# Merc:
 		"BwAAADI+S20A5dYAwKjOzogdgAM/jBueEYCr2ccQoWN1t6xQLAs": "Slayer Of Terramorphous",
 		"BwAAADI+S20A5dYAwKjOTqMdgANlvhugEYyrWccQoWG1tGxQLAs": "Lucky Hoarder",
 		"BwAAADI+S20A5dYAwKjOzoA8gAPF5RG0HA0KSscQoWO1tGxQLAs": "Legendary Hoarder", # Synthesized, unconfirmed.
 		"BwAAADI+S20A5dYAwCjJDoI8gAP3KRG7HA0KascQoWO1tGxQLAs": "Legendary Gunzerker",
 		"BwAAADI+S20AJSlfPXdifokcgMPMlQqOBQSK/RcqeJk": "Blood of the Ancients", # SMG and Launcher ammo - other options available
-	},
-	"Soldier": {
+		# Soldier:
 		"BwAAADI+S20A5dYAwOjJzqAdgAMAXhuVEYKr2ccQoWO1t6xQLAs": "Legendary Berserker Class Mod", # V
 		"BwAAADI+S20A5dYAwOjOzqAdgANdoxuVEYKr2ccQoWO1t6xRLAs": "Legendary Berserker Class Mod",
 		"BwAAADI+S20A5dYAwOjJzogdgAN14hu8EWyruccQoWO1tOxQLAs": "Slayer Of Terramorphous",
 		"BwAAADI+S20A5dYAwKjOTosdgAOj/Ru9EXSruccQIWB1tmxQLAs": "Diehard Veteran Class Mod",
-	},
-	"Psycho": {
+		# Psycho:
 		"BwAAADI+S20A5dYAwCjJDog8gANNZh22HAUK6sYQoWM1t+xQLAs": "Slayer of Terramorphous",
 		"BwAAADI+S20A5dYAwOjJDog8gAN2DR22HAUK6sYQoWO1t6xQLAs": "Slayer of Terramorphous",
 	},
@@ -1161,6 +1155,5 @@ if args.library:
 		obj.grade = obj.stage = obj.seed = 50
 		serial = obj.encode_asset_library()
 		id = base64.b64encode(serial).decode("ascii").strip("=")
-		for clsitems in library.values():
-			if id in clsitems: break
-		else: print('\t\t"%s": "%s",' % (id, obj.get_title()))
+		if id not in library[args.game]:
+			print('\t\t"%s": "%s",' % (id, obj.get_title()))
