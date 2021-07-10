@@ -401,18 +401,39 @@ library = {
 		"igAAADLIr4D8PtYAwGh9LuhaQk4gIsK8nG4JxtcBK8dV/G7ya5BF": "The ZX-1",
 		"igAAADIIsgAA5dYAPmfmDU0dKME0sGS5no6I/9gBK6dUJG3S7oRI": "MINAC's Atonement", # V
 		"igAAADLIsgAA5dYAPmfmDU0dKME0nDO5no6I/9gBK6dUPG3S7sRI": "MINAC's Atonement", # V
+		"igAAADJIsgAA5dYAPmfmDU0dKME07Ve5no6I/9gBK6dUPG3S7sRI": "MINAC's Atonement", # V
+		"igAAADLIsgD7Pgq3P2eWLDBaQk8ggYK8nY4OxsUBK0NVNG3yYFBI": "Excalibastard",
+		"igAAADIIsoD7PtYAPmfCDcUd+MA0q1K5nq6L/9gBK1dVNG0C72RI": "Thunderfire", # V
+		"igAAADJIsoD8Pgu3P2e2LsBYEk4gHLa8nc4KxtUBKxNVPG2yaLBI": "Lensed Mining Laser", # V
+		"igAAADKIsoD8Pgu3wZeYD+1YQksgXUy5ne6K/9QBK0NVJG0ybLBI": "Heated Subdivided Splitter", # V
+		"igAAADKIsoD8Pgu3zZeYDxVYAksgRBy5ne6K/9QBK0NVLG0SbFBI": "Catalyzing Lancer Railgun", # V
+		"igAAADIIsgD7Pgu35ZeYDz1fokggSRW5ne6K/9QBK0NVJG0ibHBI": "Niveous Zero Beam", # V
 		# SMGs
 		"igAAADKWt7z+RhhH6Zf0DQUYaMo0KWq5XAiN/9wBK8eUh+0FbN9L": "%Cu+ie^_^ki||er", # V
+		"igAAADKWt7z+RgtH6Zf0DQUYaMo0E5O5XAiN/9wBK8eUn+0FbB9K": "%Cu+ie^_^ki||er", # V
 		"igAAADLWsDzyRgpHP2eeDf3YpcY0Et25WOiI/8QBK1OVl+1F6eRL": "Incorporated Cheat Code", # V
 		"igAAADKWtzzyRg1HP2eeDS3YpcY0kga5WOiI/8QBK1OVj+1F6QRK": "Accessible Cheat Code", # V
 		"igAAADKWsDzyRghHP2eeDY3YpcY0vJe5WOiI/8QBK1OVn+1F6aRL": "All-In Cheat Code", # V
 		"igAAADKWsDz/RglH0ZfkDjXfBUsvXJu5XmiJ/9YBK7OUj+0VbP9L": "Deft Fox", # V
+		# Launchers
+		"igAAADJTvrb0UiFvxZeQDh2flMstKU25nq+M/9ABK7s0t6wk7z1J": "Large Spread", # V
+		"igAAADJTvrb0UitvwWitDz2e9MM0zHi+XxSL+9IBK2s1v6zU7ARJ": "Berrigan", # V
+		"igAAADLTv7b0Ui9vyZeQDs2fRMEtgma5nq+M/9ABK7s0p6wU7x1J": "Rocket Speed Launcher", # V
+		"igAAADLTvzbzUihvP2fOT8CYRMIhAVi8ng+KxtEBKxc0p6xU7fFK": "Sparkling Volt Thrower", # V
+		# Snipers
+		"igAAADIPtCIA5Qs/P2fSz7AftsMjt7i8nWiKxMcBK6t0vi0W7VNI": "Tl'kope Razorback", # V
+		"igAAADIZsaLxeg0/P2fmzyicw8Mja3u8mKiKxNMBK0N1/q3z7VNK": "The Machine", # V
+		"igAAADIZtCLweg8/15dYDm0flscoKae5n6iO/9QBK2N11i2G7XhK": "Auditing Sniper Rifle", # V
 		# Grenades
 		"CgAAADKHslTznCI5wCjTCaHagAGPLBu9DQRSO+cQoWZ3tKtRa/0": "Bonus Package",
+		"CgAAADKHslTz3NaAONHRCZ4agQFt1Bu+DQZS2+cQ4Wb3tatRK/A": "Quasar", # V
+		"CgAAADLHoFT53Dx5OFHXCZFagQExsRu8CABSG+cQIWY3vKtRa/0": "Explosive Kiss of Death", # V
 		# Shields
 		"CgAAADIjS20A5dYAwKjI7X6jgSDCqB6+HQESyucQIWF8sKVTJfU": "Shield of Ages",
 		"CgAAADIjS20A5dYAwKjJ7X7jgiCleR6/HQMSiucQIWH8sWVRZfY": "Naught", # V
 		"CgAAADIJS20A5dYAwCjtx37jsQqsnBuvC16C2ecQoWG8sKVRpdY": "Prismatic Bulwark", # V
+		"CgAAADIJS20A5dYAwOjBx36j0ArCAxupC1qCOecQoWH8sCVSZdo": "Asteroid Belt", # V
+		"CgAAADIJS20A5dYAwOjBx37j0ArAkhuqC2SCmeYQYWB8seVRJdo": "Miss Moxxi's Slammer", # V
 		# Oz Kits
 		"CgAAADI+S20ApSB4OlA1MJNbkwVxmhunClJy2+cQ4WezStKvEgs": "Voltaic Support Relay",
 		# Gladiator
@@ -428,26 +449,11 @@ library = {
 		# Baroness
 		"CgAAADI+S20A5dYAwOjZT4p8gAIwQh2yHAMCCucQIWp0pK1fLQs": "High-and-Mighty Gentry Title.Title_ClassMod", # V
 
-# "CgAAADIJS20A5dYAwCjER8iUxApQWRu6CziCueYQYWG8saVRJdc": "Fit Turtle Shield",
-# "CgAAADIJS20A5dYAwCjEx8SUxAoePxu6CziCueYQoW68sKVTJdc": "Armored Turtle Shield",
-# "CgAAADIJS20A5dYAwKjEx36jxAqoyBu6CyqCueYQIWG8sGVRJdc": "Turtle Shield",
-# "CgAAADIJS20A5dYAwOjBx36j0ArCAxupC1qCOecQoWH8sCVSZdo": "Asteroid Belt",
-# "CgAAADIJS20A5dYAwOjBx37j0ArAkhuqC2SCmeYQYWB8seVRJdo": "Miss Moxxi's Slammer",
-# "CgAAADKHslTz3NaAONHRCZ4agQFt1Bu+DQZS2+cQ4Wb3tatRK/A": "Quasar",
-# "CgAAADLHoFT53Dx5OFHXCZFagQExsRu8CABSG+cQIWY3vKtRa/0": "Explosive Kiss of Death",
-# "igAAADIIsoD7PtYAPmfCDcUd+MA0q1K5nq6L/9gBK1dVNG0C72RI": "Thunderfire",
-# "igAAADISS+3rVgZnP2fuDa0e6MY0XmG53Q+J/9wBKy8U5+8U6YRI": "Party Popper",
-# "igAAADJIsoD8Pgu3P2e2LsBYEk4gHLa8nc4KxtUBKxNVPG2yaLBI": "Lensed Mining Laser",
-# "igAAADJTvrb0UiFvxZeQDh2flMstKU25nq+M/9ABK7s0t6wk7z1J": "Large Spread",
-# "igAAADLIsgD7Pgq3P2eWLDBaQk8ggYK8nY4OxsUBK0NVNG3yYFBI": "Excalibastard",
-# "igAAADLRpbL2Wjp/P2e2D3sfBMgsAiG83i4KxdcBKxd0RyyE7JxJ": "Ice Grenadier",
-# "igAAADLTv7b0Ui9vyZeQDs2fRMEtgma5nq+M/9ABK7s0p6wU7x1J": "Rocket Speed Launcher",
-# "igAAADIZtCLweg8/15dYDm0flscoKae5n6iO/9QBK2N11i2G7XhK": "Auditing Sniper Rifle",
-# "igAAADKIsoD8Pgu3wZeYD+1YQksgXUy5ne6K/9QBK0NVJG0ybLBI": "Heated Subdivided Splitter",
-# "igAAADKIsoD8Pgu3zZeYDxVYAksgRBy5ne6K/9QBK0NVLG0SbFBI": "Catalyzing Lancer Railgun",
-# "igAAADLTvzbzUihvP2fOT8CYRMIhAVi8ng+KxtEBKxc0p6xU7fFK": "Sparkling Volt Thrower",
-# "igAAADIZsaLxeg0/P2fmzyicw8Mja3u8mKiKxNMBK0N1/q3z7VNK": "The Machine",
-# "igAAADIIsgD7Pgu35ZeYDz1fokggSRW5ne6K/9QBK0NVJG0ibHBI": "Niveous Zero Beam",
+		# Uncategorized
+		"igAAADLIsoD8PtYAwGgdLRBYQksgRv28ne4JxtUBK5dULG0ybNBI": "Catalyzing Subdivided Splitter",
+		"igAAADKIsoD8Pgu3wZeYD+1YQksgXUy5ne6K/9QBK0NVJG0ybLBI": "Heated Subdivided Splitter",
+		"igAAADLTvzbzUihvP2fOT8CYRMIhAVi8ng+KxtEBKxc0p6xU7fFK": "Sparkling Volt Thrower",
+		"igAAADISS+3rVgZnP2fuDa0e6MY0XmG53Q+J/9wBKy8U5+8U6YRI": "Party Popper",
 	},
 }
 
