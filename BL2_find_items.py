@@ -394,42 +394,51 @@ library = {
 		"BwAAADI+S20A5dYAwOjJDog8gAN2DR22HAUK6sYQoWO1t6xQLAs": "Slayer of Terramorphous",
 	},
 	"borderlands the pre-sequel": {
-# "igAAADLWsDzyRgpHP2eeDf3YpcY0Et25WOiI/8QBK1OVl+1F6eRL": "Incorporated Cheat Code",
-# "igAAADKWt7z+RhhH6Zf0DQUYaMo0KWq5XAiN/9wBK8eUh+0FbN9L": "%Cu+ie^_^ki||er",
-# "CgAAADI+S20A5dYAwOjZD4F8gALIaBm5HTsq6ucQYXX0pa1fLQs": "Chronicler Of Elpis Title.Title_ClassMod", # Fragtrap I believe
-# "CgAAADIJS20A5dYAwCjtx37jsQqsnBuvC16C2ecQoWG8sKVRpdY": "Prismatic Bulwark",
+		# Lasers
+		"igAAADJ+ogDSPtYAPme6Lrha4k4gJV28ni4JxtkBKztVdG/CaBC3": "E-GUN",
+		"igAAADJIsoD8PtYAPmfiDRUd2ME0uay5nk6I/9gBK6dUPG1S7sRI": "Tannis' Laser of Enlightenment", # V
+		"igAAADJIsoD7PtYAPmcCL3BZUkkgN2G8ni4LxtkBK6dULG1CbrBI": "Miss Moxxi's Vibra-Pulse",
+		"igAAADLIr4D8PtYAwGh9LuhaQk4gIsK8nG4JxtcBK8dV/G7ya5BF": "The ZX-1",
+		"igAAADIIsgAA5dYAPmfmDU0dKME0sGS5no6I/9gBK6dUJG3S7oRI": "MINAC's Atonement", # V
+		"igAAADLIsgAA5dYAPmfmDU0dKME0nDO5no6I/9gBK6dUPG3S7sRI": "MINAC's Atonement", # V
+		# SMGs
+		"igAAADKWt7z+RhhH6Zf0DQUYaMo0KWq5XAiN/9wBK8eUh+0FbN9L": "%Cu+ie^_^ki||er", # V
+		"igAAADLWsDzyRgpHP2eeDf3YpcY0Et25WOiI/8QBK1OVl+1F6eRL": "Incorporated Cheat Code", # V
+		"igAAADKWtzzyRg1HP2eeDS3YpcY0kga5WOiI/8QBK1OVj+1F6QRK": "Accessible Cheat Code", # V
+		"igAAADKWsDzyRghHP2eeDY3YpcY0vJe5WOiI/8QBK1OVn+1F6aRL": "All-In Cheat Code", # V
+		"igAAADKWsDz/RglH0ZfkDjXfBUsvXJu5XmiJ/9YBK7OUj+0VbP9L": "Deft Fox", # V
+		# Grenades
+		"CgAAADKHslTznCI5wCjTCaHagAGPLBu9DQRSO+cQoWZ3tKtRa/0": "Bonus Package",
+		# Shields
+		"CgAAADIjS20A5dYAwKjI7X6jgSDCqB6+HQESyucQIWF8sKVTJfU": "Shield of Ages",
+		"CgAAADIjS20A5dYAwKjJ7X7jgiCleR6/HQMSiucQIWH8sWVRZfY": "Naught", # V
+		"CgAAADIJS20A5dYAwCjtx37jsQqsnBuvC16C2ecQoWG8sKVRpdY": "Prismatic Bulwark", # V
+		# Oz Kits
+		"CgAAADI+S20ApSB4OlA1MJNbkwVxmhunClJy2+cQ4WezStKvEgs": "Voltaic Support Relay",
+		# Gladiator
+		"CgAAADI+S20A5dYAwCjYD5VdgALTFhuoEziKuecQYXW0pG1ALQs": "Celestial Gladiator Title.Title_ClassMod",
+		"CgAAADI+S20A5dYAwCjYj5BdgAIblxutEzyKmeYQYW30pe1fLQs": "Eternal Protector Title.Title_ClassMod", # V
+		"CgAAADI+S20A5dYAwOjYT5VdgAJr0xupEzqK2ecQYXU0pC1fLQs": "Eridian Vanquisher Title.Title_ClassMod", # V
+		"CgAAADI+S20A5dYAwOjZD4F8gALFKhm9HT8q6ucQYXV0pG1ALQs": "Chronicler Of Elpis Title.Title_ClassMod", # V
+		# Prototype
+		"CgAAADI+S20A5dYAwCjYj4NegAJuiBu8DCqKueYQYW20pG1fLQs": "Stampeding Brotrap Title.Title_ClassMod", # V
+		"CgAAADI+S20A5dYAwKjYz4NegALL8Ru8DDSKueYQ4Wt0pG1fLQs": "Inspirational Brotrap Title.Title_ClassMod", # V
+		"CgAAADI+S20A5dYAwKjZT4degAIo+hu5DCqKWecQoW10pC1ALQs": "Loot Piñata Title.Title_ClassMod", # V
+		"CgAAADI+S20A5dYAwOjZD4F8gALIaBm5HTsq6ucQYXX0pa1fLQs": "Chronicler Of Elpis Title.Title_ClassMod", # V
+		# Baroness
+		"CgAAADI+S20A5dYAwOjZT4p8gAIwQh2yHAMCCucQIWp0pK1fLQs": "High-and-Mighty Gentry Title.Title_ClassMod", # V
+
 # "CgAAADIJS20A5dYAwCjER8iUxApQWRu6CziCueYQYWG8saVRJdc": "Fit Turtle Shield",
 # "CgAAADIJS20A5dYAwCjEx8SUxAoePxu6CziCueYQoW68sKVTJdc": "Armored Turtle Shield",
 # "CgAAADIJS20A5dYAwKjEx36jxAqoyBu6CyqCueYQIWG8sGVRJdc": "Turtle Shield",
-# "CgAAADIjS20A5dYAwKjI7X6jgSDCqB6+HQESyucQIWF8sKVTJfU": "Shield of Ages",
-# "CgAAADIjS20A5dYAwKjJ7X7jgiCleR6/HQMSiucQIWH8sWVRZfY": "Naught",
 # "CgAAADIJS20A5dYAwOjBx36j0ArCAxupC1qCOecQoWH8sCVSZdo": "Asteroid Belt",
 # "CgAAADIJS20A5dYAwOjBx37j0ArAkhuqC2SCmeYQYWB8seVRJdo": "Miss Moxxi's Slammer",
-# "CgAAADI+S20A5dYAwCjYj4NegAJuiBu8DCqKueYQYW20pG1fLQs": "Stampeding Brotrap Title.Title_ClassMod",
-# "CgAAADI+S20A5dYAwKjYT5BdgAKIlxutEzKKmeYQIWy0pG1ALQs": "United Protector Title.Title_ClassMod",
-# "CgAAADI+S20A5dYAwKjYz4NegALL8Ru8DDSKueYQ4Wt0pG1fLQs": "Inspirational Brotrap Title.Title_ClassMod",
-# "CgAAADI+S20A5dYAwKjZT4degAIo+hu5DCqKWecQoW10pC1ALQs": "Loot Piñata Title.Title_ClassMod",
-# "CgAAADI+S20A5dYAwOjYT5VdgAJr0xupEzqK2ecQYXU0pC1fLQs": "Eridian Vanquisher Title.Title_ClassMod",
-# "CgAAADI+S20A5dYAwOjZD4F8gALFKhm9HT8q6ucQYXV0pG1ALQs": "Chronicler Of Elpis Title.Title_ClassMod",
-# "CgAAADI+S20A5dYAwOjZT4p8gAIwQh2yHAMCCucQIWp0pK1fLQs": "High-and-Mighty Gentry Title.Title_ClassMod",
 # "CgAAADKHslTz3NaAONHRCZ4agQFt1Bu+DQZS2+cQ4Wb3tatRK/A": "Quasar",
-# "CgAAADKHslTznCI5wCjTCaHagAGPLBu9DQRSO+cQoWZ3tKtRa/0": "Bonus Package", # Best
 # "CgAAADLHoFT53Dx5OFHXCZFagQExsRu8CABSG+cQIWY3vKtRa/0": "Explosive Kiss of Death",
-# "CgAAADI+S20ApSB4OlA1MJNbkwVxmhunClJy2+cQ4WezStKvEgs": "Voltaic Support Relay",
-# "CgAAADI+S20A5dYAwCjYD5VdgAIxoRuoEziKuecQYXX0pC1fLQs": "Celestial Gladiator Title.Title_ClassMod",
-# "CgAAADI+S20A5dYAwCjYj5BdgAIblxutEzyKmeYQYW30pe1fLQs": "Eternal Protector Title.Title_ClassMod",
-# "igAAADIIsgAA5dYAPmfmDU0dKME0sGS5no6I/9gBK6dUJG3S7oRI": "MINAC's Atonement",
 # "igAAADIIsoD7PtYAPmfCDcUd+MA0q1K5nq6L/9gBK1dVNG0C72RI": "Thunderfire",
 # "igAAADISS+3rVgZnP2fuDa0e6MY0XmG53Q+J/9wBKy8U5+8U6YRI": "Party Popper",
-# "igAAADJIsoD7PtYAPmcCL3BZUkkgN2G8ni4LxtkBK6dULG1CbrBI": "Miss Moxxi's Vibra-Pulse",
 # "igAAADJIsoD8Pgu3P2e2LsBYEk4gHLa8nc4KxtUBKxNVPG2yaLBI": "Lensed Mining Laser",
-# "igAAADJIsoD8PtYAPmfiDRUd2ME0uay5nk6I/9gBK6dUPG1S7sRI": "Tannis' Laser of Enlightenment",
-# "igAAADJ+ogDSPtYAPme6Lrha4k4gJV28ni4JxtkBKztVdG/CaBC3": "E-GUN",
 # "igAAADJTvrb0UiFvxZeQDh2flMstKU25nq+M/9ABK7s0t6wk7z1J": "Large Spread",
-# "igAAADKWtzzyRg1HP2eeDS3YpcY0kga5WOiI/8QBK1OVj+1F6QRK": "Accessible Cheat Code",
-# "igAAADKWsDzyRghHP2eeDY3YpcY0vJe5WOiI/8QBK1OVn+1F6aRL": "All-In Cheat Code",
-# "igAAADLIr4D8PtYAwGh9LuhaQk4gIsK8nG4JxtcBK8dV/G7ya5BF": "The ZX-1",
-# "igAAADLIsgAA5dYAPmfmDU0dKME0nDO5no6I/9gBK6dUPG3S7sRI": "MINAC's Atonement",
 # "igAAADLIsgD7Pgq3P2eWLDBaQk8ggYK8nY4OxsUBK0NVNG3yYFBI": "Excalibastard",
 # "igAAADLRpbL2Wjp/P2e2D3sfBMgsAiG83i4KxdcBKxd0RyyE7JxJ": "Ice Grenadier",
 # "igAAADLTv7b0Ui9vyZeQDs2fRMEtgma5nq+M/9ABK7s0p6wU7x1J": "Rocket Speed Launcher",
@@ -438,7 +447,6 @@ library = {
 # "igAAADKIsoD8Pgu3zZeYDxVYAksgRBy5ne6K/9QBK0NVLG0SbFBI": "Catalyzing Lancer Railgun",
 # "igAAADLTvzbzUihvP2fOT8CYRMIhAVi8ng+KxtEBKxc0p6xU7fFK": "Sparkling Volt Thrower",
 # "igAAADIZsaLxeg0/P2fmzyicw8Mja3u8mKiKxNMBK0N1/q3z7VNK": "The Machine",
-# "igAAADKWsDz/RglH0ZfkDjXfBUsvXJu5XmiJ/9YBK7OUj+0VbP9L": "Deft Fox",
 # "igAAADIIsgD7Pgu35ZeYDz1fokggSRW5ne6K/9QBK0NVJG0ibHBI": "Niveous Zero Beam",
 	},
 }
