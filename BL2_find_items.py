@@ -422,6 +422,9 @@ library = { # BL2 items
 # "CgAAADKHslTz3NaAONHRCZ4agQFt1Bu+DQZS2+cQ4Wb3tatRK/A": "Quasar",
 # "CgAAADKHslTznCI5wCjTCaHagAGPLBu9DQRSO+cQoWZ3tKtRa/0": "Bonus Package", # Best
 # "CgAAADLHoFT53Dx5OFHXCZFagQExsRu8CABSG+cQIWY3vKtRa/0": "Explosive Kiss of Death",
+# "CgAAADI+S20ApSB4OlA1MJNbkwVxmhunClJy2+cQ4WezStKvEgs": "Voltaic Support Relay",
+# "CgAAADI+S20A5dYAwCjYD5VdgAIxoRuoEziKuecQYXX0pC1fLQs": "Celestial Gladiator Title.Title_ClassMod",
+# "CgAAADI+S20A5dYAwCjYj5BdgAIblxutEzyKmeYQYW30pe1fLQs": "Eternal Protector Title.Title_ClassMod",
 # "igAAADIIsgAA5dYAPmfmDU0dKME0sGS5no6I/9gBK6dUJG3S7oRI": "MINAC's Atonement",
 # "igAAADIIsoD7PtYAPmfCDcUd+MA0q1K5nq6L/9gBK1dVNG0C72RI": "Thunderfire",
 # "igAAADISS+3rVgZnP2fuDa0e6MY0XmG53Q+J/9wBKy8U5+8U6YRI": "Party Popper",
@@ -430,13 +433,17 @@ library = { # BL2 items
 # "igAAADJIsoD8PtYAPmfiDRUd2ME0uay5nk6I/9gBK6dUPG1S7sRI": "Tannis' Laser of Enlightenment",
 # "igAAADJ+ogDSPtYAPme6Lrha4k4gJV28ni4JxtkBKztVdG/CaBC3": "E-GUN",
 # "igAAADJTvrb0UiFvxZeQDh2flMstKU25nq+M/9ABK7s0t6wk7z1J": "Large Spread",
-# "igAAADJTvrb0UihvP2fKToNe9cstr/W8n8+LxdsBK5s0r6w0791K": "Boosh a Deee!",
 # "igAAADKWtzzyRg1HP2eeDS3YpcY0kga5WOiI/8QBK1OVj+1F6QRK": "Accessible Cheat Code",
 # "igAAADLIr4D8PtYAwGh9LuhaQk4gIsK8nG4JxtcBK8dV/G7ya5BF": "The ZX-1",
 # "igAAADLIsgAA5dYAPmfmDU0dKME0nDO5no6I/9gBK6dUPG3S7sRI": "MINAC's Atonement",
 # "igAAADLIsgD7Pgq3P2eWLDBaQk8ggYK8nY4OxsUBK0NVNG3yYFBI": "Excalibastard",
 # "igAAADLRpbL2Wjp/P2e2D3sfBMgsAiG83i4KxdcBKxd0RyyE7JxJ": "Ice Grenadier",
 # "igAAADLTv7b0Ui9vyZeQDs2fRMEtgma5nq+M/9ABK7s0p6wU7x1J": "Rocket Speed Launcher",
+# "igAAADIZtCLweg8/15dYDm0flscoKae5n6iO/9QBK2N11i2G7XhK": "Auditing Sniper Rifle",
+# "igAAADKIsoD8Pgu3wZeYD+1YQksgXUy5ne6K/9QBK0NVJG0ybLBI": "Heated Subdivided Splitter",
+# "igAAADKIsoD8Pgu3zZeYDxVYAksgRBy5ne6K/9QBK0NVLG0SbFBI": "Catalyzing Lancer Railgun",
+# "igAAADLTvzbzUihvP2fOT8CYRMIhAVi8ng+KxtEBKxc0p6xU7fFK": "Sparkling Volt Thrower",
+# "igAAADIZsaLxeg0/P2fmzyicw8Mja3u8mKiKxNMBK0N1/q3z7VNK": "The Machine",
 
 # Requires access to the Gibbed data files.
 ASSET_PATH = "../GibbedBL2/Gibbed.Borderlands%s/projects/Gibbed.Borderlands%s.GameInfo/Resources/%s.json"
