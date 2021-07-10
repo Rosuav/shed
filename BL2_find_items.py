@@ -393,8 +393,7 @@ library = {
 		"BwAAADI+S20A5dYAwCjJDog8gANNZh22HAUK6sYQoWM1t+xQLAs": "Slayer of Terramorphous",
 		"BwAAADI+S20A5dYAwOjJDog8gAN2DR22HAUK6sYQoWO1t6xQLAs": "Slayer of Terramorphous",
 	},
-}
-# Some possible items for TPS:
+	"borderlands the pre-sequel": {
 # "igAAADLWsDzyRgpHP2eeDf3YpcY0Et25WOiI/8QBK1OVl+1F6eRL": "Incorporated Cheat Code",
 # "igAAADKWt7z+RhhH6Zf0DQUYaMo0KWq5XAiN/9wBK8eUh+0FbN9L": "%Cu+ie^_^ki||er",
 # "CgAAADI+S20A5dYAwOjZD4F8gALIaBm5HTsq6ucQYXX0pa1fLQs": "Chronicler Of Elpis Title.Title_ClassMod", # Fragtrap I believe
@@ -441,6 +440,8 @@ library = {
 # "igAAADIZsaLxeg0/P2fmzyicw8Mja3u8mKiKxNMBK0N1/q3z7VNK": "The Machine",
 # "igAAADKWsDz/RglH0ZfkDjXfBUsvXJu5XmiJ/9YBK7OUj+0VbP9L": "Deft Fox",
 # "igAAADIIsgD7Pgu35ZeYDz1fokggSRW5ne6K/9QBK0NVJG0ibHBI": "Niveous Zero Beam",
+	},
+}
 
 # Requires access to the Gibbed data files.
 ASSET_PATH = "../GibbedBL2/Gibbed.Borderlands%s/projects/Gibbed.Borderlands%s.GameInfo/Resources/%s.json"
