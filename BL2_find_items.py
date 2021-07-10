@@ -279,6 +279,7 @@ parser.add_argument("-l", "--loot-filter", help="Show loot, optionally filtered 
 parser.add_argument("-f", "--file", help="Process only one save file")
 parser.add_argument("--dir", help="Specify the savefile directory explicitly (ignores --proton/--native and --player)")
 parser.add_argument("--library", help="Add an item ID to the library")
+parser.add_argument("--compare", nargs=2, help="Compare two library items (or potential library items)")
 args = parser.parse_args()
 print(args)
 
@@ -443,6 +444,8 @@ library = {
 		"CgAAADIJS20A5dYAwCjtx37jsQqsnBuvC16C2ecQoWG8sKVRpdY": "Prismatic Bulwark", # V
 		"CgAAADIJS20A5dYAwOjBx36j0ArCAxupC1qCOecQoWH8sCVSZdo": "Asteroid Belt", # V
 		"CgAAADIJS20A5dYAwOjBx37j0ArAkhuqC2SCmeYQYWB8seVRJdo": "Miss Moxxi's Slammer", # V
+		"CgAAADIJS20A5dYAwCjtx37jsQqVaBuvC16C2ecQoWE8sKVRpdY": "Prismatic Bulwark",
+		"CgAAADIJS20A5dYAwCjtx37jsQrDjhuvC16C2ecQoWH8saVRpdY": "Prismatic Bulwark", # compareme
 		# Oz Kits
 		"CgAAADI+S20ApSB4OlA1MJNbkwVxmhunClJy2+cQ4WezStKvEgs": "Voltaic Support Relay",
 		# Gladiator
@@ -1142,6 +1145,43 @@ def parse_savefile(fn):
 		with open("synthesized-%s.sav" % (args.file or ""), "wb") as f: f.write(comp)
 	return ret
 
+def compare(id1, id2):
+	obj1, obj2 = [Asset.decode_asset_library(unarmor_serial(id)) for id in (id1, id2)]
+	if obj1.is_weapon != obj2.is_weapon:
+		print("Can only compare two weapons or two items, not one of each")
+		return
+	pieces1, pieces2 = [get_piece_options(obj) for obj in (obj1, obj2)]
+	# Show the available options and which one is in each object
+	# This is most often going to be used for comparing two items of the same
+	# type/balance, so their piece options will be the same. But it can also
+	# be used to compare two different ones, and see which part options change.
+	# For each object, see if the part is Selected, Available, or Unavailable
+	# (Note that None counts as a part.)
+	colors = {
+		"SS": "1", "AA": "0",
+		"SA": "1;34", "AS": "1;32",
+		"AU": "34", "UA": "32",
+		"SU": "9;34", "US": "9;32",
+	}
+	for i, (n, opts1, opts2) in enumerate(zip(obj1.partnames, pieces1, pieces2)):
+		seen = {}
+		for p in opts1 + opts2 + [None]:
+			if p in seen: continue # Deduplicate but keep order
+			seen[p] = 1
+			s1 = "A" if p in opts1 else "U"
+			s2 = "A" if p in opts2 else "U"
+			p1 = obj1.pieces[i]; p2 = obj2.pieces[i]
+			if (p is None and not p1) or (p and p1 and p.endswith(p1)): s1 = "S"
+			if (p is None and not p2) or (p and p2 and p.endswith(p2)): s2 = "S"
+			state = s1 + s2
+			if state == "UU": continue # Not available on either (probably "None"). Ignore it.
+			print("%s \x1b[%sm%s\x1b[0m" % (n, colors[state], p))
+			n = " " * len(n)
+	return
+
+if args.compare:
+	compare(*args.compare)
+	sys.exit()
 if args.platform == "native":
 	dir = os.path.expanduser("~/.local/share/aspyr-media/" + GAME + "/willowgame/savedata")
 else:
