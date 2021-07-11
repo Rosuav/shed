@@ -419,8 +419,7 @@ library = {
 		"igAAADKIsoD8Pgu3zZeYDxVYAksgRBy5ne6K/9QBK0NVLG0SbFBI": "Catalyzing Lancer Railgun", # V
 		"igAAADIIsgD7Pgu35ZeYDz1fokggSRW5ne6K/9QBK0NVJG0ibHBI": "Niveous Zero Beam", # V
 		# SMGs
-		"igAAADKWt7z+RhhH6Zf0DQUYaMo0KWq5XAiN/9wBK8eUh+0FbN9L": "%Cu+ie^_^ki||er", # V
-		"igAAADKWt7z+RgtH6Zf0DQUYaMo0E5O5XAiN/9wBK8eUn+0FbB9K": "%Cu+ie^_^ki||er", # V
+		"igAAADKWt7z+RgtH6Zf0DQUYaMo0lK25XAiN/9wBK8eUj+0FbB9K": "%Cu+ie^_^ki||er",
 		"igAAADLWsDzyRgpHP2eeDf3YpcY0Et25WOiI/8QBK1OVl+1F6eRL": "Incorporated Cheat Code", # V
 		"igAAADKWtzzyRg1HP2eeDS3YpcY0kga5WOiI/8QBK1OVj+1F6QRK": "Accessible Cheat Code", # V
 		"igAAADKWsDzyRghHP2eeDY3YpcY0vJe5WOiI/8QBK1OVn+1F6aRL": "All-In Cheat Code", # V
@@ -448,7 +447,7 @@ library = {
 		"CgAAADI+S20ApSB4OlA1MJNbkwVxmhunClJy2+cQ4WezStKvEgs": "Voltaic Support Relay",
 		# Gladiator
 		"CgAAADI+S20A5dYAwCjYD5VdgALTFhuoEziKuecQYXW0pG1ALQs": "Celestial Gladiator Title.Title_ClassMod",
-		"CgAAADI+S20A5dYAwCjYj5BdgAIblxutEzyKmeYQYW30pe1fLQs": "Eternal Protector Title.Title_ClassMod", # V
+		"CgAAADI+S20A5dYAwOjYj5BdgALHthutEz6KmeYQoWu0pG1ALQs": "Eternal Protector Title.Title_ClassMod",
 		"CgAAADI+S20A5dYAwOjYT5VdgAJr0xupEzqK2ecQYXU0pC1fLQs": "Eridian Vanquisher Title.Title_ClassMod", # V
 		"CgAAADI+S20A5dYAwOjZD4F8gALFKhm9HT8q6ucQYXV0pG1ALQs": "Chronicler Of Elpis Title.Title_ClassMod", # V
 		# Prototype
@@ -457,7 +456,8 @@ library = {
 		"CgAAADI+S20A5dYAwKjZT4degAIo+hu5DCqKWecQoW10pC1ALQs": "Loot Piñata Title.Title_ClassMod", # V
 		"CgAAADI+S20A5dYAwOjZD4F8gALIaBm5HTsq6ucQYXX0pa1fLQs": "Chronicler Of Elpis Title.Title_ClassMod", # V
 		# Baroness
-		"CgAAADI+S20A5dYAwOjZT4p8gAIwQh2yHAMCCucQIWp0pK1fLQs": "High-and-Mighty Gentry Title.Title_ClassMod", # V
+		"CgAAADI+S20A5dYAwOjZT4p8gAIwQh2yHAMCCucQIWp0pK1fLQs": "High-and-Mighty Gentry Title.Title_ClassMod", # only a blue, need a purple
+		"CgAAADI+S20A5dYAwKjYD4Z8gALIJB2wHA0C6ucQYWq0pG1ALQs": "Posh Blue Blood Title.Title_ClassMod",
 
 		# Uncategorized
 		"igAAADLIsoD8PtYAwGgdLRBYQksgRv28ne4JxtUBK5dULG0ybNBI": "Catalyzing Subdivided Splitter",
