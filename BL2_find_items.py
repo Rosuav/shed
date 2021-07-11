@@ -1158,7 +1158,7 @@ def compare(id1, id2):
 		"SS": "1", "AA": "0",
 		"SA": "1;34", "AS": "1;32",
 		"AU": "34", "UA": "32",
-		"SU": "9;34", "US": "9;32",
+		"SU": "1;4;34", "US": "1;4;32",
 	}
 	print("\x1b[%sm%r\x1b[0m" % (colors["SA"], obj1))
 	pieces1 = get_piece_options(obj1)
