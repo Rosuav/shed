@@ -441,11 +441,9 @@ library = {
 		# Shields
 		"CgAAADIjS20A5dYAwKjI7X6jgSDCqB6+HQESyucQIWF8sKVTJfU": "Shield of Ages",
 		"CgAAADIjS20A5dYAwKjJ7X7jgiCleR6/HQMSiucQIWH8sWVRZfY": "Naught", # V
-		"CgAAADIJS20A5dYAwCjtx37jsQqsnBuvC16C2ecQoWG8sKVRpdY": "Prismatic Bulwark", # V
 		"CgAAADIJS20A5dYAwOjBx36j0ArCAxupC1qCOecQoWH8sCVSZdo": "Asteroid Belt", # V
 		"CgAAADIJS20A5dYAwOjBx37j0ArAkhuqC2SCmeYQYWB8seVRJdo": "Miss Moxxi's Slammer", # V
 		"CgAAADIJS20A5dYAwCjtx37jsQqVaBuvC16C2ecQoWE8sKVRpdY": "Prismatic Bulwark",
-		"CgAAADIJS20A5dYAwCjtx37jsQrDjhuvC16C2ecQoWH8saVRpdY": "Prismatic Bulwark", # compareme
 		# Oz Kits
 		"CgAAADI+S20ApSB4OlA1MJNbkwVxmhunClJy2+cQ4WezStKvEgs": "Voltaic Support Relay",
 		# Gladiator
@@ -1150,7 +1148,6 @@ def compare(id1, id2):
 	if obj1.is_weapon != obj2.is_weapon:
 		print("Can only compare two weapons or two items, not one of each")
 		return
-	pieces1, pieces2 = [get_piece_options(obj) for obj in (obj1, obj2)]
 	# Show the available options and which one is in each object
 	# This is most often going to be used for comparing two items of the same
 	# type/balance, so their piece options will be the same. But it can also
@@ -1163,6 +1160,10 @@ def compare(id1, id2):
 		"AU": "34", "UA": "32",
 		"SU": "9;34", "US": "9;32",
 	}
+	print("\x1b[%sm%r\x1b[0m" % (colors["SA"], obj1))
+	pieces1 = get_piece_options(obj1)
+	print("\x1b[%sm%r\x1b[0m" % (colors["AS"], obj2))
+	pieces2 = get_piece_options(obj2)
 	for i, (n, opts1, opts2) in enumerate(zip(obj1.partnames, pieces1, pieces2)):
 		seen = {}
 		for p in opts1 + opts2 + [None]:
@@ -1177,7 +1178,6 @@ def compare(id1, id2):
 			if state == "UU": continue # Not available on either (probably "None"). Ignore it.
 			print("%s \x1b[%sm%s\x1b[0m" % (n, colors[state], p))
 			n = " " * len(n)
-	return
 
 if args.compare:
 	compare(*args.compare)
