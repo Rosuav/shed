@@ -133,7 +133,7 @@ def item(savefile, bal):
 	obj = Asset(seed=random.randrange(1<<31), is_weapon=is_weapon, type=sp(type), balance=bal,
 		brand=sp(balance["manufacturers"][0]), grade=lvl, stage=lvl,
 		pieces=[sp(p(n)) for n in partnames(is_weapon)], material=sp(p("material")),
-		pfx=sp(typeinfo["prefixes"][0]), title=sp(typeinfo["titles"][0]))
+		pfx=sp(typeinfo.get("prefixes", [None])[0]), title=sp(typeinfo.get("titles", [None])[0]))
 	if isinstance(savefile, int): return obj
 	savefile.add_inventory(obj)
 	print("\nGiving", obj)
@@ -403,6 +403,10 @@ library = {
 		"CgAAADIJS20A5dYAwOjBx36j0ArCAxupC1qCOecQoWH8sCVSZdo": "Asteroid Belt", # V
 		"CgAAADIJS20A5dYAwOjBx37j0ArAkhuqC2SCmeYQYWB8seVRJdo": "Miss Moxxi's Slammer", # V
 		"CgAAADIJS20A5dYAwCjtx37jsQqVaBuvC16C2ecQoWE8sKVRpdY": "Prismatic Bulwark",
+		"CgAAADIjS20A5dYAwGjJ7cNUgyDtQx64HQ0SiuYQIWF8kyVSZfc": "Hippocratic M0RQ",
+		"CgAAADIJS20A5dYAwGjix34jvQpY5RuyC1SCGecQIWB8sSVR5dE": "Avalanche", # Synth
+		"CgAAADIJS20A5dYAwOjtx36jsQrTGhutC1KCuecQIWF8sKV25dY": "Kala", # Synth
+		"CgAAADIJS20A5dYAwKjtx35jsQokxBuuC1yCuecQoWH8saVRJdU": "The Sham", # Synth
 		# Oz Kits
 		"CgAAADI+S20ApSB4OlA1MJNbkwVxmhunClJy2+cQ4WezStKvEgs": "Voltaic Support Relay",
 		# Gladiator
@@ -418,6 +422,8 @@ library = {
 		# Baroness
 		"CgAAADI+S20A5dYAwOjZT4p8gAIwQh2yHAMCCucQIWp0pK1fLQs": "High-and-Mighty Gentry Title.Title_ClassMod", # only a blue, need a purple
 		"CgAAADI+S20A5dYAwKjYD4Z8gALIJB2wHA0C6ucQYWq0pG1ALQs": "Posh Blue Blood Title.Title_ClassMod",
+		"CgAAADI+S20A5dYAwKjYD4B8gAK3FB2+HA8CyucQYXW0pG1ALQs": "Celestial Baroness Class Mod", # Synth
+		"CgAAADI+S20A5dYAwKjYT4tegALZ1R29HAkCyucQYXW0pG1ALQs": "Eridian Vanquisher Class Mod", # Synth
 
 		# Uncategorized
 		"igAAADLIsoD8PtYAwGgdLRBYQksgRv28ne4JxtUBK5dULG0ybNBI": "Catalyzing Subdivided Splitter",
