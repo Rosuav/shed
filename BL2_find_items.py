@@ -188,35 +188,46 @@ def crossproduct(savefile, baseid):
 	print()
 	print("Basis:", obj)
 	pieces = get_piece_options(obj)
-	for fixed in lockdown:
-		if fixed.startswith("-") and fixed[1:] in obj.partnames:
-			# Specify "-delta" to have nothing in slot delta
-			pieces[partnames.index(fixed[1:])][:] = [None]
-			continue
-		for p in pieces:
-			if fixed in p:
-				p[:] = [fixed]
-				break
-		else:
-			print("Couldn't find %r to lock down" % fixed)
-	# Show the available options and which one is in the basis object
-	total = 1
-	for i, (n, opts) in enumerate(zip(obj.partnames, pieces)):
-		for p in opts:
-			if p and obj.pieces[i] and p.endswith(obj.pieces[i]): p = "\x1b[1m%s\x1b[0m" % p
-			elif not obj.pieces[i] and p is None: p = "\x1b[1mNone\x1b[0m"
-			print(n, p)
-			n = " " * len(n)
-		if not obj.pieces[i] and None not in opts:
-			print(n, "\x1b[1mNone\x1b[0m")
-		total *= len(opts)
-	print("Will create", total, "objects.")
-	for pieces in itertools.product(*pieces):
-		obj.seed = random.randrange(1<<31)
-		obj.grade = obj.stage = savefile.level
-		obj.pieces = [piece and strip_prefix(piece) for piece in pieces]
-		if total < 10: print(">", obj)
-		savefile.add_inventory(obj)
+	interactive = False
+	while "interactive or at least once":
+		for fixed in lockdown:
+			if fixed == "input": interactive = True
+			if fixed.startswith("-") and fixed[1:] in obj.partnames:
+				# Specify "-delta" to have nothing in slot delta
+				pieces[partnames.index(fixed[1:])] = [None]
+				continue
+			for n, p in enumerate(pieces):
+				if fixed in p:
+					pieces[n] = [fixed]
+					break
+			else:
+				print("Couldn't find %r to lock down" % fixed)
+		# Show the available options and which one is in the basis object
+		total = 1
+		for i, (n, opts) in enumerate(zip(obj.partnames, pieces)):
+			for p in opts:
+				if p and obj.pieces[i] and p.endswith(obj.pieces[i]): p = "\x1b[1m%s\x1b[0m" % p
+				elif not obj.pieces[i] and p is None: p = "\x1b[1mNone\x1b[0m"
+				print(n, p)
+				n = " " * len(n)
+			if not obj.pieces[i] and None not in opts:
+				print(n, "\x1b[1mNone\x1b[0m")
+			total *= len(opts)
+		print("Will create", total, "objects.")
+		lockdown = []
+		fixme = interactive and input()
+		if fixme == "give" or fixme == "gr" or not fixme:
+			for pp in itertools.product(*pieces):
+				obj.seed = random.randrange(1<<31)
+				obj.grade = obj.stage = savefile.level
+				obj.pieces = [piece and strip_prefix(piece) for piece in pp]
+				if total < 10: print(">", obj)
+				savefile.add_inventory(obj)
+			if not fixme: break
+			if fixme == "gr": pieces = get_piece_options(obj) # Give and reset
+		elif fixme == "q": break # Hitting Enter gives those items and breaks; hitting "q" breaks without.
+		elif fixme == "reset": pieces = get_piece_options(obj)
+		else: lockdown = [fixme]
 
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
@@ -399,7 +410,7 @@ library = {
 		"CgAAADLHoFT53Dx5OFHXCZFagQExsRu8CABSG+cQIWY3vKtRa/0": "Explosive Kiss of Death", # V
 		# Shields
 		"CgAAADIjS20A5dYAwKjI7X6jgSDCqB6+HQESyucQIWF8sKVTJfU": "Shield of Ages",
-		"CgAAADIjS20A5dYAwKjJ7X7jgiCleR6/HQMSiucQIWH8sWVRZfY": "Naught", # V
+		"CgAAADIjS20A5dYAwKjJ7X7jgiA5wx6/HQMSiucQIW58s6VTZfY": "Naught",
 		"CgAAADIJS20A5dYAwOjBx36j0ArCAxupC1qCOecQoWH8sCVSZdo": "Asteroid Belt", # V
 		"CgAAADIJS20A5dYAwOjBx37j0ArAkhuqC2SCmeYQYWB8seVRJdo": "Miss Moxxi's Slammer", # V
 		"CgAAADIJS20A5dYAwCjtx37jsQqVaBuvC16C2ecQoWE8sKVRpdY": "Prismatic Bulwark",
