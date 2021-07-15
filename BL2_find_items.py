@@ -649,25 +649,24 @@ class Asset:
 
 	def get_title(self):
 		if self.type == "ItemDefs.ID_Ep4_FireHawkMessage": return "FireHawkMessage" # This isn't a real thing and doesn't work properly. (It'll be in the bank when you find out about the Firehawk.)
-		typeinfo = get_asset("Weapon Types" if self.is_weapon else "Item Types")[_category(self.type) + "." + self.type]
+		weap_item = "Weapon" if self.is_weapon else "Item"
+		typeinfo = get_asset(weap_item + " Types")[_category(self.type) + "." + self.type]
 		if typeinfo.get("has_full_name"):
 			# The item's type fully defines its title. This happens with a number
 			# of unique and/or special items.
 			return typeinfo["name"]
 		# Otherwise, build a name from a prefix (possibly) and a title.
 		# The name parts have categories and I don't yet know how to reliably list them.
-		names = get_asset("Weapon Name Parts" if self.is_weapon else "Item Name Parts")
-		cats = _category(self.type), _category(self.balance), "GD_Weap_Shared_Names"
+		names = get_asset(weap_item + " Name Parts")
+		config = get_asset_library_manager()
 		pfxinfo = None
 		if self.pfx:
-			for cat in cats:
-				pfxinfo = names.get(cat + "." + self.pfx)
-				if pfxinfo: break
+			setid, sublib, asset, cat = config["_find_asset"][weap_item + "Parts"][self.pfx]
+			pfxinfo = names.get(cat + "." + self.pfx)
 			# pfxinfo has a name (unless it's a null prefix), and a uniqueness flag. No idea what that one is for.
 		if self.title:
-			for cat in cats:
-				titinfo = names.get(cat + "." + self.title)
-				if titinfo: break
+			setid, sublib, asset, cat = config["_find_asset"][weap_item + "Parts"][self.title]
+			titinfo = names.get(cat + "." + self.title)
 			title = titinfo["name"] if titinfo else self.title
 		else: title = "<no title>"
 		if pfxinfo and "name" in pfxinfo: title = pfxinfo["name"] + " " + title
