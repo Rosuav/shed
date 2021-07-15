@@ -50,6 +50,9 @@ synthesizer = FunctionArg("synth", 1)
 def strip_prefix(str): return str.split(".", 1)[1]
 def armor_serial(serial): return base64.b64encode(serial).decode("ascii").strip("=")
 def unarmor_serial(id): return base64.b64decode(id.strip("{}").encode("ascii") + b"====")
+def partnames(is_weapon):
+	if is_weapon: return "body grip barrel sight stock elemental accessory1 accessory2".split()
+	return "alpha beta gamma delta epsilon zeta eta theta".split()
 
 @synthesizer
 def money(savefile): savefile.money[0] += 5000000 # Add more dollars
@@ -94,100 +97,71 @@ def invdup(savefile, level):
 			for level in levels:
 				weap.grade = weap.stage = level
 				weap.seed = random.randrange(1<<31)
-				packed = PackedWeaponData(serial=weap.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
-				savefile.packed_weapon_data.append(packed)
+				savefile.add_inventory(weap)
 	for item in savefile.packed_item_data:
 		it = Asset.decode_asset_library(item.serial)
 		if it and it.grade not in levels and not item.equipped:
 			for level in levels:
 				it.grade = it.stage = level
 				it.seed = random.randrange(1<<31)
-				packed = PackedItemData(serial=it.encode_asset_library(), quantity=1, equipped=0, mark=1)
-				savefile.packed_item_data.append(packed)
+				savefile.add_inventory(it)
 
 @synthesizer
-def create_all_items(savefile):
-	"""Synthesize every possible item based on its Balance definition"""
-	if GAME == "borderlands the pre-sequel":
-		balance = "GD_Crocus_ItemGrades.ClassMods.BalDef_ClassMod_Baroness_05_Legendary"
-		level = savefile.level
-		pfx, title = 'Prefix_Baroness.Prefix_CelestialBaroness', "Title.Title_ClassMod"
-		pieces = [...] * 8
-	else:
-		balance = "GD_Aster_GrenadeMods.A_Item.GM_ChainLightning"
-		level = 35
-		pfx, title = None, "Title.Title_ChainLightning"
-		pieces = [...] * 8
-	# Below shouldn't need to be changed.
-	bal = get_asset("Item Balance")[balance]
-	balance = strip_prefix(balance)
-	type = strip_prefix(bal["type"])
-	p = bal["parts"]
-	pieces = [p.get(c, [None]) if pp is ... else ["." + pp]
-		for c, pp in zip(["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta"], pieces)]
-	for mfg, mat, *pieces in itertools.product(bal["manufacturers"], p.get("material", [None]), *pieces):
-		synth = Asset(seed=random.randrange(1<<31), is_weapon=0,
-			type=type, balance=balance, brand=strip_prefix(mfg), grade=level, stage=level,
-			pieces=[piece and strip_prefix(piece) for piece in pieces],
-			material=mat and strip_prefix(mat), pfx=pfx, title=title,
-		)
-		packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
-		savefile.packed_item_data.append(packed)
-
-@synthesizer
-def create_all_weapons(savefile):
-	"""Synthesize every possible weapon based on its Balance definition"""
+def item(savefile, bal):
+	"""Synthesize some possible weapon/item based on its Balance definition"""
 	# Random note: Glitch attachments that begin with 0 are identified correctly
 	# eg GD_Ma_Weapons.Glitch_Attachments.Glitch_Attachment_0421 gives O0L4M2A1.
 	# Other attachments have the internal name give an Amplify value higher by one
 	# eg GD_Ma_Weapons.Glitch_Attachments.Glitch_Attachment_2144 is O2L1M4A3. Odd.
-	balance = "GD_Ma_Weapons.A_Weapons.SMG_Dahl_6_Glitch"
-	level = 26
-	pfx, title = 'Name.Prefix_Dahl.Prefix_Body1_Accurate', 'Name.Title_Dahl.Title_Barrel_Dahl_Stable'
-	bal = get_asset("Weapon Balance")[balance]
-	balance = strip_prefix(balance)
-	type = strip_prefix(bal.get("type", "GD_Weap_SMG.A_Weapons.WT_SMG_Dahl"))
-	mfg = "Manufacturers.Dahl"
-	mat = strip_prefix(bal["parts"]["material"][0])
-	pieces = ['Body.SMG_Body_Dahl_VarC', 'Grip.SMG_Grip_Maliwan', 'Barrel.SMG_Barrel_Dahl', 'Sight.SMG_Sight_Dahl',
-		'Stock.SMG_Stock_Hyperion', 'elemental.SMG_Elemental_Corrosive', 'Accessory.SMG_Accessory_Body1_Accurate', ...]
-	for piece in bal["parts"]["accessory2"]:
-		pieces[7] = strip_prefix(piece)
-		synth = Asset(seed=random.randrange(1<<31), is_weapon=1,
-			type=type, balance=balance, brand=mfg, grade=level, stage=level,
-			pieces=pieces, material=mat, pfx=pfx, title=title,
-		)
-		print("Creating:", synth)
-		packed = PackedWeaponData(serial=synth.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
-		savefile.packed_weapon_data.append(packed)
+	try:
+		balance = get_balance_info(0, bal)
+		is_weapon = 0
+	except KeyError:
+		balance = get_balance_info(1, bal)
+		is_weapon = 1
+	if "type" in balance: type = balance["type"]
+	else: type = balance["types"][0]
+	typeinfo = get_asset("Weapon Types" if is_weapon else "Item Types")[type]
+	def p(part):
+		b = balance.get(part)
+		if b: return b[0]
+		t = typeinfo.get(part + "_parts")
+		if t: return t[0]
+		return None
+	def sp(name): return name and strip_prefix(name)
+	obj = Asset(seed=random.randrange(1<<31), is_weapon=is_weapon, type=sp(type), balance=bal,
+		brand=sp(balance["manufacturers"][0]), grade=savefile.level, stage=savefile.level,
+		pieces=[sp(p(n)) for n in partnames(is_weapon)], material=sp(p("material")),
+		pfx=sp(typeinfo["prefixes"][0]), title=sp(typeinfo["titles"][0]))
+	savefile.add_inventory(obj)
+	print("\nGiving", obj)
 
 @synthesizer
 def give(savefile, definitions):
-	"""Synthesize every part variant (only parts) based on a particular item/weapon"""
+	"""Transfer an item from another source, such as the library"""
 	print()
 	for definition in definitions.split(","):
 		[id, *changes] = definition.split("-")
 		serial = unarmor_serial(id)
 		obj = Asset.decode_asset_library(serial)
 		if obj.seed == obj.grade == 50: changes.insert(0, "l") # Can be overridden by another "-l", but normally, assume you want library items at your level.
-		obj.seed = random.randrange(1<<31) # If any changes are made, rerandomize the seed too
+		obj.seed = random.randrange(1<<31) # Rerandomize the seed
 		for change in changes:
 			if not change: continue
 			c = change[0].lower()
 			if c == "l": obj.grade = obj.stage = int(change[1:] or savefile.level)
 			# TODO: Add other changes as needed
-		if changes: serial = obj.encode_asset_library()
-		if obj.is_weapon: savefile.packed_weapon_data.append(PackedWeaponData(serial=serial, quickslot=0, mark=1, unknown4=0))
-		else: savefile.packed_item_data.append(PackedItemData(serial=serial, quantity=1, equipped=0, mark=1))
+		savefile.add_inventory(obj)
 		print("Giving", obj)
 
 def get_piece_options(obj):
+	# TODO: Make use of get_balance_info rather than duplicating the work
 	cls = "Weapon" if obj.is_weapon else "Item"
 	config = get_asset_library_manager()
 	setid, sublib, asset, cat = config["_find_asset"]["BalanceDefs"][obj.balance]
 	allbal = get_asset(cls + " Balance")
 	# Build up a full list of available parts
-	# Assumes that the "mode" is always "Selective" as I don't know how "Additive works exactly
+	# Assumes that the "mode" is always "Selective" as I don't know how "Additive" works exactly
 	checkme = cat + "." + obj.balance
 	pieces = [None] * len(obj.partnames)
 	while checkme:
@@ -239,12 +213,7 @@ def crossproduct(savefile, baseid):
 		obj.grade = obj.stage = savefile.level
 		obj.pieces = [piece and strip_prefix(piece) for piece in pieces]
 		if total < 10: print(">", obj)
-		if obj.is_weapon:
-			packed = PackedWeaponData(serial=obj.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
-			savefile.packed_weapon_data.append(packed)
-		else:
-			packed = PackedItemData(serial=obj.encode_asset_library(), quantity=1, equipped=0, mark=1)
-			savefile.packed_item_data.append(packed)
+		savefile.add_inventory(obj)
 
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
@@ -481,6 +450,34 @@ def get_asset_library_manager():
 						cfg[field][name] = set["id"], sublib, asset, info["package"]
 	return config
 
+def get_balance_info(is_weapon, balance):
+	cls = "Weapon" if is_weapon else "Item"
+	allbal = get_asset(cls + " Balance")
+	if balance not in allbal:
+		# If something goes wrong, this will probably KeyError either looking up the BalanceDef, or in the subsequent lookup in allbal.
+		config = get_asset_library_manager()
+		setid, sublib, asset, cat = config["_find_asset"]["BalanceDefs"][balance]
+		balance = cat + "." + balance
+	info = allbal[balance]
+	base = get_balance_info(is_weapon, info["base"]) if "base" in info else {"parts": { }}
+	ret = {k:v for k,v in base.items() if k != "parts"}
+	for k,v in info.items():
+		if k == "parts":
+			mode = v.get("mode")
+			# I *think* that Complete means to ignore the base? There never seems to be a base anyhow.
+			if mode == "Complete": ret["parts"] = { }
+			else: ret["parts"] = {k:v for k,v in base["parts"].items() if k != "mode"}
+			for part, opts in v.items():
+				if part == "mode": continue
+				# Don't understand Additive. It doesn't seem to be used with both a base and parts.
+				# Not sure if this is correct or if things are done in the right order or anything.
+				if mode == "Additive" and isinstance(ret["parts"].get(part), list) and isinstance(opts, list):
+					ret["parts"][part] = opts + ret["parts"][part]
+				else:
+					ret["parts"][part] = opts
+		elif k != "base": ret[k] = v # Don't copy in the base once it's rendered
+	return ret
+
 class ConsumableLE(Consumable):
 	"""Little-endian bitwise consumable"""
 	def get(self, num):
@@ -521,11 +518,8 @@ class Asset:
 	material: "*Parts"
 	pfx: "*Parts"
 	title: "*Parts"
-	# Provide the names corresponding to pieces[]
 	@property
-	def partnames(self):
-		if self.is_weapon: return "body grip barrel sight stock elemental accessory1 accessory2".split()
-		return "alpha beta gamma delta epsilon zeta eta theta".split()
+	def partnames(self): return partnames(self.is_weapon) # Convenience lookup property
 
 	@classmethod
 	def decode_asset_library(cls, data):
@@ -984,6 +978,14 @@ class SaveFile(ProtoBuf):
 	has_played_uvhm: int = None
 	overpower_levels: int = None
 	last_overpower_choice: int = None
+
+	def add_inventory(self, asset):
+		if asset.is_weapon:
+			packed = PackedWeaponData(serial=asset.encode_asset_library(), quickslot=0, mark=1, unknown4=0)
+			self.packed_weapon_data.append(packed)
+		else:
+			packed = PackedItemData(serial=asset.encode_asset_library(), quantity=1, equipped=0, mark=1)
+			self.packed_item_data.append(packed)
 
 class SaveFileFormatError(Exception): pass
 
