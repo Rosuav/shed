@@ -274,6 +274,7 @@ parser.add_argument("--verify", help="Verify code internals by attempting to bac
 parser.add_argument("--pieces", help="Show the individual pieces inside weapons/items", action="store_true")
 parser.add_argument("--raw", help="Show the raw details of weapons/items (spammy - use loot filters)", action="store_true")
 parser.add_argument("--itemids", help="Show the IDs of weapons/items", action="store_true")
+parser.add_argument("--itemcats", help="Show the category sets of weapons/items", action="store_true")
 parser.add_argument("--synth", help="Synthesize a modified save file", type=synthesizer, nargs="*")
 parser.add_argument("-l", "--loot-filter", help="Show loot, optionally filtered to only what's interesting", type=loot_filter, nargs="*")
 parser.add_argument("-f", "--file", help="Process only one save file")
@@ -701,6 +702,7 @@ class Asset:
 		type = self.type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
 		ret = "%s %s (%s)" % (lvl, self.get_title(), type)
 		if args.itemids: ret += " {%s}" % armor_serial(self.encode_asset_library())
+		if args.itemcats: ret += " %r" % (self.categories,)
 		if args.pieces: ret += "\n" + " + ".join(filter(None, self.pieces))
 		if args.raw: ret += "\n" + ", ".join("%s=%r" % (f, getattr(self, f)) for f in self.__dataclass_fields__)
 		return ret
