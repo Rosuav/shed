@@ -608,40 +608,30 @@ class Asset:
 		# NOTE: Assumes that at least one decode has been done previously.
 		bits = []
 		config = get_asset("Asset Library Manager")
-		# If we were doing this seriously, it would be better to build a
-		# mapping from item identifier to (set,subid,asset) triple.
-		if self.setid and self.setid in config["sets_by_id"]: sets = (0, self.setid)
-		else: sets = (0,)
+		# Build a mapping from item identifier to (set,subid,asset) triple.
+		if "_find_asset" not in config:
+			cfg = config["_find_asset"] = collections.defaultdict(dict)
+			for set in config["sets"]:
+				for field, libinfo in set["libraries"].items():
+					for sublib, info in enumerate(libinfo["sublibraries"]):
+						for asset, name in enumerate(info["assets"]):
+							if args.verify and name in cfg[field]:
+								print("Got duplicate", field, name, cfg[field][name], (set["id"], sublib, asset))
+							cfg[field][name] = set["id"], sublib, asset
 		categories = _category(self.type), _category(self.balance) # Preferred categories to use
-		def _find_asset(field, thing):
-			ret = None, None, None
-			best = 5
-			for useset in sets:
-				cfg = config["sets_by_id"][useset]["libraries"][field]
-				for sublib, info in enumerate(cfg["sublibraries"]):
-					for asset, name in enumerate(info["assets"]):
-						if name == thing:
-							# TODO: Make sure this is actually safe, then dispose of
-							# self.categories altogether. We can fetch it when needed.
-							prio = (categories + (info["package"],)).index(info["package"]) # Elephant in Cairo
-							if best < 5 and args.verify:
-								print("Got duplicate", ret, info["package"], thing)
-							if prio < best:
-								ret = bool(useset), sublib, asset
-								best = prio
-			return ret
 		fields = []
+		needsets = {0}
 		def _encode(field, item):
 			cfg = config["configs"][field]
 			fields.append("%s-%d-%d" % (field, cfg["asset_bits"], cfg["sublibrary_bits"]))
 			if item is None:
 				bits.append("1" * (cfg["asset_bits"] + cfg["sublibrary_bits"]))
 				return
-			useset, sublib, asset = _find_asset(field, item)
-			if useset is None: raise ValueError("Thing not found: %r => %r" % (field, item))
+			setid, sublib, asset = config["_find_asset"][field][item]
+			needsets.add(setid)
 			bits.append(format(asset, "0%db" % cfg["asset_bits"])[::-1])
 			bits.append(format(sublib, "0%db" % (cfg["sublibrary_bits"]-1))[::-1])
-			bits.append("1" if useset else "0")
+			bits.append("1" if setid else "0")
 		weap_item = "Weapon" if self.is_weapon else "Item"
 		for field, typ in self.__dataclass_fields__.items():
 			typ = typ.type
@@ -654,12 +644,14 @@ class Asset:
 			elif isinstance(typ, list):
 				for t, piece in zip(typ, getattr(self, field)):
 					_encode(t.replace("*", weap_item), piece)
+		if len(needsets) > 2: print("Need multiple set IDs! Cannot encode.", needsets)
+		# Note that needsets might still be {0}, in which case we'll render a setid of 0.
 		bits = "".join(bits)
 		bits += "1" * (8 - (len(bits) % 8))
 		data = int(bits[::-1], 2).to_bytes(len(bits)//8, "little")
 		data = (
 			bytes([config["version"] | (128 if self.is_weapon else 0)]) +
-			self.seed.to_bytes(4, "big") + b"\xFF\xFF" + bytes([self.setid]) +
+			self.seed.to_bytes(4, "big") + b"\xFF\xFF" + bytes([max(needsets)]) +
 			data
 		)
 		data = data + b"\xFF" * (40 - len(data)) # Pad for CRC calculation
