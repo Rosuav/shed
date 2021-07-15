@@ -126,7 +126,7 @@ def create_all_items(savefile):
 	pieces = [p.get(c, [None]) if pp is ... else ["." + pp]
 		for c, pp in zip(["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta"], pieces)]
 	for mfg, mat, *pieces in itertools.product(bal["manufacturers"], p.get("material", [None]), *pieces):
-		synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=None, categories=None,
+		synth = Asset(seed=random.randrange(1<<31), is_weapon=0,
 			type=type, balance=balance, brand=strip_prefix(mfg), grade=level, stage=level,
 			pieces=[piece and strip_prefix(piece) for piece in pieces],
 			material=mat and strip_prefix(mat), pfx=pfx, title=title,
@@ -142,8 +142,6 @@ def create_all_weapons(savefile):
 	# Other attachments have the internal name give an Amplify value higher by one
 	# eg GD_Ma_Weapons.Glitch_Attachments.Glitch_Attachment_2144 is O2L1M4A3. Odd.
 	balance = "GD_Ma_Weapons.A_Weapons.SMG_Dahl_6_Glitch"
-	setid = 5
-	cats = ('GD_Weap_SMG', 'GD_Ma_Weapons', 'GD_Weap_Shared_Names')
 	level = 26
 	pfx, title = 'Name.Prefix_Dahl.Prefix_Body1_Accurate', 'Name.Title_Dahl.Title_Barrel_Dahl_Stable'
 	bal = get_asset("Weapon Balance")[balance]
@@ -155,7 +153,7 @@ def create_all_weapons(savefile):
 		'Stock.SMG_Stock_Hyperion', 'elemental.SMG_Elemental_Corrosive', 'Accessory.SMG_Accessory_Body1_Accurate', ...]
 	for piece in bal["parts"]["accessory2"]:
 		pieces[7] = strip_prefix(piece)
-		synth = Asset(seed=random.randrange(1<<31), is_weapon=1, setid=setid, categories=cats,
+		synth = Asset(seed=random.randrange(1<<31), is_weapon=1,
 			type=type, balance=balance, brand=mfg, grade=level, stage=level,
 			pieces=pieces, material=mat, pfx=pfx, title=title,
 		)
@@ -185,14 +183,9 @@ def give(savefile, definitions):
 
 def get_piece_options(obj):
 	cls = "Weapon" if obj.is_weapon else "Item"
+	config = get_asset_library_manager()
+	setid, sublib, asset, cat = config["_find_asset"]["BalanceDefs"][obj.balance]
 	allbal = get_asset(cls + " Balance")
-	for cat in obj.categories:
-		try:
-			bal = allbal[cat + "." + obj.balance]
-			break
-		except KeyError: pass
-	else:
-		raise Exception("couldn't find balance") # shouldn't happen, will be ugly
 	# Build up a full list of available parts
 	# Assumes that the "mode" is always "Selective" as I don't know how "Additive works exactly
 	checkme = cat + "." + obj.balance
@@ -269,7 +262,6 @@ parser.add_argument("--verify", help="Verify code internals by attempting to bac
 parser.add_argument("--pieces", help="Show the individual pieces inside weapons/items", action="store_true")
 parser.add_argument("--raw", help="Show the raw details of weapons/items (spammy - use loot filters)", action="store_true")
 parser.add_argument("--itemids", help="Show the IDs of weapons/items", action="store_true")
-parser.add_argument("--itemcats", help="Show the category sets of weapons/items", action="store_true")
 parser.add_argument("--synth", help="Synthesize a modified save file", type=synthesizer, nargs="*")
 parser.add_argument("-l", "--loot-filter", help="Show loot, optionally filtered to only what's interesting", type=loot_filter, nargs="*")
 parser.add_argument("-f", "--file", help="Process only one save file")
@@ -472,6 +464,23 @@ def get_asset(fn, cache={}):
 		with open(path, "rb") as f: cache[fn] = json.load(f)
 	return cache[fn]
 
+def get_asset_library_manager():
+	config = get_asset("Asset Library Manager")
+	if "_sets_by_id" not in config:
+		# Remap the sets to be keyed by ID - it's more useful that way.
+		config["_sets_by_id"] = {set["id"]: set for set in config["sets"]}
+	# Build a mapping from item identifier to (set,subid,asset) triple.
+	if "_find_asset" not in config:
+		cfg = config["_find_asset"] = collections.defaultdict(dict)
+		for set in config["sets"]:
+			for field, libinfo in set["libraries"].items():
+				for sublib, info in enumerate(libinfo["sublibraries"]):
+					for asset, name in enumerate(info["assets"]):
+						if args.verify and name in cfg[field]:
+							print("Got duplicate", field, name, cfg[field][name], (set["id"], sublib, asset))
+						cfg[field][name] = set["id"], sublib, asset, info["package"]
+	return config
+
 class ConsumableLE(Consumable):
 	"""Little-endian bitwise consumable"""
 	def get(self, num):
@@ -517,8 +526,6 @@ def _category(type_or_bal, _cache = {}):
 class Asset:
 	seed: None
 	is_weapon: None
-	setid: None
-	categories: None
 	type: "*Types"
 	balance: "BalanceDefs"
 	brand: "Manufacturers"
@@ -554,12 +561,7 @@ class Asset:
 		crc = binascii.crc32(data)
 		crc = (crc >> 16) ^ (crc & 65535)
 		if crc != crc16: raise ValueError("Checksum mismatch")
-		config = get_asset("Asset Library Manager")
-		if "sets_by_id" not in config:
-			# Remap the sets to be keyed by ID - it's more useful that way.
-			# TODO: Do this somewhere else, so it's shared with encode_asset_library.
-			# Currently, if you call encode without ever having called decode, boom.
-			config["sets_by_id"] = {set["id"]: set for set in config["sets"]}
+		config = get_asset_library_manager()
 		# The first byte is a version number, with the high
 		# bit set if it's a weapon, or clear if it's an item.
 		is_weapon = data[0] >= 128
@@ -575,11 +577,11 @@ class Asset:
 			sublib = bits.get(cfg["sublibrary_bits"] - 1)
 			useset = bits.get(1)
 			if "0" not in (useset+sublib+asset): return None # All -1 means "nothing here"
-			cfg = config["sets_by_id"][setid if useset == "1" else 0]["libraries"][field]
+			cfg = config["_sets_by_id"][setid if useset == "1" else 0]["libraries"][field]
 			# print(field, cfg["sublibraries"][int(sublib,2)]["assets"][int(asset,2)])
 			return cfg["sublibraries"][int(sublib,2)]["assets"][int(asset,2)]
 
-		ret = {"seed": seed, "is_weapon": is_weapon, "setid": setid}
+		ret = {"seed": seed, "is_weapon": is_weapon}
 		for field, typ in cls.__dataclass_fields__.items():
 			typ = typ.type
 			if typ is None:
@@ -592,7 +594,6 @@ class Asset:
 				ret[field] = [_decode(t.replace("*", weap_item)) for t in typ]
 			else:
 				raise AssertionError("Bad annotation %r" % typ)
-		ret["categories"] = (_category(ret["type"]), _category(ret["balance"]), "GD_Weap_Shared_Names")
 		ret = cls(**ret)
 		if args.verify:
 			if ret.encode_asset_library() != orig:
@@ -602,18 +603,7 @@ class Asset:
 	def encode_asset_library(self):
 		# NOTE: Assumes that at least one decode has been done previously.
 		bits = []
-		config = get_asset("Asset Library Manager")
-		# Build a mapping from item identifier to (set,subid,asset) triple.
-		if "_find_asset" not in config:
-			cfg = config["_find_asset"] = collections.defaultdict(dict)
-			for set in config["sets"]:
-				for field, libinfo in set["libraries"].items():
-					for sublib, info in enumerate(libinfo["sublibraries"]):
-						for asset, name in enumerate(info["assets"]):
-							if args.verify and name in cfg[field]:
-								print("Got duplicate", field, name, cfg[field][name], (set["id"], sublib, asset))
-							cfg[field][name] = set["id"], sublib, asset
-		categories = _category(self.type), _category(self.balance) # Preferred categories to use
+		config = get_asset_library_manager()
 		fields = []
 		needsets = {0}
 		def _encode(field, item):
@@ -622,7 +612,7 @@ class Asset:
 			if item is None:
 				bits.append("1" * (cfg["asset_bits"] + cfg["sublibrary_bits"]))
 				return
-			setid, sublib, asset = config["_find_asset"][field][item]
+			setid, sublib, asset, cat = config["_find_asset"][field][item]
 			needsets.add(setid)
 			bits.append(format(asset, "0%db" % cfg["asset_bits"])[::-1])
 			bits.append(format(sublib, "0%db" % (cfg["sublibrary_bits"]-1))[::-1])
@@ -689,7 +679,6 @@ class Asset:
 		type = self.type.split(".", 1)[1].replace("WT_", "").replace("WeaponType_", "").replace("_", " ")
 		ret = "%s %s (%s)" % (lvl, self.get_title(), type)
 		if args.itemids: ret += " {%s}" % armor_serial(self.encode_asset_library())
-		if args.itemcats: ret += " %r" % (self.categories,)
 		if args.pieces: ret += "\n" + " + ".join(filter(None, self.pieces))
 		if args.raw: ret += "\n" + ", ".join("%s=%r" % (f, getattr(self, f)) for f in self.__dataclass_fields__)
 		return ret
