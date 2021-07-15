@@ -129,10 +129,12 @@ def item(savefile, bal):
 		if t: return t[0]
 		return None
 	def sp(name): return name and strip_prefix(name)
+	lvl = savefile if isinstance(savefile, int) else savefile.level
 	obj = Asset(seed=random.randrange(1<<31), is_weapon=is_weapon, type=sp(type), balance=bal,
-		brand=sp(balance["manufacturers"][0]), grade=savefile.level, stage=savefile.level,
+		brand=sp(balance["manufacturers"][0]), grade=lvl, stage=lvl,
 		pieces=[sp(p(n)) for n in partnames(is_weapon)], material=sp(p("material")),
 		pfx=sp(typeinfo["prefixes"][0]), title=sp(typeinfo["titles"][0]))
+	if isinstance(savefile, int): return obj
 	savefile.add_inventory(obj)
 	print("\nGiving", obj)
 
@@ -181,7 +183,8 @@ def get_piece_options(obj):
 @synthesizer
 def crossproduct(savefile, baseid):
 	baseid, *lockdown = baseid.split(",")
-	obj = Asset.decode_asset_library(unarmor_serial(baseid))
+	if "_" in baseid: obj = item(50, baseid) # Looks like a balance name, not an item ID
+	else: obj = Asset.decode_asset_library(unarmor_serial(baseid))
 	print()
 	print("Basis:", obj)
 	pieces = get_piece_options(obj)
