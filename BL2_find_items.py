@@ -109,17 +109,12 @@ def invdup(savefile, level):
 def create_all_items(savefile):
 	"""Synthesize every possible item based on its Balance definition"""
 	if GAME == "borderlands the pre-sequel":
-		balance = "GD_Cork_GrenadeMods.A_Item_Legendary.GM_BonusPackage"
-		setid = 0
-		cats = ('GD_Cork_GrenadeMods', 'GD_GrenadeMods', 'GD_Weap_Shared_Names')
-		level = 25
-		pfx, title = 'Prefix.Prefix_Longbow', "Title.Title_BonusPackage"
-		pieces = [..., 'Delivery.Delivery_LongBow', 'Trigger.Trigger_Grade0', ..., 'Damage.Damage_Grade7',
-			'DamageRadius.DamageRadius_ExtraLarge', 'ChildCount.ChildCount_Grade6', ...]
+		balance = "GD_Crocus_ItemGrades.ClassMods.BalDef_ClassMod_Baroness_05_Legendary"
+		level = savefile.level
+		pfx, title = 'Prefix_Baroness.Prefix_CelestialBaroness', "Title.Title_ClassMod"
+		pieces = [...] * 8
 	else:
 		balance = "GD_Aster_GrenadeMods.A_Item.GM_ChainLightning"
-		setid = 9
-		cats = ('GD_Aster_GrenadeMods', 'GD_GrenadeMods', 'GD_Weap_Shared_Names') # NOT the same as a normal Chain Lightning gives. Hmm.
 		level = 35
 		pfx, title = None, "Title.Title_ChainLightning"
 		pieces = [...] * 8
@@ -130,11 +125,11 @@ def create_all_items(savefile):
 	p = bal["parts"]
 	pieces = [p.get(c, [None]) if pp is ... else ["." + pp]
 		for c, pp in zip(["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta"], pieces)]
-	for mfg, mat, *pieces in itertools.product(bal["manufacturers"], p["material"], *pieces):
-		synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=setid, categories=cats,
+	for mfg, mat, *pieces in itertools.product(bal["manufacturers"], p.get("material", [None]), *pieces):
+		synth = Asset(seed=random.randrange(1<<31), is_weapon=0, setid=None, categories=None,
 			type=type, balance=balance, brand=strip_prefix(mfg), grade=level, stage=level,
 			pieces=[piece and strip_prefix(piece) for piece in pieces],
-			material=strip_prefix(mat), pfx=pfx, title=title,
+			material=mat and strip_prefix(mat), pfx=pfx, title=title,
 		)
 		packed = PackedItemData(serial=synth.encode_asset_library(), quantity=1, equipped=0, mark=1)
 		savefile.packed_item_data.append(packed)
