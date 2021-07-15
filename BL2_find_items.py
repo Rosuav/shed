@@ -191,7 +191,9 @@ def crossproduct(savefile, baseid):
 	interactive = False
 	while "interactive or at least once":
 		for fixed in lockdown:
-			if fixed == "input": interactive = True
+			if fixed == "input":
+				interactive = True
+				continue
 			if fixed.startswith("-") and fixed[1:] in obj.partnames:
 				# Specify "-delta" to have nothing in slot delta
 				pieces[partnames.index(fixed[1:])] = [None]
@@ -418,6 +420,8 @@ library = {
 		"CgAAADIJS20A5dYAwGjix34jvQpY5RuyC1SCGecQIWB8sSVR5dE": "Avalanche", # Synth
 		"CgAAADIJS20A5dYAwOjtx36jsQrTGhutC1KCuecQIWF8sKV25dY": "Kala", # Synth
 		"CgAAADIJS20A5dYAwKjtx35jsQokxBuuC1yCuecQoWH8saVRJdU": "The Sham", # Synth
+		"CgAAADIJS20A5dYAwKjqx34jxAr3+Bu3C06CGecQIWF8sCVSZdA": "Supernova", # Synth
+		"CgAAADIjS20A5dYAwOjI7X4jgSDAXB69HQcSyucQoW58sCVSJfQ": "Rerouter", # Synth
 		# Oz Kits
 		"CgAAADI+S20ApSB4OlA1MJNbkwVxmhunClJy2+cQ4WezStKvEgs": "Voltaic Support Relay",
 		# Gladiator
