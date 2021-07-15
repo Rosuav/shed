@@ -506,22 +506,6 @@ def bogocrypt(seed, data, direction="decrypt"):
 	if direction == "encrypt": return data
 	return data[-split:] + data[:-split] # Decrypting splits last
 
-# Many entries in the files are of the form "GD_Weap_SniperRifles.A_Weapons.WeaponType_Vladof_Sniper"
-# but the savefile just has "A_Weapons.WeaponType_Vladof_Sniper". The same prefix appears to be used
-# for the components of the weapon. So far, I have not figured out how to synthesize the prefix, but
-# for any given type, there is only one prefix, so we just calculate from that.
-def _category(type_or_bal, _cache = {}):
-	if _cache: return _cache.get(type_or_bal, "")
-	for lbl in list(get_asset("Item Types")) + list(get_asset("Weapon Types")) \
-			+ list(get_asset("Item Balance")) + list(get_asset("Weapon Balance")):
-		cat, lbl = lbl.split(".", 1)
-		if lbl in _cache and args.verify:
-			print("DUPLICATE:")
-			print(_cache[lbl] + "." + lbl)
-			print(cat + "." + lbl)
-		_cache[lbl] = cat
-	return _cache[type_or_bal]
-
 @dataclass
 class Asset:
 	seed: None
@@ -650,7 +634,9 @@ class Asset:
 	def get_title(self):
 		if self.type == "ItemDefs.ID_Ep4_FireHawkMessage": return "FireHawkMessage" # This isn't a real thing and doesn't work properly. (It'll be in the bank when you find out about the Firehawk.)
 		weap_item = "Weapon" if self.is_weapon else "Item"
-		typeinfo = get_asset(weap_item + " Types")[_category(self.type) + "." + self.type]
+		config = get_asset_library_manager()
+		setid, sublib, asset, cat = config["_find_asset"][weap_item + "Types"][self.type]
+		typeinfo = get_asset(weap_item + " Types")[cat + "." + self.type]
 		if typeinfo.get("has_full_name"):
 			# The item's type fully defines its title. This happens with a number
 			# of unique and/or special items.
@@ -658,7 +644,6 @@ class Asset:
 		# Otherwise, build a name from a prefix (possibly) and a title.
 		# The name parts have categories and I don't yet know how to reliably list them.
 		names = get_asset(weap_item + " Name Parts")
-		config = get_asset_library_manager()
 		pfxinfo = None
 		if self.pfx:
 			setid, sublib, asset, cat = config["_find_asset"][weap_item + "Parts"][self.pfx]
