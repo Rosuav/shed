@@ -44,12 +44,12 @@ def save_config():
 def checkauth(oauth):
 	print("Checking auth...")
 	with urllib.request.urlopen(urllib.request.Request(
-		"https://api.twitch.tv/kraken/user",
-		headers={"Authorization": "OAuth " + oauth},
+		"https://api.twitch.tv/helix/users",
+		headers={"Authorization": "Bearer " + oauth, "Client-ID": "q6batx0epp608isickayubi39itsckt"},
 	)) as f:
 		data = json.load(f)
 	pprint(data)
-	config.update(oauth=oauth, login=data["name"], display=data["display_name"], channel=data["name"])
+	config.update(oauth=oauth, login=data["login"], display=data["display_name"], channel=data["login"])
 	save_config()
 
 def hostpriority(channel):
