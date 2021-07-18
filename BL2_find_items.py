@@ -411,6 +411,7 @@ library = {
 		"CgAAADKHslTz3NaAONHRCZ4agQFt1Bu+DQZS2+cQ4Wb3tatRK/A": "Quasar", # V
 		"CgAAADLHoFT53Dx5OFHXCZFagQExsRu8CABSG+cQIWY3vKtRa/0": "Explosive Kiss of Death", # V
 		# Shields
+		"CgAAADIJS20A5dYAwGjeh5HU1grlMBugC5qCGecQ4WF8sKVTJcQ": "Majestic Incendiary Spike Shield", # V
 		"CgAAADIjS20A5dYAwKjI7X6jgSDCqB6+HQESyucQIWF8sKVTJfU": "Shield of Ages",
 		"CgAAADIjS20A5dYAwKjJ7X7jgiA5wx6/HQMSiucQIW58s6VTZfY": "Naught",
 		"CgAAADIJS20A5dYAwOjBx36j0ArCAxupC1qCOecQoWH8sCVSZdo": "Asteroid Belt", # V
