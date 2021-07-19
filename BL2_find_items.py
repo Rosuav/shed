@@ -279,10 +279,10 @@ library = {
 		"BwAAADLCudH52S+8IhTTDKHfpQHpUxu2E0jiWscQ4X33uq5N7vY": "Longbow Breath of Terramorphous",
 		"BwAAADLCuhH52daAIhTTDKEfpQHy0xu5E0biWscQ4Xr3uq5N7v8": "Longbow Pandemic",
 		"BwAAADJCvDLxmSU8wOjSDKFfgyJbuBi6EQnKascQIW/Uuq5QbvU": "Longbow Meteor Shower",
-		"BwAAADLCshH52dbAN1TfzH4jgiAlwxK8CQ+q6sYQYZkLt49NLv4": "Fire Storm", # V
+		"BwAAADLCshH52daAN1TfzH4jgiDqZBK8CQ+q6sYQYZkLt49NLv4": "Fire Storm",
 		"BwAAADLCstH52daAN9TfzH6jgCBJjxK8CQeq6sYQYZkLtI9Nrv8": "Lightning Bolt",
-		"BwAAADLCshH52daAN9TfzH4jgCCRihK8CQWq6sYQYZkLtY9NLv4": "Fireball", # V
-		"BwAAADLCstH5WS68N9TfzH7jgCDRYRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile", # Best (other than the extremely rare upgraded version)
+		"BwAAADLCshH52daAN9TfzH4jgCCRihK8CQWq6sYQYZkLtY9NLv4": "Fireball",
+		"BwAAADLCstH5WS68N9TfzH7jgCDRYRK8CQGq6sYQYZlLtI9Nbv8": "Magic Missile",
 		"BwAAADLCstH5WS68NxTfzH7jgCB58xK8CQOq6sYQYZnLt49Nbv8": "Magic Missile (rare)", # Synthesized, unconfirmed.
 		"BwAAADLCstH52daAN1TfzH7jgSBNXhK8CQ2q6sYQYZnLtI9Nrv8": "Chain Lightning",
 		"BwAAADLCuhH52daAIhTTDKFfpQEo1Ru5EzriWscQ4Xr3uq5NLv4": "Longbow Fire Bee",
@@ -293,17 +293,14 @@ library = {
 		"BwAAADJCs/L52daAItTZDKGfjSJ5qBi5EQ/KqscQ4W7Uuq5Q7v8": "Corrosive Crossfire",
 		# Shields
 		"BwAAADIiS20A5dYAwOjK7H6jgCEaBxK8Cgm6CsYQ4WQwsClY6fQ": "Blockade",
-		"BwAAADIiS20A5dYAwOjK7H6jgCEtFRK8Cgm6CsYQoWfwtmlW6fQ": "Blockade",
-		"BwAAADIiS20A5dYAwOjK7H6jgCFlVhK8Cgm6CsYQ4WcwsalW6fQ": "Blockade",
-		"BwAAADIFS20A5dYAwGicy37j2gaYxRuqDW6qOccQYWewtilW6aM": "The Bee",
-		"BwAAADIFS20A5dYAwGicy37j2ga32xuqDW6qOccQYWcwsalV6aM": "The Bee",
-		"BwAAADIFS20A5dYAwGicy37j2gZ9IxuqDW6qOccQYWcwsOlV6aM": "The Bee",
-		"BwAAADIFS20A5dYAwOiey36j2QZEUxuuDVaqWccQ4WQwsKkEKaA": "The Transformer",
+		"BwAAADIFS20A5dYAwGicy37j2gbb3xuqDW6qOccQYWcwsClY6aM": "The Bee",
+		"BwAAADIFS20A5dYAwOiey36j2QbGjRuuDVaqWccQ4WcwsakEKaA": "The Transformer",
 		"BwAAADIFS20A5dYAwCjOb4E8gCJh9Ri8EQXKSscQ4WcwsSlXaew": "Sponge",
 		"BwAAADIFS20A5dYAwOjFy36jlwaOWhu9DQCq+cYQIWYwsKlW6fs": "Flame of the Firehawk",
 		"BwAAADIFS20A5dYAwOjWS7qYugbmPhu7DWqq+cUQYWcwsSlYaeg": "Chitinous Turtle Shield", # Massive capacity, slow recharge.
 		"BwAAADIFS20A5dYAwOjWy76YugZn0hu7DWqq+cUQ4WcwtqlWaeg": "Selected Turtle Shield", # A bit less capacity but better recharge
-		"BwAAADIFS20A5dYAwGidy36j2gYLnxukDXaq+cYQYWcwsOlV6aw": "Black Hole", # V
+		"BwAAADIFS20A5dYAwGidy36j2ga/nRukDXaq+cYQ4WcwsalW6aw": "Black Hole", # Good capacity, moderate nova
+		"BwAAADIFS20A5dYAwGidy4yY2gbR0RukDXaq+cYQIWfwsWlX6aw": "Grounded Black Hole", # Great nova, lower capacity
 		"BwAAADIiS20A5dYAwGjK7H4jgSGEjRK9Cgu66sYQ4WcwsalWqfU": "Antagonist",
 		# Snipers
 		"hwAAADINsYrkKkqfwWh1jdAYI8ki6Ti8n8yJu8cDK+/25C2z5zJN": "Banbury Volcano", # Hot (obviously)
