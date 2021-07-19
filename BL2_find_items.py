@@ -235,14 +235,64 @@ def crossproduct(savefile, baseid):
 def tweak(savefile, baseid):
 	if "_" in baseid: obj = item(50, baseid) # Looks like a balance name, not an item ID
 	else: obj = Asset.decode_asset_library(unarmor_serial(baseid))
+	info = get_balance_info(obj.is_weapon, obj.balance)
+	weap_item = "Weapon" if obj.is_weapon else "Item"
+	config = get_asset_library_manager()
+	setid, sublib, asset, cat = config["_find_asset"][weap_item + "Types"][obj.type]
+	typeinfo = get_asset(weap_item + " Types")[cat + "." + obj.type]
+	get_balance_options = { }
+	def list_parts(part):
+		b = info.get(part)
+		if b: return b
+		t = typeinfo.get(part + "_parts")
+		if t: return t
+		return [None]
+	def opt(f): get_balance_options[f.__name__] = f
+	@opt
+	def type(info):
+		if "type" in info:
+			# The type could come from info["type"] or from info["types"].
+			if "types" not in info: info["types"] = [info["type"]]
+			elif info["type"] not in info["types"]: info["types"].append(info["type"])
+		return info["types"]
+	@opt
+	def brand(info): return info["manufacturers"]
+	@opt
+	def material(info): return list_parts("material")
+	@opt
+	def pfx(info): return typeinfo.get("prefixes", [None])
+	@opt
+	def title(info): return typeinfo.get("titles", [None])
 	import curses
 	@curses.wrapper
 	def _tweak(stdscr):
-		for line, attr in enumerate("type balance brand material pfx title".split()):
-			stdscr.addstr(line, 0, "%s: %s" % (attr, getattr(obj, attr)))
-		for line, (n, piece) in enumerate(zip(obj.partnames, obj.pieces), line + 2):
-			stdscr.addstr(line, 0, "%s: %s" % (n, piece))
-		stdscr.addstr(line + 2, 0, "> ", curses.A_BOLD)
+		line = 0
+		def printf(str="", *args, attr=curses.A_NORMAL):
+			if args: str = str % tuple(args)
+			nonlocal line
+			stdscr.addstr(line, 0, str, attr)
+			stdscr.clrtoeol()
+			line += 1
+		printf("Balance: %s", obj.balance, attr=curses.A_BOLD)
+		for attr, func in get_balance_options.items():
+			printf("%s: %s", attr, getattr(obj, attr), attr=curses.A_BOLD)
+			# Show the available options
+			for opt in func(info):
+				printf("\t%s", opt)
+		printf()
+		for n, piece in zip(obj.partnames, obj.pieces):
+			printf("%s: %s", n, piece, attr=curses.A_BOLD)
+			if line > stdscr.getmaxyx()[0] - 10: continue # Hack: avoid scrolling
+			for opt in list_parts(n):
+				printf("\t%s", opt)
+		printf()
+		printf("> ", attr=curses.A_BOLD)
+		# TODO:
+		# - Type to filter the available components, across all sections
+		# - Arrow keys to select
+		# - Enter to change the currently-selected component
+		# Typing "maliwan" would then let you go "enter, down, enter, down enter" to
+		# make an all-Maliwan item.
 		stdscr.refresh()
 		stdscr.getkey()
 
