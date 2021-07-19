@@ -231,6 +231,21 @@ def crossproduct(savefile, baseid):
 		elif fixme == "reset": pieces = get_piece_options(obj)
 		else: lockdown = [fixme]
 
+@synthesizer
+def tweak(savefile, baseid):
+	if "_" in baseid: obj = item(50, baseid) # Looks like a balance name, not an item ID
+	else: obj = Asset.decode_asset_library(unarmor_serial(baseid))
+	import curses
+	@curses.wrapper
+	def _tweak(stdscr):
+		for line, attr in enumerate("type balance brand material pfx title".split()):
+			stdscr.addstr(line, 0, "%s: %s" % (attr, getattr(obj, attr)))
+		for line, (n, piece) in enumerate(zip(obj.partnames, obj.pieces), line + 2):
+			stdscr.addstr(line, 0, "%s: %s" % (n, piece))
+		stdscr.addstr(line + 2, 0, "> ", curses.A_BOLD)
+		stdscr.refresh()
+		stdscr.getkey()
+
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
 	action="store_const", const="borderlands 2", dest="game")
