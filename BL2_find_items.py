@@ -266,35 +266,42 @@ def tweak(savefile, baseid):
 	import curses
 	@curses.wrapper
 	def _tweak(stdscr):
-		line = 0
-		def printf(str="", *args, attr=curses.A_NORMAL):
-			if args: str = str % tuple(args)
-			nonlocal line
-			stdscr.addstr(line, 0, str, attr)
-			stdscr.clrtoeol()
-			line += 1
-		printf("Balance: %s", obj.balance, attr=curses.A_BOLD)
-		for attr, func in get_balance_options.items():
-			printf("%s: %s", attr, getattr(obj, attr), attr=curses.A_BOLD)
-			# Show the available options
-			for opt in func(info):
-				printf("\t%s", opt)
-		printf()
-		for n, piece in zip(obj.partnames, obj.pieces):
-			printf("%s: %s", n, piece, attr=curses.A_BOLD)
-			if line > stdscr.getmaxyx()[0] - 10: continue # Hack: avoid scrolling
-			for opt in list_parts(n):
-				printf("\t%s", opt)
-		printf()
-		printf("> ", attr=curses.A_BOLD)
-		# TODO:
-		# - Type to filter the available components, across all sections
-		# - Arrow keys to select
-		# - Enter to change the currently-selected component
-		# Typing "maliwan" would then let you go "enter, down, enter, down enter" to
-		# make an all-Maliwan item.
-		stdscr.refresh()
-		stdscr.getkey()
+		filter = ""
+		while "interactive":
+			line = need = 0
+			def printf(str="", *args, attr=curses.A_NORMAL, keep=3):
+				if args: str = str % tuple(args)
+				nonlocal line
+				if line > stdscr.getmaxyx()[0] - keep: # Need scrolling
+					nonlocal need
+					need += 1
+					return
+				stdscr.addstr(line, 0, str, attr)
+				stdscr.clrtoeol()
+				line += 1
+			printf("Balance: %s", obj.balance, attr=curses.A_BOLD)
+			for attr, func in get_balance_options.items():
+				printf("%s: %s", attr, getattr(obj, attr), attr=curses.A_BOLD)
+				# Show the available options
+				for opt in func(info):
+					printf("\t%s", opt)
+			printf()
+			for n, piece in zip(obj.partnames, obj.pieces):
+				printf("%s: %s", n, piece, attr=curses.A_BOLD)
+				for opt in list_parts(n):
+					printf("\t%s", opt)
+			printf(keep=2)
+			if need: printf("(+%d)> ", need, attr=curses.A_BOLD, keep=1)
+			else: printf("> ", attr=curses.A_BOLD, keep=1)
+			stdscr.refresh()
+			stdscr.getkey()
+			# TODO:
+			# - Type to filter the available components, across all sections
+			# - Arrow keys to select
+			# - Enter to change the currently-selected component
+			# Typing "maliwan" would then let you go "enter, down, enter, down enter" to
+			# make an all-Maliwan item.
+			break # fake loop for now
 
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
