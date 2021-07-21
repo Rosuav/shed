@@ -331,7 +331,7 @@ def tweak(savefile, baseid):
 			elif key == "KEY_UP":
 				if sel > 1: sel -= 1
 				else: sel = maxsel
-			elif len(key) == 1 and 'A' <= key <= 'Z' or 'a' <= key <= 'z':
+			elif len(key) == 1 and ('A' <= key <= 'Z' or 'a' <= key <= 'z' or '0' <= key <= '9'):
 				filter += key.lower()
 			elif key == "KEY_BACKSPACE" and filter:
 				filter = filter[:-1]
@@ -469,8 +469,7 @@ library = {
 		"BwAAADI+S20A5dYAwKjOzpsdgAPwuBuUEX6r+cYQIWO1tGxQLAs": "Chrono Binder", # Left tree focus
 		"BwAAADI+S20A5dYAwKjODpodgAMyehuUEX6r+cYQoWG1tGxQLAs": "Hell Binder", # Right tree focus
 		# Assassin:
-		"BwAAADI+S20A5dYAwOjJzogdgAOmFhufEZarmccQoWN1t2xQLAs": "Slayer Of Terramorphous",
-		"BwAAADI+S20A5dYAwGjJzogdgANW6BufEZarmccQoWP1t+xQLAs": "Slayer Of Terramorphous",
+		"BwAAADI+S20A5dYAwOjJzogdgAMXIBufEZarmccQoWO1tGxQLAs": "Slayer Of Terramorphous Class Mod",
 		# Merc:
 		"BwAAADI+S20A5dYAwKjOzogdgAM/jBueEYCr2ccQoWN1t6xQLAs": "Slayer Of Terramorphous",
 		"BwAAADI+S20A5dYAwKjOTqMdgANlvhugEYyrWccQoWG1tGxQLAs": "Lucky Hoarder",
