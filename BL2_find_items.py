@@ -235,6 +235,7 @@ def crossproduct(savefile, baseid):
 def tweak(savefile, baseid):
 	if "_" in baseid: obj = item(50, baseid) # Looks like a balance name, not an item ID
 	else: obj = Asset.decode_asset_library(unarmor_serial(baseid))
+	obj.grade = obj.stage = savefile.level
 	info = get_balance_info(obj.is_weapon, obj.balance)
 	weap_item = "Weapon" if obj.is_weapon else "Item"
 	config = get_asset_library_manager()
@@ -315,7 +316,9 @@ def tweak(savefile, baseid):
 			key = stdscr.getkey()
 			# Filter, select, enter to change item. Example: Typing "maliwan" will let
 			# you go "enter, down, enter, down enter" to make an all-Maliwan item.
-			if key == "\x1b": break
+			if key == "\x1b":
+				if filter: filter = ""
+				else: break
 			# Scroll with shift-up and shift-down (or other keys if they've been redefined)
 			# or with ctrl-up and ctrl-down, assuming they get reported this way
 			elif key in ("KEY_SF", "kDN5") and need: scroll += 1
@@ -336,6 +339,7 @@ def tweak(savefile, baseid):
 					obj.pieces[obj.partnames.index(selectme[0])] = selectme[1] if selectme[1] != "None" else None
 				else:
 					setattr(obj, selectme[0], selectme[1] if selectme[1] != "None" else None)
+			elif key == "KEY_ENTER": savefile.add_inventory(obj) # Keypad enter to take the item
 			elif key == "KEY_IC": filter = repr(stdscr.getkey()) # Debug - hit Insert then a key to see its name
 
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
