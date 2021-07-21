@@ -284,9 +284,15 @@ def tweak(savefile, baseid):
 			printf("Balance: %s", obj.balance, attr=curses.A_BOLD)
 			def show_piece(key, active, options):
 				printf("%s: %s", key, active, attr=curses.A_BOLD)
-				# Show the available options
+				if len(options) == 1 and str(options[0]).endswith(str(active)):
+					# The only option is the selected one. Don't bother
+					# showing additional options. Note that this is checked
+					# before the filter is, so filtering down to just the
+					# selected one will still maintain consistency.
+					return
 				for opt in options:
-					if not opt or filter in opt.lower(): printf("\t%s", opt)
+					opt = strip_prefix(opt) if opt else "None"
+					if filter in opt.lower(): printf("\t%s", opt)
 			for attr, func in get_balance_options.items():
 				show_piece(attr, getattr(obj, attr), func(info))
 			printf()
