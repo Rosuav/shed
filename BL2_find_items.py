@@ -266,18 +266,19 @@ def tweak(savefile, baseid):
 	import curses
 	@curses.wrapper
 	def _tweak(stdscr):
-		filter = ""
+		filter, scroll = "", 0
 		while "interactive":
 			line = need = 0
 			def printf(str="", *args, attr=curses.A_NORMAL, keep=3):
 				if args: str = str % tuple(args)
 				nonlocal line
-				if line > stdscr.getmaxyx()[0] - keep: # Need scrolling
+				if line - scroll > stdscr.getmaxyx()[0] - keep: # Need scrolling
 					nonlocal need
 					need += 1
 					return
-				stdscr.addstr(line, 0, str, attr)
-				stdscr.clrtoeol()
+				if line >= scroll:
+					stdscr.addstr(line - scroll, 0, str, attr)
+					stdscr.clrtoeol()
 				line += 1
 			printf("Balance: %s", obj.balance, attr=curses.A_BOLD)
 			for attr, func in get_balance_options.items():
@@ -294,14 +295,19 @@ def tweak(savefile, baseid):
 			if need: printf("(+%d)> ", need, attr=curses.A_BOLD, keep=1)
 			else: printf("> ", attr=curses.A_BOLD, keep=1)
 			stdscr.refresh()
-			stdscr.getkey()
+			key = stdscr.getkey()
 			# TODO:
 			# - Type to filter the available components, across all sections
 			# - Arrow keys to select
 			# - Enter to change the currently-selected component
 			# Typing "maliwan" would then let you go "enter, down, enter, down enter" to
 			# make an all-Maliwan item.
-			break # fake loop for now
+			if key == "KEY_DOWN" and need:
+				scroll += 1
+			elif key == "KEY_UP" and scroll:
+				scroll -= 1
+			elif key == "\n":
+				break
 
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
