@@ -267,9 +267,10 @@ def tweak(savefile, baseid):
 	@curses.wrapper
 	def _tweak(stdscr):
 		curses.set_escdelay(10)
-		filter, scroll = "", 0
+		filter = ""
+		scroll = sel = 0
 		while "interactive":
-			line = need = 0
+			line = need = maxsel = selectme = 0
 			def printf(str="", *args, attr=curses.A_NORMAL, keep=3):
 				if args: str = str % tuple(args)
 				nonlocal line
@@ -292,7 +293,13 @@ def tweak(savefile, baseid):
 					return
 				for opt in options:
 					opt = strip_prefix(opt) if opt else "None"
-					if filter in opt.lower(): printf("\t%s", opt)
+					if filter in opt.lower():
+						nonlocal maxsel
+						maxsel += 1
+						printf("%s\t%s", "->" if maxsel == sel else "", opt)
+						if maxsel == sel:
+							nonlocal selectme
+							selectme = (key, opt)
 			for attr, func in get_balance_options.items():
 				show_piece(attr, getattr(obj, attr), func(info))
 			printf()
@@ -306,21 +313,29 @@ def tweak(savefile, baseid):
 			else: printf("> %s", filter, attr=curses.A_BOLD, keep=1)
 			stdscr.refresh()
 			key = stdscr.getkey()
-			# TODO:
-			# - Type to filter the available components, across all sections
-			# - Arrow keys to select
-			# - Enter to change the currently-selected component
-			# Typing "maliwan" would then let you go "enter, down, enter, down enter" to
-			# make an all-Maliwan item.
-			if key in "\x1b\n": break
+			# Filter, select, enter to change item. Example: Typing "maliwan" will let
+			# you go "enter, down, enter, down enter" to make an all-Maliwan item.
+			if key == "\x1b": break
 			# Scroll with shift-up and shift-down (or other keys if they've been redefined)
 			# or with ctrl-up and ctrl-down, assuming they get reported this way
 			elif key in ("KEY_SF", "kDN5") and need: scroll += 1
 			elif key in ("KEY_SR", "kUP5") and scroll: scroll -= 1
+			elif key == "KEY_DOWN":
+				if sel < maxsel: sel += 1
+				else: sel = 1
+			elif key == "KEY_UP":
+				if sel > 1: sel -= 1
+				else: sel = maxsel
 			elif len(key) == 1 and 'A' <= key <= 'Z' or 'a' <= key <= 'z':
 				filter += key.lower()
 			elif key == "KEY_BACKSPACE" and filter:
 				filter = filter[:-1]
+			elif key == "\n" and selectme:
+				# Ugh, don't like this.
+				if selectme[0] in obj.partnames:
+					obj.pieces[obj.partnames.index(selectme[0])] = selectme[1] if selectme[1] != "None" else None
+				else:
+					setattr(obj, selectme[0], selectme[1] if selectme[1] != "None" else None)
 			elif key == "KEY_IC": filter = repr(stdscr.getkey()) # Debug - hit Insert then a key to see its name
 
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
