@@ -266,6 +266,7 @@ def tweak(savefile, baseid):
 	import curses
 	@curses.wrapper
 	def _tweak(stdscr):
+		curses.set_escdelay(10)
 		filter, scroll = "", 0
 		while "interactive":
 			line = need = 0
@@ -305,16 +306,16 @@ def tweak(savefile, baseid):
 			# - Enter to change the currently-selected component
 			# Typing "maliwan" would then let you go "enter, down, enter, down enter" to
 			# make an all-Maliwan item.
-			if key == "KEY_DOWN" and need:
-				scroll += 1
-			elif key == "KEY_UP" and scroll:
-				scroll -= 1
+			if key in "\x1b\n": break
+			# Scroll with shift-up and shift-down (or other keys if they've been redefined)
+			# or with ctrl-up and ctrl-down, assuming they get reported this way
+			elif key in ("KEY_SF", "kDN5") and need: scroll += 1
+			elif key in ("KEY_SR", "kUP5") and scroll: scroll -= 1
 			elif len(key) == 1 and 'A' <= key <= 'Z' or 'a' <= key <= 'z':
 				filter += key.lower()
 			elif key == "KEY_BACKSPACE" and filter:
 				filter = filter[:-1]
-			elif key in "\x1b\n":
-				break
+			elif key == "KEY_IC": filter = repr(stdscr.getkey()) # Debug - hit Insert then a key to see its name
 
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
 parser.add_argument("-2", "--bl2", help="Read Borderlands 2 savefiles",
