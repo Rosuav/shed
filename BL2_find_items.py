@@ -245,6 +245,8 @@ def tweak(savefile, baseid):
 	def list_parts(part):
 		b = info.get(part)
 		if b: return b
+		p = info.get("parts", {}).get(part)
+		if p: return p
 		t = typeinfo.get(part + "_parts")
 		if t: return t
 		return [None]
