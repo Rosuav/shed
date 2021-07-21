@@ -281,19 +281,22 @@ def tweak(savefile, baseid):
 					stdscr.clrtoeol()
 				line += 1
 			printf("Balance: %s", obj.balance, attr=curses.A_BOLD)
-			for attr, func in get_balance_options.items():
-				printf("%s: %s", attr, getattr(obj, attr), attr=curses.A_BOLD)
+			def show_piece(key, active, options):
+				printf("%s: %s", key, active, attr=curses.A_BOLD)
 				# Show the available options
-				for opt in func(info):
-					printf("\t%s", opt)
+				for opt in options:
+					if not opt or filter in opt.lower(): printf("\t%s", opt)
+			for attr, func in get_balance_options.items():
+				show_piece(attr, getattr(obj, attr), func(info))
 			printf()
 			for n, piece in zip(obj.partnames, obj.pieces):
-				printf("%s: %s", n, piece, attr=curses.A_BOLD)
-				for opt in list_parts(n):
-					printf("\t%s", opt)
+				show_piece(n, piece, list_parts(n))
 			printf(keep=2)
-			if need: printf("(+%d)> ", need, attr=curses.A_BOLD, keep=1)
-			else: printf("> ", attr=curses.A_BOLD, keep=1)
+			for l in range(line, stdscr.getmaxyx()[0]):
+				stdscr.move(l, 0)
+				stdscr.clrtoeol()
+			if need: printf("(+%d)> %s", need, filter, attr=curses.A_BOLD, keep=1)
+			else: printf("> %s", filter, attr=curses.A_BOLD, keep=1)
 			stdscr.refresh()
 			key = stdscr.getkey()
 			# TODO:
@@ -306,7 +309,11 @@ def tweak(savefile, baseid):
 				scroll += 1
 			elif key == "KEY_UP" and scroll:
 				scroll -= 1
-			elif key == "\n":
+			elif len(key) == 1 and 'A' <= key <= 'Z' or 'a' <= key <= 'z':
+				filter += key.lower()
+			elif key == "KEY_BACKSPACE" and filter:
+				filter = filter[:-1]
+			elif key in "\x1b\n":
 				break
 
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
