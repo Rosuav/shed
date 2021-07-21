@@ -372,8 +372,9 @@ print(args)
 GAME = args.game
 
 # Library of item IDs. Everything here is seed=grade=stage=50 for consistency.
-# TODO: Have an easy way to pick and choose, and have them set to the player's level (and randomize the seed)
+# Picking and choosing is best done with "--synth give:ITEMID,ITEMID,ITEMID".
 # TODO: Check variants of each of these and pick out the best. The "# V" tag means I haven't checked variants.
+# TODO: Describe some unobvious tweak options and how to pick useful variants
 library = {
 	"borderlands 2": {
 		# Weapons
@@ -482,8 +483,7 @@ library = {
 		"BwAAADI+S20A5dYAwOjJzogdgAN14hu8EWyruccQoWO1tOxQLAs": "Slayer Of Terramorphous",
 		"BwAAADI+S20A5dYAwKjOTosdgAOj/Ru9EXSruccQIWB1tmxQLAs": "Diehard Veteran Class Mod",
 		# Psycho:
-		"BwAAADI+S20A5dYAwCjJDog8gANNZh22HAUK6sYQoWM1t+xQLAs": "Slayer of Terramorphous",
-		"BwAAADI+S20A5dYAwOjJDog8gAN2DR22HAUK6sYQoWO1t6xQLAs": "Slayer of Terramorphous",
+		"BwAAADI+S20A5dYAwOjJDog8gAP0NR22HAUK6sYQoWO1tGxQLAs": "Slayer of Terramorphous Class Mod",
 	},
 	"borderlands the pre-sequel": {
 		# Lasers
@@ -793,6 +793,7 @@ class Asset:
 		if args.itemids: ret += " {%s}" % armor_serial(self.encode_asset_library())
 		if args.pieces: ret += "\n" + " + ".join(filter(None, self.pieces))
 		if args.raw: ret += "\n" + ", ".join("%s=%r" % (f, getattr(self, f)) for f in self.__dataclass_fields__)
+		if args.library and "{}" in args.library: args.library += ",{%s}" % armor_serial(self.encode_asset_library())
 		return ret
 	#if args.raw: del __repr__ # For a truly-raw view (debugging mode).
 
