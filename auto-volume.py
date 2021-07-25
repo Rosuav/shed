@@ -21,7 +21,7 @@ def parse_file(fn, *, force=False):
 	# TODO: Detect playlists more reliably (and handle m3u too)
 	if fn.endswith(".xspf"):
 		for el in ET.parse(fn).getroot().findall(".//*/{http://xspf.org/ns/0/}location"):
-			parse_file(unquote(urlparse(el.text).path), force=force)
+			parse_file(os.path.join(fn, "..", unquote(urlparse(el.text).path)), force=force)
 		return
 	if fn[-4] == "." and fn[-3:].lower() in {"mid", "kar", "xml", "txt", "jpg", "srt", "vpl"}:
 		# These files are almost certainly going to be unparseable. Save ourselves
