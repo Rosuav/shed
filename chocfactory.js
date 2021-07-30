@@ -1,4 +1,4 @@
-/* Chocolate Factory v0.5
+/* Chocolate Factory v0.6
 
 DOM object builder. (Thanks to DeviCat for the name!)
 
@@ -40,6 +40,9 @@ To distinguish between multiple objects that potentially match, e.match
 will be set to the object that received the event. (This is distinct from
 e.target and e.currentTarget.) NOTE: e.match is wiped after the event
 handler returns. For asynchronous use, capture it in a variable first.
+Additional options can be set with another argument, eg passing true to have
+the event handler attached to the capturing phase instead. Important for some
+types of events, irrelevant for others. New in v0.6.
 
 For other manipulations of DOM objects, start by locating one by its selector:
     DOM('input[name="thought"]').value = "..."
@@ -99,7 +102,7 @@ export function set_content(elem, children) {
 }
 
 const handlers = {};
-export function on(event, selector, handler) {
+export function on(event, selector, handler, options) {
 	if (handlers[event]) return handlers[event].push([selector, handler]);
 	handlers[event] = [[selector, handler]];
 	document.addEventListener(event, e => {
@@ -112,7 +115,7 @@ export function on(event, selector, handler) {
 			cur = cur.parentNode;
 		}
 		e.match = null; //Signal that you can't trust the match ref any more
-	});
+	}, options);
 	return 1;
 }
 
@@ -177,7 +180,7 @@ let choc = function(tag, attributes, children) {
 	if (children) set_content(ret, children);
 	return ret;
 }
-choc.__version__ = "0.5";
+choc.__version__ = "0.6";
 
 //Interpret choc.DIV(attr, chld) as choc("DIV", attr, chld)
 //This is basically what Python would do as choc.__getattr__()
