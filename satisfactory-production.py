@@ -597,7 +597,6 @@ class Rubber_Concrete(Unavailable):
 	Rubber: 2
 	time: 12
 	Concrete: 9
-auto_producer("Concrete")
 
 # Frames
 class Adhered_Iron_Plate(Assembler):
@@ -605,6 +604,7 @@ class Adhered_Iron_Plate(Assembler):
 	Rubber: 1
 	time: 16
 	Reinforced_Iron_Plate: 1
+auto_producer("Concrete", "Reinforced_Iron_Plate")
 
 class Modular_Frame(Assembler):
 	Reinforced_Iron_Plate: 3
