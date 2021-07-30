@@ -63,8 +63,8 @@ def auto_producer(*items):
 # If certain items are extremely cheap to obtain (eg if you're in a
 # water-rich area), declare that recipes can be strictly better even
 # though they require more of that resource.
-cheap_resources = set()
-# cheap_resources = {"Water"}
+# cheap_resources = set()
+cheap_resources = {"Water"}
 
 class Building:
 	resource = None
@@ -161,7 +161,7 @@ class Manufacturer(Building): ...
 class Particle_Accelerator(Building): ...
 class Smelter(Building): ...
 class Foundry(Building): ...
-class Omni_Refinery(Building): ... # With the Space Block mod
+class Omni_Refinery(Unavailable): ... # With the Space Block mod
 
 # class Recipe_Name(BuildingThatMakesIt):
 #   Ingredient1: Qty
