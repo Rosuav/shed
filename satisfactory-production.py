@@ -121,7 +121,7 @@ class Building:
 					scaled_costs = costs * ratio - cheap_resources # Cost to produce 60/min of this product
 					worse = False
 					for alternate in producers[item]:
-						if not alternate["recipes"]: break # Anything directly obtained should always be so.
+						if not alternate["recipes"]: worse = True; break # Anything directly obtained should always be so.
 						alt_costs = alternate["costs"] - cheap_resources
 						if scaled_costs >= alt_costs:
 							# Strictly worse. Skip it. Note that a recipe may be
