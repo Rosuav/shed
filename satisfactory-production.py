@@ -144,6 +144,8 @@ class Building:
 						"costs": costs * ratio,
 						"deprecated": worse,
 					})
+					# Disable this to keep all the worse recipes for analysis
+					producers[item] = [p for p in producers[item] if not p.get("deprecated")]
 		bldg.__init_subclass__ = classmethod(make_recipe)
 
 
