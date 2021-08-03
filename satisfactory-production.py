@@ -327,6 +327,7 @@ class Compacted_Steel_Ingot(Foundry):
 	time: 16
 	Steel_Ingot: 10
 # Coke Steel Ingot is down below with petroleum
+auto_producer("Steel_Ingot")
 
 class Iron_Rod(Constructor):
 	Iron_Ingot: 1
@@ -494,7 +495,7 @@ class Petroleum_Coke(Refinery):
 	time: 6
 	Petroleum_Coke: 12
 
-class Compacted_Steel_Ingot(Foundry):
+class Coke_Steel_Ingot(Foundry):
 	Iron_Ore: 15
 	Petroleum_Coke: 15
 	time: 12
@@ -694,6 +695,7 @@ class Quickwire_Stator(Assembler):
 	Quickwire: 15
 	time: 15
 	Stator: 2
+auto_producer("Rotor", "Stator")
 
 class Motor(Assembler):
 	Rotor: 2
@@ -704,7 +706,7 @@ class Motor(Assembler):
 class Rigour_Motor(Manufacturer):
 	Rotor: 3
 	Stator: 3
-	Oscillator: 1
+	Crystal_Oscillator: 1
 	time: 48
 	Motor: 6
 
@@ -795,13 +797,13 @@ class Heat_Exchanger(Assembler):
 
 class Radio_Control_Unit(Manufacturer):
 	Alum_Casing: 32
-	Oscillator: 1
+	Crystal_Oscillator: 1
 	Computer: 1
 	time: 48
 	Radio_Control_Unit: 2
 
 class Radio_Control_System(Manufacturer):
-	Oscillator: 1
+	Crystal_Oscillator: 1
 	Circuit_Board: 10
 	Alum_Casing: 60
 	Rubber: 30
@@ -1012,7 +1014,7 @@ class Uranium_Fuel_Rod(Manufacturer):
 class Nuclear_Fuel_Unit(Manufacturer):
 	Encased_Uranium_Cell: 100
 	Control_Rod: 10
-	Oscillator: 3
+	Crystal_Oscillator: 3
 	Beacon: 6
 	time: 300
 	Nuclear_Fuel_Rod: 3
