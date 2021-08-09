@@ -30,5 +30,5 @@ for row in sheet.getElementsByType(TableRow):
 	link = link.replace("www.twitch.tv", "twitch.tv") # Brevity helps in chat
 	msgs.append("maayaBrush %s is one of our #100Artists %s" % (data["name"], link))
 
-json.dump({"message": msgs, "mode": "random"}, sys.stdout)
+json.dump({"message": msgs, "mode": "random", "access": "vip"}, sys.stdout)
 print()
