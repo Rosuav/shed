@@ -24,7 +24,6 @@ for row in sheet.getElementsByType(TableRow):
 		cols = data
 		continue
 	if not data["name"]: continue
-	# if data["In slideshow"] == "n": continue # Hide those who asked not to be in the slideshow?
 	link = data["link"]
 	if link == "no stream" or link == "No raid": link = "https://mrsoef5.com/atc/" + data["name"] + " (link won't work yet)"
 	if link.startswith("Twitch.tv/"): link = "https://t" + link[1:]
