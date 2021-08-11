@@ -8,6 +8,7 @@ doc = odf.opendocument.load(sys.argv[1])
 sheet = doc.spreadsheet.getElementsByType(Table)[0]
 cols = { }
 msgs = []
+images = { }
 
 def expand(cells):
 	# ODS cells can have a repeat count. Logically, we should just duplicate them out.
@@ -28,7 +29,12 @@ for row in sheet.getElementsByType(TableRow):
 	if link == "no stream" or link == "No raid": link = "https://mrsoef5.com/atc/" + data["name"] + " (link won't work yet)"
 	if link.startswith("Twitch.tv/"): link = "https://t" + link[1:]
 	link = link.replace("www.twitch.tv", "twitch.tv") # Brevity helps in chat
+	if data["imgur link"]:
+		images[data["name"]] = data["imgur link"].strip().replace("https://imgur.com/a/", "https://i.imgur.com/") + ".png"
 	msgs.append("maayaBrush %s is one of our #100Artists %s" % (data["name"], link))
 
 json.dump({"message": msgs, "mode": "random", "access": "vip"}, sys.stdout)
+print()
+print()
+json.dump({"images": images}, sys.stdout)
 print()
