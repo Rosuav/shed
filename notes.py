@@ -99,7 +99,7 @@ def take_notes(*, desc, new_match=False, **extra):
 		print("http://localhost:27013/static/notes.html#" + blocks[-1], file=log)
 		import webbrowser; webbrowser.open("http://localhost:27013/static/notes.html#" + blocks[-1])
 
-	fn = "%02d - " % note_id + desc
+	fn = ("%02d - " % note_id + desc).replace("/", "_")
 	print("[%s]" % block, fn, file=log, flush=True)
 	with open(block + "/%s.flac" % fn, "wb") as f: f.write(audio.get_flac_data())
 
