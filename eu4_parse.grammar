@@ -1,0 +1,17 @@
+savefile: varlist;
+
+/* Note that a varlist can't be empty */
+varlist: name "=" value {makemapping};
+varlist: varlist name "=" value {addmapping};
+
+/* Nor can an array, although the definition of a value includes an empty array */
+array: value {makearray};
+array: array value {addarray};
+
+name: "atom";
+
+value: "number";
+value: "string";
+value: "{" varlist "}" {take2};
+value: "{" array "}" {take2};
+value: "{" "}" {emptyarray};
