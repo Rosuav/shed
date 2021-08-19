@@ -58,12 +58,16 @@ int main() {
 		if (!prov->center_of_trade) continue;
 		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
 		int need = prov->center_of_trade == "1" ? 10 : 25;
-		string desc = sprintf("%s\tLvl %s\tDev %d\t%s", prov->owner, prov->center_of_trade, dev, prov->name);
+		array desc = ({
+			sprintf("%s %04d %s", prov->owner, 9999-dev, prov->name),
+			sprintf("%s\tLvl %s\tDev %d\t%s", prov->owner, prov->center_of_trade, dev, string_to_utf8(prov->name)),
+		});
 		if (prov->center_of_trade == "3") maxlvl += ({desc});
 		else if (dev >= need) upgradeable += ({desc});
 		else developable += ({desc});
 	}
-	if (sizeof(maxlvl)) write("Max level CoTs:\n%{%s\n%}\n", string_to_utf8(maxlvl[*]));
-	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n\e[1;32m%{%s\n%}\e[0m\n", string_to_utf8(upgradeable[*]));
-	if (sizeof(developable)) write("Developable CoTs:\n\e[1;36m%{%s\n%}\e[0m\n", string_to_utf8(developable[*]));
+	sort(maxlvl); sort(upgradeable); sort(developable);
+	if (sizeof(maxlvl)) write("Max level CoTs:\n%{%s\n%}\n", maxlvl[*][-1]);
+	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n\e[1;32m%{%s\n%}\e[0m\n", upgradeable[*][-1]);
+	if (sizeof(developable)) write("Developable CoTs:\n\e[1;36m%{%s\n%}\e[0m\n", developable[*][-1]);
 }
