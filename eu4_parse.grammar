@@ -3,15 +3,17 @@ savefile: varlist;
 /* Note that a varlist can't be empty */
 varlist: name "=" value {makemapping};
 varlist: varlist name "=" value {addmapping};
+varlist: varlist "{" "}"; /* Weird oddity at one point in the save file - a bunch of empty blocks in what should be a mapping */
 
 /* Nor can an array, although the definition of a value includes an empty array */
 array: value {makearray};
 array: array value {addarray};
 
-name: "atom";
+name: "string";
 
 value: "number";
 value: "string";
+value: "boolean";
 value: "{" varlist "}" {take2};
 value: "{" array "}" {take2};
 value: "{" "}" {emptyarray};
