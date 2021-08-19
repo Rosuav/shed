@@ -1,18 +1,7 @@
 /*
 Read a text EU4 savefile (use mp_autosave.eu4 by default)
-Report the date and all player nations, for confirmation that it's the right file
-players_countries={...}
-
-provinces={...}
-For each province, which seems to be "-125" etc:
-- owner="SPA" or owner="D00" (cf players_countries)
-- base_tax + base_production + base_manpower
-- center_of_trade=1
-- name="Palermo"
-
-
-TODO: Search for upgradeable CoTs
-TODO: Search for potentially-upgradeable CoTs (and list required devel for each)
+Currently scans for upgradeable Centers of Trade, since they're hard to find.
+Could search for anything else of interest.
 */
 
 Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("eu4_parse.grammar");
@@ -58,5 +47,23 @@ mapping parse_savefile(string data, int|void verbose) {
 int main() {
 	string raw = Stdio.read_file("../.local/share/Paradox Interactive/Europa Universalis IV/save games/mp_autosave.eu4"); //Assumes ISO-8859-1, which I think is correct
 	mapping data = parse_savefile(raw);
-	write("%O\n", data && indices(data));
+	if (!data) exit(1, "Unable to parse save file (see above for errors, hopefully)\n");
+	write("\nCurrent date: %s\n", data->date);
+	array players = data->players_countries / 2;
+	multiset player_tags = (multiset)players[*][1];
+	write("Players:%{ %s (%s)%}\n\n", players);
+	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
+	foreach (data->provinces; mixed id; mapping prov) {
+		if (!player_tags[prov->owner]) continue;
+		if (!prov->center_of_trade) continue;
+		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
+		int need = prov->center_of_trade == "1" ? 10 : 25;
+		string desc = sprintf("%s\tLvl %s\tDev %d\t%s", prov->owner, prov->center_of_trade, dev, prov->name);
+		if (prov->center_of_trade == "3") maxlvl += ({desc});
+		else if (dev >= need) upgradeable += ({desc});
+		else developable += ({desc});
+	}
+	if (sizeof(maxlvl)) write("Max level CoTs:\n%{%s\n%}\n", string_to_utf8(maxlvl[*]));
+	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n\e[1;32m%{%s\n%}\e[0m\n", string_to_utf8(upgradeable[*]));
+	if (sizeof(developable)) write("Developable CoTs:\n\e[1;36m%{%s\n%}\e[0m\n", string_to_utf8(developable[*]));
 }
