@@ -11,20 +11,6 @@ For each province, which seems to be "-125" etc:
 - name="Palermo"
 
 
-Grammar:
-
-* First line "EU4txt\n"
-* Everything else is name=value
-* Value is one of:
-  - 1676.1.1
-  - "mp_autosave.eu4"
-  - { name=value... }
-  - { value value value... }
-* Names always (seem to) start with letter or hyphen
-* Values start with a digit, a quote, or a brace, or are the word "yes" or "no"
-
-TODO: Build grammar
-TODO: Parse file to nested mapping
 TODO: Search for upgradeable CoTs
 TODO: Search for potentially-upgradeable CoTs (and list required devel for each)
 */
