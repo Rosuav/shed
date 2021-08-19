@@ -39,7 +39,7 @@ string|mapping parse_vdf(string data, int|void verbose) {
 
 //Simple demo
 int main(int argc, array(string) argv) {
-	if (argc < 2) exit(1, "USAGE: pike %s filename.vdf", argv[0]);
+	if (argc < 2) exit(1, "USAGE: pike %s filename.vdf\n", argv[0]);
 	string|mapping content = parse_vdf(Stdio.read_file(argv[1]));
 	write("RESULT: %s\n", Standards.JSON.encode(content, 7));
 }
