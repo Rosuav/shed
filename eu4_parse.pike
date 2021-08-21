@@ -55,6 +55,8 @@ mapping parse_savefile(string data, int|void verbose) {
 	return ret;
 }
 
+array(string) interesting_province = ({ });
+void interesting(string id) {if (!has_value(interesting_province, id)) interesting_province += ({id});} //Retain order but avoid duplicates
 void analyze_cot(mapping data, string name, string tag) {
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
@@ -66,6 +68,7 @@ void analyze_cot(mapping data, string name, string tag) {
 		array desc = ({
 			sprintf("%s %04d %s", prov->owner, 9999-dev, prov->name),
 			prov->center_of_trade,
+			id,
 			sprintf("%s\tLvl %s\tDev %d\t%s", id, prov->center_of_trade, dev, string_to_utf8(prov->name)),
 		});
 		if (prov->center_of_trade == "3") maxlvl += ({desc});
@@ -78,7 +81,10 @@ void analyze_cot(mapping data, string name, string tag) {
 	int level3 = sizeof(country->merchants->envoy); //You can have as many lvl 3 CoTs as you have merchants.
 	if (sizeof(maxlvl)) write("Max level CoTs (%d/%d):\n%{%s\n%}\n", sizeof(maxlvl), level3, maxlvl[*][-1]);
 	level3 -= sizeof(maxlvl);
-	string colorize(string color, array info) {return color * (info[1] != "2" || --level3 > 0) + info[-1];}
+	string colorize(string color, array info) {
+		if (info[1] != "2" || --level3 > 0) {interesting(info[2]); return color + info[-1];}
+		return info[-1];
+	}
 	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;32m", upgradeable[*]));
 	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*]));
 	//$ xdotool search --name "Europa Universalis IV" key --delay 125 f 2 2 4 Return
@@ -106,14 +112,16 @@ void analyze_furnace(mapping data, string name, string tag) {
 			write("%s\t%s\tDev %d\t%s\n", id, prov->building_construction->date, dev, string_to_utf8(prov->name));
 		else if (sizeof(mfg)) write("\e[1;31m%s\tHas %s\tDev %d\t%s\e[0m\n", id, values(mfg)[0], dev, string_to_utf8(prov->name));
 		//Don't know how to count building slots. Would be nice to show "1 free"
-		else write("\e[1;32m%s\t%d buildings\tDev %d\t%s\e[0m\n", id, sizeof(bldg), dev, string_to_utf8(prov->name));
+		else {interesting(id); write("\e[1;32m%s\t%d buildings\tDev %d\t%s\e[0m\n", id, sizeof(bldg), dev, string_to_utf8(prov->name));}
 	}
 	write("\n");
 }
 
 void analyze(mapping data, string name, string tag) {
+	interesting_province = ({ });
 	write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
 	({analyze_cot, analyze_furnace})(data, name, tag);
+	write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province));
 }
 
 int main() {
