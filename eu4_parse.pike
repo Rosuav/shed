@@ -2,6 +2,8 @@
 Read a text EU4 savefile (use mp_autosave.eu4 by default)
 Currently scans for upgradeable Centers of Trade, since they're hard to find.
 Could search for anything else of interest.
+
+* Find coal-producing provinces and show whether they have Furnace, have other Mfg, or lack the dev to build
 */
 
 Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("eu4_parse.grammar");
