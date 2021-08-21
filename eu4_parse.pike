@@ -55,30 +55,37 @@ mapping parse_savefile(string data, int|void verbose) {
 	return ret;
 }
 
-int main() {
-	string raw = Stdio.read_file("../.local/share/Paradox Interactive/Europa Universalis IV/save games/mp_autosave.eu4"); //Assumes ISO-8859-1, which I think is correct
-	mapping data = parse_savefile(raw);
-	if (!data) exit(1, "Unable to parse save file (see above for errors, hopefully)\n");
-	write("\nCurrent date: %s\n", data->date);
-	array players = data->players_countries / 2;
-	multiset player_tags = (multiset)players[*][1];
-	write("Players:%{ %s (%s)%}\n\n", players);
+void analyze(mapping data, string name, string tag) {
+	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
-	foreach (data->provinces; mixed id; mapping prov) {
-		if (!player_tags[prov->owner]) continue;
+	write("\e[1mPlayer: %s (%s)\e[0m\n", name, tag);
+	foreach (country->owned_provinces, string id) {
+		mapping prov = data->provinces["-" + id];
 		if (!prov->center_of_trade) continue;
 		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
 		int need = prov->center_of_trade == "1" ? 10 : 25;
 		array desc = ({
 			sprintf("%s %04d %s", prov->owner, 9999-dev, prov->name),
-			sprintf("%s\tLvl %s\tDev %d\t%s", prov->owner, prov->center_of_trade, dev, string_to_utf8(prov->name)),
+			sprintf("%s\tLvl %s\tDev %d\t%s", id, prov->center_of_trade, dev, string_to_utf8(prov->name)),
 		});
 		if (prov->center_of_trade == "3") maxlvl += ({desc});
 		else if (dev >= need) upgradeable += ({desc});
 		else developable += ({desc});
+		//prov->buildings->furnace ?
+		//prov->trade_goods == "coal" ?
 	}
 	sort(maxlvl); sort(upgradeable); sort(developable);
 	if (sizeof(maxlvl)) write("Max level CoTs:\n%{%s\n%}\n", maxlvl[*][-1]);
 	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n\e[1;32m%{%s\n%}\e[0m\n", upgradeable[*][-1]);
 	if (sizeof(developable)) write("Developable CoTs:\n\e[1;36m%{%s\n%}\e[0m\n", developable[*][-1]);
+	//$ xdotool search --name "Europa Universalis IV" key --delay 125 f 2 2 4 Return
+	//-- bring focus to Sevilla (province 224)
+}
+
+int main() {
+	string raw = Stdio.read_file("../.local/share/Paradox Interactive/Europa Universalis IV/save games/mp_autosave.eu4"); //Assumes ISO-8859-1, which I think is correct
+	mapping data = parse_savefile(raw);
+	if (!data) exit(1, "Unable to parse save file (see above for errors, hopefully)\n");
+	write("\nCurrent date: %s\n", data->date);
+	foreach (data->players_countries / 2, [string name, string tag]) analyze(data, name, tag);
 }
