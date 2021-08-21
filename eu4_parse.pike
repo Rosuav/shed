@@ -66,6 +66,7 @@ void analyze(mapping data, string name, string tag) {
 		int need = prov->center_of_trade == "1" ? 10 : 25;
 		array desc = ({
 			sprintf("%s %04d %s", prov->owner, 9999-dev, prov->name),
+			prov->center_of_trade,
 			sprintf("%s\tLvl %s\tDev %d\t%s", id, prov->center_of_trade, dev, string_to_utf8(prov->name)),
 		});
 		if (prov->center_of_trade == "3") maxlvl += ({desc});
@@ -75,9 +76,12 @@ void analyze(mapping data, string name, string tag) {
 		//prov->trade_goods == "coal" ?
 	}
 	sort(maxlvl); sort(upgradeable); sort(developable);
-	if (sizeof(maxlvl)) write("Max level CoTs:\n%{%s\n%}\n", maxlvl[*][-1]);
-	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n\e[1;32m%{%s\n%}\e[0m\n", upgradeable[*][-1]);
-	if (sizeof(developable)) write("Developable CoTs:\n\e[1;36m%{%s\n%}\e[0m\n", developable[*][-1]);
+	int level3 = sizeof(country->merchants->envoy); //You can have as many lvl 3 CoTs as you have merchants.
+	if (sizeof(maxlvl)) write("Max level CoTs (%d/%d):\n%{%s\n%}\n", sizeof(maxlvl), level3, maxlvl[*][-1]);
+	level3 -= sizeof(maxlvl);
+	string colorize(string color, array info) {return color * (info[1] != "2" || --level3 > 0) + info[-1];}
+	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;32m", upgradeable[*]));
+	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*]));
 	//$ xdotool search --name "Europa Universalis IV" key --delay 125 f 2 2 4 Return
 	//-- bring focus to Sevilla (province 224)
 }
