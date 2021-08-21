@@ -86,8 +86,9 @@ void analyze_cot(mapping data, string name, string tag) {
 }
 
 constant manufactories = ([
-	"textile": "Basic",
-	"soldier_households": "Special",
+	"farm_estate": "Basic", "mills": "Basic", "plantations": "Basic", "weapons": "Basic",
+	"textile": "Basic", "tradecompany": "Basic", "wharf": "Basic",
+	"soldier_households": "Special", "impressment_offices": "Special", "state_house": "Special",
 ]);
 void analyze_furnace(mapping data, string name, string tag) {
 	mapping country = data->countries[tag];
@@ -97,11 +98,15 @@ void analyze_furnace(mapping data, string name, string tag) {
 		mapping prov = data->provinces["-" + id];
 		if (prov->trade_goods != "coal") continue;
 		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
-		mapping mfg = prov->buildings & manufactories;
-		if (prov->buildings->furnace) write("%s\tHas Furnace\tDev %d\t%s\n", id, dev, string_to_utf8(prov->name));
+		mapping bldg = prov->buildings || ([]);
+		mapping mfg = bldg & manufactories;
+		if (bldg->furnace) write("%s\tHas Furnace\tDev %d\t%s\n", id, dev, string_to_utf8(prov->name));
+		else if (prov->building_construction->?building == "32")
+			//Currently constructing a Furnace (building type 32 - how do we find out those IDs?)
+			write("%s\t%s\tDev %d\t%s\n", id, prov->building_construction->date, dev, string_to_utf8(prov->name));
 		else if (sizeof(mfg)) write("\e[1;31m%s\tHas %s\tDev %d\t%s\e[0m\n", id, values(mfg)[0], dev, string_to_utf8(prov->name));
 		//Don't know how to count building slots. Would be nice to show "1 free"
-		else write("\e[1;32m%s\t%d Buildings\tDev %d\t%s\e[0m\n", id, sizeof(prov->buildings), dev, string_to_utf8(prov->name));
+		else write("\e[1;32m%s\t%d buildings\tDev %d\t%s\e[0m\n", id, sizeof(bldg), dev, string_to_utf8(prov->name));
 	}
 	write("\n");
 }
