@@ -10,7 +10,16 @@ Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("eu4_par
 
 mixed take2(mixed _, mixed ret) {return ret;}
 mapping makemapping(mixed name, mixed _, mixed val) {return ([name: val]);}
-mapping addmapping(mapping map, mixed name, mixed _, mixed val) {map[name] = val; return map;}
+mapping addmapping(mapping map, mixed name, mixed _, mixed val) {
+	//Note that, sometimes, an array is defined by simply assigning multiple times.
+	//I have no way of distinguishing an array of one element in that form from a
+	//simple entry; and currently, since this is stateless, I can't properly handle
+	//an array of arrays.
+	if (arrayp(map[name])) map[name] += ({val});
+	else if (map[name]) map[name] = ({map[name], val});
+	else map[name] = val;
+	return map;
+}
 mapping makearray(mixed val) {return ({val});}
 mapping addarray(array arr, mixed val) {return arr + ({val});}
 mapping emptyarray() {return ({ });}
