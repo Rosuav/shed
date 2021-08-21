@@ -55,10 +55,9 @@ mapping parse_savefile(string data, int|void verbose) {
 	return ret;
 }
 
-void analyze(mapping data, string name, string tag) {
+void analyze_cot(mapping data, string name, string tag) {
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
-	write("\e[1mPlayer: %s (%s)\e[0m\n", name, tag);
 	foreach (country->owned_provinces, string id) {
 		mapping prov = data->provinces["-" + id];
 		if (!prov->center_of_trade) continue;
@@ -84,6 +83,32 @@ void analyze(mapping data, string name, string tag) {
 	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*]));
 	//$ xdotool search --name "Europa Universalis IV" key --delay 125 f 2 2 4 Return
 	//-- bring focus to Sevilla (province 224)
+}
+
+constant manufactories = ([
+	"textile": "Basic",
+	"soldier_households": "Special",
+]);
+void analyze_furnace(mapping data, string name, string tag) {
+	mapping country = data->countries[tag];
+	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
+	write("Coal-producing provinces:\n");
+	foreach (country->owned_provinces, string id) {
+		mapping prov = data->provinces["-" + id];
+		if (prov->trade_goods != "coal") continue;
+		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
+		mapping mfg = prov->buildings & manufactories;
+		if (prov->buildings->furnace) write("%s\tHas Furnace\tDev %d\t%s\n", id, dev, string_to_utf8(prov->name));
+		else if (sizeof(mfg)) write("\e[1;31m%s\tHas %s\tDev %d\t%s\e[0m\n", id, values(mfg)[0], dev, string_to_utf8(prov->name));
+		//Don't know how to count building slots. Would be nice to show "1 free"
+		else write("\e[1;32m%s\t%d Buildings\tDev %d\t%s\e[0m\n", id, sizeof(prov->buildings), dev, string_to_utf8(prov->name));
+	}
+	write("\n");
+}
+
+void analyze(mapping data, string name, string tag) {
+	write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
+	({analyze_cot, analyze_furnace})(data, name, tag);
 }
 
 int main() {
