@@ -72,8 +72,6 @@ void analyze_cot(mapping data, string name, string tag) {
 		if (prov->center_of_trade == "3") maxlvl += ({desc});
 		else if (dev >= need) upgradeable += ({desc});
 		else developable += ({desc});
-		//prov->buildings->furnace ?
-		//prov->trade_goods == "coal" ?
 	}
 	sort(maxlvl); sort(upgradeable); sort(developable);
 	int level3 = sizeof(country->merchants->envoy); //You can have as many lvl 3 CoTs as you have merchants.
