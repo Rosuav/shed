@@ -22,12 +22,7 @@ mapping makearray(mixed val) {return ({val});}
 mapping addarray(array arr, mixed val) {return arr + ({val});}
 mapping emptyarray() {return ({ });}
 
-mapping parse_savefile(string data, int|void verbose) {
-	sscanf(Crypto.SHA256.hash(data), "%32c", int hash);
-	string hexhash = sprintf("%64x", hash);
-	mapping cache = Standards.JSON.decode_utf8(Stdio.read_file("eu4_parse.json") || "{}");
-	if (cache->hash == hexhash) return cache->data;
-	if (!sscanf(data, "EU4txt%s", data)) return 0;
+mapping low_parse_savefile(string data, int|void verbose) {
 	string|array next() {
 		sscanf(data, "%[ \t\r\n]%s", string ws, data);
 		if (data == "") return "";
@@ -48,7 +43,16 @@ mapping parse_savefile(string data, int|void verbose) {
 	}
 	string|array shownext() {mixed tok = next(); write("%O\n", tok); return tok;}
 	//while (shownext() != ""); return 0; //Dump tokens w/o parsing
-	mapping ret = parser->parse(verbose ? shownext : next, this);
+	return parser->parse(verbose ? shownext : next, this);
+}
+
+mapping parse_savefile(string data, int|void verbose) {
+	sscanf(Crypto.SHA256.hash(data), "%32c", int hash);
+	string hexhash = sprintf("%64x", hash);
+	mapping cache = Standards.JSON.decode_utf8(Stdio.read_file("eu4_parse.json") || "{}");
+	if (cache->hash == hexhash) return cache->data;
+	if (!sscanf(data, "EU4txt%s", data)) return 0;
+	mapping ret = low_parse_savefile(data, verbose);
 	Stdio.write_file("eu4_parse.json", string_to_utf8(Standards.JSON.encode((["hash": hexhash, "data": ret]))));
 	return ret;
 }
