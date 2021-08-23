@@ -126,7 +126,7 @@ void analyze_cot(mapping data, string name, string tag) {
 			if (level3-- <= 0) return info[-1]; //Would put you over your limit (no descriptor here, just lack of colour)
 		}
 		interesting(info[2]);
-		return color + info[-1] + " [" + prov_area[info[2]] + "]";
+		return color + info[-1];
 	}
 	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;32m", upgradeable[*]));
 	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*]));
