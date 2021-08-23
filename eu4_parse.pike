@@ -6,9 +6,41 @@ NOTE: Requires uncompressed non-ironman savefile.
 
 Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("eu4_parse.grammar");
 
-mixed take2(mixed _, mixed ret) {return ret;}
-mapping makemapping(mixed name, mixed _, mixed val) {return ([name: val]);}
-mapping addmapping(mapping map, mixed name, mixed _, mixed val) {
+class maparray {
+	//Hybrid mapping/array. Can have key-value pairs with string keys, and also an array
+	//of values, indexed numerically.
+	mapping keyed = ([]);
+	array indexed = ({ });
+	object addkey(string key, mixed value) {keyed[key] = value; return this;}
+	object addidx(mixed value) {indexed += ({value}); return this;}
+	protected int _sizeof() {return sizeof(keyed) + sizeof(indexed);}
+	protected mixed `[](string|int key) {return intp(key) ? indexed[key] : keyed[key];}
+	protected mixed `[]=(string key, mixed val) {return keyed[key] = val;}
+	protected mixed `->(string key) {
+		switch (key) {
+			case "keyed": return keyed;
+			case "indexed": return indexed;
+			case "addkey": return addkey;
+			case "addidx": return addidx;
+			default: return keyed[key];
+		}
+	}
+	protected string _sprintf(int type, mapping p) {return sprintf("<%*O/%*O>", p, keyed, p, indexed);}
+	//Enable foreach(maparray();int i;mixed val) - but not, unfortunately, foreach(maparray,mixed val)
+	protected Array.Iterator _get_iterator() {return get_iterator(indexed);}
+}
+
+mixed coalesce(mixed ret_or_brace, mixed ret) {
+	if (ret_or_brace != "{") ret = ret_or_brace;
+	//Where possible, simplify a maparray down to just a map or an array
+	if (!sizeof(ret->indexed)) return ret->keyed;
+	if (!sizeof(ret->keyed)) return ret->indexed;
+	//Sometimes there's a mapping, but it also has an array of empty mappings after it.
+	if (Array.all(ret->indexed, mappingp) && !Array.any(ret->indexed, sizeof)) return ret->keyed;
+	return ret;
+}
+mapping makemapping(mixed name, mixed _, mixed val) {return maparray()->addkey(name, val);}
+mapping addmapping(maparray map, mixed name, mixed _, mixed val) {
 	//Note that, sometimes, an array is defined by simply assigning multiple times.
 	//I have no way of distinguishing an array of one element in that form from a
 	//simple entry; and currently, since this is stateless, I can't properly handle
@@ -18,13 +50,14 @@ mapping addmapping(mapping map, mixed name, mixed _, mixed val) {
 	else map[name] = val;
 	return map;
 }
-mapping makearray(mixed val) {return ({val});}
-mapping addarray(array arr, mixed val) {return arr + ({val});}
-mapping emptyarray() {return ({ });}
+mapping makearray(mixed val) {return maparray()->addidx(val);}
+mapping addarray(maparray arr, mixed val) {return arr->addidx(val);}
+mapping emptymaparray() {return ([]);}
 
 mapping low_parse_savefile(string data, int|void verbose) {
 	string|array next() {
 		sscanf(data, "%[ \t\r\n]%s", string ws, data);
+		while (sscanf(data, "#%*s\n%*[ \t\r\n]%s", data)); //Strip comments (not
 		if (data == "") return "";
 		if (sscanf(data, "\"%[^\"]\"%s", string str, data) == 2) {
 			//How are embedded quotes and/or backslashes handled?
@@ -57,11 +90,13 @@ mapping parse_savefile(string data, int|void verbose) {
 	return ret;
 }
 
+mapping prov_area = ([]);
 array(string) interesting_province = ({ });
 void interesting(string id) {if (!has_value(interesting_province, id)) interesting_province += ({id});} //Retain order but avoid duplicates
 void analyze_cot(mapping data, string name, string tag) {
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
+	multiset(string) area_covered = (<>);
 	foreach (country->owned_provinces, string id) {
 		mapping prov = data->provinces["-" + id];
 		if (!prov->center_of_trade) continue;
@@ -73,7 +108,7 @@ void analyze_cot(mapping data, string name, string tag) {
 			id,
 			sprintf("%s\tLvl %s\tDev %d\t%s", id, prov->center_of_trade, dev, string_to_utf8(prov->name)),
 		});
-		if (prov->center_of_trade == "3") maxlvl += ({desc});
+		if (prov->center_of_trade == "3") {maxlvl += ({desc}); area_covered[prov_area[id]] = 1;}
 		else if (dev >= need) upgradeable += ({desc});
 		else developable += ({desc});
 	}
@@ -82,8 +117,14 @@ void analyze_cot(mapping data, string name, string tag) {
 	if (sizeof(maxlvl)) write("Max level CoTs (%d/%d):\n%{%s\n%}\n", sizeof(maxlvl), level3, maxlvl[*][-1]);
 	level3 -= sizeof(maxlvl);
 	string colorize(string color, array info) {
-		if (info[1] != "2" || level3-- > 0) {interesting(info[2]); return color + info[-1];}
-		return info[-1];
+		//Colorize if it's interesting. Anything at level 1 is interesting; at level 2, it depends whether
+		//it could in theory become a level 3.
+		if (info[1] == "2") {
+			if (area_covered[prov_area[info[2]]]) return info[-1]; //Can't upgrade - is in an area where you already have a l3
+			if (level3-- <= 0) return info[-1]; //Can't upgrade - would put you over your limit
+		}
+		interesting(info[2]);
+		return color + info[-1] + " [" + prov_area[info[2]] + "]";
 	}
 	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;32m", upgradeable[*]));
 	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*]));
@@ -125,6 +166,9 @@ void analyze(mapping data, string name, string tag) {
 }
 
 int main() {
+	mapping areas = low_parse_savefile(Stdio.read_file("../.steam/steam/steamapps/common/Europa Universalis IV/map/area.txt"));
+	foreach (areas; string areaname; array|maparray provinces)
+		foreach (provinces;; string id) prov_area[id] = areaname;
 	string raw = Stdio.read_file("../.local/share/Paradox Interactive/Europa Universalis IV/save games/mp_autosave.eu4"); //Assumes ISO-8859-1, which I think is correct
 	mapping data = parse_savefile(raw);
 	if (!data) exit(1, "Unable to parse save file (see above for errors, hopefully)\n");
