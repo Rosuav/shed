@@ -142,10 +142,11 @@ constant manufactories = ([
 void analyze_furnace(mapping data, string name, string tag) {
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
-	write("Coal-producing provinces:\n");
+	int seen = 0;
 	foreach (country->owned_provinces, string id) {
 		mapping prov = data->provinces["-" + id];
 		if (prov->trade_goods != "coal") continue;
+		if (!seen) {write("Coal-producing provinces:\n"); seen = 1;}
 		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
 		mapping bldg = prov->buildings || ([]);
 		mapping mfg = bldg & manufactories;
@@ -157,7 +158,7 @@ void analyze_furnace(mapping data, string name, string tag) {
 		//Don't know how to count building slots. Would be nice to show "1 free"
 		else {interesting(id); write("\e[1;32m%s\t%d buildings\tDev %d\t%s\e[0m\n", id, sizeof(bldg), dev, string_to_utf8(prov->name));}
 	}
-	write("\n");
+	if (seen) write("\n");
 }
 
 void analyze(mapping data, string name, string tag) {
