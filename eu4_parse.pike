@@ -57,7 +57,7 @@ mapping emptymaparray() {return ([]);}
 mapping low_parse_savefile(string data, int|void verbose) {
 	string|array next() {
 		sscanf(data, "%[ \t\r\n]%s", string ws, data);
-		while (sscanf(data, "#%*s\n%*[ \t\r\n]%s", data)); //Strip comments (not
+		while (sscanf(data, "#%*s\n%*[ \t\r\n]%s", data)); //Strip comments
 		if (data == "") return "";
 		if (sscanf(data, "\"%[^\"]\"%s", string str, data) == 2) {
 			//How are embedded quotes and/or backslashes handled?
@@ -91,12 +91,13 @@ mapping parse_savefile(string data, int|void verbose) {
 }
 
 mapping prov_area = ([]);
+mapping building_slots = ([]);
 array(string) interesting_province = ({ });
+multiset(string) area_has_level3 = (<>);
 void interesting(string id) {if (!has_value(interesting_province, id)) interesting_province += ({id});} //Retain order but avoid duplicates
 void analyze_cot(mapping data, string name, string tag) {
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
-	multiset(string) area_covered = (<>);
 	foreach (country->owned_provinces, string id) {
 		mapping prov = data->provinces["-" + id];
 		if (!prov->center_of_trade) continue;
@@ -108,7 +109,7 @@ void analyze_cot(mapping data, string name, string tag) {
 			id,
 			sprintf("%s\tLvl %s\tDev %d\t%s", id, prov->center_of_trade, dev, string_to_utf8(prov->name)),
 		});
-		if (prov->center_of_trade == "3") {maxlvl += ({desc}); area_covered[prov_area[id]] = 1;}
+		if (prov->center_of_trade == "3") {maxlvl += ({desc}); area_has_level3[prov_area[id]] = 1;}
 		else if (dev >= need) upgradeable += ({desc});
 		else developable += ({desc});
 	}
@@ -122,7 +123,7 @@ void analyze_cot(mapping data, string name, string tag) {
 		array have_states = data->map_area_data[prov_area[info[2]]]->?state->?country_state->?country;
 		if (!have_states || !has_value(have_states, tag)) return info[-1] + " [is territory]";
 		if (info[1] == "2") {
-			if (area_covered[prov_area[info[2]]]) return info[-1] + " [other l3 in area]";
+			if (area_has_level3[prov_area[info[2]]]) return info[-1] + " [other l3 in area]";
 			if (level3-- <= 0) return info[-1]; //Would put you over your limit (no descriptor here, just lack of colour)
 		}
 		interesting(info[2]);
@@ -155,14 +156,24 @@ void analyze_furnace(mapping data, string name, string tag) {
 			//Currently constructing a Furnace (building type 32 - how do we find out those IDs?)
 			write("%s\t%s\tDev %d\t%s\n", id, prov->building_construction->date, dev, string_to_utf8(prov->name));
 		else if (sizeof(mfg)) write("\e[1;31m%s\tHas %s\tDev %d\t%s\e[0m\n", id, values(mfg)[0], dev, string_to_utf8(prov->name));
-		//Don't know how to count building slots. Would be nice to show "1 free"
-		else {interesting(id); write("\e[1;32m%s\t%d buildings\tDev %d\t%s\e[0m\n", id, sizeof(bldg), dev, string_to_utf8(prov->name));}
+		else {
+			//Count building slots.
+			int slots = 2 + building_slots[id]; //All cities get 2, plus possibly a bonus from terrain and/or a penalty from climate.
+			if (bldg->university) ++slots; //A university effectively doesn't consume a slot.
+			if (area_has_level3[prov_area[id]]) ++slots; //A level 3 CoT in the state adds a building slot
+			//TODO: Modifiers, incl event flags
+			slots += dev / 10;
+			int buildings = sizeof(bldg);
+			if (prov->building_construction) ++buildings;
+			interesting(id);
+			write("\e[1;%dm%s\t%d/%d bldg\tDev %d\t%s\e[0m\n", buildings < slots ? 32 : 36, id, buildings, slots, dev, string_to_utf8(prov->name));
+		}
 	}
 	if (seen) write("\n");
 }
 
 void analyze(mapping data, string name, string tag) {
-	interesting_province = ({ });
+	interesting_province = ({ }); area_has_level3 = (<>);
 	write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
 	({analyze_cot, analyze_furnace})(data, name, tag);
 	write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province));
@@ -172,6 +183,16 @@ int main() {
 	mapping areas = low_parse_savefile(Stdio.read_file("../.steam/steam/steamapps/common/Europa Universalis IV/map/area.txt"));
 	foreach (areas; string areaname; array|maparray provinces)
 		foreach (provinces;; string id) prov_area[id] = areaname;
+	mapping terrains = low_parse_savefile(Stdio.read_file("../.steam/steam/steamapps/common/Europa Universalis IV/map/terrain.txt"));
+	foreach (terrains->categories; string type; mapping info) {
+		int slots = (int)info->allowed_num_of_buildings;
+		//NOTE: This only catches overrides. It seems that some provinces - maybe a lot of them - aren't
+		//listed here, but are somehow assigned to that terrain anyway.
+		if (slots) foreach (info->terrain_override, string id) building_slots[id] += slots;
+	}
+	mapping climates = low_parse_savefile(Stdio.read_file("../.steam/steam/steamapps/common/Europa Universalis IV/map/climate.txt"));
+	//For simplicity, I'm not looking up static_modifiers or anything - just arbitrarily flagging Arctic regions.
+	foreach (climates->arctic, string id) building_slots[id] -= 1;
 	string raw = Stdio.read_file("../.local/share/Paradox Interactive/Europa Universalis IV/save games/mp_autosave.eu4"); //Assumes ISO-8859-1, which I think is correct
 	mapping data = parse_savefile(raw);
 	if (!data) exit(1, "Unable to parse save file (see above for errors, hopefully)\n");
