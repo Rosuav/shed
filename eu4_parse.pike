@@ -80,7 +80,7 @@ void analyze_cot(mapping data, string name, string tag) {
 	if (sizeof(maxlvl)) write("Max level CoTs (%d/%d):\n%{%s\n%}\n", sizeof(maxlvl), level3, maxlvl[*][-1]);
 	level3 -= sizeof(maxlvl);
 	string colorize(string color, array info) {
-		if (info[1] != "2" || --level3 > 0) {interesting(info[2]); return color + info[-1];}
+		if (info[1] != "2" || level3-- > 0) {interesting(info[2]); return color + info[-1];}
 		return info[-1];
 	}
 	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;32m", upgradeable[*]));
