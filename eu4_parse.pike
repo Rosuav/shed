@@ -117,11 +117,13 @@ void analyze_cot(mapping data, string name, string tag) {
 	if (sizeof(maxlvl)) write("Max level CoTs (%d/%d):\n%{%s\n%}\n", sizeof(maxlvl), level3, maxlvl[*][-1]);
 	level3 -= sizeof(maxlvl);
 	string colorize(string color, array info) {
-		//Colorize if it's interesting. Anything at level 1 is interesting; at level 2, it depends whether
-		//it could in theory become a level 3.
+		//Colorize if it's interesting. It can't be upgraded if not in a state; also, not all level 2s
+		//can become level 3s, for various reasons.
+		array have_states = data->map_area_data[prov_area[info[2]]]->?state->?country_state->?country;
+		if (!have_states || !has_value(have_states, tag)) return info[-1] + " [is territory]";
 		if (info[1] == "2") {
-			if (area_covered[prov_area[info[2]]]) return info[-1]; //Can't upgrade - is in an area where you already have a l3
-			if (level3-- <= 0) return info[-1]; //Can't upgrade - would put you over your limit
+			if (area_covered[prov_area[info[2]]]) return info[-1] + " [other l3 in area]";
+			if (level3-- <= 0) return info[-1]; //Would put you over your limit (no descriptor here, just lack of colour)
 		}
 		interesting(info[2]);
 		return color + info[-1] + " [" + prov_area[info[2]] + "]";
