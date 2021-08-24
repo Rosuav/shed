@@ -208,4 +208,28 @@ int main() {
 	foreach (climates->arctic, string id) building_slots[id] -= 1;
 	process_savefile(SAVE_PATH + "/mp_autosave.eu4");
 	//process_savefile(SAVE_PATH + "/autosave.eu4");
+	object inot = System.Inotify.Instance();
+	string new_file; int nomnomcookie;
+	inot->add_watch(SAVE_PATH, System.Inotify.IN_CLOSE_WRITE | System.Inotify.IN_MOVED_TO | System.Inotify.IN_MOVED_FROM) {
+		[int event, int cookie, string path] = __ARGS__;
+		//EU4 seems to always save into a temporary file, then rename it over the target. This
+		//sometimes includes renaming the target out of the way first (eg old_autosave.eu4).
+		//There are a few ways to detect new save files.
+		//1) Watch for a CLOSE_WRITE event, which will be the temporary file (eg autosave.tmp).
+		//   When you see that, watch for the next MOVED_FROM event for that same name, and then
+		//   the corresponding MOVED_TO event is the target name. Assumes that the file is created
+		//   in the savegames directory and only renamed, never moved in.
+		//2) Watch for all MOVED_TO events, and arbitrarily ignore any that we don't think are
+		//   interesting (eg if starts with "old_" or "older_").
+		//3) Watch for any CLOSE_WRITE or MOVED_TO. Wait a little bit. See what the newest file in
+		//   the directory is. Assumes that the directory is quiet apart from what we care about.
+		//Currently using option 1. Change if this causes problems.
+		switch (event) {
+			case System.Inotify.IN_CLOSE_WRITE: new_file = path; break;
+			case System.Inotify.IN_MOVED_FROM: if (path == new_file) {new_file = 0; nomnomcookie = cookie;} break;
+			case System.Inotify.IN_MOVED_TO: if (cookie == nomnomcookie) {nomnomcookie = 0; process_savefile(path);} break;
+		}
+	};
+	inot->set_nonblocking();
+	return -1;
 }
