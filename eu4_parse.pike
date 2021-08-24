@@ -119,6 +119,7 @@ void analyze_cot(mapping data, string name, string tag) {
 	sort(maxlvl); sort(upgradeable); sort(developable);
 	int level3 = sizeof(country->merchants->envoy); //You can have as many lvl 3 CoTs as you have merchants.
 	if (sizeof(maxlvl)) write("Max level CoTs (%d/%d):\n%{%s\n%}\n", sizeof(maxlvl), level3, maxlvl[*][-1]);
+	else write("Max level CoTs: 0/%d\n", level3);
 	level3 -= sizeof(maxlvl);
 	string colorize(string color, array info) {
 		//Colorize if it's interesting. It can't be upgraded if not in a state; also, not all level 2s
@@ -127,7 +128,7 @@ void analyze_cot(mapping data, string name, string tag) {
 		if (!have_states || !has_value(have_states, tag)) return info[-1] + " [is territory]";
 		if (info[1] == "2") {
 			if (area_has_level3[prov_area[info[2]]]) return info[-1] + " [other l3 in area]";
-			if (level3-- <= 0) return info[-1]; //Would put you over your limit (no descriptor here, just lack of colour)
+			if (level3-- <= 0) return info[-1] + " [need merchants]";
 		}
 		interesting(info[2]);
 		return color + info[-1];
