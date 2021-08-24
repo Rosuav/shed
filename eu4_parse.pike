@@ -98,7 +98,7 @@ mapping building_slots = ([]);
 array(string) interesting_province = ({ });
 multiset(string) area_has_level3 = (<>);
 void interesting(string id) {if (!has_value(interesting_province, id)) interesting_province += ({id});} //Retain order but avoid duplicates
-void analyze_cot(mapping data, string name, string tag) {
+void analyze_cot(mapping data, string name, string tag, function write) {
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
 	foreach (country->owned_provinces, string id) {
@@ -144,7 +144,7 @@ constant manufactories = ([
 	"textile": "Basic", "tradecompany": "Basic", "wharf": "Basic",
 	"soldier_households": "Special", "impressment_offices": "Special", "state_house": "Special",
 ]);
-void analyze_furnace(mapping data, string name, string tag) {
+void analyze_furnace(mapping data, string name, string tag, function write) {
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
 	int seen = 0;
@@ -176,10 +176,11 @@ void analyze_furnace(mapping data, string name, string tag) {
 	if (seen) write("\n");
 }
 
-void analyze(mapping data, string name, string tag) {
+void analyze(mapping data, string name, string tag, function|void write) {
+	if (!write) write = Stdio.stdin->write;
 	interesting_province = ({ }); area_has_level3 = (<>);
 	write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
-	({analyze_cot, analyze_furnace})(data, name, tag);
+	({analyze_cot, analyze_furnace})(data, name, tag, write);
 	write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province));
 }
 
@@ -190,6 +191,13 @@ void process_savefile(string fn) {
 	if (!data) exit(1, "Unable to parse save file (see above for errors, hopefully)\n");
 	write("\nCurrent date: %s\n", data->date);
 	foreach (data->players_countries / 2, [string name, string tag]) analyze(data, name, tag);
+	//Hack: Send info to Raptor. (No, not Robert, I mean Raptor.) TODO: Replace this with a
+	//notification socket on which can be requested any tag's info (or any player's).
+	object stdin = Stdio.File();
+	object proc = Process.create_process(({"ssh", "F-22Raptor", "cat >upgrademe.txt"}), (["stdin": stdin->pipe(Stdio.PROP_BIDIRECTIONAL)]));
+	analyze(data, "Stephen Angelico", "SPA", stdin->write);
+	stdin->close();
+	proc->wait();
 }
 
 int main() {
