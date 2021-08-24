@@ -4,6 +4,9 @@ Currently scans for upgradeable Centers of Trade and provinces producing Coal.
 NOTE: Requires uncompressed non-ironman savefile.
 */
 
+constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
+constant PROGRAM_PATH = "../.steam/steam/steamapps/common/Europa Universalis IV"; //Append /map or /common etc to access useful data files
+
 Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("eu4_parse.grammar");
 
 class maparray {
@@ -179,23 +182,29 @@ void analyze(mapping data, string name, string tag) {
 	write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province));
 }
 
+void process_savefile(string fn) {
+	write("Reading save file %s\n", basename(fn));
+	string raw = Stdio.read_file(fn); //Assumes ISO-8859-1, which I think is correct
+	mapping data = parse_savefile(raw);
+	if (!data) exit(1, "Unable to parse save file (see above for errors, hopefully)\n");
+	write("\nCurrent date: %s\n", data->date);
+	foreach (data->players_countries / 2, [string name, string tag]) analyze(data, name, tag);
+}
+
 int main() {
-	mapping areas = low_parse_savefile(Stdio.read_file("../.steam/steam/steamapps/common/Europa Universalis IV/map/area.txt"));
+	mapping areas = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/area.txt"));
 	foreach (areas; string areaname; array|maparray provinces)
 		foreach (provinces;; string id) prov_area[id] = areaname;
-	mapping terrains = low_parse_savefile(Stdio.read_file("../.steam/steam/steamapps/common/Europa Universalis IV/map/terrain.txt"));
+	mapping terrains = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/terrain.txt"));
 	foreach (terrains->categories; string type; mapping info) {
 		int slots = (int)info->allowed_num_of_buildings;
 		//NOTE: This only catches overrides. It seems that some provinces - maybe a lot of them - aren't
 		//listed here, but are somehow assigned to that terrain anyway.
 		if (slots) foreach (info->terrain_override, string id) building_slots[id] += slots;
 	}
-	mapping climates = low_parse_savefile(Stdio.read_file("../.steam/steam/steamapps/common/Europa Universalis IV/map/climate.txt"));
+	mapping climates = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/climate.txt"));
 	//For simplicity, I'm not looking up static_modifiers or anything - just arbitrarily flagging Arctic regions.
 	foreach (climates->arctic, string id) building_slots[id] -= 1;
-	string raw = Stdio.read_file("../.local/share/Paradox Interactive/Europa Universalis IV/save games/mp_autosave.eu4"); //Assumes ISO-8859-1, which I think is correct
-	mapping data = parse_savefile(raw);
-	if (!data) exit(1, "Unable to parse save file (see above for errors, hopefully)\n");
-	write("\nCurrent date: %s\n", data->date);
-	foreach (data->players_countries / 2, [string name, string tag]) analyze(data, name, tag);
+	process_savefile(SAVE_PATH + "/mp_autosave.eu4");
+	//process_savefile(SAVE_PATH + "/autosave.eu4");
 }
