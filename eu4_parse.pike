@@ -227,7 +227,6 @@ class Connection(Stdio.File sock) {
 	string notify;
 
 	protected void create() {
-		connections[this] = 1;
 		//write("%%%% Connection from %s\n", sock->query_address());
 		sock->set_buffer_mode(incoming, outgoing);
 		sock->set_nonblocking(sockread, 0, sockclosed);
@@ -267,7 +266,10 @@ class Connection(Stdio.File sock) {
 		while (array ret = incoming->sscanf("%s\n")) {
 			sscanf(String.trim(ret[0]), "%s %s", string cmd, string arg);
 			switch (cmd) {
-				case "notify": notify = arg; if (last_parsed_savefile) inform(last_parsed_savefile); break;
+				case "notify":
+					notify = arg; connections[this] = 1;
+					if (last_parsed_savefile) inform(last_parsed_savefile);
+					break;
 				case "province": cycle_provinces(arg); break;
 				default: break; //Including 0 which indicates failure to parse (no argument after command name)
 			}
