@@ -7,7 +7,13 @@ NOTE: Requires uncompressed non-ironman savefile.
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
 constant PROGRAM_PATH = "../.steam/steam/steamapps/common/Europa Universalis IV"; //Append /map or /common etc to access useful data files
 
+#ifdef QUIET
+//Run "pike -DQUIET eu4_parse.pike ...." to avoid warnings from the LR Parser module. Obviously,
+//parsing save files won't work in that form.
+object parser;
+#else
 Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("eu4_parse.grammar");
+#endif
 
 class maparray {
 	//Hybrid mapping/array. Can have key-value pairs with string keys, and also an array
@@ -135,8 +141,6 @@ void analyze_cot(mapping data, string name, string tag, function write) {
 	}
 	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;32m", upgradeable[*]));
 	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*]));
-	//$ xdotool search --name "Europa Universalis IV" key --delay 125 f 2 2 4 Return
-	//-- bring focus to Sevilla (province 224)
 }
 
 constant manufactories = ([
@@ -195,7 +199,7 @@ class Connection(Stdio.File sock) {
 
 	protected void create() {
 		connections[this] = 1;
-		write("%%%% Connection from %s\n", sock->query_address());
+		//write("%%%% Connection from %s\n", sock->query_address());
 		sock->set_buffer_mode(incoming, outgoing);
 		sock->set_nonblocking(sockread, 0, sockclosed);
 	}
@@ -255,7 +259,28 @@ void thread_savefile(string fn) {
 }
 void process_savefile(string fn) {Thread.Thread(thread_savefile, fn);}
 
-int main() {
+int main(int argc, array(string) argv) {
+	if (argc > 2) {
+		//First arg is server name/IP; the rest are joined and sent as a command.
+		//If the second arg is "province", then the result is fed as keys to EU4.
+		Stdio.File sock = Stdio.File();
+		string writeme = sock->connect(argv[1], 1444, argv[2..] * " " + "\n");
+		if (!writeme) exit(0, "Unable to connect to %s : 1444\n", argv[1]);
+		sock->write(writeme); //TBH there shouldn't be any residual data, since it should be a single packet.
+		string province = "";
+		while (string data = sock->read(1024, 1)) {
+			if (data == "") break;
+			if (argv[2] == "province") province += data;
+			else write(data);
+		}
+		sock->close();
+		if (argv[2] == "province") Process.create_process(({"xdotool",
+			/*"search", "--name", "Europa Universalis IV",*/ //Doesn't always work. Omitting this assumes that EU4 has focus.
+			"key", "--delay", "125", //Hurry the typing along a bit
+			"f", @(String.trim(province) / ""), "Return", //Send "f", then type the province ID, then hit Enter
+		}))->wait();
+		return 0;
+	}
 	mapping areas = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/area.txt"));
 	foreach (areas; string areaname; array|maparray provinces)
 		foreach (provinces;; string id) prov_area[id] = areaname;
