@@ -121,7 +121,6 @@ void analyze_cot(mapping data, string name, string tag, function write) {
 	if (sizeof(maxlvl)) write("Max level CoTs (%d/%d):\n%{%s\n%}\n", sizeof(maxlvl), level3, maxlvl[*][-1]);
 	else write("Max level CoTs: 0/%d\n", level3);
 	level3 -= sizeof(maxlvl);
-	//TODO: Can CoT upgrades happen during building construction?
 	string colorize(string color, array info) {
 		//Colorize if it's interesting. It can't be upgraded if not in a state; also, not all level 2s
 		//can become level 3s, for various reasons.
