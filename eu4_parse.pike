@@ -152,11 +152,7 @@ void analyze_cot(mapping data, string name, string tag, function write) {
 	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*]));
 }
 
-constant manufactories = ([
-	"farm_estate": "Basic", "mills": "Basic", "plantations": "Basic", "weapons": "Basic",
-	"textile": "Basic", "tradecompany": "Basic", "wharf": "Basic",
-	"soldier_households": "Special", "impressment_offices": "Special", "state_house": "Special",
-]);
+constant manufactories = ([]); //Calculated from the buildings definitions file
 void analyze_furnace(mapping data, string name, string tag, function write) {
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
@@ -306,6 +302,10 @@ int main(int argc, array(string) argv) {
 	mapping climates = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/climate.txt"));
 	//For simplicity, I'm not looking up static_modifiers or anything - just arbitrarily flagging Arctic regions.
 	foreach (climates->arctic, string id) building_slots[id] -= 1;
+	mapping buildings = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/buildings/00_buildings.txt"));
+	foreach (buildings; string id; mapping info) {
+		if (info->manufactory) manufactories[id] = info->show_separate ? "Special" : "Basic";
+	}
 
 	//Process the default save file, then watch for new files
 	//process_savefile(SAVE_PATH + "/autosave.eu4");
