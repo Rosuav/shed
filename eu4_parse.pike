@@ -99,6 +99,15 @@ mapping parse_savefile(string data, int|void verbose) {
 	return ret;
 }
 
+/* TODO: Highlight any province with any building that can be upgraded.
+For each owned province:
+- For each building
+  - If you have the tech for a higher level version of it, highlight and name the upgrade
+
+TODO: Request highlighting of provinces in which a particular building could be built if you had a slot.
+Example: "highlight shipyard" ==> any province with no shipyard and no building slots gets highlighted.
+*/
+
 mapping prov_area = ([]);
 mapping building_slots = ([]);
 array(string) interesting_province = ({ });
