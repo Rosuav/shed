@@ -291,6 +291,8 @@ int main(int argc, array(string) argv) {
 		}))->wait();
 		return 0;
 	}
+
+	//Load up some info that is presumed to not change. If you're modding the game, this may break.
 	mapping areas = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/area.txt"));
 	foreach (areas; string areaname; array|maparray provinces)
 		foreach (provinces;; string id) prov_area[id] = areaname;
@@ -304,8 +306,10 @@ int main(int argc, array(string) argv) {
 	mapping climates = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/climate.txt"));
 	//For simplicity, I'm not looking up static_modifiers or anything - just arbitrarily flagging Arctic regions.
 	foreach (climates->arctic, string id) building_slots[id] -= 1;
-	process_savefile(SAVE_PATH + "/mp_autosave.eu4");
+
+	//Process the default save file, then watch for new files
 	//process_savefile(SAVE_PATH + "/autosave.eu4");
+	process_savefile(SAVE_PATH + "/mp_autosave.eu4");
 	object inot = System.Inotify.Instance();
 	string new_file; int nomnomcookie;
 	inot->add_watch(SAVE_PATH, System.Inotify.IN_CLOSE_WRITE | System.Inotify.IN_MOVED_TO | System.Inotify.IN_MOVED_FROM) {
