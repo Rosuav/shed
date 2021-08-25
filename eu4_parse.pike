@@ -185,21 +185,60 @@ void analyze(mapping data, string name, string tag, function|void write) {
 	write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province));
 }
 
-void process_savefile(string fn) {
+multiset(object) connections = (<>);
+mapping last_parsed_savefile;
+class Connection(Stdio.File sock) {
+	Stdio.Buffer incoming = Stdio.Buffer(), outgoing = Stdio.Buffer();
+	string notify;
+
+	protected void create() {
+		connections[this] = 1;
+		write("%%%% Connection from %s\n", sock->query_address());
+		sock->set_buffer_mode(incoming, outgoing);
+		sock->set_nonblocking(sockread, 0, sockclosed);
+	}
+
+	void sockread() {
+		while (array ret = incoming->sscanf("%s\n")) {
+			sscanf(String.trim(ret[0]), "%s %s", string cmd, string arg);
+			switch (cmd) {
+				case "notify": notify = arg; if (last_parsed_savefile) inform(last_parsed_savefile); break;
+				case "province": break; //TODO: For a given user or tag, cycle interesting province IDs
+				default: break; //Including 0 which indicates failure to parse (no argument after command name)
+			}
+		}
+	}
+
+	void sockclosed() {
+		connections[this] = 0;
+	}
+
+	void inform(mapping data) {
+		//A savefile has been parsed. Notify this socket (if applicable).
+		string country = notify;
+		foreach (data->players_countries / 2, [string name, string tag])
+			if (country == name) country = tag;
+		if (!data->countries[country])
+			outgoing->sprintf("Player or tag %O not found - try%{ %O%} or any country tag\n", notify, data->players_countries);
+		else
+			analyze(data, notify, country, outgoing->sprintf);
+		sock->write(""); //Force a write callback (shouldn't be necessary??)
+	}
+}
+
+void sock_connected(object mainsock) {while (object sock = mainsock->accept()) Connection(sock);}
+
+void thread_savefile(string fn) {
 	write("Reading save file %s\n", basename(fn));
 	string raw = Stdio.read_file(fn); //Assumes ISO-8859-1, which I think is correct
 	mapping data = parse_savefile(raw);
-	if (!data) exit(1, "Unable to parse save file (see above for errors, hopefully)\n");
+	if (!data) {werror("Unable to parse save file (see above for errors, hopefully)\n"); return;}
 	write("\nCurrent date: %s\n", data->date);
 	foreach (data->players_countries / 2, [string name, string tag]) analyze(data, name, tag);
-	//Hack: Send info to Raptor. (No, not Robert, I mean Raptor.) TODO: Replace this with a
-	//notification socket on which can be requested any tag's info (or any player's).
-	object stdin = Stdio.File();
-	object proc = Process.create_process(({"ssh", "F-22Raptor", "cat >upgrademe.txt"}), (["stdin": stdin->pipe(Stdio.PROP_BIDIRECTIONAL)]));
-	analyze(data, "Stephen Angelico", "SPA", stdin->write);
-	stdin->close();
-	proc->wait();
+	indices(connections)->inform(data);
+	last_parsed_savefile = data;
 }
+void process_savefile(string fn) {Thread.Thread(thread_savefile, fn);}
 
 int main() {
 	mapping areas = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/area.txt"));
@@ -240,5 +279,7 @@ int main() {
 		}
 	};
 	inot->set_nonblocking();
+	Stdio.Port mainsock = Stdio.Port();
+	mainsock->bind(1444, sock_connected, "::", 1);
 	return -1;
 }
