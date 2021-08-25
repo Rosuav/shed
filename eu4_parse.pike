@@ -144,7 +144,19 @@ void analyze_cot(mapping data, string name, string tag, function write) {
 	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*]));
 }
 
-constant manufactories = ([]); //Calculated from building_types
+int count_building_slots(mapping data, string id) {
+	//Count building slots. Not perfect. Depends on the CoTs being provided accurately.
+	//Doesn't always give the terrain bonus.
+	int slots = 2 + building_slots[id]; //All cities get 2, plus possibly a bonus from terrain and/or a penalty from climate.
+	mapping prov = data->provinces["-" + id];
+	if (prov->buildings->?university) ++slots; //A university effectively doesn't consume a slot.
+	if (area_has_level3[prov_area[id]]) ++slots; //A level 3 CoT in the state adds a building slot
+	//TODO: Modifiers, incl event flags
+	int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
+	return slots + dev / 10;
+}
+
+mapping(string:string) manufactories = ([]); //Calculated from building_types
 void analyze_furnace(mapping data, string name, string tag, function write) {
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
@@ -162,12 +174,7 @@ void analyze_furnace(mapping data, string name, string tag, function write) {
 			write("%s\t%s\tDev %d\t%s\n", id, prov->building_construction->date, dev, string_to_utf8(prov->name));
 		else if (sizeof(mfg)) write("\e[1;31m%s\tHas %s\tDev %d\t%s\e[0m\n", id, values(mfg)[0], dev, string_to_utf8(prov->name));
 		else {
-			//Count building slots.
-			int slots = 2 + building_slots[id]; //All cities get 2, plus possibly a bonus from terrain and/or a penalty from climate.
-			if (bldg->university) ++slots; //A university effectively doesn't consume a slot.
-			if (area_has_level3[prov_area[id]]) ++slots; //A level 3 CoT in the state adds a building slot
-			//TODO: Modifiers, incl event flags
-			slots += dev / 10;
+			int slots = count_building_slots(data, id);
 			int buildings = sizeof(bldg);
 			if (prov->building_construction) ++buildings;
 			interesting(id);
@@ -206,12 +213,35 @@ void analyze_upgrades(mapping data, string name, string tag, function write) {
 	}
 }
 
+void analyze_findbuildings(mapping data, string name, string tag, function write, string highlight) {
+	mapping country = data->countries[tag];
+	foreach (country->owned_provinces, string id) {
+		mapping prov = data->provinces["-" + id];
+		mapping bldg = prov->buildings || ([]);
+		int slots = count_building_slots(data, id);
+		int buildings = sizeof(bldg);
+		if (prov->building_construction) ++buildings;
+		if (buildings < slots) continue; //Got room. Not a problem. (Note that the building slots calculation may be wrong but usually too low.)
+		//Check if a building of the highlight type already exists here.
+		int gotone = 0;
+		foreach (prov->buildings; string b;) {
+			while (string upg = building_types[b]->make_obsolete) b = upg;
+			if (b == highlight) {gotone = 1; break;}
+		}
+		if (gotone) continue;
+		interesting(id);
+		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
+		write("\e[1;32m%s\t%d/%d bldg\tDev %d\t%s\e[0m\n", id, buildings, slots, dev, string_to_utf8(prov->name));
+	}
+}
+
 mapping(string:array) interesting_provinces = ([]);
-void analyze(mapping data, string name, string tag, function|void write) {
+void analyze(mapping data, string name, string tag, function|void write, string|void highlight) {
 	if (!write) write = Stdio.stdin->write;
 	interesting_province = ({ }); area_has_level3 = (<>);
 	write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
 	({analyze_cot, analyze_furnace, analyze_upgrades})(data, name, tag, write);
+	if (highlight) analyze_findbuildings(data, name, tag, write, highlight);
 	//write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province)); //If needed in a machine-readable format
 	interesting_provinces[tag] = interesting_province;
 }
@@ -220,7 +250,7 @@ multiset(object) connections = (<>);
 mapping last_parsed_savefile;
 class Connection(Stdio.File sock) {
 	Stdio.Buffer incoming = Stdio.Buffer(), outgoing = Stdio.Buffer();
-	string notify;
+	string notify, highlight;
 
 	protected void create() {
 		//write("%%%% Connection from %s\n", sock->query_address());
@@ -241,7 +271,7 @@ class Connection(Stdio.File sock) {
 		//A savefile has been parsed. Notify this socket (if applicable).
 		if (!notify) return;
 		string tag = find_country(data, notify); if (!tag) return;
-		analyze(data, notify, tag, outgoing->sprintf);
+		analyze(data, notify, tag, outgoing->sprintf, highlight);
 		sock->write(""); //Ditto
 	}
 
@@ -273,28 +303,37 @@ class Connection(Stdio.File sock) {
 					//Example: "highlight shipyard" ==> any province with no shipyard and no building slots gets highlighted.
 					//Typing "highlight" without an arg, or any invalid arg, will give a list of building IDs.
 					arg = replace(lower_case(arg), " ", "_");
+					if ((<"none", "off", "-">)[arg]) {
+						highlight = 0;
+						outgoing->sprintf("Highlighting disabled.\n");
+						sock->write("");
+						break;
+					}
+					string tag = last_parsed_savefile && find_country(last_parsed_savefile, notify);
+					if (!tag) break;
 					if (!building_types[arg]) {
 						array available = ({ });
-						string tag = last_parsed_savefile && find_country(last_parsed_savefile, notify);
-						mapping tech = tag ? last_parsed_savefile->countries[tag]->technology : (["adm_tech": 99, "dip_tech": 99, "mil_tech": 99]);
+						mapping tech = last_parsed_savefile->countries[tag]->technology;
 						int have_mfg = 0;
 						foreach (building_types; string id; mapping bldg) {
 							[string techtype, int techlevel] = bldg->tech_required || ({"", 100}); //Ignore anything that's not a regular building
 							if ((int)tech[techtype] < techlevel) continue; //Hide IDs you don't have the tech to build
-							if (mapping upgrade = building_types[bldg->obsoleted_by]) {
-								[techtype, techlevel] = upgrade->tech_required;
-								if ((int)tech[techtype] >= techlevel) continue; //Hide IDs you would upgrade away from
-							}
+							if (bldg->obsoleted_by) continue; //Show only the baseline building for each type
 							if (bldg->manufactory && !bldg->show_separate) {have_mfg = 1; continue;} //Collect regular manufactories under one name
 							if (bldg->influencing_fort) continue; //You won't want to check forts this way
 							available += ({id});
 						}
 						if (have_mfg) available += ({"manufactory"}); //Note that building_types->manufactory is technically valid
 						outgoing->sprintf("Valid IDs: %s\n", sort(available) * ", ");
+						outgoing->sprintf("Or use 'highlight none' to disable.\n");
 						sock->write("");
 						break;
 					}
-					//
+					//If you say "highlight stock_exchange", act as if you said "highlight marketplace".
+					while (string older = building_types[arg]->make_obsolete) arg = older;
+					highlight = arg;
+					analyze_findbuildings(last_parsed_savefile, notify, tag, outgoing->sprintf, arg);
+					sock->write("");
 					break;
 				}
 				default: break; //Including 0 which indicates failure to parse (no argument after command name)
