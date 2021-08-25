@@ -121,7 +121,6 @@ void analyze_cot(mapping data, string name, string tag, function write) {
 	if (sizeof(maxlvl)) write("Max level CoTs (%d/%d):\n%{%s\n%}\n", sizeof(maxlvl), level3, maxlvl[*][-1]);
 	else write("Max level CoTs: 0/%d\n", level3);
 	level3 -= sizeof(maxlvl);
-	//TODO: Notice if upgrades aren't possible due to active colonist
 	//TODO: Can CoT upgrades happen during building construction?
 	string colorize(string color, array info) {
 		//Colorize if it's interesting. It can't be upgraded if not in a state; also, not all level 2s
@@ -172,7 +171,8 @@ void analyze_furnace(mapping data, string name, string tag, function write) {
 			int buildings = sizeof(bldg);
 			if (prov->building_construction) ++buildings;
 			interesting(id);
-			write("\e[1;%dm%s\t%d/%d bldg\tDev %d\t%s\e[0m\n", buildings < slots ? 32 : 36, id, buildings, slots, dev, string_to_utf8(prov->name));
+			write("\e[1;%dm%s\t%d/%d bldg\tDev %d\t%s%s\e[0m\n", buildings < slots ? 32 : 36, id, buildings, slots, dev,
+				string_to_utf8(prov->name), prov->settlement_growth_construction ? " - SETTLER ACTIVE" : ""); //Can't build while there's a settler promoting growth);
 		}
 	}
 	if (seen) write("\n");
