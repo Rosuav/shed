@@ -225,6 +225,7 @@ class Connection(Stdio.File sock) {
 		if (!last_parsed_savefile) return;
 		string tag = find_country(last_parsed_savefile, country); if (!tag) return;
 		if (!interesting_provinces[tag]) analyze(last_parsed_savefile, "Province finder", tag); //Should this be sent to /dev/null instead of the console?
+		if (!sizeof(interesting_provinces[tag])) {sock->close("w"); return;}
 		[string id, array rest] = Array.shift(interesting_provinces[tag]);
 		interesting_provinces[tag] = rest + ({id});
 		//Note: Ignores buffered mode and writes directly. I don't think it's possible to
@@ -274,7 +275,7 @@ int main(int argc, array(string) argv) {
 			else write(data);
 		}
 		sock->close();
-		if (argv[2] == "province") Process.create_process(({"xdotool",
+		if (argv[2] == "province" && province != "") Process.create_process(({"xdotool",
 			/*"search", "--name", "Europa Universalis IV",*/ //Doesn't always work. Omitting this assumes that EU4 has focus.
 			"key", "--delay", "125", //Hurry the typing along a bit
 			"f", @(String.trim(province) / ""), "Return", //Send "f", then type the province ID, then hit Enter
