@@ -109,6 +109,7 @@ Example: "highlight shipyard" ==> any province with no shipyard and no building 
 */
 
 mapping prov_area = ([]);
+mapping building_types;
 mapping building_slots = ([]);
 array(string) interesting_province = ({ });
 multiset(string) area_has_level3 = (<>);
@@ -152,7 +153,7 @@ void analyze_cot(mapping data, string name, string tag, function write) {
 	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*]));
 }
 
-constant manufactories = ([]); //Calculated from the buildings definitions file
+constant manufactories = ([]); //Calculated from building_types
 void analyze_furnace(mapping data, string name, string tag, function write) {
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
@@ -302,9 +303,20 @@ int main(int argc, array(string) argv) {
 	mapping climates = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/climate.txt"));
 	//For simplicity, I'm not looking up static_modifiers or anything - just arbitrarily flagging Arctic regions.
 	foreach (climates->arctic, string id) building_slots[id] -= 1;
-	mapping buildings = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/buildings/00_buildings.txt"));
-	foreach (buildings; string id; mapping info) {
+	building_types = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/buildings/00_buildings.txt"));
+	foreach (building_types; string id; mapping info) {
 		if (info->manufactory) manufactories[id] = info->show_separate ? "Special" : "Basic";
+	}
+	foreach (({"adm", "dip", "mil"}), string cat) {
+		mapping tech = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/technologies/" + cat + ".txt"));
+		write("%O\n", tech);
+		foreach (tech->technology; int level; mapping effects) {
+			//The effects include names of buildings, eg "university = yes".
+			foreach (effects; string id;) if (mapping bld = building_types[id]) {
+				bld->tech_required = ({cat + "_tech", level});
+				if (bld->make_obsolete) building_types[bld->make_obsolete]->obsoleted_by = id;
+			}
+		}
 	}
 
 	//Process the default save file, then watch for new files
