@@ -231,7 +231,7 @@ class Connection(Stdio.File sock) {
 		sock->set_buffer_mode(incoming, outgoing);
 		sock->set_nonblocking(sockread, 0, sockclosed);
 	}
-	void sockclosed() {connections[this] = 0;}
+	void sockclosed() {connections[this] = 0; sock->close();}
 
 	string find_country(mapping data, string country) {
 		foreach (data->players_countries / 2, [string name, string tag])
@@ -264,7 +264,8 @@ class Connection(Stdio.File sock) {
 
 	void sockread() {
 		while (array ret = incoming->sscanf("%s\n")) {
-			sscanf(String.trim(ret[0]), "%s %s", string cmd, string arg);
+			string cmd = String.trim(ret[0]), arg = "";
+			sscanf(cmd, "%s %s", cmd, arg);
 			switch (cmd) {
 				case "notify":
 					notify = arg; connections[this] = 1;
@@ -295,15 +296,16 @@ class ClientConnection {
 	inherit Connection;
 	protected void create(Stdio.File sock) {
 		::create(sock);
-		//Can't actually do this as it's a buffered file
-		//Stdio.stdin->set_nonblocking(stdinread, 0, stdineof);
+		Stdio.stdin->set_read_callback(stdinread);
+		Stdio.stdin->set_close_callback(stdineof);
 	}
 	void sockread() {
 		//Display only complete lines, to avoid disruption of input text
 		while (array ret = incoming->sscanf("%s\n")) write("%s\n", ret[0]);
 	}
+	void sockclosed() {::sockclosed(); exit(0);}
 	void stdinread(mixed _, string data) {sock->write(data);}
-	void stdineof() {sock->close();}
+	void stdineof() {sock->close("w");}
 }
 
 int main(int argc, array(string) argv) {
