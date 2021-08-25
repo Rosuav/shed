@@ -99,10 +99,6 @@ mapping parse_savefile(string data, int|void verbose) {
 	return ret;
 }
 
-/* TODO: Request highlighting of provinces in which a particular building could be built if you had a slot.
-Example: "highlight shipyard" ==> any province with no shipyard and no building slots gets highlighted.
-*/
-
 mapping prov_area = ([]);
 mapping building_types;
 mapping building_slots = ([]);
@@ -272,6 +268,35 @@ class Connection(Stdio.File sock) {
 					if (last_parsed_savefile) inform(last_parsed_savefile);
 					break;
 				case "province": cycle_provinces(arg); break;
+				case "highlight": case "hl": {
+					//Request highlighting of provinces in which a particular building could be built if you had a slot.
+					//Example: "highlight shipyard" ==> any province with no shipyard and no building slots gets highlighted.
+					//Typing "highlight" without an arg, or any invalid arg, will give a list of building IDs.
+					arg = replace(lower_case(arg), " ", "_");
+					if (!building_types[arg]) {
+						array available = ({ });
+						string tag = last_parsed_savefile && find_country(last_parsed_savefile, notify);
+						mapping tech = tag ? last_parsed_savefile->countries[tag]->technology : (["adm_tech": 99, "dip_tech": 99, "mil_tech": 99]);
+						int have_mfg = 0;
+						foreach (building_types; string id; mapping bldg) {
+							[string techtype, int techlevel] = bldg->tech_required || ({"", 100}); //Ignore anything that's not a regular building
+							if ((int)tech[techtype] < techlevel) continue; //Hide IDs you don't have the tech to build
+							if (mapping upgrade = building_types[bldg->obsoleted_by]) {
+								[techtype, techlevel] = upgrade->tech_required;
+								if ((int)tech[techtype] >= techlevel) continue; //Hide IDs you would upgrade away from
+							}
+							if (bldg->manufactory && !bldg->show_separate) {have_mfg = 1; continue;} //Collect regular manufactories under one name
+							if (bldg->influencing_fort) continue; //You won't want to check forts this way
+							available += ({id});
+						}
+						if (have_mfg) available += ({"manufactory"}); //Note that building_types->manufactory is technically valid
+						outgoing->sprintf("Valid IDs: %s\n", sort(available) * ", ");
+						sock->write("");
+						break;
+					}
+					//
+					break;
+				}
 				default: break; //Including 0 which indicates failure to parse (no argument after command name)
 			}
 		}
