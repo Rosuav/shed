@@ -291,22 +291,38 @@ void thread_savefile(string fn) {
 }
 void process_savefile(string fn) {Thread.Thread(thread_savefile, fn);}
 
+class ClientConnection {
+	inherit Connection;
+	protected void create(Stdio.File sock) {
+		::create(sock);
+		//Can't actually do this as it's a buffered file
+		//Stdio.stdin->set_nonblocking(stdinread, 0, stdineof);
+	}
+	void sockread() {
+		//Display only complete lines, to avoid disruption of input text
+		while (array ret = incoming->sscanf("%s\n")) write("%s\n", ret[0]);
+	}
+	void stdinread(mixed _, string data) {sock->write(data);}
+	void stdineof() {sock->close();}
+}
+
 int main(int argc, array(string) argv) {
 	if (argc > 2) {
 		//First arg is server name/IP; the rest are joined and sent as a command.
 		//If the second arg is "province", then the result is fed as keys to EU4.
+		//Otherwise, this is basically like netcat/telnet.
 		Stdio.File sock = Stdio.File();
 		string writeme = sock->connect(argv[1], 1444, argv[2..] * " " + "\n");
 		if (!writeme) exit(0, "Unable to connect to %s : 1444\n", argv[1]);
 		sock->write(writeme); //TBH there shouldn't be any residual data, since it should be a single packet.
+		if (argv[2] != "province") {ClientConnection(sock); return -1;}
 		string province = "";
 		while (string data = sock->read(1024, 1)) {
 			if (data == "") break;
-			if (argv[2] == "province") province += data;
-			else write(data);
+			province += data;
 		}
 		sock->close();
-		if (argv[2] == "province" && province != "") Process.create_process(({"xdotool",
+		if (String.trim(province) != "") Process.create_process(({"xdotool",
 			/*"search", "--name", "Europa Universalis IV",*/ //Doesn't always work. Omitting this assumes that EU4 has focus.
 			"key", "--delay", "125", //Hurry the typing along a bit
 			"f", @(String.trim(province) / ""), "Return", //Send "f", then type the province ID, then hit Enter
