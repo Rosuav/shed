@@ -99,12 +99,7 @@ mapping parse_savefile(string data, int|void verbose) {
 	return ret;
 }
 
-/* TODO: Highlight any province with any building that can be upgraded.
-For each owned province:
-- For each building
-  - If you have the tech for a higher level version of it, highlight and name the upgrade
-
-TODO: Request highlighting of provinces in which a particular building could be built if you had a slot.
+/* TODO: Request highlighting of provinces in which a particular building could be built if you had a slot.
 Example: "highlight shipyard" ==> any province with no shipyard and no building slots gets highlighted.
 */
 
@@ -187,12 +182,40 @@ void analyze_furnace(mapping data, string name, string tag, function write) {
 	if (seen) write("\n");
 }
 
+void analyze_upgrades(mapping data, string name, string tag, function write) {
+	mapping country = data->countries[tag];
+	mapping upgradeables = ([]);
+	foreach (country->owned_provinces, string id) {
+		mapping prov = data->provinces["-" + id];
+		if (!prov->buildings) continue;
+		foreach (prov->buildings; string b;) {
+			mapping bldg = building_types[b]; if (!bldg) continue; //Unknown building??
+			if (bldg->influencing_fort) continue; //Ignore forts - it's often not worth upgrading all forts. (TODO: Have a way to request forts too.)
+			mapping target;
+			while (mapping upgrade = building_types[bldg->obsoleted_by]) {
+				[string techtype, int techlevel] = upgrade->tech_required;
+				if ((int)country->technology[techtype] < techlevel) continue;
+				//Okay. It can be upgraded. But before we report it, see if we can go another level.
+				//For instance, if you have a Marketplace and Diplo tech 22, you can upgrade to a
+				//Trade Depot, but could go straight to Stock Exchange.
+				target = bldg->obsoleted_by;
+				bldg = upgrade;
+			}
+			if (target) {interesting(id); upgradeables[target] += ({prov->name});}
+		}
+	}
+	foreach (sort(indices(upgradeables)), string b) {
+		write("Can upgrade %d buildings to %s\n", sizeof(upgradeables[b]), b);
+		write("==> %s\n", string_to_utf8(upgradeables[b] * ", "));
+	}
+}
+
 mapping(string:array) interesting_provinces = ([]);
 void analyze(mapping data, string name, string tag, function|void write) {
 	if (!write) write = Stdio.stdin->write;
 	interesting_province = ({ }); area_has_level3 = (<>);
 	write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
-	({analyze_cot, analyze_furnace})(data, name, tag, write);
+	({analyze_cot, analyze_furnace, analyze_upgrades})(data, name, tag, write);
 	//write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province)); //If needed in a machine-readable format
 	interesting_provinces[tag] = interesting_province;
 }
@@ -309,7 +332,6 @@ int main(int argc, array(string) argv) {
 	}
 	foreach (({"adm", "dip", "mil"}), string cat) {
 		mapping tech = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/technologies/" + cat + ".txt"));
-		write("%O\n", tech);
 		foreach (tech->technology; int level; mapping effects) {
 			//The effects include names of buildings, eg "university = yes".
 			foreach (effects; string id;) if (mapping bld = building_types[id]) {
