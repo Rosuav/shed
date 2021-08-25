@@ -177,12 +177,14 @@ void analyze_furnace(mapping data, string name, string tag, function write) {
 	if (seen) write("\n");
 }
 
+mapping(string:array) interesting_provinces = ([]);
 void analyze(mapping data, string name, string tag, function|void write) {
 	if (!write) write = Stdio.stdin->write;
 	interesting_province = ({ }); area_has_level3 = (<>);
 	write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
 	({analyze_cot, analyze_furnace})(data, name, tag, write);
-	write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province));
+	//write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province)); //If needed in a machine-readable format
+	interesting_provinces[tag] = interesting_province;
 }
 
 multiset(object) connections = (<>);
@@ -197,32 +199,45 @@ class Connection(Stdio.File sock) {
 		sock->set_buffer_mode(incoming, outgoing);
 		sock->set_nonblocking(sockread, 0, sockclosed);
 	}
+	void sockclosed() {connections[this] = 0;}
+
+	string find_country(mapping data, string country) {
+		foreach (data->players_countries / 2, [string name, string tag])
+			if (country == name) country = tag;
+		if (data->countries[country]) return country;
+		outgoing->sprintf("Player or tag %O not found - try%{ %O%} or any country tag\n", notify, data->players_countries);
+		sock->write(""); //Force a write callback (shouldn't be necessary??)
+	}
+
+	void inform(mapping data) {
+		//A savefile has been parsed. Notify this socket (if applicable).
+		if (!notify) return;
+		string tag = find_country(data, notify); if (!tag) return;
+		analyze(data, notify, tag, outgoing->sprintf);
+		sock->write(""); //Ditto
+	}
+
+	void cycle_provinces(string country) {
+		if (!last_parsed_savefile) return;
+		string tag = find_country(last_parsed_savefile, country); if (!tag) return;
+		if (!interesting_provinces[tag]) analyze(last_parsed_savefile, "Province finder", tag); //Should this be sent to /dev/null instead of the console?
+		[string id, array rest] = Array.shift(interesting_provinces[tag]);
+		interesting_provinces[tag] = rest + ({id});
+		//Note: Ignores buffered mode and writes directly. I don't think it's possible to
+		//put a "shutdown write direction when done" marker into the Buffer.
+		sock->write(id + "\n");
+		sock->close("w");
+	}
 
 	void sockread() {
 		while (array ret = incoming->sscanf("%s\n")) {
 			sscanf(String.trim(ret[0]), "%s %s", string cmd, string arg);
 			switch (cmd) {
 				case "notify": notify = arg; if (last_parsed_savefile) inform(last_parsed_savefile); break;
-				case "province": break; //TODO: For a given user or tag, cycle interesting province IDs
+				case "province": cycle_provinces(arg); break;
 				default: break; //Including 0 which indicates failure to parse (no argument after command name)
 			}
 		}
-	}
-
-	void sockclosed() {
-		connections[this] = 0;
-	}
-
-	void inform(mapping data) {
-		//A savefile has been parsed. Notify this socket (if applicable).
-		string country = notify;
-		foreach (data->players_countries / 2, [string name, string tag])
-			if (country == name) country = tag;
-		if (!data->countries[country])
-			outgoing->sprintf("Player or tag %O not found - try%{ %O%} or any country tag\n", notify, data->players_countries);
-		else
-			analyze(data, notify, country, outgoing->sprintf);
-		sock->write(""); //Force a write callback (shouldn't be necessary??)
 	}
 }
 
