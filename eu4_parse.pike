@@ -39,7 +39,7 @@ class maparray {
 	protected Array.Iterator _get_iterator() {return get_iterator(indexed);}
 }
 
-mixed coalesce(mixed ret_or_brace, mixed ret) {
+mapping|array|maparray coalesce(mixed ret_or_brace, mixed ret) {
 	if (ret_or_brace != "{") ret = ret_or_brace;
 	//Where possible, simplify a maparray down to just a map or an array
 	if (!sizeof(ret->indexed)) return ret->keyed;
@@ -48,8 +48,8 @@ mixed coalesce(mixed ret_or_brace, mixed ret) {
 	if (Array.all(ret->indexed, mappingp) && !Array.any(ret->indexed, sizeof)) return ret->keyed;
 	return ret;
 }
-mapping makemapping(mixed name, mixed _, mixed val) {return maparray()->addkey(name, val);}
-mapping addmapping(maparray map, mixed name, mixed _, mixed val) {
+maparray makemapping(mixed name, mixed _, mixed val) {return maparray()->addkey(name, val);}
+maparray addmapping(maparray map, mixed name, mixed _, mixed val) {
 	//Note that, sometimes, an array is defined by simply assigning multiple times.
 	//I have no way of distinguishing an array of one element in that form from a
 	//simple entry; and currently, since this is stateless, I can't properly handle
@@ -59,8 +59,8 @@ mapping addmapping(maparray map, mixed name, mixed _, mixed val) {
 	else map[name] = val;
 	return map;
 }
-mapping makearray(mixed val) {return maparray()->addidx(val);}
-mapping addarray(maparray arr, mixed val) {return arr->addidx(val);}
+maparray makearray(mixed val) {return maparray()->addidx(val);}
+maparray addarray(maparray arr, mixed val) {return arr->addidx(val);}
 mapping emptymaparray() {return ([]);}
 
 mapping low_parse_savefile(string data, int|void verbose) {
