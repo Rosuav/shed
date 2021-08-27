@@ -100,6 +100,7 @@ mapping parse_savefile(string data, int|void verbose) {
 }
 
 mapping prov_area = ([]);
+mapping province_info;
 mapping building_types;
 mapping building_slots = ([]);
 array(string) interesting_province = ({ });
@@ -217,6 +218,8 @@ void analyze_findbuildings(mapping data, string name, string tag, function write
 	mapping country = data->countries[tag];
 	foreach (country->owned_provinces, string id) {
 		mapping prov = data->provinces["-" + id];
+		//Building shipyards in inland provinces isn't very productive
+		if (building_types[highlight]->build_trigger->?has_port && !province_info[id]->?has_port) continue;
 		mapping bldg = prov->buildings || ([]);
 		int slots = count_building_slots(data, id);
 		int buildings = sizeof(bldg);
@@ -441,7 +444,7 @@ int main(int argc, array(string) argv) {
 	Since we can't do it the easy way, let's do it the hard way instead. For each province ID, for each terrain, if
 	the province has that terrain, log a message. If it's stupid, but it works........ no, it's still stupid.
 	*/
-	mapping province_info = Standards.JSON.decode(Stdio.read_file(".eu4_provinces.json") || "0");
+	province_info = Standards.JSON.decode(Stdio.read_file(".eu4_provinces.json") || "0");
 	if (!mappingp(province_info)) {
 		//Build up a script file to get the info we need.
 		//We assume that every province that could be of interest to us will be in an area.
