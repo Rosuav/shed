@@ -441,19 +441,26 @@ int main(int argc, array(string) argv) {
 	Since we can't do it the easy way, let's do it the hard way instead. For each province ID, for each terrain, if
 	the province has that terrain, log a message. If it's stupid, but it works........ no, it's still stupid.
 	*/
-	mapping provterrain = Standards.JSON.decode(Stdio.read_file(".eu4_province_terrain.json") || "0");
-	if (!mappingp(provterrain)) {
+	mapping province_info = Standards.JSON.decode(Stdio.read_file(".eu4_provinces.json") || "0");
+	if (!mappingp(province_info)) {
 		//Build up a script file to get the info we need.
 		//We assume that every province that could be of interest to us will be in an area.
 		Stdio.File script = Stdio.File(SAVE_PATH + "/../prov.txt", "wct");
 		script->write("log = \"PROV-TERRAIN-BEGIN\"\n");
 		foreach (sort(indices(prov_area)), string provid) {
-			script->write(provid + " = {\n\tset_variable = { which = terrain_reported value = -1 }\n");
+			script->write(
+#"%s = {
+	set_variable = { which = terrain_reported value = -1 }
+	if = {
+		limit = { has_port = yes is_wasteland = no }
+		log = \"PROV-TERRAIN: %<s has_port=1\"
+	}
+", provid);
 			foreach (terrains->categories; string type; mapping info) {
 				script->write(
 #"	if = {
 		limit = { has_terrain = %s is_wasteland = no }
-		log = \"PROV-TERRAIN: %<s %s - [This.GetName]\"
+		log = \"PROV-TERRAIN: %s terrain=%[0]s\"
 	}
 ", type, provid);
 			}
@@ -475,17 +482,19 @@ log = \"PROV-TERRAIN-END\"
 		if (!has_value(log, "PROV-TERRAIN-BEGIN") || !has_value(log, "PROV-TERRAIN-END"))
 			exit(0, "Please open up EU4 and, in the console, type: run prov.txt\n");
 		string terrain = ((log / "PROV-TERRAIN-BEGIN")[-1] / "PROV-TERRAIN-END")[0];
-		provterrain = ([]);
+		province_info = ([]);
 		foreach (terrain / "\n", string line) {
 			//Lines look like this:
 			//[effectimplementation.cpp:21960]: EVENT [1444.11.11]:PROV-TERRAIN: drylands 224 - Sevilla
-			sscanf(line, "%*sPROV-TERRAIN: %s %d - %s", string terrain, int provid, string name);
-			if (provid) provterrain[(string)provid] = terrain;
+			sscanf(line, "%*sPROV-TERRAIN: %d %s=%s", int provid, string key, string val);
+			if (!provid) continue;
+			mapping pt = province_info[(string)provid] || ([]); province_info[(string)provid] = pt;
+			pt[key] = String.trim(val);
 		}
-		Stdio.write_file(".eu4_province_terrain.json", Standards.JSON.encode(provterrain));
+		Stdio.write_file(".eu4_provinces.json", Standards.JSON.encode(province_info));
 	}
-	foreach (provterrain; string id; string terr) {
-		mapping terraininfo = terrains->categories[terr];
+	foreach (province_info; string id; mapping provinfo) {
+		mapping terraininfo = terrains->categories[provinfo->terrain];
 		if (!terraininfo) continue; //TODO: What happens if we have a broken terrain name??
 		int slots = (int)terraininfo->allowed_num_of_buildings;
 		if (slots) building_slots[id] += slots;
