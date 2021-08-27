@@ -425,6 +425,24 @@ int main(int argc, array(string) argv) {
 		}
 	}
 
+	//It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
+	//has. So, instead, let's ask for a little help - from the game, and from the human. And then save the results.
+	/* If it's possible, I would REALLY like to do something like this:
+	every_province = {
+		limit = {
+			has_terrain = steppe
+			is_wasteland = no
+		}
+		log = "PROV-TERRAIN: steppe [This.ID] [This.GetName]"
+	}
+	
+	and repeat for each terrain type. Failing that, it's possible to cede the provinces, save, and parse the savefile.
+	Since it only has to be redone when the map changes, the hassle won't be TOO bad, but it's still annoying to have
+	to do a dedicated savefile just because I can't log the province ID.
+	See Reddit question: https://www.reddit.com/r/EU4mods/comments/pc8ujy/access_current_province_id_in_trigger/
+	*/
+
+
 	//Process the default save file, then watch for new files
 	//process_savefile(SAVE_PATH + "/autosave.eu4");
 	process_savefile(SAVE_PATH + "/mp_autosave.eu4");
