@@ -401,12 +401,7 @@ int main(int argc, array(string) argv) {
 	foreach (areas; string areaname; array|maparray provinces)
 		foreach (provinces;; string id) prov_area[id] = areaname;
 	mapping terrains = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/terrain.txt"));
-	foreach (terrains->categories; string type; mapping info) {
-		int slots = (int)info->allowed_num_of_buildings;
-		//NOTE: This only catches overrides. It seems that some provinces - maybe a lot of them - aren't
-		//listed here, but are somehow assigned to that terrain anyway.
-		if (slots) foreach (info->terrain_override, string id) building_slots[id] += slots;
-	}
+	//Terrain info is used below.
 	mapping climates = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/climate.txt"));
 	//For simplicity, I'm not looking up static_modifiers or anything - just arbitrarily flagging Arctic regions.
 	foreach (climates->arctic, string id) building_slots[id] -= 1;
@@ -425,9 +420,12 @@ int main(int argc, array(string) argv) {
 		}
 	}
 
-	//It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
-	//has. So, instead, let's ask for a little help - from the game, and from the human. And then save the results.
-	/* If it's possible, I would REALLY like to do something like this:
+	/* It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
+	has. So, instead, let's ask for a little help - from the game, and from the human. And then save the results.
+	Unfortunately, it's not possible (as of v1.31) to do an every_province scope that reports the province ID in a
+	log message. It also doesn't seem to be possible to iterate over all provinces and increment a counter, as the
+	every_province scope skips sea provinces (which still consume province IDs).
+	I would REALLY like to do something like this:
 	every_province = {
 		limit = {
 			has_terrain = steppe
@@ -436,12 +434,62 @@ int main(int argc, array(string) argv) {
 		log = "PROV-TERRAIN: steppe [This.ID] [This.GetName]"
 	}
 	
-	and repeat for each terrain type. Failing that, it's possible to cede the provinces, save, and parse the savefile.
-	Since it only has to be redone when the map changes, the hassle won't be TOO bad, but it's still annoying to have
-	to do a dedicated savefile just because I can't log the province ID.
-	See Reddit question: https://www.reddit.com/r/EU4mods/comments/pc8ujy/access_current_province_id_in_trigger/
-	*/
+	and repeat for each terrain type. A technique others have done is to cede the provinces to different countries,
+	save, and parse the savefile; this is slow, messy, and mutates the save, so it won't be very useful in Random
+	New World. (Not that I'm going to try to support RNW, but it should be easier this way if I do in the future.)
 
+	Since we can't do it the easy way, let's do it the hard way instead. For each province ID, for each terrain, if
+	the province has that terrain, log a message. If it's stupid, but it works........ no, it's still stupid.
+	*/
+	mapping provterrain = Standards.JSON.decode(Stdio.read_file(".eu4_province_terrain.json") || "0");
+	if (!mappingp(provterrain)) {
+		//Build up a script file to get the info we need.
+		//We assume that every province that could be of interest to us will be in an area.
+		Stdio.File script = Stdio.File(SAVE_PATH + "/../prov.txt", "wct");
+		script->write("log = \"PROV-TERRAIN-BEGIN\"\n");
+		foreach (sort(indices(prov_area)), string provid) {
+			script->write(provid + " = {\n\tset_variable = { which = terrain_reported value = -1 }\n");
+			foreach (terrains->categories; string type; mapping info) {
+				script->write(
+#"	if = {
+		limit = { has_terrain = %s is_wasteland = no }
+		log = \"PROV-TERRAIN: %<s %s - [This.GetName]\"
+	}
+", type, provid);
+			}
+			script->write("}\n");
+		}
+		//For reasons of paranoia, iterate over all provinces and make sure we reported their
+		//terrain types.
+		script->write(#"
+every_province = {
+	limit = { check_variable = { which = terrain_reported value = 0 } is_wasteland = no }
+	log = \"PROV-TERRAIN-ERROR: Terrain not reported for province [This.GetName]\"
+}
+log = \"PROV-TERRAIN-END\"
+");
+		script->close();
+		//See if the script's already been run (yes, we rebuild the script every time - means you
+		//can rerun it in case there've been changes), and if so, parse and save the data.
+		string log = Stdio.read_file(SAVE_PATH + "/../logs/game.log") || "";
+		if (!has_value(log, "PROV-TERRAIN-BEGIN") || !has_value(log, "PROV-TERRAIN-END"))
+			exit(0, "Please open up EU4 and, in the console, type: run prov.txt\n");
+		string terrain = ((log / "PROV-TERRAIN-BEGIN")[-1] / "PROV-TERRAIN-END")[0];
+		provterrain = ([]);
+		foreach (terrain / "\n", string line) {
+			//Lines look like this:
+			//[effectimplementation.cpp:21960]: EVENT [1444.11.11]:PROV-TERRAIN: drylands 224 - Sevilla
+			sscanf(line, "%*sPROV-TERRAIN: %s %d - %s", string terrain, int provid, string name);
+			if (provid) provterrain[(string)provid] = terrain;
+		}
+		Stdio.write_file(".eu4_province_terrain.json", Standards.JSON.encode(provterrain));
+	}
+	foreach (provterrain; string id; string terr) {
+		mapping terraininfo = terrains->categories[terr];
+		if (!terraininfo) continue; //TODO: What happens if we have a broken terrain name??
+		int slots = (int)terraininfo->allowed_num_of_buildings;
+		if (slots) building_slots[id] += slots;
+	}
 
 	//Process the default save file, then watch for new files
 	//process_savefile(SAVE_PATH + "/autosave.eu4");
