@@ -204,6 +204,7 @@ void analyze_upgrades(mapping data, string name, string tag, function write) {
 				//Trade Depot, but could go straight to Stock Exchange.
 				target = bldg->obsoleted_by;
 				bldg = upgrade;
+				//TODO: Check if the province is already building this upgrade
 			}
 			if (target) {interesting(id); upgradeables[target] += ({prov->name});}
 		}
