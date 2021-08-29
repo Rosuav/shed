@@ -9,13 +9,13 @@ int main(int argc,array(string) argv)
 		array eng = ({ });
 		while (string l = Stdio.stdin.gets()) {
 			if (l == ".") break;
-			eng += ({utf8_to_string(l)});
+			eng += ({String.trim(utf8_to_string(l))});
 		}
 		write("\n\nEnter %s text, followed by a dot or EOF:\n", argv[2]);
 		array other = ({ });
 		while (string l = Stdio.stdin.gets()) {
 			if (l == ".") break;
-			other += ({utf8_to_string(String.trim(l))});
+			other += ({String.trim(utf8_to_string(l))});
 		}
 		if (sizeof(eng) != sizeof(other)) exit(1, "Blocks must be same length\n");
 		Stdio.File out = Stdio.File(argv[3], "wac");
