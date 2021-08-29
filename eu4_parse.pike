@@ -340,6 +340,7 @@ class Connection(Stdio.File sock) {
 					sock->write("");
 					break;
 				}
+				//TODO: List flagships for all countries
 				default: break; //Including 0 which indicates failure to parse (no argument after command name)
 			}
 		}
