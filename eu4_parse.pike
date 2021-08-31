@@ -250,6 +250,42 @@ void analyze(mapping data, string name, string tag, function|void write, string|
 	interesting_provinces[tag] = interesting_province;
 }
 
+void analyze_flagships(mapping data, function|void write) {
+	if (!write) write = Stdio.stdin->write;
+	array flagships = ({ });
+	foreach (data->countries; string tag; mapping country) {
+		//mapping country = data->countries[tag];
+		if (!country->navy) continue;
+		foreach (Array.arrayify(country->navy), mapping fleet) {
+			foreach (Array.arrayify(fleet->ship), mapping ship) {
+				if (!ship->flagship) continue;
+				string cap = "";
+				if (ship->flagship->is_captured) {
+					string was = ship->flagship->original_owner;
+					cap = " CAPTURED from " + (data->countries[was]->name || was);
+				}
+				flagships += ({({
+					sprintf("\e[1m%s\e[0m - %s: \e[36m%s\e[31m%s\e[0m",
+						country->name || tag, string_to_utf8(fleet->name),
+						String.capitalize(ship->type), cap),
+					//Measure size without colour codes or UTF-8 encoding
+					sizeof(sprintf("%s - %s: %s%s",
+						country->name || tag, fleet->name,
+						String.capitalize(ship->type), cap)),
+					ship->flagship->modification * ", ",
+				})});
+				//write("%O\n", ship->flagship);
+			}
+		}
+	}
+	if (!sizeof(flagships)) return;
+	write("\n\e[1m== Flagships of the World ==\e[0m\n");
+	sort(flagships);
+	int width = max(@flagships[*][1]);
+	foreach (flagships, array f) f[1] = " " * (width - f[1]);
+	write("%{%s %s %s\n%}", flagships);
+}
+
 multiset(object) connections = (<>);
 mapping last_parsed_savefile;
 class Connection(Stdio.File sock) {
@@ -276,6 +312,7 @@ class Connection(Stdio.File sock) {
 		if (!notify) return;
 		string tag = find_country(data, notify); if (!tag) return;
 		analyze(data, notify, tag, outgoing->sprintf, highlight);
+		analyze_flagships(data, outgoing->sprintf);
 		sock->write(""); //Ditto
 	}
 
@@ -356,6 +393,7 @@ void thread_savefile(string fn) {
 	if (!data) {werror("Unable to parse save file (see above for errors, hopefully)\n"); return;}
 	write("\nCurrent date: %s\n", data->date);
 	foreach (data->players_countries / 2, [string name, string tag]) analyze(data, name, tag);
+	analyze_flagships(data);
 	indices(connections)->inform(data);
 	last_parsed_savefile = data;
 }
