@@ -312,7 +312,6 @@ class Connection(Stdio.File sock) {
 		if (!notify) return;
 		string tag = find_country(data, notify); if (!tag) return;
 		analyze(data, notify, tag, outgoing->sprintf, highlight);
-		analyze_flagships(data, outgoing->sprintf);
 		sock->write(""); //Ditto
 	}
 
@@ -377,7 +376,10 @@ class Connection(Stdio.File sock) {
 					sock->write("");
 					break;
 				}
-				//TODO: List flagships for all countries
+				case "flagship": case "flagships": case "flag": case "fs":
+					analyze_flagships(last_parsed_savefile, outgoing->sprintf);
+					sock->write("");
+					break;
 				default: break; //Including 0 which indicates failure to parse (no argument after command name)
 			}
 		}
