@@ -198,7 +198,7 @@ void analyze_upgrades(mapping data, string name, string tag, function write) {
 			mapping target;
 			while (mapping upgrade = building_types[bldg->obsoleted_by]) {
 				[string techtype, int techlevel] = upgrade->tech_required;
-				if ((int)country->technology[techtype] < techlevel) continue;
+				if ((int)country->technology[techtype] < techlevel) break;
 				//Okay. It can be upgraded. But before we report it, see if we can go another level.
 				//For instance, if you have a Marketplace and Diplo tech 22, you can upgrade to a
 				//Trade Depot, but could go straight to Stock Exchange.
