@@ -415,9 +415,9 @@ class Connection(Stdio.File sock) {
 
 	string find_country(mapping data, string country) {
 		foreach (data->players_countries / 2, [string name, string tag])
-			if (country == name) country = tag;
+			if (lower_case(country) == lower_case(name)) country = tag;
 		if (data->countries[country]) return country;
-		outgoing->sprintf("Player or tag %O not found - try%{ %O%} or any country tag\n", notify, data->players_countries);
+		outgoing->sprintf("Player or tag %O not found - try%{ %O%} or any country tag\n", country, data->players_countries);
 		sock->write(""); //Force a write callback (shouldn't be necessary??)
 	}
 
