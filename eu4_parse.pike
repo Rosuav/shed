@@ -286,6 +286,89 @@ void analyze_flagships(mapping data, function|void write) {
 	write("%{%s %s %s\n%}", flagships);
 }
 
+string tabulate(array(string) headings, array(array(mixed)) data, string|void gutter) {
+	if (!gutter) gutter = " ";
+	array info = ({headings}) + (array(array(string)))data;
+	array(int) widths = map(Array.transpose(info)) {return max(@sizeof(__ARGS__[0][*]));};
+	//Hack: First column isn't size-counted or guttered. It's for colour codes and such.
+	string fmt = sprintf("%%%ds", widths[1..][*]) * "  ";
+	return sprintf("%{%s" + fmt + "\e[0m\n%}", info);
+}
+
+int threeplace(string value) {
+	//EU4 uses three-place fixed-point for a lot of things. Return the number as an integer,
+	//ie "3.142" is returned as 3142.
+	if (!value) return 0;
+	sscanf(value, "%d.%s", int whole, string frac);
+	return whole * 1000 + (int)sprintf("%.03s", frac);
+}
+	
+void analyze_wars(mapping data, multiset(string) tags, function|void write) {
+	if (!write) write = Stdio.stdin->write;
+	foreach (data->active_war || ({ }), mapping war) {
+		//To keep displaying the war after all players separate-peace out, use
+		//war->persistent_attackers and war->persistent_defenders instead.
+		int is_attacker = sizeof((multiset)war->attackers & tags);
+		int is_defender = sizeof((multiset)war->defenders & tags);
+		if (!is_attacker && !is_defender) continue; //Irrelevant bickering somewhere in the world.
+		//If there are players on both sides of the war, show "attackers" and "defenders".
+		//But if all players are on one side of a war, show "allies" and "enemies".
+		string atk = "\U0001f5e1\ufe0f", def = "\U0001f6e1\ufe0f";
+		int defender = is_defender && !is_attacker;
+		if (defender) [atk, def] = ({def, atk});
+		write("\n\e[1;31m== War: %s - %s ==\e[0m\n", war->action, string_to_utf8(war->name));
+		//war->action is the date it started?? Maybe the last date when a call to arms is valid?
+		//war->called - it's all just numbers, no country tags. No idea.
+
+		//Ticking war score is either war->defender_score or war->attacker_score and is a positive number.
+		float ticking_ws = (float)(war->attacker_score || "-" + war->defender_score);
+		if (defender) ticking_ws = -ticking_ws;
+		//Overall war score?? Can't figure that out. It might be that it isn't stored.
+
+		//war->participants[*]->value is the individual contribution. To turn this into a percentage,
+		//be sure to sum only the values on one side, as participants[] has both sides of the war in it.
+		array armies = ({ }), navies = ({ });
+		foreach (war->participants, mapping p) {
+			mapping country = data->countries[p->tag];
+			string side = (tags[p->tag] ? "\e[48;5;23m" : "\e[0m") + (has_value(war->attackers, p->tag) ? atk : def);
+			//I don't know how to recognize that eastern_militia is infantry and muscovite_cossack is cavalry.
+			//For land units, we can probably assume that you use only your current set. For sea units, there
+			//aren't too many (and they're shared by all nations), so I just hard-code them.
+			mapping unit_types = mkmapping(values(country->sub_unit), indices(country->sub_unit));
+			mapping mil = ([]);
+			if (country->army) foreach (Array.arrayify(country->army), mapping army) {
+				foreach (Array.arrayify(army->regiment), mapping reg) {
+					//Note that regiment strength is eg "0.807" for 807 men. We want the
+					//number of men, so there's no need to re-divide.
+					mil[unit_types[reg->type]] += threeplace(reg->strength);
+				}
+			}
+			int mp = threeplace(country->manpower);
+			//TODO: Confirm that ->artillery is correct
+			int total = mil->infantry + mil->cavalry + mil->artillery;
+			armies += ({({
+				-total * 1000000000 - mp,
+				({
+					side,
+					utf8_to_string(country->name || p->tag),
+					mil->infantry, mil->cavalry, mil->artillery, total, mp,
+					sprintf("%3.0f%%", (float)country->army_professionalism * 100.0),
+				}),
+			})});
+			navies += ({({
+				0,
+				country->name || p->tag,
+				""
+			})});
+		}
+		sort(armies); sort(navies);
+		write(string_to_utf8(tabulate(({" "}) + "Country Infantry Cavalry Artillery Total Manpower Prof" / " ", armies[*][-1], "  ")));
+		/*write("\nNavy comparison\n");
+		foreach (navies, array c) write("%-*s   %s\n", width, c[-2], c[-1]);*/
+	}
+	Stdio.write_file("wars.json", Standards.JSON.encode(data->active_war, 7) + "\n\n" + Standards.JSON.encode(data->countries->MOS, 7));
+}
+
 multiset(object) connections = (<>);
 mapping last_parsed_savefile;
 class Connection(Stdio.File sock) {
@@ -312,6 +395,7 @@ class Connection(Stdio.File sock) {
 		if (!notify) return;
 		string tag = find_country(data, notify); if (!tag) return;
 		analyze(data, notify, tag, outgoing->sprintf, highlight);
+		analyze_wars(data, (<tag>), outgoing->sprintf);
 		sock->write(""); //Ditto
 	}
 
@@ -396,6 +480,7 @@ void thread_savefile(string fn) {
 	write("\nCurrent date: %s\n", data->date);
 	foreach (data->players_countries / 2, [string name, string tag]) analyze(data, name, tag);
 	analyze_flagships(data);
+	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1]);
 	indices(connections)->inform(data);
 	last_parsed_savefile = data;
 }
