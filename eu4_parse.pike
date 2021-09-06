@@ -345,7 +345,13 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 		array armies = ({ }), navies = ({ });
 		foreach (war->participants, mapping p) {
 			mapping country = data->countries[p->tag];
-			string side = (tags[p->tag] ? "\e[48;5;23m" : "\e[0m") + (has_value(war->attackers, p->tag) ? atk : def);
+			int a = has_value(war->attackers, p->tag), d = has_value(war->defenders, p->tag);
+			if (!a && !d) continue; //War participant has subsequently peaced out
+			string side = sprintf("\e[48;2;%d;%d;%dm",
+				a && 30, //Red for attacker
+				tags[p->tag] && 60, //Cyan or olive for player
+				d && 30);
+			side += a ? atk : def;
 			//I don't know how to recognize that eastern_militia is infantry and muscovite_cossack is cavalry.
 			//For land units, we can probably assume that you use only your current set. For sea units, there
 			//aren't too many (and they're shared by all nations), so I just hard-code them.
