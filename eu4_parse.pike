@@ -398,10 +398,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 		write(string_to_utf8(tabulate(({" "}) + "Country Infantry Cavalry Artillery Total Manpower Prof Trad" / " ", armies[*][-1], "  ")));
 		write("\n");
 		write(string_to_utf8(tabulate(({" "}) + "Country Heavy Light Galley Transp Total Sailors Trad" / " ", navies[*][-1], "  ")));
-		/*write("\nNavy comparison\n");
-		foreach (navies, array c) write("%-*s   %s\n", width, c[-2], c[-1]);*/
 	}
-	Stdio.write_file("wars.json", Standards.JSON.encode(data->active_war, 7) + "\n\n" + Standards.JSON.encode(data->countries->MOS, 7));
 }
 
 multiset(object) connections = (<>);
@@ -499,6 +496,7 @@ class Connection(Stdio.File sock) {
 					analyze_flagships(last_parsed_savefile, outgoing->sprintf);
 					sock->write("");
 					break;
+				//TODO: "wars Rosuav" to show wars Rosuav is involved in (one-off, no notify)
 				default: break; //Including 0 which indicates failure to parse (no argument after command name)
 			}
 		}
