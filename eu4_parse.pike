@@ -302,7 +302,22 @@ int threeplace(string value) {
 	sscanf(value, "%d.%s", int whole, string frac);
 	return whole * 1000 + (int)sprintf("%.03s", frac);
 }
-	
+
+mapping transform(string ... types) {
+	mapping ret = ([]);
+	foreach (types, string type) {
+		sscanf(type, "%s: %{%s %}", string value, array keys);
+		foreach (keys, [string key]) ret[key] = value;
+	}
+	return ret;
+}
+mapping ship_types = transform(
+	"heavy_ship: early_carrack carrack galleon wargalleon twodecker threedecker",
+	"light_ship: barque caravel early_frigate frigate heavy_frigate great_frigate",
+	"galley: galley war_galley galleass galiot chebeck archipelago_frigate",
+	"transport: war_canoe cog flute brig merchantman trabakul eastindiaman",
+);
+
 void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 	if (!write) write = Stdio.stdin->write;
 	foreach (data->active_war || ({ }), mapping war) {
@@ -343,27 +358,40 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 					mil[unit_types[reg->type]] += threeplace(reg->strength);
 				}
 			}
+			if (country->navy) foreach (Array.arrayify(country->navy), mapping navy) {
+				foreach (Array.arrayify(navy->ship), mapping ship) {
+					mil[ship_types[ship->type]] += 1; //Currently not concerned about hull strength. You either have or don't have a ship.
+				}
+			}
 			int mp = threeplace(country->manpower);
 			//TODO: Confirm that ->artillery is correct
-			int total = mil->infantry + mil->cavalry + mil->artillery;
+			int total_army = mil->infantry + mil->cavalry + mil->artillery;
 			armies += ({({
-				-total * 1000000000 - mp,
+				-total_army * 1000000000 - mp,
 				({
 					side,
 					utf8_to_string(country->name || p->tag),
-					mil->infantry, mil->cavalry, mil->artillery, total, mp,
+					mil->infantry, mil->cavalry, mil->artillery, total_army, mp,
 					sprintf("%3.0f%%", (float)country->army_professionalism * 100.0),
 					sprintf("%3.0f%%", (float)country->army_tradition),
 				}),
 			})});
+			int sailors = (int)country->sailors; //Might be 0, otherwise is eg "991.795" (we don't care about the fraction, this means 991 sailors)
+			int total_navy = mil->heavy_ship + mil->light_ship + mil->galley + mil->transport;
 			navies += ({({
-				0,
-				country->name || p->tag,
-				""
+				-total_navy * 1000000000 - sailors,
+				({
+					side,
+					utf8_to_string(country->name || p->tag),
+					mil->heavy_ship, mil->light_ship, mil->galley, mil->transport, total_navy, sailors,
+					sprintf("%3.0f%%", (float)country->navy_tradition),
+				}),
 			})});
 		}
 		sort(armies); sort(navies);
 		write(string_to_utf8(tabulate(({" "}) + "Country Infantry Cavalry Artillery Total Manpower Prof Trad" / " ", armies[*][-1], "  ")));
+		write("\n");
+		write(string_to_utf8(tabulate(({" "}) + "Country Heavy Light Galley Transp Total Sailors Trad" / " ", navies[*][-1], "  ")));
 		/*write("\nNavy comparison\n");
 		foreach (navies, array c) write("%-*s   %s\n", width, c[-2], c[-1]);*/
 	}
