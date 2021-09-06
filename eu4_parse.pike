@@ -495,7 +495,11 @@ class Connection(Stdio.File sock) {
 					analyze_flagships(last_parsed_savefile, outgoing->sprintf);
 					sock->write("");
 					break;
-				//TODO: "wars Rosuav" to show wars Rosuav is involved in (one-off, no notify)
+				case "war": case "wars": {
+					string tag = find_country(last_parsed_savefile, arg); if (!tag) break;
+					analyze_wars(last_parsed_savefile, (<tag>), outgoing->sprintf);
+					sock->write("");
+				}
 				default: break; //Including 0 which indicates failure to parse (no argument after command name)
 			}
 		}
