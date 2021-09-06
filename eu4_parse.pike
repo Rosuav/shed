@@ -395,9 +395,8 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 			})});
 		}
 		sort(armies); sort(navies);
-		write(string_to_utf8(tabulate(({" "}) + "Country Infantry Cavalry Artillery Total Manpower Prof Trad" / " ", armies[*][-1], "  ")));
-		write("\n");
-		write(string_to_utf8(tabulate(({" "}) + "Country Heavy Light Galley Transp Total Sailors Trad" / " ", navies[*][-1], "  ")));
+		write("%s\n", string_to_utf8(tabulate(({" "}) + "Country Infantry Cavalry Artillery Total Manpower Prof Trad" / " ", armies[*][-1], "  ")));
+		write("%s\n", string_to_utf8(tabulate(({" "}) + "Country Heavy Light Galley Transp Total Sailors Trad" / " ", navies[*][-1], "  ")));
 	}
 }
 
