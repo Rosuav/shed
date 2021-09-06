@@ -361,7 +361,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 				foreach (Array.arrayify(army->regiment), mapping reg) {
 					//Note that regiment strength is eg "0.807" for 807 men. We want the
 					//number of men, so there's no need to re-divide.
-					mil[unit_types[reg->type]] += threeplace(reg->strength);
+					mil[unit_types[reg->type]] += reg->strength ? threeplace(reg->strength) : 1000;
 				}
 			}
 			if (country->navy) foreach (Array.arrayify(country->navy), mapping navy) {
