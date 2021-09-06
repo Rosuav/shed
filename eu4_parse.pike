@@ -353,6 +353,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 					utf8_to_string(country->name || p->tag),
 					mil->infantry, mil->cavalry, mil->artillery, total, mp,
 					sprintf("%3.0f%%", (float)country->army_professionalism * 100.0),
+					sprintf("%3.0f%%", (float)country->army_tradition),
 				}),
 			})});
 			navies += ({({
@@ -362,7 +363,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 			})});
 		}
 		sort(armies); sort(navies);
-		write(string_to_utf8(tabulate(({" "}) + "Country Infantry Cavalry Artillery Total Manpower Prof" / " ", armies[*][-1], "  ")));
+		write(string_to_utf8(tabulate(({" "}) + "Country Infantry Cavalry Artillery Total Manpower Prof Trad" / " ", armies[*][-1], "  ")));
 		/*write("\nNavy comparison\n");
 		foreach (navies, array c) write("%-*s   %s\n", width, c[-2], c[-1]);*/
 	}
