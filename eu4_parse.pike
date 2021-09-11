@@ -323,8 +323,8 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 	foreach (data->active_war || ({ }), mapping war) {
 		//To keep displaying the war after all players separate-peace out, use
 		//war->persistent_attackers and war->persistent_defenders instead.
-		int is_attacker = sizeof((multiset)war->attackers & tags);
-		int is_defender = sizeof((multiset)war->defenders & tags);
+		int is_attacker = war->attackers && sizeof((multiset)war->attackers & tags);
+		int is_defender = war->defenders && sizeof((multiset)war->defenders & tags);
 		if (!is_attacker && !is_defender) continue; //Irrelevant bickering somewhere in the world.
 		//If there are players on both sides of the war, show "attackers" and "defenders".
 		//But if all players are on one side of a war, show "allies" and "enemies".
