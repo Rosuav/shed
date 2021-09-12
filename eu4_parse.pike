@@ -345,7 +345,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 		//war->participants[*]->value is the individual contribution. To turn this into a percentage,
 		//be sure to sum only the values on one side, as participants[] has both sides of the war in it.
 		array armies = ({ }), navies = ({ });
-		array(array(int)) army_total = ({allocate(5), allocate(5)});
+		array(array(int)) army_total = ({allocate(8), allocate(8)});
 		array(array(int)) navy_total = ({allocate(6), allocate(6)});
 		foreach (war->participants, mapping p) {
 			mapping country = data->countries[p->tag];
@@ -360,12 +360,13 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 			//For land units, we can probably assume that you use only your current set. For sea units, there
 			//aren't too many (and they're shared by all nations), so I just hard-code them.
 			mapping unit_types = mkmapping(values(country->sub_unit), indices(country->sub_unit));
-			mapping mil = ([]);
+			mapping mil = ([]), mercs = ([]);
 			if (country->army) foreach (Array.arrayify(country->army), mapping army) {
+				string merc = army->mercenary_company ? "merc_" : "";
 				foreach (Array.arrayify(army->regiment), mapping reg) {
 					//Note that regiment strength is eg "0.807" for 807 men. We want the
 					//number of men, so there's no need to re-divide.
-					mil[unit_types[reg->type]] += reg->strength ? threeplace(reg->strength) : 1000;
+					mil[merc + unit_types[reg->type]] += reg->strength ? threeplace(reg->strength) : 1000;
 				}
 			}
 			if (country->navy) foreach (Array.arrayify(country->navy), mapping navy) {
@@ -374,14 +375,15 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 				}
 			}
 			int mp = threeplace(country->manpower);
-			//TODO: Confirm that ->artillery is correct
-			int total_army = mil->infantry + mil->cavalry + mil->artillery;
+			int total_army = mil->infantry + mil->cavalry + mil->artillery + mil->merc_infantry + mil->merc_cavalry + mil->merc_artillery;
 			armies += ({({
 				-total_army * 1000000000 - mp,
 				({
 					side,
 					utf8_to_string(country->name || p->tag),
-					mil->infantry, mil->cavalry, mil->artillery, total_army, mp,
+					mil->infantry, mil->cavalry, mil->artillery,
+					mil->merc_infantry, mil->merc_cavalry, mil->merc_artillery,
+					total_army, mp,
 					sprintf("%3.0f%%", (float)country->army_professionalism * 100.0),
 					sprintf("%3.0f%%", (float)country->army_tradition),
 				}),
@@ -412,7 +414,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 			({1 + navy_total[0][-2] + navy_total[0][-1], ({"\e[48;2;0;0;50m" + def, ""}) + navy_total[1] + ({""})}),
 		});
 		sort(armies); sort(navies);
-		write("%s\n", string_to_utf8(tabulate(({" "}) + "Country Infantry Cavalry Artillery Total Manpower Prof Trad" / " ", armies[*][-1], "  ", 2)));
+		write("%s\n", string_to_utf8(tabulate(({" "}) + "Country Infantry Cavalry Artillery Inf$$ Cav$$ Art$$ Total Manpower Prof Trad" / " ", armies[*][-1], "  ", 2)));
 		write("%s\n", string_to_utf8(tabulate(({" "}) + "Country Heavy Light Galley Transp Total Sailors Trad" / " ", navies[*][-1], "  ", 2)));
 		//TODO: Separate mercs out onto their own lines???
 	}
