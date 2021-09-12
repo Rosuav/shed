@@ -286,12 +286,14 @@ void analyze_flagships(mapping data, function|void write) {
 	write("%{%s %s %s\n%}", flagships);
 }
 
-string tabulate(array(string) headings, array(array(mixed)) data, string|void gutter) {
+string tabulate(array(string) headings, array(array(mixed)) data, string|void gutter, int|void summary) {
 	if (!gutter) gutter = " ";
 	array info = ({headings}) + (array(array(string)))data;
 	array(int) widths = map(Array.transpose(info)) {return max(@sizeof(__ARGS__[0][*]));};
 	//Hack: First column isn't size-counted or guttered. It's for colour codes and such.
-	string fmt = sprintf("%%%ds", widths[1..][*]) * "  ";
+	string fmt = sprintf("%%%ds", widths[1..][*]) * gutter;
+	//If there's a summary row, insert a ruler before it. (You can actually have multiple summary rows if you like.)
+	if (summary) info = info[..<summary] + ({({" "}) + "\u2500" * widths[1..][*]}) + info[<summary-1..];
 	return sprintf("%{%s" + fmt + "\e[0m\n%}", info);
 }
 
@@ -343,6 +345,8 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 		//war->participants[*]->value is the individual contribution. To turn this into a percentage,
 		//be sure to sum only the values on one side, as participants[] has both sides of the war in it.
 		array armies = ({ }), navies = ({ });
+		array(array(int)) army_total = ({allocate(5), allocate(5)});
+		array(array(int)) navy_total = ({allocate(6), allocate(6)});
 		foreach (war->participants, mapping p) {
 			mapping country = data->countries[p->tag];
 			int a = has_value(war->attackers, p->tag), d = has_value(war->defenders, p->tag);
@@ -382,6 +386,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 					sprintf("%3.0f%%", (float)country->army_tradition),
 				}),
 			})});
+			army_total[d] = army_total[d][*] + armies[-1][1][2..<2][*];
 			int sailors = (int)country->sailors; //Might be 0, otherwise is eg "991.795" (we don't care about the fraction, this means 991 sailors)
 			int total_navy = mil->heavy_ship + mil->light_ship + mil->galley + mil->transport;
 			navies += ({({
@@ -393,12 +398,22 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 					sprintf("%3.0f%%", (float)country->navy_tradition),
 				}),
 			})});
+			navy_total[d] = navy_total[d][*] + navies[-1][1][2..<1][*];
 		}
+		armies += ({
+			//The totals get sorted after the individual country entries. Their sort keys are
+			//guaranteed positive, and are such that the larger army has a smaller sort key.
+			//Easiest way to do that is to swap them :)
+			({1 + army_total[1][-2] + army_total[1][-1], ({"\e[48;2;50;0;0m" + atk, ""}) + army_total[0] + ({"", ""})}),
+			({1 + army_total[0][-2] + army_total[0][-1], ({"\e[48;2;0;0;50m" + def, ""}) + army_total[1] + ({"", ""})}),
+		});
+		navies += ({
+			({1 + navy_total[1][-2] + navy_total[1][-1], ({"\e[48;2;50;0;0m" + atk, ""}) + navy_total[0] + ({""})}),
+			({1 + navy_total[0][-2] + navy_total[0][-1], ({"\e[48;2;0;0;50m" + def, ""}) + navy_total[1] + ({""})}),
+		});
 		sort(armies); sort(navies);
-		write("%s\n", string_to_utf8(tabulate(({" "}) + "Country Infantry Cavalry Artillery Total Manpower Prof Trad" / " ", armies[*][-1], "  ")));
-		write("%s\n", string_to_utf8(tabulate(({" "}) + "Country Heavy Light Galley Transp Total Sailors Trad" / " ", navies[*][-1], "  ")));
-		//TODO: Sum the two sides and show comparisons, with slightly different colour (draw a separating line, then Attackers, then Defenders)
-		//(Prof/Trad ignore)
+		write("%s\n", string_to_utf8(tabulate(({" "}) + "Country Infantry Cavalry Artillery Total Manpower Prof Trad" / " ", armies[*][-1], "  ", 2)));
+		write("%s\n", string_to_utf8(tabulate(({" "}) + "Country Heavy Light Galley Transp Total Sailors Trad" / " ", navies[*][-1], "  ", 2)));
 		//TODO: Separate mercs out onto their own lines???
 	}
 }
