@@ -293,7 +293,7 @@ string tabulate(array(string) headings, array(array(mixed)) data, string|void gu
 	//Hack: First column isn't size-counted or guttered. It's for colour codes and such.
 	string fmt = sprintf("%%%ds", widths[1..][*]) * gutter;
 	//If there's a summary row, insert a ruler before it. (You can actually have multiple summary rows if you like.)
-	if (summary) info = info[..<summary] + ({({" "}) + "\u2500" * widths[1..][*]}) + info[<summary-1..];
+	if (summary) info = info[..<summary] + ({({headings[0]}) + "\u2500" * widths[1..][*]}) + info[<summary-1..];
 	return sprintf("%{%s" + fmt + "\e[0m\n%}", info);
 }
 
@@ -351,11 +351,12 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 			mapping country = data->countries[p->tag];
 			int a = has_value(war->attackers, p->tag), d = has_value(war->defenders, p->tag);
 			if (!a && !d) continue; //War participant has subsequently peaced out
-			string side = sprintf("\e[48;2;%d;%d;%dm",
+			string side = sprintf("\e[48;2;%d;%d;%dm%s  ",
 				a && 30, //Red for attacker
 				tags[p->tag] && 60, //Cyan or olive for player
-				d && 30);
-			side += a ? atk : def;
+				d && 30,
+				a ? atk : def, //Sword or shield
+			);
 			//I don't know how to recognize that eastern_militia is infantry and muscovite_cossack is cavalry.
 			//For land units, we can probably assume that you use only your current set. For sea units, there
 			//aren't too many (and they're shared by all nations), so I just hard-code them.
@@ -406,16 +407,16 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 			//The totals get sorted after the individual country entries. Their sort keys are
 			//guaranteed positive, and are such that the larger army has a smaller sort key.
 			//Easiest way to do that is to swap them :)
-			({1 + army_total[1][-2] + army_total[1][-1], ({"\e[48;2;50;0;0m" + atk, ""}) + army_total[0] + ({"", ""})}),
-			({1 + army_total[0][-2] + army_total[0][-1], ({"\e[48;2;0;0;50m" + def, ""}) + army_total[1] + ({"", ""})}),
+			({1 + army_total[1][-2] + army_total[1][-1], ({"\e[48;2;50;0;0m" + atk + "  ", ""}) + army_total[0] + ({"", ""})}),
+			({1 + army_total[0][-2] + army_total[0][-1], ({"\e[48;2;0;0;50m" + def + "  ", ""}) + army_total[1] + ({"", ""})}),
 		});
 		navies += ({
-			({1 + navy_total[1][-2] + navy_total[1][-1], ({"\e[48;2;50;0;0m" + atk, ""}) + navy_total[0] + ({""})}),
-			({1 + navy_total[0][-2] + navy_total[0][-1], ({"\e[48;2;0;0;50m" + def, ""}) + navy_total[1] + ({""})}),
+			({1 + navy_total[1][-2] + navy_total[1][-1], ({"\e[48;2;50;0;0m" + atk + "  ", ""}) + navy_total[0] + ({""})}),
+			({1 + navy_total[0][-2] + navy_total[0][-1], ({"\e[48;2;0;0;50m" + def + "  ", ""}) + navy_total[1] + ({""})}),
 		});
 		sort(armies); sort(navies);
-		write("%s\n", string_to_utf8(tabulate(({" "}) + "Country Infantry Cavalry Artillery Inf$$ Cav$$ Art$$ Total Manpower Prof Trad" / " ", armies[*][-1], "  ", 2)));
-		write("%s\n", string_to_utf8(tabulate(({" "}) + "Country Heavy Light Galley Transp Total Sailors Trad" / " ", navies[*][-1], "  ", 2)));
+		write("%s\n", string_to_utf8(tabulate(({"   "}) + "Country Infantry Cavalry Artillery Inf$$ Cav$$ Art$$ Total Manpower Prof Trad" / " ", armies[*][-1], "  ", 2)));
+		write("%s\n", string_to_utf8(tabulate(({"   "}) + "Country Heavy Light Galley Transp Total Sailors Trad" / " ", navies[*][-1], "  ", 2)));
 		//TODO: Separate mercs out onto their own lines???
 	}
 }
