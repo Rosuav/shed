@@ -499,6 +499,15 @@ class Connection(Stdio.File sock) {
 					sock->write("");
 					break;
 				case "war": case "wars": {
+					if (arg == "") {
+						foreach (last_parsed_savefile->active_war || ({ }), mapping war) {
+							outgoing->sprintf("\n\e[1;31m== War: %s - %s ==\e[0m\n", war->action, string_to_utf8(war->name));
+							if (war->attackers) outgoing->sprintf(string_to_utf8("\U0001f5e1\ufe0f %{ %s%}\n"), war->attackers);
+							if (war->defenders) outgoing->sprintf(string_to_utf8("\U0001f6e1\ufe0f %{ %s%}\n"), war->defenders);
+						}
+						sock->write("");
+						break;
+					}
 					string tag = find_country(last_parsed_savefile, arg); if (!tag) break;
 					analyze_wars(last_parsed_savefile, (<tag>), outgoing->sprintf);
 					sock->write("");
