@@ -417,7 +417,6 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 		sort(armies); sort(navies);
 		write("%s\n", string_to_utf8(tabulate(({"   "}) + "Country Infantry Cavalry Artillery Inf$$ Cav$$ Art$$ Total Manpower Prof Trad" / " ", armies[*][-1], "  ", 2)));
 		write("%s\n", string_to_utf8(tabulate(({"   "}) + "Country Heavy Light Galley Transp Total Sailors Trad" / " ", navies[*][-1], "  ", 2)));
-		//TODO: Separate mercs out onto their own lines???
 	}
 }
 
