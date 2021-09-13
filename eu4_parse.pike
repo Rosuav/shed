@@ -484,7 +484,7 @@ class Connection(Stdio.File sock) {
 					if (last_parsed_savefile) inform(last_parsed_savefile);
 					break;
 				case "province": cycle_provinces(arg); break;
-				case "highlight": case "hl": {
+				case "highlight": case "hl": case "build": case "building": case "buildings": {
 					//Request highlighting of provinces in which a particular building could be built if you had a slot.
 					//Example: "highlight shipyard" ==> any province with no shipyard and no building slots gets highlighted.
 					//Typing "highlight" without an arg, or any invalid arg, will give a list of building IDs.
