@@ -537,10 +537,11 @@ class Connection(Stdio.File sock) {
 
 void sock_connected(object mainsock) {while (object sock = mainsock->accept()) Connection(sock);}
 
-void thread_savefile(string fn) {
-	write("Reading save file %s\n", basename(fn));
-	string raw = Stdio.read_file(fn); //Assumes ISO-8859-1, which I think is correct
-	mapping data = parse_savefile(raw);
+Stdio.File parser_pipe = Stdio.File();
+void process_savefile(string fn) {parser_pipe->write(fn + "\n");}
+void done_processing_savefile() {
+	parser_pipe->read();
+	mapping data = Standards.JSON.decode_utf8(Stdio.read_file("eu4_parse.json") || "{}")->data;
 	if (!data) {werror("Unable to parse save file (see above for errors, hopefully)\n"); return;}
 	write("\nCurrent date: %s\n", data->date);
 	foreach (data->players_countries / 2, [string name, string tag]) analyze(data, name, tag);
@@ -549,7 +550,6 @@ void thread_savefile(string fn) {
 	indices(connections)->inform(data);
 	last_parsed_savefile = data;
 }
-void process_savefile(string fn) {Thread.Thread(thread_savefile, fn);}
 
 class ClientConnection {
 	inherit Connection;
@@ -567,7 +567,25 @@ class ClientConnection {
 	void stdineof() {sock->close("w");}
 }
 
+class PipeConnection {
+	inherit Connection;
+	void sockread() {
+		while (array ret = incoming->sscanf("%s\n")) {
+			[string fn] = ret;
+			write("Reading save file %s\n", basename(fn));
+			string raw = Stdio.read_file(fn); //Assumes ISO-8859-1, which I think is correct
+			parse_savefile(raw);
+			sock->write("*"); //Signal the parent. It can read it back from the cache.
+		}
+	}
+}
+
 int main(int argc, array(string) argv) {
+	if (argc > 1 && argv[1] == "--parse") {
+		//Parser subprocess, invoked by parent for asynchronous parsing.
+		PipeConnection(Stdio.File(3)); //We should have been given fd 3 as a pipe
+		return -1;
+	}
 	if (argc > 2) {
 		//First arg is server name/IP; the rest are joined and sent as a command.
 		//If the second arg is "province", then the result is fed as keys to EU4.
@@ -695,6 +713,8 @@ log = \"PROV-TERRAIN-END\"
 		if (slots) building_slots[id] += slots;
 	}
 
+	object proc = Process.spawn_pike(({argv[0], "--parse"}), (["fds": ({parser_pipe->pipe(Stdio.PROP_NONBLOCK|Stdio.PROP_BIDIRECTIONAL|Stdio.PROP_IPC)})]));
+	parser_pipe->set_nonblocking(done_processing_savefile, 0, parser_pipe->close);
 	//Process the default save file, then watch for new files
 	//process_savefile(SAVE_PATH + "/autosave.eu4");
 	process_savefile(SAVE_PATH + "/mp_autosave.eu4");
