@@ -15,12 +15,17 @@ object parser;
 Parser.LR.Parser parser = Parser.LR.GrammarParser.make_parser_from_file("eu4_parse.grammar");
 #endif
 
+int retain_map_indices = 0;
 class maparray {
 	//Hybrid mapping/array. Can have key-value pairs with string keys, and also an array
 	//of values, indexed numerically.
 	mapping keyed = ([]);
 	array indexed = ({ });
-	object addkey(string key, mixed value) {keyed[key] = value; return this;}
+	object addkey(string key, mixed value) {
+		if (retain_map_indices && mappingp(value)) value |= (["_index": sizeof(keyed)]);
+		keyed[key] = value;
+		return this;
+	}
 	object addidx(mixed value) {indexed += ({value}); return this;}
 	protected int _sizeof() {return sizeof(keyed) + sizeof(indexed);}
 	protected mixed `[](string|int key) {return intp(key) ? indexed[key] : keyed[key];}
@@ -56,7 +61,7 @@ maparray addmapping(maparray map, mixed name, mixed _, mixed val) {
 	//an array of arrays.
 	if (arrayp(map[name])) map[name] += ({val});
 	else if (map[name]) map[name] = ({map[name], val});
-	else map[name] = val;
+	else map->addkey(name, val);
 	return map;
 }
 maparray makearray(mixed val) {return maparray()->addidx(val);}
@@ -108,7 +113,7 @@ void parse_country_names(string data) {
 
 mapping prov_area = ([]);
 mapping province_info;
-mapping building_types;
+mapping building_types; array building_id;
 mapping building_slots = ([]);
 array(string) interesting_province = ({ });
 multiset(string) area_has_level3 = (<>);
@@ -177,8 +182,7 @@ void analyze_furnace(mapping data, string name, string tag, function write) {
 		mapping bldg = prov->buildings || ([]);
 		mapping mfg = bldg & manufactories;
 		if (bldg->furnace) write("%s\tHas Furnace\tDev %d\t%s\n", id, dev, string_to_utf8(prov->name));
-		else if (prov->building_construction->?building == "32")
-			//Currently constructing a Furnace (building type 32 - how do we find out those IDs?)
+		else if (building_id[(int)prov->building_construction->?building] == "furnace")
 			write("%s\t%s\tDev %d\t%s\n", id, prov->building_construction->date, dev, string_to_utf8(prov->name));
 		else if (sizeof(mfg)) write("\e[1;31m%s\tHas %s\tDev %d\t%s\e[0m\n", id, values(mfg)[0], dev, string_to_utf8(prov->name));
 		else {
@@ -199,6 +203,7 @@ void analyze_upgrades(mapping data, string name, string tag, function write) {
 	foreach (country->owned_provinces, string id) {
 		mapping prov = data->provinces["-" + id];
 		if (!prov->buildings) continue;
+		string constructing = building_id[(int)prov->building_construction->?building]; //0 if not constructing anything
 		foreach (prov->buildings; string b;) {
 			mapping bldg = building_types[b]; if (!bldg) continue; //Unknown building??
 			if (bldg->influencing_fort) continue; //Ignore forts - it's often not worth upgrading all forts. (TODO: Have a way to request forts too.)
@@ -211,9 +216,8 @@ void analyze_upgrades(mapping data, string name, string tag, function write) {
 				//Trade Depot, but could go straight to Stock Exchange.
 				target = bldg->obsoleted_by;
 				bldg = upgrade;
-				//TODO: Check if the province is already building this upgrade
 			}
-			if (target) {interesting(id); upgradeables[target] += ({prov->name});}
+			if (target && target != constructing) {interesting(id); upgradeables[target] += ({prov->name});}
 		}
 	}
 	foreach (sort(indices(upgradeables)), string b) {
@@ -627,9 +631,15 @@ int main(int argc, array(string) argv) {
 	mapping climates = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/climate.txt"));
 	//For simplicity, I'm not looking up static_modifiers or anything - just arbitrarily flagging Arctic regions.
 	foreach (climates->arctic, string id) building_slots[id] -= 1;
+	retain_map_indices = 1;
 	building_types = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/buildings/00_buildings.txt"));
+	retain_map_indices = 0;
+	building_id = allocate(sizeof(building_types));
 	foreach (building_types; string id; mapping info) {
 		if (info->manufactory) manufactories[id] = info->show_separate ? "Special" : "Basic";
+		//Map the index to the ID, counting from 1, but skipping the "manufactory" pseudo-entry
+		//(not counting it and collapsing the gap).
+		if (id != "manufactory") building_id[info->_index + (info->_index < building_types->manufactory->_index)] = id;
 	}
 	foreach (({"adm", "dip", "mil"}), string cat) {
 		mapping tech = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/technologies/" + cat + ".txt"));
