@@ -529,7 +529,7 @@ class Connection(Stdio.File sock) {
 					analyze_wars(last_parsed_savefile, (<tag>), outgoing->sprintf);
 					sock->write("");
 				}
-				default: break; //Including 0 which indicates failure to parse (no argument after command name)
+				default: sock->write(sprintf("Unknown command %O\n", cmd)); break;
 			}
 		}
 	}
