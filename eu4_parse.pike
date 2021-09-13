@@ -715,9 +715,10 @@ log = \"PROV-TERRAIN-END\"
 
 	object proc = Process.spawn_pike(({argv[0], "--parse"}), (["fds": ({parser_pipe->pipe(Stdio.PROP_NONBLOCK|Stdio.PROP_BIDIRECTIONAL|Stdio.PROP_IPC)})]));
 	parser_pipe->set_nonblocking(done_processing_savefile, 0, parser_pipe->close);
-	//Process the default save file, then watch for new files
-	//process_savefile(SAVE_PATH + "/autosave.eu4");
-	process_savefile(SAVE_PATH + "/mp_autosave.eu4");
+	//Find the newest .eu4 file in the directory and (re)parse it, then watch for new files.
+	array(string) files = SAVE_PATH + "/" + get_dir(SAVE_PATH)[*];
+	sort(file_stat(files[*])->mtime, files);
+	if (sizeof(files)) process_savefile(files[-1]);
 	object inot = System.Inotify.Instance();
 	string new_file; int nomnomcookie;
 	inot->add_watch(SAVE_PATH, System.Inotify.IN_CLOSE_WRITE | System.Inotify.IN_MOVED_TO | System.Inotify.IN_MOVED_FROM) {
