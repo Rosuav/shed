@@ -251,7 +251,7 @@ void analyze(mapping data, string name, string tag, function|void write, string|
 }
 
 void analyze_flagships(mapping data, function|void write) {
-	if (!write) write = Stdio.stdin->write;
+	if (!write) write = Stdio.stdin->write; //Wait. How does this even work?? FIXME - shouldn't it fail, and make me use stdout properly?!?
 	array flagships = ({ });
 	foreach (data->countries; string tag; mapping country) {
 		//mapping country = data->countries[tag];
