@@ -265,13 +265,13 @@ void analyze_flagships(mapping data, function|void write) {
 					cap = " CAPTURED from " + (data->countries[was]->name || was);
 				}
 				flagships += ({({
-					sprintf("\e[1m%s\e[0m - %s: \e[36m%s\e[31m%s\e[0m",
+					sprintf("\e[1m%s\e[0m - %s: \e[36m%s %q\e[31m%s\e[0m",
 						country->name || tag, string_to_utf8(fleet->name),
-						String.capitalize(ship->type), cap),
+						String.capitalize(ship->type), string_to_utf8(ship->name), cap),
 					//Measure size without colour codes or UTF-8 encoding
-					sizeof(sprintf("%s - %s: %s%s",
+					sizeof(sprintf("%s - %s: %s %q%s",
 						country->name || tag, fleet->name,
-						String.capitalize(ship->type), cap)),
+						String.capitalize(ship->type), ship->name, cap)),
 					ship->flagship->modification * ", ",
 				})});
 				//write("%O\n", ship->flagship);
