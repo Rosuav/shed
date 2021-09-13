@@ -99,6 +99,13 @@ mapping parse_savefile(string data, int|void verbose) {
 	return ret;
 }
 
+mapping country_names = ([]); //Actually all localisation strings, not all of them are country tag to name transformations
+void parse_country_names(string data) {
+	data = utf8_to_string(data);
+	sscanf(data, "%*s\n%{ %s:%*d \"%s\"\n%}", array info);
+	country_names |= (mapping)info;
+}
+
 mapping prov_area = ([]);
 mapping province_info;
 mapping building_types;
@@ -262,15 +269,15 @@ void analyze_flagships(mapping data, function|void write) {
 				string cap = "";
 				if (ship->flagship->is_captured) {
 					string was = ship->flagship->original_owner;
-					cap = " CAPTURED from " + (data->countries[was]->name || was);
+					cap = " CAPTURED from " + (data->countries[was]->name || country_names[was] || was);
 				}
 				flagships += ({({
-					sprintf("\e[1m%s\e[0m - %s: \e[36m%s %q\e[31m%s\e[0m",
-						country->name || tag, string_to_utf8(fleet->name),
-						String.capitalize(ship->type), string_to_utf8(ship->name), cap),
+					string_to_utf8(sprintf("\e[1m%s\e[0m - %s: \e[36m%s %q\e[31m%s\e[0m",
+						country->name || country_names[tag] || tag, fleet->name,
+						String.capitalize(ship->type), ship->name, cap)),
 					//Measure size without colour codes or UTF-8 encoding
 					sizeof(sprintf("%s - %s: %s %q%s",
-						country->name || tag, fleet->name,
+						country->name || country_names[tag] || tag, fleet->name,
 						String.capitalize(ship->type), ship->name, cap)),
 					ship->flagship->modification * ", ",
 				})});
@@ -381,7 +388,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 				-total_army * 1000000000 - mp,
 				({
 					side,
-					utf8_to_string(country->name || p->tag),
+					country->name || country_names[p->tag] || p->tag,
 					mil->infantry, mil->cavalry, mil->artillery,
 					mil->merc_infantry, mil->merc_cavalry, mil->merc_artillery,
 					total_army, mp,
@@ -396,7 +403,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 				-total_navy * 1000000000 - sailors,
 				({
 					side,
-					utf8_to_string(country->name || p->tag),
+					country->name || country_names[p->tag] || p->tag,
 					mil->heavy_ship, mil->light_ship, mil->galley, mil->transport, total_navy, sailors,
 					sprintf("%3.0f%%", (float)country->navy_tradition),
 				}),
@@ -610,6 +617,8 @@ int main(int argc, array(string) argv) {
 	}
 
 	//Load up some info that is presumed to not change. If you're modding the game, this may break.
+	parse_country_names(Stdio.read_file(PROGRAM_PATH + "/localisation/countries_l_english.yml"));
+	parse_country_names(Stdio.read_file(PROGRAM_PATH + "/localisation/text_l_english.yml"));
 	mapping areas = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/area.txt"));
 	foreach (areas; string areaname; array|maparray provinces)
 		foreach (provinces;; string id) prov_area[id] = areaname;
