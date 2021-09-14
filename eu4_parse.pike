@@ -65,25 +65,28 @@ maparray makearray(mixed val) {return maparray()->addidx(val);}
 maparray addarray(maparray arr, mixed val) {return arr->addidx(val);}
 mapping emptymaparray() {return ([]);}
 
-mapping low_parse_savefile(string data, int|void verbose) {
+mapping low_parse_savefile(string|Stdio.Buffer data, int|void verbose) {
+	if (stringp(data)) data = Stdio.Buffer(data); //NOTE: Restricted to eight-bit data. Since EU4 uses ISO-8859-1, that's not a problem. Be aware for future.
+	data->read_only();
+	string ungetch;
 	string|array next() {
-		sscanf(data, "%[ \t\r\n]%s", string ws, data);
-		while (sscanf(data, "#%*s\n%*[ \t\r\n]%s", data)); //Strip comments
-		if (data == "") return "";
-		if (sscanf(data, "\"%[^\"]\"%s", string str, data) == 2) {
+		if (string ret = ungetch) {ungetch = 0; return ret;}
+		data->sscanf("%*[ \t\r\n]");
+		while (data->sscanf( "#%*s\n%*[ \t\r\n]")); //Strip comments
+		if (!sizeof(data)) return "";
+		if (array str = data->sscanf("\"%[^\"]\"")) {
 			//How are embedded quotes and/or backslashes handled?
-			return ({"string", str});
+			return ({"string", str[0]});
 		}
-		if (sscanf(data, "%[-0-9.]%s", string digits, data) && digits != "") {
-			return ({"string", digits});
-		}
-		if (sscanf(data, "%[0-9a-zA-Z_]%s", string word, data) && word != "") {
+		if (array digits = data->sscanf("%[-0-9.]")) return ({"string", digits[0]});
+		if (array|string word = data->sscanf("%[0-9a-zA-Z_]")) {
+			word = word[0];
 			if ((<"yes", "no">)[word]) return ({"boolean", word == "yes"});
 			//Hack: this one element seems to omit the equals sign for some reason.
-			if (word == "map_area_data") data = "=" + data;
+			if (word == "map_area_data") ungetch = "=";
 			return ({"string", word});
 		}
-		sscanf(data, "%1s%s", string char, data); return char;
+		return data->read(1);
 	}
 	string|array shownext() {mixed tok = next(); write("%O\n", tok); return tok;}
 	//while (shownext() != ""); return 0; //Dump tokens w/o parsing
@@ -593,6 +596,14 @@ int main(int argc, array(string) argv) {
 		//Parser subprocess, invoked by parent for asynchronous parsing.
 		PipeConnection(Stdio.File(3)); //We should have been given fd 3 as a pipe
 		return -1;
+	}
+	if (argc > 1 && argv[1] == "--timeparse") {
+		object start = System.Timer();
+		#define TIME(x) {float tm = gauge {x;}; write("%.3f\t%.3f\t%s\n", start->get(), tm, #x);}
+		string raw; TIME(raw = Stdio.read_file(SAVE_PATH + "/mp_autosave.eu4"));
+		mapping data; TIME(data = low_parse_savefile(raw));
+		write("Parse successful. Date: %s\n", data->date);
+		return 0;
 	}
 	if (argc > 2) {
 		//First arg is server name/IP; the rest are joined and sent as a command.
