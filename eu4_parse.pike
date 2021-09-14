@@ -1,8 +1,5 @@
-/*
-Read a text EU4 savefile (use mp_autosave.eu4 by default)
-Currently scans for upgradeable Centers of Trade and provinces producing Coal.
-NOTE: Requires uncompressed non-ironman savefile.
-*/
+//Read a text EU4 savefile and scan for matters of interest. Provides info to clients.
+//NOTE: Requires uncompressed non-ironman savefile.
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
 constant PROGRAM_PATH = "../.steam/steam/steamapps/common/Europa Universalis IV"; //Append /map or /common etc to access useful data files
