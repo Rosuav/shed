@@ -539,6 +539,7 @@ class Connection(Stdio.File sock) {
 					string tag = find_country(last_parsed_savefile, arg); if (!tag) break;
 					analyze_wars(last_parsed_savefile, (<tag>), outgoing->sprintf);
 					sock->write("");
+					break;
 				}
 				default: sock->write(sprintf("Unknown command %O\n", cmd)); break;
 			}
