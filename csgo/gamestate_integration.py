@@ -42,6 +42,7 @@ def screencap():
 	# Find CS:GO window: wmctrl -lG|grep Counter-Strike
 	# ffmpeg -video_size 1920x1080 -framerate 3 -f x11grab -i :0.0+1920,0 -c copy scoreboard.mkv
 	# Attach these to the last notes. Ideally, take a few frames a second, but play them back slower.
+	# TODO: Take notes only if (a) it's competitive, and (b) I'm participating, not spectating.
 	try:
 		p = subprocess.run(["wmctrl", "-lG"], capture_output=True, check=True)
 	except (subprocess.CalledProcessError, FileNotFoundError):
