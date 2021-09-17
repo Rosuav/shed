@@ -1,5 +1,9 @@
 //Read a text EU4 savefile and scan for matters of interest. Provides info to clients.
 //NOTE: Requires uncompressed non-ironman savefile.
+//TODO: Support compressed savefiles - shouldn't be too hard
+//TODO: Support ironman savefiles. Might be a lot harder.
+//TODO: Report on Monuments (Leviathan expansion feature) and whether they could be upgraded
+//TODO: Track when you could use each of the favour interactions?
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
 constant PROGRAM_PATH = "../.steam/steam/steamapps/common/Europa Universalis IV"; //Append /map or /common etc to access useful data files
