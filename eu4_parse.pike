@@ -636,6 +636,7 @@ int main(int argc, array(string) argv) {
 	//Load up some info that is presumed to not change. If you're modding the game, this may break.
 	parse_country_names(Stdio.read_file(PROGRAM_PATH + "/localisation/countries_l_english.yml"));
 	parse_country_names(Stdio.read_file(PROGRAM_PATH + "/localisation/text_l_english.yml"));
+	parse_country_names(Stdio.read_file(PROGRAM_PATH + "/localisation/tags_phase4_l_english.yml"));
 	mapping areas = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/area.txt"));
 	foreach (areas; string areaname; array|maparray provinces)
 		foreach (provinces;; string id) prov_area[id] = areaname;
