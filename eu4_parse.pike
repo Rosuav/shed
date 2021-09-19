@@ -3,6 +3,7 @@
 //TODO: Support compressed savefiles - shouldn't be too hard
 //TODO: Support ironman savefiles. Might be a lot harder.
 //TODO: Report on Monuments (Leviathan expansion feature) and whether they could be upgraded
+//- May not be possible to show all upgrade requirements. Just listing monuments in your domains may be sufficient.
 //TODO: Track when you could use each of the favour interactions?
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
