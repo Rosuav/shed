@@ -1,7 +1,5 @@
 //Read a text EU4 savefile and scan for matters of interest. Provides info to clients.
-//NOTE: Requires uncompressed non-ironman savefile.
-//TODO: Support compressed savefiles - shouldn't be too hard
-//TODO: Support ironman savefiles. Might be a lot harder.
+//NOTE: Requires non-ironman savefile.
 //TODO: Report on Monuments (Leviathan expansion feature) and whether they could be upgraded
 //- May not be possible to show all upgrade requirements. Just listing monuments in your domains may be sufficient.
 //TODO: Track when you could use each of the favour interactions?
@@ -98,13 +96,49 @@ mapping low_parse_savefile(string|Stdio.Buffer data, int|void verbose) {
 	return parser->parse(verbose ? shownext : next, this);
 }
 
+//File-like object that reads from a string. Potentially does a lot of string copying.
+class StringFile(string basis) {
+	int pos = 0;
+	int seek(int offset, string|void whence) {
+		switch (whence) {
+			case Stdio.SEEK_SET: pos = offset; break;
+			case Stdio.SEEK_CUR: pos += offset; break;
+			case Stdio.SEEK_END: pos = sizeof(basis) + offset; break;
+			case 0: pos = offset + sizeof(basis) * (offset < 0); break; //Default is SEEK_END if negative, else SEEK_SET
+		}
+		return pos;
+	}
+	int tell() {return pos;}
+	string(8bit) read(int len) {
+		string ret = basis[pos..pos+len-1];
+		pos += len;
+		return ret;
+	}
+	void stat() { } //No file system stats available.
+}
+
+mapping parse_savefile_string(string data, int|void verbose) {
+	if (has_prefix(data, "PK\3\4")) {
+		//Compressed savefile. Consists of three files, one of which ("ai") we don't care
+		//about. The other two can be concatenated after stripping their "EU4txt" headers,
+		//and should be able to be parsed just like an uncompressed save. (The ai file is
+		//also the exact same format, so if it's ever needed, just add a third sscanf.)
+		object zip = Filesystem.Zip._Zip(StringFile(data));
+		sscanf(zip->read("meta") || "", "EU4txt%s", string meta);
+		sscanf(zip->read("gamestate") || "", "EU4txt%s", string state);
+		if (meta && state) data = meta + state; else return 0;
+	}
+	else if (!sscanf(data, "EU4txt%s", data)) return 0;
+	write("Parsing %d bytes...\n", sizeof(data));
+	return low_parse_savefile(data, verbose);
+}
+
 mapping parse_savefile(string data, int|void verbose) {
 	sscanf(Crypto.SHA256.hash(data), "%32c", int hash);
 	string hexhash = sprintf("%64x", hash);
 	mapping cache = Standards.JSON.decode_utf8(Stdio.read_file("eu4_parse.json") || "{}");
 	if (cache->hash == hexhash) return cache->data;
-	if (!sscanf(data, "EU4txt%s", data)) return 0;
-	mapping ret = low_parse_savefile(data, verbose);
+	mapping ret = parse_savefile_string(data, verbose);
 	Stdio.write_file("eu4_parse.json", string_to_utf8(Standards.JSON.encode((["hash": hexhash, "data": ret]))));
 	return ret;
 }
@@ -607,7 +641,7 @@ int main(int argc, array(string) argv) {
 		object start = System.Timer();
 		#define TIME(x) {float tm = gauge {x;}; write("%.3f\t%.3f\t%s\n", start->get(), tm, #x);}
 		string raw; TIME(raw = Stdio.read_file(SAVE_PATH + "/mp_autosave.eu4"));
-		mapping data; TIME(data = low_parse_savefile(raw));
+		mapping data; TIME(data = parse_savefile_string(raw));
 		write("Parse successful. Date: %s\n", data->date);
 		return 0;
 	}
