@@ -130,7 +130,7 @@ mapping parse_savefile_string(string data, int|void verbose) {
 		if (meta && state) data = meta + state; else return 0;
 	}
 	else if (!sscanf(data, "EU4txt%s", data)) return 0;
-	write("Parsing %d bytes...\n", sizeof(data));
+	if (verbose) write("Parsing %d bytes...\n", sizeof(data));
 	return low_parse_savefile(data, verbose);
 }
 
