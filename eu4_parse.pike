@@ -151,6 +151,25 @@ void parse_localisation(string data) {
 	L10n |= (mapping)info;
 }
 
+string tabulate(array(string) headings, array(array(mixed)) data, string|void gutter, int|void summary) {
+	if (!gutter) gutter = " ";
+	array info = ({headings}) + (array(array(string)))data;
+	array(int) widths = map(Array.transpose(info)) {return max(@sizeof(__ARGS__[0][*]));};
+	//Hack: First column isn't size-counted or guttered. It's for colour codes and such.
+	string fmt = sprintf("%%%ds", widths[1..][*]) * gutter;
+	//If there's a summary row, insert a ruler before it. (You can actually have multiple summary rows if you like.)
+	if (summary) info = info[..<summary] + ({({headings[0]}) + "\u2500" * widths[1..][*]}) + info[<summary-1..];
+	return sprintf("%{%s" + fmt + "\e[0m\n%}", info);
+}
+
+int threeplace(string value) {
+	//EU4 uses three-place fixed-point for a lot of things. Return the number as an integer,
+	//ie "3.142" is returned as 3142.
+	if (!value) return 0;
+	sscanf(value, "%d.%s", int whole, string frac);
+	return whole * 1000 + (int)sprintf("%.03s", frac);
+}
+
 mapping prov_area = ([]);
 mapping province_info;
 mapping building_types; array building_id;
@@ -195,6 +214,30 @@ void analyze_cot(mapping data, string name, string tag, function write) {
 	}
 	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;32m", upgradeable[*]));
 	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*]));
+}
+
+void analyze_great_projects(mapping data, string name, string tag, function write) {
+	mapping country = data->countries[tag];
+	array projects = ({ });
+	foreach (country->owned_provinces, string id) {
+		mapping prov = data->provinces["-" + id];
+		if (!prov->great_projects) continue;
+		mapping con = prov->great_project_construction || ([]);
+		foreach (prov->great_projects, string project) {
+			mapping proj = data->great_projects[project];
+			projects += ({({
+				(int)id - (int)proj->development_tier * 10000,
+				({"", id, "Lvl " + proj->development_tier, prov->name, L10n[project],
+					//It's possible that con->type is "1" for upgrades and "2" for moving it to your capital
+					con->great_projects == project ? sprintf("%d%%, due %s", threeplace(con->progress) / 10, con->date) : "",
+				}),
+			})});
+			//write("Project: %O\n", proj);
+		}
+		//if (con) write("Construction: %O\n", con);
+	}
+	if (!sizeof(projects)) return;
+	write("%s\n", string_to_utf8(tabulate(({""}) + "ID Tier Province Project Upgrading" / " ", projects[*][-1], "  ", 0)));
 }
 
 int count_building_slots(mapping data, string id) {
@@ -295,7 +338,7 @@ void analyze(mapping data, string name, string tag, function|void write, string|
 	if (!write) write = Stdio.stdin->write;
 	interesting_province = ({ }); area_has_level3 = (<>);
 	write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
-	({analyze_cot, analyze_furnace, analyze_upgrades})(data, name, tag, write);
+	({analyze_cot, analyze_great_projects, analyze_furnace, analyze_upgrades})(data, name, tag, write);
 	if (highlight) analyze_findbuildings(data, name, tag, write, highlight);
 	//write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province)); //If needed in a machine-readable format
 	interesting_provinces[tag] = interesting_province;
@@ -335,25 +378,6 @@ void analyze_flagships(mapping data, function|void write) {
 	int width = max(@flagships[*][1]);
 	foreach (flagships, array f) f[1] = " " * (width - f[1]);
 	write("%{%s %s %s\n%}", flagships);
-}
-
-string tabulate(array(string) headings, array(array(mixed)) data, string|void gutter, int|void summary) {
-	if (!gutter) gutter = " ";
-	array info = ({headings}) + (array(array(string)))data;
-	array(int) widths = map(Array.transpose(info)) {return max(@sizeof(__ARGS__[0][*]));};
-	//Hack: First column isn't size-counted or guttered. It's for colour codes and such.
-	string fmt = sprintf("%%%ds", widths[1..][*]) * gutter;
-	//If there's a summary row, insert a ruler before it. (You can actually have multiple summary rows if you like.)
-	if (summary) info = info[..<summary] + ({({headings[0]}) + "\u2500" * widths[1..][*]}) + info[<summary-1..];
-	return sprintf("%{%s" + fmt + "\e[0m\n%}", info);
-}
-
-int threeplace(string value) {
-	//EU4 uses three-place fixed-point for a lot of things. Return the number as an integer,
-	//ie "3.142" is returned as 3142.
-	if (!value) return 0;
-	sscanf(value, "%d.%s", int whole, string frac);
-	return whole * 1000 + (int)sprintf("%.03s", frac);
 }
 
 mapping transform(string ... types) {
