@@ -144,11 +144,11 @@ mapping parse_savefile(string data, int|void verbose) {
 	return ret;
 }
 
-mapping country_names; //Actually all localisation strings, not all of them are country tag to name transformations
-void parse_country_names(string data) {
+mapping(string:string) L10n;
+void parse_localisation(string data) {
 	data = utf8_to_string(data);
 	sscanf(data, "%*s\n%{ %s:%*d \"%s\"\n%}", array info);
-	country_names |= (mapping)info;
+	L10n |= (mapping)info;
 }
 
 mapping prov_area = ([]);
@@ -313,15 +313,15 @@ void analyze_flagships(mapping data, function|void write) {
 				string cap = "";
 				if (ship->flagship->is_captured) {
 					string was = ship->flagship->original_owner;
-					cap = " CAPTURED from " + (data->countries[was]->name || country_names[was] || was);
+					cap = " CAPTURED from " + (data->countries[was]->name || L10n[was] || was);
 				}
 				flagships += ({({
 					string_to_utf8(sprintf("\e[1m%s\e[0m - %s: \e[36m%s %q\e[31m%s\e[0m",
-						country->name || country_names[tag] || tag, fleet->name,
+						country->name || L10n[tag] || tag, fleet->name,
 						String.capitalize(ship->type), ship->name, cap)),
 					//Measure size without colour codes or UTF-8 encoding
 					sizeof(sprintf("%s - %s: %s %q%s",
-						country->name || country_names[tag] || tag, fleet->name,
+						country->name || L10n[tag] || tag, fleet->name,
 						String.capitalize(ship->type), ship->name, cap)),
 					ship->flagship->modification * ", ",
 				})});
@@ -432,7 +432,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 				-total_army * 1000000000 - mp,
 				({
 					side,
-					country->name || country_names[p->tag] || p->tag,
+					country->name || L10n[p->tag] || p->tag,
 					mil->infantry, mil->cavalry, mil->artillery,
 					mil->merc_infantry, mil->merc_cavalry, mil->merc_artillery,
 					total_army, mp,
@@ -447,7 +447,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|void write) {
 				-total_navy * 1000000000 - sailors,
 				({
 					side,
-					country->name || country_names[p->tag] || p->tag,
+					country->name || L10n[p->tag] || p->tag,
 					mil->heavy_ship, mil->light_ship, mil->galley, mil->transport, total_navy, sailors,
 					sprintf("%3.0f%%", (float)country->navy_tradition),
 				}),
@@ -670,12 +670,12 @@ int main(int argc, array(string) argv) {
 	}
 
 	//Load up some info that is presumed to not change. If you're modding the game, this may break.
-	catch {country_names = Standards.JSON.decode_utf8(Stdio.read_file(".eu4_localisation.json"));};
-	if (!mappingp(country_names)) {
-		country_names = ([]);
+	catch {L10n = Standards.JSON.decode_utf8(Stdio.read_file(".eu4_localisation.json"));};
+	if (!mappingp(L10n)) {
+		L10n = ([]);
 		foreach (glob("*_l_english.yml", get_dir(PROGRAM_PATH + "/localisation")), string fn)
-			parse_country_names(Stdio.read_file(PROGRAM_PATH + "/localisation/" + fn));
-		Stdio.write_file(".eu4_localisation.json", Standards.JSON.encode(country_names, 1));
+			parse_localisation(Stdio.read_file(PROGRAM_PATH + "/localisation/" + fn));
+		Stdio.write_file(".eu4_localisation.json", Standards.JSON.encode(L10n, 1));
 	}
 	mapping areas = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/area.txt"));
 	foreach (areas; string areaname; array|maparray provinces)
