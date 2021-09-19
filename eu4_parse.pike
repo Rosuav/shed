@@ -3,6 +3,7 @@
 //TODO: Report on Monuments (Leviathan expansion feature) and whether they could be upgraded
 //- May not be possible to show all upgrade requirements. Just listing monuments in your domains may be sufficient.
 //TODO: Track when you could use each of the favour interactions?
+//TODO: Show a coalition as if it's a war?
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
 constant PROGRAM_PATH = "../.steam/steam/steamapps/common/Europa Universalis IV"; //Append /map or /common etc to access useful data files
