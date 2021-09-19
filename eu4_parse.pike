@@ -109,7 +109,7 @@ mapping parse_savefile(string data, int|void verbose) {
 	return ret;
 }
 
-mapping country_names = ([]); //Actually all localisation strings, not all of them are country tag to name transformations
+mapping country_names; //Actually all localisation strings, not all of them are country tag to name transformations
 void parse_country_names(string data) {
 	data = utf8_to_string(data);
 	sscanf(data, "%*s\n%{ %s:%*d \"%s\"\n%}", array info);
@@ -635,9 +635,13 @@ int main(int argc, array(string) argv) {
 	}
 
 	//Load up some info that is presumed to not change. If you're modding the game, this may break.
-	parse_country_names(Stdio.read_file(PROGRAM_PATH + "/localisation/countries_l_english.yml"));
-	parse_country_names(Stdio.read_file(PROGRAM_PATH + "/localisation/text_l_english.yml"));
-	parse_country_names(Stdio.read_file(PROGRAM_PATH + "/localisation/tags_phase4_l_english.yml"));
+	catch {country_names = Standards.JSON.decode_utf8(Stdio.read_file(".eu4_localisation.json"));};
+	if (!mappingp(country_names)) {
+		country_names = ([]);
+		foreach (glob("*_l_english.yml", get_dir(PROGRAM_PATH + "/localisation")), string fn)
+			parse_country_names(Stdio.read_file(PROGRAM_PATH + "/localisation/" + fn));
+		Stdio.write_file(".eu4_localisation.json", Standards.JSON.encode(country_names, 1));
+	}
 	mapping areas = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/area.txt"));
 	foreach (areas; string areaname; array|maparray provinces)
 		foreach (provinces;; string id) prov_area[id] = areaname;
