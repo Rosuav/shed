@@ -219,6 +219,7 @@ object calendar(string date) {
 }
 
 void analyze_leviathans(mapping data, string name, string tag, function write) {
+	if (!has_value(data->dlc_enabled, "Leviathan")) return;
 	mapping country = data->countries[tag];
 	array projects = ({ });
 	foreach (country->owned_provinces, string id) {
@@ -240,18 +241,16 @@ void analyze_leviathans(mapping data, string name, string tag, function write) {
 	}
 	sort(projects);
 	if (sizeof(projects)) write("%s\n", string_to_utf8(tabulate(({""}) + "ID Tier Province Project Upgrading" / " ", projects[*][-1], "  ", 0)));
-	if (country->cooldowns) { //TODO: Show this if favors are active, even if the country has no cooldowns
-		write("\nFavor cooldowns:\n");
-		object today = calendar(data->date);
-		array cooldowns = ({ });
-		foreach ("gold men sailors" / " ", string tradefor) {
-			string date = country->cooldowns["trade_favors_for_" + tradefor];
-			if (!date) {cooldowns += ({({"", "---", "--------", tradefor})}); continue;}
-			int days = today->distance(calendar(date)) / today;
-			cooldowns += ({({"", days, date, tradefor})});
-		}
-		write("%s\n", string_to_utf8(tabulate(({"", "Days", "Date", "Trade for"}), cooldowns, "  ", 0)));
+	write("\nFavor cooldowns:\n");
+	object today = calendar(data->date);
+	array cooldowns = ({ });
+	foreach ("gold men sailors" / " ", string tradefor) {
+		string date = country->cooldowns["trade_favors_for_" + tradefor];
+		if (!date) {cooldowns += ({({"", "---", "--------", String.capitalize(tradefor)})}); continue;}
+		int days = today->distance(calendar(date)) / today;
+		cooldowns += ({({"", days, date, String.capitalize(tradefor)})});
 	}
+	write("%s\n", string_to_utf8(tabulate(({"", "Days", "Date", "Trade for"}), cooldowns, "  ", 0)));
 }
 
 int count_building_slots(mapping data, string id) {
