@@ -284,7 +284,19 @@ void analyze_furnace(mapping data, string name, string tag, function write) {
 		else {
 			int slots = count_building_slots(data, id);
 			int buildings = sizeof(bldg);
-			if (prov->building_construction) ++buildings;
+			if (prov->building_construction) {
+				//There's something being built. That consumes a slot, but if it's an
+				//upgrade, then that slot doesn't really count. If you have four slots,
+				//four buildings, and one of them is being upgraded, the game will show
+				//that there are five occupied slots and none open; for us here, it's
+				//cleaner to show it as 4/4.
+				++buildings;
+				string upg = building_id[(int)prov->building_construction->building];
+				while (string was = building_types[upg]->make_obsolete) {
+					if (bldg[was]) {--buildings; break;}
+					upg = was;
+				}
+			}
 			interesting(id);
 			write("\e[1;%dm%s\t%d/%d bldg\tDev %d\t%s%s\e[0m\n", buildings < slots ? 32 : 36, id, buildings, slots, dev,
 				string_to_utf8(prov->name), prov->settlement_growth_construction ? " - SETTLER ACTIVE" : ""); //Can't build while there's a settler promoting growth);
@@ -331,7 +343,15 @@ void analyze_findbuildings(mapping data, string name, string tag, function write
 		mapping bldg = prov->buildings || ([]);
 		int slots = count_building_slots(data, id);
 		int buildings = sizeof(bldg);
-		if (prov->building_construction) ++buildings;
+		if (prov->building_construction) {
+			//Duplicate of the above
+			++buildings;
+			string upg = building_id[(int)prov->building_construction->building];
+			while (string was = building_types[upg]->make_obsolete) {
+				if (bldg[was]) {--buildings; break;}
+				upg = was;
+			}
+		}
 		if (buildings < slots) continue; //Got room. Not a problem. (Note that the building slots calculation may be wrong but usually too low.)
 		//Check if a building of the highlight type already exists here.
 		int gotone = 0;
