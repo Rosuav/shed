@@ -1,7 +1,5 @@
 //Read a text EU4 savefile and scan for matters of interest. Provides info to clients.
 //NOTE: Requires non-ironman savefile.
-//TODO: Report on Monuments (Leviathan expansion feature) and whether they could be upgraded
-//- May not be possible to show all upgrade requirements. Just listing monuments in your domains may be sufficient.
 //TODO: Track when you could use each of the favour interactions?
 //TODO: Show a coalition as if it's a war?
 
