@@ -1,6 +1,5 @@
 //Read a text EU4 savefile and scan for matters of interest. Provides info to clients.
 //NOTE: Requires non-ironman savefile.
-//TODO: Track when you could use each of the favour interactions?
 //TODO: Show a coalition as if it's a war?
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
@@ -214,7 +213,12 @@ void analyze_cot(mapping data, string name, string tag, function write) {
 	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*]));
 }
 
-void analyze_great_projects(mapping data, string name, string tag, function write) {
+object calendar(string date) {
+	sscanf(date, "%d.%d.%d", int year, int mon, int day);
+	return Calendar.Gregorian.Day(year, mon, day);
+}
+
+void analyze_leviathans(mapping data, string name, string tag, function write) {
 	mapping country = data->countries[tag];
 	array projects = ({ });
 	foreach (country->owned_provinces, string id) {
@@ -234,8 +238,20 @@ void analyze_great_projects(mapping data, string name, string tag, function writ
 		}
 		//if (con) write("Construction: %O\n", con);
 	}
-	if (!sizeof(projects)) return;
-	write("%s\n", string_to_utf8(tabulate(({""}) + "ID Tier Province Project Upgrading" / " ", projects[*][-1], "  ", 0)));
+	sort(projects);
+	if (sizeof(projects)) write("%s\n", string_to_utf8(tabulate(({""}) + "ID Tier Province Project Upgrading" / " ", projects[*][-1], "  ", 0)));
+	if (country->cooldowns) { //TODO: Show this if favors are active, even if the country has no cooldowns
+		write("\nFavor cooldowns:\n");
+		object today = calendar(data->date);
+		array cooldowns = ({ });
+		foreach ("gold men sailors" / " ", string tradefor) {
+			string date = country->cooldowns["trade_favors_for_" + tradefor];
+			if (!date) {cooldowns += ({({"", "---", "--------", tradefor})}); continue;}
+			int days = today->distance(calendar(date)) / today;
+			cooldowns += ({({"", days, date, tradefor})});
+		}
+		write("%s\n", string_to_utf8(tabulate(({"", "Days", "Date", "Trade for"}), cooldowns, "  ", 0)));
+	}
 }
 
 int count_building_slots(mapping data, string id) {
@@ -336,7 +352,7 @@ void analyze(mapping data, string name, string tag, function|void write, string|
 	if (!write) write = Stdio.stdin->write;
 	interesting_province = ({ }); area_has_level3 = (<>);
 	write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
-	({analyze_cot, analyze_great_projects, analyze_furnace, analyze_upgrades})(data, name, tag, write);
+	({analyze_cot, analyze_leviathans, analyze_furnace, analyze_upgrades})(data, name, tag, write);
 	if (highlight) analyze_findbuildings(data, name, tag, write, highlight);
 	//write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province)); //If needed in a machine-readable format
 	interesting_provinces[tag] = interesting_province;
