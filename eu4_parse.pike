@@ -402,10 +402,10 @@ mapping transform(string ... types) {
 	return ret;
 }
 mapping ship_types = transform(
-	"heavy_ship: early_carrack carrack galleon wargalleon twodecker threedecker",
-	"light_ship: barque caravel early_frigate frigate heavy_frigate great_frigate",
-	"galley: galley war_galley galleass galiot chebeck archipelago_frigate",
-	"transport: war_canoe cog flute brig merchantman trabakul eastindiaman",
+	"heavy_ship: early_carrack carrack galleon wargalleon twodecker threedecker ",
+	"light_ship: barque caravel early_frigate frigate heavy_frigate great_frigate ",
+	"galley: galley war_galley galleass galiot chebeck archipelago_frigate ",
+	"transport: war_canoe cog flute brig merchantman trabakul eastindiaman ",
 );
 
 void analyze_wars(mapping data, multiset(string) tags, function|void write) {
