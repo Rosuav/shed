@@ -1,5 +1,4 @@
-//Read a text EU4 savefile and scan for matters of interest. Provides info to clients.
-//NOTE: Requires non-ironman savefile.
+//Read a text (non-ironman) EU4 savefile and scan for matters of interest. Provides info to networked clients.
 //TODO: Show a coalition as if it's a war?
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
