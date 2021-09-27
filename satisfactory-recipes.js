@@ -25,9 +25,10 @@ let machine = null;
 
 function describe_ratio(value, base) {
 	let ratio = value / base;
-	if (ratio < 1) return " (1 : " + (1/ratio).toFixed(2) + ")";
+	if (ratio < 0.5) return " (1 : " + (1/ratio).toFixed(2) + ")";
+	if (ratio < 1) return " (-" + Math.round(100 - ratio * 100) + "%)";
 	if (ratio === 1.0) return " (same)";
-	if (ratio < 2) return " (+" + Math.floor(ratio * 100 - 100) + "%)";
+	if (ratio < 2) return " (+" + Math.round(ratio * 100 - 100) + "%)";
 	return " (" + ratio.toFixed(2) + " : 1)";
 }
 
