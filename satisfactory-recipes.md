@@ -6,3 +6,13 @@ Satisfactory Recipe Analysis
 - Compare against best and worst for that building type
 - Compare against other things that produce the same outputs
 - Would be good for designing new custom recipes and trying to balance them.
+
+
+* <label><input type=radio name=machine value=constructor>Constructor</label>
+* <label><input type=radio name=machine value=assembler>Assembler</label>
+
+<form id=recipe></form>
+
+<!-- One of these works on Sikorsky, one works on GH Pages. The other will 404 either way. -->
+<script type=module src="/static/satisfactory-recipes.js"></script>
+<script type=module src="satisfactory-recipes.js"></script>
