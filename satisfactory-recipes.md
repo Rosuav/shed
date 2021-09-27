@@ -16,3 +16,7 @@ Satisfactory Recipe Analysis
 <!-- One of these works on Sikorsky, one works on GH Pages. The other will 404 either way. -->
 <script type=module src="/static/satisfactory-recipes.js"></script>
 <script type=module src="satisfactory-recipes.js"></script>
+
+<style>
+table tr td:not(:first-child) {width: 100%;}
+</style>
