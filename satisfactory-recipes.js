@@ -23,7 +23,16 @@ const resource_ids = Object.keys(resources); //We iterate over resources a lot.
 
 let machine = null;
 
+function describe_ratio(value, base) {
+	let ratio = value / base;
+	if (ratio < 1) return " (1 : " + (1/ratio).toFixed(2) + ")";
+	if (ratio === 1.0) return " (same)";
+	if (ratio < 2) return " (+" + Math.floor(ratio * 100 - 100) + "%)";
+	return " (" + ratio.toFixed(2) + " : 1)";
+}
+
 function update_totals() {
+	let base_sink = -1, base_energy = -1;
 	["input", "output"].forEach(kwd => {
 		let sink = 0, energy = 0;
 		for (let i = 0; i < machine[kwd + "s"]; ++i) {
@@ -33,8 +42,15 @@ function update_totals() {
 			sink += res.sink * qty;
 			energy += res.energy * qty;
 		}
-		if (energy) set_content("#" + kwd + "_total", `${sink} sink value, ${energy} MJ`);
-		else set_content("#" + kwd + "_total", `${sink} sink value`);
+		let desc = sink + " sink value";
+		if (base_sink === -1) base_sink = sink;
+		else desc += describe_ratio(sink, base_sink);
+		if (energy) {
+			desc += `, ${energy} MJ`;
+			if (base_energy === -1) base_energy = energy;
+			else desc += describe_ratio(energy, base_energy);
+		}
+		set_content("#" + kwd + "_total", desc);
 	});
 }
 on("input", "#recipe input,select", update_totals);
