@@ -8,7 +8,7 @@ Satisfactory Recipe Analysis
 - Would be good for designing new custom recipes and trying to balance them.
 
 
-* <label><input type=radio name=machine value=constructor>Constructor</label>
+* <label><input type=radio name=machine value=constructor checked>Constructor</label>
 * <label><input type=radio name=machine value=assembler>Assembler</label>
 
 <form id=recipe></form>
