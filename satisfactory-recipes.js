@@ -1,5 +1,5 @@
 import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
-const {TABLE, TR, TD, INPUT, SELECT, OPTION} = choc;
+const {TABLE, TR, TD, INPUT, SELECT, OPTION, SPAN} = choc;
 
 //TODO: Crib these from the files somehow so they don't have to be updated.
 const machines = {
@@ -89,9 +89,17 @@ function select_machine(id) {
 		rows.push(TR([TD("Total"), TD({id: kwd + "_total"})]));
 		rows.push(TR(TD({colSpan: 2})));
 	});
+	rows.push(TR([TD("Time"), TD([INPUT({id: "time", type: "number", value: 1}), " = ", SPAN({id: "timedesc"}, "60/min")])]));
 	const stuff = [TABLE({border: 1}, rows)];
 	set_content("#recipe", stuff);
 	update_totals();
 }
 on("click", 'input[name="machine"]', e => select_machine(e.match.value));
 select_machine("constructor");
+
+on("input", "#time", e => {
+	//TODO: Add per-minute descriptions for each input and output
+	const permin = 60 / e.match.value;
+	if (permin === Math.floor(permin)) set_content("#timedesc", permin + "/min");
+	else set_content("#timedesc", permin.toFixed(3) + "/min");
+});
