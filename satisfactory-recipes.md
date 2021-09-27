@@ -1,11 +1,14 @@
 Satisfactory Recipe Analysis
 ============================
 
-- Show MJ in and MJ out, and ratio
-- Show AWESOME points in and out, and ratio
+TODO:
 - Compare against best and worst for that building type
 - Compare against other things that produce the same outputs
-- Would be good for designing new custom recipes and trying to balance them.
+- For current and comparison recipes, show sink ratio, energy ratio (if applicable), MJ/item cost, and throughput (items/min).
+- Comparison recipes that produce additional outputs should show those in a separate column
+- For extractors, show sink points per minute and per MJ, for each possible resource node purity?
+
+Good for designing new custom recipes and trying to balance them. Also for analyzing alternate recipes.
 
 
 * <label><input type=radio name=machine value=constructor checked>Constructor</label>
