@@ -4,22 +4,40 @@ const {TABLE, TR, TD, INPUT, SELECT, OPTION} = choc;
 //TODO: Crib these from the files somehow so they don't have to be updated.
 const machines = {
 	constructor: {
-		inputs: 1,
-		outputs: 1,
+		input: "s",
+		output: "s",
 		cost: 4, //MW, or MJ/second
 	},
 	assembler: {
-		inputs: 2,
-		outputs: 1,
+		input: "ss",
+		output: "s",
 		cost: 15,
 	},
+	refinery: {
+		input: "sf",
+		output: "sf",
+		cost: 30,
+	},
 };
-const resources = {
+const solid_resources = {
 	FlowerPetals: {sink: 10, energy: 100, name: "Flower Petals"},
 	Leaves: {sink: 3, energy: 15, name: "Leaves"},
-	GenericBioMass: {sink: 12, energy: 180, name: "Biomass"},
+	GenericBiomass: {sink: 12, energy: 180, name: "Biomass"},
+	Biofuel: {sink: 48, energy: 450, name: "Solid Biofuel"},
 };
-const resource_ids = Object.keys(resources); //We iterate over resources a lot.
+//Sink values of fluids are defined by their packaged equivalents, minus 60 for
+//the package itself. This completely discounts any processing value from the
+//package/unpackage process, since it's reversible.
+const fluid_resources = {
+	Water: {sink: 70, name: "Water"},
+	LiquidBiofuel: {sink: 310, energy: 750, name: "Liquid Biofuel"},
+};
+const resources = {...solid_resources, ...fluid_resources};
+const resource_ids = {
+	s: Object.keys(solid_resources),
+	f: Object.keys(fluid_resources),
+	a: Object.keys(resources),
+};
 
 let machine = null;
 
@@ -36,12 +54,12 @@ function update_totals() {
 	let base_sink = -1, base_energy = -1;
 	["input", "output"].forEach(kwd => {
 		let sink = 0, energy = 0;
-		for (let i = 0; i < machine[kwd + "s"]; ++i) {
+		for (let i = 0; i < machine[kwd].length; ++i) {
 			const res = resources[DOM("#" + kwd + i).value];
 			if (!res) {console.warn("Borked " + kwd, DOM("#" + kwd + i).value); continue;}
 			const qty = DOM("#" + kwd + "qty" + i).value|0;
-			sink += res.sink * qty;
-			energy += res.energy * qty;
+			sink += (res.sink||0) * qty;
+			energy += (res.energy||0) * qty;
 		}
 		let desc = sink + " sink value";
 		if (base_sink === -1) base_sink = sink;
@@ -56,21 +74,21 @@ function update_totals() {
 }
 on("input", "#recipe input,select", update_totals);
 
-function RESOURCE(attrs) {
+function RESOURCE(attrs, type) {
 	//TODO: optgroup these as appropriate
-	return SELECT(attrs, resource_ids.map(r => OPTION({value: r}, resources[r].name)));
+	return SELECT(attrs, resource_ids[type || "a"].map(r => OPTION({value: r}, resources[r].name)));
 }
 
 function select_machine(id) {
 	machine = machines[id];
 	const rows = [];
-	for (let i = 0; i < machine.inputs; ++i)
-		rows.push(TR([TD("Input"), TD([RESOURCE({id: "input" + i}), INPUT({id: "inputqty" + i, type: "number", value: 1})])]));
-	rows.push(TR([TD("Total"), TD({id: "input_total"})]));
-	rows.push(TR(TD({colSpan: 2})));
-	for (let i = 0; i < machine.outputs; ++i)
-		rows.push(TR([TD("Output"), TD([RESOURCE({id: "output" + i}), INPUT({id: "outputqty" + i, type: "number", value: 1})])]));
-	rows.push(TR([TD("Total"), TD({id: "output_total"})]));
+	["Input", "Output"].forEach(lbl => {
+		const kwd = lbl.toLowerCase();
+		for (let i = 0; i < machine[kwd].length; ++i)
+			rows.push(TR([TD(lbl), TD([RESOURCE({id: kwd + i}, machine[kwd][i]), INPUT({id: kwd + "qty" + i, type: "number", value: 1})])]));
+		rows.push(TR([TD("Total"), TD({id: kwd + "_total"})]));
+		rows.push(TR(TD({colSpan: 2})));
+	});
 	const stuff = [TABLE({border: 1}, rows)];
 	set_content("#recipe", stuff);
 	update_totals();

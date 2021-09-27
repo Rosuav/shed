@@ -10,6 +10,7 @@ Satisfactory Recipe Analysis
 
 * <label><input type=radio name=machine value=constructor checked>Constructor</label>
 * <label><input type=radio name=machine value=assembler>Assembler</label>
+* <label><input type=radio name=machine value=refinery>Refinery</label>
 
 <form id=recipe></form>
 
