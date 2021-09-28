@@ -12,7 +12,7 @@ void handler(object req) {
 int main(int argc, array(string) argv) {
 	if (argv[1] == "-c") {
 		//Invocation from ssh. Unfortunately all SSH-supplied args come through as a single string.
-		Process.Process(({"/usr/bin/sudo", argv[0]}) + argv[2] / "\n");
+		Process.Process(({"/usr/bin/sudo", argv[0]}) + argv[2] / " ");
 		return 0;
 	}
 	TOKEN = argv[1]; VALIDATION = argv[2];
