@@ -54,49 +54,49 @@ const resource_ids = {
 
 const recipes = [
 	{
-		from: {IronIngot: 3},
-		to: {IronPlate: 2},
+		input: {IronIngot: 3},
+		output: {IronPlate: 2},
 		machine: "constructor",
 		time: 6,
 	},
 	{
 		name: "Coated Iron Plate",
-		from: {IronIngot: 10, Plastic: 2},
-		to: {IronPlate: 15},
+		input: {IronIngot: 10, Plastic: 2},
+		output: {IronPlate: 15},
 		machine: "assembler",
 		time: 12,
 	},
 	{
 		name: "Steel Coated Plate",
-		from: {SteelIngot: 3, Plastic: 2},
-		to: {IronPlate: 18},
+		input: {SteelIngot: 3, Plastic: 2},
+		output: {IronPlate: 18},
 		machine: "assembler",
 		time: 24,
 	},
 	{
-		from: {CopperIngot: 1},
-		to: {Wire: 2},
+		input: {CopperIngot: 1},
+		output: {Wire: 2},
 		machine: "constructor",
 		time: 4,
 	},
 	{
 		name: "Fused Wire",
-		from: {CopperIngot: 4, GoldIngot: 1},
-		to: {Wire: 30},
+		input: {CopperIngot: 4, GoldIngot: 1},
+		output: {Wire: 30},
 		machine: "assembler",
 		time: 20,
 	},
 	{
 		name: "Iron Wire",
-		from: {IronIngot: 5},
-		to: {Wire: 9},
+		input: {IronIngot: 5},
+		output: {Wire: 9},
 		machine: "constructor",
 		time: 24,
 	},
 	{
 		name: "Caterium Wire",
-		from: {GoldIngot: 1},
-		to: {Wire: 8},
+		input: {GoldIngot: 1},
+		output: {Wire: 8},
 		machine: "constructor",
 		time: 4,
 	},
@@ -118,18 +118,55 @@ let recipeinfo = { };
 //Call this on any change, whatsoever. The only info retained from one call to
 //another is what update_totals populates into recipeinfo.
 function update_recipes() {
+	if (!recipeinfo.output_items) return; //Not initialized fully yet. Wait till we have our data.
 	const rows = [];
-	recipes.forEach(r => {
-		//...
+	const filter = DOM('input[name="recipefilter"]:checked').value;
+	recipes.forEach(recipe => {
+		let matches = false;
+		if (filter === "sameoutput") {
+			//TODO: Allow some outputs to be deemed irrelevant. For instance,
+			//if you're making something that has a waste water output, do you
+			//really need to see every recipe that also has waste water?
+			for (let iq of recipeinfo.output_items)
+				if (recipe.output[iq[2]]) matches = true;
+		}
+		else matches = machine === machines[recipe.machine];
+		if (!matches) return;
+		const info = { };
+		["input", "output"].forEach(kwd => {
+			let sink = 0, energy = 0;
+			const items = [];
+			for (const [resid, qty] of Object.entries(recipe[kwd])) {
+				const res = resources[resid];
+				if (!res) {console.warn("Borked " + kwd + " " + resid, recipe); continue;}
+				items.push(CODE(qty + " " + res.name), BR());
+				sink += (res.sink||0) * qty;
+				energy += (res.energy||0) * qty;
+			}
+			info[kwd + "_items"] = items;
+			info[kwd + "_sink"] = sink;
+			info[kwd + "_energy"] = energy;
+		});
+		rows.push(TR([
+			TD(recipe.name || resources[Object.keys(recipe.output)[0]].name),
+			TD(machines[recipe.machine].name),
+			TD(info.input_items),
+			TD(info.output_items),
+			TD(info.input_sink + " makes " + info.output_sink + describe_ratio(info.output_sink, info.input_sink)),
+			TD(info.output_energy ?
+			   info.input_energy + " makes " + info.output_energy + describe_ratio(info.output_energy, info.input_energy)
+			   : ""
+			),
+		]));
 	});
 	rows.push(TR({className: "highlight"}, [
 		TD("Your Recipe"),
 		TD(machine.name),
 		TD([].concat(...recipeinfo.input_items.map(i => [CODE(i[0] + " " + i[1].name), BR()]))),
 		TD([].concat(...recipeinfo.output_items.map(i => [CODE(i[0] + " " + i[1].name), BR()]))),
-		TD(recipeinfo.input_sink + " to " + recipeinfo.output_sink + describe_ratio(recipeinfo.output_sink, recipeinfo.input_sink)),
+		TD(recipeinfo.input_sink + " makes " + recipeinfo.output_sink + describe_ratio(recipeinfo.output_sink, recipeinfo.input_sink)),
 		TD(recipeinfo.output_energy ?
-		   recipeinfo.input_energy + " to " + recipeinfo.output_energy + describe_ratio(recipeinfo.output_energy, recipeinfo.input_energy)
+		   recipeinfo.input_energy + " makes " + recipeinfo.output_energy + describe_ratio(recipeinfo.output_energy, recipeinfo.input_energy)
 		   : ""
 		),
 	]));
@@ -143,12 +180,13 @@ function update_totals() {
 		let sink = 0, energy = 0;
 		const items = [];
 		for (let i = 0; i < machine[kwd].length; ++i) {
-			const res = resources[DOM("#" + kwd + i).value];
+			const resid = DOM("#" + kwd + i).value;
+			const res = resources[resid];
 			if (!res) {console.warn("Borked " + kwd, DOM("#" + kwd + i).value); continue;}
 			const qty = DOM("#" + kwd + "qty" + i).value|0;
 			sink += (res.sink||0) * qty;
 			energy += (res.energy||0) * qty;
-			if (res.sink && qty) items.push([qty, res]);
+			if (res.sink && qty) items.push([qty, res, resid]);
 		}
 		recipeinfo[kwd + "_items"] = items;
 		recipeinfo[kwd + "_sink"] = sink;
@@ -166,6 +204,7 @@ function update_totals() {
 	update_recipes();
 }
 on("input", "#recipe input,select", update_totals);
+on("click", 'input[name="recipefilter"]', update_recipes);
 
 function RESOURCE(attrs, type) {
 	//TODO: optgroup these as appropriate
