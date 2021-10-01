@@ -49,6 +49,7 @@ const resource_ids = {
 let machine = null;
 
 function describe_ratio(value, base) {
+	if (!base) return "";
 	let ratio = value / base;
 	if (ratio < 0.5) return " (1 : " + (1/ratio).toFixed(2) + ")";
 	if (ratio < 1) return " (-" + Math.round(100 - ratio * 100) + "%)";
