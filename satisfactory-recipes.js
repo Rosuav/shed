@@ -1,5 +1,5 @@
 import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
-const {TABLE, TR, TD, INPUT, SELECT, OPTION, SPAN} = choc;
+const {BR, CODE, TABLE, TR, TD, INPUT, SELECT, OPTION, SPAN} = choc;
 
 //TODO: Crib these from the files somehow so they don't have to be updated.
 const machines = {
@@ -114,23 +114,45 @@ function describe_ratio(value, base) {
 	return " (" + ratio.toFixed(2) + " : 1)";
 }
 
-//Call this on any change, whatsoever.
+let recipeinfo = { };
+//Call this on any change, whatsoever. The only info retained from one call to
+//another is what update_totals populates into recipeinfo.
 function update_recipes() {
 	const rows = [];
+	recipes.forEach(r => {
+		//...
+	});
+	rows.push(TR({className: "highlight"}, [
+		TD("Your Recipe"),
+		TD(machine.name),
+		TD([].concat(...recipeinfo.input_items.map(i => [CODE(i), BR()]))),
+		TD([].concat(...recipeinfo.output_items.map(i => [CODE(i), BR()]))),
+		TD(recipeinfo.input_sink + " to " + recipeinfo.output_sink + describe_ratio(recipeinfo.output_sink, recipeinfo.input_sink)),
+		TD(recipeinfo.output_energy ?
+		   recipeinfo.input_energy + " to " + recipeinfo.output_energy + describe_ratio(recipeinfo.output_energy, recipeinfo.input_energy)
+		   : ""
+		),
+	]));
 	set_content("#recipes tbody", rows);
 }
 
 function update_totals() {
 	let base_sink = -1, base_energy = -1;
+	recipeinfo = { };
 	["input", "output"].forEach(kwd => {
 		let sink = 0, energy = 0;
+		const items = [];
 		for (let i = 0; i < machine[kwd].length; ++i) {
 			const res = resources[DOM("#" + kwd + i).value];
 			if (!res) {console.warn("Borked " + kwd, DOM("#" + kwd + i).value); continue;}
 			const qty = DOM("#" + kwd + "qty" + i).value|0;
 			sink += (res.sink||0) * qty;
 			energy += (res.energy||0) * qty;
+			if (res.sink) items.push(qty + " " + res.name);
 		}
+		recipeinfo[kwd + "_items"] = items;
+		recipeinfo[kwd + "_sink"] = sink;
+		recipeinfo[kwd + "_energy"] = energy;
 		let desc = sink + " sink value";
 		if (base_sink === -1) base_sink = sink;
 		else desc += describe_ratio(sink, base_sink);
