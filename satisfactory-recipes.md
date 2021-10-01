@@ -14,13 +14,16 @@ Good for designing new custom recipes and trying to balance them. Also for analy
 * <label><input type=radio name=machine value=constructor checked>Constructor</label>
 * <label><input type=radio name=machine value=assembler>Assembler</label>
 * <label><input type=radio name=machine value=refinery>Refinery</label>
+{: .optionset}
 
 <form id=recipe></form>
 
 <!-- One of these works on Sikorsky, one works on GH Pages. The other will 404 either way. -->
 <script type=module src="/static/satisfactory-recipes.js"></script>
 <script type=module src="satisfactory-recipes.js"></script>
+<script>console.warn("Expected one (but not two) 404 errors loading JavaScript files")</script>
 
 <style>
 table tr td:not(:first-child) {width: 100%;}
+ul.optionset {list-style-type: none; display: flex; padding-left: 0;}
 </style>
