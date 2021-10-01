@@ -102,7 +102,7 @@ const recipes = [
 	},
 ];
 
-let machine = null;
+let machine = null, sort_order = "Recipe";
 
 function describe_ratio(value, base) {
 	if (!base) return "";
@@ -120,6 +120,26 @@ let recipeinfo = { };
 function update_recipes() {
 	if (!recipeinfo.output_items) return; //Not initialized fully yet. Wait till we have our data.
 	const rows = [];
+	let key = null;
+	switch (sort_order) {
+		case "Recipe": key = ""; break; //Your Recipe always comes up first when sorting by name
+		case "Machine": key = Object.values(machines).indexOf(machine); break;
+		case "Inputs": key = recipeinfo.input_sink; break; //Sorting by inputs/outputs sorts by total sink value for simplicity.
+		case "Outputs": key = recipeinfo.output_sink; break;
+		case "Sink value": key = recipeinfo.output_sink && recipeinfo.input_sink / recipeinfo.output_sink; break;
+		case "Energy": key = recipeinfo.output_energy && recipeinfo.input_energy / recipeinfo.output_energy; break;
+	}
+	rows.push({key, pos: rows.length, row: TR({className: "highlight"}, [
+		TD("Your Recipe"),
+		TD(machine.name),
+		TD([].concat(...recipeinfo.input_items.map(i => [CODE(i[0] + " " + i[1].name), BR()]))),
+		TD([].concat(...recipeinfo.output_items.map(i => [CODE(i[0] + " " + i[1].name), BR()]))),
+		TD(recipeinfo.input_sink + " makes " + recipeinfo.output_sink + describe_ratio(recipeinfo.output_sink, recipeinfo.input_sink)),
+		TD(recipeinfo.output_energy ?
+		   recipeinfo.input_energy + " makes " + recipeinfo.output_energy + describe_ratio(recipeinfo.output_energy, recipeinfo.input_energy)
+		   : ""
+		),
+	])});
 	const filter = DOM('input[name="recipefilter"]:checked').value;
 	recipes.forEach(recipe => {
 		let matches = false;
@@ -147,8 +167,18 @@ function update_recipes() {
 			info[kwd + "_sink"] = sink;
 			info[kwd + "_energy"] = energy;
 		});
-		rows.push(TR([
-			TD(recipe.name || resources[Object.keys(recipe.output)[0]].name),
+		const recipename = recipe.name || resources[Object.keys(recipe.output)[0]].name;
+		let key = null;
+		switch (sort_order) {
+			case "Recipe": key = recipename.toLowerCase(); break;
+			case "Machine": key = Object.keys(machines).indexOf(recipe.machine); break;
+			case "Inputs": key = info.input_sink; break;
+			case "Outputs": key = info.output_sink; break;
+			case "Sink value": key = info.output_sink && info.input_sink / info.output_sink; break;
+			case "Energy": key = info.output_energy && info.input_energy / info.output_energy; break;
+		}
+		rows.push({key, pos: rows.length, row: TR([
+			TD(recipename),
 			TD(machines[recipe.machine].name),
 			TD(info.input_items),
 			TD(info.output_items),
@@ -157,20 +187,15 @@ function update_recipes() {
 			   info.input_energy + " makes " + info.output_energy + describe_ratio(info.output_energy, info.input_energy)
 			   : ""
 			),
-		]));
+		])});
 	});
-	rows.push(TR({className: "highlight"}, [
-		TD("Your Recipe"),
-		TD(machine.name),
-		TD([].concat(...recipeinfo.input_items.map(i => [CODE(i[0] + " " + i[1].name), BR()]))),
-		TD([].concat(...recipeinfo.output_items.map(i => [CODE(i[0] + " " + i[1].name), BR()]))),
-		TD(recipeinfo.input_sink + " makes " + recipeinfo.output_sink + describe_ratio(recipeinfo.output_sink, recipeinfo.input_sink)),
-		TD(recipeinfo.output_energy ?
-		   recipeinfo.input_energy + " makes " + recipeinfo.output_energy + describe_ratio(recipeinfo.output_energy, recipeinfo.input_energy)
-		   : ""
-		),
-	]));
-	set_content("#recipes tbody", rows);
+	rows.sort((a, b) => {
+		if (a.key < b.key) return -1;
+		if (a.key > b.key) return 1;
+		//To ensure sort stability, disambiguate using the original array position.
+		return a.pos - b.pos;
+	});
+	set_content("#recipes tbody", rows.map(r => r.row));
 }
 
 function update_totals() {
@@ -205,6 +230,12 @@ function update_totals() {
 }
 on("input", "#recipe input,select", update_totals);
 on("click", 'input[name="recipefilter"]', update_recipes);
+
+on("click", "#recipes th", e => {
+	window.match = e.match
+	sort_order = e.match.innerText.trim();
+	update_recipes();
+});
 
 function RESOURCE(attrs, type) {
 	//TODO: optgroup these as appropriate

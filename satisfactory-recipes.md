@@ -22,8 +22,8 @@ Good for designing new custom recipes and trying to balance them. Also for analy
 * <label><input type=radio name=recipefilter value=samemachine>Same machine</label>
 {: .optionset}
 
-Recipe | Machine | Inputs | Outputs | Sink value | MJ
--------|---------|--------|---------|------------|-----
+Recipe | Machine | Inputs | Outputs | Sink value | Energy
+-------|---------|--------|---------|------------|--------
  |
 {: #recipes}
 
@@ -38,4 +38,5 @@ Recipe | Machine | Inputs | Outputs | Sink value | MJ
 ul.optionset {list-style-type: none; display: flex; padding-left: 0;}
 ul.optionset li {list-style-image: none;}
 .highlight {background: #cfe;}
+#recipes th {cursor: pointer;}
 </style>
