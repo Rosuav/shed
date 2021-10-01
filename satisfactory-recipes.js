@@ -125,8 +125,8 @@ function update_recipes() {
 	rows.push(TR({className: "highlight"}, [
 		TD("Your Recipe"),
 		TD(machine.name),
-		TD([].concat(...recipeinfo.input_items.map(i => [CODE(i), BR()]))),
-		TD([].concat(...recipeinfo.output_items.map(i => [CODE(i), BR()]))),
+		TD([].concat(...recipeinfo.input_items.map(i => [CODE(i[0] + " " + i[1].name), BR()]))),
+		TD([].concat(...recipeinfo.output_items.map(i => [CODE(i[0] + " " + i[1].name), BR()]))),
 		TD(recipeinfo.input_sink + " to " + recipeinfo.output_sink + describe_ratio(recipeinfo.output_sink, recipeinfo.input_sink)),
 		TD(recipeinfo.output_energy ?
 		   recipeinfo.input_energy + " to " + recipeinfo.output_energy + describe_ratio(recipeinfo.output_energy, recipeinfo.input_energy)
@@ -148,7 +148,7 @@ function update_totals() {
 			const qty = DOM("#" + kwd + "qty" + i).value|0;
 			sink += (res.sink||0) * qty;
 			energy += (res.energy||0) * qty;
-			if (res.sink) items.push(qty + " " + res.name);
+			if (res.sink && qty) items.push([qty, res]);
 		}
 		recipeinfo[kwd + "_items"] = items;
 		recipeinfo[kwd + "_sink"] = sink;
