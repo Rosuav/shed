@@ -37,4 +37,5 @@ Recipe | Machine | Inputs | Outputs | Sink value | MJ
 #recipes {width: 100%;}
 ul.optionset {list-style-type: none; display: flex; padding-left: 0;}
 ul.optionset li {list-style-image: none;}
+.highlight {background: #cfe;}
 </style>
