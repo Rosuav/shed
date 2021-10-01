@@ -4,16 +4,19 @@ const {TABLE, TR, TD, INPUT, SELECT, OPTION, SPAN} = choc;
 //TODO: Crib these from the files somehow so they don't have to be updated.
 const machines = {
 	constructor: {
+		name: "Constructor",
 		input: "s",
 		output: "s",
 		cost: 4, //MW, or MJ/second
 	},
 	assembler: {
+		name: "Assembler",
 		input: "ss",
 		output: "s",
 		cost: 15,
 	},
 	refinery: {
+		name: "Refinery",
 		input: "sf",
 		output: "sf",
 		cost: 30,
@@ -111,6 +114,12 @@ function describe_ratio(value, base) {
 	return " (" + ratio.toFixed(2) + " : 1)";
 }
 
+//Call this on any change, whatsoever.
+function update_recipes() {
+	const rows = [];
+	set_content("#recipes tbody", rows);
+}
+
 function update_totals() {
 	let base_sink = -1, base_energy = -1;
 	["input", "output"].forEach(kwd => {
@@ -132,6 +141,7 @@ function update_totals() {
 		}
 		set_content("#" + kwd + "_total", desc);
 	});
+	update_recipes();
 }
 on("input", "#recipe input,select", update_totals);
 

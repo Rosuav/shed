@@ -18,13 +18,23 @@ Good for designing new custom recipes and trying to balance them. Also for analy
 
 <form id=recipe></form>
 
+* <label><input type=radio name=recipefilter value=sameoutput checked>Same output</label>
+* <label><input type=radio name=recipefilter value=samemachine>Same machine</label>
+{: .optionset}
+
+Recipe | Machine | Inputs | Outputs | Sink value | MJ
+-------|---------|--------|---------|------------|-----
+ |
+{: #recipes}
+
 <!-- One of these works on Sikorsky, one works on GH Pages. The other will 404 either way. -->
 <script type=module src="/static/satisfactory-recipes.js"></script>
 <script type=module src="satisfactory-recipes.js"></script>
 <script>console.warn("Expected one (but not two) 404 errors loading JavaScript files")</script>
 
 <style>
-table tr td:not(:first-child) {width: 100%;}
+#recipe table tr td:not(:first-child) {width: 100%;}
+#recipes {width: 100%;}
 ul.optionset {list-style-type: none; display: flex; padding-left: 0;}
 ul.optionset li {list-style-image: none;}
 </style>
