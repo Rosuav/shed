@@ -26,4 +26,5 @@ Good for designing new custom recipes and trying to balance them. Also for analy
 <style>
 table tr td:not(:first-child) {width: 100%;}
 ul.optionset {list-style-type: none; display: flex; padding-left: 0;}
+ul.optionset li {list-style-image: none;}
 </style>
