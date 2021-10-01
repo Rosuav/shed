@@ -46,6 +46,29 @@ const resource_ids = {
 	a: Object.keys(resources),
 };
 
+const recipes = [
+	{
+		from: {IronIngot: 3},
+		to: {IronPlate: 2},
+		machine: "constructor",
+		time: 6,
+	},
+	{
+		name: "Coated Iron Plate",
+		from: {IronIngot: 10, Plastic: 2},
+		to: {IronPlate: 15},
+		machine: "assembler",
+		time: 12,
+	},
+	{
+		name: "Steel Coated Plate",
+		from: {SteelIngot: 3, Plastic: 2},
+		to: {IronPlate: 18},
+		machine: "assembler",
+		time: 24,
+	},
+];
+
 let machine = null;
 
 function describe_ratio(value, base) {
