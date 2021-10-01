@@ -30,6 +30,9 @@ const solid_resources = {
 	IronPlate: {sink: 6, name: "Iron Plate"},
 	Plastic: {sink: 75, name: "Plastic"},
 	SteelIngot: {sink: 8, name: "Steel Ingot"},
+	CopperIngot: {sink: 6, name: "Copper Ingot"},
+	GoldIngot: {sink: 42, name: "Caterium Ingot"},
+	Wire: {sink: 6, name: "Wire"},
 };
 //Sink values of fluids are defined by their packaged equivalents, minus 60 for
 //the package itself. This completely discounts any processing value from the
@@ -66,6 +69,33 @@ const recipes = [
 		to: {IronPlate: 18},
 		machine: "assembler",
 		time: 24,
+	},
+	{
+		from: {CopperIngot: 1},
+		to: {Wire: 2},
+		machine: "constructor",
+		time: 4,
+	},
+	{
+		name: "Fused Wire",
+		from: {CopperIngot: 4, GoldIngot: 1},
+		to: {Wire: 30},
+		machine: "assembler",
+		time: 20,
+	},
+	{
+		name: "Iron Wire",
+		from: {IronIngot: 5},
+		to: {Wire: 9},
+		machine: "constructor",
+		time: 24,
+	},
+	{
+		name: "Caterium Wire",
+		from: {GoldIngot: 1},
+		to: {Wire: 8},
+		machine: "constructor",
+		time: 4,
 	},
 ];
 
