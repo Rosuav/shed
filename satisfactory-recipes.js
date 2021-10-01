@@ -20,15 +20,22 @@ const machines = {
 	},
 };
 const solid_resources = {
+	None: {sink: 0, name: "None"},
 	FlowerPetals: {sink: 10, energy: 100, name: "Flower Petals"},
 	Leaves: {sink: 3, energy: 15, name: "Leaves"},
 	GenericBiomass: {sink: 12, energy: 180, name: "Biomass"},
 	Biofuel: {sink: 48, energy: 450, name: "Solid Biofuel"},
+	OreIron: {sink: 1, name: "Iron Ore"},
+	IronIngot: {sink: 2, name: "Iron Ingot"},
+	IronPlate: {sink: 6, name: "Iron Plate"},
+	Plastic: {sink: 75, name: "Plastic"},
+	SteelIngot: {sink: 8, name: "Steel Ingot"},
 };
 //Sink values of fluids are defined by their packaged equivalents, minus 60 for
 //the package itself. This completely discounts any processing value from the
 //package/unpackage process, since it's reversible.
 const fluid_resources = {
+	None: {sink: 0, name: "None"},
 	Water: {sink: 70, name: "Water"},
 	LiquidBiofuel: {sink: 310, energy: 750, name: "Liquid Biofuel"},
 };
