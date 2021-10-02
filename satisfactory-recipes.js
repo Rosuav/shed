@@ -9,11 +9,23 @@ const machines = {
 		output: "s",
 		cost: 4, //MW, or MJ/second
 	},
+	smelter: {
+		name: "Smelter",
+		input: "s",
+		output: "s",
+		cost: 4,
+	},
 	assembler: {
 		name: "Assembler",
 		input: "ss",
 		output: "s",
 		cost: 15,
+	},
+	foundry: {
+		name: "Foundry",
+		input: "ss",
+		output: "s",
+		cost: 16,
 	},
 	refinery: {
 		name: "Refinery",
@@ -33,9 +45,12 @@ const solid_resources = {
 	IronPlate: {sink: 6, name: "Iron Plate"},
 	Plastic: {sink: 75, name: "Plastic"},
 	SteelIngot: {sink: 8, name: "Steel Ingot"},
+	OreCopper: {sink: 3, name: "Copper Ore"},
 	CopperIngot: {sink: 6, name: "Copper Ingot"},
 	GoldIngot: {sink: 42, name: "Caterium Ingot"},
 	Wire: {sink: 6, name: "Wire"},
+	Stone: {sink: 2, name: "Limestone"},
+	Cement: {sink: 12, name: "Concrete"},
 };
 //Sink values of fluids are defined by their packaged equivalents, minus 60 for
 //the package itself. This completely discounts any processing value from the
