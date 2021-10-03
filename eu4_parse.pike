@@ -1,5 +1,9 @@
 //Read a text (non-ironman) EU4 savefile and scan for matters of interest. Provides info to networked clients.
 //TODO: Show a coalition as if it's a war?
+//TODO: Highlighting priority. If there are too many highlight provinces, show only those at the highest
+//priority group: explicit ones from the building highlight command, then things that are likely to be of
+//immediate value (eg upgradeable CoTs), and then things of more situational value (eg developable CoTs).
+//TODO: Allow input on the primary console, stateless infodumps only
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
 constant PROGRAM_PATH = "../.steam/steam/steamapps/common/Europa Universalis IV"; //Append /map or /common etc to access useful data files
@@ -654,7 +658,7 @@ void done_processing_savefile() {
 	if (!data) {werror("Unable to parse save file (see above for errors, hopefully)\n"); return;}
 	write("\nCurrent date: %s\n", data->date);
 	foreach (data->players_countries / 2, [string name, string tag]) analyze(data, name, tag);
-	analyze_flagships(data);
+	//analyze_flagships(data);
 	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1]);
 	indices(connections)->inform(data);
 	last_parsed_savefile = data;
