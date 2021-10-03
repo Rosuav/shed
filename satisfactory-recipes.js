@@ -323,7 +323,11 @@ function select_machine(id) {
 	["Input", "Output"].forEach(lbl => {
 		const kwd = lbl.toLowerCase();
 		for (let i = 0; i < machine[kwd].length; ++i)
-			rows.push(TR([TD(lbl), TD([RESOURCE({id: kwd + i}, machine[kwd][i]), INPUT({id: kwd + "qty" + i, type: "number", value: 1})])]));
+			rows.push(TR([TD(lbl), TD([
+				RESOURCE({id: kwd + i}, machine[kwd][i]),
+				INPUT({id: kwd + "qty" + i, type: "number", value: 1}),
+				" = ", SPAN({id: kwd + "timedesc" + i}, "60/min"),
+			])]));
 		rows.push(TR([TD("Total"), TD({id: kwd + "_total"})]));
 		rows.push(TR(TD({colSpan: 2})));
 	});
@@ -335,9 +339,17 @@ function select_machine(id) {
 on("click", 'input[name="machine"]', e => select_machine(e.match.value));
 select_machine("constructor");
 
-on("input", "#time", e => {
-	//TODO: Add per-minute descriptions for each input and output
-	const permin = 60 / e.match.value;
-	if (permin === Math.floor(permin)) set_content("#timedesc", permin + "/min");
-	else set_content("#timedesc", permin.toFixed(3) + "/min");
+function permin(qty, time) {
+	const rate = 60 * qty / time;
+	if (rate === Math.floor(rate)) return rate + "/min";
+	return rate.toFixed(3) + "/min";
+}
+on("input", 'input[type="number"]', e => {
+	//Yes, in theory we could have other numeric inputs, but worst case, we update unnecessarily.
+	const time = DOM("#time").value|0; //I don't think non-integer times are supported by the game
+	set_content("#timedesc", permin(1, time));
+	["input", "output"].forEach(kwd => {
+		for (let i = 0; i < machine[kwd].length; ++i)
+			set_content("#" + kwd + "timedesc" + i, permin(DOM("#" + kwd + "qty" + i).value|0, time));
+	});
 });
