@@ -131,7 +131,22 @@ const resource_ids = {
 	a: Object.keys(resources),
 };
 
+//Recipe order doesn't matter much as the display is usually sorted by something more relevant.
 const recipes = [
+	//Smelter
+	{machine: "smelter", time: 2, input: {OreIron: 1}, output: {IronIngot: 1}},
+	{machine: "smelter", time: 2, input: {OreCopper: 1}, output: {CopperIngot: 1}},
+	{machine: "smelter", time: 4, input: {OreGold: 3}, output: {GoldIngot: 1}},
+	{machine: "smelter", time: 2, input: {AluminumScrap: 2}, output: {AluminumIngot: 1}, name: "Pure Aluminum Ingot"},
+	//Foundry
+	{machine: "foundry", time: 4, input: {OreIron: 3, Coal: 3}, output: {SteelIngot: 3}},
+	{machine: "foundry", time: 3, input: {IronIngot: 2, Coal: 2}, output: {SteelIngot: 3}, name: "Solid Steel Ingot"},
+	{machine: "foundry", time: 12, input: {OreIron: 15, PetroleumCoke: 15}, output: {SteelIngot: 20}},
+	{machine: "foundry", time: 16, input: {OreIron: 6, CompactedCoal: 3}, output: {SteelIngot: 10}},
+	{machine: "foundry", time: 12, input: {OreCopper: 10, OreIron: 5}, output: {CopperIngot: 20}, name: "Copper Alloy Ingot"},
+	{machine: "foundry", time: 6, input: {OreIron: 2, OreCopper: 2}, output: {IronIngot: 5}, name: "Iron Alloy Ingot"},
+	{machine: "foundry", time: 4, input: {AluminumScrap: 6, Silica: 5}, output: {AluminumIngot: 4}},
+
 	{
 		input: {IronIngot: 3},
 		output: {IronPlate: 2},
