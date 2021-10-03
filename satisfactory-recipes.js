@@ -133,6 +133,13 @@ const resource_ids = {
 
 //Recipe order doesn't matter much as the display is usually sorted by something more relevant.
 const recipes = [
+	//Constructor
+	{machine: "constructor", time: 6, input: {IronIngot: 3}, output: {IronPlate: 2}},
+	{machine: "constructor", time: 4, input: {CopperIngot: 1}, output: {Wire: 2}},
+	{machine: "constructor", time: 24, input: {IronIngot: 5}, output: {Wire: 9}, name: "Iron Wire"},
+	{machine: "constructor", time: 4, input: {GoldIngot: 1}, output: {Wire: 8}, name: "Caterium Wire"},
+	{machine: "constructor", time: 2, input: {AluminumIngot: 3}, output: {AluminumCasing: 2}},
+	{machine: "constructor", time: 2, input: {GenericBiomass: 5}, output: {Coal: 6}, name: "Biocoal"},
 	//Smelter
 	{machine: "smelter", time: 2, input: {OreIron: 1}, output: {IronIngot: 1}},
 	{machine: "smelter", time: 2, input: {OreCopper: 1}, output: {CopperIngot: 1}},
@@ -148,12 +155,6 @@ const recipes = [
 	{machine: "foundry", time: 4, input: {AluminumScrap: 6, Silica: 5}, output: {AluminumIngot: 4}},
 
 	{
-		input: {IronIngot: 3},
-		output: {IronPlate: 2},
-		machine: "constructor",
-		time: 6,
-	},
-	{
 		name: "Coated Iron Plate",
 		input: {IronIngot: 10, Plastic: 2},
 		output: {IronPlate: 15},
@@ -168,31 +169,11 @@ const recipes = [
 		time: 24,
 	},
 	{
-		input: {CopperIngot: 1},
-		output: {Wire: 2},
-		machine: "constructor",
-		time: 4,
-	},
-	{
 		name: "Fused Wire",
 		input: {CopperIngot: 4, GoldIngot: 1},
 		output: {Wire: 30},
 		machine: "assembler",
 		time: 20,
-	},
-	{
-		name: "Iron Wire",
-		input: {IronIngot: 5},
-		output: {Wire: 9},
-		machine: "constructor",
-		time: 24,
-	},
-	{
-		name: "Caterium Wire",
-		input: {GoldIngot: 1},
-		output: {Wire: 8},
-		machine: "constructor",
-		time: 4,
 	},
 ];
 
