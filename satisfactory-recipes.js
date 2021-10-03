@@ -59,20 +59,40 @@ const solid_resources = {
 	RawQuartz: {sink: 15, name: "Raw Quartz"},
 	HighSpeedWire: {sink: 17, name: "Quickwire"},
 	PetroleumCoke: {sink: 20, energy: 180, name: "Petroleum Coke"},
-	Silica: {sink: 20, name: "Silica"}, //ID uncertain, confirm pls
+	Silica: {sink: 20, name: "Silica"},
+	SteelPipe: {sink: 24, name: "Steel Pipe"},
+	Cable: {sink: 24, name: "Cable"},
+	CopperSheet: {sink: 24, name: "Copper Sheet"},
+	AluminumScrap: {sink: 27, name: "Aluminum Scrap"},
+	CompactedCoal: {sink: 28, energy: 630, name: "Compacted Coal"},
+	Wood: {sink: 30, energy: 100, name: "Wood"},
+	OreUranium: {sink: 35, name: "Uranium"},
 	GoldIngot: {sink: 42, name: "Caterium Ingot"},
 	Biofuel: {sink: 48, energy: 450, name: "Solid Biofuel"},
+	Gunpowder: {sink: 50, name: "Black Powder"},
+	QuartzCrystal: {sink: 50, name: "Quartz Crystal"},
+	FluidCanister: {sink: 60, name: "Empty Canister"},
+	Rubber: {sink: 60, name: "Rubber"},
 	Plastic: {sink: 75, name: "Plastic"},
+	PackagedWater: {sink: 130, name: "Packaged Water"},
+	PackagedBiofuel: {sink: 310, energy: 750, name: "Packaged Liquid Biofuel", unpackaged: "LiquidBiofuel"},
 };
 //Sink values of fluids are defined by their packaged equivalents, minus 60 for
 //the package itself. This completely discounts any processing value from the
 //package/unpackage process, since it's reversible.
-const fluid_resources = {
-	None: {sink: 0, name: "None"},
-	Water: {sink: 70, name: "Water"},
-	LiquidBiofuel: {sink: 310, energy: 750, name: "Liquid Biofuel"},
-};
-const resources = {...solid_resources, ...fluid_resources};
+const fluid_resources = {None: solid_resources.None};
+const resources = {...solid_resources};
+for (let id in solid_resources) {
+	const r = solid_resources[id];
+	if (id.startsWith("Packaged") || r.unpackaged) {
+		id = r.unpackaged || id.slice(8);
+		resources[id] = fluid_resources[id] = {
+			...r,
+			sink: r.sink - solid_resources.FluidCanister.sink,
+			name: r.unpkgname || r.name.replace("Packaged ", ""),
+		};
+	}
+}
 const resource_ids = {
 	s: Object.keys(solid_resources),
 	f: Object.keys(fluid_resources),
