@@ -34,6 +34,7 @@ const machines = {
 		cost: 30,
 	},
 };
+//NOTE: This list is not complete. It lacks nuclear power, project parts, and most things that don't have sink values.
 const solid_resources = {
 	None: {sink: 0, name: "None"},
 	OreIron: {sink: 1, name: "Iron Ore"},
@@ -74,8 +75,39 @@ const solid_resources = {
 	FluidCanister: {sink: 60, name: "Empty Canister"},
 	Rubber: {sink: 60, name: "Rubber"},
 	Plastic: {sink: 75, name: "Plastic"},
+	IronPlateReinforced: {sink: 120, name: "Reinforced Iron Plate"},
 	PackagedWater: {sink: 130, name: "Packaged Water"},
-	PackagedBiofuel: {sink: 310, energy: 750, name: "Packaged Liquid Biofuel", unpackaged: "LiquidBiofuel"},
+	AluminumIngot: {sink: 131, name: "Aluminum Ingot"},
+	Rotor: {sink: 140, name: "Rotor"},
+	PackagedSulfuricAcid: {sink: 152, name: "Packaged Sulfuric Acid"},
+	PackagedAlumina: {sink: 160, name: "Packaged Alumina Solution"},
+	PackagedOil: {sink: 160, energy: 320, name: "Packaged Oil", unpackaged: "LiquidOil"},
+	PackagedOilResidue: {sink: 180, energy: 400, name: "Packaged Heavy Oil Residue", unpackaged: "HeavyOilResidue"},
+	GasTank: {sink: 225, name: "Empty Fluid Tank"},
+	Stator: {sink: 240, name: "Stator"},
+	AluminumPlate: {sink: 266, name: "Alclad Aluminum Sheet"},
+	Fuel: {sink: 270, energy: 750, name: "Packaged Fuel", unpackaged: "LiquidFuel"},
+	PackagedNitrogenGas: {sink: 312, name: "Packaged Nitrogen Gas"},
+	EquipmentDescriptorBeacon: {sink: 320, name: "Beacon"},
+	PackagedBiofuel: {sink: 370, energy: 750, name: "Packaged Liquid Biofuel", unpackaged: "LiquidBiofuel"},
+	AluminumCasing: {sink: 393, name: "Aluminum Casing"},
+	ModularFrame: {sink: 408, name: "Modular Frame"},
+	TurboFuel: {sink: 570, energy: 2000, name: "Packaged Turbofuel", unpackaged: "LiquidTurboFuel"},
+	SteelPlateReinforced: {sink: 632, name: "Encased Industrial Beam"},
+	CircuitBoard: {sink: 696, name: "Circuit Board"},
+	CircuitBoardHighSpeed: {sink: 920, name: "AI Limiter"},
+	Motor: {sink: 1520, name: "Motor"},
+	AluminumPlateReinforced: {sink: 2804, name: "Heat Sink"},
+	CrystalOscillator: {sink: 3072, name: "Crystal Oscillator"},
+	HighSpeedConnector: {sink: 3776, name: "High-Speed Connector"},
+	ModularFrameHeavy: {sink: 11520, name: "Heavy Modular Frame"},
+	CoolingSystem: {sink: 12006, name: "Cooling System"},
+	Computer: {sink: 17260, name: "Computer"},
+	ModularFrameLightweight: {sink: 32908, name: "Radio Control Unit"},
+	ModularFrameFused: {sink: 62840, name: "Fused Modular Frame"},
+	ComputerSuper: {sink: 99576, name: "Supercomputer"},
+	MotorLightweight: {sink: 242720, name: "Turbo Motor"},
+	PressureConversionCube: {sink: 257312, name: "Pressure Conversion Cube"},
 };
 //Sink values of fluids are defined by their packaged equivalents, minus 60 for
 //the package itself. This completely discounts any processing value from the
@@ -85,10 +117,10 @@ const resources = {...solid_resources};
 for (let id in solid_resources) {
 	const r = solid_resources[id];
 	if (id.startsWith("Packaged") || r.unpackaged) {
-		id = r.unpackaged || id.slice(8);
+		id = r.unpackaged || id.replace("Packaged", "");
 		resources[id] = fluid_resources[id] = {
 			...r,
-			sink: r.sink - solid_resources.FluidCanister.sink,
+			sink: r.sink - solid_resources[r.pkg || "FluidCanister"].sink,
 			name: r.unpkgname || r.name.replace("Packaged ", ""),
 		};
 	}
