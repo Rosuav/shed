@@ -33,6 +33,6 @@ Recipe | Machine | Inputs | Outputs | Rate | Sink value | Energy | MJ/item
 #recipes {width: 100%;}
 ul.optionset {list-style-type: none; display: flex; padding-left: 0;}
 ul.optionset li {list-style-image: none;}
-.yourrecipe {background: #cfe !important;}
+tr.yourrecipe {background: #cfe !important;}
 #recipes th {cursor: pointer;}
 </style>
