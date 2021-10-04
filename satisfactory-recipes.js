@@ -110,6 +110,8 @@ const solid_resources = {
 	ComputerSuper: {sink: 99576, name: "Supercomputer"},
 	MotorLightweight: {sink: 242720, name: "Turbo Motor"},
 	PressureConversionCube: {sink: 257312, name: "Pressure Conversion Cube"},
+	HogParts: {sink: 0, energy: 250, name: "Alien Carapace"},
+	SpitterParts: {sink: 0, energy: 250, name: "Alien Organs"},
 };
 //Sink values of fluids are defined by their packaged equivalents, minus 60 for
 //the package itself. This completely discounts any processing value from the
