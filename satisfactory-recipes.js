@@ -1,5 +1,6 @@
 import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
 const {BR, CODE, TABLE, TR, TD, INPUT, SELECT, OPTION, SPAN} = choc;
+//TODO: Check styles, esp colours, on GH Pages
 
 //TODO: Crib these from the files somehow so they don't have to be updated.
 const machines = {
