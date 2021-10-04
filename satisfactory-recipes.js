@@ -200,6 +200,8 @@ const recipes = [
 	{machine: "assembler", time: 12, input: {Wire: 9, Rubber: 6}, output: {Cable: 20}, name: "Insulated Cable"},
 	{machine: "assembler", time: 60, input: {IronPlateReinforced: 3, IronRod: 12}, output: {ModularFrame: 2}},
 	{machine: "assembler", time: 12, input: {Rotor: 2, Stator: 2}, output: {Motor: 1}},
+	{machine: "assembler", time: 20, input: {ModularFrameLightweight: 3, CoolingSystem: 3}, output: {ComputerSuper: 1}, name: "OC Supercomputer"},
+	{machine: "assembler", time: 60, input: {ModularFrameFused: 1, ModularFrameLightweight: 2}, output: {PressureConversionCube: 1}},
 	{machine: "assembler", time: 24, input: {SteelIngot: 3, Plastic: 2}, output: {IronPlate: 18}, name: "Steel Coated Plate"},
 
 	{machine: "foundry", time: 4, input: {OreIron: 3, Coal: 3}, output: {SteelIngot: 3}},
