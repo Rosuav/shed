@@ -35,4 +35,5 @@ ul.optionset {list-style-type: none; display: flex; padding-left: 0;}
 ul.optionset li {list-style-image: none;}
 tr.yourrecipe {background: #cfe !important;}
 #recipes th {cursor: pointer;}
+.container {max-width: unset;} /* Disable the narrowing of the window by my GH Pages theme */
 </style>
