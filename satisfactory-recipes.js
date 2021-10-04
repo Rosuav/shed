@@ -203,6 +203,7 @@ function update_recipes() {
 	if (!recipeinfo.output_items) return; //Not initialized fully yet. Wait till we have our data.
 	const rows = [];
 	let key = null;
+	const filter = DOM('input[name="recipefilter"]:checked').value;
 	switch (sort_order) {
 		case "Recipe": key = ""; break; //Your Recipe always comes up first when sorting by name
 		case "Machine": key = Object.values(machines).indexOf(machine); break;
@@ -210,12 +211,18 @@ function update_recipes() {
 		case "Outputs": key = -recipeinfo.output_sink; break;
 		case "Rate":
 			//TODO: If we're filtered to "Any Output", try to get the rate of a relevant output.
-			//For now it just sorts by total sink value per minute.
-			key = -recipeinfo.output_sink / recipeinfo.time;
+			//For now it just sorts by total items per minute, same as for Same Machine mode.
+			if (filter === "firstoutput") key = recipeinfo.output_items[0][0];
+			else key = recipeinfo.output_items.map(i => i[0]).reduce((a,b) => a+b, 0);
+			key = -key / recipeinfo.time;
 			break;
 		case "Sink value": key = recipeinfo.output_sink && recipeinfo.input_sink / recipeinfo.output_sink; break;
 		case "Energy": key = recipeinfo.output_energy && recipeinfo.input_energy / recipeinfo.output_energy; break;
-		case "MJ/item": key = 0; break; //TODO
+		case "MJ/item":
+			if (filter === "firstoutput") key = recipeinfo.output_items[0][0];
+			else key = recipeinfo.output_items.map(i => i[0]).reduce((a,b) => a+b, 0);
+			key = key && recipeinfo.time * machine.cost / key;
+			break;
 	}
 	rows.push({key, pos: rows.length, row: TR({className: "highlight"}, [
 		TD("Your Recipe"),
@@ -230,7 +237,6 @@ function update_recipes() {
 		),
 		TD([].concat(...recipeinfo.output_items.map(i => [CODE(threeplace(i[0] && recipeinfo.time * machine.cost / i[0])), BR()]))),
 	])});
-	const filter = DOM('input[name="recipefilter"]:checked').value;
 	recipes.forEach(recipe => {
 		let matches = false;
 		if (filter === "anyoutput") {
@@ -246,9 +252,9 @@ function update_recipes() {
 		}
 		else matches = machine === machines[recipe.machine];
 		if (!matches) return;
-		const info = { };
+		const info = {energyused: recipe.time * machines[recipe.machine].cost};
 		["input", "output"].forEach(kwd => {
-			let sink = 0, energy = 0;
+			let sink = 0, energy = 0, totitems = 0;
 			const items = [], rates = [], mj = [];
 			for (const [resid, qty] of Object.entries(recipe[kwd])) {
 				const res = resources[resid];
@@ -257,9 +263,11 @@ function update_recipes() {
 				rates.push(CODE(permin(qty, recipe.time)), BR());
 				sink += (res.sink||0) * qty;
 				energy += (res.energy||0) * qty;
-				mj.push(CODE(threeplace(qty && recipe.time * machines[recipe.machine].cost / qty)), BR());
+				mj.push(CODE(threeplace(qty && info.energyused / qty)), BR());
+				if (filter !== "firstoutput" || resid === recipeinfo.output_items[0][2]) totitems += qty;
 			}
 			info[kwd + "_items"] = items;
+			info[kwd + "_totitems"] = totitems;
 			info[kwd + "_rates"] = rates;
 			info[kwd + "_sink"] = sink;
 			info[kwd + "_energy"] = energy;
@@ -272,10 +280,10 @@ function update_recipes() {
 			case "Machine": key = Object.keys(machines).indexOf(recipe.machine); break;
 			case "Inputs": key = info.input_sink; break;
 			case "Outputs": key = -info.output_sink; break;
-			case "Rate": key = -info.output_sink / recipe.time; break; //TODO as above - relevant output?
+			case "Rate": key = -info.output_totitems / recipe.time; break;
 			case "Sink value": key = info.output_sink && info.input_sink / info.output_sink; break;
 			case "Energy": key = info.output_energy && info.input_energy / info.output_energy; break;
-			case "MJ/item": key = 0; break; //TODO
+			case "MJ/item": key = info.output_totitems && info.energyused / info.output_totitems; break;
 		}
 		rows.push({key, pos: rows.length, row: TR([
 			TD(recipename),
