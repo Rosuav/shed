@@ -9,6 +9,7 @@ Good for designing new custom recipes and trying to balance them. Also for analy
 * <label><input type=radio name=machine value=assembler>Assembler</label>
 * <label><input type=radio name=machine value=foundry>Foundry</label>
 * <label><input type=radio name=machine value=refinery>Refinery</label>
+* <label><input type=radio name=machine value=manufacturer>Manufacturer</label>
 {: .optionset}
 
 <form id=recipe></form>

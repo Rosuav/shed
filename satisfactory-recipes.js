@@ -34,6 +34,12 @@ const machines = {
 		output: "sf",
 		cost: 30,
 	},
+	manufacturer: {
+		name: "Manufacturer",
+		input: "ssss",
+		output: "s",
+		cost: 30,
+	},
 };
 //NOTE: This list is not complete. It lacks nuclear power, project parts, and most things that don't have sink values.
 const solid_resources = {
@@ -94,6 +100,7 @@ const solid_resources = {
 	PackagedBiofuel: {sink: 370, energy: 750, name: "Packaged Liquid Biofuel", unpackaged: "LiquidBiofuel"},
 	AluminumCasing: {sink: 393, name: "Aluminum Casing"},
 	ModularFrame: {sink: 408, name: "Modular Frame"},
+	Battery: {sink: 465, energy: 6000, name: "Battery"},
 	TurboFuel: {sink: 570, energy: 2000, name: "Packaged Turbofuel", unpackaged: "LiquidTurboFuel"},
 	SteelPlateReinforced: {sink: 632, name: "Encased Industrial Beam"},
 	CircuitBoard: {sink: 696, name: "Circuit Board"},
@@ -250,6 +257,25 @@ const recipes = [
 	{machine: "refinery", time: 8, input: {HeavyOilResidue: 5, CompactedCoal: 4}, output: {TurboFuel: 4}, name: "Turbo Heavy Fuel"},
 	{machine: "refinery", time:16, input: {Fuel: 6, CompactedCoal: 4}, output: {TurboFuel: 5}},
 	{machine: "refinery", time: 3, input: {Stone: 6, Water: 5}, output: {Cement: 4}, name: "Wet Concrete"},
+
+	{machine: "manufacturer", time:  8, output: {EquipmentDescriptorBeacon: 1},
+		input: {IronPlate: 3, IronRod: 1, Wire: 16, Cable: 2}},
+	{machine: "manufacturer", time: 16, output: {Computer: 1}, name: "Caterium Computer",
+		input: {CircuitBoard: 7, HighSpeedWire: 28, Rubber: 12}},
+	{machine: "manufacturer", time:  8, output: {Battery: 1}, name: "Classic Battery",
+		input: {Sulfur: 6, AluminumPlate: 7, Plastic: 8, Wire: 12}},
+	{machine: "manufacturer", time: 24, output: {Computer: 1},
+		input: {CircuitBoard: 10, Cable: 9, Plastic: 18, IronScrew: 52}},
+	{machine: "manufacturer", time:120, output: {EquipmentDescriptorBeacon: 20}, name: "Crystal Beacon",
+		input: {SteelPlate: 4, SteelPipe: 16, CrystalOscillator: 1}},
+	{machine: "manufacturer", time:120, output: {CrystalOscillator: 2},
+		input: {QuartzCrystal: 36, Cable: 28, IronPlateReinforced: 5}},
+	{machine: "manufacturer", time: 64, output: {ModularFrameHeavy: 3}, name: "Heavy Encased Frame",
+		input: {ModularFrame: 8, SteelPlateReinforced: 10, SteelPipe: 36, Cement: 22}},
+	{machine: "manufacturer", time: 16, output: {ModularFrameHeavy: 1}, name: "Heavy Flexible Frame",
+		input: {ModularFrame: 5, SteelPlateReinforced: 3, Rubber: 20, IronScrew: 104}},
+	{machine: "manufacturer", time: 30, output: {ModularFrameHeavy: 1},
+		input: {ModularFrame: 5, SteelPipe: 15, SteelPlateReinforced: 5, IronScrew: 100}},
 ];
 
 let machine = null, sort_order = "Recipe";
