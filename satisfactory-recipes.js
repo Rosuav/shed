@@ -209,7 +209,7 @@ function update_recipes() {
 		case "Inputs": key = recipeinfo.input_sink; break; //Sorting by inputs/outputs sorts by total sink value for simplicity.
 		case "Outputs": key = -recipeinfo.output_sink; break;
 		case "Rate":
-			//TODO: If we're filtered to "Same Output", try to get the rate of a relevant output.
+			//TODO: If we're filtered to "Any Output", try to get the rate of a relevant output.
 			//For now it just sorts by total sink value per minute.
 			key = -recipeinfo.output_sink / recipeinfo.time;
 			break;
