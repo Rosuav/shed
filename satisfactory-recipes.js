@@ -171,6 +171,7 @@ const recipes = [
 	{machine: "smelter", time: 4, input: {OreGold: 3}, output: {GoldIngot: 1}},
 	{machine: "smelter", time: 2, input: {AluminumScrap: 2}, output: {AluminumIngot: 1}, name: "Pure Aluminum Ingot"},
 
+	{machine: "assembler", time: 16, input: {IronPlate: 3, Rubber: 1}, output: {IronPlateReinforced: 1}, name: "Adhered Iron Plate"},
 	{machine: "assembler", time: 12, input: {IronIngot: 10, Plastic: 2}, output: {IronPlate: 15}, name: "Coated Iron Plate"},
 	{machine: "assembler", time: 20, input: {CopperIngot: 4, GoldIngot: 1}, output: {Wire: 30}, name: "Fused Wire"},
 	{machine: "assembler", time: 24, input: {SteelIngot: 3, Plastic: 2}, output: {IronPlate: 18}, name: "Steel Coated Plate"},
