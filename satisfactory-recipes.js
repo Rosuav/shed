@@ -189,6 +189,12 @@ function describe_ratio(value, base) {
 	return " (" + ratio.toFixed(2) + " : 1)";
 }
 
+function permin(qty, time) {
+	const rate = 60 * qty / time;
+	if (rate === Math.floor(rate)) return rate + "/min";
+	return rate.toFixed(3) + "/min";
+}
+
 let recipeinfo = { };
 //Call this on any change, whatsoever. The only info retained from one call to
 //another is what update_totals populates into recipeinfo.
@@ -200,7 +206,12 @@ function update_recipes() {
 		case "Recipe": key = ""; break; //Your Recipe always comes up first when sorting by name
 		case "Machine": key = Object.values(machines).indexOf(machine); break;
 		case "Inputs": key = recipeinfo.input_sink; break; //Sorting by inputs/outputs sorts by total sink value for simplicity.
-		case "Outputs": key = recipeinfo.output_sink; break;
+		case "Outputs": key = -recipeinfo.output_sink; break;
+		case "Rate":
+			//TODO: If we're filtered to "Same Output", try to get the rate of a relevant output.
+			//For now it just sorts by total sink value per minute.
+			key = -recipeinfo.output_sink / recipeinfo.time;
+			break;
 		case "Sink value": key = recipeinfo.output_sink && recipeinfo.input_sink / recipeinfo.output_sink; break;
 		case "Energy": key = recipeinfo.output_energy && recipeinfo.input_energy / recipeinfo.output_energy; break;
 	}
@@ -209,6 +220,7 @@ function update_recipes() {
 		TD(machine.name),
 		TD([].concat(...recipeinfo.input_items.map(i => [CODE(i[0] + " " + i[1].name), BR()]))),
 		TD([].concat(...recipeinfo.output_items.map(i => [CODE(i[0] + " " + i[1].name), BR()]))),
+		TD([].concat(...recipeinfo.output_items.map(i => [CODE(permin(i[0], recipeinfo.time)), BR()]))),
 		TD(recipeinfo.input_sink + " makes " + recipeinfo.output_sink + describe_ratio(recipeinfo.output_sink, recipeinfo.input_sink)),
 		TD(recipeinfo.output_energy ?
 		   recipeinfo.input_energy + " makes " + recipeinfo.output_energy + describe_ratio(recipeinfo.output_energy, recipeinfo.input_energy)
@@ -230,15 +242,17 @@ function update_recipes() {
 		const info = { };
 		["input", "output"].forEach(kwd => {
 			let sink = 0, energy = 0;
-			const items = [];
+			const items = [], rates = [];
 			for (const [resid, qty] of Object.entries(recipe[kwd])) {
 				const res = resources[resid];
 				if (!res) {console.warn("Borked " + kwd + " " + resid, recipe); continue;}
 				items.push(CODE(qty + " " + res.name), BR());
+				rates.push(CODE(permin(qty, recipe.time)), BR());
 				sink += (res.sink||0) * qty;
 				energy += (res.energy||0) * qty;
 			}
 			info[kwd + "_items"] = items;
+			info[kwd + "_rates"] = rates;
 			info[kwd + "_sink"] = sink;
 			info[kwd + "_energy"] = energy;
 		});
@@ -248,7 +262,8 @@ function update_recipes() {
 			case "Recipe": key = recipename.toLowerCase(); break;
 			case "Machine": key = Object.keys(machines).indexOf(recipe.machine); break;
 			case "Inputs": key = info.input_sink; break;
-			case "Outputs": key = info.output_sink; break;
+			case "Outputs": key = -info.output_sink; break;
+			case "Rate": key = -info.output_sink / recipe.time; break; //TODO as above - relevant output?
 			case "Sink value": key = info.output_sink && info.input_sink / info.output_sink; break;
 			case "Energy": key = info.output_energy && info.input_energy / info.output_energy; break;
 		}
@@ -257,6 +272,7 @@ function update_recipes() {
 			TD(machines[recipe.machine].name),
 			TD(info.input_items),
 			TD(info.output_items),
+			TD(info.output_rates),
 			TD(info.input_sink + " makes " + info.output_sink + describe_ratio(info.output_sink, info.input_sink)),
 			TD(info.output_energy ?
 			   info.input_energy + " makes " + info.output_energy + describe_ratio(info.output_energy, info.input_energy)
@@ -275,7 +291,7 @@ function update_recipes() {
 
 function update_totals() {
 	let base_sink = -1, base_energy = -1;
-	recipeinfo = { };
+	recipeinfo = {time: DOM("#time").value|0};
 	["input", "output"].forEach(kwd => {
 		let sink = 0, energy = 0;
 		const items = [];
@@ -339,11 +355,6 @@ function select_machine(id) {
 on("click", 'input[name="machine"]', e => select_machine(e.match.value));
 select_machine("constructor");
 
-function permin(qty, time) {
-	const rate = 60 * qty / time;
-	if (rate === Math.floor(rate)) return rate + "/min";
-	return rate.toFixed(3) + "/min";
-}
 on("input", 'input[type="number"]', e => {
 	//Yes, in theory we could have other numeric inputs, but worst case, we update unnecessarily.
 	const time = DOM("#time").value|0; //I don't think non-integer times are supported by the game
