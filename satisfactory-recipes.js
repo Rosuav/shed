@@ -190,11 +190,11 @@ function describe_ratio(value, base) {
 	return " (" + ratio.toFixed(2) + " : 1)";
 }
 
-function permin(qty, time) {
-	const rate = 60 * qty / time;
-	if (rate === Math.floor(rate)) return rate + "/min";
-	return rate.toFixed(3) + "/min";
+function threeplace(rate) {
+	if (rate === Math.floor(rate)) return "" + rate;
+	return rate.toFixed(3);
 }
+function permin(qty, time) {return threeplace(60 * qty / time) + "/min";}
 
 let recipeinfo = { };
 //Call this on any change, whatsoever. The only info retained from one call to
@@ -215,6 +215,7 @@ function update_recipes() {
 			break;
 		case "Sink value": key = recipeinfo.output_sink && recipeinfo.input_sink / recipeinfo.output_sink; break;
 		case "Energy": key = recipeinfo.output_energy && recipeinfo.input_energy / recipeinfo.output_energy; break;
+		case "MJ/item": key = 0; break; //TODO
 	}
 	rows.push({key, pos: rows.length, row: TR({className: "highlight"}, [
 		TD("Your Recipe"),
@@ -227,6 +228,7 @@ function update_recipes() {
 		   recipeinfo.input_energy + " makes " + recipeinfo.output_energy + describe_ratio(recipeinfo.output_energy, recipeinfo.input_energy)
 		   : ""
 		),
+		TD([].concat(...recipeinfo.output_items.map(i => [CODE(threeplace(i[0] && recipeinfo.time * machine.cost / i[0])), BR()]))),
 	])});
 	const filter = DOM('input[name="recipefilter"]:checked').value;
 	recipes.forEach(recipe => {
@@ -247,7 +249,7 @@ function update_recipes() {
 		const info = { };
 		["input", "output"].forEach(kwd => {
 			let sink = 0, energy = 0;
-			const items = [], rates = [];
+			const items = [], rates = [], mj = [];
 			for (const [resid, qty] of Object.entries(recipe[kwd])) {
 				const res = resources[resid];
 				if (!res) {console.warn("Borked " + kwd + " " + resid, recipe); continue;}
@@ -255,11 +257,13 @@ function update_recipes() {
 				rates.push(CODE(permin(qty, recipe.time)), BR());
 				sink += (res.sink||0) * qty;
 				energy += (res.energy||0) * qty;
+				mj.push(CODE(threeplace(qty && recipe.time * machines[recipe.machine].cost / qty)), BR());
 			}
 			info[kwd + "_items"] = items;
 			info[kwd + "_rates"] = rates;
 			info[kwd + "_sink"] = sink;
 			info[kwd + "_energy"] = energy;
+			info[kwd + "_mj"] = mj;
 		});
 		const recipename = recipe.name || resources[Object.keys(recipe.output)[0]].name;
 		let key = null;
@@ -271,6 +275,7 @@ function update_recipes() {
 			case "Rate": key = -info.output_sink / recipe.time; break; //TODO as above - relevant output?
 			case "Sink value": key = info.output_sink && info.input_sink / info.output_sink; break;
 			case "Energy": key = info.output_energy && info.input_energy / info.output_energy; break;
+			case "MJ/item": key = 0; break; //TODO
 		}
 		rows.push({key, pos: rows.length, row: TR([
 			TD(recipename),
@@ -283,6 +288,7 @@ function update_recipes() {
 			   info.input_energy + " makes " + info.output_energy + describe_ratio(info.output_energy, info.input_energy)
 			   : ""
 			),
+			TD(info.output_mj),
 		])});
 	});
 	rows.sort((a, b) => {
