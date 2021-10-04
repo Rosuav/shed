@@ -153,7 +153,7 @@ const recipes = [
 	{machine: "constructor", time: 4, input: {Plastic: 2}, output: {FluidCanister: 4}},
 	{machine: "constructor", time: 1, input: {AluminumIngot: 2}, output: {GasTank: 1}},
 	{machine: "constructor", time: 6, input: {IronIngot: 3}, output: {IronPlate: 2}},
-	{machine: "constructor", time: 4, input: {IronIngot: 1}, output: {IronPlate: 1}},
+	{machine: "constructor", time: 4, input: {IronIngot: 1}, output: {IronRod: 1}},
 	{machine: "constructor", time:24, input: {IronIngot: 5}, output: {Wire: 9}, name: "Iron Wire"},
 	{machine: "constructor", time: 8, input: {RawQuartz: 5}, output: {QuartzCrystal: 3}},
 	{machine: "constructor", time: 5, input: {GoldIngot: 1}, output: {HighSpeedWire: 5}},
