@@ -1,13 +1,6 @@
 Satisfactory Recipe Analysis
 ============================
 
-TODO:
-- Compare against best and worst for that building type
-- Compare against other things that produce the same outputs
-- For current and comparison recipes, show sink ratio, energy ratio (if applicable), MJ/item cost, and throughput (items/min).
-- Comparison recipes that produce additional outputs should show those in a separate column
-- For extractors, show sink points per minute and per MJ, for each possible resource node purity?
-
 Good for designing new custom recipes and trying to balance them. Also for analyzing alternate recipes.
 
 
