@@ -230,12 +230,16 @@ function update_recipes() {
 	const filter = DOM('input[name="recipefilter"]:checked').value;
 	recipes.forEach(recipe => {
 		let matches = false;
-		if (filter === "sameoutput") {
-			//TODO: Allow some outputs to be deemed irrelevant. For instance,
-			//if you're making something that has a waste water output, do you
-			//really need to see every recipe that also has waste water?
+		if (filter === "anyoutput") {
 			for (let iq of recipeinfo.output_items)
 				if (recipe.output[iq[2]]) matches = true;
+		}
+		else if (filter === "firstoutput") {
+			//Match on the first output, treating the second output as a waste or irrelevant product.
+			//Note that other recipes will match if they make that output in any slot.
+			//Note also that there is currently no way to specify that a refinery's fluid output is
+			//the primary one, so it will always match on the solid output.
+			matches = recipeinfo.output_items.length && recipe.output[recipeinfo.output_items[0][2]];
 		}
 		else matches = machine === machines[recipe.machine];
 		if (!matches) return;

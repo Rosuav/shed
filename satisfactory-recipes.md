@@ -20,7 +20,8 @@ Good for designing new custom recipes and trying to balance them. Also for analy
 
 <form id=recipe></form>
 
-* <label><input type=radio name=recipefilter value=sameoutput checked>Same output</label>
+* <label><input type=radio name=recipefilter value=firstoutput checked>Produces first output</label>
+* <label><input type=radio name=recipefilter value=anyoutput>Produces any output</label>
 * <label><input type=radio name=recipefilter value=samemachine>Same machine</label>
 {: .optionset}
 
