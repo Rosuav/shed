@@ -285,7 +285,7 @@ function update_recipes() {
 			key = key && recipeinfo.time * machine.cost / key;
 			break;
 	}
-	rows.push({key, pos: rows.length, row: TR({className: "highlight"}, [
+	rows.push({key, pos: rows.length, row: TR({className: "yourrecipe"}, [
 		TD("Your Recipe"),
 		TD(machine.name),
 		TD([].concat(...recipeinfo.input_items.map(i => [CODE(i[0] + " " + i[1].name), BR()]))),
