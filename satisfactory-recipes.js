@@ -273,7 +273,7 @@ function update_recipes() {
 			info[kwd + "_energy"] = energy;
 			info[kwd + "_mj"] = mj;
 		});
-		const recipename = recipe.name || resources[Object.keys(recipe.output)[0]].name;
+		const recipename = recipe.name || (resources[Object.keys(recipe.output)[0]] || {name: ""}).name;
 		let key = null;
 		switch (sort_order) {
 			case "Recipe": key = recipename.toLowerCase(); break;
