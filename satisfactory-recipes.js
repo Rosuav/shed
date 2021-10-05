@@ -1,5 +1,5 @@
 import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
-const {BR, CODE, TABLE, TR, TD, INPUT, SELECT, OPTION, SPAN} = choc;
+const {BR, CODE, LABEL, LI, TABLE, TR, TD, INPUT, SELECT, OPTION, SPAN} = choc;
 //TODO: Check styles, esp colours, on GH Pages
 
 /* In order to round-trip with Nogg's ContentLib recipe format, still need:
@@ -49,6 +49,8 @@ const machines = {
 		cost: 30,
 	},
 };
+const par = DOM("input[name=manual]").closest("ul");
+Object.keys(machines).forEach(m => par.appendChild(LI(LABEL([INPUT({type: "radio", name: "machine", value: m}), machines[m].name]))));
 //NOTE: This list is not complete. It lacks nuclear power, project parts, and most things that don't have sink values.
 const solid_resources = {
 	None: {sink: 0, name: "None"},
@@ -504,7 +506,7 @@ function select_machine(id) {
 	update_totals();
 }
 on("click", 'input[name="machine"]', e => select_machine(e.match.value));
-select_machine("constructor");
+DOM("input[name=machine][value=constructor]").checked = true; select_machine("constructor");
 
 on("input", 'input[type="number"]', e => {
 	//Yes, in theory we could have other numeric inputs, but worst case, we update unnecessarily.
