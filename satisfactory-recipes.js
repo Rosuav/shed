@@ -67,18 +67,18 @@ const solid_resources = {
 	SteelPlate: {sink: 64, name: "Steel Beam"},
 	Plastic: {sink: 75, name: "Plastic"},
 	IronPlateReinforced: {sink: 120, name: "Reinforced Iron Plate"},
-	PackagedWater: {sink: 130, name: "Packaged Water"},
+	PackagedWater: {sink: 130, name: "Packaged Water", unpkgsink: 1.5},
 	AluminumIngot: {sink: 131, name: "Aluminum Ingot"},
 	Rotor: {sink: 140, name: "Rotor"},
 	PackagedSulfuricAcid: {sink: 152, name: "Packaged Sulfuric Acid"},
 	PackagedAlumina: {sink: 160, name: "Packaged Alumina Solution", unpackaged: "AluminaSolution"},
 	PackagedOil: {sink: 160, energy: 320, name: "Packaged Oil", unpackaged: "CrudeOil", unpkgname: "Crude Oil"},
-	PackagedOilResidue: {sink: 180, energy: 400, name: "Packaged Heavy Oil Residue", unpackaged: "HeavyOilResidue"},
+	PackagedOilResidue: {sink: 180, energy: 400, name: "Packaged Heavy Oil Residue", unpackaged: "HeavyOilResidue", unpkgsink: 30},
 	GasTank: {sink: 225, name: "Empty Fluid Tank"},
 	Stator: {sink: 240, name: "Stator"},
 	AluminumPlate: {sink: 266, name: "Alclad Aluminum Sheet"},
 	Fuel: {sink: 270, energy: 750, name: "Packaged Fuel", unpackaged: "LiquidFuel"},
-	PackagedNitrogenGas: {sink: 312, name: "Packaged Nitrogen Gas", pkg: "GasTank"},
+	PackagedNitrogenGas: {sink: 312, name: "Packaged Nitrogen Gas", pkg: "GasTank", unpkgsink: 10},
 	EquipmentDescriptorBeacon: {sink: 320, name: "Beacon"},
 	PackagedBiofuel: {sink: 370, energy: 750, name: "Packaged Liquid Biofuel", unpackaged: "LiquidBiofuel"},
 	AluminumCasing: {sink: 393, name: "Aluminum Casing"},
@@ -116,7 +116,7 @@ for (let id in solid_resources) {
 		id = r.unpackaged || id.replace("Packaged", "");
 		resources[id] = fluid_resources[id] = {
 			...r,
-			sink: r.sink - solid_resources[r.pkg || "FluidCanister"].sink,
+			sink: r.unpkgsink || (r.sink - solid_resources[r.pkg || "FluidCanister"].sink),
 			name: r.unpkgname || r.name.replace("Packaged ", ""),
 		};
 	}
@@ -293,6 +293,10 @@ const recipes = [
 		input: {AluminumPlateReinforced: 2, Rubber: 2, Water: 5, NitrogenGas: 25}},
 	{machine: "blender", time: 6, output: {LiquidFuel: 10}, name: "Diluted Fuel",
 		input: {HeavyOilResidue: 5, Water: 10}},
+	//This is the core recipe for Fused Modular Frames. If, as with most other core recipes, it
+	//doubles the sink value of its inputs, then Nitrogen Gas must be worth 10 points per cubic meter.
+	//Packaged Nitrogen Gas is worth 312 and the tank is worth 225. That leaves 87 points for 4m³ of
+	//the gas. That doesn't really work.
 	{machine: "blender", time: 40, output: {ModularFrameFused: 1},
 		input: {ModularFrameHeavy: 1, AluminumCasing: 50, NitrogenGas: 25}},
 	{machine: "blender", time: 20, output: {ModularFrameFused: 1}, name: "Heat-Fused Frame",
