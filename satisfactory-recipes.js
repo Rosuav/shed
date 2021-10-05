@@ -6,11 +6,8 @@ fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "for
 /* In order to round-trip with Nogg's ContentLib recipe format, still need:
 - Recipe name
 - A way to reorder a refinery's inputs and outputs (separate flags for "fluid first"?)
-- Manual production flag
 - UnlockedBy (a drop-down would be great here)
-- Export/Import dialog, obviously
 - Support for non-integer fluid amounts. In the JSON output, they're scaled e+3, but this code assumes integers.
-- Add game IDs ("AssemblerMk1") to all machine objects
 */
 
 //TODO: Crib these from the files somehow so they don't have to be updated.
