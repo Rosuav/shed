@@ -2,7 +2,7 @@ import choc, {set_content, DOM, on, fix_dialogs} from "https://rosuav.github.io/
 const {BR, CODE, LABEL, LI, TABLE, TR, TD, INPUT, SELECT, OPTION, OPTGROUP, SPAN} = choc;
 fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "formless"});
 //TODO: Check styles, esp colours, on GH Pages
-//TODO: Categorize resources
+//TODO: Categorize resources. Iron/Copper/Steel? Group by tier? Industrial/Electronic?
 //TODO: Verify all resource IDs
 
 /* In order to round-trip with Nogg's ContentLib recipe format, still need:
@@ -512,8 +512,13 @@ on("click", "#recipes th", e => {
 });
 
 function RESOURCE(attrs, type) {
-	//TODO: optgroup these as appropriate
-	return SELECT(attrs, resource_ids[type || "a"].map(r => OPTION({value: r}, resources[r].name)));
+	const groups = {"": []};
+	resource_ids[type || "a"].forEach(r => {
+		const g = resources[r].group || "";
+		if (!groups[g]) groups[g] = [];
+		groups[g].push(OPTION({value: r}, resources[r].name));
+	});
+	return SELECT(attrs, groups[""].concat(Object.entries(groups).map(([grp, opts]) => grp && OPTGROUP({label: grp}, opts))));
 }
 
 function select_machine(id) {
