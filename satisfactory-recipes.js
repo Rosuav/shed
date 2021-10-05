@@ -127,7 +127,21 @@ const resource_ids = {
 	a: Object.keys(resources),
 };
 
-const unlocks = [
+//I apologize to anyone in the future who has to look at this code. :(
+function group_research(map) {
+	const groups = { };
+	Object.entries(map).map(([kwd, desc]) => {
+		let grp = /^[A-Za-z]*/.exec(kwd)[0];
+		if (grp === "") return;
+		//Alien Organisms is broken up internally but a single tree to the player
+		if (grp === "ACarapace" || grp === "AOrgans" || grp === "AOrganisms") grp = "AlienOrganisms";
+		if (!groups[grp]) groups[grp] = [];
+		groups[grp].push(OPTION({value: "Research_" + kwd}, desc));
+	});
+	return Object.entries(groups).map(([kwd, items]) => OPTGROUP({label: kwd.replace(/([^A-Z])([A-Z])/g, "$1 $2")}, items));
+}
+
+set_content("#unlock", [
 	OPTGROUP({label: "Tutorial"}, "1 1_5 2 3 4 5".split(" ").map((id, i) => OPTION({value: "Schematic_Tutorial_" + id}, "HUB Upgrade " + (i + 1)))),
 	...[
 		["Base Building", "Logistics", "Field Research"],
@@ -141,8 +155,12 @@ const unlocks = [
 	].map((milestones, idx) => OPTGROUP({label: "Tier " + (idx+1)},
 		milestones.map((desc, i) => OPTION({value: "Schematic_" + (idx+1) + "_" + (i+1)}, desc))
 	)),
-];
-set_content("#unlock", unlocks);
+	...group_research(
+		//https://satisfactory-calculator.com/en/mam
+		//console.log(JSON.stringify((() => {const opts = {}; document.querySelectorAll('a[href*="/en/mam/detail"]:not([href*=XMas]) strong').forEach(el => opts[/Research_(.*?)_C/.exec(el.closest("a").href)[1]] = el.innerText); return opts;})()))
+		{"ACarapace_0":"Alien Carapace","ACarapace_1":"Structural Analysis","ACarapace_2_1":"Spiked Rebars","ACarapace_2":"Rebar Gun","ACarapace_3":"Expanded Toolbelt","AOrganisms_1":"Object Scanner Improvements","AOrganisms_2":"Hostile Organism Detection","AOrgans_0":"Alien Organs","AOrgans_1":"Organic Properties","AOrgans_2":"Medicinal Inhaler","AOrgans_3":"Inflated Pocket Dimension","Caterium_0":"Caterium","Caterium_1":"Caterium Ingots","Caterium_2_1":"Zipline","Caterium_2":"Quickwire","Caterium_3_1":"Inflated Pocket Dimension","Caterium_3":"Caterium Electronics","Caterium_4_1_1":"Smart Splitter","Caterium_4_1_2":"Power Switch","Caterium_4_1":"AI Limiter","Caterium_4_2":"Power Poles Mk.2","Caterium_4_3":"Blade Runners","Caterium_5":"High-Speed Connector","Caterium_6_1":"Supercomputer","Caterium_6_2":"Power Poles Mk.3","Caterium_6_3":"Inflated Pocket Dimension","Caterium_7_1":"Programmable Splitter","Caterium_7_2":"Geothermal Generator","FlowerPetals_1":"Flower Petals","FlowerPetals_2":"Color Gun","FlowerPetals_3":"Color Cartridges","Mycelia_1":"Mycelia","Mycelia_2":"Fabric","Mycelia_3":"Parachute","Mycelia_4":"Medical Properties","Mycelia_5":"Medicinal Inhaler","Nutrients_0":"Paleberry","Nutrients_1":"Beryl Nut","Nutrients_2":"Bacon Agaric","Nutrients_3":"Nutritional Mixture","Nutrients_4":"Nutritional Inhaler","PowerSlugs_1":"Green Power Slugs","PowerSlugs_2":"Overclock Production","PowerSlugs_3":"Slug Scanning","PowerSlugs_4":"Yellow Power Shards","PowerSlugs_5":"Purple Power Shards","Quartz_0":"Quartz","Quartz_1_1":"Quartz Crystals","Quartz_1_2":"Silica","Quartz_2":"Crystal Oscillator","Quartz_3_1":"The Explorer","Quartz_3_2":"Frequency Mapping","Quartz_3_3":"Radio Control Unit","Quartz_3":"Signal Technologies","Quartz_4_1":"Radio Signal Scanning","Quartz_4":"Radar Technology","Sulfur_0":"Sulfur","Sulfur_1":"Black Powder","Sulfur_2":"Volatile Applications","Sulfur_3_1":"Nobelisk Detonator","Sulfur_3_2_1":"Nobelisk Explosives","Sulfur_4_1":"The Rifle","Sulfur_4_2_1":"Rifle Cartridges","Sulfur_5":"Expanded Toolbelt","Sulfur_6":"Inflated Pocket Dimension"}
+	),
+]);
 
 //Recipe order doesn't matter much as the display is usually sorted by something more relevant.
 const recipes = [
