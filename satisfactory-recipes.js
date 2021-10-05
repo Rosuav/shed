@@ -1,5 +1,5 @@
 import choc, {set_content, DOM, on, fix_dialogs} from "https://rosuav.github.io/shed/chocfactory.js";
-const {BR, CODE, LABEL, LI, TABLE, TR, TD, INPUT, SELECT, OPTION, SPAN} = choc;
+const {BR, CODE, LABEL, LI, TABLE, TR, TD, INPUT, SELECT, OPTION, OPTGROUP, SPAN} = choc;
 fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "formless"});
 //TODO: Check styles, esp colours, on GH Pages
 //TODO: Categorize resources
@@ -8,7 +8,6 @@ fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "for
 /* In order to round-trip with Nogg's ContentLib recipe format, still need:
 - Recipe name
 - A way to reorder a refinery's inputs and outputs (separate flags for "fluid first"?)
-- UnlockedBy (a drop-down would be great here)
 - Support for non-integer fluid amounts. In the JSON output, they're scaled e+3, but this code assumes integers.
 */
 
@@ -127,6 +126,23 @@ const resource_ids = {
 	f: Object.keys(fluid_resources),
 	a: Object.keys(resources),
 };
+
+const unlocks = [
+	OPTGROUP({label: "Tutorial"}, "1 1_5 2 3 4 5".split(" ").map((id, i) => OPTION({value: "Schematic_Tutorial_" + id}, "HUB Upgrade " + (i + 1)))),
+	...[
+		["Base Building", "Logistics", "Field Research"],
+		["Part Assembly", "Obstacle Clearing", "Jump Pads", "Resource Sink Bonus Program", "Logistics Mk.2"],
+		["Coal Power", "Vehicular Transport", "Basic Steel Production"],
+		["Advanced Steel Production", "Improved Melee Combat", "Hyper Tubes", "Logistics Mk.3"],
+		["Oil Processing", "Industrial Manufacturing", "Alternative Fluid Transport", "Gas Mask"],
+		["Expanded Power Infrastructure", "Jetpack", "Monorail Train Technology", "Pipeline Engineering Mk.2"],
+		["Bauxite Refinement", "Logistics Mk.5", "Aeronautical Engineering", "Hazmat Suit", "Hover Pack"],
+		["Nuclear Power", "Advanced Aluminum Production", "Leading-edge Production", "Particle Enrichment"],
+	].map((milestones, idx) => OPTGROUP({label: "Tier " + (idx+1)},
+		milestones.map((desc, i) => OPTION({value: "Schematic_" + (idx+1) + "_" + (i+1)}, desc))
+	)),
+];
+set_content("#unlock", unlocks);
 
 //Recipe order doesn't matter much as the display is usually sorted by something more relevant.
 const recipes = [
@@ -528,13 +544,13 @@ function collect_items(kwd) {
 
 on("click", "#export", e => {
 	const recipe = {"$schema": "https://raw.githubusercontent.com/Nogg-aholic/ContentLib_Recipes/master/FContentLib_Recipe.json"};
-	recipe.Name = "(unimplemented)";
+	recipe.Name = DOM("#recipename").value;
 	recipe.Ingredients = collect_items("input");
 	recipe.Products = collect_items("output");
 	recipe.ManufacturingDuration = DOM("#time").value|0;
 	recipe.ProducedIn = ["Build_" + (machine.id || machine.name)]; //Remove "or name" once they all have their IDs
 	if (DOM("input[name=manual]").checked) recipe.ProducedIn.push("manual");
-	recipe.UnlockedBy = ["Schematic_1-1"]; //TODO: Have a drop-down for this
+	recipe.UnlockedBy = [DOM("#unlock").value];
 	DOM("#importexport textarea").value = JSON.stringify(recipe, null, 4);
 	DOM("#importexport").showModal();
 });
@@ -552,7 +568,7 @@ on("submit", "#importexport form", e => {
 	let recipe = null;
 	try {recipe = JSON.parse(DOM("#importexport textarea").value);} catch (e) { }
 	if (!recipe) return; //TODO: Report error
-	//recipe.Name
+	DOM("#recipename").value = recipe.Name || "";
 	(recipe.ProducedIn || []).forEach(mach => {
 		const machine = Object.keys(machines).find(m => "Build_" + machines[m].id === mach);
 		if (machine) {DOM("input[name=machine][value=" + machine + "]").checked = true; select_machine(machine);}
@@ -560,5 +576,6 @@ on("submit", "#importexport form", e => {
 	deploy_items("input", recipe.Ingredients || []);
 	deploy_items("output", recipe.Products || []);
 	DOM("#time").value = recipe.ManufacturingDuration || 0;
+	if (recipe.UnlockedBy) DOM("#unlock").value = recipe.UnlockedBy[0];
 	update_totals();
 });
