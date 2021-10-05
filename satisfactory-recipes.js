@@ -16,12 +16,13 @@ fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "for
 //TODO: Crib these from the files somehow so they don't have to be updated.
 const machines = {
 	constructor: {name: "Constructor", input: "s", output: "s", cost: 4, id: "ConstructorMk1"},
-	smelter: {name: "Smelter", input: "s", output: "s", cost: 4, id: "SmelterMk1"}, //Possibly SmelterBasicMk1
+	smelter: {name: "Smelter", input: "s", output: "s", cost: 4, id: "SmelterMk1"},
 	assembler: {name: "Assembler", input: "ss", output: "s", cost: 15, id: "AssemblerMk1"},
-	foundry: {name: "Foundry", input: "ss", output: "s", cost: 16}, //Or maybe this is SmelterMk1??
+	foundry: {name: "Foundry", input: "ss", output: "s", cost: 16, id: "FoundryMk1"},
 	refinery: {name: "Refinery", input: "sf", output: "sf", cost: 30, id: "OilRefinery"},
 	manufacturer: {name: "Manufacturer", input: "ssss", output: "s", cost: 30, id: "ManufacturerMk1"},
 	blender: {name: "Blender", input: "ssff", output: "sf", cost: 75, id: "Blender"},
+	//Particle Accelerator id: "HadronCollider"?
 };
 const par = DOM("input[name=manual]").closest("ul");
 Object.keys(machines).forEach(m => par.appendChild(LI(LABEL([INPUT({type: "radio", name: "machine", value: m}), machines[m].name]))));
