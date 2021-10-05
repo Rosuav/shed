@@ -1,5 +1,6 @@
-import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
+import choc, {set_content, DOM, on, fix_dialogs} from "https://rosuav.github.io/shed/chocfactory.js";
 const {BR, CODE, LABEL, LI, TABLE, TR, TD, INPUT, SELECT, OPTION, SPAN} = choc;
+fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "formless"});
 //TODO: Check styles, esp colours, on GH Pages
 
 /* In order to round-trip with Nogg's ContentLib recipe format, still need:
@@ -513,4 +514,8 @@ on("input", 'input[type="number"]', e => {
 		for (let i = 0; i < machine[kwd].length; ++i)
 			set_content("#" + kwd + "timedesc" + i, permin(DOM("#" + kwd + "qty" + i).value|0, time));
 	});
+});
+
+on("click", "#export", e => {
+	DOM("#importexport").showModal();
 });

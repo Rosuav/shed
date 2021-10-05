@@ -3,6 +3,7 @@ Satisfactory Recipe Analysis
 
 Good for designing new custom recipes and trying to balance them. Also for analyzing alternate recipes.
 
+<button type=button id=export>Import/Export</button>
 
 * <label><input type=checkbox name=manual>Craft Bench</label>
 {: .optionset}
@@ -32,4 +33,14 @@ ul.optionset li {list-style-image: none;}
 tr.yourrecipe {background: #cfe !important;}
 #recipes th {cursor: pointer;}
 .container {max-width: unset;} /* Disable the narrowing of the window by my GH Pages theme */
+#importexport textarea {width: 100%;}
 </style>
+
+<dialog id=importexport>
+<form method=dialog>
+Save this as a .json file in FactoryGame/Configs/Recipes to make this recipe available. Or, paste in
+a JSON file with a Nogg ContentLib recipe to load it.
+<p><textarea name=json rows=20></textarea></p>
+<input type=submit value="Import"> <input type=reset value="Cancel" class=dialog_close>
+</form>
+</dialog>
