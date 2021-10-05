@@ -151,7 +151,7 @@ set_content("#unlock", [
 		["Bauxite Refinement", "Logistics Mk.5", "Aeronautical Engineering", "Hazmat Suit", "Hover Pack"],
 		["Nuclear Power", "Advanced Aluminum Production", "Leading-edge Production", "Particle Enrichment"],
 	].map((milestones, idx) => OPTGROUP({label: "Tier " + (idx+1)},
-		milestones.map((desc, i) => OPTION({value: "Schematic_" + (idx+1) + "_" + (i+1)}, desc))
+		milestones.map((desc, i) => OPTION({value: "Schematic_" + (idx+1) + "-" + (i+1)}, desc))
 	)),
 	...group_research(
 		//https://satisfactory-calculator.com/en/mam
