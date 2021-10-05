@@ -8,6 +8,8 @@ const {BR, CODE, LABEL, LI, TABLE, TR, TD, INPUT, SELECT, OPTION, SPAN} = choc;
 - Manual production flag
 - UnlockedBy (a drop-down would be great here)
 - Export/Import dialog, obviously
+- Support for non-integer fluid amounts. In the JSON output, they're scaled e+3, but this code assumes integers.
+- Replace internal machine IDs ("assembler") with the game's IDs ("AssemblerMk1")
 */
 
 //TODO: Crib these from the files somehow so they don't have to be updated.
@@ -18,6 +20,7 @@ const machines = {
 	foundry: {name: "Foundry", input: "ss", output: "s", cost: 16},
 	refinery: {name: "Refinery", input: "sf", output: "sf", cost: 30},
 	manufacturer: {name: "Manufacturer", input: "ssss", output: "s", cost: 30},
+	blender: {name: "Blender", input: "ssff", output: "sf", cost: 75},
 };
 const par = DOM("input[name=manual]").closest("ul");
 Object.keys(machines).forEach(m => par.appendChild(LI(LABEL([INPUT({type: "radio", name: "machine", value: m}), machines[m].name]))));
@@ -280,6 +283,9 @@ const recipes = [
 		input: {CoolingSystem: 4, ModularFrameLightweight: 2, Motor: 4, Rubber: 24}},
 	{machine: "manufacturer", time: 32, output: {MotorLightweight: 2}, name: "Turbo Pressure Motor",
 		input: {Motor: 4, PressureConversionCube: 1, PackagedNitrogenGas: 24, Stator: 8}},
+
+	{machine: "blender", time:  3, output: {Battery: 3, Water: 1.5},
+		input: {SulfuricAcid: 2.5, AluminaSolution: 2, AluminumCasing: 1}},
 ];
 
 let machine = null, sort_order = "Recipe";
