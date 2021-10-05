@@ -577,11 +577,17 @@ on("click", "#export", e => {
 });
 
 function deploy_items(kwd, items) {
-	for (let i = 0; i < machine[kwd].length && i < items.length; ++i) {
-		//TODO: Cope with the order of them, solid/fluid. Maintain order but switch the DOM elements as needed.
-		//TODO: Scale fluids by 1000
-		DOM("#" + kwd + i).value = items[i].Item.replace("Desc_", "").replace("_C", "");
-		DOM("#" + kwd + "qty" + i).value = items[i].Amount;
+	const available = machine[kwd].split("");
+	for (let item of items) {
+		//NOTE: This will not fully maintain order. At best (and not currently implemented),
+		//it will prioritize fluid output over solid if that's the order given.
+		const resid = item.Item.replace("Desc_", "").replace("_C", "");
+		const type = fluid_resources[resid] ? "f" : "s"; //If borked, assume solid... I guess
+		const idx = available.indexOf(type);
+		if (idx === -1) continue; //Ignore if there are too many of that type
+		available[idx] = "x";
+		DOM("#" + kwd + idx).value = resid;
+		DOM("#" + kwd + "qty" + idx).value = item.Amount / (type === "f" ? 1000 : 1);
 	}
 }
 
