@@ -12,42 +12,12 @@ const {BR, CODE, LABEL, LI, TABLE, TR, TD, INPUT, SELECT, OPTION, SPAN} = choc;
 
 //TODO: Crib these from the files somehow so they don't have to be updated.
 const machines = {
-	constructor: {
-		name: "Constructor",
-		input: "s",
-		output: "s",
-		cost: 4, //MW, or MJ/second
-	},
-	smelter: {
-		name: "Smelter",
-		input: "s",
-		output: "s",
-		cost: 4,
-	},
-	assembler: {
-		name: "Assembler",
-		input: "ss",
-		output: "s",
-		cost: 15,
-	},
-	foundry: {
-		name: "Foundry",
-		input: "ss",
-		output: "s",
-		cost: 16,
-	},
-	refinery: {
-		name: "Refinery",
-		input: "sf",
-		output: "sf",
-		cost: 30,
-	},
-	manufacturer: {
-		name: "Manufacturer",
-		input: "ssss",
-		output: "s",
-		cost: 30,
-	},
+	constructor: {name: "Constructor", input: "s", output: "s", cost: 4},
+	smelter: {name: "Smelter", input: "s", output: "s", cost: 4},
+	assembler: {name: "Assembler", input: "ss", output: "s", cost: 15},
+	foundry: {name: "Foundry", input: "ss", output: "s", cost: 16},
+	refinery: {name: "Refinery", input: "sf", output: "sf", cost: 30},
+	manufacturer: {name: "Manufacturer", input: "ssss", output: "s", cost: 30},
 };
 const par = DOM("input[name=manual]").closest("ul");
 Object.keys(machines).forEach(m => par.appendChild(LI(LABEL([INPUT({type: "radio", name: "machine", value: m}), machines[m].name]))));
