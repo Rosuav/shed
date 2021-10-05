@@ -40,7 +40,7 @@ tr.yourrecipe {background: #cfe !important;}
 <form method=dialog>
 Save this as a .json file in FactoryGame/Configs/Recipes to make this recipe available. Or, paste in
 a JSON file with a Nogg ContentLib recipe to load it.
-<p><textarea name=json rows=20></textarea></p>
+<p><textarea name=json rows=30></textarea></p>
 <input type=submit value="Import"> <input type=reset value="Cancel" class=dialog_close>
 </form>
 </dialog>
