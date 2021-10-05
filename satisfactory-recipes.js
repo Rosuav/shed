@@ -6,9 +6,7 @@ fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "for
 //TODO: Verify all resource IDs
 
 /* In order to round-trip with Nogg's ContentLib recipe format, still need:
-- Recipe name
 - A way to reorder a refinery's inputs and outputs (separate flags for "fluid first"?)
-- Support for non-integer fluid amounts. In the JSON output, they're scaled e+3, but this code assumes integers.
 */
 
 //TODO: Crib these from the files somehow so they don't have to be updated.
@@ -484,7 +482,7 @@ function update_totals() {
 			const resid = DOM("#" + kwd + i).value;
 			const res = resources[resid];
 			if (!res) {console.warn("Borked " + kwd, DOM("#" + kwd + i).value); continue;}
-			const qty = DOM("#" + kwd + "qty" + i).value|0;
+			const qty = +DOM("#" + kwd + "qty" + i).value;
 			sink += (res.sink||0) * qty;
 			energy += (res.energy||0) * qty;
 			if (res.sink && qty) items.push([qty, res, resid]);
@@ -546,7 +544,7 @@ on("input", 'input[type="number"]', e => {
 	set_content("#timedesc", permin(1, time));
 	["input", "output"].forEach(kwd => {
 		for (let i = 0; i < machine[kwd].length; ++i)
-			set_content("#" + kwd + "timedesc" + i, permin(DOM("#" + kwd + "qty" + i).value|0, time));
+			set_content("#" + kwd + "timedesc" + i, permin(+DOM("#" + kwd + "qty" + i).value, time));
 	});
 });
 
@@ -554,7 +552,7 @@ function collect_items(kwd) {
 	const items = [];
 	for (let i = 0; i < machine[kwd].length; ++i) {
 		const resid = DOM("#" + kwd + i).value;
-		const qty = (DOM("#" + kwd + "qty" + i).value|0) * (machine[kwd][i] === 'f' ? 1000 : 1);
+		const qty = (+DOM("#" + kwd + "qty" + i).value) * (machine[kwd][i] === 'f' ? 1000 : 1);
 		if (resid !== "None" && qty) items.push({Item: "Desc_" + resid + "_C", Amount: qty});
 	}
 	return items;
