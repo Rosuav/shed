@@ -516,6 +516,25 @@ on("input", 'input[type="number"]', e => {
 	});
 });
 
+function collect_items(kwd) {
+	const items = [];
+	for (let i = 0; i < machine[kwd].length; ++i) {
+		const resid = DOM("#" + kwd + i).value;
+		const qty = DOM("#" + kwd + "qty" + i).value|0;
+		if (resid !== "None" && qty) items.push({Item: "Desc_" + resid + "_C", Amount: qty});
+	}
+	return items;
+}
+
 on("click", "#export", e => {
+	const recipe = {"$schema": "https://raw.githubusercontent.com/Nogg-aholic/ContentLib_Recipes/master/FContentLib_Recipe.json"};
+	recipe.name = "(unimplemented)";
+	recipe.Ingredients = collect_items("input");
+	recipe.Products = collect_items("output");
+	recipe.ManufacturingDuration = DOM("#time").value|0;
+	recipe.ProducedIn = ["Build_" + (machine.id || machine.name)]; //Remove "or name" once they all have their IDs
+	if (DOM("input[name=manual]").checked) recipe.ProducedIn.push("manual");
+	recipe.UnlockedBy = ["Schematic_1-1"]; //TODO: Have a drop-down for this
+	DOM("#importexport textarea").value = JSON.stringify(recipe, null, 4);
 	DOM("#importexport").showModal();
 });
