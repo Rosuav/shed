@@ -520,7 +520,7 @@ function collect_items(kwd) {
 	const items = [];
 	for (let i = 0; i < machine[kwd].length; ++i) {
 		const resid = DOM("#" + kwd + i).value;
-		const qty = DOM("#" + kwd + "qty" + i).value|0;
+		const qty = (DOM("#" + kwd + "qty" + i).value|0) * (machine[kwd][i] === 'f' ? 1000 : 1);
 		if (resid !== "None" && qty) items.push({Item: "Desc_" + resid + "_C", Amount: qty});
 	}
 	return items;
@@ -542,6 +542,7 @@ on("click", "#export", e => {
 function deploy_items(kwd, items) {
 	for (let i = 0; i < machine[kwd].length && i < items.length; ++i) {
 		//TODO: Cope with the order of them, solid/fluid. Maintain order but switch the DOM elements as needed.
+		//TODO: Scale fluids by 1000
 		DOM("#" + kwd + i).value = items[i].Item.replace("Desc_", "").replace("_C", "");
 		DOM("#" + kwd + "qty" + i).value = items[i].Amount;
 	}
