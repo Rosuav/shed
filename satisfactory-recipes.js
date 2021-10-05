@@ -2,6 +2,14 @@ import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfact
 const {BR, CODE, TABLE, TR, TD, INPUT, SELECT, OPTION, SPAN} = choc;
 //TODO: Check styles, esp colours, on GH Pages
 
+/* In order to round-trip with Nogg's ContentLib recipe format, still need:
+- Recipe name
+- A way to reorder a refinery's inputs and outputs (separate flags for "fluid first"?)
+- Manual production flag
+- UnlockedBy (a drop-down would be great here)
+- Export/Import dialog, obviously
+*/
+
 //TODO: Crib these from the files somehow so they don't have to be updated.
 const machines = {
 	constructor: {
