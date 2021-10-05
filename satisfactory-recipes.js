@@ -10,14 +10,14 @@ fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "for
 - UnlockedBy (a drop-down would be great here)
 - Export/Import dialog, obviously
 - Support for non-integer fluid amounts. In the JSON output, they're scaled e+3, but this code assumes integers.
-- Replace internal machine IDs ("assembler") with the game's IDs ("AssemblerMk1")
+- Add game IDs ("AssemblerMk1") to all machine objects
 */
 
 //TODO: Crib these from the files somehow so they don't have to be updated.
 const machines = {
 	constructor: {name: "Constructor", input: "s", output: "s", cost: 4},
 	smelter: {name: "Smelter", input: "s", output: "s", cost: 4},
-	assembler: {name: "Assembler", input: "ss", output: "s", cost: 15},
+	assembler: {name: "Assembler", input: "ss", output: "s", cost: 15, id: "AssemblerMk1"},
 	foundry: {name: "Foundry", input: "ss", output: "s", cost: 16},
 	refinery: {name: "Refinery", input: "sf", output: "sf", cost: 30},
 	manufacturer: {name: "Manufacturer", input: "ssss", output: "s", cost: 30},
@@ -528,7 +528,7 @@ function collect_items(kwd) {
 
 on("click", "#export", e => {
 	const recipe = {"$schema": "https://raw.githubusercontent.com/Nogg-aholic/ContentLib_Recipes/master/FContentLib_Recipe.json"};
-	recipe.name = "(unimplemented)";
+	recipe.Name = "(unimplemented)";
 	recipe.Ingredients = collect_items("input");
 	recipe.Products = collect_items("output");
 	recipe.ManufacturingDuration = DOM("#time").value|0;
@@ -537,4 +537,27 @@ on("click", "#export", e => {
 	recipe.UnlockedBy = ["Schematic_1-1"]; //TODO: Have a drop-down for this
 	DOM("#importexport textarea").value = JSON.stringify(recipe, null, 4);
 	DOM("#importexport").showModal();
+});
+
+function deploy_items(kwd, items) {
+	for (let i = 0; i < machine[kwd].length && i < items.length; ++i) {
+		//TODO: Cope with the order of them, solid/fluid. Maintain order but switch the DOM elements as needed.
+		DOM("#" + kwd + i).value = items[i].Item.replace("Desc_", "").replace("_C", "");
+		DOM("#" + kwd + "qty" + i).value = items[i].Amount;
+	}
+}
+
+on("submit", "#importexport form", e => {
+	let recipe = null;
+	try {recipe = JSON.parse(DOM("#importexport textarea").value);} catch (e) { }
+	if (!recipe) return; //TODO: Report error
+	//recipe.Name
+	(recipe.ProducedIn || []).forEach(mach => {
+		const machine = Object.keys(machines).find(m => "Build_" + machines[m].id === mach);
+		if (machine) {DOM("input[name=machine][value=" + machine + "]").checked = true; select_machine(machine);}
+	});
+	deploy_items("input", recipe.Ingredients || []);
+	deploy_items("output", recipe.Products || []);
+	DOM("#time").value = recipe.ManufacturingDuration || 0;
+	update_totals();
 });
