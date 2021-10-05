@@ -2,6 +2,8 @@ import choc, {set_content, DOM, on, fix_dialogs} from "https://rosuav.github.io/
 const {BR, CODE, LABEL, LI, TABLE, TR, TD, INPUT, SELECT, OPTION, SPAN} = choc;
 fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "formless"});
 //TODO: Check styles, esp colours, on GH Pages
+//TODO: Categorize resources
+//TODO: Verify all resource IDs
 
 /* In order to round-trip with Nogg's ContentLib recipe format, still need:
 - Recipe name
