@@ -1,5 +1,5 @@
 import choc, {set_content, DOM, on, fix_dialogs} from "https://rosuav.github.io/shed/chocfactory.js";
-const {BR, CODE, LABEL, LI, TABLE, TR, TD, INPUT, SELECT, OPTION, OPTGROUP, SPAN} = choc;
+const {A, BR, CODE, LABEL, LI, TABLE, TR, TD, INPUT, SELECT, OPTION, OPTGROUP, SPAN} = choc;
 fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "formless"});
 //TODO: Check styles, esp colours, on GH Pages
 //TODO: Categorize resources. Iron/Copper/Steel? Group by tier? Industrial/Electronic?
@@ -605,4 +605,16 @@ on("submit", "#importexport form", e => {
 	DOM("#time").value = recipe.ManufacturingDuration || 0;
 	if (recipe.UnlockedBy) DOM("#unlock").value = recipe.UnlockedBy[0];
 	update_totals();
+});
+
+on("click", "#savejson", e => {
+	const data = DOM("#importexport textarea").value;
+	const blob = new Blob([data], {type: "application/json"});
+	const url = URL.createObjectURL(blob);
+	let fn = "";
+	try {fn = JSON.parse(data).Name || "";} catch (e) { }
+	fn = fn.replace(/[^A-Za-z]/g, "");
+	if (fn === "") fn = "Example";
+	A({href: url, download: "Recipe_" + fn + ".json"}).click();
+	setTimeout(() => URL.revokeObjectURL(url), 60000); //Dispose of the blob after a minute - it should have finished by then
 });
