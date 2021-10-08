@@ -270,7 +270,7 @@ const recipes = [
 	{machine: "refinery", time: 6, input: {CrudeOil: 3}, output: {Rubber: 2, HeavyOilResidue: 2}},
 	{machine: "refinery", time: 3, input: {OreBauxite: 10, Water: 10}, output: {AluminaSolution: 12}, name: "Sloppy Alumina"},
 	{machine: "refinery", time: 8, input: {CopperIngot: 3, Water: 3}, output: {CopperSheet: 3}, name: "Steamed Copper Sheet"},
-	{machine: "refinery", time: 6, input: {Sulfur: 5, Water: 5}, output: {SulfuricAcid: 3}},
+	{machine: "refinery", time: 6, input: {Sulfur: 5, Water: 5}, output: {SulfuricAcid: 5}},
 	{machine: "refinery", time: 8, input: {HeavyOilResidue: 5, CompactedCoal: 4}, output: {TurboFuel: 4}, name: "Turbo Heavy Fuel"},
 	{machine: "refinery", time:16, input: {Fuel: 6, CompactedCoal: 4}, output: {TurboFuel: 5}},
 	{machine: "refinery", time: 3, input: {Stone: 6, Water: 5}, output: {Cement: 4}, name: "Wet Concrete"},
