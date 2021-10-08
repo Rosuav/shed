@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+import subprocess
+import sys
+p = subprocess.run(["ss", "-plun"], capture_output=True, encoding="utf-8")
+if p.returncode:
+	print(p.stdout)
+	print(p.stderr, file=sys.stderr)
+	sys.exit(p.returncode)
+for line in p.stdout.split("\n"):
+	line = line.split()
+	if not line: continue # Blank line
+	state, _, _, local, peer, *extra = line
+	if state == "State": continue # Headers
+	if not extra: continue # If there's no process info, we can't use this
+	ip, port = local.rsplit(":", 1)
+	if int(port) not in range(27000, 28000): continue # Focus on the processes holding ports in the 27* range
+	for info in extra:
+		# Not sure how to properly parse these, so this is hacky.
+		if info.startswith("users:"):
+			print(port, info)
+			# TODO: Get the process name and PID, then look up that PID to find out its working directory
+			# If the working directory is ~/tf2server/steamcmd_linux/tf2 and the process is srcds_linux,
+			# it's the TF2 server. If it's ~/tf2server/steamcmd_linux/csgo and ditto, it's the CSGO server.
+			# Otherwise, see if it's one of the clients, or Steam itself. Also, how does EU4 show up?
