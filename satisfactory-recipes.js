@@ -9,6 +9,67 @@ fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "for
 - A way to reorder a refinery's inputs and outputs (separate flags for "fluid first"?)
 */
 
+/* On sink values and fluids
+
+Almost all of the core recipes give products with precisely double the sink value of their
+inputs. This appears to be how sink values are calculated in the first place. For example,
+iron ore has a sink value of 1, and can be smelted into iron ingots with a sink value of 2,
+and a single ingot can be turned into one iron rod with a sink value of 4, or three of them
+can be turned into a pair of plates for six each (3 ingots * 2 each ==> 2 plates * 6 each).
+
+Recipes obtained via hard drives can therefore be evaluated for resource efficiency on this
+basis. Iron Wire is incredibly resource efficient, but Caterium Wire is not; this balances
+the fact that Iron Wire is slower than the default copper recipe, but Caterium Wire is
+significantly faster. So far, so good.
+
+Fluids do not directly have sink values. You cannot pour crude oil down the sink, which is
+probably a good thing :) But it complicates recipe analysis.
+
+Core recipes that involve only a single fluid:
+* Fused Modular Frame
+* Petroleum Coke
+* Residual Plastic/Rubber if you don't treat them as alternates
+
+Based on the Petroleum Coke recipe, it seems logical for Heavy Oil Residue to have a sink
+value of 30. This would then imply that packaging it takes two Residue (30+30), two Empty
+Canisters (60+60), and produces two Packaged Residue (180+180), for a perfect 2:1 ratio,
+despite packaging being reversible. That seems plausible.
+
+If that's the case, then the formula for fluid sink values would be half the packaged minus
+sixty (ignoring GasTank recipes for now). That would mean:
+
+Fluid     | Pkg | Liquid
+----------|-----|---------
+Water     | 130 | 5
+Sulfuric  | 152 | 16
+Alumina   | 160 | 20
+Crude     | 160 | 20
+Residue   | 180 | 30
+Fuel      | 270 | 75
+Biofuel   | 370 | 125
+Turbofuel | 570 | 225
+
+Reasonably plausible values. Unfortunately they still don't all work.
+
+The basic Plastic and Rubber recipes give a 3:1 improvement, which seems plausible, given
+that they pay a complexity price (you can't value the Residue as a resource when it's mainly
+there to be a hassle); Residual Plastic is exactly 2:1, and Residual Rubber slightly better.
+But more surprising is that Diluted Packaged Fuel now shows a mere 86% improvement, whereas
+its Blender counterpart, Diluted Fuel, has a 3.75:1 improvement, despite being functionally
+equivalent. That's a problem... or is it? Maybe it's just hard to compare packaged/unpackaged.
+
+Perhaps water is the problem here: it is valued lower than other fluids are, and needs to be
+rated artificially at, say. 1.5. But that still wouldn't make Sulfuric Acid work; five Sulfur
+(11) plus five Water makes five Sulfuric Acid, and it's hard to make numbers that make sense
+here. Sulfuric itself is never used in recipes with entirely-solid outputs, always yielding
+some water, or in one case, some residual acid: ten Uranium (35) plus three Concrete (12)
+pluis eight Sulfuric yields five Encased Cells (147) plus two Sulfuric. Whichever way you
+look at it, that one doesn't come out to 2:1. Excluding the acid, it's 386 input to make
+735 output; and that would imply that the acid has to have a *negative* value. Meanwhile, the
+alternate "Infused Uranium Cell" recipe is 5*35+3*20+5*11+15*17 to yield 4*147, or 545 => 588.
+So that's no help either.
+*/
+
 //TODO: Crib these from the files somehow so they don't have to be updated.
 const machines = {
 	constructor: {name: "Constructor", input: "s", output: "s", cost: 4, id: "ConstructorMk1"},
@@ -65,18 +126,18 @@ const solid_resources = {
 	SteelPlate: {sink: 64, name: "Steel Beam"},
 	Plastic: {sink: 75, name: "Plastic"},
 	IronPlateReinforced: {sink: 120, name: "Reinforced Iron Plate"},
-	PackagedWater: {sink: 130, name: "Packaged Water", unpkgsink: 1.5},
+	PackagedWater: {sink: 130, name: "Packaged Water"},
 	AluminumIngot: {sink: 131, name: "Aluminum Ingot"},
 	Rotor: {sink: 140, name: "Rotor"},
 	PackagedSulfuricAcid: {sink: 152, name: "Packaged Sulfuric Acid"},
 	PackagedAlumina: {sink: 160, name: "Packaged Alumina Solution", unpackaged: "AluminaSolution"},
 	PackagedOil: {sink: 160, energy: 320, name: "Packaged Oil", unpackaged: "CrudeOil", unpkgname: "Crude Oil"},
-	PackagedOilResidue: {sink: 180, energy: 400, name: "Packaged Heavy Oil Residue", unpackaged: "HeavyOilResidue", unpkgsink: 30},
+	PackagedOilResidue: {sink: 180, energy: 400, name: "Packaged Heavy Oil Residue", unpackaged: "HeavyOilResidue"},
 	GasTank: {sink: 225, name: "Empty Fluid Tank"},
 	Stator: {sink: 240, name: "Stator"},
 	AluminumPlate: {sink: 266, name: "Alclad Aluminum Sheet"},
 	Fuel: {sink: 270, energy: 750, name: "Packaged Fuel", unpackaged: "LiquidFuel"},
-	PackagedNitrogenGas: {sink: 312, name: "Packaged Nitrogen Gas", pkg: "GasTank", unpkgsink: 10},
+	PackagedNitrogenGas: {sink: 312, name: "Packaged Nitrogen Gas", pkg: "GasTank"},
 	EquipmentDescriptorBeacon: {sink: 320, name: "Beacon"},
 	PackagedBiofuel: {sink: 370, energy: 750, name: "Packaged Liquid Biofuel", unpackaged: "LiquidBiofuel"},
 	AluminumCasing: {sink: 393, name: "Aluminum Casing"},
