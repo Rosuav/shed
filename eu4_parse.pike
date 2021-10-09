@@ -247,8 +247,9 @@ void analyze_leviathans(mapping data, string name, string tag, function write) {
 	write("\nFavor cooldowns:\n");
 	object today = calendar(data->date);
 	array cooldowns = ({ });
+	mapping cd = country->cooldowns || ([]);
 	foreach ("gold men sailors" / " ", string tradefor) {
-		string date = country->cooldowns["trade_favors_for_" + tradefor];
+		string date = cd["trade_favors_for_" + tradefor];
 		if (!date) {cooldowns += ({({"", "---", "--------", String.capitalize(tradefor)})}); continue;}
 		int days = today->distance(calendar(date)) / today;
 		cooldowns += ({({"", days, date, String.capitalize(tradefor)})});
