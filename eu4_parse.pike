@@ -170,13 +170,19 @@ int threeplace(string value) {
 	return whole * 1000 + (int)sprintf("%.03s", frac);
 }
 
+int interest_priority = 0;
+array(string) interesting_province = ({ });
+void interesting(string id, int|void prio) {
+	if (prio < interest_priority) return; //We've already had higher priority markers
+	if (prio > interest_priority) {interest_priority = prio; interesting_province = ({ });} //Replace with new highest prio
+	if (!has_value(interesting_province, id)) interesting_province += ({id}); //Retain order but avoid duplicates
+}
+
 mapping prov_area = ([]);
 mapping province_info;
 mapping building_types; array building_id;
 mapping building_slots = ([]);
-array(string) interesting_province = ({ });
 multiset(string) area_has_level3 = (<>);
-void interesting(string id) {if (!has_value(interesting_province, id)) interesting_province += ({id});} //Retain order but avoid duplicates
 void analyze_cot(mapping data, string name, string tag, function write) {
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
@@ -373,7 +379,7 @@ void analyze_findbuildings(mapping data, string name, string tag, function write
 mapping(string:array) interesting_provinces = ([]);
 void analyze(mapping data, string name, string tag, function|void write, string|void highlight) {
 	if (!write) write = Stdio.stdin->write;
-	interesting_province = ({ }); area_has_level3 = (<>);
+	interesting_province = ({ }); interest_priority = 0; area_has_level3 = (<>);
 	write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
 	({analyze_cot, analyze_leviathans, analyze_furnace, analyze_upgrades})(data, name, tag, write);
 	if (highlight) analyze_findbuildings(data, name, tag, write, highlight);
