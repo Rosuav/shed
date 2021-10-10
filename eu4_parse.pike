@@ -241,8 +241,10 @@ void analyze_leviathans(mapping data, string name, string tag, function write) {
 			projects += ({({
 				(int)id - (int)proj->development_tier * 10000,
 				({"", id, "Lvl " + proj->development_tier, prov->name, L10n[project],
-					//It's possible that con->type is "1" for upgrades and "2" for moving it to your capital
-					con->great_projects == project ? sprintf("%d%%, due %s", threeplace(con->progress) / 10, con->date) : "",
+					con->great_projects != project ? "" : //If you're upgrading a different great project in this province, leave this one blank (you can't upgrade two at once)
+					sprintf("%s%d%%, due %s",
+						con->type == "2" ? "Moving: " : "", //Upgrades are con->type "1", moving to capital is type "2"
+						threeplace(con->progress) / 10, con->date),
 				}),
 			})});
 			//write("Project: %O\n", proj);
