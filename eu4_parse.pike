@@ -1,8 +1,8 @@
 //Read a text (non-ironman) EU4 savefile and scan for matters of interest. Provides info to networked clients.
 //TODO: Show a coalition as if it's a war?
-//TODO: Highlighting priority. If there are too many highlight provinces, show only those at the highest
-//priority group: explicit ones from the building highlight command, then things that are likely to be of
-//immediate value (eg upgradeable CoTs), and then things of more situational value (eg developable CoTs).
+//TODO: Raise highlighting priority of building upgrade options by a console command - or hide upgrades
+//by default, show them only when explicitly requested (like the building highlighter), and then always
+//have it at PRIO_EXPLICIT
 //TODO: Allow input on the primary console, stateless infodumps only
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
