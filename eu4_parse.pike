@@ -172,6 +172,7 @@ int threeplace(string value) {
 
 int interest_priority = 0;
 array(string) interesting_province = ({ });
+enum {PRIO_UNSET, PRIO_SITUATIONAL, PRIO_IMMEDIATE, PRIO_EXPLICIT};
 void interesting(string id, int|void prio) {
 	if (prio < interest_priority) return; //We've already had higher priority markers
 	if (prio > interest_priority) {interest_priority = prio; interesting_province = ({ });} //Replace with new highest prio
@@ -206,7 +207,7 @@ void analyze_cot(mapping data, string name, string tag, function write) {
 	if (sizeof(maxlvl)) write("Max level CoTs (%d/%d):\n%{%s\n%}\n", sizeof(maxlvl), level3, maxlvl[*][-1]);
 	else write("Max level CoTs: 0/%d\n", level3);
 	level3 -= sizeof(maxlvl);
-	string colorize(string color, array info) {
+	string colorize(string color, array info, int prio) {
 		//Colorize if it's interesting. It can't be upgraded if not in a state; also, not all level 2s
 		//can become level 3s, for various reasons.
 		array have_states = data->map_area_data[prov_area[info[2]]]->?state->?country_state->?country;
@@ -215,11 +216,11 @@ void analyze_cot(mapping data, string name, string tag, function write) {
 			if (area_has_level3[prov_area[info[2]]]) return info[-1] + " [other l3 in area]";
 			if (level3-- <= 0) return info[-1] + " [need merchants]";
 		}
-		interesting(info[2]);
+		interesting(info[2], prio);
 		return color + info[-1];
 	}
-	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;32m", upgradeable[*]));
-	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*]));
+	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;32m", upgradeable[*], PRIO_IMMEDIATE));
+	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*], PRIO_SITUATIONAL));
 }
 
 object calendar(string date) {
@@ -307,7 +308,7 @@ void analyze_furnace(mapping data, string name, string tag, function write) {
 					upg = was;
 				}
 			}
-			interesting(id);
+			interesting(id, PRIO_IMMEDIATE); //TODO: Should it always be highlighted at the same prio? Should it always even be highlighted?
 			write("\e[1;%dm%s\t%d/%d bldg\tDev %d\t%s%s\e[0m\n", buildings < slots ? 32 : 36, id, buildings, slots, dev,
 				string_to_utf8(prov->name), prov->settlement_growth_construction ? " - SETTLER ACTIVE" : ""); //Can't build while there's a settler promoting growth);
 		}
@@ -335,7 +336,7 @@ void analyze_upgrades(mapping data, string name, string tag, function write) {
 				target = bldg->obsoleted_by;
 				bldg = upgrade;
 			}
-			if (target && target != constructing) {interesting(id); upgradeables[target] += ({prov->name});}
+			if (target && target != constructing) {interesting(id, PRIO_SITUATIONAL); upgradeables[target] += ({prov->name});}
 		}
 	}
 	foreach (sort(indices(upgradeables)), string b) {
@@ -370,7 +371,7 @@ void analyze_findbuildings(mapping data, string name, string tag, function write
 			if (b == highlight) {gotone = 1; break;}
 		}
 		if (gotone) continue;
-		interesting(id);
+		interesting(id, PRIO_EXPLICIT);
 		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
 		write("\e[1;32m%s\t%d/%d bldg\tDev %d\t%s\e[0m\n", id, buildings, slots, dev, string_to_utf8(prov->name));
 	}
