@@ -390,6 +390,36 @@ void analyze(mapping data, string name, string tag, function|void write, string|
 	interesting_provinces[tag] = interesting_province;
 }
 
+//Not currently triggered from anywhere. Doesn't currently have a primary use-case.
+void show_tradegoods(mapping data, string tag, function|void write) {
+	//write("Sevilla: %O\n", data->provinces["-224"]);
+	//write("Demnate: %O\n", data->provinces["-4568"]);
+	mapping prod = ([]), count = ([]);
+	mapping country = data->countries[tag];
+	float prod_efficiency = 1.0;
+	foreach (country->owned_provinces, string id) {
+		mapping prov = data->provinces["-" + id];
+		//1) Goods produced: base production * 0.2 + flat modifiers (eg Manufactory)
+		int production = threeplace(prov->base_production) / 5;
+		//2) Trade value: goods * price
+		float trade_value = production * (float)data->change_price[prov->trade_goods]->current_price / 1000;
+		//3) Prod income: trade value * national efficiency * local efficiency * (1 - autonomy)
+		float local_efficiency = 1.0, autonomy = 0.0; //TODO.
+		float prod_income = trade_value * prod_efficiency * local_efficiency * (1.0 - autonomy);
+		//Done. Now gather the stats.
+		prod[prov->trade_goods] += prod_income;
+		count[prov->trade_goods]++;
+	}
+	float total_value = 0.0;
+	array goods = indices(prod); sort(-values(prod)[*], goods);
+	foreach (goods, string tradegood) {
+		float annual_value = prod[tradegood];
+		if (annual_value > 0) write("%.2f/year from %d %s provinces\n", annual_value, count[tradegood], tradegood);
+		total_value += annual_value;
+	}
+	write("Total %.2f/year or %.4f/month\n", total_value, total_value / 12);
+}
+
 void analyze_flagships(mapping data, function|void write) {
 	if (!write) write = Stdio.stdin->write; //Wait. How does this even work?? FIXME - shouldn't it fail, and make me use stdout properly?!?
 	array flagships = ({ });
