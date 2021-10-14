@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import subprocess
 import sys
+import ast
 p = subprocess.run(["ss", "-plun"], capture_output=True, encoding="utf-8")
 if p.returncode:
 	print(p.stdout)
@@ -17,8 +18,28 @@ for line in p.stdout.split("\n"):
 	for info in extra:
 		# Not sure how to properly parse these, so this is hacky.
 		if info.startswith("users:"):
-			print(port, info)
-			# TODO: Get the process name and PID, then look up that PID to find out its working directory
-			# If the working directory is ~/tf2server/steamcmd_linux/tf2 and the process is srcds_linux,
-			# it's the TF2 server. If it's ~/tf2server/steamcmd_linux/csgo and ditto, it's the CSGO server.
-			# Otherwise, see if it's one of the clients, or Steam itself. Also, how does EU4 show up?
+			# Hack: Parse it as if it's a tuple of tuples with assignments in them
+			# It could be parsed as a call to evaluate but that requires a function.
+			expr = ast.parse("[" + info.removeprefix("users:(").removesuffix(")").replace("=", ":=") + "]").body[0]
+			assert isinstance(expr, ast.Expr) and isinstance(expr.value, ast.List)
+			for tup in expr.value.elts:
+				# Each of these represents one process that is holding this port, I think.
+				assert isinstance(tup, ast.Tuple)
+				info = { }
+				positionals = ["procname"]
+				for value in tup.elts:
+					if isinstance(value, ast.NamedExpr):
+						name = value.target.id
+						value = value.value
+					else:
+						try: name = positionals.pop(0)
+						except IndexError: name = "unknown%d" % (len(info) + 1)
+					assert isinstance(value, ast.Constant)
+					info[name] = value.value
+				# Okay. So. I'm not really sure that cheating was any easier than doing it manually.
+				# But whatever. We now have a basic info mapping.
+				print(port, info)
+				# TODO: Get the process name and PID, then look up that PID to find out its working directory
+				# If the working directory is ~/tf2server/steamcmd_linux/tf2 and the process is srcds_linux,
+				# it's the TF2 server. If it's ~/tf2server/steamcmd_linux/csgo and ditto, it's the CSGO server.
+				# Otherwise, see if it's one of the clients, or Steam itself. Also, how does EU4 show up?
