@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
+import ast
+import os
 import subprocess
 import sys
-import ast
 p = subprocess.run(["ss", "-plun"], capture_output=True, encoding="utf-8")
 if p.returncode:
 	print(p.stdout)
 	print(p.stderr, file=sys.stderr)
 	sys.exit(p.returncode)
+expectations = {
+	27015: "srcds_linux:TF2",
+	27016: "srcds_linux:CSGO",
+}
+allowable = {27016: ["eu4"]}
+error = 0
 for line in p.stdout.split("\n"):
 	line = line.split()
 	if not line: continue # Blank line
@@ -14,10 +21,11 @@ for line in p.stdout.split("\n"):
 	if state == "State": continue # Headers
 	if not extra: continue # If there's no process info, we can't use this
 	ip, port = local.rsplit(":", 1)
-	if int(port) not in range(27000, 28000): continue # Focus on the processes holding ports in the 27* range
+	if int(port) not in range(27010, 27020): continue # Focus on the processes holding ports in the 2701x range
 	for info in extra:
 		# Not sure how to properly parse these, so this is hacky.
 		if info.startswith("users:"):
+			expected = expectations.pop(int(port), None)
 			# Hack: Parse it as if it's a tuple of tuples with assignments in them
 			# It could be parsed as a call to evaluate but that requires a function.
 			expr = ast.parse("[" + info.removeprefix("users:(").removesuffix(")").replace("=", ":=") + "]").body[0]
@@ -38,8 +46,26 @@ for line in p.stdout.split("\n"):
 					info[name] = value.value
 				# Okay. So. I'm not really sure that cheating was any easier than doing it manually.
 				# But whatever. We now have a basic info mapping.
-				print(port, info)
-				# TODO: Get the process name and PID, then look up that PID to find out its working directory
-				# If the working directory is ~/tf2server/steamcmd_linux/tf2 and the process is srcds_linux,
-				# it's the TF2 server. If it's ~/tf2server/steamcmd_linux/csgo and ditto, it's the CSGO server.
-				# Otherwise, see if it's one of the clients, or Steam itself. Also, how does EU4 show up?
+				proc = info["procname"]
+				# Perfect. Now, with process name and PID, figure out if it's allowed to have that port.
+				if proc == "srcds_linux":
+					# The same process name could be multiple different things, depending on its cwd.
+					cwd = os.readlink("/proc/%d/cwd" % info["pid"])
+					proc += ":" + {
+						"/home/rosuav/tf2server/steamcmd_linux/tf2": "TF2",
+						"/home/rosuav/tf2server/steamcmd_linux/csgo": "CSGO",
+					}.get(cwd, cwd)
+				# TODO: If there are multiple, should it be considered correct if any of them is the expected
+				# one, or should it be considered incorrect if any is different? Currently it could be seen
+				# to be both at once.
+				if proc == expected: color = "\x1b[1;32m"
+				elif expected is None: color = ""
+				elif proc in allowable.get(int(port), []): color = "\x1b[1;33m"
+				else:
+					error = 1
+					color = "\x1b[1;31m"
+				print(port, color + proc + "\x1b[0m")
+for port, expected in expectations.items():
+	error = 1
+	print(port, "\x1b[1;31mNOT RUNNING: " + expected + "\x1b[0m")
+sys.exit(error)
