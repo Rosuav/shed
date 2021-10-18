@@ -47,12 +47,12 @@ def get_block_id():
 
 def screencap():
 	# There'll be 15 seconds (interval) or 25 seconds (game over) of scoreboard.
-	# Screencap it (rounding up to 30s for safety) and make an animation.
-	# Thus whenever the scoreboard is up, we take a series of screenshots.
+	# Screencap it (rounding up to 40s for safety) and make an animation (2 FPS).
 	# Find CS:GO window: wmctrl -lG|grep Counter-Strike
+	# Use the position of that window to figure out the part of the virtual screen to capture.
 	# ffmpeg -video_size 1920x1080 -framerate 3 -f x11grab -i :0.0+1920,0 -c copy scoreboard.mkv
-	# Attach these to the last notes. Ideally, take a few frames a second, but play them back slower.
-	# TODO: Take notes only if (a) it's competitive, and (b) I'm participating, not spectating.
+	# Attach these to the last notes. Note that a screencap will only be taken if dictated notes
+	# have been recorded since the last time we went idle.
 	try:
 		p = subprocess.run(["wmctrl", "-lG"], capture_output=True, check=True)
 	except (subprocess.CalledProcessError, FileNotFoundError):
