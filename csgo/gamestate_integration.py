@@ -36,6 +36,15 @@ def toggle_music(state):
 		data += cur
 	sock.close()
 
+NOTES_DIR = "/home/rosuav/tmp/notes"
+last_idle_block = 0
+def _fn_order(n):
+	"""File name order - integers at start of file name, but ignore nonnumerics"""
+	try: return int(n)
+	except (ValueError, TypeError): return 0
+def get_block_id():
+	return max(os.listdir(NOTES_DIR), key=_fn_order, default=0)
+
 def screencap():
 	# There'll be 15 seconds (interval) or 25 seconds (game over) of scoreboard.
 	# Screencap it (rounding up to 30s for safety) and make an animation.
@@ -57,16 +66,11 @@ def screencap():
 		# I'm not sure how this would happen, since this is triggered by GSI,
 		# but maybe there's a change to the window title or something.
 		return
-	NOTES_DIR = "/home/rosuav/tmp/notes"
-	try:
-		def safe_int(n):
-			try: return int(n)
-			except (ValueError, TypeError): return 0
-		last_block = max(os.listdir(NOTES_DIR), key=safe_int)
-		block = NOTES_DIR + "/" + last_block
-		tempfd, tempfn = tempfile.mkstemp(suffix=".mkv", dir=block)
-	except (FileNotFoundError, ValueError):
-		return # No notes to attach to
+	last_block = get_block_id()
+	if not last_block: return # No notes to attach to
+	if last_block <= last_idle_block: return # We've been idle since recording those notes.
+	block = NOTES_DIR + "/" + last_block
+	tempfd, tempfn = tempfile.mkstemp(suffix=".mkv", dir=block)
 	try:
 		proc = subprocess.Popen(["ffmpeg", "-y",
 			"-loglevel", "quiet",
@@ -77,6 +81,7 @@ def screencap():
 			tempfn,
 		], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 	except FileNotFoundError:
+		os.close(tempfd)
 		return # No FFMPEG
 	logging.log(25, "Screencapping into %s", tempfn)
 	def wait():
@@ -123,7 +128,10 @@ def mode_switch(mode):
 	# be appropriately set. It usually will be when running within the GUI, but if
 	# this script is run in the background somewhere, be sure to propagate it.
 	command = ["xfconf-query", "-c", "xfce4-keyboard-shortcuts", "-p", "/commands/custom/<Alt>d"]
-	if mode == "idle": subprocess.run(command + ["--reset"])
+	if mode == "idle":
+		subprocess.run(command + ["--reset"])
+		global last_idle_block
+		last_idle_block = get_block_id()
 	else: subprocess.run(command + ["-n", "-t", "string", "-s", "/home/rosuav/shed/notes.py --gsi"])
 
 # NOTE: Money calculation is inactive if player_state is disabled in the config
