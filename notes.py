@@ -62,9 +62,6 @@ def take_notes(*, desc, new_match=False, **extra):
 		os.mkdir(NOTES_DIR + "/" + blocks[-1])
 	block = NOTES_DIR + "/" + blocks[-1] # Use the latest block (which we may have just created)
 
-	notes = sorted(fn for fn in os.listdir(block) if fn[0] in "0123456789")
-	note_id = int(notes[-1].split("-")[0]) + 1 if notes else 1
-
 	global recog
 	if recog is None:
 		silence_pyaudio()
@@ -99,9 +96,7 @@ def take_notes(*, desc, new_match=False, **extra):
 		print("http://localhost:27013/static/notes.html#" + blocks[-1], file=log)
 		import webbrowser; webbrowser.open("http://localhost:27013/static/notes.html#" + blocks[-1])
 
-	fn = ("%02d - " % note_id + desc).replace("/", "_")
-	print("[%s]" % block, fn, file=log, flush=True)
-	with open(block + "/%s.flac" % fn, "wb") as f: f.write(audio.get_flac_data())
+	print("[%s]" % block, desc, file=log, flush=True)
 
 	d = None
 	try: d = recog.recognize_sphinx(audio, show_all=True)
@@ -126,10 +121,13 @@ def take_notes(*, desc, new_match=False, **extra):
 		with open(block + "/metadata.json") as f: meta = json.load(f)
 	except (FileNotFoundError, json.decoder.JSONDecodeError): meta = {}
 	if "recordings" not in meta: meta["recordings"] = []
+	note_id = meta["recordings"][-1]["id"] + 1 if meta["recordings"] else 1
+	fn = f"/{note_id:02d} - {desc.replace('/', '_')}.flac"
+	with open(block + fn, "wb") as f: f.write(audio.get_flac_data())
 	meta["recordings"].append({
 		"id": note_id,
 		"desc": desc,
-		"filename": "/%s.flac" % fn,
+		"filename": fn,
 		"sphinx": options[:5],
 		"google": google,
 	})
