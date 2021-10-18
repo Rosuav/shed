@@ -4,6 +4,7 @@ import os
 import socket
 import subprocess
 import threading
+import tempfile
 import re
 import requests
 from flask import Flask, request # ImportError? Try "pip install flask".
@@ -63,9 +64,7 @@ def screencap():
 			except (ValueError, TypeError): return 0
 		last_block = max(os.listdir(NOTES_DIR), key=safe_int)
 		block = NOTES_DIR + "/" + last_block
-		notes = sorted(fn for fn in os.listdir(block) if fn[0] in "0123456789")
-		note_id = int(notes[-1].split("-")[0]) + 1 if notes else 1
-		fn = f"/{note_id:02d} - screencap.mkv"
+		tempfd, tempfn = tempfile.mkstemp(suffix=".mkv", dir=block)
 	except (FileNotFoundError, ValueError):
 		return # No notes to attach to
 	try:
@@ -75,11 +74,11 @@ def screencap():
 			"-framerate", "2",
 			"-f", "x11grab", "-i", f"{os.environ['DISPLAY']}+{x},{y}",
 			"-t", "40",
-			block + fn,
+			tempfn,
 		], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 	except FileNotFoundError:
 		return # No FFMPEG
-	logging.log(25, "Screencapping into %s", fn)
+	logging.log(25, "Screencapping into %s", tempfn)
 	def wait():
 		proc.wait()
 		# Largely duplicated from notes.py
@@ -87,6 +86,10 @@ def screencap():
 			with open(block + "/metadata.json") as f: meta = json.load(f)
 		except (FileNotFoundError, json.decoder.JSONDecodeError): meta = {}
 		if "recordings" not in meta: meta["recordings"] = []
+		note_id = meta["recordings"][-1]["id"] + 1 if meta["recordings"] else 1
+		fn = f"/{note_id:02d} - screencap.mkv"
+		os.rename(tempfn, block + fn)
+		os.close(tempfd)
 		meta["recordings"].append({
 			"id": note_id,
 			"filename": fn,
