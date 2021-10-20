@@ -253,7 +253,7 @@ void analyze_leviathans(mapping data, string name, string tag, function write) {
 	}
 	sort(projects);
 	if (sizeof(projects)) write("%s\n", string_to_utf8(tabulate(({""}) + "ID Tier Province Project Upgrading" / " ", projects[*][-1], "  ", 0)));
-	write("\nFavor cooldowns:\n");
+	write("\nFavors:\n");
 	object today = calendar(data->date);
 	array cooldowns = ({ });
 	mapping cd = country->cooldowns || ([]);
@@ -262,6 +262,10 @@ void analyze_leviathans(mapping data, string name, string tag, function write) {
 		if (!date) {cooldowns += ({({"", "---", "--------", String.capitalize(tradefor)})}); continue;}
 		int days = today->distance(calendar(date)) / today;
 		cooldowns += ({({"", days, date, String.capitalize(tradefor)})});
+	}
+	foreach (data->countries; string other; mapping c) {
+		int favors = threeplace(c->active_relations[tag]->?favors);
+		if (favors > 1000) write("%s owes you %d.%03d\n", c->name || L10n[other] || other, favors / 1000, favors % 1000);
 	}
 	write("%s\n", string_to_utf8(tabulate(({"", "Days", "Date", "Trade for"}), cooldowns, "  ", 0)));
 }
