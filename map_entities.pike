@@ -43,10 +43,16 @@ constant color = ([
 	"info_map_region_boundary": ({0, 255, 0}),
 ]);
 
+constant permap_position_adjustment = ([
+	"county": ({-50, -1950}),
+]);
+int adj_left = 0, adj_top = 0;
+
 void handle_trigger_survival_playarea(Image.Image img, array(float) pos, array(float) min, array(float) max, string tail)
 {
 	map_left = pos[0] + min[0]; map_top = pos[1] + min[1];
 	map_width = max[0] - min[0]; map_height = max[1] - min[1];
+	map_left += adj_left; map_top += adj_top;
 	//write("Map dimensions: %.2f,%.2f sz %.2f,%.2f\n", map_left, map_top, map_width, map_height);
 	//write("Pixel bounds: %d,%d - %d,%d\n", @map_coords(pos, min), @map_coords(pos, max));
 }
@@ -111,6 +117,7 @@ void generate()
 	[string map, array entities] = parse_entity_log(CSGO_SERVER_ROOT + "/entities.log");
 	uninteresting = permap_uninteresting[map];
 	if (!uninteresting) error("Unknown map file %O\n", map);
+	if (array a = permap_position_adjustment[map]) [adj_left, adj_top] = a;
 	write("Generating for dz_%s...\n", map);
 	string pngfile = WORK_DIR + "/dz_" + map + ".png";
 	string png = Stdio.read_file(pngfile);
@@ -129,7 +136,6 @@ void generate()
 	{
 		string cls = ent[0];
 		array(float) pos = ent[1..3], min = ent[4..6], max = ent[7..9];
-		//~ if (ent[10] == "#SurvivalMapLocation_Medina") pos[1] -= 2000; //Hack for dz_county - move the Town label to a more useful spot
 		if (function f = this["handle_" + cls]) f(img, pos, min, max, ent[10]);
 		if (!color[cls]) continue;
 		[int x1, int y1] = map_coords(pos, min);
