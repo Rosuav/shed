@@ -65,12 +65,13 @@ mapping(string:multiset(string)) permap_uninteresting = ([
 	"sirocco": (<"Catwalk", "Pumps", "Dome", "Fishing">),
 	"junglety": (<"APC", "Bridge">),
 	"frostbite": (<"Tower One", "Canyon">),
+	"county": (<"Trench", "Picnic">),
 ]);
 multiset uninteresting = (< >);
 array locations, drawme;
 void handle_info_map_region(Image.Image img, array(float) pos, array(float) min, array(float) max, string tail)
 {
-	tail -= "#SurvivalMapLocation_";
+	tail -= "#SurvivalMapLocation_"; tail -= "#";
 	tail = map_location_names[tail] || String.trim(Regexp.replace("[A-Z]", tail, lambda(string s) {return " " + s;}));
 	[int x, int y] = map_coords(pos, min); //Should be a point entity so the mins and maxs should all be zero
 	drawme += ({ ({ tail, x, y}) });
