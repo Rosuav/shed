@@ -65,7 +65,7 @@ mapping(string:multiset(string)) permap_uninteresting = ([
 	"sirocco": (<"Catwalk", "Pumps", "Dome", "Fishing">),
 	"junglety": (<"APC", "Bridge">),
 	"frostbite": (<"Tower One", "Canyon">),
-	"county": (<"Trench", "Picnic">),
+	"county": (<"Trench", "Cove", "Alpha", "Bridge", "Delta">),
 ]);
 multiset uninteresting = (< >);
 array locations, drawme;
@@ -129,6 +129,7 @@ void generate()
 	{
 		string cls = ent[0];
 		array(float) pos = ent[1..3], min = ent[4..6], max = ent[7..9];
+		//~ if (ent[10] == "#SurvivalMapLocation_Medina") pos[1] -= 2000; //Hack for dz_county - move the Town label to a more useful spot
 		if (function f = this["handle_" + cls]) f(img, pos, min, max, ent[10]);
 		if (!color[cls]) continue;
 		[int x1, int y1] = map_coords(pos, min);
