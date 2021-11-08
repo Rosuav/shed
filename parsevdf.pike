@@ -6,12 +6,27 @@ mixed take2(mixed _, mixed ret) {return ret;}
 array kv(mixed k, mixed ws, mixed v) {return ({k, v});}
 array kv2(mixed ws, mixed ... args) {return kv(@args);}
 mapping startmap(array kv) {return ([kv[0]: kv[1]]);}
-mapping addmap(mapping map, array kv) {map[kv[0]] = kv[1]; return map;}
+string|mapping|array merge(string|mapping|array prev, string|mapping|array new) {
+	if (!prev) return new; //Easy: nothing to merge
+	//Reusing the same key with multiple strings makes an array.
+	if (stringp(prev) && stringp(new)) return ({prev, new});
+	//Continuing to reuse the key with string values still makes an array.
+	if (arrayp(prev) && sizeof(prev) && stringp(prev[0]) && stringp(new)) return prev + ({new});
+	//Reusing with multiple mappings merges the mappings. (Mutates prev for simplicity.)
+	if (mappingp(prev) && mappingp(new)) {
+		foreach (new; string k; mixed v) prev[k] = merge(prev[k], v);
+		return prev;
+	}
+	//Huh. No idea.
+	werror("UNABLE TO MERGE [prev=%t, new=%t]\n", prev, new);
+	return prev;
+}
+mapping addmap(mapping map, array kv) {map[kv[0]] = merge(map[kv[0]], kv[1]); return map;}
 mapping emptymapping() {return ([]);}
 mixed discardkey(array kv) {return kv[1];} //A file has a meaningless key and then everything's in the value.
 
 //External API
-string|mapping parse_vdf(string data, int|void verbose) {
+string|mapping|array parse_vdf(string data, int|void verbose) {
 	string|array next() {
 		if (data == "") return "";
 		if (sscanf(data, "%[ \t\r\n]%s", string ws, data) && ws != "") return " ";
@@ -40,6 +55,6 @@ string|mapping parse_vdf(string data, int|void verbose) {
 //Simple demo - or simple translation to JSON, which could in itself be useful
 int main(int argc, array(string) argv) {
 	if (argc < 2) exit(1, "USAGE: pike %s filename.vdf\n", argv[0]);
-	string|mapping content = parse_vdf(Stdio.read_file(argv[1]));
+	string|mapping|array content = parse_vdf(Stdio.read_file(argv[1]));
 	write("%s\n", Standards.JSON.encode(content, 7));
 }
