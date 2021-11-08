@@ -37,9 +37,9 @@ string|mapping parse_vdf(string data, int|void verbose) {
 	return parser->parse(verbose ? shownext : next, this);
 }
 
-//Simple demo
+//Simple demo - or simple translation to JSON, which could in itself be useful
 int main(int argc, array(string) argv) {
 	if (argc < 2) exit(1, "USAGE: pike %s filename.vdf\n", argv[0]);
 	string|mapping content = parse_vdf(Stdio.read_file(argv[1]));
-	write("RESULT: %s\n", Standards.JSON.encode(content, 7));
+	write("%s\n", Standards.JSON.encode(content, 7));
 }
