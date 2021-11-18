@@ -1,4 +1,4 @@
-/* Chocolate Factory v0.6
+/* Chocolate Factory v0.6.1
 
 DOM object builder. (Thanks to DeviCat for the name!)
 
@@ -89,15 +89,22 @@ export function DOM(sel) {
 	return elems[0]; //Will return undefined if there are no matching elements.
 }
 
+//Append one child or an array of children
+function append_child(elem, child) {
+	if (!child || child === "") return;
+	if (Array.isArray(child)) {
+		//TODO maybe: prevent infinite nesting (array inside itself)
+		for (let c of child) append_child(elem, c);
+		return;
+	}
+	if (typeof child === "string" || typeof child === "number") child = document.createTextNode(child);
+	elem.appendChild(child);
+}
+
 export function set_content(elem, children) {
 	if (typeof elem === "string") elem = DOM(elem);
 	while (elem.lastChild) elem.removeChild(elem.lastChild);
-	if (!Array.isArray(children)) children = [children];
-	for (let child of children) {
-		if (!child || child === "") continue;
-		if (typeof child === "string" || typeof child === "number") child = document.createTextNode(child);
-		elem.appendChild(child);
-	}
+	append_child(elem, children);
 	return elem;
 }
 
@@ -180,7 +187,7 @@ let choc = function(tag, attributes, children) {
 	if (children) set_content(ret, children);
 	return ret;
 }
-choc.__version__ = "0.6";
+choc.__version__ = "0.6.1";
 
 //Interpret choc.DIV(attr, chld) as choc("DIV", attr, chld)
 //This is basically what Python would do as choc.__getattr__()
