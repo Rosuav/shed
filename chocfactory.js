@@ -2,22 +2,21 @@
 
 DOM object builder. (Thanks to DeviCat for the name!)
 
-Usage in HTML:
-<script type=module src="https://rosuav.github.io/shed/chocfactory.js"></script>
+Recommended for use in a module script:
+import choc, {set_content, on, DOM} from "https://rosuav.github.io/choc/factory.js";
+const {FORM, LABEL, INPUT} = choc;
+
+Can also be used in HTML:
+<script type=module src="https://rosuav.github.io/choc/factory.js"></script>
 <script defer src="/path/to/your/script.js"></script>
 
-Usage in a module:
-import choc, {set_content, on, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
-
-
 Once imported, the chocolate factory can be used in a number of ways:
-* const {TAG} = choc; TAG(attr, contents) // recommended
-* choc.TAG(attr, contents)
-* choc("TAG", attr, contents)
+* TAG(attr, contents) // recommended (requires second line of import)
+* choc.TAG(attr, contents) // also supported (does not require destructuring)
+* choc("TAG", attr, contents) // suitable for dynamic tag selection
 * chocify("TAG"); TAG(attr, contents) // deprecated, non-module scripts only
 
 Example:
-const {FORM, LABEL, INPUT} = choc;
 let el = FORM(LABEL(["Speak thy mind:", INPUT({name: "thought"})]))
 
 Regardless of how it's called, choc will return a newly-created element with
@@ -62,7 +61,7 @@ close buttons and/or clicking outside the dialog to close it.
 
 The MIT License (MIT)
 
-Copyright (c) 2020 Chris Angelico
+Copyright (c) 2021 Chris Angelico
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -201,4 +200,4 @@ export default choc;
 
 //For non-module scripts, allow some globals to be used
 window.choc = choc; window.set_content = set_content; window.on = on; window.DOM = DOM; window.fix_dialogs = fix_dialogs;
-window.chocify = tags => tags.split(" ").forEach(tag => window[tag] = choc[tag]);
+window.chocify = tags => tags.split(" ").forEach(tag => window[tag] = choc[tag]); //Deprecated, will be removed in 1.0
