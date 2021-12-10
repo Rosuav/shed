@@ -1,14 +1,41 @@
 object parsevdf = (object)"parsevdf.pike";
 
 mapping items_game;
+mapping l10n_tokens;
 int verbose = 0;
+constant htmltags = "<i> </i> <b> </b>" / " ";
+mapping striptags = mkmapping(htmltags, ({""}) * sizeof(htmltags));
+
+string l10n(string msg, mapping|void variables) {
+	if (has_prefix(msg, "#")) msg = l10n_tokens[msg[1..]] || msg;
+	msg = replace(msg, striptags); //Strip out HTML tags used by Panorama
+	if (!variables) return msg;
+	string ret = "";
+	while (sscanf(msg, "%s{%s:%s}%s", string txt, string fmt, string var, msg) == 4) {
+		ret += txt + (variables[var] || "{" + var + "}");
+	}
+	return ret + msg;
+}
 
 void display_quest(int q, int indent, int|void showstars) {
 	mapping quest = items_game->quest_definitions[(string)q];
 	if (!stringp(quest->expression)) return;
+	//TODO: Add quest->location b/c the placeholders try to use it
 	string expr = quest->expression;
 	string pfx = " " * indent;
-	if (showstars) pfx += quest->operational_points + " stars -- ";
+	void say(strict_sprintf_format fmt, sprintf_args ... args) {
+		if (showstars) {
+			fmt = quest->operational_points + " stars -- " + fmt;
+			if (verbose >= 2) fmt = "[" + q + "] " + fmt;
+			showstars = 0;
+			fmt = pfx + fmt + "\n";
+			pfx += "  ";
+		}
+		else fmt = pfx + fmt + "\n";
+		write(fmt, @args);
+	}
+	if (quest->loc_name) say("%s", l10n(quest->loc_name, quest));
+	if (quest->loc_description) say("%s", l10n(quest->loc_description, quest));
 	//There are several broad types of quest available.
 	//1) Either-Or quests: quest->expression is "QQ:|%d|%d", quest->points is "1".
 	//   Used for linked pairs eg "Win 21 rounds, or win 1 match"
@@ -20,15 +47,15 @@ void display_quest(int q, int indent, int|void showstars) {
 		int tot = max(@points);
 		//Type 1: Either-Or
 		if (tot == 1 && sizeof(subquests) == 2) {
-			write("%sEither:\n", pfx);
+			say("Either:");
 			display_quest(subquests[0], indent + 4);
-			write("%*sOr:\n", indent, " ");
+			say("Or:");
 			display_quest(subquests[1], indent + 4);
 			return;
 		}
 		//Type 2: Scavenger hunt
 		string desc = tot == sizeof(subquests) ? "Complete in any order" : sprintf("Complete at least %d of", tot);
-		write("%s%s:\n", pfx, desc);
+		say("%s:", desc);
 		foreach (subquests, int q) display_quest(q, indent + 4);
 		return;
 	}
@@ -39,27 +66,26 @@ void display_quest(int q, int indent, int|void showstars) {
 		array(int) points = (array(int))(quest->points / ",");
 		int tot = max(@points);
 		string desc = tot == sizeof(subquests) ? "Complete in sequence" : sprintf("Complete at least %d of", tot);
-		write("%s%s:\n", pfx, desc);
+		say("%s:", desc);
 		foreach (subquests, int q) display_quest(q, indent + 4);
 		return;
 	}
+	if (verbose < 1) return; //Everything else should have a loc_description
 	//4) Defined-Elsewhere quests: quest->expression is "%act_win_match%"
 	//   Used for Guardian missions, possibly Co-Op Strike too
+	string action = expr;
 	if (expr == "%act_win_match%") {
-		string weap = quest->string_tokens->?weapon || "";
-		if (weap != "") weap = " (" + weap + ")";
-		write("%sWin %s %s%s\n", pfx, quest->gamemode, quest->map, weap);
-		return;
+		action = l10n(quest->string_tokens->?weapon || "");
 	}
 	//5) Everything else. The quest->expression is worth displaying, as are some string_tokens
-	string action = expr;
-	if (!verbose) {
-		//Abbreviate the display unless verbosity is requested
-		if ((int)quest->points > 1 && quest->string_tokens->?actions) action = quest->points + " " + quest->string_tokens->actions;
-		if ((int)quest->points == 1 && quest->string_tokens->?action) action = quest->string_tokens->action;
-	}
-	write("%sOn %s %s, %s\n", pfx, quest->gamemode, quest->map || quest->mapgroup, action);
-	//write("%s%*O\n", pfx, (["indent": indent]), quest);
+	string challenge = l10n(quest->string_tokens->commandverb || "") + " ";
+	if ((int)quest->points > 1 && quest->string_tokens->?actions)
+		challenge += l10n(quest->points) + " " + l10n(quest->string_tokens->actions);
+	if ((int)quest->points == 1 && quest->string_tokens->?action)
+		challenge += l10n(quest->string_tokens->action);
+	if (verbose >= 2 && action != "") challenge += " with " + action;
+	say("On %s %s: %s", quest->gamemode, quest->map || quest->mapgroup, challenge);
+	if (verbose >= 3) say("%*O", (["indent": indent]), quest);
 }
 
 mapping vdf_cache = ([]);
@@ -79,16 +105,23 @@ mapping parse_vdf_cached(string fn, string|void encoding) {
 int main(int argc, array(string) argv) {
 	catch {vdf_cache = Standards.JSON.decode(Stdio.read_file(".cs_missions.json"));};
 	string path = getenv("HOME") + "/tf2server/steamcmd_linux/csgo/csgo";
-	mapping l10n = parse_vdf_cached(path + "/resource/csgo_english.txt", "utf16");
+	l10n_tokens = parse_vdf_cached(path + "/resource/csgo_english.txt", "utf16")->Tokens;
 	items_game = parse_vdf_cached(path + "/scripts/items/items_game.txt");
 	if (m_delete(vdf_cache, "dirty")) Stdio.write_file(".cs_missions.json", Standards.JSON.encode(vdf_cache, 1));
 	mapping op;
-	if (has_value(argv, "-v")) verbose = 1;
-	foreach (argv[1..], string opid) if (op = items_game->seasonaloperations[opid]) break;
+	foreach (argv[1..], string opid) {
+		if (opid == "-v") ++verbose;
+		if (opid == "-vv") verbose += 2;
+		if (opid == "-vvv") verbose += 3;
+		if (op = items_game->seasonaloperations[opid]) break;
+	}
 	//If none specified, go with the latest (but the keys are strings, so pick max by int)
 	if (!op) op = items_game->seasonaloperations[(string)max(@(array(int))indices(items_game->seasonaloperations))];
 	foreach (op->quest_mission_card->quests; int wk; string quests) {
-		write("\nWeek %d (%s stars max):\n", wk + 1, op->quest_mission_card->operational_points[wk]);
+		write("\nWeek %d (%s stars max): %s\n", wk + 1,
+			op->quest_mission_card->operational_points[wk],
+			l10n(op->quest_mission_card->name[wk]),
+		);
 		if (quests == "locked") {write("\t(Locked)\n"); continue;}
 		foreach (quests / ",", string qq) {
 			sscanf(qq, "%d-%d", int start, int end);
