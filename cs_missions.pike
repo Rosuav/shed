@@ -62,9 +62,26 @@ void display_quest(int q, int indent, int|void showstars) {
 	//write("%s%*O\n", pfx, (["indent": indent]), quest);
 }
 
+mapping vdf_cache = ([]);
+mapping parse_vdf_cached(string fn, string|void encoding) {
+	string raw = Stdio.read_file(fn);
+	sscanf(Crypto.SHA256.hash(raw), "%32c", int hashnum);
+	string hash = sprintf("%x\n", hashnum);
+	if (vdf_cache[fn]->?hash == hash) return vdf_cache[fn]->data;
+	//Cache miss. Do the full parse.
+	string txt = encoding ? Charset.decoder(encoding)->feed(raw)->drain() : raw;
+	mapping ret = parsevdf->parse_vdf(txt);
+	vdf_cache->dirty = 1;
+	vdf_cache[fn] = (["hash": hash, "data": ret]);
+	return ret;
+}
+
 int main(int argc, array(string) argv) {
-	string fn = getenv("HOME") + "/tf2server/steamcmd_linux/csgo/csgo/scripts/items/items_game.txt";
-	items_game = parsevdf->parse_vdf(Stdio.read_file(fn));
+	catch {vdf_cache = Standards.JSON.decode(Stdio.read_file(".cs_missions.json"));};
+	string path = getenv("HOME") + "/tf2server/steamcmd_linux/csgo/csgo";
+	mapping l10n = parse_vdf_cached(path + "/resource/csgo_english.txt", "utf16");
+	items_game = parse_vdf_cached(path + "/scripts/items/items_game.txt");
+	if (m_delete(vdf_cache, "dirty")) Stdio.write_file(".cs_missions.json", Standards.JSON.encode(vdf_cache, 1));
 	mapping op;
 	if (has_value(argv, "-v")) verbose = 1;
 	foreach (argv[1..], string opid) if (op = items_game->seasonaloperations[opid]) break;
