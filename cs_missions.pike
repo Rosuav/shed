@@ -96,6 +96,7 @@ mapping parse_vdf_cached(string fn, string|void encoding) {
 	if (vdf_cache[fn]->?hash == hash) return vdf_cache[fn]->data;
 	//Cache miss. Do the full parse.
 	string txt = encoding ? Charset.decoder(encoding)->feed(raw)->drain() : raw;
+	write("Parsing %s...\n", fn);
 	mapping ret = parsevdf->parse_vdf(txt);
 	vdf_cache->dirty = 1;
 	vdf_cache[fn] = (["hash": hash, "data": ret]);
