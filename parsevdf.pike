@@ -30,11 +30,24 @@ string|mapping|array parse_vdf(string data, int|void verbose) {
 	string|array next() {
 		if (data == "") return "";
 		if (sscanf(data, "%[ \t\r\n]%s", string ws, data) && ws != "") return " ";
+		if (sscanf(data, "[%[^][]]%s", string directive, data) == 2) {
+			//These directives seem to be used in the localization files to adorn
+			//"variants" of expansions, where it depends on something other than
+			//the language. Note that these come in two varieties, positive and
+			//negative: [$PS3] and [!$PS3], and possibly [$WIN32||$X360]
+			return ({"comment", "[" + directive + "]"}); //For now, discard them as comments
+		}
 		if (sscanf(data, "//%[^\n]\n%s", string comment, data) == 2) {
 			return ({"comment", String.trim(comment)}); //Returned as a separate token to aid debugging
 		}
 		if (sscanf(data, "\"%[^\"]\"%s", string str, data) == 2) {
-			//How are embedded quotes and/or backslashes handled?
+			//TODO: Parse escaped quotes more reliably
+			//Especially in the potential presence of escaped backslashes
+			//(not currently handled)
+			while (str != "" && str[-1] == '\\' && sscanf(data, "%[^\"]\"%s", string morestr, data) == 2) {
+				str = str[..<1] + "\"" + morestr;
+			}
+			if (has_prefix(data, "\"")) data = " " + data; //Hack: If two strings abut, pretend there's a space between them.
 			return ({"string", str});
 		}
 		//Some files seem to have cvars unquoted. That would require expanding this
