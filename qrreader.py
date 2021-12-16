@@ -4,6 +4,8 @@ import time
 from PIL import ImageGrab # ImportError? pip install pillow
 from pyzbar.pyzbar import decode # ImportError? pip install pyzbar (maybe apt install libzbar-dev)
 import clize # ImportError? pip install clize
+try: from requests import post as requests_post
+except ImportError: requests_post = lambda *a,**kw: None
 
 def boundingbox(monitor):
 	import subprocess, re
@@ -36,5 +38,11 @@ def main(*, interval=0.5, monitor="primary"):
 			if msg in seen: continue
 			seen[msg] = 1
 			print(msg)
+			# If possible, poke a message through to StilleBot. Will fail if not on localhost.
+			requests_post("https://sikorsky.rosuav.com/admin", json={
+				"cmd": "send_message",
+				"channel": "#rosuav",
+				"msg": "QR code decoded! MrDestructoid brollC2 " + msg.replace("\n", " ") + " brollC2 MrDestructoid",
+			})
 		if interval <= 0: break
 		time.sleep(interval)
