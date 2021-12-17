@@ -1106,10 +1106,38 @@ class Solid_Biofuel(Constructor):
 	time: 4
 	Solid_Biofuel: 4
 
-class Burn_Solid_Biofuel(Power):
-	Solid_Biofuel: 1
-	time: 1
-	MJ: 450
+_simple_fuels = {
+	"Flower_Petals": 100,
+	"Solid_Biofuel": 450,
+	"Liquid_Biofuel": 750,
+	"Fuel": 750,
+	"Turbofuel": 2000,
+}
+for _fuel, _mj in _simple_fuels.items():
+	class Burn(Power):
+		__annotations__[_fuel] = 1
+		time: 1 # Don't know how to figure this part
+		MJ: _mj
+	Burn.__name__ = "Burn_" + _fuel
+
+class Burn_Coal(Power):
+	Coal: 1
+	Water: 3
+	time: 4
+	MJ: 300
+
+class Burn_Compacted_Coal(Power):
+	Compacted_Coal: 1
+	Water: 45*8.4/60
+	time: 8.4
+	MJ: 630
+
+class Burn_Petroleum_Coke(Power):
+	Petroleum_Coke: 1
+	Water: 45*2.4/60
+	time: 2.4
+	MJ: 180
+
 
 # Scan for recipes that are probably slowing things down.
 # Recommendation: Look through the ingredients and see if there are recipes
