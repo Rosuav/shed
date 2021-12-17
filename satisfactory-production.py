@@ -1132,6 +1132,7 @@ if __name__ == "__main__":
 			# It's been made fundamental for the benefit of future recipes,
 			# but we want the actual sources.
 			p = p[0]["sources"]
+		if source: p.sort(key=lambda r: -r["costs"].get(source, 0))
 		for recipe in p:
 			if source:
 				if source not in recipe["costs"]: continue # Recipe doesn't include the stipulated ingredient - must be irrelevant
