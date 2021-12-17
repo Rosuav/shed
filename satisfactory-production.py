@@ -164,6 +164,7 @@ class Particle_Accelerator(Building): ...
 class Smelter(Building): ...
 class Foundry(Building): ...
 class Omni_Refinery(Unavailable): ... # With the Space Block mod
+class Power(Building): ... # Not guaranteed workable
 
 # class Recipe_Name(BuildingThatMakesIt):
 #   Ingredient1: Qty
@@ -988,6 +989,13 @@ class Thermal_Propulsion_Rocket(Manufacturer):
 # Nuclear power
 auto_producer("Heat_Sink", "Pressure_Conversion_Cube", "Control_Rod")
 
+class Uranium_Power(Power):
+	Uranium_Fuel_Rod: 1
+	Water: 1500
+	time: 300
+	Uranium_Waste: 50
+	MJ: 750_000
+
 class Encased_Uranium_Cell(Blender):
 	Uranium: 10
 	Concrete: 3
@@ -1069,6 +1077,13 @@ class Plutonium_Fuel_Unit(Assembler):
 	time: 120
 	Plutonium_Fuel_Rod: 1
 
+class Plutonium_Power(Power):
+	Plutonium_Fuel_Rod: 1
+	Water: 300
+	time: 600
+	Plutonium_Waste: 50
+	MJ: 1_500_000
+
 # POC: Power calculation
 # 1 MJ of fuel will provide 1 MW of power for 1 second. Therefore 60 MJ/min
 # of production will provide 1 MW of sustainable power. Note that overclocking
@@ -1089,7 +1104,6 @@ class Solid_Biofuel(Constructor):
 	time: 4
 	Solid_Biofuel: 4
 
-class Power(Building): ...
 class Burn_Solid_Biofuel(Power):
 	Solid_Biofuel: 1
 	time: 1
