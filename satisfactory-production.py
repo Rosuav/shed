@@ -59,6 +59,8 @@ def auto_producer(*items):
 # that a Supercomputer requires X Crude and Y Bauxite with a gigantic
 # matrix of different Xs and Ys.
 # auto_producer("Circuit_Board")
+# TODO: auto_produce anything that's listed on the command line as an
+# input for the calculations eg "Computer/Quickwire=3000"
 
 # If certain items are extremely cheap to obtain (eg if you're in a
 # water-rich area), declare that recipes can be strictly better even
@@ -1125,12 +1127,12 @@ if __name__ == "__main__":
 		print("\nERROR: Must specify one or more target items")
 		sys.exit(0)
 	def num(n):
-		if n >= 1_000_000: return f"{int(n):,}"
+		if n >= 100_000: return f"{int(n):,}"
 		if n == int(n): return "%d" % n
 		return "%.2f" % n
 	def qtyitem(n, item):
 		# Producing 240 MJ/min really means producing 4 MW aka 4 MJ/sec
-		if item == "MJ": return num(n) + " MW"
+		if item == "MJ": return num(n / 60) + " MW"
 		return "%s/min %s" % (num(n), item.replace("_", " "))
 	for target in sys.argv[1:]:
 		target, sep, goal = target.partition("=")
