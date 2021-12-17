@@ -998,7 +998,7 @@ class Encased_Uranium_Cell(Blender):
 	Sulfuric_Acid_: 2
 
 class Infused_Uranium_Cell(Manufacturer):
-	Uranium: 4
+	Uranium: 5
 	Silica: 3
 	Sulfur: 5
 	Quickwire: 15
