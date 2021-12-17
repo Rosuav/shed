@@ -1119,9 +1119,12 @@ if __name__ == "__main__":
 	for target in sys.argv[1:]:
 		target, sep, goal = target.partition("=")
 		goal = Fraction(goal) if sep else 60
-		ratio = Fraction(goal, 60)
+		target, _, source = target.partition("/")
+		if source: sourceqty = goal
+		else: ratio = Fraction(goal, 60)
 		print()
-		header = "PRODUCING: %s/min %s" % (num(goal), target.replace("_", " "))
+		if source: header = "PRODUCING %s from %s/min %s" % (target.replace("_", " "), num(sourceqty), source.replace("_", " "))
+		else: header = "PRODUCING: %s/min %s" % (num(goal), target.replace("_", " "))
 		print(header)
 		print("=" * len(header))
 		p = producers[target]
@@ -1130,12 +1133,17 @@ if __name__ == "__main__":
 			# but we want the actual sources.
 			p = p[0]["sources"]
 		for recipe in p:
+			if source:
+				if source not in recipe["costs"]: continue # Recipe doesn't include the stipulated ingredient - must be irrelevant
+				goal = Fraction(sourceqty, recipe["costs"][source])
+				ratio = Fraction(goal, 60)
+				print("--> Produces %s/min %s" % (goal, target.replace("_", " ")))
 			if recipe.get("deprecated"): print("\x1b[2m** Strictly worse **")
 			for input, qty in recipe["costs"].most_common():
-				if isinstance(input, str):
+				if isinstance(input, str) and input != source:
 					print("Requires %s at %s/min" % (input, num(qty * goal)))
 			for result, qty in recipe["makes"].most_common():
-				if result == target: continue # They'll all produce 60/min of the target
+				if result == target: continue # They'll all produce the target
 				print("Also produces %s/min %s" % (num(qty * ratio), result))
 			for step, qty in recipe["recipes"]:
 				print("%s - %s at %.2f%%" % (
