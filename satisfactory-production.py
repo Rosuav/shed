@@ -1009,18 +1009,18 @@ class Uranium_Fuel_Rod(Manufacturer):
 	Encased_Industrial_Beam: 3
 	Control_Rod: 5
 	time: 150
-	Nuclear_Fuel_Rod: 1
+	Uranium_Fuel_Rod: 1
 
-class Nuclear_Fuel_Unit(Manufacturer):
+class Uranium_Fuel_Unit(Manufacturer):
 	Encased_Uranium_Cell: 100
 	Control_Rod: 10
 	Crystal_Oscillator: 3
 	Beacon: 6
 	time: 300
-	Nuclear_Fuel_Rod: 3
+	Uranium_Fuel_Rod: 3
 
 class Nonfissile_Uranium(Blender):
-	Nuclear_Waste: 15
+	Uranium_Waste: 15
 	Silica: 10
 	Nitric_Acid: 6
 	Sulfuric_Acid: 6
@@ -1030,7 +1030,7 @@ class Nonfissile_Uranium(Blender):
 
 class Fertile_Uranium(Blender):
 	Uranium: 5
-	Nuclear_Waste: 5
+	Uranium_Waste: 5
 	Nitric_Acid: 3
 	Sulfuric_Acid: 5
 	time: 12
@@ -1039,7 +1039,7 @@ class Fertile_Uranium(Blender):
 
 class Plutonium_Pellet(Particle_Accelerator):
 	Nonfissile_Uranium: 100
-	Nuclear_Waste: 25
+	Uranium_Waste: 25
 	time: 60
 	Plutonium_Pellet: 30
 
