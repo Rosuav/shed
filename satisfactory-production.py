@@ -1109,11 +1109,6 @@ class Burn_Solid_Biofuel(Power):
 	time: 1
 	MJ: 450
 
-class MW(Power):
-	MJ: 6000
-	time: 60
-	MW: 100
-
 # Scan for recipes that are probably slowing things down.
 # Recommendation: Look through the ingredients and see if there are recipes
 # that involve the same sub-ingredient. For instance, Fused Frames will
@@ -1129,13 +1124,22 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		print("\nERROR: Must specify one or more target items")
 		sys.exit(0)
-	def num(n): return ("%d" if n == int(n) else "%.2f") % n
+	def num(n):
+		if n >= 1_000_000: return f"{int(n):,}"
+		if n == int(n): return "%d" % n
+		return "%.2f" % n
+	def qtyitem(n, item):
+		# Producing 240 MJ/min really means producing 4 MW aka 4 MJ/sec
+		if item == "MJ": return num(n) + " MW"
+		return "%s/min %s" % (num(n), item.replace("_", " "))
 	for target in sys.argv[1:]:
 		target, sep, goal = target.partition("=")
 		goal = Fraction(goal) if sep else 60
 		target, _, source = target.partition("/")
 		if source: sourceqty = goal
 		else: ratio = Fraction(goal, 60)
+		if source == "MW": source = "MJ" # Maximizing wattage is the same as maximizing joules per time
+		if target == "MW": target = "MJ"
 		print()
 		if source: header = "PRODUCING %s from %s/min %s" % (target.replace("_", " "), num(sourceqty), source.replace("_", " "))
 		else: header = "PRODUCING: %s/min %s" % (num(goal), target.replace("_", " "))
@@ -1152,17 +1156,14 @@ if __name__ == "__main__":
 				if source not in recipe["costs"]: continue # Recipe doesn't include the stipulated ingredient - must be irrelevant
 				goal = Fraction(sourceqty, recipe["costs"][source])
 				ratio = Fraction(goal, 60)
-				print("--> Produces %s/min %s" % (num(goal), target.replace("_", " ")))
+				print("--> Produces " + qtyitem(goal, target))
 			if recipe.get("deprecated"): print("\x1b[2m** Strictly worse **")
 			for input, qty in recipe["costs"].most_common():
 				if isinstance(input, str) and input != source:
 					print("Requires %s at %s/min" % (input, num(qty * goal)))
 			for result, qty in recipe["makes"].most_common():
 				if result == target: continue # They'll all produce the target
-				if result == "MJ":
-					# Producing 240 MJ/min really means producing 4 MW aka 4 MJ/sec
-					print("Also produces %s MW" % num(qty * ratio / 60))
-				else: print("Also produces %s/min %s" % (num(qty * ratio), result))
+				print("Also produces " + qtyitem(qty * ratio, result))
 			for step, qty in recipe["recipes"]:
 				print("%s - %s at %.2f%%" % (
 					step.__name__.replace("_", " "),
