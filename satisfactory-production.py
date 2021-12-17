@@ -1168,8 +1168,9 @@ if __name__ == "__main__":
 		target, _, source = target.partition("/")
 		if source: sourceqty = goal
 		else: ratio = Fraction(goal, 60)
-		if source == "MW": source = "MJ" # Maximizing wattage is the same as maximizing joules per time
-		if target == "MW": target = "MJ"
+		if target == "MW": # Maximizing wattage is the same as maximizing joules per time
+			target = "MJ"
+			goal *= 60
 		print()
 		if source: header = "PRODUCING %s from %s/min %s" % (target.replace("_", " "), num(sourceqty), source.replace("_", " "))
 		else: header = "PRODUCING: %s/min %s" % (num(goal), target.replace("_", " "))
