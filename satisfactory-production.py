@@ -1137,7 +1137,7 @@ if __name__ == "__main__":
 				if source not in recipe["costs"]: continue # Recipe doesn't include the stipulated ingredient - must be irrelevant
 				goal = Fraction(sourceqty, recipe["costs"][source])
 				ratio = Fraction(goal, 60)
-				print("--> Produces %s/min %s" % (goal, target.replace("_", " ")))
+				print("--> Produces %s/min %s" % (num(goal), target.replace("_", " ")))
 			if recipe.get("deprecated"): print("\x1b[2m** Strictly worse **")
 			for input, qty in recipe["costs"].most_common():
 				if isinstance(input, str) and input != source:
