@@ -1,7 +1,9 @@
 # Read QR codes off the screen and display them
 # Can optionally dump them into Twitch chat
+import codecs
+import re
 import time
-from PIL import ImageGrab # ImportError? pip install pillow
+from PIL import ImageGrab, ImageFilter # ImportError? pip install pillow
 from pyzbar.pyzbar import decode # ImportError? pip install pyzbar (maybe apt install libzbar-dev)
 import clize # ImportError? pip install clize
 try: from requests import post as requests_post
@@ -20,29 +22,65 @@ def boundingbox(monitor):
 	return None # Or should it error out?
 
 @clize.run
-def main(*, interval=0.5, monitor="primary"):
+def main(*, interval=0.5, monitor="primary", ocr=0):
 	"""Monitor the screen for QR codes and list them
 	
 	interval: Seconds between screen grabs. If 0, does one grab and then stops.
 
 	monitor: Which monitor to monitor. If "all", captures all connected monitors.
 	If "primary", captures the primary monitor. Otherwise, use an ID like "DP-3".
+
+	ocr: If nonzero, every Nth frame will be OCR'd.
 	"""
 	if monitor == "all": bbox = None
 	else: bbox = boundingbox(monitor)
 	seen = { }
-	while True:
-		img = ImageGrab.grab(bbox=bbox)
-		for result in decode(img):
-			msg = result.data.decode()
-			if msg in seen: continue
+	ocr_count = 0
+	if ocr:
+		import pytesseract # ImportError? pip install pytesseract, and install the underlying app
+	def got_message(msg, label):
+		if msg not in seen:
 			seen[msg] = 1
 			print(msg)
+			return
 			# If possible, poke a message through to StilleBot. Will fail if not on localhost.
 			requests_post("https://sikorsky.rosuav.com/admin", json={
 				"cmd": "send_message",
 				"channel": "#rosuav",
-				"msg": "QR code decoded! MrDestructoid brollC2 " + msg.replace("\n", " ") + " brollC2 MrDestructoid",
+				"msg": label + " MrDestructoid brollC2 " + msg.replace("\n", " ") + " brollC2 MrDestructoid",
 			})
+	while True:
+		img = ImageGrab.grab(bbox=bbox)
+		for result in decode(img):
+			msg = result.data.decode()
+			got_message(msg, "QR code decoded!")
+		ocr_count += 1
+		if ocr_count == ocr:
+			ocr_count = 0
+			text = pytesseract.image_to_string(img.filter(ImageFilter.BoxBlur(1)).convert("L", colors=2))
+			# Scan the text for hex strings - a minimum of three bytes. Interior nonsense
+			# is permitted, but we strip it out before decoding.
+			found_hex = ""
+			for txt in re.findall("[A-F0-9 !@#$%^&*/_]{6,}", text.replace("\n", " ")):
+				hex = re.sub("[^A-F0-9]+", "", txt)
+				if len(hex) < 6: continue # Not enough hex digits.
+				# Since we're expecting ASCII representations of text, the first
+				# digits will frequently be 4, 5, 6, or 7. The second digits will
+				# be more evenly distributed. If it looks like the second digits
+				# are mostly 4567, then we might be desynchronized. (Note that we
+				# won't try to resync in the middle of a string.)
+				firsts, seconds = [sum('4' <= c <= '7' for c in hex[n::2]) for n in range(2)]
+				if len(hex) % 2:
+					# Odd length. Whichever end seems more likely, go with it;
+					# we have to pad one end or the other anyway.
+					if firsts > seconds: hex += "0"
+					else: hex = "0" + hex
+				else:
+					# Even length. If there's a 2:1 ratio, adjust; otherwise,
+					# we can use it as-is.
+					if seconds >= firsts * 2: hex = "0" + hex + "0"
+				text = ascii(codecs.decode(hex, "hex").decode("ascii"))[1:-1]
+				found_hex += " " + text
+			if found_hex: got_message(found_hex, "Hex text detected!")
 		if interval <= 0: break
 		time.sleep(interval)
