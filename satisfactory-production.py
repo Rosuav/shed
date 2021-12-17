@@ -989,13 +989,6 @@ class Thermal_Propulsion_Rocket(Manufacturer):
 # Nuclear power
 auto_producer("Heat_Sink", "Pressure_Conversion_Cube", "Control_Rod")
 
-class Uranium_Power(Power):
-	Uranium_Fuel_Rod: 1
-	Water: 1500
-	time: 300
-	Uranium_Waste: 50
-	MJ: 750_000
-
 class Encased_Uranium_Cell(Blender):
 	Uranium: 10
 	Concrete: 3
@@ -1026,6 +1019,13 @@ class Uranium_Fuel_Unit(Manufacturer):
 	Beacon: 6
 	time: 300
 	Uranium_Fuel_Rod: 3
+
+class Uranium_Power(Power):
+	Uranium_Fuel_Rod: 1
+	Water: 1500
+	time: 300
+	Uranium_Waste: 50
+	MJ: 750_000
 
 class Nonfissile_Uranium(Blender):
 	Uranium_Waste: 15
