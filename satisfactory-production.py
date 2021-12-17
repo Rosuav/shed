@@ -1159,7 +1159,10 @@ if __name__ == "__main__":
 					print("Requires %s at %s/min" % (input, num(qty * goal)))
 			for result, qty in recipe["makes"].most_common():
 				if result == target: continue # They'll all produce the target
-				print("Also produces %s/min %s" % (num(qty * ratio), result))
+				if result == "MJ":
+					# Producing 240 MJ/min really means producing 4 MW aka 4 MJ/sec
+					print("Also produces %s MW" % num(qty * ratio / 60))
+				else: print("Also produces %s/min %s" % (num(qty * ratio), result))
 			for step, qty in recipe["recipes"]:
 				print("%s - %s at %.2f%%" % (
 					step.__name__.replace("_", " "),
