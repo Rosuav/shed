@@ -875,7 +875,7 @@ class Supercomputer(Manufacturer): # TODO: Verify that the recipe hasn't changed
 	time: 32
 	Supercomputer: 1
 
-auto_producer("Cooling_System", "Heavy_Modular_Frame", "Radio_Control_Unit")
+auto_producer("Cooling_System", "Heavy_Modular_Frame", "Radio_Control_Unit", "Iron_Plate")
 class OC_Supercomputer(Assembler):
 	Radio_Control_Unit: 3
 	Cooling_System: 3
@@ -987,7 +987,7 @@ class Thermal_Propulsion_Rocket(Manufacturer):
 	Thermal_Propulsion_Rocket: 2
 
 # Nuclear power
-auto_producer("Heat_Sink", "Pressure_Conversion_Cube", "Control_Rod")
+auto_producer("Heat_Sink", "Pressure_Conversion_Cube", "Control_Rod", "Quickwire")
 
 class Encased_Uranium_Cell(Blender):
 	Uranium: 10
