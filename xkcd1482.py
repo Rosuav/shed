@@ -53,6 +53,8 @@ def main(fn, *, probe_width=250, srt="", graph=False, anim="", anim_scale=0.0):
 	If this is zero (the default), graphs will progressively rescale themselves
 	until stability is achieved.
 	"""
+	# framerate is 1000/probe_width, glob is anim with * not a number, input is fn, output is whatever
+	# ffmpeg -y -framerate 10 -pattern_type glob -i 'anim/*.png' -i 01_original.wav 01_original.mkv
 	with wave.open(fn) as f:
 		frm = f.readframes(f.getnframes())
 		width = f.getsampwidth()
