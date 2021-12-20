@@ -35,7 +35,7 @@ def freq_to_note(hz):
 	return note_names[idx] + str(octave)
 
 @clize.run
-def main(fn, probe_width=250, *, srt="", graph=False):
+def main(fn, *, probe_width=250, srt="", graph=False, anim=""):
 	"""Read through a WAV file and try to figure out what notes are playing
 
 	fn: File to read
@@ -45,6 +45,8 @@ def main(fn, probe_width=250, *, srt="", graph=False):
 	srt: File name to create a .srt file in
 
 	graph: Show a full graph of the first data block
+
+	anim: File name pattern to create animation (use eg %03d for frame number)
 	"""
 	with wave.open(fn) as f:
 		frm = f.readframes(f.getnframes())
@@ -58,10 +60,13 @@ def main(fn, probe_width=250, *, srt="", graph=False):
 	last = lastpeak = None
 	freq = np.fft.fftfreq(chunksize)
 	if srt: srt = open(srt, "w")
+	max_peak = 0
 	for pos in range(0, len(data), chunksize):
+		if pos + chunksize > len(data): break # Not sure why but I'm having trouble with the final frame
 		sp = np.fft.fft(data[pos:pos + chunksize])
 		peak = np.argmax(abs(sp.real[:chunksize//2]))
 		if abs(sp.real[peak]) < 100000: peak = 0 # Recognize "silence" when the peak isn't very strong
+		max_peak = max(max_peak, abs(sp.real[peak]))
 		if graph and peak:
 			# Find the top ten magnitudes in the first segment with actual data
 			# Note that we ignore the top half of the array and just get the indices
@@ -72,6 +77,13 @@ def main(fn, probe_width=250, *, srt="", graph=False):
 			plt.plot(freq[:chunksize//2], abs(sp.real)[:chunksize//2])
 			plt.show()
 			graph = False
+		if anim:
+			ax = plt.gca()
+			# No idea what's a good threshold but I want to keep it consistent where possible
+			ax.set_ylim([0, max(max_peak, 1.5e8)])
+			plt.plot(freq[:chunksize//2], abs(sp.real)[:chunksize//2])
+			plt.savefig(anim % (pos // chunksize))
+			plt.close()
 		# Find the single strongest frequency
 		if peak != lastpeak:
 			# If the freq hasn't changed, the note certainly hasn't. (Optimization only.)
@@ -91,3 +103,4 @@ def main(fn, probe_width=250, *, srt="", graph=False):
 			print(ms_to_srt(lastpos), "-->", ms_to_srt(posms - probe_width//2), file=srt)
 			print(last, file=srt)
 		srt.close()
+	print("Strongest peak:", max_peak)
