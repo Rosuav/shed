@@ -109,4 +109,5 @@ def main(fn, *, probe_width=250, srt="", graph=False, anim="", anim_scale=0.0):
 			print(ms_to_srt(lastpos), "-->", ms_to_srt(posms - probe_width//2), file=srt)
 			print(last, file=srt)
 		srt.close()
-	print("Strongest peak:", max_peak)
+	if anim_scale > 0: print("Strongest peak:", max_peak, "(%.2f%%)" % (max_peak / anim_scale * 100.0))
+	else: print("Strongest peak:", max_peak)
