@@ -17,6 +17,7 @@ def ms_to_srt(ms):
 frequencies = [261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392.0, 415.3, 440.0, 466.16, 493.88]
 note_names = "C C# D Eb E F F# G Ab A Bb B".split()
 def freq_to_note(hz):
+	if hz < 20: return "(n/a)" # Extremely low frequencies probably don't have enough precision to judge
 	octave = 4 # Middle C and above
 	while hz < 254.285: # Midpoint between C and Bb below it
 		octave -= 1
@@ -59,17 +60,19 @@ def main(fn, probe_width=250, *, srt="", graph=False):
 	if srt: srt = open(srt, "w")
 	for pos in range(0, len(data), chunksize):
 		sp = np.fft.fft(data[pos:pos + chunksize])
-		if graph and not pos:
-			# Find the top ten magnitudes
+		peak = np.argmax(abs(sp.real[:chunksize//2]))
+		if abs(sp.real[peak]) < 100000: peak = 0 # Recognize "silence" when the peak isn't very strong
+		if graph and peak:
+			# Find the top ten magnitudes in the first segment with actual data
 			# Note that we ignore the top half of the array and just get the indices
 			# of the strongest peaks.
 			peaks = heapq.nlargest(10, range(chunksize//2), key=lambda i: abs(sp.real[i]))
+			print("pos", pos * 1000 // rate)
 			for p in peaks: print(p, p * freq_ratio, freq_to_note(p * freq_ratio), sp.real[p])
-			plt.plot(freq, sp.real)
+			plt.plot(freq[:chunksize//2], abs(sp.real)[:chunksize//2])
 			plt.show()
+			graph = False
 		# Find the single strongest frequency
-		peak = np.argmax(abs(sp.real[:chunksize//2]))
-		if abs(sp.real[peak]) < 100000: peak = 0 # Recognize "silence" when the peak isn't very strong
 		if peak != lastpeak:
 			# If the freq hasn't changed, the note certainly hasn't. (Optimization only.)
 			note = freq_to_note(peak * freq_ratio) if peak else None
