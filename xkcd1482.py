@@ -1,18 +1,49 @@
 # Read a WAV file and try to figure out what note is playing
 import audioop
+import bisect
 import wave
 import heapq
 import clize # ImportError? pip install clize
 import numpy as np
 import matplotlib.pyplot as plt
 
+def ms_to_srt(ms):
+	hr = ms // 3600000; ms -= hr * 3600000
+	min = ms // 60000; ms -= min * 60000
+	sec = ms // 1000; ms -= sec * 1000
+	return f"{hr:02d}:{min:02d}:{sec:02d},{ms:03d}"
+
+# Basis for freq-to-note calculation: the octave containing A440
+frequencies = [261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392.0, 415.3, 440.0, 466.16, 493.88]
+note_names = "C C# D Eb E F F# G Ab A Bb B".split()
+def freq_to_note(hz):
+	octave = 4 # Middle C and above
+	while hz < 254.285: # Midpoint between C and Bb below it
+		octave -= 1
+		hz *= 2
+	while hz > 508.565: # Midpoint between Bb and C above it
+		octave += 1
+		hz /= 2
+	# Pick the nearest reference frequency
+	idx = bisect.bisect(frequencies, hz)
+	if not idx: return "C" + str(octave)
+	if idx == len(frequencies): return "Bb" + str(octave)
+	# Otherwise it's between two values. Pick the one it's closer to.
+	low, hi = frequencies[idx - 1], frequencies[idx]
+	if hz - low < hi - hz: idx -= 1
+	return note_names[idx] + str(octave)
+
 @clize.run
-def main(fn, probe_width=250):
+def main(fn, probe_width=250, *, srt="", graph=False):
 	"""Read through a WAV file and try to figure out what notes are playing
 
 	fn: File to read
 
 	probe_width: Sample the file every N milliseconds
+
+	srt: File name to create a .srt file in
+
+	graph: Show a full graph of the first data block
 	"""
 	with wave.open(fn) as f:
 		frm = f.readframes(f.getnframes())
@@ -23,12 +54,12 @@ def main(fn, probe_width=250):
 	data = np.frombuffer(frm, dtype)
 	chunksize = (rate * probe_width) // 1000 # Probe width is in ms, figure out frames per chunk
 	freq_ratio = 1000 / probe_width # Multiply sample count by this to get Hz
-	print(chunksize)
-	last = None
+	last = lastpeak = None
 	freq = np.fft.fftfreq(chunksize)
+	if srt: srt = open(srt, "w")
 	for pos in range(0, len(data), chunksize):
 		sp = np.fft.fft(data[pos:pos + chunksize])
-		if not pos:
+		if graph and not pos:
 			# Find the top ten magnitudes
 			# Note that we ignore the top half of the array and just get the indices
 			# of the strongest peaks.
@@ -37,8 +68,23 @@ def main(fn, probe_width=250):
 			plt.plot(freq, sp.real)
 			plt.show()
 		# Find the single strongest frequency
-		peak = np.argmax(abs(sp.real[:chunksize//2])) * freq_ratio
-		if peak != last:
+		peak = np.argmax(abs(sp.real[:chunksize//2]))
+		if abs(sp.real[peak]) < 100000: peak = 0 # Recognize "silence" when the peak isn't very strong
+		if peak != lastpeak:
+			# If the freq hasn't changed, the note certainly hasn't. (Optimization only.)
+			note = freq_to_note(peak * freq_ratio) if peak else None
+			lastpeak = peak
+		if note != last:
 			# Every time it changes, show the time (in ms) and strongest frequency
-			print(pos * probe_width / 1000, int(peak))
-			last = peak
+			posms = pos * 1000 // rate
+			print(posms, int(peak * freq_ratio), note, sp.real[peak])
+			if srt and last is not None:
+				print(ms_to_srt(lastpos), "-->", ms_to_srt(posms - probe_width//2), file=srt)
+				print(last, file=srt)
+				print(file=srt)
+			last, lastpos = note, posms
+	if srt:
+		if last is not None:
+			print(ms_to_srt(lastpos), "-->", ms_to_srt(posms - probe_width//2), file=srt)
+			print(last, file=srt)
+		srt.close()
