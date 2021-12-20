@@ -64,7 +64,7 @@ def main(fn, probe_width=250, *, srt="", graph=False):
 			# Note that we ignore the top half of the array and just get the indices
 			# of the strongest peaks.
 			peaks = heapq.nlargest(10, range(chunksize//2), key=lambda i: abs(sp.real[i]))
-			for p in peaks: print(p, p * freq_ratio, sp.real[p])
+			for p in peaks: print(p, p * freq_ratio, freq_to_note(p * freq_ratio), sp.real[p])
 			plt.plot(freq, sp.real)
 			plt.show()
 		# Find the single strongest frequency
