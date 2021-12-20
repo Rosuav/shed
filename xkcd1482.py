@@ -35,7 +35,7 @@ def freq_to_note(hz):
 	return note_names[idx] + str(octave)
 
 @clize.run
-def main(fn, *, probe_width=250, srt="", graph=False, anim=""):
+def main(fn, *, probe_width=250, srt="", graph=False, anim="", anim_scale=0.0):
 	"""Read through a WAV file and try to figure out what notes are playing
 
 	fn: File to read
@@ -47,6 +47,11 @@ def main(fn, *, probe_width=250, srt="", graph=False, anim=""):
 	graph: Show a full graph of the first data block
 
 	anim: File name pattern to create animation (use eg %03d for frame number)
+
+	anim_scale: Force the animation graph to be scaled to this value. Useful
+	values depend on the probe width, but after a render, the peak is printed.
+	If this is zero (the default), graphs will progressively rescale themselves
+	until stability is achieved.
 	"""
 	with wave.open(fn) as f:
 		frm = f.readframes(f.getnframes())
@@ -79,8 +84,7 @@ def main(fn, *, probe_width=250, srt="", graph=False, anim=""):
 			graph = False
 		if anim:
 			ax = plt.gca()
-			# No idea what's a good threshold but I want to keep it consistent where possible
-			ax.set_ylim([0, max(max_peak, 1.5e8)])
+			ax.set_ylim([0, max(max_peak, anim_scale)])
 			plt.plot(freq[:chunksize//2], abs(sp.real)[:chunksize//2])
 			plt.savefig(anim % (pos // chunksize))
 			plt.close()
