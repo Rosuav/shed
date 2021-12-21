@@ -1,4 +1,5 @@
 # Read a WAV file and try to figure out what note is playing
+# TODO: Figure out a constant threshold and use that instead of just taking the single strongest
 import audioop
 import bisect
 import wave
