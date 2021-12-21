@@ -86,6 +86,7 @@ def main(fn, *, probe_width=250, srt="", graph=False, anim="", anim_scale=0.0):
 			plt.show()
 			graph = False
 		if anim:
+			# TODO: Figure out why the animation isn't properly aligned :(
 			ax = plt.gca()
 			ax.set_ylim([0, max(max_peak, anim_scale)])
 			plt.plot(freq[:chunksize//2], abs(sp.real)[:chunksize//2])
