@@ -4,6 +4,14 @@
 //by default, show them only when explicitly requested (like the building highlighter), and then always
 //have it at PRIO_EXPLICIT
 //TODO: Allow input on the primary console, stateless infodumps only
+/* TODO: browser mode
+- Most of the same info that currently exists, but hide it behind details/summary
+- Real-time updates that don't touch whether the detailses are open
+- Easy way to do the things that currently need a command
+- Whenever you hover any country name, show country details in an inset top-right
+  - Show country tech level compared to yours (green = worse tech, red = better tech)
+  - Flag? Can we show flags easily?
+*/
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
 constant PROGRAM_PATH = "../.steam/steam/steamapps/common/Europa Universalis IV"; //Append /map or /common etc to access useful data files
@@ -43,6 +51,11 @@ class maparray {
 	protected string _sprintf(int type, mapping p) {return sprintf("<%*O/%*O>", p, keyed, p, indexed);}
 	//Enable foreach(maparray();int i;mixed val) - but not, unfortunately, foreach(maparray,mixed val)
 	protected Array.Iterator _get_iterator() {return get_iterator(indexed);}
+	string encode_json(int flags, int indent) {
+		//Only used if there's a hybrid maparray in the savefile (not in other files that don't
+		//get cached in JSON) that can't be coalesced. Discard the indexed part.
+		return Standards.JSON.encode(keyed, flags);
+	}
 }
 
 mapping|array|maparray coalesce(mixed ret_or_brace, mixed ret) {
@@ -737,6 +750,66 @@ class PipeConnection {
 	}
 }
 
+mapping(string:array(object)) websocket_groups = ([]);
+void http_handler(Protocols.HTTP.Server.Request req) {req->response_and_finish((["error": 404, "type": "text/plain", "data": "Not found"]));}
+
+void ws_msg(Protocols.WebSocket.Frame frm, mapping conn)
+{
+	mixed data;
+	if (catch {data = Standards.JSON.decode(frm->text);}) return; //Ignore frames that aren't text or aren't valid JSON
+	if (!stringp(data->cmd)) return;
+	if (data->cmd == "init")
+	{
+		//Initialization is done with a type and a group.
+		//The type has to be "eu4", and exists for convenient compatibility with StilleBot.
+		//The group is a country tag as a string.
+		if (conn->type) return; //Can't init twice
+		if (data->type != "eu4") return; //Ignore any unknown types.
+		//Note that we don't validate the group here, beyond basic syntactic checks. We might have
+		//the wrong save loaded, in which case the precise country tag won't yet exist.
+		if (!stringp(data->group) || sizeof(data->group) != 3) return;
+		conn->type = data->type; conn->group = data->group;
+		websocket_groups[conn->group] += ({conn->sock});
+		send_update(({conn->sock}), get_state(data->group));
+		return;
+	}
+	if (function handler = this["websocket_cmd_" + data->cmd]) handler(conn, data);
+	else write("Message: %O\n", data);
+}
+
+void ws_close(int reason, mapping conn)
+{
+	if (conn->type == "eu4")
+		websocket_groups[conn->group] -= ({conn->sock});
+	m_delete(conn, "sock"); //De-floop
+}
+
+void ws_handler(array(string) proto, Protocols.WebSocket.Request req)
+{
+	if (req->not_query != "/ws")
+	{
+		req->response_and_finish((["error": 404, "type": "text/plain", "data": "Not found"]));
+		return;
+	}
+	Protocols.WebSocket.Connection sock = req->websocket_accept(0);
+	sock->set_id((["sock": sock])); //Minstrel Hall style floop
+	sock->onmessage = ws_msg;
+	sock->onclose = ws_close;
+}
+
+void send_update(array(object) socks, mapping state) {
+	if (!socks || !sizeof(socks)) return;
+	string resp = Standards.JSON.encode((["cmd": "update"]) | state);
+	foreach (socks, object sock)
+		if (sock && sock->state == 1) sock->send_text(resp);
+}
+
+void send_updates_all(string tag) {send_update(websocket_groups[tag], get_state(tag));}
+
+mapping get_state(string tag) {
+	return (["tag": tag]);
+}
+
 int main(int argc, array(string) argv) {
 	if (argc > 1 && argv[1] == "--parse") {
 		//Parser subprocess, invoked by parent for asynchronous parsing.
@@ -922,5 +995,6 @@ log = \"PROV-TERRAIN-END\"
 	inot->set_nonblocking();
 	Stdio.Port mainsock = Stdio.Port();
 	mainsock->bind(1444, sock_connected, "::", 1);
+	Protocols.WebSocket.Port(http_handler, ws_handler, 1821, "::");
 	return -1;
 }
