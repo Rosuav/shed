@@ -822,6 +822,10 @@ void send_update(array(object) socks, mapping state) {
 void send_updates_all() {foreach (websocket_groups; string tag; array grp) send_update(grp, get_state(tag));}
 
 mapping get_state(string tag) {
+	mapping data = last_parsed_savefile; //Get a local reference in case it changes while we're processing
+	if (!data) return (["error": "Processing savefile..."]);
+	//For the landing page, offer a menu of player countries
+	if (tag == "?!?") return (["menu": data->players_countries / 2]);
 	return (["tag": tag]);
 }
 
