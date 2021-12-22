@@ -751,7 +751,24 @@ class PipeConnection {
 }
 
 mapping(string:array(object)) websocket_groups = ([]);
-void http_handler(Protocols.HTTP.Server.Request req) {req->response_and_finish((["error": 404, "type": "text/plain", "data": "Not found"]));}
+mapping respond(Protocols.HTTP.Server.Request req) {
+	if (req->not_query == "/eu4_parse.js") return ([
+		"file": Stdio.File("eu4_parse.js"),
+		"extra_heads": (["Access-Control-Allow-Origin": "*"]),
+	]);
+	if (req->not_query == "/" || sscanf(req->not_query, "/tag/%s", string tag)) return ([
+		"type": "text/html",
+		"data": sprintf(#"<!DOCTYPE HTML><html lang=en>
+<head><title>EU4 Savefile Analysis</title><link rel=stylesheet src=\"eu4_parse.css\"></head>
+<body><script>
+let ws_code = new URL(\"/eu4_parse.js\", location.href), ws_type = \"eu4\", ws_group = \"%s\";
+let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then(m => ws_sync = m);
+</script><main></main></body></html>
+", tag || "?!?"),
+	]);
+}
+constant NOT_FOUND = (["error": 404, "type": "text/plain", "data": "Not found"]);
+void http_handler(Protocols.HTTP.Server.Request req) {req->response_and_finish(respond(req) || NOT_FOUND);}
 
 void ws_msg(Protocols.WebSocket.Frame frm, mapping conn)
 {
@@ -768,6 +785,7 @@ void ws_msg(Protocols.WebSocket.Frame frm, mapping conn)
 		//Note that we don't validate the group here, beyond basic syntactic checks. We might have
 		//the wrong save loaded, in which case the precise country tag won't yet exist.
 		if (!stringp(data->group) || sizeof(data->group) != 3) return;
+		write("Socket connection established for %s\n", data->group);
 		conn->type = data->type; conn->group = data->group;
 		websocket_groups[conn->group] += ({conn->sock});
 		send_update(({conn->sock}), get_state(data->group));
@@ -786,11 +804,7 @@ void ws_close(int reason, mapping conn)
 
 void ws_handler(array(string) proto, Protocols.WebSocket.Request req)
 {
-	if (req->not_query != "/ws")
-	{
-		req->response_and_finish((["error": 404, "type": "text/plain", "data": "Not found"]));
-		return;
-	}
+	if (req->not_query != "/ws") {req->response_and_finish(NOT_FOUND); return;}
 	Protocols.WebSocket.Connection sock = req->websocket_accept(0);
 	sock->set_id((["sock": sock])); //Minstrel Hall style floop
 	sock->onmessage = ws_msg;
