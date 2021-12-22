@@ -708,7 +708,8 @@ class Connection(Stdio.File sock) {
 void sock_connected(object mainsock) {while (object sock = mainsock->accept()) Connection(sock);}
 
 Stdio.File parser_pipe = Stdio.File();
-void process_savefile(string fn) {parser_pipe->write(fn + "\n");}
+int parsing = 0;
+void process_savefile(string fn) {parsing = 1; send_updates_all(); parser_pipe->write(fn + "\n");}
 void done_processing_savefile() {
 	parser_pipe->read();
 	mapping data = Standards.JSON.decode_utf8(Stdio.read_file("eu4_parse.json") || "{}")->data;
@@ -719,7 +720,7 @@ void done_processing_savefile() {
 	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1]);
 	indices(connections)->inform(data);
 	last_parsed_savefile = data;
-	send_updates_all();
+	parsing = 0; send_updates_all();
 }
 
 class ClientConnection {
@@ -767,6 +768,10 @@ let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then
 </script><main></main></body></html>
 ", tag || "?!?"),
 	]);
+	if (req->not_query == "/search") {
+		//TODO: Search for a country by tag, name, etc. Return a redirect to /tag/%s, or maybe a menu.
+		return NOT_FOUND;
+	}
 }
 constant NOT_FOUND = (["error": 404, "type": "text/plain", "data": "Not found"]);
 void http_handler(Protocols.HTTP.Server.Request req) {req->response_and_finish(respond(req) || NOT_FOUND);}
@@ -785,8 +790,8 @@ void ws_msg(Protocols.WebSocket.Frame frm, mapping conn)
 		if (data->type != "eu4") return; //Ignore any unknown types.
 		//Note that we don't validate the group here, beyond basic syntactic checks. We might have
 		//the wrong save loaded, in which case the precise country tag won't yet exist.
-		if (!stringp(data->group) || sizeof(data->group) != 3) return;
-		write("Socket connection established for %s\n", data->group);
+		if (!stringp(data->group)) return;
+		write("Socket connection established for %O\n", data->group);
 		conn->type = data->type; conn->group = data->group;
 		websocket_groups[conn->group] += ({conn->sock});
 		send_update(({conn->sock}), get_state(data->group));
@@ -798,8 +803,7 @@ void ws_msg(Protocols.WebSocket.Frame frm, mapping conn)
 
 void ws_close(int reason, mapping conn)
 {
-	if (conn->type == "eu4")
-		websocket_groups[conn->group] -= ({conn->sock});
+	if (conn->type == "eu4") websocket_groups[conn->group] -= ({conn->sock});
 	m_delete(conn, "sock"); //De-floop
 }
 
@@ -819,14 +823,25 @@ void send_update(array(object) socks, mapping state) {
 		if (sock && sock->state == 1) sock->send_text(resp);
 }
 
-void send_updates_all() {foreach (websocket_groups; string tag; array grp) send_update(grp, get_state(tag));}
+void send_updates_all() {foreach (websocket_groups; string tag; array grp) send_update(grp, get_state(tag) | (["parsing": parsing]));}
 
-mapping get_state(string tag) {
+mapping get_state(string group) {
 	mapping data = last_parsed_savefile; //Get a local reference in case it changes while we're processing
 	if (!data) return (["error": "Processing savefile..."]);
 	//For the landing page, offer a menu of player countries
-	if (tag == "?!?") return (["menu": data->players_countries / 2]);
-	return (["tag": tag]);
+	if (group == "?!?") return (["menu": data->players_countries / 2]);
+	if (!data->countries[group]) {
+		//See if it's a player identifier. These get rechecked every get_state
+		//because they will track the player through tag changes (eg if you were
+		//Castille (CAS) and you form Spain (SPA), your tag will change, but you
+		//want to see data for Spain now plsthx).
+		foreach (data->players_countries / 2, [string name, string tag])
+			if (lower_case(group) == lower_case(name)) group = tag;
+	}
+	mapping country = data->countries[group];
+	if (!country) return (["error": "Country not found: " + group]);
+	string tag = group; //Convenience
+	return (["name": country->name || L10n[tag] || tag]);
 }
 
 int main(int argc, array(string) argv) {
