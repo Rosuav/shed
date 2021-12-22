@@ -719,6 +719,7 @@ void done_processing_savefile() {
 	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1]);
 	indices(connections)->inform(data);
 	last_parsed_savefile = data;
+	send_updates_all();
 }
 
 class ClientConnection {
@@ -818,7 +819,7 @@ void send_update(array(object) socks, mapping state) {
 		if (sock && sock->state == 1) sock->send_text(resp);
 }
 
-void send_updates_all(string tag) {send_update(websocket_groups[tag], get_state(tag));}
+void send_updates_all() {foreach (websocket_groups; string tag; array grp) send_update(grp, get_state(tag));}
 
 mapping get_state(string tag) {
 	return (["tag": tag]);
