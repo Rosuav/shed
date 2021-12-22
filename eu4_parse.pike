@@ -197,7 +197,8 @@ mapping province_info;
 mapping building_types; array building_id;
 mapping building_slots = ([]);
 multiset(string) area_has_level3 = (<>);
-void analyze_cot(mapping data, string name, string tag, function write) {
+void analyze_cot(mapping data, string name, string tag, function|mapping write) {
+	if (mappingp(write)) return; //TODO UNSUPPORTED
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
 	foreach (country->owned_provinces, string id) {
@@ -241,8 +242,9 @@ object calendar(string date) {
 	return Calendar.Gregorian.Day(year, mon, day);
 }
 
-void analyze_leviathans(mapping data, string name, string tag, function write) {
+void analyze_leviathans(mapping data, string name, string tag, function|mapping write) {
 	if (!has_value(data->dlc_enabled, "Leviathan")) return;
+	if (mappingp(write)) return; //TODO UNSUPPORTED
 	mapping country = data->countries[tag];
 	array projects = ({ });
 	foreach (country->owned_provinces, string id) {
@@ -296,7 +298,8 @@ int count_building_slots(mapping data, string id) {
 }
 
 mapping(string:string) manufactories = ([]); //Calculated from building_types
-void analyze_furnace(mapping data, string name, string tag, function write) {
+void analyze_furnace(mapping data, string name, string tag, function|mapping write) {
+	if (mappingp(write)) return; //TODO UNSUPPORTED
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
 	int seen = 0;
@@ -335,7 +338,8 @@ void analyze_furnace(mapping data, string name, string tag, function write) {
 	if (seen) write("\n");
 }
 
-void analyze_upgrades(mapping data, string name, string tag, function write) {
+void analyze_upgrades(mapping data, string name, string tag, function|mapping write) {
+	if (mappingp(write)) return; //TODO UNSUPPORTED
 	mapping country = data->countries[tag];
 	mapping upgradeables = ([]);
 	foreach (country->owned_provinces, string id) {
@@ -364,7 +368,8 @@ void analyze_upgrades(mapping data, string name, string tag, function write) {
 	}
 }
 
-void analyze_findbuildings(mapping data, string name, string tag, function write, string highlight) {
+void analyze_findbuildings(mapping data, string name, string tag, function|mapping write, string highlight) {
+	if (mappingp(write)) return; //TODO UNSUPPORTED
 	mapping country = data->countries[tag];
 	foreach (country->owned_provinces, string id) {
 		mapping prov = data->provinces["-" + id];
@@ -397,10 +402,11 @@ void analyze_findbuildings(mapping data, string name, string tag, function write
 }
 
 mapping(string:array) interesting_provinces = ([]);
-void analyze(mapping data, string name, string tag, function|void write, string|void highlight) {
+void analyze(mapping data, string name, string tag, function|mapping|void write, string|void highlight) {
 	if (!write) write = Stdio.stdin->write;
 	interesting_province = ({ }); interest_priority = 0; area_has_level3 = (<>);
-	write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
+	if (mappingp(write)) write->name = name + " (" + (data->countries[tag]->name || L10n[tag] || tag) + ")";
+	else write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
 	({analyze_cot, analyze_leviathans, analyze_furnace, analyze_upgrades})(data, name, tag, write);
 	if (highlight) analyze_findbuildings(data, name, tag, write, highlight);
 	//write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province)); //If needed in a machine-readable format
@@ -437,8 +443,8 @@ void show_tradegoods(mapping data, string tag, function|void write) {
 	write("Total %.2f/year or %.4f/month\n", total_value, total_value / 12);
 }
 
-void analyze_flagships(mapping data, function|void write) {
-	if (!write) write = Stdio.stdin->write; //Wait. How does this even work?? FIXME - shouldn't it fail, and make me use stdout properly?!?
+void analyze_flagships(mapping data, function|mapping write) {
+	if (mappingp(write)) return; //TODO UNSUPPORTED
 	array flagships = ({ });
 	foreach (data->countries; string tag; mapping country) {
 		//mapping country = data->countries[tag];
@@ -488,8 +494,9 @@ mapping ship_types = transform(
 	"transport: war_canoe cog flute brig merchantman trabakul eastindiaman ",
 );
 
-void analyze_wars(mapping data, multiset(string) tags, function|void write) {
+void analyze_wars(mapping data, multiset(string) tags, function|mapping|void write) {
 	if (!write) write = Stdio.stdin->write;
+	if (mappingp(write)) return; //TODO UNSUPPORTED
 	foreach (values(data->active_war || ({ })), mapping war) {
 		if (!mappingp(war)) continue; //Dunno what's with these, there seem to be some strings in there.
 		//To keep displaying the war after all players separate-peace out, use
@@ -716,7 +723,6 @@ void done_processing_savefile() {
 	if (!data) {werror("Unable to parse save file (see above for errors, hopefully)\n"); return;}
 	write("\nCurrent date: %s\n", data->date);
 	foreach (data->players_countries / 2, [string name, string tag]) analyze(data, name, tag);
-	//analyze_flagships(data);
 	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1]);
 	indices(connections)->inform(data);
 	last_parsed_savefile = data;
@@ -830,18 +836,20 @@ mapping get_state(string group) {
 	if (!data) return (["error": "Processing savefile..."]);
 	//For the landing page, offer a menu of player countries
 	if (group == "?!?") return (["menu": data->players_countries / 2]);
-	if (!data->countries[group]) {
+	string tag = group;
+	if (!data->countries[tag]) {
 		//See if it's a player identifier. These get rechecked every get_state
 		//because they will track the player through tag changes (eg if you were
 		//Castille (CAS) and you form Spain (SPA), your tag will change, but you
 		//want to see data for Spain now plsthx).
-		foreach (data->players_countries / 2, [string name, string tag])
-			if (lower_case(group) == lower_case(name)) group = tag;
+		foreach (data->players_countries / 2, [string name, string trytag])
+			if (lower_case(tag) == lower_case(name)) tag = trytag;
 	}
-	mapping country = data->countries[group];
-	if (!country) return (["error": "Country not found: " + group]);
-	string tag = group; //Convenience
-	return (["name": country->name || L10n[tag] || tag]);
+	mapping country = data->countries[tag];
+	if (!country) return (["error": "Country/player not found: " + group]);
+	mapping ret = ([]);
+	analyze(data, group, tag, ret); //TODO: Remember a highlight and pass it along
+	return ret;
 }
 
 int main(int argc, array(string) argv) {

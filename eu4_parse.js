@@ -1,11 +1,12 @@
 //Not to be confused with eu4_parse.json which is a cache
 import choc, {set_content, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
-const {A, DIV, FORM, INPUT, LABEL, LI, UL} = choc; //autoimport
+const {A, DIV, FORM, H1, INPUT, LABEL, LI, UL} = choc; //autoimport
 
 export function render(state) {
 	//Set up one-time structure. Every subsequent render will update within that.
 	if (!DOM("#error")) set_content("main", [
 		DIV({id: "error"}), DIV({id: "now_parsing"}), DIV({id: "menu"}),
+		H1({id: "player"}),
 		//TODO: Have DETAILS/SUMMARY nodes for every expandable, such that,
 		//whenever content is updated, they remain in their open/closed state
 	]);
@@ -29,6 +30,7 @@ export function render(state) {
 		]);
 		return;
 	}
+	if (state.name) set_content("#player", state.name);
 }
 
 /* Style notes:
