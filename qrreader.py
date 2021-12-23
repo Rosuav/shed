@@ -51,6 +51,7 @@ def main(*, interval=0.5, monitor="primary", ocr=0):
 	while True:
 		img = ImageGrab.grab(bbox=bbox)
 		for result in decode(img):
+			if result.type != "QRCODE": continue # Ignore false positives that happen to look like barcodes
 			msg = result.data.decode()
 			got_message(msg, "QR code decoded!")
 		ocr_count += 1
