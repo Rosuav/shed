@@ -5,7 +5,8 @@ const {A, DETAILS, DIV, FORM, H1, INPUT, LABEL, LI, SUMMARY, TABLE, TD, TH, TR, 
 export function render(state) {
 	//Set up one-time structure. Every subsequent render will update within that.
 	if (!DOM("#error")) set_content("main", [
-		DIV({id: "error"}), DIV({id: "now_parsing"}), DIV({id: "menu"}),
+		DIV({id: "error", className: "hidden"}), DIV({id: "now_parsing", className: "hidden"}),
+		DIV({id: "menu", className: "hidden"}),
 		H1({id: "player"}),
 		DETAILS({id: "cot"}, SUMMARY("Centers of Trade")),
 		DETAILS({id: "monuments"}, SUMMARY("Monuments")),
@@ -30,7 +31,7 @@ export function render(state) {
 				LABEL(["Enter tag or name:", INPUT({name: "q", placeholder: "SPA"})]),
 				INPUT({type: "submit", value: "Search"}),
 			]),
-		]);
+		]).classList.remove("hidden");
 		return;
 	}
 	if (state.name) set_content("#player", state.name);
@@ -72,9 +73,3 @@ export function render(state) {
 		]);
 	}
 }
-
-/* Style notes:
-#error -> position fixed, top center, big warning, colored box w/ border
-#now_parsing -> position fixed, top right, much subtler, colored box w/o border
-#menu -> colored bg box w/ border
-*/

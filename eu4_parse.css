@@ -1,4 +1,30 @@
 h1 {max-width: max-content; margin: auto;}
+
+#error {
+	position: fixed;
+	top: 1em; left: 50%; transform: translateX(-50%); /* Position: top center */
+	border: 1px solid red;
+	background: #fbb;
+	font-size: 150%;
+	padding: 2em;
+}
+
+#now_parsing {
+	position: fixed;
+	top: 1em; right: 1em;
+	border: 1px solid cyan;
+	background: #dff;
+	padding: 0.5em;
+}
+
+#menu {
+	background: #efe;
+	border: 1px solid green;
+	padding: 0.5em;
+}
+
+.hidden {display: none}
+
 details {
 	border: 1px solid black;
 	margin: 1em 0;
