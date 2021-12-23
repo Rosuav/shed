@@ -280,6 +280,7 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 	array cooldowns = ({ });
 	mapping cd = country->cooldowns || ([]);
 	foreach ("gold men sailors" / " ", string tradefor) {
+		//TODO: Estimate monthly income for the target country and show it
 		string date = cd["trade_favors_for_" + tradefor];
 		if (!date) {cooldowns += ({({"", "---", "--------", String.capitalize(tradefor)})}); continue;}
 		int days = today->distance(calendar(date)) / today;
