@@ -8,6 +8,8 @@ export function render(state) {
 		DIV({id: "error"}), DIV({id: "now_parsing"}), DIV({id: "menu"}),
 		H1({id: "player"}),
 		DETAILS({id: "cot"}, SUMMARY("Centers of Trade")),
+		DETAILS({id: "monuments"}, SUMMARY("Monuments")),
+		DETAILS({id: "favors"}, SUMMARY("Favors")),
 		//TODO: Have DETAILS/SUMMARY nodes for every expandable, such that,
 		//whenever content is updated, they remain in their open/closed state
 	]);
@@ -45,6 +47,22 @@ export function render(state) {
 			]));
 		}
 		set_content("#cot", content);
+	}
+	if (state.favors) {
+		let free = 0, owed = 0, owed_total = 0;
+		const cooldowns = state.favors.cooldowns.map(cd => {
+			if (cd[1] === "---") ++free;
+			return TR({className: cd[1] === "---" ? "highlight" : ""}, cd.slice(1).map(TD));
+		});
+		const countries = Object.entries(state.favors.owed).sort((a,b) => b[1] - a[1]).map(([c, f]) => {
+			++owed_total; if (f >= 10) ++owed;
+			return TR({className: f >= 10 ? "highlight" : ""}, [TD(c), TD(""+f)]);
+		});
+		set_content("#favors", [
+			SUMMARY(`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`),
+			TABLE({border: "1"}, cooldowns),
+			TABLE({border: "1"}, countries),
+		]);
 	}
 }
 

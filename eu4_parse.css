@@ -1,1 +1,15 @@
 h1 {max-width: max-content; margin: auto;}
+details {
+	border: 1px solid black;
+	margin: 1em 0;
+}
+table {
+	border-collapse: collapse;
+	margin: 0.25em;
+}
+td {padding: 2px;}
+
+/* Highlighting is always done with the same CSS class, but the precise
+color choice can be overridden based on its parent. */
+.highlight {background: #bfd;}
+#developable .highlight {background: #bff;}

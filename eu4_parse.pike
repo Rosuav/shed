@@ -276,22 +276,6 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 		//if (con) write("Construction: %O\n", con);
 	}
 	sort(projects);
-	if (mappingp(write)) {
-		write->monuments = projects[*][-1];
-		//Favors are all rendered on the front end.
-		mapping owed = ([]);
-		foreach (data->countries; string other; mapping c) {
-			int favors = threeplace(c->active_relations[tag]->?favors);
-			if (favors > 0) owed[c->name || L10n[other] || other] = favors;
-		}
-		write->favors = ([
-			"cooldowns": country->cooldowns || ([]),
-			"owed": owed,
-		]);
-		return;
-	}
-	if (sizeof(projects)) write("%s\n", string_to_utf8(tabulate(({""}) + "ID Tier Province Project Upgrading" / " ", projects[*][-1], "  ", 0)));
-	write("\nFavors:\n");
 	object today = calendar(data->date);
 	array cooldowns = ({ });
 	mapping cd = country->cooldowns || ([]);
@@ -299,8 +283,21 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 		string date = cd["trade_favors_for_" + tradefor];
 		if (!date) {cooldowns += ({({"", "---", "--------", String.capitalize(tradefor)})}); continue;}
 		int days = today->distance(calendar(date)) / today;
-		cooldowns += ({({"", days, date, String.capitalize(tradefor)})});
+		cooldowns += ({({"", days, date, String.capitalize(tradefor)})}); //TODO: Don't include the initial empty string here, add it for tabulate() only
 	}
+	if (mappingp(write)) {
+		write->monuments = projects[*][-1];
+		//Favors are all rendered on the front end.
+		mapping owed = ([]);
+		foreach (data->countries; string other; mapping c) {
+			int favors = threeplace(c->active_relations[tag]->?favors);
+			if (favors > 0) owed[c->name || L10n[other] || other] = favors / 1000.0;
+		}
+		write->favors = (["cooldowns": cooldowns, "owed": owed]);
+		return;
+	}
+	if (sizeof(projects)) write("%s\n", string_to_utf8(tabulate(({""}) + "ID Tier Province Project Upgrading" / " ", projects[*][-1], "  ", 0)));
+	write("\nFavors:\n");
 	foreach (data->countries; string other; mapping c) {
 		int favors = threeplace(c->active_relations[tag]->?favors);
 		if (favors > 1000) write("%s owes you %d.%03d\n", c->name || L10n[other] || other, favors / 1000, favors % 1000);
