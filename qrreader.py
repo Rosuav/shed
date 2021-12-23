@@ -42,7 +42,6 @@ def main(*, interval=0.5, monitor="primary", ocr=0):
 		if msg not in seen:
 			seen[msg] = 1
 			print(msg)
-			return
 			# If possible, poke a message through to StilleBot. Will fail if not on localhost.
 			requests_post("https://sikorsky.rosuav.com/admin", json={
 				"cmd": "send_message",
