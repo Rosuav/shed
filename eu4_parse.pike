@@ -261,7 +261,7 @@ object calendar(string date) {
 	return Calendar.Gregorian.Day(year, mon, day);
 }
 
-mapping idea_definitions, policy_definitions;
+mapping idea_definitions, policy_definitions, reform_definitions;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -290,6 +290,8 @@ mapping(string:int) all_country_modifiers(mapping country) {
 	foreach (enumerate_ideas(country->active_idea_groups), mapping idea) _incorporate(modifiers, idea);
 	foreach (Array.arrayify(country->active_policy), mapping policy)
 		_incorporate(modifiers, policy_definitions[policy->policy]);
+	foreach (Array.arrayify(country->government->reform_stack->reforms), string reform)
+		_incorporate(modifiers, reform_definitions[reform]->?modifiers);
 	//Having gone through all of the above, we should now have estate influence modifiers.
 	//Now we can calculate the total influence, and then add in the effects of each estate.
 	if (country->estate) {
@@ -346,7 +348,7 @@ array(float) estimate_per_month(mapping data, mapping country) {
 	//since any country that's losing in war is unlikely to have manpower to send you).
 	//TODO: Acknowledge "Recruitment Sabotaged" 20% penalty
 	//TODO: Acknowledge religious interactions (Catholic, Orthodox, Coptic, Protestant, Fetishist)
-	//TODO: Acknowledge government reforms (Republic, Theocracy)
+	//TODO: Check government reforms (Republic, Theocracy)
 	//TODO: Acknowledge parliament issues (one for army, two for navy)
 	//TODO: Acknowledge cocoa bonus
 	mapping modifiers = all_country_modifiers(country);
@@ -1077,6 +1079,7 @@ int main(int argc, array(string) argv) {
 	policy_definitions = parse_config_dir(PROGRAM_PATH + "/common/policies");
 	estate_definitions = parse_config_dir(PROGRAM_PATH + "/common/estates");
 	estate_privilege_definitions = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/estate_privileges/00_privileges.txt"));
+	reform_definitions = parse_config_dir(PROGRAM_PATH + "/common/government_reforms");
 
 	/* It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
 	has. So, instead, let's ask for a little help - from the game, and from the human. And then save the results.
