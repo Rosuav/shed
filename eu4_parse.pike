@@ -189,7 +189,7 @@ int threeplace(string value) {
 	//ie "3.142" is returned as 3142.
 	if (!value) return 0;
 	sscanf(value, "%d.%s", int whole, string frac);
-	return whole * 1000 + (int)sprintf("%.03s", frac);
+	return whole * 1000 + (int)sprintf("%.03s", frac + "000");
 }
 
 int interest_priority = 0;
@@ -273,6 +273,63 @@ array(mapping) enumerate_ideas(mapping idea_groups) {
 	return ret - ({0});
 }
 
+//Gather ALL a country's modifiers. Or, try to.
+void _incorporate(mapping modifiers, mapping effect, int|void mul, int|void div) {
+	if (effect) foreach (effect; string id; mixed val) {
+		if (stringp(val) && sscanf(val, "%d.%[0-9]%s", int whole, string frac, string blank) && blank == "") {
+			modifiers[id] += (whole * 1000 + (int)sprintf("%.03s", frac + "000")) * (mul||1) / (div||1);
+			if (has_value("church_influence_modifier burghers_influence_modifier nobility_influence_modifier" / " ", id)) write("%s: %O\n", id, (whole * 1000 + (int)sprintf("%.03s", frac + "000")) * (mul||1) / (div||1));
+		}
+	}
+}
+mapping estate_definitions = ([]), estate_privilege_definitions = ([]);
+mapping(string:int) all_country_modifiers(mapping country) {
+	if (mapping cached = country->all_country_modifiers) return cached;
+	mapping modifiers = ([]);
+	//TODO: Add more things here as they get analyzed
+	foreach (enumerate_ideas(country->active_idea_groups), mapping idea) _incorporate(modifiers, idea);
+	foreach (Array.arrayify(country->active_policy), mapping policy)
+		_incorporate(modifiers, policy_definitions[policy->policy]);
+	//Having gone through all of the above, we should now have estate influence modifiers.
+	//Now we can calculate the total influence, and then add in the effects of each estate.
+	if (country->estate) {
+		//Some estates might not work like this. Not sure.
+		//First, incorporate country-wide modifiers from privileges. (It's possible for privs to
+		//affect other estates' influences.)
+		foreach (country->estate, mapping estate) {
+			foreach (Array.arrayify(estate->granted_privileges), [string priv, string date]) {
+				mapping privilege = estate_privilege_definitions[priv];
+				_incorporate(modifiers, privilege->penalties);
+				_incorporate(modifiers, privilege->benefits);
+			}
+		}
+		//Now calculate the influence and loyalty of each estate, and the resulting effects.
+		foreach (country->estate, mapping estate) {
+			mapping estate_defn = estate_definitions[estate->type];
+			if (!estate_defn) continue;
+			int influence = (int)estate_defn->base_influence * 1000;
+			//There are some conditional modifiers. Sigh. This is seriously complicated. Why can't estate influence just be in the savefile?
+			foreach (Array.arrayify(estate->granted_privileges), [string priv, string date])
+				influence += threeplace(estate_privilege_definitions[priv]->?influence) * 100;
+			influence += modifiers[replace(estate->type, "estate_", "") + "_influence_modifier"] * 100;
+			foreach (Array.arrayify(estate->influence_modifier), mapping mod)
+				influence += threeplace(mod->value);
+			influence += threeplace(estate->territory) / 2; //Is this always the case? 42% land share gives 21% influence?
+			//This is horribly incomplete. Needs a lot of expansion to truly be useful.
+			string opinion = "neutral";
+			if ((float)estate->loyalty >= 60.0) opinion = "happy";
+			else if ((float)estate->loyalty < 30.0) opinion = "angry";
+			int mul = 4;
+			if (influence < 60000) mul = 3;
+			if (influence < 40000) mul = 2;
+			if (influence < 20000) mul = 1;
+			write("%s: loyalty %O influence %O\n", estate->type, estate->loyalty, influence);
+			_incorporate(modifiers, estate_defn["country_modifier_" + opinion], mul, 4);
+		}
+	}
+	return country->all_country_modifiers = modifiers;
+}
+
 //Estimate a months' production of ducats/manpower/sailors (yes, I'm fixing the scaling there)
 array(float) estimate_per_month(mapping data, mapping country) {
 	float gold = (float)country->ledger->lastmonthincome - (float)country->ledger->lastmonthexpense;
@@ -292,16 +349,9 @@ array(float) estimate_per_month(mapping data, mapping country) {
 	//TODO: Acknowledge government reforms (Republic, Theocracy)
 	//TODO: Acknowledge parliament issues (one for army, two for navy)
 	//TODO: Acknowledge cocoa bonus
-	//TODO: Acknowledge Nobles estate based on loyalty and influence
-	foreach (enumerate_ideas(country->active_idea_groups), mapping idea) {
-		mp_mod += (float)idea->manpower_recovery_speed;
-		sail_mod += (float)idea->sailors_recovery_speed;
-	}
-	foreach (Array.arrayify(country->active_policy), mapping policy) {
-		policy = policy_definitions[policy->policy];
-		mp_mod += (float)policy->manpower_recovery_speed;
-		sail_mod += (float)policy->sailors_recovery_speed;
-	}
+	mapping modifiers = all_country_modifiers(country);
+	mp_mod += modifiers->manpower_recovery_speed / 1000.0;
+	sail_mod += modifiers->sailors_recovery_speed / 1000.0;
 
 	//Add back on the base manpower recovery (10K base manpower across ten years),
 	//which isn't modified by recovery bonuses/penalties. Doesn't apply to sailors
@@ -928,7 +978,7 @@ mapping get_state(string group) {
 	}
 	mapping country = data->countries[tag];
 	if (!country) return (["error": "Country/player not found: " + group]);
-	mapping ret = (["self": data->countries[tag], "England": data->countries->ENG]);
+	mapping ret = (["self": data->countries[tag]]);
 	analyze(data, group, tag, ret); //TODO: Remember a highlight and pass it along
 	return ret;
 }
@@ -1025,6 +1075,8 @@ int main(int argc, array(string) argv) {
 		idea_definitions[grp] = tidied;
 	}
 	policy_definitions = parse_config_dir(PROGRAM_PATH + "/common/policies");
+	estate_definitions = parse_config_dir(PROGRAM_PATH + "/common/estates");
+	estate_privilege_definitions = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/estate_privileges/00_privileges.txt"));
 
 	/* It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
 	has. So, instead, let's ask for a little help - from the game, and from the human. And then save the results.
