@@ -157,12 +157,23 @@ mapping parse_savefile(string data, int|void verbose) {
 	return ret;
 }
 
+//Parse a full directory of configs and merge them into one mapping
+//The specified directory name should not end with a slash.
+mapping parse_config_dir(string dir) {
+	mapping ret = ([]);
+	foreach (sort(get_dir(dir)), string fn)
+		ret |= low_parse_savefile(Stdio.read_file(dir + "/" + fn));
+	return ret;
+}
+
 mapping(string:string) L10n;
 void parse_localisation(string data) {
 	data = utf8_to_string(data);
 	sscanf(data, "%*s\n%{ %s:%*d \"%s\"\n%}", array info);
 	L10n |= (mapping)info;
 }
+
+mapping idea_definitions;
 
 string tabulate(array(string) headings, array(array(mixed)) data, string|void gutter, int|void summary) {
 	if (!gutter) gutter = " ";
@@ -252,6 +263,47 @@ object calendar(string date) {
 	return Calendar.Gregorian.Day(year, mon, day);
 }
 
+//List all ideas (including national) that are active
+array(mapping) enumerate_ideas(mapping idea_groups) {
+	array ret = ({ });
+	foreach (idea_groups; string grp; string numtaken) {
+		mapping group = idea_definitions[grp]; if (!group) continue;
+		ret += ({group->start}) + group->ideas[..(int)numtaken - 1];
+		if (numtaken == "7") ret += ({group->bonus});
+	}
+	return ret - ({0});
+}
+
+//Estimate a months' production of ducats/manpower/sailors (yes, I'm fixing the scaling there)
+array(float) estimate_per_month(mapping data, mapping country) {
+	float gold = (float)country->ledger->lastmonthincome - (float)country->ledger->lastmonthexpense;
+	float manpower = (float)country->max_manpower * 1000 / 120.0;
+	float sailors = (float)country->max_sailors / 120.0;
+	//Attempt to calculate modifiers. This is not at all accurate but should give a reasonable estimate.
+	float mp_mod = 100.0, sail_mod = 100.0;
+	mp_mod += (float)country->army_tradition * 0.1;
+	sail_mod += (float)country->navy_tradition * 0.2;
+	mp_mod -= (float)country->war_exhaustion;
+	sail_mod -= (float)country->war_exhaustion;
+	//Note that this is not an exhaustive list of modifiers, and is intended to give only
+	//the ones that are likely to make a material difference (eg Revanchism is ignored,
+	//since any country that's losing in war is unlikely to have manpower to send you).
+	//TODO: Acknowledge "Recruitment Sabotaged" 20% penalty
+	//TODO: Acknowledge religious interactions (Catholic, Orthodox, Coptic, Protestant, Fetishist)
+	//TODO: Acknowledge government reforms (Republic, Theocracy)
+	//TODO: Acknowledge parliament issues (one for army, two for navy)
+	//TODO: Acknowledge cocoa bonus
+	//TODO: Acknowledge Admin/Qty, Qual/Explo policies
+	//TODO: Acknowledge Nobles estate based on loyalty and influence
+	foreach (enumerate_ideas(country->active_idea_groups), mapping idea) {
+		mp_mod += (float)idea->manpower_recovery_speed;
+		sail_mod += (float)idea->sailors_recovery_speed;
+	}
+
+	manpower *= mp_mod / 100.0; sailors *= sail_mod / 100.0;
+	return ({gold, max(manpower, 100.0), max(sailors, sailors > 0.0 ? 5.0 : 0.0)}); //There's minimum manpower/sailor recovery
+}
+
 void analyze_leviathans(mapping data, string name, string tag, function|mapping write) {
 	if (!has_value(data->dlc_enabled, "Leviathan")) return;
 	mapping country = data->countries[tag];
@@ -279,17 +331,13 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 	object today = calendar(data->date);
 	array cooldowns = ({ });
 	mapping cd = country->cooldowns || ([]);
-	foreach ("gold men sailors" / " ", string tradefor) {
-		//TODO: Estimate monthly income for the target country and show it
-		//country->estimated_monthly_income seems to be gross income?
-		//country->ledger->lastmonthincome, lastmonthexpense?
-		//country->max_manpower, country->max_sailors - that's not monthly
-		//gain, but it's probably good enough for an estimate (remember that
-		//manpower is units but sailors is men)
+	array(float) permonth = estimate_per_month(data, country);
+	foreach ("gold men sailors" / " "; int i; string tradefor) {
 		string date = cd["trade_favors_for_" + tradefor];
-		if (!date) {cooldowns += ({({"", "---", "--------", String.capitalize(tradefor)})}); continue;}
+		string cur = sprintf("%.3f", permonth[i]); //TODO: *6
+		if (!date) {cooldowns += ({({"", "---", "--------", String.capitalize(tradefor), cur})}); continue;}
 		int days = today->distance(calendar(date)) / today;
-		cooldowns += ({({"", days, date, String.capitalize(tradefor)})}); //TODO: Don't include the initial empty string here, add it for tabulate() only
+		cooldowns += ({({"", days, date, String.capitalize(tradefor), cur})}); //TODO: Don't include the initial empty string here, add it for tabulate() only
 	}
 	if (mappingp(write)) {
 		write->monuments = projects[*][-1];
@@ -308,7 +356,7 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 		int favors = threeplace(c->active_relations[tag]->?favors);
 		if (favors > 1000) write("%s owes you %d.%03d\n", c->name || L10n[other] || other, favors / 1000, favors % 1000);
 	}
-	write("%s\n", string_to_utf8(tabulate(({"", "Days", "Date", "Trade for"}), cooldowns, "  ", 0)));
+	write("%s\n", string_to_utf8(tabulate(({"", "Days", "Date", "Trade for", "Max gain"}), cooldowns, "  ", 0)));
 }
 
 int count_building_slots(mapping data, string id) {
@@ -874,7 +922,7 @@ mapping get_state(string group) {
 	}
 	mapping country = data->countries[tag];
 	if (!country) return (["error": "Country/player not found: " + group]);
-	mapping ret = ([]);
+	mapping ret = (["self": data->countries[tag], "England": data->countries->ENG]);
 	analyze(data, group, tag, ret); //TODO: Remember a highlight and pass it along
 	return ret;
 }
@@ -951,6 +999,24 @@ int main(int argc, array(string) argv) {
 				if (bld->make_obsolete) building_types[bld->make_obsolete]->obsoleted_by = id;
 			}
 		}
+	}
+	retain_map_indices = 1;
+	idea_definitions = parse_config_dir(PROGRAM_PATH + "/common/ideas");
+	retain_map_indices = 0;
+	foreach (idea_definitions; string grp; mapping group) {
+		array basic_ideas = ({ }), pos = ({ });
+		mapping tidied = ([]);
+		foreach (group; string id; mixed idea) {
+			if (!mappingp(idea)) continue;
+			int idx = m_delete(idea, "_index");
+			if (id == "start" || id == "bonus") {tidied[id] = idea; continue;}
+			if ((<"trigger", "free", "category", "ai_will_do">)[id]) continue;
+			basic_ideas += ({idea});
+			pos += ({idx});
+		}
+		sort(pos, basic_ideas);
+		tidied->ideas = basic_ideas;
+		idea_definitions[grp] = tidied;
 	}
 
 	/* It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
