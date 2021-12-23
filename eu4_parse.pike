@@ -173,8 +173,6 @@ void parse_localisation(string data) {
 	L10n |= (mapping)info;
 }
 
-mapping idea_definitions;
-
 string tabulate(array(string) headings, array(array(mixed)) data, string|void gutter, int|void summary) {
 	if (!gutter) gutter = " ";
 	array info = ({headings}) + (array(array(string)))data;
@@ -263,6 +261,7 @@ object calendar(string date) {
 	return Calendar.Gregorian.Day(year, mon, day);
 }
 
+mapping idea_definitions, policy_definitions;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -277,14 +276,14 @@ array(mapping) enumerate_ideas(mapping idea_groups) {
 //Estimate a months' production of ducats/manpower/sailors (yes, I'm fixing the scaling there)
 array(float) estimate_per_month(mapping data, mapping country) {
 	float gold = (float)country->ledger->lastmonthincome - (float)country->ledger->lastmonthexpense;
-	float manpower = (float)country->max_manpower * 1000 / 120.0;
+	float manpower = ((float)country->max_manpower * 1000 - 10000) / 120.0; //Provincial manpower
 	float sailors = (float)country->max_sailors / 120.0;
 	//Attempt to calculate modifiers. This is not at all accurate but should give a reasonable estimate.
-	float mp_mod = 100.0, sail_mod = 100.0;
-	mp_mod += (float)country->army_tradition * 0.1;
-	sail_mod += (float)country->navy_tradition * 0.2;
-	mp_mod -= (float)country->war_exhaustion;
-	sail_mod -= (float)country->war_exhaustion;
+	float mp_mod = 1.0, sail_mod = 1.0;
+	mp_mod += (float)country->army_tradition * 0.001;
+	sail_mod += (float)country->navy_tradition * 0.002;
+	mp_mod -= (float)country->war_exhaustion / 100.0;
+	sail_mod -= (float)country->war_exhaustion / 100.0;
 	//Note that this is not an exhaustive list of modifiers, and is intended to give only
 	//the ones that are likely to make a material difference (eg Revanchism is ignored,
 	//since any country that's losing in war is unlikely to have manpower to send you).
@@ -293,14 +292,21 @@ array(float) estimate_per_month(mapping data, mapping country) {
 	//TODO: Acknowledge government reforms (Republic, Theocracy)
 	//TODO: Acknowledge parliament issues (one for army, two for navy)
 	//TODO: Acknowledge cocoa bonus
-	//TODO: Acknowledge Admin/Qty, Qual/Explo policies
 	//TODO: Acknowledge Nobles estate based on loyalty and influence
 	foreach (enumerate_ideas(country->active_idea_groups), mapping idea) {
 		mp_mod += (float)idea->manpower_recovery_speed;
 		sail_mod += (float)idea->sailors_recovery_speed;
 	}
+	foreach (Array.arrayify(country->active_policy), mapping policy) {
+		policy = policy_definitions[policy->policy];
+		mp_mod += (float)policy->manpower_recovery_speed;
+		sail_mod += (float)policy->sailors_recovery_speed;
+	}
 
-	manpower *= mp_mod / 100.0; sailors *= sail_mod / 100.0;
+	//Add back on the base manpower recovery (10K base manpower across ten years),
+	//which isn't modified by recovery bonuses/penalties. Doesn't apply to sailors
+	//as there's no "base sailors".
+	manpower = manpower * mp_mod + 10000 / 120.0; sailors *= sail_mod;
 	return ({gold, max(manpower, 100.0), max(sailors, sailors > 0.0 ? 5.0 : 0.0)}); //There's minimum manpower/sailor recovery
 }
 
@@ -1018,6 +1024,7 @@ int main(int argc, array(string) argv) {
 		tidied->ideas = basic_ideas;
 		idea_definitions[grp] = tidied;
 	}
+	policy_definitions = parse_config_dir(PROGRAM_PATH + "/common/policies");
 
 	/* It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
 	has. So, instead, let's ask for a little help - from the game, and from the human. And then save the results.
