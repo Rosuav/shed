@@ -254,7 +254,6 @@ object calendar(string date) {
 
 void analyze_leviathans(mapping data, string name, string tag, function|mapping write) {
 	if (!has_value(data->dlc_enabled, "Leviathan")) return;
-	if (mappingp(write)) return; //TODO UNSUPPORTED
 	mapping country = data->countries[tag];
 	array projects = ({ });
 	foreach (country->owned_provinces, string id) {
@@ -277,6 +276,20 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 		//if (con) write("Construction: %O\n", con);
 	}
 	sort(projects);
+	if (mappingp(write)) {
+		write->monuments = projects[*][-1];
+		//Favors are all rendered on the front end.
+		mapping owed = ([]);
+		foreach (data->countries; string other; mapping c) {
+			int favors = threeplace(c->active_relations[tag]->?favors);
+			if (favors > 0) owed[c->name || L10n[other] || other] = favors;
+		}
+		write->favors = ([
+			"cooldowns": country->cooldowns || ([]),
+			"owed": owed,
+		]);
+		return;
+	}
 	if (sizeof(projects)) write("%s\n", string_to_utf8(tabulate(({""}) + "ID Tier Province Project Upgrading" / " ", projects[*][-1], "  ", 0)));
 	write("\nFavors:\n");
 	object today = calendar(data->date);
