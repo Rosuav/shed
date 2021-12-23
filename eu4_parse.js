@@ -68,7 +68,7 @@ export function render(state) {
 		});
 		const countries = Object.entries(state.favors.owed).sort((a,b) => b[1][0] - a[1][0]).map(([c, f]) => {
 			++owed_total; if (f[0] >= 10) ++owed;
-			return TR({className: f[0] >= 10 ? "highlight" : ""}, [TD(c), f.map((n,i) => TD(compare(n, i && +state.favors.cooldowns[i-1][4])))]);
+			return TR({className: f[0] >= 10 ? "highlight" : ""}, [TD(c), f.map((n,i) => TD(compare(n, i ? +state.favors.cooldowns[i-1][4] : n)))]);
 		});
 		set_content("#favors", [
 			SUMMARY(`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`),

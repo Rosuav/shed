@@ -261,7 +261,7 @@ object calendar(string date) {
 	return Calendar.Gregorian.Day(year, mon, day);
 }
 
-mapping idea_definitions, policy_definitions, reform_definitions;
+mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -290,6 +290,7 @@ mapping(string:int) all_country_modifiers(mapping country) {
 		_incorporate(modifiers, policy_definitions[policy->policy]);
 	foreach (Array.arrayify(country->government->reform_stack->reforms), string reform)
 		_incorporate(modifiers, reform_definitions[reform]->?modifiers);
+	if (country->luck) _incorporate(modifiers, static_modifiers->luck); //Lucky nations (AI-only) get bonuses.
 	//Having gone through all of the above, we should now have estate influence modifiers.
 	//Now we can calculate the total influence, and then add in the effects of each estate.
 	if (country->estate) {
@@ -1077,6 +1078,7 @@ int main(int argc, array(string) argv) {
 	estate_definitions = parse_config_dir(PROGRAM_PATH + "/common/estates");
 	estate_privilege_definitions = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/estate_privileges/00_privileges.txt"));
 	reform_definitions = parse_config_dir(PROGRAM_PATH + "/common/government_reforms");
+	static_modifiers = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/static_modifiers/00_static_modifiers.txt"));
 
 	/* It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
 	has. So, instead, let's ask for a little help - from the game, and from the human. And then save the results.
