@@ -1,12 +1,13 @@
 //Not to be confused with eu4_parse.json which is a cache
 import choc, {set_content, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
-const {A, DIV, FORM, H1, INPUT, LABEL, LI, UL} = choc; //autoimport
+const {A, DETAILS, DIV, FORM, H1, INPUT, LABEL, LI, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
 
 export function render(state) {
 	//Set up one-time structure. Every subsequent render will update within that.
 	if (!DOM("#error")) set_content("main", [
 		DIV({id: "error"}), DIV({id: "now_parsing"}), DIV({id: "menu"}),
 		H1({id: "player"}),
+		DETAILS({id: "cot"}, SUMMARY("Centers of Trade")),
 		//TODO: Have DETAILS/SUMMARY nodes for every expandable, such that,
 		//whenever content is updated, they remain in their open/closed state
 	]);
@@ -31,6 +32,20 @@ export function render(state) {
 		return;
 	}
 	if (state.name) set_content("#player", state.name);
+	if (state.cot) {
+		const content = [SUMMARY(`Max level CoTs: ${state.cot.level3}/${state.cot.max}`)];
+		for (let kwd of ["upgradeable", "developable"]) {
+			const cots = state.cot[kwd];
+			if (!cots.length) continue;
+			content.push(TABLE({id: kwd, border: "1"}, [
+				TR(TH({colSpan: 5}, `${kwd[0].toUpperCase()}${kwd.slice(1)} CoTs:`)),
+				cots.map(cot => TR({className: cot.noupgrade === "" ? "highlight" : ""}, [
+					TD(cot.id), TD("Lvl "+cot.level), TD("Dev "+cot.dev), TD(cot.name), TD(cot.noupgrade)
+				])),
+			]));
+		}
+		set_content("#cot", content);
+	}
 }
 
 /* Style notes:
