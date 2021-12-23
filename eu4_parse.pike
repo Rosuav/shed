@@ -276,10 +276,8 @@ array(mapping) enumerate_ideas(mapping idea_groups) {
 //Gather ALL a country's modifiers. Or, try to.
 void _incorporate(mapping modifiers, mapping effect, int|void mul, int|void div) {
 	if (effect) foreach (effect; string id; mixed val) {
-		if (stringp(val) && sscanf(val, "%d.%[0-9]%s", int whole, string frac, string blank) && blank == "") {
+		if (stringp(val) && sscanf(val, "%d.%[0-9]%s", int whole, string frac, string blank) && blank == "")
 			modifiers[id] += (whole * 1000 + (int)sprintf("%.03s", frac + "000")) * (mul||1) / (div||1);
-			if (has_value("church_influence_modifier burghers_influence_modifier nobility_influence_modifier" / " ", id)) write("%s: %O\n", id, (whole * 1000 + (int)sprintf("%.03s", frac + "000")) * (mul||1) / (div||1));
-		}
 	}
 }
 mapping estate_definitions = ([]), estate_privilege_definitions = ([]);
@@ -325,7 +323,6 @@ mapping(string:int) all_country_modifiers(mapping country) {
 			if (influence < 60000) mul = 3;
 			if (influence < 40000) mul = 2;
 			if (influence < 20000) mul = 1;
-			write("%s: loyalty %O influence %O\n", estate->type, estate->loyalty, influence);
 			_incorporate(modifiers, estate_defn["country_modifier_" + opinion], mul, 4);
 		}
 	}
@@ -333,7 +330,7 @@ mapping(string:int) all_country_modifiers(mapping country) {
 }
 
 //Estimate a months' production of ducats/manpower/sailors (yes, I'm fixing the scaling there)
-array(float) estimate_per_month(mapping data, mapping country) {
+array(float) estimate_per_month(mapping country) {
 	float gold = (float)country->ledger->lastmonthincome - (float)country->ledger->lastmonthexpense;
 	float manpower = ((float)country->max_manpower * 1000 - 10000) / 120.0; //Provincial manpower
 	float sailors = (float)country->max_sailors / 120.0;
@@ -389,10 +386,10 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 	object today = calendar(data->date);
 	array cooldowns = ({ });
 	mapping cd = country->cooldowns || ([]);
-	array(float) permonth = estimate_per_month(data, country);
+	array(float) permonth = estimate_per_month(country);
 	foreach ("gold men sailors" / " "; int i; string tradefor) {
 		string date = cd["trade_favors_for_" + tradefor];
-		string cur = sprintf("%.3f", permonth[i]); //TODO: *6
+		string cur = sprintf("%.3f", permonth[i] * 6);
 		if (!date) {cooldowns += ({({"", "---", "--------", String.capitalize(tradefor), cur})}); continue;}
 		int days = today->distance(calendar(date)) / today;
 		cooldowns += ({({"", days, date, String.capitalize(tradefor), cur})}); //TODO: Don't include the initial empty string here, add it for tabulate() only
