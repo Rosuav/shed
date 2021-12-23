@@ -760,14 +760,15 @@ class PipeConnection {
 
 mapping(string:array(object)) websocket_groups = ([]);
 mapping respond(Protocols.HTTP.Server.Request req) {
-	if (req->not_query == "/eu4_parse.js") return ([
-		"file": Stdio.File("eu4_parse.js"),
+	mapping mimetype = (["eu4_parse.js": "text/javascript", "eu4_parse.css": "text/css"]);
+	if (string ty = mimetype[req->not_query[1..]]) return ([
+		"type": ty, "file": Stdio.File(req->not_query[1..]),
 		"extra_heads": (["Access-Control-Allow-Origin": "*"]),
 	]);
 	if (req->not_query == "/" || sscanf(req->not_query, "/tag/%s", string tag)) return ([
 		"type": "text/html",
 		"data": sprintf(#"<!DOCTYPE HTML><html lang=en>
-<head><title>EU4 Savefile Analysis</title><link rel=stylesheet src=\"eu4_parse.css\"></head>
+<head><title>EU4 Savefile Analysis</title><link rel=stylesheet href=\"/eu4_parse.css\"></head>
 <body><script>
 let ws_code = new URL(\"/eu4_parse.js\", location.href), ws_type = \"eu4\", ws_group = \"%s\";
 let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then(m => ws_sync = m);
