@@ -198,7 +198,6 @@ mapping building_types; array building_id;
 mapping building_slots = ([]);
 multiset(string) area_has_level3 = (<>);
 void analyze_cot(mapping data, string name, string tag, function|mapping write) {
-	if (mappingp(write)) return; //TODO UNSUPPORTED
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
 	foreach (country->owned_provinces, string id) {
@@ -207,10 +206,8 @@ void analyze_cot(mapping data, string name, string tag, function|mapping write) 
 		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
 		int need = prov->center_of_trade == "1" ? 10 : 25;
 		array desc = ({
-			sprintf("%s %04d %s", prov->owner, 9999-dev, prov->name),
-			prov->center_of_trade,
-			id,
-			sprintf("%s\tLvl %s\tDev %d\t%s", id, prov->center_of_trade, dev, string_to_utf8(prov->name)),
+			sprintf("%s %04d %s", prov->owner, 9999-dev, prov->name), //Sort key
+			prov->center_of_trade, id, dev, prov->name,
 		});
 		if (prov->center_of_trade == "3") {maxlvl += ({desc}); area_has_level3[prov_area[id]] = 1;}
 		else if (dev >= need) upgradeable += ({desc});
@@ -218,21 +215,34 @@ void analyze_cot(mapping data, string name, string tag, function|mapping write) 
 	}
 	sort(maxlvl); sort(upgradeable); sort(developable);
 	int level3 = sizeof(country->merchants->envoy); //You can have as many lvl 3 CoTs as you have merchants.
+	string|mapping colorize(string color, array info, int prio) {
+		//Colorize if it's interesting. It can't be upgraded if not in a state; also, not all level 2s
+		//can become level 3s, for various reasons.
+		[string key, string cotlevel, string id, int dev, string provname] = info;
+		array have_states = data->map_area_data[prov_area[id]]->?state->?country_state->?country;
+		string noupgrade;
+		if (!have_states || !has_value(have_states, tag)) noupgrade = "is territory";
+		else if (cotlevel == "2") {
+			if (area_has_level3[prov_area[id]]) noupgrade = "other l3 in area";
+			else if (level3-- <= 0) noupgrade = "need merchants";
+		}
+		if (!noupgrade) interesting(id, prio);
+		if (mappingp(write)) return (["id": id, "dev": dev, "name": provname, "noupgrade": noupgrade || "", "level": (int)cotlevel]);
+		string desc = sprintf("%s\tLvl %s\tDev %d\t%s", id, cotlevel, dev, string_to_utf8(provname));
+		if (noupgrade) return sprintf("%s [%s]", desc, noupgrade);
+		else return color + desc;
+	}
+	if (mappingp(write)) {
+		write->cot = ([
+			"level3": sizeof(maxlvl), "max": level3,
+			"upgradeable": colorize("", upgradeable[*], PRIO_IMMEDIATE),
+			"developable": colorize("", developable[*], PRIO_SITUATIONAL),
+		]);
+		return;
+	}
 	if (sizeof(maxlvl)) write("Max level CoTs (%d/%d):\n%{%s\n%}\n", sizeof(maxlvl), level3, maxlvl[*][-1]);
 	else write("Max level CoTs: 0/%d\n", level3);
 	level3 -= sizeof(maxlvl);
-	string colorize(string color, array info, int prio) {
-		//Colorize if it's interesting. It can't be upgraded if not in a state; also, not all level 2s
-		//can become level 3s, for various reasons.
-		array have_states = data->map_area_data[prov_area[info[2]]]->?state->?country_state->?country;
-		if (!have_states || !has_value(have_states, tag)) return info[-1] + " [is territory]";
-		if (info[1] == "2") {
-			if (area_has_level3[prov_area[info[2]]]) return info[-1] + " [other l3 in area]";
-			if (level3-- <= 0) return info[-1] + " [need merchants]";
-		}
-		interesting(info[2], prio);
-		return color + info[-1];
-	}
 	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;32m", upgradeable[*], PRIO_IMMEDIATE));
 	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*], PRIO_SITUATIONAL));
 }
