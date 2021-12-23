@@ -400,7 +400,7 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 		mapping owed = ([]);
 		foreach (data->countries; string other; mapping c) {
 			int favors = threeplace(c->active_relations[tag]->?favors);
-			if (favors > 0) owed[c->name || L10n[other] || other] = favors / 1000.0;
+			if (favors > 0) owed[c->name || L10n[other] || other] = ({favors / 1000.0}) + estimate_per_month(c)[*] * 6;
 		}
 		write->favors = (["cooldowns": cooldowns, "owed": owed]);
 		return;

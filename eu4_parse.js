@@ -1,6 +1,6 @@
 //Not to be confused with eu4_parse.json which is a cache
 import choc, {set_content, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
-const {A, DETAILS, DIV, FORM, H1, INPUT, LABEL, LI, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
+const {A, ABBR, DETAILS, DIV, FORM, H1, INPUT, LABEL, LI, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
 
 export function render(state) {
 	//Set up one-time structure. Every subsequent render will update within that.
@@ -58,18 +58,25 @@ export function render(state) {
 	]);
 	if (state.favors) {
 		let free = 0, owed = 0, owed_total = 0;
+		function compare(val, base) {
+			if (val <= base) return val.toFixed(3);
+			return ABBR({title: val.toFixed(3) + " before cap"}, base.toFixed(3));
+		}
 		const cooldowns = state.favors.cooldowns.map(cd => {
 			if (cd[1] === "---") ++free;
 			return TR({className: cd[1] === "---" ? "highlight" : ""}, cd.slice(1).map(TD));
 		});
-		const countries = Object.entries(state.favors.owed).sort((a,b) => b[1] - a[1]).map(([c, f]) => {
-			++owed_total; if (f >= 10) ++owed;
-			return TR({className: f >= 10 ? "highlight" : ""}, [TD(c), TD(""+f)]);
+		const countries = Object.entries(state.favors.owed).sort((a,b) => b[1][0] - a[1][0]).map(([c, f]) => {
+			++owed_total; if (f[0] >= 10) ++owed;
+			return TR({className: f[0] >= 10 ? "highlight" : ""}, [TD(c), f.map((n,i) => TD(compare(n, i && +state.favors.cooldowns[i-1][4])))]);
 		});
 		set_content("#favors", [
 			SUMMARY(`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`),
 			TABLE({border: "1"}, cooldowns),
-			TABLE({border: "1"}, countries),
+			TABLE({border: "1"}, [
+				TR([TH("Country"), TH("Favors"), TH("Ducats"), TH("Manpower"), TH("Sailors")]), //TODO: Click to sort
+				countries
+			]),
 		]);
 	}
 }
