@@ -82,7 +82,7 @@ def main(*, interval=0.5, monitor="primary", ocr=0):
 					text = ascii(codecs.decode(hex, "hex").decode("ascii"))[1:-1]
 				except UnicodeDecodeError:
 					continue # If there are any non-ASCII characters in there, it's clearly not interesting
-				if not re.search("[A-Za-z0-9]", text): continue # Gotta have at least one alphanumeric to be interesting
+				if not re.search("[A-Za-z0-9]{2,}", text): continue # Gotta have at least two alphanumerics to be interesting
 				found_hex += " " + text
 			if found_hex: got_message(found_hex, "Hex text detected!")
 		if interval <= 0: break
