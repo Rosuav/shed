@@ -35,7 +35,7 @@ export function render(state) {
 	}
 	if (state.name) set_content("#player", state.name);
 	if (state.cot) {
-		const content = [SUMMARY(`Max level CoTs: ${state.cot.level3}/${state.cot.max}`)];
+		const content = [SUMMARY(`Max level CoTs [${state.cot.level3}/${state.cot.max}]`)];
 		for (let kwd of ["upgradeable", "developable"]) {
 			const cots = state.cot[kwd];
 			if (!cots.length) continue;
@@ -48,6 +48,13 @@ export function render(state) {
 		}
 		set_content("#cot", content);
 	}
+	if (state.monuments) set_content("#monuments", [
+		SUMMARY(`Monuments [${state.monuments.length}]`),
+		TABLE({border: "1"}, [
+			TR([TH("ID"), TH("Tier"), TH("Province"), TH("Project"), TH("Upgrading")]),
+			state.monuments.map(m => TR(m.slice(1).map(TD))),
+		]),
+	]);
 	if (state.favors) {
 		let free = 0, owed = 0, owed_total = 0;
 		const cooldowns = state.favors.cooldowns.map(cd => {
