@@ -276,6 +276,7 @@ array(mapping) enumerate_ideas(mapping idea_groups) {
 //Gather ALL a country's modifiers. Or, try to.
 void _incorporate(mapping modifiers, mapping effect, int|void mul, int|void div) {
 	if (effect) foreach (effect; string id; mixed val) {
+		if ((id == "modifier" || id == "modifiers") && mappingp(val)) _incorporate(modifiers, val, mul, div);
 		if (stringp(val) && sscanf(val, "%[-]%d%*[.]%[0-9]%s", string sign, int whole, string frac, string blank) && blank == "")
 			modifiers[id] += (sign == "-" ? -1 : 1) * (whole * 1000 + (int)sprintf("%.03s", frac + "000")) * (mul||1) / (div||1);
 	}
@@ -289,13 +290,13 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	foreach (Array.arrayify(country->active_policy), mapping policy)
 		_incorporate(modifiers, policy_definitions[policy->policy]);
 	foreach (Array.arrayify(country->government->reform_stack->reforms), string reform)
-		_incorporate(modifiers, reform_definitions[reform]->?modifiers);
+		_incorporate(modifiers, reform_definitions[reform]);
 	foreach (Array.arrayify(country->traded_bonus), string idx)
-		_incorporate(modifiers, trade_goods[(int)idx]->?modifier);
+		_incorporate(modifiers, trade_goods[(int)idx]);
 	foreach (Array.arrayify(country->modifier), mapping mod)
 		_incorporate(modifiers, event_modifiers[mod->modifier]);
 	mapping age = age_definitions[data->current_age]->abilities;
-	_incorporate(modifiers, age[Array.arrayify(country->active_age_ability)[*]]->modifier[*]);
+	_incorporate(modifiers, age[Array.arrayify(country->active_age_ability)[*]][*]);
 
 	if (country->luck) _incorporate(modifiers, static_modifiers->luck); //Lucky nations (AI-only) get bonuses.
 	//Having gone through all of the above, we should now have estate influence modifiers.
