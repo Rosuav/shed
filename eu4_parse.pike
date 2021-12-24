@@ -349,10 +349,6 @@ array(float) estimate_per_month(mapping data, mapping country) {
 	sail_mod += (float)country->navy_tradition * 0.002;
 	mp_mod -= (float)country->war_exhaustion / 100.0;
 	sail_mod -= (float)country->war_exhaustion / 100.0;
-	//Note that this is not an exhaustive list of modifiers, and is intended to give only
-	//the ones that are likely to make a material difference (eg Revanchism is ignored,
-	//since any country that's losing in war is unlikely to have manpower to send you).
-	//TODO: Check government reforms (Republic, Theocracy)
 	mapping modifiers = all_country_modifiers(data, country);
 	mp_mod += modifiers->manpower_recovery_speed / 1000.0;
 	sail_mod += modifiers->sailors_recovery_speed / 1000.0;
