@@ -261,7 +261,7 @@ object calendar(string date) {
 	return Calendar.Gregorian.Day(year, mon, day);
 }
 
-mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers, trade_goods, event_modifiers, age_definitions;
+mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers, trade_goods, country_modifiers, age_definitions;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -294,7 +294,7 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	foreach (Array.arrayify(country->traded_bonus), string idx)
 		_incorporate(modifiers, trade_goods[(int)idx]);
 	foreach (Array.arrayify(country->modifier), mapping mod)
-		_incorporate(modifiers, event_modifiers[mod->modifier]);
+		_incorporate(modifiers, country_modifiers[mod->modifier]);
 	mapping age = age_definitions[data->current_age]->abilities;
 	_incorporate(modifiers, age[Array.arrayify(country->active_age_ability)[*]][*]);
 
@@ -353,7 +353,6 @@ array(float) estimate_per_month(mapping data, mapping country) {
 	//the ones that are likely to make a material difference (eg Revanchism is ignored,
 	//since any country that's losing in war is unlikely to have manpower to send you).
 	//TODO: Check government reforms (Republic, Theocracy)
-	//TODO: Acknowledge parliament issues (one for army, two for navy)
 	mapping modifiers = all_country_modifiers(data, country);
 	mp_mod += modifiers->manpower_recovery_speed / 1000.0;
 	sail_mod += modifiers->sailors_recovery_speed / 1000.0;
@@ -1091,7 +1090,8 @@ int main(int argc, array(string) argv) {
 		trade_goods[info->_index + 1] = info;
 		info->id = id;
 	}
-	event_modifiers = parse_config_dir(PROGRAM_PATH + "/common/event_modifiers");
+	country_modifiers = parse_config_dir(PROGRAM_PATH + "/common/event_modifiers")
+		| parse_config_dir(PROGRAM_PATH + "/common/parliament_issues");
 	age_definitions = parse_config_dir(PROGRAM_PATH + "/common/ages");
 
 	/* It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
