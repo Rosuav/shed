@@ -986,6 +986,8 @@ mapping get_state(string group) {
 	if (!country) return (["error": "Country/player not found: " + group]);
 	mapping ret = (["self": data->countries[tag]]);
 	analyze(data, group, tag, ret); //TODO: Remember a highlight and pass it along
+	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1], ret);
+	analyze_flagships(data, ret);
 	return ret;
 }
 
