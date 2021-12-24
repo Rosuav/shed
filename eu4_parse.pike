@@ -261,7 +261,7 @@ object calendar(string date) {
 	return Calendar.Gregorian.Day(year, mon, day);
 }
 
-mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers;
+mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers, trade_goods;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -290,6 +290,8 @@ mapping(string:int) all_country_modifiers(mapping country) {
 		_incorporate(modifiers, policy_definitions[policy->policy]);
 	foreach (Array.arrayify(country->government->reform_stack->reforms), string reform)
 		_incorporate(modifiers, reform_definitions[reform]->?modifiers);
+	foreach (Array.arrayify(country->traded_bonus), string idx)
+		_incorporate(modifiers, trade_goods[(int)idx]->?modifier);
 	if (country->luck) _incorporate(modifiers, static_modifiers->luck); //Lucky nations (AI-only) get bonuses.
 	//Having gone through all of the above, we should now have estate influence modifiers.
 	//Now we can calculate the total influence, and then add in the effects of each estate.
@@ -348,7 +350,7 @@ array(float) estimate_per_month(mapping country) {
 	//TODO: Acknowledge religious interactions (Catholic, Orthodox, Coptic, Protestant, Fetishist)
 	//TODO: Check government reforms (Republic, Theocracy)
 	//TODO: Acknowledge parliament issues (one for army, two for navy)
-	//TODO: Acknowledge cocoa bonus
+	//TODO: Age abilities (notably Sweden gets one)
 	mapping modifiers = all_country_modifiers(country);
 	mp_mod += modifiers->manpower_recovery_speed / 1000.0;
 	sail_mod += modifiers->sailors_recovery_speed / 1000.0;
@@ -1079,6 +1081,13 @@ int main(int argc, array(string) argv) {
 	estate_privilege_definitions = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/estate_privileges/00_privileges.txt"));
 	reform_definitions = parse_config_dir(PROGRAM_PATH + "/common/government_reforms");
 	static_modifiers = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/static_modifiers/00_static_modifiers.txt"));
+	retain_map_indices = 1;
+	trade_goods = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/tradegoods/00_tradegoods.txt"));
+	retain_map_indices = 0;
+	foreach (trade_goods; string id; mapping info) {
+		trade_goods[info->_index + 1] = info;
+		info->id = id;
+	}
 
 	/* It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
 	has. So, instead, let's ask for a little help - from the game, and from the human. And then save the results.
