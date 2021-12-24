@@ -261,7 +261,7 @@ object calendar(string date) {
 	return Calendar.Gregorian.Day(year, mon, day);
 }
 
-mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers, trade_goods;
+mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers, trade_goods, event_modifiers, age_definitions;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -276,12 +276,12 @@ array(mapping) enumerate_ideas(mapping idea_groups) {
 //Gather ALL a country's modifiers. Or, try to.
 void _incorporate(mapping modifiers, mapping effect, int|void mul, int|void div) {
 	if (effect) foreach (effect; string id; mixed val) {
-		if (stringp(val) && sscanf(val, "%d.%[0-9]%s", int whole, string frac, string blank) && blank == "")
-			modifiers[id] += (whole * 1000 + (int)sprintf("%.03s", frac + "000")) * (mul||1) / (div||1);
+		if (stringp(val) && sscanf(val, "%[-]%d%*[.]%[0-9]%s", string sign, int whole, string frac, string blank) && blank == "")
+			modifiers[id] += (sign == "-" ? -1 : 1) * (whole * 1000 + (int)sprintf("%.03s", frac + "000")) * (mul||1) / (div||1);
 	}
 }
 mapping estate_definitions = ([]), estate_privilege_definitions = ([]);
-mapping(string:int) all_country_modifiers(mapping country) {
+mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	if (mapping cached = country->all_country_modifiers) return cached;
 	mapping modifiers = ([]);
 	//TODO: Add more things here as they get analyzed
@@ -292,6 +292,11 @@ mapping(string:int) all_country_modifiers(mapping country) {
 		_incorporate(modifiers, reform_definitions[reform]->?modifiers);
 	foreach (Array.arrayify(country->traded_bonus), string idx)
 		_incorporate(modifiers, trade_goods[(int)idx]->?modifier);
+	foreach (Array.arrayify(country->modifier), mapping mod)
+		_incorporate(modifiers, event_modifiers[mod->modifier]);
+	mapping age = age_definitions[data->current_age]->abilities;
+	_incorporate(modifiers, age[Array.arrayify(country->active_age_ability)[*]]->modifier[*]);
+
 	if (country->luck) _incorporate(modifiers, static_modifiers->luck); //Lucky nations (AI-only) get bonuses.
 	//Having gone through all of the above, we should now have estate influence modifiers.
 	//Now we can calculate the total influence, and then add in the effects of each estate.
@@ -333,7 +338,7 @@ mapping(string:int) all_country_modifiers(mapping country) {
 }
 
 //Estimate a months' production of ducats/manpower/sailors (yes, I'm fixing the scaling there)
-array(float) estimate_per_month(mapping country) {
+array(float) estimate_per_month(mapping data, mapping country) {
 	float gold = (float)country->ledger->lastmonthincome - (float)country->ledger->lastmonthexpense;
 	float manpower = ((float)country->max_manpower * 1000 - 10000) / 120.0; //Provincial manpower
 	float sailors = (float)country->max_sailors / 120.0;
@@ -346,12 +351,9 @@ array(float) estimate_per_month(mapping country) {
 	//Note that this is not an exhaustive list of modifiers, and is intended to give only
 	//the ones that are likely to make a material difference (eg Revanchism is ignored,
 	//since any country that's losing in war is unlikely to have manpower to send you).
-	//TODO: Acknowledge "Recruitment Sabotaged" 20% penalty
-	//TODO: Acknowledge religious interactions (Catholic, Orthodox, Coptic, Protestant, Fetishist)
 	//TODO: Check government reforms (Republic, Theocracy)
 	//TODO: Acknowledge parliament issues (one for army, two for navy)
-	//TODO: Age abilities (notably Sweden gets one)
-	mapping modifiers = all_country_modifiers(country);
+	mapping modifiers = all_country_modifiers(data, country);
 	mp_mod += modifiers->manpower_recovery_speed / 1000.0;
 	sail_mod += modifiers->sailors_recovery_speed / 1000.0;
 
@@ -389,7 +391,7 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 	object today = calendar(data->date);
 	array cooldowns = ({ });
 	mapping cd = country->cooldowns || ([]);
-	array(float) permonth = estimate_per_month(country);
+	array(float) permonth = estimate_per_month(data, country);
 	foreach ("gold men sailors" / " "; int i; string tradefor) {
 		string date = cd["trade_favors_for_" + tradefor];
 		string cur = sprintf("%.3f", permonth[i] * 6);
@@ -403,7 +405,7 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 		mapping owed = ([]);
 		foreach (data->countries; string other; mapping c) {
 			int favors = threeplace(c->active_relations[tag]->?favors);
-			if (favors > 0) owed[c->name || L10n[other] || other] = ({favors / 1000.0}) + estimate_per_month(c)[*] * 6;
+			if (favors > 0) owed[c->name || L10n[other] || other] = ({favors / 1000.0}) + estimate_per_month(data, c)[*] * 6;
 		}
 		write->favors = (["cooldowns": cooldowns, "owed": owed]);
 		return;
@@ -1088,6 +1090,8 @@ int main(int argc, array(string) argv) {
 		trade_goods[info->_index + 1] = info;
 		info->id = id;
 	}
+	event_modifiers = parse_config_dir(PROGRAM_PATH + "/common/event_modifiers");
+	age_definitions = parse_config_dir(PROGRAM_PATH + "/common/ages");
 
 	/* It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
 	has. So, instead, let's ask for a little help - from the game, and from the human. And then save the results.
