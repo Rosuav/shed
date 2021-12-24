@@ -297,6 +297,10 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 		_incorporate(modifiers, country_modifiers[mod->modifier]);
 	mapping age = age_definitions[data->current_age]->abilities;
 	_incorporate(modifiers, age[Array.arrayify(country->active_age_ability)[*]][*]);
+	//More modifier types to incorporate:
+	//- Monuments. Might be hard, since they have restrictions. Can we see in the savefile if they're active?
+	//- Religious modifiers (icons, cults, aspects, etc)
+	//- Government type modifiers (eg march, vassal, colony)
 
 	if (country->luck) _incorporate(modifiers, static_modifiers->luck); //Lucky nations (AI-only) get bonuses.
 	//Having gone through all of the above, we should now have estate influence modifiers.
@@ -341,7 +345,7 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 //Estimate a months' production of ducats/manpower/sailors (yes, I'm fixing the scaling there)
 array(float) estimate_per_month(mapping data, mapping country) {
 	float gold = (float)country->ledger->lastmonthincome - (float)country->ledger->lastmonthexpense;
-	float manpower = ((float)country->max_manpower * 1000 - 10000) / 120.0; //Provincial manpower
+	float manpower = (float)country->max_manpower * 1000 / 120.0;
 	float sailors = (float)country->max_sailors / 120.0;
 	//Attempt to calculate modifiers. This is not at all accurate but should give a reasonable estimate.
 	float mp_mod = 1.0, sail_mod = 1.0;
@@ -356,7 +360,9 @@ array(float) estimate_per_month(mapping data, mapping country) {
 	//Add back on the base manpower recovery (10K base manpower across ten years),
 	//which isn't modified by recovery bonuses/penalties. Doesn't apply to sailors
 	//as there's no "base sailors".
-	manpower = manpower * mp_mod + 10000 / 120.0; sailors *= sail_mod;
+	//CJA 20211224: Despite what the wiki says, it seems this isn't the case, and
+	//manpower recovery modifiers are applied to the base 10K as well.
+	manpower = manpower * mp_mod; sailors *= sail_mod;
 	return ({gold, max(manpower, 100.0), max(sailors, sailors > 0.0 ? 5.0 : 0.0)}); //There's minimum manpower/sailor recovery
 }
 
