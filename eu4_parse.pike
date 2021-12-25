@@ -580,7 +580,6 @@ void show_tradegoods(mapping data, string tag, function|void write) {
 }
 
 void analyze_flagships(mapping data, function|mapping write) {
-	if (mappingp(write)) return; //TODO UNSUPPORTED
 	array flagships = ({ });
 	foreach (data->countries; string tag; mapping country) {
 		//mapping country = data->countries[tag];
@@ -588,12 +587,15 @@ void analyze_flagships(mapping data, function|mapping write) {
 		foreach (Array.arrayify(country->navy), mapping fleet) {
 			foreach (Array.arrayify(fleet->ship), mapping ship) {
 				if (!ship->flagship) continue;
-				string cap = "";
-				if (ship->flagship->is_captured) {
-					string was = ship->flagship->original_owner;
-					cap = " CAPTURED from " + (data->countries[was]->name || L10n[was] || was);
-				}
-				flagships += ({({
+				string was = ship->flagship->is_captured && ship->flagship->original_owner;
+				string cap = was ? " CAPTURED from " + (data->countries[was]->name || L10n[was] || was) : "";
+				if (mappingp(write)) flagships += ({({
+					country->name || L10n[tag] || tag, fleet->name,
+					String.capitalize(ship->type), ship->name,
+					ship->flagship->modification,
+					ship->flagship->is_captured ? (data->countries[was]->name || L10n[was] || was) : ""
+				})});
+				else flagships += ({({
 					string_to_utf8(sprintf("\e[1m%s\e[0m - %s: \e[36m%s %q\e[31m%s\e[0m",
 						country->name || L10n[tag] || tag, fleet->name,
 						String.capitalize(ship->type), ship->name, cap)),
@@ -607,9 +609,10 @@ void analyze_flagships(mapping data, function|mapping write) {
 			}
 		}
 	}
+	sort(flagships);
+	if (mappingp(write)) {write->flagships = flagships; return;}
 	if (!sizeof(flagships)) return;
 	write("\n\e[1m== Flagships of the World ==\e[0m\n");
-	sort(flagships);
 	int width = max(@flagships[*][1]);
 	foreach (flagships, array f) f[1] = " " * (width - f[1]);
 	write("%{%s %s %s\n%}", flagships);
