@@ -635,7 +635,7 @@ mapping ship_types = transform(
 
 void analyze_wars(mapping data, multiset(string) tags, function|mapping|void write) {
 	if (!write) write = Stdio.stdin->write;
-	if (mappingp(write)) return; //TODO UNSUPPORTED
+	if (mappingp(write)) write->wars = ({ });
 	foreach (values(data->active_war || ({ })), mapping war) {
 		if (!mappingp(war)) continue; //Dunno what's with these, there seem to be some strings in there.
 		//To keep displaying the war after all players separate-peace out, use
@@ -648,7 +648,9 @@ void analyze_wars(mapping data, multiset(string) tags, function|mapping|void wri
 		string atk = "\U0001f5e1\ufe0f", def = "\U0001f6e1\ufe0f";
 		int defender = is_defender && !is_attacker;
 		if (defender) [atk, def] = ({def, atk});
-		write("\n\e[1;31m== War: %s - %s ==\e[0m\n", war->action, string_to_utf8(war->name));
+		mapping summary = (["date": war->action, "name": war->name, "raw": war]);
+		if (mappingp(write)) write->wars += ({summary});
+		else write("\n\e[1;31m== War: %s - %s ==\e[0m\n", war->action, string_to_utf8(war->name));
 		//war->action is the date it started?? Maybe the last date when a call to arms is valid?
 		//war->called - it's all just numbers, no country tags. No idea.
 
@@ -662,10 +664,14 @@ void analyze_wars(mapping data, multiset(string) tags, function|mapping|void wri
 		array armies = ({ }), navies = ({ });
 		array(array(int)) army_total = ({allocate(8), allocate(8)});
 		array(array(int)) navy_total = ({allocate(6), allocate(6)});
+		summary->participants = ({ });
 		foreach (war->participants, mapping p) {
+			mapping partic = (["tag": p->tag]);
+			summary->participants += ({partic});
 			mapping country = data->countries[p->tag];
 			int a = has_value(war->attackers, p->tag), d = has_value(war->defenders, p->tag);
 			if (!a && !d) continue; //War participant has subsequently peaced out
+			partic->attacker = a; partic->defender = d; partic->player = tags[p->tag];
 			string side = sprintf("\e[48;2;%d;%d;%dm%s  ",
 				a && 30, //Red for attacker
 				tags[p->tag] && 60, //Cyan or olive for player
@@ -730,6 +736,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|mapping|void wri
 			({1 + navy_total[0][-2] + navy_total[0][-1], ({"\e[48;2;0;0;50m" + def + "  ", ""}) + navy_total[1] + ({""})}),
 		});
 		sort(armies); sort(navies);
+		if (mappingp(write)) {summary->armies = armies[*][-1]; summary->navies = navies[*][-1]; continue;}
 		write("%s\n", string_to_utf8(tabulate(({"   "}) + "Country Infantry Cavalry Artillery Inf$$ Cav$$ Art$$ Total Manpower Prof Trad" / " ", armies[*][-1], "  ", 2)));
 		write("%s\n", string_to_utf8(tabulate(({"   "}) + "Country Heavy Light Galley Transp Total Sailors Trad" / " ", navies[*][-1], "  ", 2)));
 	}
