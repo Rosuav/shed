@@ -2,6 +2,11 @@
 import choc, {set_content, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
 const {A, ABBR, DETAILS, DIV, FORM, H1, INPUT, LABEL, LI, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
 
+function table_head(headings) {
+	if (typeof headings === "string") headings = headings.split(" ");
+	return TR(headings.map(h => TH(h))); //TODO: Click to sort
+}
+
 export function render(state) {
 	//Set up one-time structure. Every subsequent render will update within that.
 	if (!DOM("#error")) set_content("main", [
@@ -75,7 +80,7 @@ export function render(state) {
 			SUMMARY(`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`),
 			TABLE({border: "1"}, cooldowns),
 			TABLE({border: "1"}, [
-				TR([TH("Country"), TH("Favors"), TH("Ducats"), TH("Manpower"), TH("Sailors")]), //TODO: Click to sort
+				table_head("Country Favors Ducats Manpower Sailors"),
 				countries
 			]),
 		]);
@@ -96,10 +101,22 @@ export function render(state) {
 			const atkdef = (war.atk ? "\u{1f5e1}\ufe0f" : "") + (war.def ? "\u{1f6e1}\ufe0f" : "");
 			return set_content(DOM("#" + id) || DETAILS({id, open: true}), [
 				SUMMARY(atkdef + " " + war.name),
-				"(armies)",
-				TABLE({border: "1"}),
-				"(navies)",
-				TABLE({border: "1"}),
+				TABLE({border: "1"}, [
+					table_head(["Country", "Infantry", "Cavalry", "Artillery",
+						ABBR({title: "Merc infantry"}, "Inf $$"),
+						ABBR({title: "Merc cavalry"}, "Cav $$"),
+						ABBR({title: "Merc artillery"}, "Art $$"),
+						"Total", "Manpower", ABBR({title: "Army professionalism"}, "Prof"),
+						ABBR({title: "Army tradition"}, "Trad"),
+					]),
+					war.armies.map(army => TR({className: army[0].replace(",", "-")}, army.slice(1).map(x => TD(x ? ""+x : "")))),
+				]),
+				TABLE({border: "1"}, [
+					table_head(["Country", "Heavy", "Light", "Galley", "Transport", "Total", "Sailors",
+						ABBR({title: "Navy tradition"}, "Trad"),
+					]),
+					war.navies.map(navy => TR({className: navy[0].replace(",", "-")}, navy.slice(1).map(x => TD(x ? ""+x : "")))),
+				]),
 			]);
 		})]);
 	}

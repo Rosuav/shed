@@ -43,3 +43,10 @@ color choice can be overridden based on its parent. */
 #wars details {
 	margin: 1em;
 }
+
+#wars .attacker {background: #e1c0c0;}
+#wars .attacker-player {background: #e1c300;}
+#wars .attacker-total {background: #cd8080;}
+#wars .defender {background: #c0c0e1;}
+#wars .defender-player {background: #00c3e1;}
+#wars .defender-total {background: #8080cd;}
