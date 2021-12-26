@@ -678,6 +678,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|mapping|void wri
 				d && 30,
 				a ? atk : def, //Sword or shield
 			);
+			if (mappingp(write)) side = (({a && "attacker", d && "defender", tags[p->tag] && "player"}) - ({0})) * ",";
 			//I don't know how to recognize that eastern_militia is infantry and muscovite_cossack is cavalry.
 			//For land units, we can probably assume that you use only your current set. For sea units, there
 			//aren't too many (and they're shared by all nations), so I just hard-code them.
@@ -724,16 +725,18 @@ void analyze_wars(mapping data, multiset(string) tags, function|mapping|void wri
 			})});
 			navy_total[d] = navy_total[d][*] + navies[-1][1][2..<1][*];
 		}
+		string atot = "\e[48;2;50;0;0m" + atk + "  ", dtot = "\e[48;2;0;0;50m" + def + "  ";
+		if (mappingp(write)) {atot = "attacker,total"; dtot="defender,total";}
 		armies += ({
 			//The totals get sorted after the individual country entries. Their sort keys are
 			//guaranteed positive, and are such that the larger army has a smaller sort key.
 			//Easiest way to do that is to swap them :)
-			({1 + army_total[1][-2] + army_total[1][-1], ({"\e[48;2;50;0;0m" + atk + "  ", ""}) + army_total[0] + ({"", ""})}),
-			({1 + army_total[0][-2] + army_total[0][-1], ({"\e[48;2;0;0;50m" + def + "  ", ""}) + army_total[1] + ({"", ""})}),
+			({1 + army_total[1][-2] + army_total[1][-1], ({atot, ""}) + army_total[0] + ({"", ""})}),
+			({1 + army_total[0][-2] + army_total[0][-1], ({dtot, ""}) + army_total[1] + ({"", ""})}),
 		});
 		navies += ({
-			({1 + navy_total[1][-2] + navy_total[1][-1], ({"\e[48;2;50;0;0m" + atk + "  ", ""}) + navy_total[0] + ({""})}),
-			({1 + navy_total[0][-2] + navy_total[0][-1], ({"\e[48;2;0;0;50m" + def + "  ", ""}) + navy_total[1] + ({""})}),
+			({1 + navy_total[1][-2] + navy_total[1][-1], ({atot, ""}) + navy_total[0] + ({""})}),
+			({1 + navy_total[0][-2] + navy_total[0][-1], ({dtot, ""}) + navy_total[1] + ({""})}),
 		});
 		sort(armies); sort(navies);
 		if (mappingp(write)) {summary->armies = armies[*][-1]; summary->navies = navies[*][-1]; continue;}
