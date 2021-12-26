@@ -39,3 +39,7 @@ td {padding: 2px;}
 color choice can be overridden based on its parent. */
 .highlight {background: #bfd;}
 #developable .highlight {background: #bff;}
+
+#wars details {
+	margin: 1em;
+}

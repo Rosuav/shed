@@ -648,7 +648,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|mapping|void wri
 		string atk = "\U0001f5e1\ufe0f", def = "\U0001f6e1\ufe0f";
 		int defender = is_defender && !is_attacker;
 		if (defender) [atk, def] = ({def, atk});
-		mapping summary = (["date": war->action, "name": war->name, "raw": war]);
+		mapping summary = (["date": war->action, "name": war->name, "raw": war, "atk": is_attacker, "def": is_defender]);
 		if (mappingp(write)) write->wars += ({summary});
 		else write("\n\e[1;31m== War: %s - %s ==\e[0m\n", war->action, string_to_utf8(war->name));
 		//war->action is the date it started?? Maybe the last date when a call to arms is valid?

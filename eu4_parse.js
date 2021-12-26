@@ -11,6 +11,7 @@ export function render(state) {
 		DETAILS({id: "cot"}, SUMMARY("Centers of Trade")),
 		DETAILS({id: "monuments"}, SUMMARY("Monuments")),
 		DETAILS({id: "favors"}, SUMMARY("Favors")),
+		DETAILS({id: "wars"}, SUMMARY("Wars")),
 		//TODO: Have DETAILS/SUMMARY nodes for every expandable, such that,
 		//whenever content is updated, they remain in their open/closed state
 	]);
@@ -78,5 +79,28 @@ export function render(state) {
 				countries
 			]),
 		]);
+	}
+	if (state.wars) {
+		//For each war, create or update its own individual DETAILS/SUMMARY. This allows
+		//individual wars to be collapsed as uninteresting without disrupting others.
+		set_content("#wars", [SUMMARY("Wars: " + state.wars.length), state.wars.map(war => {
+			const id = "warinfo-" + war.name.toLowerCase().replace(/^[a-z]/g, " ").replace(/ +/g, "-");
+			//It's possible that a war involving "conquest of X" might collide with another war
+			//involving "conquest of Y" if the ASCII alphabetics in the province names are identical.
+			//While unlikely, this would be quite annoying, so we add in the province ID when a
+			//conquest CB is used.
+			if (war.take_province) id += "-" + war.take_province.type + "-" + war.take_province.province;
+			//NOTE: The atk and def counts refer to all players. Even if you aren't interested in
+			//wars involving other players but not yourself, they'll still have their "sword" or
+			//"shield" indicator given based on any player involvement.
+			const atkdef = (war.atk ? "\u{1f5e1}\ufe0f" : "") + (war.def ? "\u{1f6e1}\ufe0f" : "");
+			return set_content(DOM("#" + id) || DETAILS({id, open: true}), [
+				SUMMARY(atkdef + " " + war.name),
+				"(armies)",
+				TABLE({border: "1"}),
+				"(navies)",
+				TABLE({border: "1"}),
+			]);
+		})]);
 	}
 }
