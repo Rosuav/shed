@@ -94,7 +94,7 @@ export function render(state) {
 			//involving "conquest of Y" if the ASCII alphabetics in the province names are identical.
 			//While unlikely, this would be quite annoying, so we add in the province ID when a
 			//conquest CB is used. TODO: Check this for other CBs eg occupy/retain capital.
-			if (war.cb) id += "-" + war.cb.type + "-" + war.cb.province;
+			if (war.cb) id += "-" + war.cb.type + "-" + (war.cb.province||"no-province");
 			//NOTE: The atk and def counts refer to all players. Even if you aren't interested in
 			//wars involving other players but not yourself, they'll still have their "sword" or
 			//"shield" indicator given based on any player involvement.

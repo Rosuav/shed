@@ -649,6 +649,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|mapping|void wri
 		int defender = is_defender && !is_attacker;
 		if (defender) [atk, def] = ({def, atk});
 		mapping summary = (["date": war->action, "name": war->name, "raw": war, "atk": is_attacker, "def": is_defender]);
+		if (war->superiority) summary->cb = war->superiority;
 		if (war->take_province) summary->cb = war->take_province; //TODO: Catch other types of CB
 		if (mappingp(write)) write->wars += ({summary});
 		else write("\n\e[1;31m== War: %s - %s ==\e[0m\n", war->action, string_to_utf8(war->name));
