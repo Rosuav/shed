@@ -86,6 +86,12 @@ def main(*, interval=0.5, monitor="primary", ocr=0):
 				letters = sum('A' <= x <= 'Z' or 'a' <= x <= 'z' for x in text)
 				if letters < 5: continue # Require five alphabetics to claim it as a word
 				found_hex += " " + text
-			if found_hex: got_message(found_hex, "Hex text detected!")
+			if found_hex:
+				# Send a signal through to StilleBot to update a variable
+				requests_post("https://sikorsky.rosuav.com/admin", json={
+					"cmd": "send_message",
+					"channel": "#rosuav",
+					"msg": {"dest": "/set", "target": "hextext", "message": found_hex.replace("\n", " ")},
+				})
 		if interval <= 0: break
 		time.sleep(interval)
