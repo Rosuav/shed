@@ -378,7 +378,7 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 			mapping proj = data->great_projects[project];
 			projects += ({({
 				(int)id - (int)proj->development_tier * 10000,
-				({"", id, "Lvl " + proj->development_tier, prov->name, L10n[project],
+				({"", id, "Lvl " + proj->development_tier, prov->name, L10n[project] || "#" + project,
 					con->great_projects != project ? "" : //If you're upgrading a different great project in this province, leave this one blank (you can't upgrade two at once)
 					sprintf("%s%d%%, due %s",
 						con->type == "2" ? "Moving: " : "", //Upgrades are con->type "1", moving to capital is type "2"
