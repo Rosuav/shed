@@ -649,9 +649,9 @@ void analyze_wars(mapping data, multiset(string) tags, function|mapping|void wri
 		int defender = is_defender && !is_attacker;
 		if (defender) [atk, def] = ({def, atk});
 		mapping summary = (["date": war->action, "name": war->name, "raw": war, "atk": is_attacker, "def": is_defender]);
-		if (war->superiority) summary->cb = war->superiority;
-		if (war->take_province) summary->cb = war->take_province; //TODO: Catch other types of CB
-		//NOTE: In a no-CB war, there is no war goal, so there'll be no cb attribute.
+		summary->cb = war->superiority || war->take_province || war->blockade_ports || (["casus_belli": "(none)"]);
+		//TODO: See if there are any other war goals
+		//NOTE: In a no-CB war, there is no war goal, so there'll be no attribute to locate.
 		if (mappingp(write)) write->wars += ({summary});
 		else write("\n\e[1;31m== War: %s - %s ==\e[0m\n", war->action, string_to_utf8(war->name));
 		//war->action is the date it started?? Maybe the last date when a call to arms is valid?
