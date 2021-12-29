@@ -168,9 +168,12 @@ mapping parse_config_dir(string dir) {
 
 mapping(string:string) L10n;
 void parse_localisation(string data) {
-	data = utf8_to_string(data);
-	sscanf(data, "%*s\n%{ %s:%*d \"%s\"\n%}", array info);
-	L10n |= (mapping)info;
+	array lines = utf8_to_string("#" + data) / "\n"; //Hack: Pretend that the heading line is a comment
+	foreach (lines, string line) {
+		sscanf(line, "%s#", line);
+		sscanf(line, " %s:%*d \"%s\"", string key, string val);
+		if (key && val) L10n[key] = val;
+	}
 }
 
 string tabulate(array(string) headings, array(array(mixed)) data, string|void gutter, int|void summary) {
