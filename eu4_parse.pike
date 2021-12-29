@@ -1228,6 +1228,6 @@ log = \"PROV-TERRAIN-END\"
 	inot->set_nonblocking();
 	Stdio.Port mainsock = Stdio.Port();
 	mainsock->bind(1444, sock_connected, "::", 1);
-	Protocols.WebSocket.Port(http_handler, ws_handler, 1821, "::");
+	Protocols.WebSocket.Port(http_handler, ws_handler, 8087, "::");
 	return -1;
 }
