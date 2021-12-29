@@ -803,6 +803,13 @@ class Connection(Stdio.File sock) {
 					notify = arg; connections[this] = 1;
 					if (last_parsed_savefile) inform(last_parsed_savefile);
 					break;
+				//TODO: Hybrid of notify and province. Communicate with the websocket for the same player or tag.
+				//Websocket says "⤳ Go to this province". Command sent to server.
+				//Server says "hey, all provnotify clients, go to province 142857"
+				//Client says "oh hey, you want 142857" and xdotool sends it.
+				//  - Option: Send with "search --name"
+				//  - Option: Check "getactivewindow getwindowname", if not EU4, wait 0.5s and loop.
+				//    - If another message comes in, must discard previous and use the latest only.
 				case "province": cycle_provinces(arg); break;
 				case "highlight": case "hl": case "build": case "building": case "buildings": {
 					//Request highlighting of provinces in which a particular building could be built if you had a slot.
