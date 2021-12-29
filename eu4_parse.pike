@@ -431,7 +431,7 @@ int count_building_slots(mapping data, string id) {
 	mapping prov = data->provinces["-" + id];
 	if (prov->buildings->?university) ++slots; //A university effectively doesn't consume a slot.
 	if (area_has_level3[prov_area[id]]) ++slots; //A level 3 CoT in the state adds a building slot
-	//TODO: Modifiers, incl event flags
+	//TODO: Modifiers, incl event flags (see all_country_modifiers maybe?)
 	int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
 	return slots + dev / 10;
 }
