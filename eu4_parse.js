@@ -96,6 +96,7 @@ export function render(state) {
 		});
 		set_content("#favors", [
 			SUMMARY(`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`),
+			P("NOTE: Yield estimates are often a bit wrong, but can serve as a guideline."),
 			TABLE({border: "1"}, cooldowns),
 			TABLE({border: "1"}, [
 				table_head("Country Favors Ducats Manpower Sailors"),
@@ -106,7 +107,7 @@ export function render(state) {
 	if (state.wars) {
 		//For each war, create or update its own individual DETAILS/SUMMARY. This allows
 		//individual wars to be collapsed as uninteresting without disrupting others.
-		set_content("#wars", [SUMMARY("Wars: " + state.wars.length), state.wars.map(war => {
+		set_content("#wars", [SUMMARY("Wars: " + (state.wars.length || "None")), state.wars.map(war => {
 			let id = "warinfo-" + war.name.toLowerCase().replace(/[^a-z]/g, " ").replace(/ +/g, "-");
 			//It's possible that a war involving "conquest of X" might collide with another war
 			//involving "conquest of Y" if the ASCII alphabetics in the province names are identical.
@@ -141,7 +142,12 @@ export function render(state) {
 	if (state.highlight) {
 		if (state.highlight.id) set_content("#expansions", [
 			SUMMARY("Building expansions: " + state.highlight.name),
-			P("If developed, these places could support a new " + state.highlight.name + ":"),
+			P("If developed, these places could support a new " + state.highlight.name + ". "
+				+ "They do not currently contain one, there is no building that could be upgraded "
+				+ "to one, and there are no building slots free. This list allows you to focus "
+				+ "province development in a way that enables a specific building; once the slot "
+				+ "is opened up, the province will disappear from here and appear in the in-game "
+				+ "macro-builder list for that building."),
 			TABLE({border: true}, [
 				table_head("Province Buildings Devel"),
 				state.highlight.provinces.map(prov => TR([

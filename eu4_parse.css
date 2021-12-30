@@ -1,3 +1,11 @@
+main {
+	max-width: 1200px;
+	margin: auto;
+	background: #eee;
+	padding: 0 0.5em;
+	min-height: 95vh;
+}
+
 h1 {max-width: max-content; margin: auto;}
 
 #error {
