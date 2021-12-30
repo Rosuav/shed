@@ -226,7 +226,8 @@ void analyze_cot(mapping data, string name, string tag, function|mapping write) 
 		else developable += ({desc});
 	}
 	sort(maxlvl); sort(upgradeable); sort(developable);
-	int level3 = sizeof(country->merchants->envoy); //You can have as many lvl 3 CoTs as you have merchants.
+	int maxlevel3 = sizeof(country->merchants->envoy); //You can have as many lvl 3 CoTs as you have merchants.
+	int level3 = sizeof(maxlvl); //You might already have some.
 	string|mapping colorize(string color, array info, int prio) {
 		//Colorize if it's interesting. It can't be upgraded if not in a state; also, not all level 2s
 		//can become level 3s, for various reasons.
@@ -236,7 +237,7 @@ void analyze_cot(mapping data, string name, string tag, function|mapping write) 
 		if (!have_states || !has_value(have_states, tag)) noupgrade = "is territory";
 		else if (cotlevel == "2") {
 			if (area_has_level3[prov_area[id]]) noupgrade = "other l3 in area";
-			else if (level3-- <= 0) noupgrade = "need merchants";
+			else if (++level3 > maxlevel3) noupgrade = "need merchants";
 		}
 		if (!noupgrade) interesting(id, prio);
 		if (mappingp(write)) return (["id": id, "dev": dev, "name": provname, "noupgrade": noupgrade || "", "level": (int)cotlevel]);
@@ -246,15 +247,14 @@ void analyze_cot(mapping data, string name, string tag, function|mapping write) 
 	}
 	if (mappingp(write)) {
 		write->cot = ([
-			"level3": sizeof(maxlvl), "max": level3,
+			"level3": level3, "max": maxlevel3,
 			"upgradeable": colorize("", upgradeable[*], PRIO_IMMEDIATE),
 			"developable": colorize("", developable[*], PRIO_SITUATIONAL),
 		]);
 		return;
 	}
-	if (sizeof(maxlvl)) write("Max level CoTs (%d/%d):\n%{%s\n%}\n", sizeof(maxlvl), level3, maxlvl[*][-1]);
-	else write("Max level CoTs: 0/%d\n", level3);
-	level3 -= sizeof(maxlvl);
+	if (sizeof(maxlvl)) write("Max level CoTs (%d/%d):\n%{%s\n%}\n", level3, maxlevel3, maxlvl[*][-1]);
+	else write("Max level CoTs: 0/%d\n", maxlevel3);
 	if (sizeof(upgradeable)) write("Upgradeable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;32m", upgradeable[*], PRIO_IMMEDIATE));
 	if (sizeof(developable)) write("Developable CoTs:\n%{%s\e[0m\n%}\n", colorize("\e[1;36m", developable[*], PRIO_SITUATIONAL));
 }
