@@ -1293,7 +1293,7 @@ if len(sys.argv) < 3:
 def goto(provid):
 	# NOTE: This is currently synchronous, unlike the Pike version, which is
 	# fully asynchronous. So if you queue multiple and then switch focus to
-	# EU4, it'll go through all of them.
+	# EU4, it will go through all of them.
 	while "looking for EU4":
 		proc = subprocess.run(["xdotool", "getactivewindow", "getwindowname"], encoding="UTF-8", capture_output=True, check=True)
 		if "Europa Universalis IV" in proc.stdout: break
