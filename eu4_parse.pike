@@ -208,9 +208,9 @@ mapping prov_area = ([]);
 mapping province_info;
 mapping building_types; array building_id;
 mapping building_slots = ([]);
-multiset(string) area_has_level3 = (<>); //FIXME: This needs to depend on the country, and we need to know for other things whether it's been calculated or not
 void analyze_cot(mapping data, string name, string tag, function|mapping write) {
 	mapping country = data->countries[tag];
+	mapping(string:int) area_has_level3 = country->area_has_level3 = ([]);
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
 	foreach (country->owned_provinces, string id) {
 		mapping prov = data->provinces["-" + id];
@@ -221,7 +221,7 @@ void analyze_cot(mapping data, string name, string tag, function|mapping write) 
 			sprintf("%s %04d %s", prov->owner, 9999-dev, prov->name), //Sort key
 			prov->center_of_trade, id, dev, prov->name,
 		});
-		if (prov->center_of_trade == "3") {maxlvl += ({desc}); area_has_level3[prov_area[id]] = 1;}
+		if (prov->center_of_trade == "3") {maxlvl += ({desc}); area_has_level3[prov_area[id]] = (int)id;}
 		else if (dev >= need) upgradeable += ({desc});
 		else developable += ({desc});
 	}
@@ -430,7 +430,7 @@ int count_building_slots(mapping data, string id) {
 	int slots = 2 + building_slots[id]; //All cities get 2, plus possibly a bonus from terrain and/or a penalty from climate.
 	mapping prov = data->provinces["-" + id];
 	if (prov->buildings->?university) ++slots; //A university effectively doesn't consume a slot.
-	if (area_has_level3[prov_area[id]]) ++slots; //A level 3 CoT in the state adds a building slot
+	if (data->countries[prov->owner]->?area_has_level3[?prov_area[id]]) ++slots; //A level 3 CoT in the state adds a building slot
 	//TODO: Modifiers, incl event flags (see all_country_modifiers maybe?)
 	int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
 	return slots + dev / 10;
@@ -543,7 +543,7 @@ void analyze_findbuildings(mapping data, string name, string tag, function|mappi
 mapping(string:array) interesting_provinces = ([]);
 void analyze(mapping data, string name, string tag, function|mapping|void write, string|void highlight) {
 	if (!write) write = Stdio.stdin->write;
-	interesting_province = ({ }); interest_priority = 0; area_has_level3 = (<>);
+	interesting_province = ({ }); interest_priority = 0;
 	if (mappingp(write)) write->name = name + " (" + (data->countries[tag]->name || L10n[tag] || tag) + ")";
 	else write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
 	({analyze_cot, analyze_leviathans, analyze_furnace, analyze_upgrades})(data, name, tag, write);
