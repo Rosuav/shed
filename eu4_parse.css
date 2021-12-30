@@ -50,3 +50,10 @@ color choice can be overridden based on its parent. */
 #wars .defender {background: #c0c0e1;}
 #wars .defender-player {background: #00c3e1;}
 #wars .defender-total {background: #8080cd;}
+
+.goto-province {
+	margin-left: 0.25em;
+	cursor: pointer;
+	background: #ccffff;
+	border: 1px solid #bbdddd;
+}

@@ -1,11 +1,20 @@
 //Not to be confused with eu4_parse.json which is a cache
 import choc, {set_content, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
-const {A, ABBR, DETAILS, DIV, FORM, H1, INPUT, LABEL, LI, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
+const {A, ABBR, DETAILS, DIV, FORM, H1, INPUT, LABEL, LI, SPAN, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
 
 function table_head(headings) {
 	if (typeof headings === "string") headings = headings.split(" ");
 	return TR(headings.map(h => TH(h))); //TODO: Click to sort
 }
+
+let countrytag = "";
+function PROV(id, name) {
+	return DIV({className: "province"}, [name, SPAN({className: "goto-province", title: "Go to #" + id, "data-provid": id}, "⤳")]);
+}
+
+on("click", ".goto-province", e => {
+	ws_sync.send({cmd: "goto", tag: countrytag, province: e.match.dataset.provid});
+});
 
 export function render(state) {
 	//Set up one-time structure. Every subsequent render will update within that.
@@ -13,7 +22,7 @@ export function render(state) {
 		DIV({id: "error", className: "hidden"}), DIV({id: "now_parsing", className: "hidden"}),
 		DIV({id: "menu", className: "hidden"}),
 		H1({id: "player"}),
-		DETAILS({id: "cot"}, SUMMARY("Centers of Trade")),
+		DETAILS({id: "cot", open: true}, SUMMARY("Centers of Trade")),
 		DETAILS({id: "monuments"}, SUMMARY("Monuments")),
 		DETAILS({id: "favors"}, SUMMARY("Favors")),
 		DETAILS({id: "wars"}, SUMMARY("Wars")),
@@ -41,15 +50,16 @@ export function render(state) {
 		return;
 	}
 	if (state.name) set_content("#player", state.name);
+	if (state.tag) countrytag = state.tag;
 	if (state.cot) {
 		const content = [SUMMARY(`Max level CoTs [${state.cot.level3}/${state.cot.max}]`)];
 		for (let kwd of ["upgradeable", "developable"]) {
 			const cots = state.cot[kwd];
 			if (!cots.length) continue;
 			content.push(TABLE({id: kwd, border: "1"}, [
-				TR(TH({colSpan: 5}, `${kwd[0].toUpperCase()}${kwd.slice(1)} CoTs:`)),
+				TR(TH({colSpan: 4}, `${kwd[0].toUpperCase()}${kwd.slice(1)} CoTs:`)),
 				cots.map(cot => TR({className: cot.noupgrade === "" ? "highlight" : ""}, [
-					TD(cot.id), TD("Lvl "+cot.level), TD("Dev "+cot.dev), TD(cot.name), TD(cot.noupgrade)
+					TD(PROV(cot.id, cot.name)), TD("Lvl "+cot.level), TD("Dev "+cot.dev), TD(cot.noupgrade)
 				])),
 			]));
 		}
@@ -58,8 +68,8 @@ export function render(state) {
 	if (state.monuments) set_content("#monuments", [
 		SUMMARY(`Monuments [${state.monuments.length}]`),
 		TABLE({border: "1"}, [
-			TR([TH("ID"), TH("Tier"), TH("Province"), TH("Project"), TH("Upgrading")]),
-			state.monuments.map(m => TR(m.slice(1).map(TD))),
+			TR([TH("Province"), TH("Tier"), TH("Project"), TH("Upgrading")]),
+			state.monuments.map(m => TR([TD(PROV(m[1], m[3])), TD(m[2]), TD(m[4]), TD(m[5])])),
 		]),
 	]);
 	if (state.favors) {
