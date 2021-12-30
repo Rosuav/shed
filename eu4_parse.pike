@@ -501,7 +501,7 @@ void analyze_upgrades(mapping data, string name, string tag, function|mapping wr
 				target = bldg->obsoleted_by;
 				bldg = upgrade;
 			}
-			if (target && target != constructing) {interesting(id, PRIO_SITUATIONAL); upgradeables[target] += ({prov->name});}
+			if (target && target != constructing) {interesting(id, PRIO_SITUATIONAL); upgradeables[L10n["building_" + target]] += ({prov->name});}
 		}
 	}
 	foreach (sort(indices(upgradeables)), string b) {
