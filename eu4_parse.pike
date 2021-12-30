@@ -1054,6 +1054,21 @@ mapping get_state(string group) {
 	analyze(data, group, tag, ret, highlight_interesting[group]);
 	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1], ret);
 	analyze_flagships(data, ret);
+	//Enumerate available building types for highlighting. TODO: Check if some changes here need to be backported to the console interface.
+	array available = ({ });
+	mapping tech = country->technology;
+	int have_mfg = 0;
+	foreach (building_types; string id; mapping bldg) {
+		[string techtype, int techlevel] = bldg->tech_required || ({"", 100}); //Ignore anything that's not a regular building
+		if ((int)tech[techtype] < techlevel) continue; //Hide IDs you don't have the tech to build
+		if (bldg->manufactory && !bldg->show_separate) {have_mfg = 1; continue;} //Collect regular manufactories under one name
+		if (bldg->influencing_fort) continue; //You won't want to check forts this way
+		available += ({id});
+	}
+	//Restrict to only those buildings for which you don't have an upgrade available
+	available = filter(available) {return !has_value(available, building_types[__ARGS__[0]]->obsoleted_by);};
+	if (have_mfg) available += ({"manufactory"}); //Note that building_types->manufactory is technically valid
+	ret->building_ids = available; //TODO: Show more info, maybe an icon or something, or at least costs?
 	return ret;
 }
 
