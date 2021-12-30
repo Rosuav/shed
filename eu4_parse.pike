@@ -997,7 +997,7 @@ void ws_msg(Protocols.WebSocket.Frame frm, mapping conn)
 	{
 		//Initialization is done with a type and a group.
 		//The type has to be "eu4", and exists for convenient compatibility with StilleBot.
-		//The group is a country tag as a string.
+		//The group is a country tag or player name as a string.
 		if (conn->type) return; //Can't init twice
 		if (data->type != "eu4") return; //Ignore any unknown types.
 		//Note that we don't validate the group here, beyond basic syntactic checks. We might have
