@@ -208,7 +208,7 @@ mapping prov_area = ([]);
 mapping province_info;
 mapping building_types; array building_id;
 mapping building_slots = ([]);
-multiset(string) area_has_level3 = (<>);
+multiset(string) area_has_level3 = (<>); //FIXME: This needs to depend on the country, and we need to know for other things whether it's been calculated or not
 void analyze_cot(mapping data, string name, string tag, function|mapping write) {
 	mapping country = data->countries[tag];
 	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
@@ -815,13 +815,6 @@ class Connection(Stdio.File sock) {
 					notify = arg; connections[notiftype][this] = 1;
 					if (notiftype == "" && last_parsed_savefile) inform(last_parsed_savefile);
 					break;
-				//TODO: Hybrid of notify and province. Communicate with the websocket for the same player or tag.
-				//Websocket says "⤳ Go to this province". Command sent to server.
-				//Server says "hey, all provnotify clients, go to province 142857"
-				//Client says "oh hey, you want 142857" and xdotool sends it.
-				//  - Option: Send with "search --name"
-				//  - Option: Check "getactivewindow getwindowname", if not EU4, wait 0.5s and loop.
-				//    - If another message comes in, must discard previous and use the latest only.
 				case "province": cycle_provinces(arg); break;
 				case "highlight": case "hl": case "build": case "building": case "buildings": {
 					//Request highlighting of provinces in which a particular building could be built if you had a slot.
@@ -910,9 +903,30 @@ class ClientConnection {
 		Stdio.stdin->set_read_callback(stdinread);
 		Stdio.stdin->set_close_callback(stdineof);
 	}
+	int keysend_provid;
+	mixed keysend_callout;
+	void find_eu4() {
+		//Check which window has focus. If it seems to be EU4, poke keys, otherwise wait.
+		mapping focus = Process.run(({"xdotool", "getactivewindow", "getwindowname"}));
+		if (!has_value(focus->stdout, "Europa Universalis IV")) {keysend_callout = call_out(find_eu4, 0.5); return;}
+		keysend_callout = 0;
+		//TODO: Allow search mode instead of the above retry loop waiting for focus
+		Process.create_process(({"xdotool",
+			//"search", "--name", "Europa Universalis IV",
+			"key", "--delay", "125", //Hurry the typing along a bit
+			"f", @((string)keysend_provid / ""), "Return", //Send "f", then type the province ID, then hit Enter
+		}))->wait();
+	}
 	void sockread() {
 		//Display only complete lines, to avoid disruption of input text
-		while (array ret = incoming->sscanf("%s\n")) write("%s\n", ret[0]);
+		while (array ret = incoming->sscanf("%s\n")) {
+			write("%s\n", ret[0]);
+			if (sscanf(ret[0], "provfocus %d", int provid) && provid) {
+				keysend_provid = provid;
+				if (keysend_callout) continue; //Already waiting. Replace the province ID with a new one.
+				keysend_callout = call_out(find_eu4, 0);
+			}
+		}
 	}
 	void sockclosed() {::sockclosed(); exit(0);}
 	void stdinread(mixed _, string data) {sock->write(data);}
@@ -956,6 +970,10 @@ let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then
 }
 constant NOT_FOUND = (["error": 404, "type": "text/plain", "data": "Not found"]);
 void http_handler(Protocols.HTTP.Server.Request req) {req->response_and_finish(respond(req) || NOT_FOUND);}
+
+void websocket_cmd_goto(mapping conn, mapping data) {
+	indices(connections["province"])->provnotify(data->tag, (int)data->province);
+}
 
 void ws_msg(Protocols.WebSocket.Frame frm, mapping conn)
 {
@@ -1022,7 +1040,7 @@ mapping get_state(string group) {
 	}
 	mapping country = data->countries[tag];
 	if (!country) return (["error": "Country/player not found: " + group]);
-	mapping ret = (["self": data->countries[tag]]);
+	mapping ret = (["tag": tag, "self": data->countries[tag]]);
 	analyze(data, group, tag, ret); //TODO: Remember a highlight and pass it along
 	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1], ret);
 	analyze_flagships(data, ret);
