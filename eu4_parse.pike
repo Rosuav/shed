@@ -751,10 +751,11 @@ void analyze_wars(mapping data, multiset(string) tags, function|mapping|void wri
 	}
 }
 
-multiset(object) connections = (<>);
+mapping(string:multiset(object)) connections = (["": (<>), "province": (<>)]);
 mapping last_parsed_savefile;
 class Connection(Stdio.File sock) {
 	Stdio.Buffer incoming = Stdio.Buffer(), outgoing = Stdio.Buffer();
+	string notiftype = "";
 	string notify, highlight;
 
 	protected void create() {
@@ -762,7 +763,7 @@ class Connection(Stdio.File sock) {
 		sock->set_buffer_mode(incoming, outgoing);
 		sock->set_nonblocking(sockread, 0, sockclosed);
 	}
-	void sockclosed() {connections[this] = 0; sock->close();}
+	void sockclosed() {connections[notiftype][this] = 0; sock->close();}
 
 	string find_country(mapping data, string country) {
 		foreach (data->players_countries / 2, [string name, string tag])
@@ -778,6 +779,15 @@ class Connection(Stdio.File sock) {
 		string tag = find_country(data, notify); if (!tag) return;
 		analyze(data, notify, tag, outgoing->sprintf, highlight);
 		analyze_wars(data, (<tag>), outgoing->sprintf);
+		sock->write(""); //Ditto
+	}
+
+	void provnotify(string country, int province) {
+		//A request has come in to notify a country to focus on a province.
+		if (!notify) return;
+		string tag = find_country(last_parsed_savefile, notify);
+		if (tag != country) return; //Not found, or not for us.
+		outgoing->sprintf("provfocus %d\n", province);
 		sock->write(""); //Ditto
 	}
 
@@ -800,8 +810,10 @@ class Connection(Stdio.File sock) {
 			sscanf(cmd, "%s %s", cmd, arg);
 			switch (cmd) {
 				case "notify":
-					notify = arg; connections[this] = 1;
-					if (last_parsed_savefile) inform(last_parsed_savefile);
+					connections[notiftype][this] = 0;
+					if (sscanf(arg, "province %s", arg)) notiftype = "province";
+					notify = arg; connections[notiftype][this] = 1;
+					if (notiftype == "" && last_parsed_savefile) inform(last_parsed_savefile);
 					break;
 				//TODO: Hybrid of notify and province. Communicate with the websocket for the same player or tag.
 				//Websocket says "⤳ Go to this province". Command sent to server.
@@ -886,7 +898,7 @@ void done_processing_savefile() {
 	write("\nCurrent date: %s\n", data->date);
 	foreach (data->players_countries / 2, [string name, string tag]) analyze(data, name, tag);
 	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1]);
-	indices(connections)->inform(data);
+	indices(connections[""])->inform(data);
 	last_parsed_savefile = data;
 	parsing = 0; send_updates_all();
 }
