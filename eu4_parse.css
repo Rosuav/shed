@@ -57,3 +57,16 @@ color choice can be overridden based on its parent. */
 	background: #ccffff;
 	border: 1px solid #bbdddd;
 }
+
+#options {
+	position: fixed;
+	top: 0.25em; right: 0.25em;
+	border: 1px solid black;
+	background: #ffeeff;
+	padding: 0 0.5em;
+}
+
+.pickbuilding {
+	cursor: pointer;
+	margin: 0.5em 0;
+}

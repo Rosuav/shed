@@ -1,6 +1,6 @@
 //Not to be confused with eu4_parse.json which is a cache
 import choc, {set_content, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
-const {A, ABBR, DETAILS, DIV, FORM, H1, INPUT, LABEL, LI, SPAN, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
+const {A, ABBR, DETAILS, DIV, FORM, H1, INPUT, LABEL, LI, P, SPAN, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
 
 function table_head(headings) {
 	if (typeof headings === "string") headings = headings.split(" ");
@@ -16,16 +16,23 @@ on("click", ".goto-province", e => {
 	ws_sync.send({cmd: "goto", tag: countrytag, province: e.match.dataset.provid});
 });
 
+on("click", ".pickbuilding", e => {
+	ws_sync.send({cmd: "highlight", building: e.match.dataset.bldg});
+});
+
 export function render(state) {
 	//Set up one-time structure. Every subsequent render will update within that.
 	if (!DOM("#error")) set_content("main", [
 		DIV({id: "error", className: "hidden"}), DIV({id: "now_parsing", className: "hidden"}),
 		DIV({id: "menu", className: "hidden"}),
 		H1({id: "player"}),
-		DETAILS({id: "cot", open: true}, SUMMARY("Centers of Trade")),
+		DETAILS({id: "cot"}, SUMMARY("Centers of Trade")),
 		DETAILS({id: "monuments"}, SUMMARY("Monuments")),
 		DETAILS({id: "favors"}, SUMMARY("Favors")),
 		DETAILS({id: "wars"}, SUMMARY("Wars")),
+		DIV({id: "options"}, [ //Positioned fixed in the top corner
+			DETAILS({id: "highlight"}, SUMMARY("Building highlight")),
+		]),
 		//TODO: Have DETAILS/SUMMARY nodes for every expandable, such that,
 		//whenever content is updated, they remain in their open/closed state
 	]);
@@ -130,4 +137,12 @@ export function render(state) {
 			]);
 		})]);
 	}
+	if (state.buildings_available) set_content("#highlight", [
+		SUMMARY("Building highlight"),
+		P("Need more of a building? Choose one to highlight places it could be built."),
+		UL(Object.values(state.buildings_available).map(b => LI(
+			{className: "pickbuilding", "data-bldg": b.id},
+			[`${b.name} (${b.cost})`], //TODO: Add an image if possible
+		))),
+	]);
 }
