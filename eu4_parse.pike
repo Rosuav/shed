@@ -511,8 +511,7 @@ void analyze_upgrades(mapping data, string name, string tag, function|mapping wr
 }
 
 void analyze_findbuildings(mapping data, string name, string tag, function|mapping write, string highlight) {
-	werror("findbuildings: mappingp %d highlight %O\n", mappingp(write), highlight);
-	if (mappingp(write)) return; //TODO UNSUPPORTED
+	if (mappingp(write)) write->highlight = (["id": highlight, "provinces": ({ })]);
 	mapping country = data->countries[tag];
 	foreach (country->owned_provinces, string id) {
 		mapping prov = data->provinces["-" + id];
@@ -540,7 +539,11 @@ void analyze_findbuildings(mapping data, string name, string tag, function|mappi
 		if (gotone) continue;
 		interesting(id, PRIO_EXPLICIT);
 		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
-		write("\e[1;32m%s\t%d/%d bldg\tDev %d\t%s\e[0m\n", id, buildings, slots, dev, string_to_utf8(prov->name));
+		if (mappingp(write)) write->highlight->provinces += ({([
+			"id": (int)id, "buildings": buildings, "maxbuildings": slots,
+			"dev": dev, "name": prov->name,
+		])});
+		else write("\e[1;32m%s\t%d/%d bldg\tDev %d\t%s\e[0m\n", id, buildings, slots, dev, string_to_utf8(prov->name));
 	}
 }
 

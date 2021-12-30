@@ -141,7 +141,8 @@ export function render(state) {
 		SUMMARY("Building highlight"),
 		P("Need more of a building? Choose one to highlight places it could be built."),
 		UL(Object.values(state.buildings_available).map(b => LI(
-			{className: "pickbuilding", "data-bldg": b.id},
+			{className: state.highlight && state.highlight.id === b.id ? "pickbuilding highlight" : "pickbuilding",
+				"data-bldg": b.id},
 			[`${b.name} (${b.cost})`], //TODO: Add an image if possible
 		))),
 	]);
