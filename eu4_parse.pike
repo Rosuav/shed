@@ -511,7 +511,7 @@ void analyze_upgrades(mapping data, string name, string tag, function|mapping wr
 }
 
 void analyze_findbuildings(mapping data, string name, string tag, function|mapping write, string highlight) {
-	if (mappingp(write)) write->highlight = (["id": highlight, "provinces": ({ })]);
+	if (mappingp(write)) write->highlight = (["id": highlight, "name": L10n["building_" + highlight], "provinces": ({ })]);
 	mapping country = data->countries[tag];
 	foreach (country->owned_provinces, string id) {
 		mapping prov = data->provinces["-" + id];
@@ -980,7 +980,8 @@ void http_handler(Protocols.HTTP.Server.Request req) {req->response_and_finish(r
 
 mapping(string:string) highlight_interesting = ([]); //On the websocket, this choice applies to all connections for that user (to prevent inexplicable loss of config on dc)
 void websocket_cmd_highlight(mapping conn, mapping data) {
-	highlight_interesting[conn->group] = data->building;
+	if (!building_types[data->building]) m_delete(highlight_interesting, conn->group);
+	else highlight_interesting[conn->group] = data->building;
 	send_update(websocket_groups[conn->group], get_state(conn->group) | (["parsing": parsing]));
 }
 
@@ -1053,7 +1054,7 @@ mapping get_state(string group) {
 	}
 	mapping country = data->countries[tag];
 	if (!country) return (["error": "Country/player not found: " + group]);
-	mapping ret = (["tag": tag, "self": data->countries[tag]]);
+	mapping ret = (["tag": tag, "self": data->countries[tag], "highlight": ([])]);
 	analyze(data, group, tag, ret, highlight_interesting[group]);
 	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1], ret);
 	analyze_flagships(data, ret);

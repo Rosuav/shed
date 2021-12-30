@@ -30,6 +30,7 @@ export function render(state) {
 		DETAILS({id: "monuments"}, SUMMARY("Monuments")),
 		DETAILS({id: "favors"}, SUMMARY("Favors")),
 		DETAILS({id: "wars"}, SUMMARY("Wars")),
+		DETAILS({id: "expansions"}, SUMMARY("Building expansions")),
 		DIV({id: "options"}, [ //Positioned fixed in the top corner
 			DETAILS({id: "highlight"}, SUMMARY("Building highlight")),
 		]),
@@ -137,12 +138,31 @@ export function render(state) {
 			]);
 		})]);
 	}
+	if (state.highlight) {
+		if (state.highlight.id) set_content("#expansions", [
+			SUMMARY("Building expansions: " + state.highlight.name),
+			P("If developed, these places could support a new " + state.highlight.name + ":"),
+			TABLE({border: true}, [
+				table_head("Province Buildings Devel"),
+				state.highlight.provinces.map(prov => TR([
+					TD(PROV(prov.id, prov.name)),
+					TD(`${prov.buildings}/${prov.maxbuildings}`),
+					TD(""+prov.dev),
+				])),
+			]),
+		]);
+		else set_content("#expansions", [
+			SUMMARY("Building expansions"),
+			P("To search for provinces that could be developed to build something, choose a building in" +
+			" the top right options."),
+		]);
+	}
 	if (state.buildings_available) set_content("#highlight", [
 		SUMMARY("Building highlight"),
-		P("Need more of a building? Choose one to highlight places it could be built."),
+		P("Need more of a building? Choose one to highlight places that could be expanded to build it."),
 		UL(Object.values(state.buildings_available).map(b => LI(
-			{className: state.highlight && state.highlight.id === b.id ? "pickbuilding highlight" : "pickbuilding",
-				"data-bldg": b.id},
+			state.highlight.id === b.id ? {className: "pickbuilding highlight", "data-bldg": "none"}
+				: {className: "pickbuilding", "data-bldg": b.id},
 			[`${b.name} (${b.cost})`], //TODO: Add an image if possible
 		))),
 	]);
