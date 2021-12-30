@@ -1,3 +1,5 @@
+#define POLYGLOT "This script can be run as Python or Pike code. The Python code is client-only. \
+"""
 //Read a text (non-ironman) EU4 savefile and scan for matters of interest. Provides info to networked clients.
 //TODO: Show a coalition as if it's a war?
 //TODO: Raise highlighting priority of building upgrade options by a console command - or hide upgrades
@@ -11,6 +13,7 @@
 - Whenever you hover any country name, show country details in an inset top-right
   - Show country tech level compared to yours (green = worse tech, red = better tech)
   - Flag? Can we show flags easily?
+  - Click to go to country's capital
 */
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
@@ -1268,3 +1271,50 @@ log = \"PROV-TERRAIN-END\"
 	Protocols.WebSocket.Port(http_handler, ws_handler, 8087, "::");
 	return -1;
 }
+#ifdef G
+#define POLYGLOT2 "End of Pike code. \
+"""
+# Python code follows. This should be restricted to the standard library and as broadly
+# compatible as possible (currently aiming for 3.7-3.11). It should have all the basic
+# client-side functionality and that is all.
+
+import socket
+import subprocess
+import sys
+import time
+# First arg is server name/IP; the rest are joined and sent as a command.
+# If the second arg is "province", then the result is fed as keys to EU4.
+# Otherwise, this is basically like netcat/telnet.
+if len(sys.argv) < 3:
+	print("USAGE: python3 %s ipaddress command")
+	print("Useful commands include 'notify Name' and 'notify province Name'")
+	sys.exit(0)
+
+def goto(provid):
+	# NOTE: This is currently synchronous, unlike the Pike version, which is
+	# fully asynchronous. So if you queue multiple and then switch focus to
+	# EU4, it'll go through all of them.
+	while "looking for EU4":
+		proc = subprocess.run(["xdotool", "getactivewindow", "getwindowname"], encoding="UTF-8", capture_output=True, check=True)
+		if "Europa Universalis IV" in proc.stdout: break
+		time.sleep(0.5)
+	subprocess.run(["xdotool", "key", "--delay", "125", "f", *list(str(provid)), "Return"], check=True)
+
+
+sock = socket.create_connection((sys.argv[1], 1444))
+sock.send(" ".join(sys.argv[2:]).encode("UTF-8") + b"\n")
+partial = b""
+while "moar data":
+	data = sock.recv(1024)
+	if not data: break
+	[*lines, data] = (partial + data).split(b"\n")
+	for line in lines:
+		line = line.decode("UTF-8")
+		if sys.argv[2] == "province":
+			# Special case: go-to-province-now
+			goto(int(line))
+			sys.exit(0)
+		print(line)
+		if line.startswith("provfocus "): goto(int(line.split(" ")[1]))
+
+#endif
