@@ -78,3 +78,8 @@ color choice can be overridden based on its parent. */
 	cursor: pointer;
 	margin: 0.5em 0;
 }
+
+.province {
+	display: inline-block;
+}
+#upgradeables .province {margin-left: 1em;}

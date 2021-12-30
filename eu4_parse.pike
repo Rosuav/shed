@@ -481,7 +481,6 @@ void analyze_furnace(mapping data, string name, string tag, function|mapping wri
 }
 
 void analyze_upgrades(mapping data, string name, string tag, function|mapping write) {
-	if (mappingp(write)) return; //TODO UNSUPPORTED
 	mapping country = data->countries[tag];
 	mapping upgradeables = ([]);
 	foreach (country->owned_provinces, string id) {
@@ -501,12 +500,16 @@ void analyze_upgrades(mapping data, string name, string tag, function|mapping wr
 				target = bldg->obsoleted_by;
 				bldg = upgrade;
 			}
-			if (target && target != constructing) {interesting(id, PRIO_SITUATIONAL); upgradeables[L10n["building_" + target]] += ({prov->name});}
+			if (target && target != constructing) {
+				interesting(id, PRIO_SITUATIONAL);
+				upgradeables[L10n["building_" + target]] += ({(["id": id, "name": prov->name])}); //Do we need any more info?
+			}
 		}
 	}
-	foreach (sort(indices(upgradeables)), string b) {
+	if (mappingp(write)) sort(indices(upgradeables), write->upgradeables = (array)upgradeables); //Sort alphabetically by target building
+	else foreach (sort(indices(upgradeables)), string b) {
 		write("Can upgrade %d buildings to %s\n", sizeof(upgradeables[b]), b);
-		write("==> %s\n", string_to_utf8(upgradeables[b] * ", "));
+		write("==> %s\n", string_to_utf8(upgradeables[b]->name * ", "));
 	}
 }
 

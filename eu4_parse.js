@@ -31,6 +31,7 @@ export function render(state) {
 		DETAILS({id: "favors"}, SUMMARY("Favors")),
 		DETAILS({id: "wars"}, SUMMARY("Wars")),
 		DETAILS({id: "expansions"}, SUMMARY("Building expansions")),
+		DETAILS({id: "upgradeables"}, SUMMARY("Upgradeable buildings")),
 		DIV({id: "options"}, [ //Positioned fixed in the top corner
 			DETAILS({id: "highlight"}, SUMMARY("Building highlight")),
 		]),
@@ -171,5 +172,13 @@ export function render(state) {
 				: {className: "pickbuilding", "data-bldg": b.id},
 			[`${b.name} (${b.cost})`], //TODO: Add an image if possible
 		))),
+	]);
+	if (state.upgradeables) set_content("#upgradeables", [
+		SUMMARY("Upgradeable buildings"),
+		P(state.upgradeables.length + " building type(s) available for upgrade."),
+		UL(state.upgradeables.map(upg => LI([
+			upg[0] + ": ",
+			upg[1].map(prov => PROV(prov.id, prov.name)),
+		])))
 	]);
 }
