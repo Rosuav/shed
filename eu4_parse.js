@@ -61,7 +61,7 @@ export function render(state) {
 	if (state.name) set_content("#player", state.name);
 	if (state.tag) countrytag = state.tag;
 	if (state.cot) {
-		const content = [SUMMARY(`Max level CoTs [${state.cot.level3}/${state.cot.max}]`)];
+		const content = [SUMMARY(`Centers of Trade (${state.cot.level3}/${state.cot.max} max level)`)];
 		for (let kwd of ["upgradeable", "developable"]) {
 			const cots = state.cot[kwd];
 			if (!cots.length) continue;
