@@ -511,6 +511,7 @@ void analyze_upgrades(mapping data, string name, string tag, function|mapping wr
 }
 
 void analyze_findbuildings(mapping data, string name, string tag, function|mapping write, string highlight) {
+	werror("findbuildings: mappingp %d highlight %O\n", mappingp(write), highlight);
 	if (mappingp(write)) return; //TODO UNSUPPORTED
 	mapping country = data->countries[tag];
 	foreach (country->owned_provinces, string id) {
@@ -974,6 +975,12 @@ let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then
 constant NOT_FOUND = (["error": 404, "type": "text/plain", "data": "Not found"]);
 void http_handler(Protocols.HTTP.Server.Request req) {req->response_and_finish(respond(req) || NOT_FOUND);}
 
+mapping(string:string) highlight_interesting = ([]); //On the websocket, this choice applies to all connections for that user (to prevent inexplicable loss of config on dc)
+void websocket_cmd_highlight(mapping conn, mapping data) {
+	highlight_interesting[conn->group] = data->building;
+	send_update(websocket_groups[conn->group], get_state(conn->group) | (["parsing": parsing]));
+}
+
 void websocket_cmd_goto(mapping conn, mapping data) {
 	indices(connections["province"])->provnotify(data->tag, (int)data->province);
 }
@@ -1044,7 +1051,7 @@ mapping get_state(string group) {
 	mapping country = data->countries[tag];
 	if (!country) return (["error": "Country/player not found: " + group]);
 	mapping ret = (["tag": tag, "self": data->countries[tag]]);
-	analyze(data, group, tag, ret); //TODO: Remember a highlight and pass it along
+	analyze(data, group, tag, ret, highlight_interesting[group]);
 	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1], ret);
 	analyze_flagships(data, ret);
 	return ret;
