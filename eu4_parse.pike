@@ -279,7 +279,7 @@ object calendar(string date) {
 	return Calendar.Gregorian.Day(year, mon, day);
 }
 
-mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers, trade_goods, country_modifiers, age_definitions;
+mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers, trade_goods, country_modifiers, age_definitions, tech_definitions;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -315,6 +315,13 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 		_incorporate(modifiers, country_modifiers[mod->modifier]);
 	mapping age = age_definitions[data->current_age]->abilities;
 	_incorporate(modifiers, age[Array.arrayify(country->active_age_ability)[*]][*]);
+	mapping tech = country->technology || ([]);
+	foreach ("adm dip mil" / " ", string cat) {
+		int level = (int)tech[cat + "_tech"];
+		_incorporate(modifiers, tech_definitions[cat]->technology[..level][*]);
+		//TODO: If tech_definitions[cat]->technology[level]->year > current year, _incorporate tech_definitions[cat]->ahead_of_time
+		//TODO: > or >= ?
+	}
 	//More modifier types to incorporate:
 	//- Monuments. Might be hard, since they have restrictions. Can we see in the savefile if they're active?
 	//- Religious modifiers (icons, cults, aspects, etc)
@@ -572,6 +579,22 @@ void analyze(mapping data, string name, string tag, function|mapping|void write,
 	if (highlight) analyze_findbuildings(data, name, tag, write, highlight);
 	//write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province)); //If needed in a machine-readable format
 	interesting_provinces[tag] = interesting_province;
+}
+
+array(int) calc_province_devel_cost(mapping data, int id) {
+	int cost, increment;
+	mapping prov = data->provinces["-" + id];
+	mapping country = data->countries[prov->owner];
+	if (!country) return ({50, 10}); //Not owned? Probably not meaningful, just return base values.
+	mapping mods = all_country_modifiers(data, country);
+	//1) Development efficiency from admin tech affects the base cost multiplicatively before everything else.
+	cost = 50 * (1000 - mods->development_efficiency) / 1000;
+	int devel = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
+	int devcost = 0;
+	//Add 3% for every development above 9, add a further 3% for every devel above 19, another above 29, etc.
+	for (int thr = 9; thr < devel; thr += 10) devcost += 3 * (devel - thr);
+	int improvements = prov->country_improve_count && `+(@(array(int))prov->country_improve_count->val);
+	return ({cost, increment});
 }
 
 //Not currently triggered from anywhere. Doesn't currently have a primary use-case.
@@ -1162,8 +1185,10 @@ int main(int argc, array(string) argv) {
 		//(not counting it and collapsing the gap).
 		if (id != "manufactory") building_id[info->_index + (info->_index < building_types->manufactory->_index)] = id;
 	}
+	tech_definitions = ([]);
 	foreach (({"adm", "dip", "mil"}), string cat) {
 		mapping tech = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/technologies/" + cat + ".txt"));
+		tech_definitions[cat] = tech_definitions[cat + "_tech"] = tech;
 		foreach (tech->technology; int level; mapping effects) {
 			//The effects include names of buildings, eg "university = yes".
 			foreach (effects; string id;) if (mapping bld = building_types[id]) {
