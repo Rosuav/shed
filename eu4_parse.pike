@@ -335,6 +335,8 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	//- Government type modifiers (eg march, vassal, colony)
 
 	if (country->luck) _incorporate(modifiers, static_modifiers->luck); //Lucky nations (AI-only) get bonuses.
+	if (int innov = threeplace(country->innovativeness)) _incorporate(modifiers, static_modifiers->innovativeness, innov, 100000);
+	if (int corr = threeplace(country->corruption)) _incorporate(modifiers, static_modifiers->corruption, corr, 100000);
 	//Having gone through all of the above, we should now have estate influence modifiers.
 	//Now we can calculate the total influence, and then add in the effects of each estate.
 	if (country->estate) {
@@ -615,26 +617,28 @@ void analyze(mapping data, string name, string tag, function|mapping|void write,
 }
 
 array(int) calc_province_devel_cost(mapping data, int id) {
-	int cost, increment;
 	mapping prov = data->provinces["-" + id];
 	mapping country = data->countries[prov->owner];
-	if (!country) return ({50, 10}); //Not owned? Probably not meaningful, just return base values.
+	if (!country) return ({50, 0, 0, 50}); //Not owned? Probably not meaningful, just return base values.
 	mapping mods = all_country_modifiers(data, country);
-	//1) Development efficiency from admin tech affects the base cost multiplicatively before everything else.
-	cost = 50 * (1000 - mods->development_efficiency) / 1000;
+	//Development efficiency from admin tech affects the base cost multiplicatively before everything else.
+	int base_cost = 50 * (1000 - mods->development_efficiency) / 1000;
+
+	//Province modifiers: Is there a COT here?
+	mapping localmods = all_province_modifiers(data, id);
+	int cost_factor = mods->development_cost + localmods->local_development_cost + mods->all_power_cost;
+
+	//As the province gains development, the cost goes up.
 	int devel = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
 	int devcost = 0;
 	//Add 3% for every development above 9, add a further 3% for every devel above 19, another above 29, etc.
-	for (int thr = 9; thr < devel; thr += 10) devcost += 3 * (devel - thr);
-	//Province modifiers: Is there a COT here?
-	mapping localmods = all_province_modifiers(data, id);
-	//TODO: localmods->local_development_cost
-	//TODO: mods->development_cost
-	//TODO: mods->all_power_costs
+	for (int thr = 9; thr < devel; thr += 10) devcost += 30 * (devel - thr);
+
+	int final_cost = base_cost * (1000 + cost_factor + devcost) / 1000;
 	//NOTE: Some of these factors won't be quite right. For instance, Burghers influence
 	//is not perfectly calculated, so if it goes above or below a threshold, that can
 	//affect the resulting costs. Hopefully that will always apply globally.
-	return ({cost, increment});
+	return ({base_cost, cost_factor, devcost, final_cost});
 }
 
 //Not currently triggered from anywhere. Doesn't currently have a primary use-case.
