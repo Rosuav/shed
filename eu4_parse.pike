@@ -15,6 +15,8 @@
   - Flag? Can we show flags easily?
   - Click to go to country's capital
 
+TODO: Check climate for development cost impact (Arid, Arctic have penalties)
+
 TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
 TODO: Flagships in front end
 
