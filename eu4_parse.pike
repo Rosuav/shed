@@ -381,7 +381,7 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 		if (!prov->great_projects) continue;
 		mapping con = prov->great_project_construction || ([]);
 		foreach (prov->great_projects, string project) {
-			mapping proj = data->great_projects[project];
+			mapping proj = data->great_projects[project] || (["development_tier": "0"]); //Weirdly, I have once seen a project that's just missing from the file.
 			projects += ({({
 				(int)id - (int)proj->development_tier * 10000,
 				({"", id, "Lvl " + proj->development_tier, prov->name, L10n[project] || "#" + project,
@@ -535,7 +535,7 @@ void analyze_findbuildings(mapping data, string name, string tag, function|mappi
 		if (buildings < slots) continue; //Got room. Not a problem. (Note that the building slots calculation may be wrong but usually too low.)
 		//Check if a building of the highlight type already exists here.
 		int gotone = 0;
-		foreach (prov->buildings; string b;) {
+		foreach (prov->buildings || ([]); string b;) {
 			while (string upg = building_types[b]->make_obsolete) b = upg;
 			if (b == highlight) {gotone = 1; break;}
 		}
