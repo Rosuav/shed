@@ -3,7 +3,7 @@ string TOKEN, VALIDATION;
 
 void handler(object req) {
 	if (req->not_query == "/.well-known/acme-challenge/" + TOKEN) {
-		req->response_and_finish((["data": VALIDATION]));
+		req->response_and_finish((["data": VALIDATION, "type": "text/plain; charset=\"UTF-8\""]));
 		call_out(exit, 1, 0); //Dwell for one second in case there are doubled requests
 	}
 	else req->response_and_finish((["error": 404]));
