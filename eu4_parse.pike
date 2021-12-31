@@ -281,7 +281,8 @@ object calendar(string date) {
 	return Calendar.Gregorian.Day(year, mon, day);
 }
 
-mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers, trade_goods, country_modifiers, age_definitions, tech_definitions;
+mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers;
+mapping trade_goods, country_modifiers, age_definitions, tech_definitions, institutions;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -323,6 +324,9 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 		_incorporate(modifiers, tech_definitions[cat]->technology[..level][*]);
 		//TODO: If tech_definitions[cat]->technology[level]->year > current year, _incorporate tech_definitions[cat]->ahead_of_time
 		//TODO: > or >= ?
+	}
+	if (array have = country->institutions) foreach (institutions; string id; mapping inst) {
+		if (have[inst->_index] == "1") _incorporate(modifiers, inst->bonus);
 	}
 	//More modifier types to incorporate:
 	//- Monuments. Might be hard, since they have restrictions. Can we see in the savefile if they're active?
@@ -1227,6 +1231,7 @@ int main(int argc, array(string) argv) {
 	static_modifiers = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/static_modifiers/00_static_modifiers.txt"));
 	retain_map_indices = 1;
 	trade_goods = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/tradegoods/00_tradegoods.txt"));
+	institutions = parse_config_dir(PROGRAM_PATH + "/common/institutions");
 	retain_map_indices = 0;
 	foreach (trade_goods; string id; mapping info) {
 		trade_goods[info->_index + 1] = info;
