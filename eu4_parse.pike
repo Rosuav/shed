@@ -594,6 +594,9 @@ array(int) calc_province_devel_cost(mapping data, int id) {
 	//Add 3% for every development above 9, add a further 3% for every devel above 19, another above 29, etc.
 	for (int thr = 9; thr < devel; thr += 10) devcost += 3 * (devel - thr);
 	int improvements = prov->country_improve_count && `+(@(array(int))prov->country_improve_count->val);
+	//NOTE: Some of these factors won't be quite right. For instance, Burghers influence
+	//is not perfectly calculated, so if it goes above or below a threshold, that can
+	//affect the resulting costs. Hopefully that will always apply globally.
 	return ({cost, increment});
 }
 
