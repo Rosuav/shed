@@ -19,8 +19,6 @@ TODO: Predict monarch power cost of developing a province
 TODO: Sort "Building Expansion" by the lowest total monarch power to reach the next building slot
 TODO: Optionally show those which can be built in with a single specified power type (eg "I have diplo power, where can I build a marketplace")
 -- Is slightly wrong because of Burgher influence calculation issues
--- Seems to be a bit wrong with HRE modifiers? Check.
--- Check 4386, should be a Marsh (25% penalty), isn't.
 
 TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
 TODO: Flagships in front end
@@ -404,7 +402,7 @@ mapping(string:int) all_province_modifiers(mapping data, int id) {
 	_incorporate(modifiers, terrain_definitions->categories[province_info[(string)id]->terrain]);
 	if (prov->hre) {
 		foreach (Array.arrayify(data->empire->passed_reform), string reform)
-			_incorporate(modifiers, imperial_reforms[reform]);
+			_incorporate(modifiers, imperial_reforms[reform]->?province);
 	}
 	return prov->all_province_modifiers = modifiers;
 }
