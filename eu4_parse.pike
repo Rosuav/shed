@@ -113,6 +113,8 @@ mapping low_parse_savefile(string|Stdio.Buffer data, int|void verbose) {
 		if (array digits = data->sscanf("%[-0-9.]")) return ({"string", digits[0]});
 		if (array|string word = data->sscanf("%[0-9a-zA-Z_]")) {
 			word = word[0];
+			//Unquoted tokens like institution_events.2 should be atoms, not atom-followed-by-number
+			if (array dotnumber = data->sscanf(".%[0-9]")) word += "." + dotnumber[0];
 			if ((<"yes", "no">)[word]) return ({"boolean", word == "yes"});
 			//Hack: this one element seems to omit the equals sign for some reason.
 			if (word == "map_area_data") ungetch = "=";
