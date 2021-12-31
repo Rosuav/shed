@@ -14,6 +14,18 @@
   - Show country tech level compared to yours (green = worse tech, red = better tech)
   - Flag? Can we show flags easily?
   - Click to go to country's capital
+
+TODO: Predict monarch power cost of developing a province
+TODO: Sort "Building Expansion" by the lowest total monarch power to reach the next building slot
+TODO: Optionally show those which can be built in with a single specified power type (eg "I have diplo power, where can I build a marketplace")
+
+TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
+TODO: Flagships in front end
+
+TODO: Show summary of highlights in top right, under settings. Click anything to scroll to it and open the details.
+Also show the same highlight summary info in the summary of the corresponding details.
+
+TODO maybe: Bookmark a province for later
 */
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
