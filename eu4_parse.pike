@@ -20,6 +20,7 @@ TODO: Sort "Building Expansion" by the lowest total monarch power to reach the n
 TODO: Optionally show those which can be built in with a single specified power type (eg "I have diplo power, where can I build a marketplace")
 -- Is slightly wrong because of Burgher influence calculation issues
 -- Seems to be a bit wrong with HRE modifiers? Check.
+-- Check 4386, should be a Marsh (25% penalty), isn't.
 
 TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
 TODO: Flagships in front end
