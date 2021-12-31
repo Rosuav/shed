@@ -283,7 +283,7 @@ object calendar(string date) {
 
 mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers;
 mapping trade_goods, country_modifiers, age_definitions, tech_definitions, institutions;
-mapping cot_definitions;
+mapping cot_definitions, state_edicts, terrain_definitions;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -389,9 +389,14 @@ mapping(string:int) all_province_modifiers(mapping data, int id) {
 		mapping cot = cot_definitions[type];
 		_incorporate(modifiers, cot->?state_modifiers);
 	}
-	//TODO: Incorporate modifiers from buildings (eg University)
-	//TODO: Incorporate state-wide modifiers eg Prosperity and edicts
-	//TODO: Factor in terrain
+	foreach (prov->buildings || ([]); string b;)
+		_incorporate(modifiers, building_types[b]);
+	mapping area = data->map_area_data[prov_area[(string)id]]->state;
+	foreach (Array.arrayify(area->country_state), mapping state) if (state->country == prov->owner) {
+		if (state->prosperity == "100.000") _incorporate(modifiers, static_modifiers->prosperity);
+		_incorporate(modifiers, state_edicts[state->active_edict->?which]);
+	}
+	_incorporate(modifiers, terrain_definitions->categories[province_info[(string)id]->terrain]);
 	return prov->all_province_modifiers = modifiers;
 }
 
@@ -1205,7 +1210,7 @@ int main(int argc, array(string) argv) {
 	mapping areas = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/area.txt"));
 	foreach (areas; string areaname; array|maparray provinces)
 		foreach (provinces;; string id) prov_area[id] = areaname;
-	mapping terrains = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/terrain.txt"));
+	terrain_definitions = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/terrain.txt"));
 	//Terrain info is used below.
 	mapping climates = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/climate.txt"));
 	//For simplicity, I'm not looking up static_modifiers or anything - just arbitrarily flagging Arctic regions.
@@ -1272,6 +1277,7 @@ int main(int argc, array(string) argv) {
 		cot_definitions[info->type + info->level] = info;
 		info->id = id;
 	}
+	state_edicts = parse_config_dir(PROGRAM_PATH + "/common/state_edicts");
 
 	/* It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
 	has. So, instead, let's ask for a little help - from the game, and from the human. And then save the results.
@@ -1309,7 +1315,7 @@ int main(int argc, array(string) argv) {
 		log = \"PROV-TERRAIN: %<s has_port=1\"
 	}
 ", provid);
-			foreach (terrains->categories; string type; mapping info) {
+			foreach (terrain_definitions->categories; string type; mapping info) {
 				script->write(
 #"	if = {
 		limit = { has_terrain = %s is_wasteland = no }
@@ -1347,7 +1353,7 @@ log = \"PROV-TERRAIN-END\"
 		Stdio.write_file(".eu4_provinces.json", Standards.JSON.encode(province_info));
 	}
 	foreach (province_info; string id; mapping provinfo) {
-		mapping terraininfo = terrains->categories[provinfo->terrain];
+		mapping terraininfo = terrain_definitions->categories[provinfo->terrain];
 		if (!terraininfo) continue; //TODO: What happens if we have a broken terrain name??
 		int slots = (int)terraininfo->allowed_num_of_buildings;
 		if (slots) building_slots[id] += slots;
