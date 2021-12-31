@@ -15,11 +15,6 @@
   - Flag? Can we show flags easily?
   - Click to go to country's capital
 
-TODO: Predict monarch power cost of developing a province
-TODO: Sort "Building Expansion" by the lowest total monarch power to reach the next building slot
-TODO: Optionally show those which can be built in with a single specified power type (eg "I have diplo power, where can I build a marketplace")
--- Is slightly wrong because of Burgher influence calculation issues
-
 TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
 TODO: Flagships in front end
 
