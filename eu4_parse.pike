@@ -404,6 +404,7 @@ mapping(string:int) all_province_modifiers(mapping data, int id) {
 		foreach (Array.arrayify(data->empire->passed_reform), string reform)
 			_incorporate(modifiers, imperial_reforms[reform]->?province);
 	}
+	_incorporate(modifiers, trade_goods[prov->trade_goods]->?province);
 	return prov->all_province_modifiers = modifiers;
 }
 
