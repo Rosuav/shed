@@ -18,6 +18,8 @@
 TODO: Predict monarch power cost of developing a province
 TODO: Sort "Building Expansion" by the lowest total monarch power to reach the next building slot
 TODO: Optionally show those which can be built in with a single specified power type (eg "I have diplo power, where can I build a marketplace")
+-- Is slightly wrong because of Burgher influence calculation issues
+-- Seems to be a bit wrong with HRE modifiers? Check.
 
 TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
 TODO: Flagships in front end
@@ -283,7 +285,7 @@ object calendar(string date) {
 
 mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers;
 mapping trade_goods, country_modifiers, age_definitions, tech_definitions, institutions;
-mapping cot_definitions, state_edicts, terrain_definitions;
+mapping cot_definitions, state_edicts, terrain_definitions, imperial_reforms;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -393,12 +395,16 @@ mapping(string:int) all_province_modifiers(mapping data, int id) {
 	}
 	foreach (prov->buildings || ([]); string b;)
 		_incorporate(modifiers, building_types[b]);
-	mapping area = data->map_area_data[prov_area[(string)id]]->state;
-	foreach (Array.arrayify(area->country_state), mapping state) if (state->country == prov->owner) {
+	mapping area = data->map_area_data[prov_area[(string)id]]->?state;
+	foreach (Array.arrayify(area->?country_state), mapping state) if (state->country == prov->owner) {
 		if (state->prosperity == "100.000") _incorporate(modifiers, static_modifiers->prosperity);
 		_incorporate(modifiers, state_edicts[state->active_edict->?which]);
 	}
 	_incorporate(modifiers, terrain_definitions->categories[province_info[(string)id]->terrain]);
+	if (prov->hre) {
+		foreach (Array.arrayify(data->empire->passed_reform), string reform)
+			_incorporate(modifiers, imperial_reforms[reform]);
+	}
 	return prov->all_province_modifiers = modifiers;
 }
 
@@ -598,7 +604,7 @@ void analyze_findbuildings(mapping data, string name, string tag, function|mappi
 		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
 		if (mappingp(write)) write->highlight->provinces += ({([
 			"id": (int)id, "buildings": buildings, "maxbuildings": slots,
-			"dev": dev, "name": prov->name,
+			"dev": dev, "name": prov->name, "costs": calc_province_devel_cost(data, (int)id),
 		])});
 		else write("\e[1;32m%s\t%d/%d bldg\tDev %d\t%s\e[0m\n", id, buildings, slots, dev, string_to_utf8(prov->name));
 	}
@@ -1282,6 +1288,7 @@ int main(int argc, array(string) argv) {
 		info->id = id;
 	}
 	state_edicts = parse_config_dir(PROGRAM_PATH + "/common/state_edicts");
+	imperial_reforms = parse_config_dir(PROGRAM_PATH + "/common/imperial_reforms");
 
 	/* It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
 	has. So, instead, let's ask for a little help - from the game, and from the human. And then save the results.

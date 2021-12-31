@@ -155,6 +155,7 @@ export function render(state) {
 					TD(PROV(prov.id, prov.name)),
 					TD(`${prov.buildings}/${prov.maxbuildings}`),
 					TD(""+prov.dev),
+					TD(prov.costs.join(" // ")),
 				])),
 			]),
 		]);
