@@ -601,12 +601,15 @@ void analyze_findbuildings(mapping data, string name, string tag, function|mappi
 		if (gotone) continue;
 		interesting(id, PRIO_EXPLICIT);
 		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
+		int need_dev = (dev - dev % 10) + 10 * (buildings - slots + 1);
 		if (mappingp(write)) write->highlight->provinces += ({([
 			"id": (int)id, "buildings": buildings, "maxbuildings": slots,
-			"dev": dev, "name": prov->name, "costs": calc_province_devel_cost(data, (int)id),
+			"name": prov->name, "dev": dev, "need_dev": need_dev,
+			"cost": calc_province_devel_cost(data, (int)id, need_dev - dev),
 		])});
 		else write("\e[1;32m%s\t%d/%d bldg\tDev %d\t%s\e[0m\n", id, buildings, slots, dev, string_to_utf8(prov->name));
 	}
+	if (mappingp(write)) sort(write->highlight->provinces->cost[*][-1], write->highlight->provinces);
 }
 
 mapping(string:array) interesting_provinces = ([]);
@@ -621,15 +624,14 @@ void analyze(mapping data, string name, string tag, function|mapping|void write,
 	interesting_provinces[tag] = interesting_province;
 }
 
-array(int) calc_province_devel_cost(mapping data, int id) {
+array(int) calc_province_devel_cost(mapping data, int id, int|void improvements) {
 	mapping prov = data->provinces["-" + id];
 	mapping country = data->countries[prov->owner];
-	if (!country) return ({50, 0, 0, 50}); //Not owned? Probably not meaningful, just return base values.
+	if (!country) return ({50, 0, 0, 50 * (improvements||1)}); //Not owned? Probably not meaningful, just return base values.
 	mapping mods = all_country_modifiers(data, country);
 	//Development efficiency from admin tech affects the base cost multiplicatively before everything else.
 	int base_cost = 50 * (1000 - mods->development_efficiency) / 1000;
 
-	//Province modifiers: Is there a COT here?
 	mapping localmods = all_province_modifiers(data, id);
 	int cost_factor = mods->development_cost + localmods->local_development_cost + mods->all_power_cost;
 
@@ -640,9 +642,17 @@ array(int) calc_province_devel_cost(mapping data, int id) {
 	for (int thr = 9; thr < devel; thr += 10) devcost += 30 * (devel - thr);
 
 	int final_cost = base_cost * (1000 + cost_factor + devcost) / 1000;
+	//If you asked for more than one improvement, calculate the total cost.
+	for (int i = 1; i < improvements; ++i) {
+		++devel;
+		devcost += devel / 10;
+		final_cost += base_cost * (1000 + cost_factor + devcost) / 1000;
+	}
 	//NOTE: Some of these factors won't be quite right. For instance, Burghers influence
 	//is not perfectly calculated, so if it goes above or below a threshold, that can
-	//affect the resulting costs. Hopefully that will always apply globally.
+	//affect the resulting costs. Hopefully that will always apply globally, so the
+	//relative effects of province choice will still be meaningful. (This will skew things
+	//somewhat based on the number of improvements required though.)
 	return ({base_cost, cost_factor, devcost, final_cost});
 }
 

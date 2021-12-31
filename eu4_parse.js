@@ -150,12 +150,12 @@ export function render(state) {
 				+ "is opened up, the province will disappear from here and appear in the in-game "
 				+ "macro-builder list for that building."),
 			TABLE({border: true}, [
-				table_head("Province Buildings Devel"),
+				table_head("Province Buildings Devel MP-cost"),
 				state.highlight.provinces.map(prov => TR([
 					TD(PROV(prov.id, prov.name)),
 					TD(`${prov.buildings}/${prov.maxbuildings}`),
 					TD(""+prov.dev),
-					TD(prov.costs.join(" // ")),
+					TD(""+prov.cost[3]),
 				])),
 			]),
 		]);
