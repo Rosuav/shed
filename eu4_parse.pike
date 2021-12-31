@@ -283,6 +283,7 @@ object calendar(string date) {
 
 mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers;
 mapping trade_goods, country_modifiers, age_definitions, tech_definitions, institutions;
+mapping cot_definitions;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -599,7 +600,22 @@ array(int) calc_province_devel_cost(mapping data, int id) {
 	int devcost = 0;
 	//Add 3% for every development above 9, add a further 3% for every devel above 19, another above 29, etc.
 	for (int thr = 9; thr < devel; thr += 10) devcost += 3 * (devel - thr);
-	int improvements = prov->country_improve_count && `+(@(array(int))prov->country_improve_count->val);
+	//Province modifiers: Is there a COT here?
+	mapping localmods = ([]);
+	if (prov->center_of_trade) {
+		string type = province_info[(string)id]->?has_port ? "coastal" : "inland";
+		mapping cot = cot_definitions[type + prov->center_of_trade];
+		_incorporate(localmods, cot->?province_modifiers);
+	}
+	if (int l3cot = country->area_has_level3[?prov_area[(string)id]]) {
+		string type = province_info[(string)l3cot]->?has_port ? "coastal3" : "inland3";
+		mapping cot = cot_definitions[type];
+		_incorporate(localmods, cot->?state_modifiers);
+	}
+	//TODO: Incorporate modifiers from buildings (eg University)
+	//TODO: Incorporate state-wide modifiers eg Prosperity and edicts
+	//TODO: Factor in terrain
+	//TODO: Factor in global "all power cost" modifiers eg Innovativeness, Corruption
 	//NOTE: Some of these factors won't be quite right. For instance, Burghers influence
 	//is not perfectly calculated, so if it goes above or below a threshold, that can
 	//affect the resulting costs. Hopefully that will always apply globally.
@@ -1240,6 +1256,12 @@ int main(int argc, array(string) argv) {
 	country_modifiers = parse_config_dir(PROGRAM_PATH + "/common/event_modifiers")
 		| parse_config_dir(PROGRAM_PATH + "/common/parliament_issues");
 	age_definitions = parse_config_dir(PROGRAM_PATH + "/common/ages");
+	mapping cot_raw = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/centers_of_trade/00_centers_of_trade.txt"));
+	cot_definitions = ([]);
+	foreach (cot_raw; string id; mapping info) {
+		cot_definitions[info->type + info->level] = info;
+		info->id = id;
+	}
 
 	/* It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
 	has. So, instead, let's ask for a little help - from the game, and from the human. And then save the results.
