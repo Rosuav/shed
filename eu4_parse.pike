@@ -374,6 +374,27 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	return country->all_country_modifiers = modifiers;
 }
 
+mapping(string:int) all_province_modifiers(mapping data, int id) {
+	mapping prov = data->provinces["-" + id];
+	if (mapping cached = prov->all_province_modifiers) return cached;
+	mapping country = data->countries[prov->owner];
+	mapping modifiers = ([]);
+	if (prov->center_of_trade) {
+		string type = province_info[(string)id]->?has_port ? "coastal" : "inland";
+		mapping cot = cot_definitions[type + prov->center_of_trade];
+		_incorporate(modifiers, cot->?province_modifiers);
+	}
+	if (int l3cot = country->area_has_level3[?prov_area[(string)id]]) {
+		string type = province_info[(string)l3cot]->?has_port ? "coastal3" : "inland3";
+		mapping cot = cot_definitions[type];
+		_incorporate(modifiers, cot->?state_modifiers);
+	}
+	//TODO: Incorporate modifiers from buildings (eg University)
+	//TODO: Incorporate state-wide modifiers eg Prosperity and edicts
+	//TODO: Factor in terrain
+	return prov->all_province_modifiers = modifiers;
+}
+
 //Estimate a months' production of ducats/manpower/sailors (yes, I'm fixing the scaling there)
 array(float) estimate_per_month(mapping data, mapping country) {
 	float gold = (float)country->ledger->lastmonthincome - (float)country->ledger->lastmonthexpense;
@@ -601,21 +622,10 @@ array(int) calc_province_devel_cost(mapping data, int id) {
 	//Add 3% for every development above 9, add a further 3% for every devel above 19, another above 29, etc.
 	for (int thr = 9; thr < devel; thr += 10) devcost += 3 * (devel - thr);
 	//Province modifiers: Is there a COT here?
-	mapping localmods = ([]);
-	if (prov->center_of_trade) {
-		string type = province_info[(string)id]->?has_port ? "coastal" : "inland";
-		mapping cot = cot_definitions[type + prov->center_of_trade];
-		_incorporate(localmods, cot->?province_modifiers);
-	}
-	if (int l3cot = country->area_has_level3[?prov_area[(string)id]]) {
-		string type = province_info[(string)l3cot]->?has_port ? "coastal3" : "inland3";
-		mapping cot = cot_definitions[type];
-		_incorporate(localmods, cot->?state_modifiers);
-	}
-	//TODO: Incorporate modifiers from buildings (eg University)
-	//TODO: Incorporate state-wide modifiers eg Prosperity and edicts
-	//TODO: Factor in terrain
-	//TODO: Factor in global "all power cost" modifiers eg Innovativeness, Corruption
+	mapping localmods = all_province_modifiers(data, id);
+	//TODO: localmods->local_development_cost
+	//TODO: mods->development_cost
+	//TODO: mods->all_power_costs
 	//NOTE: Some of these factors won't be quite right. For instance, Burghers influence
 	//is not perfectly calculated, so if it goes above or below a threshold, that can
 	//affect the resulting costs. Hopefully that will always apply globally.
