@@ -24,6 +24,8 @@ TODO: Show summary of highlights in top right, under settings. Click anything to
 Also show the same highlight summary info in the summary of the corresponding details.
 
 TODO maybe: Bookmark a province for later
+
+TODO: Background service to do the key sending. Must reconnect (but not too often). Will need DISPLAY env var.
 */
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
