@@ -595,8 +595,12 @@ void analyze_findbuildings(mapping data, string name, string tag, function|mappi
 		//Check if a building of the highlight type already exists here.
 		int gotone = 0;
 		foreach (prov->buildings || ([]); string b;) {
-			while (string upg = building_types[b]->make_obsolete) b = upg;
 			if (b == highlight) {gotone = 1; break;}
+			while (string upg = building_types[b]->make_obsolete) {
+				if (upg == highlight) {gotone = 1; break;}
+				b = upg;
+			}
+			if (gotone) break;
 		}
 		if (gotone) continue;
 		interesting(id, PRIO_EXPLICIT);
