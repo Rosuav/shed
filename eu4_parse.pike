@@ -1006,8 +1006,10 @@ void done_processing_savefile() {
 
 class ClientConnection {
 	inherit Connection;
+	inherit Concurrent.Promise;
 	protected void create(Stdio.File sock) {
-		::create(sock);
+		Connection::create(sock);
+		Promise::create();
 		Stdio.stdin->set_read_callback(stdinread);
 		Stdio.stdin->set_close_callback(stdineof);
 	}
@@ -1036,9 +1038,27 @@ class ClientConnection {
 			}
 		}
 	}
-	void sockclosed() {::sockclosed(); exit(0);}
+	void sockclosed() {
+		::sockclosed();
+		success(1);
+	}
 	void stdinread(mixed _, string data) {sock->write(data);}
 	void stdineof() {sock->close("w");}
+}
+
+void establish_client_connection(string ip, string cmd, int reconnect) {
+	Stdio.File sock = Stdio.File();
+	string writeme;
+	while (1) {
+		writeme = sock->connect(ip, 1444, cmd + "\n");
+		if (writeme || !reconnect) break;
+		sleep(10);
+	}
+	if (!writeme) exit(0, "Unable to connect to %s : 1444\n", ip);
+	sock->write(writeme); //TBH there shouldn't be any residual data, since it should be a single packet.
+	object conn = ClientConnection(sock);
+	if (reconnect) conn->then() {call_out(establish_client_connection, 10, ip, cmd, reconnect);};
+	//Single-report goto-province mode is currently broken.
 }
 
 class PipeConnection {
@@ -1203,23 +1223,11 @@ int main(int argc, array(string) argv) {
 		//First arg is server name/IP; the rest are joined and sent as a command.
 		//If the second arg is "province", then the result is fed as keys to EU4.
 		//Otherwise, this is basically like netcat/telnet.
-		Stdio.File sock = Stdio.File();
-		string writeme = sock->connect(argv[1], 1444, argv[2..] * " " + "\n");
-		if (!writeme) exit(0, "Unable to connect to %s : 1444\n", argv[1]);
-		sock->write(writeme); //TBH there shouldn't be any residual data, since it should be a single packet.
-		if (argv[2] != "province") {ClientConnection(sock); return -1;}
-		string province = "";
-		while (string data = sock->read(1024, 1)) {
-			if (data == "") break;
-			province += data;
-		}
-		sock->close();
-		if (String.trim(province) != "") Process.create_process(({"xdotool",
-			/*"search", "--name", "Europa Universalis IV",*/ //Doesn't always work. Omitting this assumes that EU4 has focus.
-			"key", "--delay", "125", //Hurry the typing along a bit
-			"f", @(String.trim(province) / ""), "Return", //Send "f", then type the province ID, then hit Enter
-		}))->wait();
-		return 0;
+		//If --reconnect, will auto-retry until connection succeeds, ten-second
+		//retry delay. Will also reconnect after disconnection.
+		int reconnect = has_value(argv, "--reconnect"); argv -= ({"--reconnect"});
+		establish_client_connection(argv[1], argv[2..] * " ", reconnect);
+		return -1;
 	}
 
 	//Load up some info that is presumed to not change. If you're modding the game, this may break.
@@ -1431,6 +1439,8 @@ import time
 # First arg is server name/IP; the rest are joined and sent as a command.
 # If the second arg is "province", then the result is fed as keys to EU4.
 # Otherwise, this is basically like netcat/telnet.
+# If --reconnect, will auto-retry until connection succeeds, ten-second
+# retry delay. Will also reconnect after disconnection.
 if len(sys.argv) < 3:
 	print("USAGE: python3 %s ipaddress command")
 	print("Useful commands include 'notify Name' and 'notify province Name'")
@@ -1439,28 +1449,42 @@ if len(sys.argv) < 3:
 def goto(provid):
 	# NOTE: This is currently synchronous, unlike the Pike version, which is
 	# fully asynchronous. So if you queue multiple and then switch focus to
-	# EU4, it will go through all of them.
-	while "looking for EU4":
+	# EU4, it will go through all of them. Also, retries for 30 seconds max.
+	for retry in range(60):
 		proc = subprocess.run(["xdotool", "getactivewindow", "getwindowname"], encoding="UTF-8", capture_output=True, check=True)
-		if "Europa Universalis IV" in proc.stdout: break
+		if "Europa Universalis IV" in proc.stdout:
+			subprocess.run(["xdotool", "key", "--delay", "125", "f", *list(str(provid)), "Return"], check=True)
+			return
 		time.sleep(0.5)
-	subprocess.run(["xdotool", "key", "--delay", "125", "f", *list(str(provid)), "Return"], check=True)
+	print("Unable to find game window, not jumping to province")
 
+reconnect = "--reconnect" in sys.argv
+if reconnect: sys.argv.remove("--reconnect")
+def client_connection():
+	while "get connection":
+		try: sock = socket.create_connection((sys.argv[1], 1444))
+		except ConnectionRefusedError if reconnect else (): pass
+		else: break
+		time.sleep(10)
+	print("Connected, listening for province focus messages")
+	sock.send(" ".join(sys.argv[2:]).encode("UTF-8") + b"\n")
+	partial = b""
+	while "moar data":
+		data = sock.recv(1024)
+		if not data: break
+		[*lines, data] = (partial + data).split(b"\n")
+		for line in lines:
+			line = line.decode("UTF-8")
+			if sys.argv[2] == "province":
+				# Special case: go-to-province-now
+				goto(int(line))
+				sys.exit(0)
+			print(line)
+			if line.startswith("provfocus "): goto(int(line.split(" ")[1]))
 
-sock = socket.create_connection((sys.argv[1], 1444))
-sock.send(" ".join(sys.argv[2:]).encode("UTF-8") + b"\n")
-partial = b""
-while "moar data":
-	data = sock.recv(1024)
-	if not data: break
-	[*lines, data] = (partial + data).split(b"\n")
-	for line in lines:
-		line = line.decode("UTF-8")
-		if sys.argv[2] == "province":
-			# Special case: go-to-province-now
-			goto(int(line))
-			sys.exit(0)
-		print(line)
-		if line.startswith("provfocus "): goto(int(line.split(" ")[1]))
+while "reconnect":
+	client_connection()
+	if not reconnect: break
+	time.sleep(10)
 
 #endif
