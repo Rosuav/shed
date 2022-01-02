@@ -1069,7 +1069,7 @@ mapping respond(Protocols.HTTP.Server.Request req) {
 let ws_code = new URL(\"/eu4_parse.js\", location.href), ws_type = \"eu4\", ws_group = \"%s\";
 let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then(m => ws_sync = m);
 </script><main></main></body></html>
-", tag || "?!?"),
+", Protocols.HTTP.uri_decode(tag || "?!?")),
 	]);
 	if (req->not_query == "/search") {
 		//TODO: Search for a country by tag, name, etc. Return a redirect to /tag/%s, or maybe a menu.
