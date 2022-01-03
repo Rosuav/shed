@@ -908,7 +908,7 @@ class Connection(Stdio.File sock) {
 		interesting_provinces[tag] = rest + ({id});
 		//Note: Ignores buffered mode and writes directly. I don't think it's possible to
 		//put a "shutdown write direction when done" marker into the Buffer.
-		sock->write(id + "\n");
+		sock->write("provfocus " + id + "\nexit\n");
 		sock->close("w");
 	}
 
@@ -1015,6 +1015,7 @@ class ClientConnection {
 	}
 	int keysend_provid;
 	mixed keysend_callout;
+	int terminate = 0;
 	void find_eu4() {
 		//Check which window has focus. If it seems to be EU4, poke keys, otherwise wait.
 		mapping focus = Process.run(({"xdotool", "getactivewindow", "getwindowname"}));
@@ -1026,6 +1027,7 @@ class ClientConnection {
 			"key", "--delay", "125", //Hurry the typing along a bit
 			"f", @((string)keysend_provid / ""), "Return", //Send "f", then type the province ID, then hit Enter
 		}))->wait();
+		if (terminate) exit(0);
 	}
 	void sockread() {
 		//Display only complete lines, to avoid disruption of input text
@@ -1036,11 +1038,12 @@ class ClientConnection {
 				if (keysend_callout) continue; //Already waiting. Replace the province ID with a new one.
 				keysend_callout = call_out(find_eu4, 0);
 			}
+			if (ret[0] == "exit") terminate = 1;
 		}
 	}
 	void sockclosed() {
 		::sockclosed();
-		success(1);
+		success(1 + terminate);
 	}
 	void stdinread(mixed _, string data) {sock->write(data);}
 	void stdineof() {sock->close("w");}
@@ -1057,7 +1060,7 @@ void establish_client_connection(string ip, string cmd, int reconnect) {
 	if (!writeme) exit(0, "Unable to connect to %s : 1444\n", ip);
 	sock->write(writeme); //TBH there shouldn't be any residual data, since it should be a single packet.
 	object conn = ClientConnection(sock);
-	if (reconnect) conn->then() {call_out(establish_client_connection, 10, ip, cmd, reconnect);};
+	if (reconnect) conn->then() {if (__ARGS__[0] != 2) call_out(establish_client_connection, 10, ip, cmd, reconnect);};
 	//Single-report goto-province mode is currently broken.
 }
 
@@ -1475,12 +1478,9 @@ def client_connection():
 		[*lines, data] = (partial + data).split(b"\n")
 		for line in lines:
 			line = line.decode("UTF-8")
-			if sys.argv[2] == "province":
-				# Special case: go-to-province-now
-				goto(int(line))
-				sys.exit(0)
 			print(line)
 			if line.startswith("provfocus "): goto(int(line.split(" ")[1]))
+			if line.strip() == "exit": sys.exit(0)
 
 while "reconnect":
 	client_connection()
