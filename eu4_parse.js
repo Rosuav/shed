@@ -198,6 +198,5 @@ export function render(state) {
 		if (lvl) is_interesting.push(LI({className: "interesting" + lvl, "data-id": id}, el.innerText));
 		el.className = "interesting" + lvl;
 	});
-	console.log("interesting", max_interesting);
 	set_content("#interesting_details", is_interesting);
 }
