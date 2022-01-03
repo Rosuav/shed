@@ -80,3 +80,9 @@ color choice can be overridden based on its parent. */
 	display: inline-block;
 }
 #upgradeables .province {margin-left: 1em;}
+
+#interesting_details {margin: 0;}
+#interesting_details li {
+	margin: 1em 0;
+	cursor: pointer;
+}

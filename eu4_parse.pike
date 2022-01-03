@@ -18,9 +18,6 @@
 TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
 TODO: Flagships in front end
 
-TODO: Show summary of highlights in top right, under settings. Click anything to scroll to it and open the details.
-Also show the same highlight summary info in the summary of the corresponding details.
-
 TODO maybe: Bookmark a province for later
 
 TODO: Background service to do the key sending. Will need DISPLAY env var, and run "python3 eu4_parse.pike $IP notify province $STEAMNAME --reconnect"

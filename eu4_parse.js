@@ -16,9 +16,17 @@ on("click", ".goto-province", e => {
 	ws_sync.send({cmd: "goto", tag: countrytag, province: e.match.dataset.provid});
 });
 
+on("click", "#interesting_details li", e => {
+	const el = document.getElementById(e.match.dataset.id);
+	el.open = true;
+	el.scrollIntoView({block: "start", inline: "nearest"});
+});
+
 on("change", "#highlight", e => {
 	ws_sync.send({cmd: "highlight", building: e.match.value});
 });
+
+let max_interesting = { };
 
 export function render(state) {
 	//Set up one-time structure. Every subsequent render will update within that.
@@ -34,6 +42,7 @@ export function render(state) {
 		DETAILS({id: "upgradeables"}, SUMMARY("Upgradeable buildings")),
 		DIV({id: "options"}, [ //Positioned fixed in the top corner
 			LABEL(["Building highlight: ", SELECT({id: "highlight"}, OPTGROUP({label: "Building highlight"}))]),
+			UL({id: "interesting_details"}),
 		]),
 		//TODO: Have DETAILS/SUMMARY nodes for every expandable, such that,
 		//whenever content is updated, they remain in their open/closed state
@@ -61,10 +70,8 @@ export function render(state) {
 	if (state.name) set_content("#player", state.name);
 	if (state.tag) countrytag = state.tag;
 	if (state.cot) {
-		const content = [SUMMARY(
-			{className: "interesting" + state.cot.maxinteresting},
-			`Centers of Trade (${state.cot.level3}/${state.cot.max} max level)`
-		)];
+		max_interesting.cot = state.cot.maxinteresting;
+		const content = [SUMMARY(`Centers of Trade (${state.cot.level3}/${state.cot.max} max level)`)];
 		for (let kwd of ["upgradeable", "developable"]) {
 			const cots = state.cot[kwd];
 			if (!cots.length) continue;
@@ -98,11 +105,9 @@ export function render(state) {
 			++owed_total; if (f[0] >= 10) ++owed;
 			return TR({className: f[0] >= 10 ? "interesting1" : ""}, [TD(c), f.map((n,i) => TD(compare(n, i ? +state.favors.cooldowns[i-1][4] : n)))]);
 		});
+		max_interesting.favors = free && owed ? 1 : 0;
 		set_content("#favors", [
-			SUMMARY(
-				{className: free && owed ? "interesting1" : ""},
-				`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`,
-			),
+			SUMMARY(`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`),
 			P("NOTE: Yield estimates are often a bit wrong, but can serve as a guideline."),
 			TABLE({border: "1"}, cooldowns),
 			TABLE({border: "1"}, [
@@ -187,4 +192,12 @@ export function render(state) {
 			upg[1].map(prov => PROV(prov.id, prov.name)),
 		])))
 	]);
+	const is_interesting = [];
+	Object.entries(max_interesting).forEach(([id, lvl]) => {
+		const el = DOM("#" + id + " > summary");
+		if (lvl) is_interesting.push(LI({className: "interesting" + lvl, "data-id": id}, el.innerText));
+		el.className = "interesting" + lvl;
+	});
+	console.log("interesting", max_interesting);
+	set_content("#interesting_details", is_interesting);
 }
