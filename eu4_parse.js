@@ -33,7 +33,7 @@ export function render(state) {
 		DETAILS({id: "expansions"}, SUMMARY("Building expansions")),
 		DETAILS({id: "upgradeables"}, SUMMARY("Upgradeable buildings")),
 		DIV({id: "options"}, [ //Positioned fixed in the top corner
-			SELECT({id: "highlight"}, OPTGROUP({label: "Building highlight"})),
+			LABEL(["Building highlight: ", SELECT({id: "highlight"}, OPTGROUP({label: "Building highlight"}))]),
 		]),
 		//TODO: Have DETAILS/SUMMARY nodes for every expandable, such that,
 		//whenever content is updated, they remain in their open/closed state
@@ -166,11 +166,11 @@ export function render(state) {
 		]);
 	}
 	if (state.buildings_available) set_content("#highlight", [
-		OPTION({value: "none"}, "Building highlight: None"),
+		OPTION({value: "none"}, "None"),
 		OPTGROUP({label: "Need more of a building? Choose one to highlight places that could be expanded to build it."}), //hack
 		Object.values(state.buildings_available).map(b => OPTION(
 			{value: b.id},
-			[`${b.name} (${b.cost})`], //TODO: Add an image if possible
+			b.name, //TODO: Keep this brief, but give extra info, maybe in hover text??
 		)),
 	]).value = (state.highlight && state.highlight.id) || "none";
 	if (state.upgradeables) set_content("#upgradeables", [
