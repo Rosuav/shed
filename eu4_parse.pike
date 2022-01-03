@@ -15,8 +15,6 @@
   - Flag? Can we show flags easily?
   - Click to go to country's capital
 
-TODO: Check climate for development cost impact (Arid, Arctic have penalties)
-
 TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
 TODO: Flagships in front end
 
@@ -399,6 +397,7 @@ mapping(string:int) all_province_modifiers(mapping data, int id) {
 		_incorporate(modifiers, state_edicts[state->active_edict->?which]);
 	}
 	_incorporate(modifiers, terrain_definitions->categories[province_info[(string)id]->terrain]);
+	_incorporate(modifiers, static_modifiers[province_info[(string)id]->climate]);
 	if (prov->hre) {
 		foreach (Array.arrayify(data->empire->passed_reform), string reform)
 			_incorporate(modifiers, imperial_reforms[reform]->?province);
@@ -1248,10 +1247,8 @@ int main(int argc, array(string) argv) {
 	foreach (areas; string areaname; array|maparray provinces)
 		foreach (provinces;; string id) prov_area[id] = areaname;
 	terrain_definitions = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/terrain.txt"));
-	//Terrain info is used below.
 	mapping climates = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/climate.txt"));
-	//For simplicity, I'm not looking up static_modifiers or anything - just arbitrarily flagging Arctic regions.
-	foreach (climates->arctic, string id) building_slots[id] -= 1;
+	//Terrain and climate info are used below.
 	retain_map_indices = 1;
 	building_types = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/buildings/00_buildings.txt"));
 	retain_map_indices = 0;
@@ -1361,6 +1358,14 @@ int main(int argc, array(string) argv) {
 	}
 ", type, provid);
 			}
+			foreach (climates; string type; mixed info) if (arrayp(info)) {
+				script->write(
+#"	if = {
+		limit = { has_climate = %s is_wasteland = no }
+		log = \"PROV-TERRAIN: %s climate=%[0]s\"
+	}
+", type, provid);
+			}
 			script->write("}\n");
 		}
 		//For reasons of paranoia, iterate over all provinces and make sure we reported their
@@ -1392,9 +1397,9 @@ log = \"PROV-TERRAIN-END\"
 	}
 	foreach (province_info; string id; mapping provinfo) {
 		mapping terraininfo = terrain_definitions->categories[provinfo->terrain];
-		if (!terraininfo) continue; //TODO: What happens if we have a broken terrain name??
-		int slots = (int)terraininfo->allowed_num_of_buildings;
-		if (slots) building_slots[id] += slots;
+		if (int slots = (int)terraininfo->?allowed_num_of_buildings) building_slots[id] += slots;
+		mapping climateinfo = static_modifiers[provinfo->climate];
+		if (int slots = (int)climateinfo->?allowed_num_of_buildings) building_slots[id] += slots;
 	}
 
 	object proc = Process.spawn_pike(({argv[0], "--parse"}), (["fds": ({parser_pipe->pipe(Stdio.PROP_NONBLOCK|Stdio.PROP_BIDIRECTIONAL|Stdio.PROP_IPC)})]));
