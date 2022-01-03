@@ -25,7 +25,7 @@ Also show the same highlight summary info in the summary of the corresponding de
 
 TODO maybe: Bookmark a province for later
 
-TODO: Background service to do the key sending. Must reconnect (but not too often). Will need DISPLAY env var.
+TODO: Background service to do the key sending. Will need DISPLAY env var, and run "python3 eu4_parse.pike $IP notify province $STEAMNAME --reconnect"
 */
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
