@@ -1060,7 +1060,10 @@ void establish_client_connection(string ip, string cmd, int reconnect) {
 	if (!writeme) exit(0, "Unable to connect to %s : 1444\n", ip);
 	sock->write(writeme); //TBH there shouldn't be any residual data, since it should be a single packet.
 	object conn = ClientConnection(sock);
-	if (reconnect) conn->then() {if (__ARGS__[0] != 2) call_out(establish_client_connection, 10, ip, cmd, reconnect);};
+	conn->then() {if (__ARGS__[0] != 2) {
+		if (reconnect) call_out(establish_client_connection, 10, ip, cmd, reconnect);
+		else exit(0);
+	}};
 	//Single-report goto-province mode is currently broken.
 }
 
