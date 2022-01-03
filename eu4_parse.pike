@@ -243,6 +243,7 @@ void analyze_cot(mapping data, string name, string tag, function|mapping write) 
 	sort(maxlvl); sort(upgradeable); sort(developable);
 	int maxlevel3 = sizeof(country->merchants->envoy); //You can have as many lvl 3 CoTs as you have merchants.
 	int level3 = sizeof(maxlvl); //You might already have some.
+	int maxprio = 0;
 	string|mapping colorize(string color, array info, int prio) {
 		//Colorize if it's interesting. It can't be upgraded if not in a state; also, not all level 2s
 		//can become level 3s, for various reasons.
@@ -254,8 +255,8 @@ void analyze_cot(mapping data, string name, string tag, function|mapping write) 
 			if (area_has_level3[prov_area[id]]) noupgrade = "other l3 in area";
 			else if (++level3 > maxlevel3) noupgrade = "need merchants";
 		}
-		if (!noupgrade) interesting(id, prio);
-		if (mappingp(write)) return (["id": id, "dev": dev, "name": provname, "noupgrade": noupgrade || "", "level": (int)cotlevel]);
+		if (!noupgrade) {interesting(id, prio); maxprio = max(prio, maxprio);}
+		if (mappingp(write)) return (["id": id, "dev": dev, "name": provname, "noupgrade": noupgrade || "", "level": (int)cotlevel, "interesting": !noupgrade && prio]);
 		string desc = sprintf("%s\tLvl %s\tDev %d\t%s", id, cotlevel, dev, string_to_utf8(provname));
 		if (noupgrade) return sprintf("%s [%s]", desc, noupgrade);
 		else return color + desc;
@@ -266,6 +267,7 @@ void analyze_cot(mapping data, string name, string tag, function|mapping write) 
 			"upgradeable": colorize("", upgradeable[*], PRIO_IMMEDIATE),
 			"developable": colorize("", developable[*], PRIO_SITUATIONAL),
 		]);
+		write->cot->maxinteresting = maxprio;
 		return;
 	}
 	if (sizeof(maxlvl)) write("Max level CoTs (%d/%d):\n%{%s\n%}\n", level3, maxlevel3, maxlvl[*][-1]);

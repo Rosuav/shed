@@ -61,13 +61,16 @@ export function render(state) {
 	if (state.name) set_content("#player", state.name);
 	if (state.tag) countrytag = state.tag;
 	if (state.cot) {
-		const content = [SUMMARY(`Centers of Trade (${state.cot.level3}/${state.cot.max} max level)`)];
+		const content = [SUMMARY(
+			{className: "interesting" + state.cot.maxinteresting},
+			`Centers of Trade (${state.cot.level3}/${state.cot.max} max level)`
+		)];
 		for (let kwd of ["upgradeable", "developable"]) {
 			const cots = state.cot[kwd];
 			if (!cots.length) continue;
 			content.push(TABLE({id: kwd, border: "1"}, [
 				TR(TH({colSpan: 4}, `${kwd[0].toUpperCase()}${kwd.slice(1)} CoTs:`)),
-				cots.map(cot => TR({className: cot.noupgrade === "" ? "highlight" : ""}, [
+				cots.map(cot => TR({className: "interesting" + cot.interesting}, [
 					TD(PROV(cot.id, cot.name)), TD("Lvl "+cot.level), TD("Dev "+cot.dev), TD(cot.noupgrade)
 				])),
 			]));
@@ -89,14 +92,17 @@ export function render(state) {
 		}
 		const cooldowns = state.favors.cooldowns.map(cd => {
 			if (cd[1] === "---") ++free;
-			return TR({className: cd[1] === "---" ? "highlight" : ""}, cd.slice(1).map(TD));
+			return TR({className: cd[1] === "---" ? "interesting1" : ""}, cd.slice(1).map(TD));
 		});
 		const countries = Object.entries(state.favors.owed).sort((a,b) => b[1][0] - a[1][0]).map(([c, f]) => {
 			++owed_total; if (f[0] >= 10) ++owed;
-			return TR({className: f[0] >= 10 ? "highlight" : ""}, [TD(c), f.map((n,i) => TD(compare(n, i ? +state.favors.cooldowns[i-1][4] : n)))]);
+			return TR({className: f[0] >= 10 ? "interesting1" : ""}, [TD(c), f.map((n,i) => TD(compare(n, i ? +state.favors.cooldowns[i-1][4] : n)))]);
 		});
 		set_content("#favors", [
-			SUMMARY(`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`),
+			SUMMARY(
+				{className: free && owed ? "interesting1" : ""},
+				`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`,
+			),
 			P("NOTE: Yield estimates are often a bit wrong, but can serve as a guideline."),
 			TABLE({border: "1"}, cooldowns),
 			TABLE({border: "1"}, [

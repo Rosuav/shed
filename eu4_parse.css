@@ -43,10 +43,12 @@ table {
 }
 td {padding: 2px;}
 
-/* Highlighting is always done with the same CSS class, but the precise
+/* Highlighting is always done with the same CSS classes, but the precise
 color choice can be overridden based on its parent. */
-.highlight {background: #bfd;}
-#developable .highlight {background: #bff;}
+.interesting3 {background: #bfd;}
+.interesting2 {background: #bfd;}
+.interesting1 {background: #bff;}
+/* .interesting0 gets no background change */
 
 #wars details {
 	margin: 1em;
