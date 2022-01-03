@@ -1,6 +1,6 @@
 //Not to be confused with eu4_parse.json which is a cache
 import choc, {set_content, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
-const {A, ABBR, DETAILS, DIV, FORM, H1, INPUT, LABEL, LI, P, SPAN, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
+const {A, ABBR, DETAILS, DIV, FORM, H1, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
 
 function table_head(headings) {
 	if (typeof headings === "string") headings = headings.split(" ");
@@ -16,8 +16,8 @@ on("click", ".goto-province", e => {
 	ws_sync.send({cmd: "goto", tag: countrytag, province: e.match.dataset.provid});
 });
 
-on("click", ".pickbuilding", e => {
-	ws_sync.send({cmd: "highlight", building: e.match.dataset.bldg});
+on("change", "#highlight", e => {
+	ws_sync.send({cmd: "highlight", building: e.match.value});
 });
 
 export function render(state) {
@@ -33,7 +33,7 @@ export function render(state) {
 		DETAILS({id: "expansions"}, SUMMARY("Building expansions")),
 		DETAILS({id: "upgradeables"}, SUMMARY("Upgradeable buildings")),
 		DIV({id: "options"}, [ //Positioned fixed in the top corner
-			DETAILS({id: "highlight"}, SUMMARY("Building highlight")),
+			SELECT({id: "highlight"}, OPTGROUP({label: "Building highlight"})),
 		]),
 		//TODO: Have DETAILS/SUMMARY nodes for every expandable, such that,
 		//whenever content is updated, they remain in their open/closed state
@@ -166,14 +166,13 @@ export function render(state) {
 		]);
 	}
 	if (state.buildings_available) set_content("#highlight", [
-		SUMMARY("Building highlight"),
-		P("Need more of a building? Choose one to highlight places that could be expanded to build it."),
-		UL(Object.values(state.buildings_available).map(b => LI(
-			state.highlight.id === b.id ? {className: "pickbuilding highlight", "data-bldg": "none"}
-				: {className: "pickbuilding", "data-bldg": b.id},
+		OPTION({value: "none"}, "Building highlight: None"),
+		OPTGROUP({label: "Need more of a building? Choose one to highlight places that could be expanded to build it."}), //hack
+		Object.values(state.buildings_available).map(b => OPTION(
+			{value: b.id},
 			[`${b.name} (${b.cost})`], //TODO: Add an image if possible
-		))),
-	]);
+		)),
+	]).value = (state.highlight && state.highlight.id) || "none";
 	if (state.upgradeables) set_content("#upgradeables", [
 		SUMMARY("Upgradeable buildings"),
 		P(state.upgradeables.length + " building type(s) available for upgrade."),

@@ -74,11 +74,6 @@ color choice can be overridden based on its parent. */
 	padding: 0 0.5em;
 }
 
-.pickbuilding {
-	cursor: pointer;
-	margin: 0.5em 0;
-}
-
 .province {
 	display: inline-block;
 }
