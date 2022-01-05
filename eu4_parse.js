@@ -96,9 +96,10 @@ export function render(state) {
 	set_content("#error", "").classList.add("hidden");
 	if (state.pinned_provinces) {
 		pinned_provinces = { };
-		set_content("#pin", [H3("Pinned provinces: " + state.pinned_provinces.length),
+		set_content("#pin", [H3([proventer("pin"), "Pinned provinces: " + state.pinned_provinces.length]),
 			UL(state.pinned_provinces.map(([id, name]) => LI(PROV(pinned_provinces[id] = id, name, 1)))),
 		]);
+		provleave();
 	}
 	if (state.parsing) set_content("#now_parsing", "Parsing savefile...").classList.remove("hidden");
 	else set_content("#now_parsing", "").classList.add("hidden");
