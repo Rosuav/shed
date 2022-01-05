@@ -18,7 +18,35 @@
 TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
 TODO: Flagships in front end
 
-TODO maybe: Bookmark a province for later
+Favourites:
+- PROV() grows a "Pin"/"Unpin" button. This allows any province to be pinned from anywhere,
+  and also makes it obvious when a province is pinned. 📌 📍 and maybe a colour difference.
+- See if it's possible to determine whether a province is under TI for a particular country
+  - If so, identify this fact in all displays, esp search
+
+Search:
+- Input box. When you change it, send signal back to server to update the search. Guard
+  against hysteresis but do fill in the input for other clients (eg only if not changed in
+  last second, else defer by 1s).
+- List of found provinces is updated on new savefile too.
+- Search for province by any culture's name for it. Prioritize the "canonical" name if there
+  is one, and the current name, but show all names and allow matching against them.
+- Search
+- Option: Filter Search to owned provinces, and (if available) provinces not under TI
+  - Can these options be remembered in local storage???
+
+Province groups:
+- Text string stack. First entry is always the ID of the details that we're populating.
+  - Ideally, all nested groups should be defined in a code-safe way, eg building IDs when
+    looking at upgrades or war name slugs when looking at wars
+  - A group can then be defined hierarchically as the joined stack of strings.
+- Allow any province group (at any nesting level) to be assigned to the cycler
+- Identify current cycler assignment in #options
+- If cycler is set, use that for "province TAG" operations, as if at PRIO_EXPLICIT (or
+  even higher? EXPLICIT isn't much used atm). Otherwise use current algorithm.
+- Any time the cycler is assigned a different group, or the savefile changes, reset to the
+  top of the list again.
+- Note that search results and pinned provinces are independent groups.
 
 TODO: Background service to do the key sending. See example systemd script in my cfgsystemd.
 */
