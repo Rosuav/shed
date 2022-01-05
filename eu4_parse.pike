@@ -19,13 +19,9 @@ TODO: Truces view - sort by date, showing blocks of nations that all peaced out 
 TODO: Flagships in front end
 
 Search:
-- Input box. When you change it, send signal back to server to update the search. Guard
-  against hysteresis but do fill in the input for other clients (eg only if not changed in
-  last second, else defer by 1s).
-- List of found provinces is updated on new savefile too.
 - Search for province by any culture's name for it. Prioritize the "canonical" name if there
   is one, and the current name, but show all names and allow matching against them.
-- Option: Filter Search to owned provinces, and (if available) provinces not under TI
+- Option: Filter Search to owned provinces, and provinces not under TI
   - Can these options be remembered in local storage???
 
 Province groups:
