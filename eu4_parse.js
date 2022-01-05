@@ -1,6 +1,6 @@
 //Not to be confused with eu4_parse.json which is a cache
 import choc, {set_content, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
-const {A, ABBR, DETAILS, DIV, FORM, H1, H3, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
+const {A, ABBR, DETAILS, DIV, FORM, H1, H3, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
 
 function table_head(headings) {
 	if (typeof headings === "string") headings = headings.split(" ");
@@ -65,6 +65,12 @@ on("change", "#highlight", e => {
 	ws_sync.send({cmd: "highlight", building: e.match.value});
 });
 
+let search_allow_change = 0;
+on("input", "#searchterm", e => {
+	search_allow_change = 1000 + +new Date;
+	ws_sync.send({cmd: "search", term: e.match.value});
+});
+
 let max_interesting = { };
 
 export function render(state) {
@@ -76,8 +82,8 @@ export function render(state) {
 		H1({id: "player"}),
 		DETAILS({id: "selectprov"}, [
 			SUMMARY("Find a province"),
-			DIV({id: "pin"}, H3("Pinned provinces")),
 			DIV({id: "search"}, H3("Search for a province")),
+			DIV({id: "pin"}, H3("Pinned provinces")),
 		]),
 		DETAILS({id: "cot"}, SUMMARY("Centers of Trade")),
 		DETAILS({id: "monuments"}, SUMMARY("Monuments")),
@@ -104,6 +110,21 @@ export function render(state) {
 			UL(state.pinned_provinces.map(([id, name]) => LI(PROV(pinned_provinces[id] = id, name, 1)))),
 		]);
 		provleave();
+	}
+	if (state.search) {
+		const input = DOM("#searchterm") || INPUT({id: "searchterm", size: 30});
+		const focus = input === document.activeElement;
+		set_content("#search", [H3([proventer("search"), "Search results: " + state.search.results.length]),
+			P({className: "indent"}, LABEL(["Search for:", input])),
+			UL(state.search.results.map(info => LI(PROV(info[0], [info[1], STRONG(info[2]), info[3]])))),
+		]);
+		if (state.search.term !== input.value) {
+			//Update the input, but avoid fighting with the user
+			let change_allowed = search_allow_change - +new Date;
+			if (change_allowed <= 0) input.value = state.search.term;
+			//else ... hold the change for the remaining milliseconds, and then do some sort of resynchronization
+		}
+		if (focus) input.focus();
 	}
 	if (state.parsing) set_content("#now_parsing", "Parsing savefile...").classList.remove("hidden");
 	else set_content("#now_parsing", "").classList.add("hidden");

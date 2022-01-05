@@ -1143,6 +1143,7 @@ mapping(string:mapping(string:mixed)) tag_preferences = ([]);
 //...->group_selection == slash-delimited path to the group of provinces to cycle through
 //...->cycle_province_ids == array of (string) IDs to cycle through; if absent or empty, use default algorithm
 //...->pinned_provinces == mapping of (string) IDs to sequential numbers
+//...->search == current search term
 mapping(string:array(string)) provincecycle = ([]); //Not saved into preferences. Calculated from tag_preferences[group]->cyclegroup and the save file.
 mapping persist_path(string ... parts)
 {
@@ -1186,6 +1187,12 @@ void websocket_cmd_cycleprovinces(mapping conn, mapping data) {
 	mapping prefs = persist_path(conn->group);
 	if (!prefs->cyclegroup || !arrayp(data->provinces)) m_delete(provincecycle, conn->group);
 	else provincecycle[conn->group] = (array(string))(array(int))data->provinces - ({"0"});
+	persist_save(); update_group(conn->group);
+}
+
+void websocket_cmd_search(mapping conn, mapping data) {
+	mapping prefs = persist_path(conn->group);
+	prefs->search = stringp(data->term) ? data->term : "";
 	persist_save(); update_group(conn->group);
 }
 
@@ -1287,6 +1294,22 @@ mapping get_state(string group) {
 	array ids = indices(pp); sort(values(pp), ids);
 	ret->pinned_provinces = map(ids) {return ({__ARGS__[0], data->provinces["-" + __ARGS__[0]]->?name || "(unknown)"});};
 	if (prefs->cyclegroup) {ret->cyclegroup = prefs->cyclegroup; ret->cycleprovinces = provincecycle[group];}
+	string term = prefs->search;
+	array results = ({ }), order = ({ });
+	if (term != "") foreach (sort(indices(data->provinces)), string id) { //Sort by ID for consistency
+		mapping prov = data->provinces[id];
+		foreach (({prov->name}), string tryme) { //TODO: Add secondary names
+			string folded = lower_case(tryme); //TODO: Fold to ASCII for the search
+			int pos = search(folded, term);
+			if (pos == -1) continue;
+			results += ({({id - "-", tryme[..pos-1], tryme[pos..pos+sizeof(term)-1], tryme[pos+sizeof(term)..]})});
+			order += ({folded}); //Is it better to sort by the folded or by the tryme?
+			break;
+		}
+		if (sizeof(results) >= 25) break;
+	}
+	sort(order, results); //Sort by name for the actual results. So if it's truncated to 25, it'll be the first 25 by (string)id, but they'll be in name order.
+	ret->search = (["term": term, "results": results]);
 	return ret;
 }
 
