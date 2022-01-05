@@ -19,7 +19,6 @@ function proventer(kwd) {
 }
 function provleave() { //Can safely be put into a DOM array (will be ignored)
 	const g = curgroup.join("/");
-	console.log(g, provgroups[g]);
 	if (!provgroups[g].length) {
 		const el = provelem[g];
 		set_content(el, "📃");
@@ -37,13 +36,17 @@ function PROV(id, name) {
 	return DIV({className: "province"}, [
 		name,
 		SPAN({className: "goto-province provbtn", title: "Go to #" + id, "data-provid": id}, "⤳"),
-		SPAN({className: "pin-province provbtn", title: "Pin #" + id, "data-provid": id}, "📌"),
+		SPAN({className: "pin-province provbtn", title: "Pin #" + id, "data-provid": id}, "📌"), //TODO: Or "Unpin #<id>" and different emoji
 	]);
 }
 
 let countrytag = "";
 on("click", ".goto-province", e => {
 	ws_sync.send({cmd: "goto", tag: countrytag, province: e.match.dataset.provid});
+});
+
+on("click", ".pin-province", e => {
+	ws_sync.send({cmd: "pin", province: e.match.dataset.provid});
 });
 
 on("click", "#interesting_details li", e => {

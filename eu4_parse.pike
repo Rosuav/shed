@@ -47,6 +47,10 @@ Province groups:
 - Any time the cycler is assigned a different group, or the savefile changes, reset to the
   top of the list again.
 - Note that search results and pinned provinces are independent groups.
+- NOTE: Province group selection inverts the normal rules and has the web client in charge.
+  This ensures that there can be no desynchronization between user view and province ID
+  selection, but it does mean that the client must remain active in order to keep things
+  synchronized. In practice, not a problem, since the client selects the group anyway.
 
 TODO: Background service to do the key sending. See example systemd script in my cfgsystemd.
 */
@@ -1131,15 +1135,42 @@ let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then
 constant NOT_FOUND = (["error": 404, "type": "text/plain", "data": "Not found"]);
 void http_handler(Protocols.HTTP.Server.Request req) {req->response_and_finish(respond(req) || NOT_FOUND);}
 
-mapping(string:string) highlight_interesting = ([]); //On the websocket, this choice applies to all connections for that user (to prevent inexplicable loss of config on dc)
+//Persisted prefs, keyed by country tag or player name. They apply to all connections for that user (to prevent inexplicable loss of config on dc).
+mapping(string:mapping(string:mixed)) tag_preferences = ([]);
+//tag_preferences->Rosuav ==> prefs for Rosuav, regardless of country
+//tag_preferences->CAS ==> prefs for Castille, regardless of player
+//...->highlight_interesting == building ID highlighted for further construction
+//...->group_selection == slash-delimited path to the group of provinces to cycle through
+//...->cycle_province_ids == array of (string) IDs to cycle through; if absent or empty, use default algorithm
+//...->pinned_provinces == mapping of (string) IDs to the number 1. In future, may have other info about pinned provinces.
+mapping persist_path(string ... parts)
+{
+	mapping ret = tag_preferences;
+	foreach (parts, string idx)
+	{
+		if (undefinedp(ret[idx])) ret[idx] = ([]);
+		ret = ret[idx];
+	}
+	return ret;
+}
+void persist_save() {Stdio.write_file(".eu4_preferences.json", Standards.JSON.encode((["tag_preferences": tag_preferences]), 7));}
+
 void websocket_cmd_highlight(mapping conn, mapping data) {
-	if (!building_types[data->building]) m_delete(highlight_interesting, conn->group);
-	else highlight_interesting[conn->group] = data->building;
-	send_update(websocket_groups[conn->group], get_state(conn->group) | (["parsing": parsing]));
+	mapping prefs = persist_path(conn->group);
+	if (!building_types[data->building]) m_delete(prefs, "highlight_interesting");
+	else prefs->highlight_interesting = data->building;
+	persist_save(); update_group(conn->group);
 }
 
 void websocket_cmd_goto(mapping conn, mapping data) {
 	indices(connections["province"])->provnotify(data->tag, (int)data->province);
+}
+
+void websocket_cmd_pin(mapping conn, mapping data) {
+	mapping pins = persist_path(conn->group, "pinned_provinces");
+	if (pins[data->province]) m_delete(pins, data->province);
+	else if (last_parsed_savefile->provinces["-" + data->province]) pins[data->province] = 1;
+	persist_save(); update_group(conn->group);
 }
 
 void ws_msg(Protocols.WebSocket.Frame frm, mapping conn)
@@ -1190,6 +1221,7 @@ void send_update(array(object) socks, mapping state) {
 }
 
 void send_updates_all() {foreach (websocket_groups; string tag; array grp) send_update(grp, get_state(tag) | (["parsing": parsing]));}
+void update_group(string tag) {send_update(websocket_groups[tag], get_state(tag) | (["parsing": parsing]));}
 
 mapping get_state(string group) {
 	mapping data = last_parsed_savefile; //Get a local reference in case it changes while we're processing
@@ -1208,7 +1240,7 @@ mapping get_state(string group) {
 	mapping country = data->countries[tag];
 	if (!country) return (["error": "Country/player not found: " + group]);
 	mapping ret = (["tag": tag, "self": data->countries[tag], "highlight": ([])]);
-	analyze(data, group, tag, ret, highlight_interesting[group]);
+	analyze(data, group, tag, ret, persist_path(group)->highlight_interesting);
 	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1], ret);
 	analyze_flagships(data, ret);
 	//Enumerate available building types for highlighting. TODO: Check if some changes here need to be backported to the console interface.
@@ -1234,6 +1266,7 @@ mapping get_state(string group) {
 	]);
 	array bldg = values(available); sort(indices(available), bldg);
 	ret->buildings_available = bldg;
+	ret->pinned_provinces = persist_path(group, "pinned_provinces");
 	return ret;
 }
 
@@ -1428,6 +1461,10 @@ log = \"PROV-TERRAIN-END\"
 		mapping climateinfo = static_modifiers[provinfo->climate];
 		if (int slots = (int)climateinfo->?allowed_num_of_buildings) building_slots[id] += slots;
 	}
+
+	mapping cfg = ([]);
+	catch {cfg = Standards.JSON.decode(Stdio.read_file(".eu4_preferences.json"));};
+	if (mappingp(cfg) && cfg->tag_preferences) tag_preferences = cfg->tag_preferences;
 
 	object proc = Process.spawn_pike(({argv[0], "--parse"}), (["fds": ({parser_pipe->pipe(Stdio.PROP_NONBLOCK|Stdio.PROP_BIDIRECTIONAL|Stdio.PROP_IPC)})]));
 	parser_pipe->set_nonblocking(done_processing_savefile, 0, parser_pipe->close);
