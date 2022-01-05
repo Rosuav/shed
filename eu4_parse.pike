@@ -1142,7 +1142,7 @@ mapping(string:mapping(string:mixed)) tag_preferences = ([]);
 //...->highlight_interesting == building ID highlighted for further construction
 //...->group_selection == slash-delimited path to the group of provinces to cycle through
 //...->cycle_province_ids == array of (string) IDs to cycle through; if absent or empty, use default algorithm
-//...->pinned_provinces == mapping of (string) IDs to the number 1. In future, may have other info about pinned provinces.
+//...->pinned_provinces == mapping of (string) IDs to sequential numbers
 mapping persist_path(string ... parts)
 {
 	mapping ret = tag_preferences;
@@ -1169,7 +1169,7 @@ void websocket_cmd_goto(mapping conn, mapping data) {
 void websocket_cmd_pin(mapping conn, mapping data) {
 	mapping pins = persist_path(conn->group, "pinned_provinces");
 	if (pins[data->province]) m_delete(pins, data->province);
-	else if (last_parsed_savefile->provinces["-" + data->province]) pins[data->province] = 1;
+	else if (last_parsed_savefile->provinces["-" + data->province]) pins[data->province] = max(@values(pins)) + 1;
 	persist_save(); update_group(conn->group);
 }
 
@@ -1266,7 +1266,9 @@ mapping get_state(string group) {
 	]);
 	array bldg = values(available); sort(indices(available), bldg);
 	ret->buildings_available = bldg;
-	ret->pinned_provinces = persist_path(group, "pinned_provinces");
+	mapping pp = persist_path(group)->pinned_provinces || ([]);
+	array ids = indices(pp); sort(values(pp), ids);
+	ret->pinned_provinces = map(ids) {return ({__ARGS__[0], data->provinces["-" + __ARGS__[0]]->?name || "(unknown)"});};
 	return ret;
 }
 

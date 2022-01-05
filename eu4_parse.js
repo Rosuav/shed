@@ -1,13 +1,13 @@
 //Not to be confused with eu4_parse.json which is a cache
 import choc, {set_content, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
-const {A, ABBR, DETAILS, DIV, FORM, H1, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
+const {A, ABBR, DETAILS, DIV, FORM, H1, H3, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
 
 function table_head(headings) {
 	if (typeof headings === "string") headings = headings.split(" ");
 	return TR(headings.map(h => TH(h))); //TODO: Click to sort
 }
 
-let curgroup = [], provgroups = { }, provelem = { };
+let curgroup = [], provgroups = { }, provelem = { }, pinned_provinces = { };
 function proventer(kwd) {
 	curgroup.push(kwd);
 	const g = curgroup.join("/");
@@ -27,16 +27,18 @@ function provleave() { //Can safely be put into a DOM array (will be ignored)
 	}
 	curgroup.pop();
 }
-function PROV(id, name) {
+function PROV(id, name, namelast) {
 	let g;
 	for (let kwd of curgroup) {
 		if (g) g += "/" + kwd; else g = kwd;
 		if (provgroups[g].indexOf(id) < 0) provgroups[g].push(id);
 	}
+	const pin = pinned_provinces[id];
 	return DIV({className: "province"}, [
-		name,
+		!namelast && name,
 		SPAN({className: "goto-province provbtn", title: "Go to #" + id, "data-provid": id}, "⤳"),
-		SPAN({className: "pin-province provbtn", title: "Pin #" + id, "data-provid": id}, "📌"), //TODO: Or "Unpin #<id>" and different emoji
+		SPAN({className: "pin-province provbtn", title: (pin ? "Unpin #" : "Pin #") + id, "data-provid": id}, pin ? "📍" : "📌"),
+		namelast && name,
 	]);
 }
 
@@ -68,7 +70,11 @@ export function render(state) {
 		DIV({id: "error", className: "hidden"}), DIV({id: "now_parsing", className: "hidden"}),
 		DIV({id: "menu", className: "hidden"}),
 		H1({id: "player"}),
-		DETAILS({id: "pin"}, SUMMARY("Find a province")),
+		DETAILS({id: "selectprov"}, [
+			SUMMARY("Find a province"),
+			DIV({id: "pin"}, H3("Pinned provinces")),
+			DIV({id: "search"}, H3("Search for a province")),
+		]),
 		DETAILS({id: "cot"}, SUMMARY("Centers of Trade")),
 		DETAILS({id: "monuments"}, SUMMARY("Monuments")),
 		DETAILS({id: "favors"}, SUMMARY("Favors")),
@@ -88,6 +94,12 @@ export function render(state) {
 		return;
 	}
 	set_content("#error", "").classList.add("hidden");
+	if (state.pinned_provinces) {
+		pinned_provinces = { };
+		set_content("#pin", [H3("Pinned provinces: " + state.pinned_provinces.length),
+			UL(state.pinned_provinces.map(([id, name]) => LI(PROV(pinned_provinces[id] = id, name, 1)))),
+		]);
+	}
 	if (state.parsing) set_content("#now_parsing", "Parsing savefile...").classList.remove("hidden");
 	else set_content("#now_parsing", "").classList.add("hidden");
 	if (state.menu) {
