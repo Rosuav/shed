@@ -923,11 +923,18 @@ class Connection(Stdio.File sock) {
 
 	void cycle_provinces(string country) {
 		if (!last_parsed_savefile) return;
-		string tag = find_country(last_parsed_savefile, country); if (!tag) return;
-		if (!interesting_provinces[tag]) analyze(last_parsed_savefile, "Province finder", tag); //Should this be sent to /dev/null instead of the console?
-		if (!sizeof(interesting_provinces[tag])) {sock->close("w"); return;}
-		[string id, array rest] = Array.shift(interesting_provinces[tag]);
-		interesting_provinces[tag] = rest + ({id});
+		string id;
+		if (!provincecycle[country]) {
+			string tag = find_country(last_parsed_savefile, country); if (!tag) return;
+			if (!interesting_provinces[tag]) analyze(last_parsed_savefile, "Province finder", tag); //Should this be sent to /dev/null instead of the console?
+			if (!sizeof(interesting_provinces[tag])) {sock->close("w"); return;}
+			[id, array rest] = Array.shift(interesting_provinces[tag]);
+			interesting_provinces[tag] = rest + ({id});
+		}
+		else {
+			[id, array rest] = Array.shift(provincecycle[country]);
+			provincecycle[country] = rest + ({id});
+		}
 		//Note: Ignores buffered mode and writes directly. I don't think it's possible to
 		//put a "shutdown write direction when done" marker into the Buffer.
 		sock->write("provfocus " + id + "\nexit\n");
@@ -1022,6 +1029,7 @@ void done_processing_savefile() {
 	foreach (data->players_countries / 2, [string name, string tag]) analyze(data, name, tag);
 	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1]);
 	indices(connections[""])->inform(data);
+	provincecycle = ([]);
 	last_parsed_savefile = data;
 	parsing = 0; send_updates_all();
 }
@@ -1135,6 +1143,7 @@ mapping(string:mapping(string:mixed)) tag_preferences = ([]);
 //...->group_selection == slash-delimited path to the group of provinces to cycle through
 //...->cycle_province_ids == array of (string) IDs to cycle through; if absent or empty, use default algorithm
 //...->pinned_provinces == mapping of (string) IDs to sequential numbers
+mapping(string:array(string)) provincecycle = ([]); //Not saved into preferences. Calculated from tag_preferences[group]->cyclegroup and the save file.
 mapping persist_path(string ... parts)
 {
 	mapping ret = tag_preferences;
@@ -1162,6 +1171,21 @@ void websocket_cmd_pin(mapping conn, mapping data) {
 	mapping pins = persist_path(conn->group, "pinned_provinces");
 	if (pins[data->province]) m_delete(pins, data->province);
 	else if (last_parsed_savefile->provinces["-" + data->province]) pins[data->province] = max(@values(pins)) + 1;
+	persist_save(); update_group(conn->group);
+}
+
+void websocket_cmd_cyclegroup(mapping conn, mapping data) {
+	mapping prefs = persist_path(conn->group);
+	if (!data->cyclegroup || data->cyclegroup == "") m_delete(prefs, "cyclegroup");
+	else prefs->cyclegroup = data->cyclegroup;
+	m_delete(provincecycle, conn->group);
+	persist_save(); update_group(conn->group);
+}
+
+void websocket_cmd_cycleprovinces(mapping conn, mapping data) {
+	mapping prefs = persist_path(conn->group);
+	if (!prefs->cyclegroup || !arrayp(data->provinces)) m_delete(provincecycle, conn->group);
+	else provincecycle[conn->group] = (array(string))(array(int))data->provinces - ({"0"});
 	persist_save(); update_group(conn->group);
 }
 
@@ -1258,9 +1282,11 @@ mapping get_state(string group) {
 	]);
 	array bldg = values(available); sort(indices(available), bldg);
 	ret->buildings_available = bldg;
-	mapping pp = persist_path(group)->pinned_provinces || ([]);
+	mapping prefs = persist_path(group);
+	mapping pp = prefs->pinned_provinces || ([]);
 	array ids = indices(pp); sort(values(pp), ids);
 	ret->pinned_provinces = map(ids) {return ({__ARGS__[0], data->provinces["-" + __ARGS__[0]]->?name || "(unknown)"});};
+	if (prefs->cyclegroup) {ret->cyclegroup = prefs->cyclegroup; ret->cycleprovinces = provincecycle[group];}
 	return ret;
 }
 

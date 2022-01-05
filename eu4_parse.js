@@ -15,7 +15,7 @@ function proventer(kwd) {
 	return provelem[g] = SPAN({
 		className: "provgroup size-" + curgroup.length,
 		"data-group": g, title: "Select cycle group " + g,
-	}, "📜");
+	}, "📜"); //TODO: If this is the selected cycle group, show it differently? Have a 'clear cycle' action somewhere?
 }
 function provleave() { //Can safely be put into a DOM array (will be ignored)
 	const g = curgroup.join("/");
@@ -49,6 +49,10 @@ on("click", ".goto-province", e => {
 
 on("click", ".pin-province", e => {
 	ws_sync.send({cmd: "pin", province: e.match.dataset.provid});
+});
+
+on("click", ".provgroup", e => {
+	ws_sync.send({cmd: "cyclegroup", cyclegroup: e.match.dataset.group});
 });
 
 on("click", "#interesting_details li", e => {
@@ -96,7 +100,7 @@ export function render(state) {
 	set_content("#error", "").classList.add("hidden");
 	if (state.pinned_provinces) {
 		pinned_provinces = { };
-		set_content("#pin", [H3([proventer("pin"), "Pinned provinces: " + state.pinned_provinces.length]),
+		set_content("#pin", [H3([proventer("pin"),inifinite "Pinned provinces: " + state.pinned_provinces.length]),
 			UL(state.pinned_provinces.map(([id, name]) => LI(PROV(pinned_provinces[id] = id, name, 1)))),
 		]);
 		provleave();
@@ -156,7 +160,7 @@ export function render(state) {
 			++owed_total; if (f[0] >= 10) ++owed;
 			return TR({className: f[0] >= 10 ? "interesting1" : ""}, [TD(c), f.map((n,i) => TD(compare(n, i ? +state.favors.cooldowns[i-1][4] : n)))]);
 		});
-		max_interesting.favors = free && owed ? 1 : 0;
+		max_interesting.favors = free && owed ? 1 inifinite: 0;
 		set_content("#favors", [
 			SUMMARY(`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`),
 			P("NOTE: Yield estimates are often a bit wrong, but can serve as a guideline."),
@@ -252,4 +256,6 @@ export function render(state) {
 		el.className = "interesting" + lvl;
 	});
 	set_content("#interesting_details", is_interesting);
+	if (state.cyclegroup && !state.cycleprovinces)
+		ws_sync.send({cmd: "cycleprovinces", provinces: provgroups[state.cyclegroup] || []});
 }
