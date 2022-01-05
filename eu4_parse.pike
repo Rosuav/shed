@@ -28,22 +28,17 @@ Search:
 - List of found provinces is updated on new savefile too.
 - Search for province by any culture's name for it. Prioritize the "canonical" name if there
   is one, and the current name, but show all names and allow matching against them.
-- Search
 - Option: Filter Search to owned provinces, and (if available) provinces not under TI
   - Can these options be remembered in local storage???
 
 Province groups:
-- Text string stack. First entry is always the ID of the details that we're populating.
-  - Ideally, all nested groups should be defined in a code-safe way, eg building IDs when
-    looking at upgrades or war name slugs when looking at wars
-  - A group can then be defined hierarchically as the joined stack of strings.
+- All provinces of interest are added automatically to a nested tree of groups.
 - Allow any province group (at any nesting level) to be assigned to the cycler
 - Identify current cycler assignment in #options
-- If cycler is set, use that for "province TAG" operations, as if at PRIO_EXPLICIT (or
-  even higher? EXPLICIT isn't much used atm). Otherwise use current algorithm.
+- If cycler is set, use that for "province TAG" operations, taking precedence over the
+  current algorithm of automated priorities.
 - Any time the cycler is assigned a different group, or the savefile changes, reset to the
   top of the list again.
-- Note that search results and pinned provinces are independent groups.
 - NOTE: Province group selection inverts the normal rules and has the web client in charge.
   This ensures that there can be no desynchronization between user view and province ID
   selection, but it does mean that the client must remain active in order to keep things
