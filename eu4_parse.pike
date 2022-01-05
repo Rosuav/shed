@@ -18,11 +18,10 @@
 TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
 TODO: Flagships in front end
 
-Search:
-- Search for province by any culture's name for it. Prioritize the "canonical" name if there
-  is one, and the current name, but show all names and allow matching against them.
-- Option: Filter Search to owned provinces, and provinces not under TI
-  - Can these options be remembered in local storage???
+Search options:
+- Filter to owned provinces, and/or provinces not under TI; restrict search to current
+  province names rather than matching any culture's name
+- Can these options be remembered in local storage???
 
 Province groups:
 - All provinces of interest are added automatically to a nested tree of groups.
