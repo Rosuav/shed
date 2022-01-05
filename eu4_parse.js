@@ -7,11 +7,41 @@ function table_head(headings) {
 	return TR(headings.map(h => TH(h))); //TODO: Click to sort
 }
 
-let countrytag = "";
+let curgroup = [], provgroups = { }, provelem = { };
+function proventer(kwd) {
+	curgroup.push(kwd);
+	const g = curgroup.join("/");
+	provgroups[g] = [];
+	return provelem[g] = SPAN({
+		className: "provgroup size-" + curgroup.length,
+		"data-group": g, title: "Select cycle group " + g,
+	}, "📜");
+}
+function provleave() { //Can safely be put into a DOM array (will be ignored)
+	const g = curgroup.join("/");
+	console.log(g, provgroups[g]);
+	if (!provgroups[g].length) {
+		const el = provelem[g];
+		set_content(el, "📃");
+		el.title = "No provinces in group " + g;
+		el.classList.add("empty");
+	}
+	curgroup.pop();
+}
 function PROV(id, name) {
-	return DIV({className: "province"}, [name, SPAN({className: "goto-province", title: "Go to #" + id, "data-provid": id}, "⤳")]);
+	let g;
+	for (let kwd of curgroup) {
+		if (g) g += "/" + kwd; else g = kwd;
+		if (provgroups[g].indexOf(id) < 0) provgroups[g].push(id);
+	}
+	return DIV({className: "province"}, [
+		name,
+		SPAN({className: "goto-province provbtn", title: "Go to #" + id, "data-provid": id}, "⤳"),
+		SPAN({className: "pin-province provbtn", title: "Pin #" + id, "data-provid": id}, "📌"),
+	]);
 }
 
+let countrytag = "";
 on("click", ".goto-province", e => {
 	ws_sync.send({cmd: "goto", tag: countrytag, province: e.match.dataset.provid});
 });
@@ -29,11 +59,13 @@ on("change", "#highlight", e => {
 let max_interesting = { };
 
 export function render(state) {
+	curgroup = []; provgroups = { };
 	//Set up one-time structure. Every subsequent render will update within that.
 	if (!DOM("#error")) set_content("main", [
 		DIV({id: "error", className: "hidden"}), DIV({id: "now_parsing", className: "hidden"}),
 		DIV({id: "menu", className: "hidden"}),
 		H1({id: "player"}),
+		DETAILS({id: "pin"}, SUMMARY("Find a province")),
 		DETAILS({id: "cot"}, SUMMARY("Centers of Trade")),
 		DETAILS({id: "monuments"}, SUMMARY("Monuments")),
 		DETAILS({id: "favors"}, SUMMARY("Favors")),
@@ -71,25 +103,28 @@ export function render(state) {
 	if (state.tag) countrytag = state.tag;
 	if (state.cot) {
 		max_interesting.cot = state.cot.maxinteresting;
-		const content = [SUMMARY(`Centers of Trade (${state.cot.level3}/${state.cot.max} max level)`)];
+		const content = [SUMMARY([proventer("cot"), `Centers of Trade (${state.cot.level3}/${state.cot.max} max level)`])];
 		for (let kwd of ["upgradeable", "developable"]) {
 			const cots = state.cot[kwd];
 			if (!cots.length) continue;
 			content.push(TABLE({id: kwd, border: "1"}, [
-				TR(TH({colSpan: 4}, `${kwd[0].toUpperCase()}${kwd.slice(1)} CoTs:`)),
+				TR(TH({colSpan: 4}, [proventer(kwd), `${kwd[0].toUpperCase()}${kwd.slice(1)} CoTs:`])),
 				cots.map(cot => TR({className: "interesting" + cot.interesting}, [
 					TD(PROV(cot.id, cot.name)), TD("Lvl "+cot.level), TD("Dev "+cot.dev), TD(cot.noupgrade)
 				])),
 			]));
+			provleave();
 		}
 		set_content("#cot", content);
+		provleave();
 	}
 	if (state.monuments) set_content("#monuments", [
-		SUMMARY(`Monuments [${state.monuments.length}]`),
+		SUMMARY([proventer("monuments"), `Monuments [${state.monuments.length}]`]),
 		TABLE({border: "1"}, [
 			TR([TH("Province"), TH("Tier"), TH("Project"), TH("Upgrading")]),
 			state.monuments.map(m => TR([TD(PROV(m[1], m[3])), TD(m[2]), TD(m[4]), TD(m[5])])),
 		]),
+		provleave(),
 	]);
 	if (state.favors) {
 		let free = 0, owed = 0, owed_total = 0;
@@ -153,7 +188,7 @@ export function render(state) {
 	}
 	if (state.highlight) {
 		if (state.highlight.id) set_content("#expansions", [
-			SUMMARY("Building expansions: " + state.highlight.name),
+			SUMMARY([proventer("expansions"), "Building expansions: " + state.highlight.name]),
 			P("If developed, these places could support a new " + state.highlight.name + ". "
 				+ "They do not currently contain one, there is no building that could be upgraded "
 				+ "to one, and there are no building slots free. This list allows you to focus "
@@ -169,6 +204,7 @@ export function render(state) {
 					TD(""+prov.cost[3]),
 				])),
 			]),
+			provleave(),
 		]);
 		else set_content("#expansions", [
 			SUMMARY("Building expansions"),
@@ -185,17 +221,18 @@ export function render(state) {
 		)),
 	]).value = (state.highlight && state.highlight.id) || "none";
 	if (state.upgradeables) set_content("#upgradeables", [
-		SUMMARY("Upgradeable buildings"),
+		SUMMARY([proventer("upgradeables"), "Upgradeable buildings"]),
 		P(state.upgradeables.length + " building type(s) available for upgrade."),
 		UL(state.upgradeables.map(upg => LI([
 			upg[0] + ": ",
 			upg[1].map(prov => PROV(prov.id, prov.name)),
-		])))
+		]))),
+		provleave(),
 	]);
 	const is_interesting = [];
 	Object.entries(max_interesting).forEach(([id, lvl]) => {
 		const el = DOM("#" + id + " > summary");
-		if (lvl) is_interesting.push(LI({className: "interesting" + lvl, "data-id": id}, el.innerText));
+		if (lvl) is_interesting.push(LI({className: "interesting" + lvl, "data-id": id}, el.innerText.replace("📜", "")));
 		el.className = "interesting" + lvl;
 	});
 	set_content("#interesting_details", is_interesting);

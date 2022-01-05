@@ -61,7 +61,7 @@ color choice can be overridden based on its parent. */
 #wars .defender-player {background: #00c3e1;}
 #wars .defender-total {background: #8080cd;}
 
-.goto-province {
+.provbtn {
 	margin-left: 0.25em;
 	cursor: pointer;
 	background: #ccffff;
@@ -86,3 +86,13 @@ color choice can be overridden based on its parent. */
 	margin: 1em 0;
 	cursor: pointer;
 }
+
+.provgroup {
+	display: inline-block;
+	font-weight: bold;
+	cursor: pointer;
+}
+.provgroup.empty {cursor: default;} /* Not "inherit" which would give an ibeam */
+.size-1: {font-size: 1.5em;}
+.size-2: {font-size: 1.175em;}
+.size-3: {font-size: 1em;}
