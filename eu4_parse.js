@@ -123,7 +123,7 @@ export function render(state) {
 	if (state.tag) countrytag = state.tag;
 	if (state.cot) {
 		max_interesting.cot = state.cot.maxinteresting;
-		const content = [SUMMARY([proventer("cot"), `Centers of Trade (${state.cot.level3}/${state.cot.max} max level)`])];
+		const content = [SUMMARY(`Centers of Trade (${state.cot.level3}/${state.cot.max} max level)`), proventer("cot")];
 		for (let kwd of ["upgradeable", "developable"]) {
 			const cots = state.cot[kwd];
 			if (!cots.length) continue;
@@ -139,9 +139,9 @@ export function render(state) {
 		provleave();
 	}
 	if (state.monuments) set_content("#monuments", [
-		SUMMARY([proventer("monuments"), `Monuments [${state.monuments.length}]`]),
+		SUMMARY(`Monuments [${state.monuments.length}]`),
 		TABLE({border: "1"}, [
-			TR([TH("Province"), TH("Tier"), TH("Project"), TH("Upgrading")]),
+			TR([TH([proventer("monuments"), "Province"]), TH("Tier"), TH("Project"), TH("Upgrading")]),
 			state.monuments.map(m => TR([TD(PROV(m[1], m[3])), TD(m[2]), TD(m[4]), TD(m[5])])),
 		]),
 		provleave(),
@@ -252,7 +252,7 @@ export function render(state) {
 	const is_interesting = [];
 	Object.entries(max_interesting).forEach(([id, lvl]) => {
 		const el = DOM("#" + id + " > summary");
-		if (lvl) is_interesting.push(LI({className: "interesting" + lvl, "data-id": id}, el.innerText.replace("📜", "")));
+		if (lvl) is_interesting.push(LI({className: "interesting" + lvl, "data-id": id}, el.innerText));
 		el.className = "interesting" + lvl;
 	});
 	set_content("#interesting_details", is_interesting);
