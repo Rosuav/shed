@@ -123,7 +123,7 @@ mapping low_parse_savefile(string|Stdio.Buffer data, int|void verbose) {
 			return ({"string", str[0]});
 		}
 		if (array digits = data->sscanf("%[-0-9.]")) return ({"string", digits[0]});
-		if (array|string word = data->sscanf("%[0-9a-zA-Z_]")) {
+		if (array|string word = data->sscanf("%[0-9a-zA-Z_\x81-\xFE]")) { //Include non-ASCII characters as letters
 			word = word[0];
 			//Unquoted tokens like institution_events.2 should be atoms, not atom-followed-by-number
 			if (array dotnumber = data->sscanf(".%[0-9]")) word += "." + dotnumber[0];
@@ -195,7 +195,7 @@ mapping parse_config_dir(string dir) {
 	return ret;
 }
 
-mapping(string:string) L10n;
+mapping(string:string) L10n, province_localised_names;
 void parse_localisation(string data) {
 	array lines = utf8_to_string("#" + data) / "\n"; //Hack: Pretend that the heading line is a comment
 	foreach (lines, string line) {
@@ -1292,11 +1292,14 @@ mapping get_state(string group) {
 	array results = ({ }), order = ({ });
 	if (term != "") foreach (sort(indices(data->provinces)), string id) { //Sort by ID for consistency
 		mapping prov = data->provinces[id];
-		foreach (({prov->name}), string tryme) { //TODO: Add secondary names
+		foreach (({({prov->name, ""})}) + (province_localised_names[id - "-"]||({ })), [string tryme, string lang]) {
 			string folded = lower_case(tryme); //TODO: Fold to ASCII for the search
 			int pos = search(folded, term);
 			if (pos == -1) continue;
-			results += ({({id - "-", tryme[..pos-1], tryme[pos..pos+sizeof(term)-1], tryme[pos+sizeof(term)..]})});
+			int end = pos + sizeof(term);
+			string before = tryme[..pos-1], match = tryme[pos..end-1], after = tryme[end..];
+			if (lang != "") {before = prov->name + " (" + lang + ": " + before; after += ")";}
+			results += ({({id - "-", before, match, after})});
 			order += ({folded}); //Is it better to sort by the folded or by the tryme?
 			break;
 		}
@@ -1415,6 +1418,17 @@ int main(int argc, array(string) argv) {
 	}
 	state_edicts = parse_config_dir(PROGRAM_PATH + "/common/state_edicts");
 	imperial_reforms = parse_config_dir(PROGRAM_PATH + "/common/imperial_reforms");
+
+	//Parse out localised province names and map from province ID to all its different names
+	province_localised_names = ([]);
+	foreach (sort(get_dir(PROGRAM_PATH + "/common/province_names")), string fn) {
+		mapping names = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/province_names/" + fn) + "\n");
+		string lang = L10n[fn - ".txt"] || fn; //Assuming that "castilian.txt" is the culture Castilian, and "TUR.txt" is the nation Ottomans
+		foreach (names; string prov; array|string name) {
+			if (arrayp(name)) name = name[0]; //The name can be [name, capitalname] but we don't care about the capital name
+			province_localised_names[(string)prov] += ({({name, lang})});
+		}
+	}
 
 	/* It is REALLY REALLY hard to replicate the game's full algorithm for figuring out which terrain each province
 	has. So, instead, let's ask for a little help - from the game, and from the human. And then save the results.
