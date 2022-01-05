@@ -18,9 +18,6 @@
 TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
 TODO: Flagships in front end
 
-- See if it's possible to determine whether a province is under TI for a particular country
-  - If so, identify this fact in all displays, esp search
-
 Search:
 - Input box. When you change it, send signal back to server to update the search. Guard
   against hysteresis but do fill in the input for other clients (eg only if not changed in
@@ -1294,6 +1291,7 @@ mapping get_state(string group) {
 	array ids = indices(pp); sort(values(pp), ids);
 	ret->pinned_provinces = map(ids) {return ({__ARGS__[0], data->provinces["-" + __ARGS__[0]]->?name || "(unknown)"});};
 	if (prefs->cyclegroup) {ret->cyclegroup = prefs->cyclegroup; ret->cycleprovinces = provincecycle[group];}
+
 	string term = prefs->search;
 	array results = ({ }), order = ({ });
 	if (term != "") foreach (sort(indices(data->provinces)), string id) { //Sort by ID for consistency
@@ -1310,6 +1308,11 @@ mapping get_state(string group) {
 	}
 	sort(order, results); //Sort by name for the actual results. So if it's truncated to 25, it'll be the first 25 by (string)id, but they'll be in name order.
 	ret->search = (["term": term, "results": results]);
+
+	//Scan all provinces for whether you've discovered them or not
+	mapping discov = ret->discovered_provinces = ([]);
+	foreach (data->provinces; string id; mapping prov) if (has_value(Array.arrayify(prov->discovered_by), tag)) discov[id - "-"] = 1;
+
 	return ret;
 }
 
