@@ -208,13 +208,13 @@ export function render(state) {
 	}
 	if (state.highlight) {
 		if (state.highlight.id) set_content("#expansions", [
-			SUMMARY([proventer("expansions"), "Building expansions: " + state.highlight.name]),
-			P("If developed, these places could support a new " + state.highlight.name + ". "
+			SUMMARY("Building expansions: " + state.highlight.name),
+			P([proventer("expansions"), "If developed, these places could support a new " + state.highlight.name + ". "
 				+ "They do not currently contain one, there is no building that could be upgraded "
 				+ "to one, and there are no building slots free. This list allows you to focus "
 				+ "province development in a way that enables a specific building; once the slot "
 				+ "is opened up, the province will disappear from here and appear in the in-game "
-				+ "macro-builder list for that building."),
+				+ "macro-builder list for that building."]),
 			TABLE({border: true}, [
 				table_head("Province Buildings Devel MP-cost"),
 				state.highlight.provinces.map(prov => TR([
@@ -241,8 +241,8 @@ export function render(state) {
 		)),
 	]).value = (state.highlight && state.highlight.id) || "none";
 	if (state.upgradeables) set_content("#upgradeables", [
-		SUMMARY([proventer("upgradeables"), "Upgradeable buildings"]),
-		P(state.upgradeables.length + " building type(s) available for upgrade."),
+		SUMMARY("Upgradeable buildings"),
+		P([proventer("upgradeables"), state.upgradeables.length + " building type(s) available for upgrade."]),
 		UL(state.upgradeables.map(upg => LI([
 			upg[0] + ": ",
 			upg[1].map(prov => PROV(prov.id, prov.name)),
