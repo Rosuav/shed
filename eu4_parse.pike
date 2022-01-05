@@ -18,9 +18,6 @@
 TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
 TODO: Flagships in front end
 
-Favourites:
-- PROV() grows a "Pin"/"Unpin" button. This allows any province to be pinned from anywhere,
-  and also makes it obvious when a province is pinned. 📌 📍 and maybe a colour difference.
 - See if it's possible to determine whether a province is under TI for a particular country
   - If so, identify this fact in all displays, esp search
 
