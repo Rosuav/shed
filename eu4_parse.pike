@@ -20,7 +20,7 @@ TODO: Flagships in front end
 
 TODO maybe: Bookmark a province for later
 
-TODO: Background service to do the key sending. Will need DISPLAY env var, and run "python3 eu4_parse.pike $IP notify province $STEAMNAME --reconnect"
+TODO: Background service to do the key sending. See example systemd script in my cfgsystemd.
 */
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
