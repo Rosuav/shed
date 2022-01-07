@@ -22,18 +22,10 @@ Search options:
   province names rather than matching any culture's name
 - Can these options be remembered in local storage???
 
-Province groups:
-- All provinces of interest are added automatically to a nested tree of groups.
-- Allow any province group (at any nesting level) to be assigned to the cycler
-- Identify current cycler assignment in #options
-- If cycler is set, use that for "province TAG" operations, taking precedence over the
-  current algorithm of automated priorities.
-- Any time the cycler is assigned a different group, or the savefile changes, reset to the
-  top of the list again.
-- NOTE: Province group selection inverts the normal rules and has the web client in charge.
-  This ensures that there can be no desynchronization between user view and province ID
-  selection, but it does mean that the client must remain active in order to keep things
-  synchronized. In practice, not a problem, since the client selects the group anyway.
+NOTE: Province group selection inverts the normal rules and has the web client in charge.
+This ensures that there can be no desynchronization between user view and province ID
+selection, but it does mean that the client must remain active in order to keep things
+synchronized. In practice, not a problem, since the client selects the group anyway.
 
 TODO: Background service to do the key sending. See example systemd script in my cfgsystemd.
 */
