@@ -15,7 +15,7 @@ function proventer(kwd) {
 	return provelem[g] = SPAN({
 		className: "provgroup size-" + curgroup.length,
 		"data-group": g, title: "Select cycle group " + g,
-	}, "📜"); //TODO: If this is the selected cycle group, show it differently? Have a 'clear cycle' action somewhere?
+	}, "📜"); //TODO: If this is the selected cycle group, show it differently?
 }
 function provleave() { //Can safely be put into a DOM array (will be ignored)
 	const g = curgroup.join("/");
@@ -93,6 +93,7 @@ export function render(state) {
 		DETAILS({id: "upgradeables"}, SUMMARY("Upgradeable buildings")),
 		DIV({id: "options"}, [ //Positioned fixed in the top corner
 			LABEL(["Building highlight: ", SELECT({id: "highlight"}, OPTGROUP({label: "Building highlight"}))]),
+			DIV({id: "cyclegroup"}),
 			UL({id: "interesting_details"}),
 		]),
 		//TODO: Have DETAILS/SUMMARY nodes for every expandable, such that,
@@ -278,6 +279,9 @@ export function render(state) {
 		el.className = "interesting" + lvl;
 	});
 	set_content("#interesting_details", is_interesting);
-	if (state.cyclegroup && !state.cycleprovinces)
-		ws_sync.send({cmd: "cycleprovinces", provinces: provgroups[state.cyclegroup] || []});
+	if (state.cyclegroup) {
+		if (!state.cycleprovinces) ws_sync.send({cmd: "cycleprovinces", provinces: provgroups[state.cyclegroup] || []});
+		set_content("#cyclegroup", ["Selected group: " + state.cyclegroup + " ", SPAN({className: "provgroup clear"}, "❎")]);
+	}
+	else set_content("#cyclegroup", "");
 }

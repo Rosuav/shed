@@ -93,6 +93,7 @@ color choice can be overridden based on its parent. */
 	cursor: pointer;
 }
 .provgroup.empty {cursor: default;} /* Not "inherit" which would give an ibeam */
+.provgroup.clear {font-size: 60%;}
 .size-1: {font-size: 1.5em;}
 .size-2: {font-size: 1.175em;}
 .size-3: {font-size: 1em;}
