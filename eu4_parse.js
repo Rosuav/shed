@@ -91,6 +91,7 @@ export function render(state) {
 		DETAILS({id: "wars"}, SUMMARY("Wars")),
 		DETAILS({id: "expansions"}, SUMMARY("Building expansions")),
 		DETAILS({id: "upgradeables"}, SUMMARY("Upgradeable buildings")),
+		DETAILS({id: "flagships"}, SUMMARY("Flagships of the World")),
 		DIV({id: "options"}, [ //Positioned fixed in the top corner
 			LABEL(["Building highlight: ", SELECT({id: "highlight"}, OPTGROUP({label: "Building highlight"}))]),
 			DIV({id: "cyclegroup"}),
@@ -271,6 +272,13 @@ export function render(state) {
 			upg[1].map(prov => PROV(prov.id, prov.name)),
 		]))),
 		provleave(),
+	]);
+	if (state.flagships) set_content("#flagships", [
+		SUMMARY("Flagships of the World (" + state.flagships.length + ")"),
+		TABLE({border: true}, [
+			table_head(["Country", "Fleet", "Vessel", "Modifications", "Built by"]),
+			state.flagships.map(f => TR([TD(f[0]), TD(f[1]), TD(f[2] + ' "' + f[3] + '"'), TD(f[4].join(", ")), TD(f[5])])),
+		]),
 	]);
 	const is_interesting = [];
 	Object.entries(max_interesting).forEach(([id, lvl]) => {

@@ -16,7 +16,6 @@
   - Click to go to country's capital
 
 TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
-TODO: Flagships in front end
 
 Search options:
 - Filter to owned provinces, and/or provinces not under TI; restrict search to current
