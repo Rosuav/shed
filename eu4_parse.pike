@@ -9,6 +9,8 @@
   - Flag? Can we show flags easily?
   - Click to go to country's capital
 
+TODO: For all provinces, record sea or land, transmit to front end for icon
+
 Search options:
 - Filter to owned provinces, and/or provinces not under TI, and/or non-sea provinces;
   restrict search to current province names rather than matching any culture's name
