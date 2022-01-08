@@ -271,7 +271,7 @@ export function render(state) {
 		)),
 	]).value = (state.highlight && state.highlight.id) || "none";
 	if (state.upgradeables && state.navy_upgrades) set_content("#upgradeables", [ //Yeah, gotta get both or neither for proper rendering.
-		SUMMARY("Upgradeables available: " + state.upgradeables.length + " building type(s), " + state.navy_upgrades.length + " fleet(s)"),
+		SUMMARY("Upgrades available: " + state.upgradeables.length + " building type(s), " + state.navy_upgrades.length + " fleet(s)"),
 		P([proventer("upgradeables"), state.upgradeables.length + " building type(s) available for upgrade."]),
 		UL(state.upgradeables.map(upg => LI([
 			proventer(upg[0]), upg[0] + ": ",
