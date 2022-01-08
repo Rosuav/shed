@@ -109,7 +109,7 @@ export function render(state) {
 	]);
 
 	if (state.error) {
-		set_content("#error", state.error).classList.remove("hidden");
+		set_content("#error", [state.error, state.parsing ? state.parsing + "%" : ""]).classList.remove("hidden");
 		return;
 	}
 	set_content("#error", "").classList.add("hidden");
@@ -136,7 +136,7 @@ export function render(state) {
 		}
 		if (focus) input.focus();
 	}
-	if (state.parsing) set_content("#now_parsing", "Parsing savefile...").classList.remove("hidden");
+	if (state.parsing) set_content("#now_parsing", "Parsing savefile... " + state.parsing + "%").classList.remove("hidden");
 	else set_content("#now_parsing", "").classList.add("hidden");
 	if (state.menu) {
 		function lnk(dest) {return A({href: "/tag/" + encodeURIComponent(dest)}, dest);}

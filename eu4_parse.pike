@@ -92,11 +92,16 @@ maparray makearray(mixed val) {return maparray()->addidx(val);}
 maparray addarray(maparray arr, mixed val) {return arr->addidx(val);}
 mapping emptymaparray() {return ([]);}
 
+object progress_pipe;
+constant PARSE_PROGRESS_FRACTION = 20; //Report at 1/10, 2/10, 3/10 etc of progress
 mapping low_parse_savefile(string|Stdio.Buffer data, int|void verbose) {
 	if (stringp(data)) data = Stdio.Buffer(data); //NOTE: Restricted to eight-bit data. Since EU4 uses ISO-8859-1, that's not a problem. Be aware for future.
 	data->read_only();
 	string ungetch;
+	int totsize = sizeof(data), fraction = totsize / PARSE_PROGRESS_FRACTION, nextmark = totsize - fraction;
 	string|array next() {
+		int progress = sizeof(data);
+		if (progress_pipe && progress < nextmark) {nextmark -= fraction; progress_pipe->write("+");}
 		if (string ret = ungetch) {ungetch = 0; return ret;}
 		data->sscanf("%*[ \t\r\n]");
 		while (data->sscanf( "#%*s\n%*[ \t\r\n]")); //Strip comments
@@ -1045,8 +1050,10 @@ void sock_connected(object mainsock) {while (object sock = mainsock->accept()) C
 Stdio.File parser_pipe = Stdio.File();
 int parsing = 0;
 void process_savefile(string fn) {parsing = 1; send_updates_all(); parser_pipe->write(fn + "\n");}
-void done_processing_savefile() {
-	parser_pipe->read();
+void done_processing_savefile(object pipe, string msg) {
+	msg += parser_pipe->read() || ""; //Purge any spare text
+	if (has_value(msg, '+')) {++parsing; send_updates_all();}
+	if (!has_value(msg, '*')) return;
 	mapping data = Standards.JSON.decode_utf8(Stdio.read_file("eu4_parse.json") || "{}")->data;
 	if (!data) {werror("Unable to parse save file (see above for errors, hopefully)\n"); return;}
 	write("\nCurrent date: %s\n", data->date);
@@ -1124,6 +1131,7 @@ void establish_client_connection(string ip, string cmd, int reconnect) {
 class PipeConnection {
 	inherit Connection;
 	void sockread() {
+		progress_pipe = sock;
 		while (array ret = incoming->sscanf("%s\n")) {
 			[string fn] = ret;
 			write("Reading save file %s\n", basename(fn));
@@ -1267,12 +1275,12 @@ void send_update(array(object) socks, mapping state) {
 		if (sock && sock->state == 1) sock->send_text(resp);
 }
 
-void send_updates_all() {foreach (websocket_groups; string tag; array grp) send_update(grp, get_state(tag) | (["parsing": parsing]));}
-void update_group(string tag) {send_update(websocket_groups[tag], get_state(tag) | (["parsing": parsing]));}
+void update_group(string tag) {send_update(websocket_groups[tag], get_state(tag) | (["parsing": parsing && (parsing - 1) * 100 / PARSE_PROGRESS_FRACTION]));}
+void send_updates_all() {foreach (websocket_groups; string tag;) update_group(tag);}
 
 mapping get_state(string group) {
 	mapping data = last_parsed_savefile; //Get a local reference in case it changes while we're processing
-	if (!data) return (["error": "Processing savefile..."]);
+	if (!data) return (["error": "Processing savefile... "]);
 	//For the landing page, offer a menu of player countries
 	if (group == "?!?") return (["menu": data->players_countries / 2]);
 	string tag = group;
