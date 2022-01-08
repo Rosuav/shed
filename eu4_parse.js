@@ -73,6 +73,11 @@ on("input", "#searchterm", e => {
 
 let max_interesting = { };
 
+function upgrade(upg, tot) {
+	if (!tot) return TD("");
+	return TD({className: upg ? "interesting1" : ""}, upg + "/" + tot);
+}
+
 export function render(state) {
 	curgroup = []; provgroups = { };
 	//Set up one-time structure. Every subsequent render will update within that.
@@ -90,7 +95,7 @@ export function render(state) {
 		DETAILS({id: "favors"}, SUMMARY("Favors")),
 		DETAILS({id: "wars"}, SUMMARY("Wars")),
 		DETAILS({id: "expansions"}, SUMMARY("Building expansions")),
-		DETAILS({id: "upgradeables"}, SUMMARY("Upgradeable buildings")),
+		DETAILS({id: "upgradeables"}, SUMMARY("Upgrades available")),
 		DETAILS({id: "flagships"}, SUMMARY("Flagships of the World")),
 		DETAILS({id: "truces"}, SUMMARY("Truces")),
 		DIV({id: "options"}, [ //Positioned fixed in the top corner
@@ -265,8 +270,8 @@ export function render(state) {
 			b.name, //TODO: Keep this brief, but give extra info, maybe in hover text??
 		)),
 	]).value = (state.highlight && state.highlight.id) || "none";
-	if (state.upgradeables) set_content("#upgradeables", [
-		SUMMARY("Upgradeable buildings: " + state.upgradeables.length + " type(s)"),
+	if (state.upgradeables && state.navy_upgrades) set_content("#upgradeables", [ //Yeah, gotta get both or neither for proper rendering.
+		SUMMARY("Upgradeables available: " + state.upgradeables.length + " building type(s), " + state.navy_upgrades.length + " fleet(s)"),
 		P([proventer("upgradeables"), state.upgradeables.length + " building type(s) available for upgrade."]),
 		UL(state.upgradeables.map(upg => LI([
 			proventer(upg[0]), upg[0] + ": ",
@@ -274,6 +279,17 @@ export function render(state) {
 			provleave(),
 		]))),
 		provleave(),
+		P(state.navy_upgrades.length + " fleets(s) have outdated ships."),
+		TABLE({border: true}, [
+			table_head(["Fleet", "Heavy ships", "Light ships", "Galleys", "Transports"]),
+			state.navy_upgrades.map(f => TR([
+				TD(f.name),
+				upgrade(...f.heavy_ship),
+				upgrade(...f.light_ship),
+				upgrade(...f.galley),
+				upgrade(...f.transport),
+			])),
+		]),
 	]);
 	if (state.flagships) set_content("#flagships", [
 		SUMMARY("Flagships of the World (" + state.flagships.length + ")"),

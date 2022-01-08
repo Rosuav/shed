@@ -15,8 +15,6 @@
   - Flag? Can we show flags easily?
   - Click to go to country's capital
 
-TODO: Upgradeable ships alongside buildings
-
 Search options:
 - Filter to owned provinces, and/or provinces not under TI; restrict search to current
   province names rather than matching any culture's name
@@ -647,6 +645,25 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		truces[key] += ({c->name || L10n[other] || other});
 	}
 	sort(indices(truces), write->truces = values(truces));
+	//Go through your navies and see if any have outdated ships.
+	mapping country = data->countries[tag], units = country->sub_unit;
+	write->navy_upgrades = ({ });
+	foreach (Array.arrayify(country->navy), mapping fleet) {
+		mapping composition = ([]);
+		int upgrades = 0;
+		foreach (Array.arrayify(fleet->ship), mapping ship) {
+			string cat = ship_types[ship->type]; //eg heavy_ship, transport
+			composition[cat]++;
+			//Note that buying or capturing a higher-level unit will show it as upgradeable.
+			if (ship->type != units[cat]) {composition[cat + "_upg"]++; upgrades = 1;}
+		}
+		if (!upgrades) continue;
+		string desc = "";
+		mapping navy = (["name": fleet->name]);
+		foreach ("heavy_ship light_ship galley transport" / " ", string cat)
+			navy[cat] = ({composition[cat + "_upg"]||0, composition[cat]||0});
+		write->navy_upgrades += ({navy});
+	}
 }
 
 mapping(string:array) interesting_provinces = ([]);
