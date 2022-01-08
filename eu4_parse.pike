@@ -10,8 +10,8 @@
   - Click to go to country's capital
 
 Search options:
-- Filter to owned provinces, and/or provinces not under TI; restrict search to current
-  province names rather than matching any culture's name
+- Filter to owned provinces, and/or provinces not under TI, and/or non-sea provinces;
+  restrict search to current province names rather than matching any culture's name
 - Can these options be remembered in local storage???
 
 NOTE: Province group selection inverts the normal rules and has the web client in charge.
