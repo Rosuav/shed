@@ -2,9 +2,6 @@
 """
 //Read a text (non-ironman) EU4 savefile and scan for matters of interest. Provides info to networked clients.
 //TODO: Show a coalition as if it's a war? self->coalition_against_us lists countries
-//TODO: Raise highlighting priority of building upgrade options by a console command - or hide upgrades
-//by default, show them only when explicitly requested (like the building highlighter), and then always
-//have it at PRIO_EXPLICIT
 //TODO: Allow input on the primary console, stateless infodumps only
 /* Browser mode
 - Whenever you hover any country name, show country details in an inset top-right
