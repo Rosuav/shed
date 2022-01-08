@@ -92,6 +92,7 @@ export function render(state) {
 		DETAILS({id: "expansions"}, SUMMARY("Building expansions")),
 		DETAILS({id: "upgradeables"}, SUMMARY("Upgradeable buildings")),
 		DETAILS({id: "flagships"}, SUMMARY("Flagships of the World")),
+		DETAILS({id: "truces"}, SUMMARY("Truces")),
 		DIV({id: "options"}, [ //Positioned fixed in the top corner
 			LABEL(["Building highlight: ", SELECT({id: "highlight"}, OPTGROUP({label: "Building highlight"}))]),
 			DIV({id: "cyclegroup"}),
@@ -278,6 +279,13 @@ export function render(state) {
 		TABLE({border: true}, [
 			table_head(["Country", "Fleet", "Vessel", "Modifications", "Built by"]),
 			state.flagships.map(f => TR([TD(f[0]), TD(f[1]), TD(f[2] + ' "' + f[3] + '"'), TD(f[4].join(", ")), TD(f[5])])),
+		]),
+	]);
+	if (state.truces) set_content("#truces", [
+		SUMMARY("Truces: " + state.truces.map(t => t.length - 1).reduce((a,b) => a+b) + " countries, " + state.truces.length + " blocks"),
+		state.truces.map(t => [
+			H3(t[0]),
+			UL(t.slice(1).map(c => LI(c))),
 		]),
 	]);
 	const is_interesting = [];

@@ -1,7 +1,7 @@
 #define POLYGLOT "This script can be run as Python or Pike code. The Python code is client-only. \
 """
 //Read a text (non-ironman) EU4 savefile and scan for matters of interest. Provides info to networked clients.
-//TODO: Show a coalition as if it's a war?
+//TODO: Show a coalition as if it's a war? self->coalition_against_us lists countries
 //TODO: Raise highlighting priority of building upgrade options by a console command - or hide upgrades
 //by default, show them only when explicitly requested (like the building highlighter), and then always
 //have it at PRIO_EXPLICIT
@@ -15,7 +15,7 @@
   - Flag? Can we show flags easily?
   - Click to go to country's capital
 
-TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
+TODO: Upgradeable ships alongside buildings
 
 Search options:
 - Filter to owned provinces, and/or provinces not under TI; restrict search to current
@@ -621,6 +621,34 @@ void analyze_findbuildings(mapping data, string name, string tag, function|mappi
 	if (mappingp(write)) sort(write->highlight->provinces->cost[*][-1], write->highlight->provinces);
 }
 
+void analyze_obscurities(mapping data, string name, string tag, mapping write) {
+	//Gather some more obscure or less-interesting data for the web interface only.
+	//It's not worth consuming visual space for these normally, but the client might
+	//want to open this up and have a look.
+	mapping truces = ([]);
+	foreach (data->countries; string other; mapping c) {
+		//TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
+		//- Can't find actual truce dates, but anti-shenanigans truces seem to set a thing into
+		//active_relations[tag]->truce = yes, ->last_war = date when the action happened (truce is
+		//five years from then). If there's an actual war, ->last_warscore ranges from 0 to 100?
+		mapping rel = c->active_relations[?tag];
+		if (!rel->?truce) continue;
+		//Instead of getting the truce end date, we get the truce start date and warscore.
+		//As warscore ranges from 0 to 100, truce length ranges from 5 to 15 years.
+		int truce_months = 60 + 120 - (100 - (int)rel->last_warscore) * 120 / 100; //Double negation to force round-up
+		//This could be off by one or two months, but it should be consistent for all
+		//countries truced out at once, so they'll remain grouped.
+		sscanf(rel->last_war, "%d.%d.%*d", int year, int mon);
+		mon += truce_months % 12 + 1; //Always move to the next month
+		year += truce_months / 12 + (mon > 12);
+		if (mon > 12) mon -= 12;
+		string key = sprintf("%04d.%02d", year, mon);
+		if (!truces[key]) truces[key] = ({sprintf("%s %d", ("- Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec" / " ")[mon], year)});
+		truces[key] += ({c->name || L10n[other] || other});
+	}
+	sort(indices(truces), write->truces = values(truces));
+}
+
 mapping(string:array) interesting_provinces = ([]);
 void analyze(mapping data, string name, string tag, function|mapping|void write, string|void highlight) {
 	if (!write) write = Stdio.stdin->write;
@@ -628,6 +656,7 @@ void analyze(mapping data, string name, string tag, function|mapping|void write,
 	if (mappingp(write)) write->name = name + " (" + (data->countries[tag]->name || L10n[tag] || tag) + ")";
 	else write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
 	({analyze_cot, analyze_leviathans, analyze_furnace, analyze_upgrades})(data, name, tag, write);
+	if (mappingp(write)) analyze_obscurities(data, name, tag, write);
 	if (highlight) analyze_findbuildings(data, name, tag, write, highlight);
 	//write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province)); //If needed in a machine-readable format
 	interesting_provinces[tag] = interesting_province;
