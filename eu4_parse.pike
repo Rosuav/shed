@@ -6,10 +6,7 @@
 //by default, show them only when explicitly requested (like the building highlighter), and then always
 //have it at PRIO_EXPLICIT
 //TODO: Allow input on the primary console, stateless infodumps only
-/* TODO: browser mode
-- Most of the same info that currently exists, but hide it behind details/summary
-- Real-time updates that don't touch whether the detailses are open
-- Easy way to do the things that currently need a command
+/* Browser mode
 - Whenever you hover any country name, show country details in an inset top-right
   - Show country tech level compared to yours (green = worse tech, red = better tech)
   - Flag? Can we show flags easily?
@@ -24,9 +21,8 @@ NOTE: Province group selection inverts the normal rules and has the web client i
 This ensures that there can be no desynchronization between user view and province ID
 selection, but it does mean that the client must remain active in order to keep things
 synchronized. In practice, not a problem, since the client selects the group anyway.
-
-TODO: Background service to do the key sending. See example systemd script in my cfgsystemd.
 */
+//TODO: Background service to do the key sending. See example systemd script in my cfgsystemd.
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
 constant PROGRAM_PATH = "../.steam/steam/steamapps/common/Europa Universalis IV"; //Append /map or /common etc to access useful data files
