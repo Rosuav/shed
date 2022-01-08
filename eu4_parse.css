@@ -18,11 +18,10 @@ h1 {max-width: max-content; margin: auto;}
 }
 
 #now_parsing {
-	position: fixed;
-	top: 1em; right: 1em;
 	border: 1px solid cyan;
 	background: #dff;
 	padding: 0.5em;
+	margin-bottom: 0.5em;
 }
 
 #menu {

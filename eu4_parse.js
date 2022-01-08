@@ -82,7 +82,7 @@ export function render(state) {
 	curgroup = []; provgroups = { };
 	//Set up one-time structure. Every subsequent render will update within that.
 	if (!DOM("#error")) set_content("main", [
-		DIV({id: "error", className: "hidden"}), DIV({id: "now_parsing", className: "hidden"}),
+		DIV({id: "error", className: "hidden"}),
 		DIV({id: "menu", className: "hidden"}),
 		H1({id: "player"}),
 		DETAILS({id: "selectprov"}, [
@@ -102,6 +102,7 @@ export function render(state) {
 			LABEL(["Building highlight: ", SELECT({id: "highlight"}, OPTGROUP({label: "Building highlight"}))]),
 			DIV({id: "cyclegroup"}),
 			UL({id: "interesting_details"}),
+			DIV({id: "now_parsing", className: "hidden"}),
 		]),
 		//TODO: Have DETAILS/SUMMARY nodes for every expandable, such that,
 		//whenever content is updated, they remain in their open/closed state
