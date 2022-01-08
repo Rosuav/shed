@@ -266,11 +266,12 @@ export function render(state) {
 		)),
 	]).value = (state.highlight && state.highlight.id) || "none";
 	if (state.upgradeables) set_content("#upgradeables", [
-		SUMMARY("Upgradeable buildings"),
+		SUMMARY("Upgradeable buildings: " + state.upgradeables.length + " type(s)"),
 		P([proventer("upgradeables"), state.upgradeables.length + " building type(s) available for upgrade."]),
 		UL(state.upgradeables.map(upg => LI([
-			upg[0] + ": ",
+			proventer(upg[0]), upg[0] + ": ",
 			upg[1].map(prov => PROV(prov.id, prov.name)),
+			provleave(),
 		]))),
 		provleave(),
 	]);
