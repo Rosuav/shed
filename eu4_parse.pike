@@ -1353,9 +1353,10 @@ int main(int argc, array(string) argv) {
 		return -1;
 	}
 	if (argc > 1 && argv[1] == "--timeparse") {
+		string fn = argc > 2 ? argv[2] : "mp_autosave.eu4";
 		object start = System.Timer();
 		#define TIME(x) {float tm = gauge {x;}; write("%.3f\t%.3f\t%s\n", start->get(), tm, #x);}
-		string raw; TIME(raw = Stdio.read_file(SAVE_PATH + "/mp_autosave.eu4"));
+		string raw; TIME(raw = Stdio.read_file(SAVE_PATH + "/" + fn));
 		mapping data; TIME(data = parse_savefile_string(raw));
 		write("Parse successful. Date: %s\n", data->date);
 		return 0;
