@@ -104,3 +104,7 @@ color choice can be overridden based on its parent. */
 }
 
 .caution {margin: 0 0.5em; cursor: default;}
+
+.flag.small {
+	height: 1.25em;
+}

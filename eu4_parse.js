@@ -46,7 +46,7 @@ let country_info = { };
 function COUNTRY(tag) {
 	const c = country_info[tag] || {name: tag};
 	return [
-		IMG({src: "/flags/" + tag + ".png", alt: "[flag of " + c.name + "]"}),
+		IMG({className: "flag small", src: "/flags/" + tag + ".png", alt: "[flag of " + c.name + "]"}),
 		" " + c.name,
 	];
 }

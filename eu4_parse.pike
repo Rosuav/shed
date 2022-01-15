@@ -1194,7 +1194,21 @@ let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then
 	]);
 	if (req->not_query == "/search") {
 		//TODO: Search for a country by tag, name, etc. Return a redirect to /tag/%s, or maybe a menu.
-		return NOT_FOUND;
+		return 0;
+	}
+	if (sscanf(req->not_query, "/flags/%[A-Z_a-z].%s", string tag, string ext) && tag != "" && ext == "png") {
+		//Generate a country flag in PNG format
+		string tga = Stdio.read_file(PROGRAM_PATH + "/gfx/flags/" + tag + ".tga");
+		if (!tga) return 0;
+		//NOTE: Using weak etags since the result will be semantically identical, but
+		//might not be byte-for-byte (since the conversion to PNG might change it).
+		string etag = sprintf("W/\"%x\"", array_sscanf(Crypto.SHA1.hash(tga), "%20c")[0]);
+		if (has_value(req->request_headers["if-none-match"] || "", etag)) return (["error": 304]); //Already in cache
+		Image.Image img = Image.TGA.decode(tga);
+		return ([
+			"type": "image/png", "data": Image.PNG.encode(img),
+			"extra_heads": (["ETag": etag, "Cache-Control": "max-age=604800"]),
+		]);
 	}
 }
 constant NOT_FOUND = (["error": 404, "type": "text/plain", "data": "Not found"]);
