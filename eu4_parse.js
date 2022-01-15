@@ -45,6 +45,10 @@ function PROV(id, name, namelast) {
 let countrytag = ""; //The country we're looking at (usually a player-owned one)
 let country_info = { };
 function COUNTRY(tag) {
+	//TODO: Whenever you hover any country name, show country details in an inset top-right
+	//- Show country tech level compared to yours (green = worse tech, red = better tech)
+	//- Flag (show enlarged)
+	//- Click to go to country's capital
 	const c = country_info[tag] || {name: tag};
 	return [
 		IMG({className: "flag small", src: "/flags/" + tag + ".png", alt: "[flag of " + c.name + "]"}),

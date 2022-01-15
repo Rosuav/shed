@@ -4,10 +4,6 @@
 //TODO: Show a coalition as if it's a war? self->coalition_against_us lists countries
 //TODO: Allow input on the primary console, stateless infodumps only
 /* Browser mode
-- Whenever you hover any country name, show country details in an inset top-right
-  - Show country tech level compared to yours (green = worse tech, red = better tech)
-  - Flag? Can we show flags easily?
-  - Click to go to country's capital
 
 TODO: For all provinces, record sea or land, transmit to front end for icon
 
@@ -694,6 +690,10 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	write->countries = map(data->countries) {mapping c = __ARGS__[0];
 		return ([
 			"name": c->name || L10n[c->tag] || c->tag,
+			//TODO: Tech levels
+			//TODO: HRE nation (defined by its capital province being in the HRE)
+			//TODO: Total number of provinces
+			//TODO: ID of capital province
 		]);
 	};
 }
