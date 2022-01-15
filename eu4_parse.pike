@@ -664,6 +664,23 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			navy[cat] = ({composition[cat + "_upg"]||0, composition[cat]||0});
 		write->navy_upgrades += ({navy});
 	}
+	//Enumerate all CBs from and against you, categorized by type
+	write->cbs = (["from": (["tags": ({ })]), "against": (["tags": ({ })]), "types": ([])]);
+	foreach (Array.arrayify(data->diplomacy->casus_belli), mapping cb) {
+		if (cb->first != tag && cb->second != tag) continue;
+		//if second is tag, put into against
+		mapping info = (["tag": cb->first == tag ? cb->second : cb->first]);
+		if (cb->end_date) info->end_date = cb->end_date; //Time-limited casus belli
+		//TODO: Look up the type in the edit files and see if there are any attacker_disabled_po
+		//TODO: Manually enumerate those which should also be cautioned about
+		mapping which = write->cbs[cb->first == tag ? "from" : "against"];
+		which[cb->type] += ({info});
+		if (!has_value(which->tags, info->tag)) which->tags += ({info->tag});
+		if (!write->cbs->types[cb->type]) write->cbs->types[cb->type] = ([
+			"name": L10n[cb->type] || cb->type,
+			"desc": L10n[cb->type + "_desc"] || cb->type + "_desc",
+		]);
+	}
 }
 
 mapping(string:array) interesting_provinces = ([]);

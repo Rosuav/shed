@@ -1,6 +1,6 @@
 //Not to be confused with eu4_parse.json which is a cache
 import choc, {set_content, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
-const {A, ABBR, DETAILS, DIV, FORM, H1, H3, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
+const {A, ABBR, BLOCKQUOTE, DETAILS, DIV, FORM, H1, H3, H4, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
 
 function table_head(headings) {
 	if (typeof headings === "string") headings = headings.split(" ");
@@ -98,6 +98,7 @@ export function render(state) {
 		DETAILS({id: "upgradeables"}, SUMMARY("Upgrades available")),
 		DETAILS({id: "flagships"}, SUMMARY("Flagships of the World")),
 		DETAILS({id: "truces"}, SUMMARY("Truces")),
+		DETAILS({id: "cbs"}, SUMMARY("Casus Belli")),
 		DIV({id: "options"}, [ //Positioned fixed in the top corner
 			LABEL(["Building highlight: ", SELECT({id: "highlight"}, OPTGROUP({label: "Building highlight"}))]),
 			DIV({id: "cyclegroup"}),
@@ -304,6 +305,22 @@ export function render(state) {
 		state.truces.map(t => [
 			H3(t[0]),
 			UL(t.slice(1).map(c => LI(c))),
+		]),
+	]);
+	if (state.cbs) set_content("#cbs", [
+		SUMMARY(`Casus belli: ${state.cbs.from.tags.length} you have, ${state.cbs.against.tags.length} other countries have on you`),
+		[["from", "CBs you have on others"], ["against", "CBs others have against you"]].map(([grp, lbl]) => [
+			H3(lbl),
+			BLOCKQUOTE(Object.entries(state.cbs[grp]).map(([type, cbs]) => type !== "tags" && [
+				(t => H4([
+					ABBR({title: t.desc}, t.name),
+					//if t.restricted, put marker
+				]))(state.cbs.types[type]),
+				UL(cbs.map(cb => LI([
+					cb.tag, //TODO: Use COUNTRY(cb.tag) like I do PROV() elsewhere
+					cb.end_date && " (until " + cb.end_date + ")",
+				]))),
+			])),
 		]),
 	]);
 	const is_interesting = [];
