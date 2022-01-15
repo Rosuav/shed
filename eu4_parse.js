@@ -318,7 +318,7 @@ export function render(state) {
 		]),
 	]);
 	if (state.cbs) set_content("#cbs", [
-		SUMMARY(`Casus belli: ${state.cbs.from.tags.length} you have, ${state.cbs.against.tags.length} other countries have on you`),
+		SUMMARY(`Casus belli: ${state.cbs.from.tags.length} potential victims, ${state.cbs.against.tags.length} potential aggressors`),
 		//NOTE: The order here (from, against) has to match the order in the badboy/prestige/peace_cost arrays (attacker, defender)
 		[["from", "CBs you have on others"], ["against", "CBs others have against you"]].map(([grp, lbl], scoreidx) => [
 			H3(lbl),
