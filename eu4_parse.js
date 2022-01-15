@@ -42,6 +42,7 @@ function PROV(id, name, namelast) {
 	]);
 }
 
+let countrytag = ""; //The country we're looking at (usually a player-owned one)
 let country_info = { };
 function COUNTRY(tag) {
 	const c = country_info[tag] || {name: tag};
@@ -51,7 +52,6 @@ function COUNTRY(tag) {
 	];
 }
 
-let countrytag = ""; //The country we're looking at (usually a player-owned one)
 on("click", ".goto-province", e => {
 	ws_sync.send({cmd: "goto", tag: countrytag, province: e.match.dataset.provid});
 });
@@ -125,6 +125,7 @@ export function render(state) {
 	set_content("#error", "").classList.add("hidden");
 	if (state.discovered_provinces) discovered_provinces = state.discovered_provinces;
 	if (state.countries) country_info = state.countries;
+	if (state.tag) countrytag = state.tag;
 	if (state.pinned_provinces) {
 		pinned_provinces = { };
 		set_content("#pin", [H3([proventer("pin"), "Pinned provinces: " + state.pinned_provinces.length]),
@@ -162,7 +163,6 @@ export function render(state) {
 		return;
 	}
 	if (state.name) set_content("#player", state.name);
-	if (state.tag) countrytag = state.tag;
 	if (state.cot) {
 		max_interesting.cot = state.cot.maxinteresting;
 		const content = [SUMMARY(`Centers of Trade (${state.cot.level3}/${state.cot.max} max level)`), proventer("cot")];
