@@ -1,6 +1,6 @@
 //Not to be confused with eu4_parse.json which is a cache
 import choc, {set_content, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
-const {A, ABBR, BLOCKQUOTE, DETAILS, DIV, FORM, H1, H3, H4, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
+const {A, ABBR, BLOCKQUOTE, DETAILS, DIV, FORM, H1, H3, H4, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
 
 function table_head(headings) {
 	if (typeof headings === "string") headings = headings.split(" ");
@@ -42,7 +42,16 @@ function PROV(id, name, namelast) {
 	]);
 }
 
-let countrytag = "";
+let country_info = { };
+function COUNTRY(tag) {
+	const c = country_info[tag] || {name: tag};
+	return [
+		IMG({src: "/flags/" + tag + ".png", alt: "[flag of " + c.name + "]"}),
+		" " + c.name,
+	];
+}
+
+let countrytag = ""; //The country we're looking at (usually a player-owned one)
 on("click", ".goto-province", e => {
 	ws_sync.send({cmd: "goto", tag: countrytag, province: e.match.dataset.provid});
 });
@@ -115,6 +124,7 @@ export function render(state) {
 	}
 	set_content("#error", "").classList.add("hidden");
 	if (state.discovered_provinces) discovered_provinces = state.discovered_provinces;
+	if (state.countries) country_info = state.countries;
 	if (state.pinned_provinces) {
 		pinned_provinces = { };
 		set_content("#pin", [H3([proventer("pin"), "Pinned provinces: " + state.pinned_provinces.length]),
@@ -323,7 +333,7 @@ export function render(state) {
 					")",
 				]))(state.cbs.types[type]),
 				UL(cbs.map(cb => LI([
-					cb.tag, //TODO: Use COUNTRY(cb.tag) like I do PROV() elsewhere
+					COUNTRY(cb.tag),
 					cb.end_date && " (until " + cb.end_date + ")",
 				]))),
 			])),
