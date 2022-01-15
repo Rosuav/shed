@@ -286,6 +286,7 @@ object calendar(string date) {
 mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers;
 mapping trade_goods, country_modifiers, age_definitions, tech_definitions, institutions;
 mapping cot_definitions, state_edicts, terrain_definitions, imperial_reforms;
+mapping cb_types, wargoal_types;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -671,15 +672,23 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		//if second is tag, put into against
 		mapping info = (["tag": cb->first == tag ? cb->second : cb->first]);
 		if (cb->end_date) info->end_date = cb->end_date; //Time-limited casus belli
-		//TODO: Look up the type in the edit files and see if there are any attacker_disabled_po
-		//TODO: Manually enumerate those which should also be cautioned about
 		mapping which = write->cbs[cb->first == tag ? "from" : "against"];
 		which[cb->type] += ({info});
 		if (!has_value(which->tags, info->tag)) which->tags += ({info->tag});
-		if (!write->cbs->types[cb->type]) write->cbs->types[cb->type] = ([
-			"name": L10n[cb->type] || cb->type,
-			"desc": L10n[cb->type + "_desc"] || cb->type + "_desc",
-		]);
+		if (!write->cbs->types[cb->type]) {
+			mapping ty = write->cbs->types[cb->type] = ([
+				"name": L10n[cb->type] || cb->type,
+				"desc": L10n[cb->type + "_desc"] || cb->type + "_desc",
+			]);
+			mapping typeinfo = cb_types[cb->type];
+			mapping wargoal = wargoal_types[typeinfo->war_goal];
+			if (typeinfo->attacker_disabled_po) ty->restricted = "Some peace offers disabled";
+			else if (wargoal->allowed_provinces_are_eligible) ty->restricted = "Province selection is restricted";
+			foreach (({"badboy", "prestige", "peace_cost"}), string key) ty[key] = (array(float))({
+				wargoal->attacker[?key + "_factor"] || wargoal[key + "_factor"],
+				wargoal->defender[?key + "_factor"] || wargoal[key + "_factor"],
+			});
+		}
 	}
 }
 
@@ -1475,6 +1484,8 @@ int main(int argc, array(string) argv) {
 	}
 	state_edicts = parse_config_dir(PROGRAM_PATH + "/common/state_edicts");
 	imperial_reforms = parse_config_dir(PROGRAM_PATH + "/common/imperial_reforms");
+	cb_types = parse_config_dir(PROGRAM_PATH + "/common/cb_types");
+	wargoal_types = parse_config_dir(PROGRAM_PATH + "/common/wargoal_types");
 
 	//Parse out localised province names and map from province ID to all its different names
 	province_localised_names = ([]);

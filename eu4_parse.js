@@ -309,12 +309,18 @@ export function render(state) {
 	]);
 	if (state.cbs) set_content("#cbs", [
 		SUMMARY(`Casus belli: ${state.cbs.from.tags.length} you have, ${state.cbs.against.tags.length} other countries have on you`),
-		[["from", "CBs you have on others"], ["against", "CBs others have against you"]].map(([grp, lbl]) => [
+		//NOTE: The order here (from, against) has to match the order in the badboy/prestige/peace_cost arrays (attacker, defender)
+		[["from", "CBs you have on others"], ["against", "CBs others have against you"]].map(([grp, lbl], scoreidx) => [
 			H3(lbl),
 			BLOCKQUOTE(Object.entries(state.cbs[grp]).map(([type, cbs]) => type !== "tags" && [
 				(t => H4([
 					ABBR({title: t.desc}, t.name),
-					//if t.restricted, put marker
+					" ",
+					t.restricted && SPAN({className: "caution", title: t.restricted}, "⚠️"),
+					" (", ABBR({title: "Aggressive Expansion"}, Math.floor(t.badboy[scoreidx] * 100) + "%"),
+					", ", ABBR({title: "Prestige"}, Math.floor(t.prestige[scoreidx] * 100) + "%"),
+					", ", ABBR({title: "Peace cost"}, Math.floor(t.peace_cost[scoreidx] * 100) + "%"),
+					")",
 				]))(state.cbs.types[type]),
 				UL(cbs.map(cb => LI([
 					cb.tag, //TODO: Use COUNTRY(cb.tag) like I do PROV() elsewhere

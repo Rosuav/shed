@@ -102,3 +102,5 @@ color choice can be overridden based on its parent. */
 #search strong {
 	background: #efe;
 }
+
+.caution {margin: 0 0.5em; cursor: default;}
