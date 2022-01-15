@@ -108,3 +108,16 @@ color choice can be overridden based on its parent. */
 .flag.small {
 	height: 1.25em;
 }
+.flag.large {
+	display: block;
+	margin: auto;
+}
+#hovercountry {
+	margin: 0.5em;
+	border: 1px solid black;
+	padding: 0.5em;
+}
+#hovercountry h3 {
+	margin: 0;
+	text-align: center; /* Center the country name under the flag */
+}
