@@ -688,14 +688,17 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	}
 	//Gather basic country info in a unified format.
 	write->countries = map(data->countries) {mapping c = __ARGS__[0];
+		if (!c->owned_provinces) return 0;
+		mapping capital = data->provinces["-" + c->capital];
 		return ([
 			"name": c->name || L10n[c->tag] || c->tag,
-			//TODO: Tech levels
-			//TODO: HRE nation (defined by its capital province being in the HRE)
-			//TODO: Total number of provinces
-			//TODO: ID of capital province
+			"tech": ({(int)c->technology->adm_tech, (int)c->technology->dip_tech, (int)c->technology->mil_tech}),
+			"province_count": sizeof(Array.arrayify(c->owned_provinces)),
+			"capital": c->capital,
+			"hre": capital->hre, //If the country's capital is in the HRE, the country itself is part of the HRE.
 		]);
 	};
+	write->countries = filter(write->countries) {return __ARGS__[0];}; //Keep only countries that actually have territory
 }
 
 mapping(string:array) interesting_provinces = ([]);
