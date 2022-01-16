@@ -141,6 +141,7 @@ export function render(state) {
 		DETAILS({id: "monuments"}, SUMMARY("Monuments")),
 		DETAILS({id: "favors"}, SUMMARY("Favors")),
 		DETAILS({id: "wars"}, SUMMARY("Wars")),
+		DETAILS({id: "badboy"}, SUMMARY("Badboy Haters")),
 		DETAILS({id: "expansions"}, SUMMARY("Building expansions")),
 		DETAILS({id: "upgradeables"}, SUMMARY("Upgrades available")),
 		DETAILS({id: "flagships"}, SUMMARY("Flagships of the World")),
@@ -290,6 +291,25 @@ export function render(state) {
 			]);
 		})]);
 	}
+	if (state.badboy_hatred) set_content("#badboy", [
+		SUMMARY("Badboy Haters (" + state.badboy_hatred.length + ")"),
+		!(max_interesting.badboy = state.badboy_hatred.length ? 2 : 0) && "Nobody hates you enough to join a coalition.",
+		TABLE({border: "1"}, [
+			table_head(["Opinion", ABBR({title: "Aggressive Expansion"}, "Badboy"), "Country", "Notes"]),
+			state.badboy_hatred.map(hater => {
+				const info = country_info[hater.tag];
+				return TR([
+					TD({className: info.opinion_theirs < 0 ? "interesting1" : ""}, info.opinion_theirs),
+					TD(Math.floor(hater.badboy / 1000) + ""),
+					TD(COUNTRY(hater.tag)),
+					TD([
+						info.overlord && ABBR({title: "Is a " + info.subject_type + " of " + country_info[info.overlord].name}, "🙏"),
+						info.truce && ABBR({title: "Truce until " + info.truce}, "🏳"),
+					]),
+				]);
+			}),
+		]),
+	]);
 	if (state.highlight) {
 		if (state.highlight.id) set_content("#expansions", [
 			SUMMARY("Building expansions: " + state.highlight.name),

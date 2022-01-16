@@ -626,28 +626,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	//Gather some more obscure or less-interesting data for the web interface only.
 	//It's not worth consuming visual space for these normally, but the client might
 	//want to open this up and have a look.
-	mapping truces = ([]);
-	foreach (data->countries; string other; mapping c) {
-		//TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
-		//- Can't find actual truce dates, but anti-shenanigans truces seem to set a thing into
-		//active_relations[tag]->truce = yes, ->last_war = date when the action happened (truce is
-		//five years from then). If there's an actual war, ->last_warscore ranges from 0 to 100?
-		mapping rel = c->active_relations[?tag];
-		if (!rel->?truce) continue;
-		//Instead of getting the truce end date, we get the truce start date and warscore.
-		//As warscore ranges from 0 to 100, truce length ranges from 5 to 15 years.
-		int truce_months = 60 + 120 - (100 - (int)rel->last_warscore) * 120 / 100; //Double negation to force round-up
-		//This could be off by one or two months, but it should be consistent for all
-		//countries truced out at once, so they'll remain grouped.
-		sscanf(rel->last_war, "%d.%d.%*d", int year, int mon);
-		mon += truce_months % 12 + 1; //Always move to the next month
-		year += truce_months / 12 + (mon > 12);
-		if (mon > 12) mon -= 12;
-		string key = sprintf("%04d.%02d", year, mon);
-		if (!truces[key]) truces[key] = ({sprintf("%s %d", ("- Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec" / " ")[mon], year)});
-		truces[key] += ({c->name || L10n[other] || other});
-	}
-	sort(indices(truces), write->truces = values(truces));
+
 	//Go through your navies and see if any have outdated ships.
 	mapping country = data->countries[tag], units = country->sub_unit;
 	write->navy_upgrades = ({ });
@@ -736,6 +715,44 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		write->countries[dep->second]->alliances++;
 	}
 	//TODO: Maybe count weaker one-way relationships like guarantees and tributary subjects separately?
+
+	//List countries that could potentially join a coalition
+	write->badboy_hatred = ({ });
+	foreach (data->countries;; mapping risk) {
+		int ae = 0;
+		foreach (Array.arrayify(risk->active_relations[tag]->?opinion), mapping opine)
+			if (opine->modifier == "aggressive_expansion") ae = -threeplace(opine->current_opinion);
+		if (ae < 50000) continue;
+		write->badboy_hatred += ({([
+			"tag": risk->tag,
+			"badboy": ae,
+		])});
+	}
+
+	//List truces, grouped by end date
+	mapping truces = ([]);
+	foreach (data->countries; string other; mapping c) {
+		//TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
+		//- Can't find actual truce dates, but anti-shenanigans truces seem to set a thing into
+		//active_relations[tag]->truce = yes, ->last_war = date when the action happened (truce is
+		//five years from then). If there's an actual war, ->last_warscore ranges from 0 to 100?
+		mapping rel = c->active_relations[?tag];
+		if (!rel->?truce) continue;
+		//Instead of getting the truce end date, we get the truce start date and warscore.
+		//As warscore ranges from 0 to 100, truce length ranges from 5 to 15 years.
+		int truce_months = 60 + 120 - (100 - (int)rel->last_warscore) * 120 / 100; //Double negation to force round-up
+		//This could be off by one or two months, but it should be consistent for all
+		//countries truced out at once, so they'll remain grouped.
+		sscanf(rel->last_war, "%d.%d.%*d", int year, int mon);
+		mon += truce_months % 12 + 1; //Always move to the next month
+		year += truce_months / 12 + (mon > 12);
+		if (mon > 12) mon -= 12;
+		string key = sprintf("%04d.%02d", year, mon);
+		if (!truces[key]) truces[key] = ({sprintf("%s %d", ("- Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec" / " ")[mon], year)});
+		truces[key] += ({c->name || L10n[other] || other});
+		if (mapping info = write->countries[other]) info->truce = truces[key][0];
+	}
+	sort(indices(truces), write->truces = values(truces));
 }
 
 mapping(string:array) interesting_provinces = ([]);
