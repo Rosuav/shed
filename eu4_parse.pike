@@ -696,6 +696,8 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			"province_count": sizeof(Array.arrayify(c->owned_provinces)),
 			"capital": c->capital, "capitalname": capital->name,
 			"hre": capital->hre, //If the country's capital is in the HRE, the country itself is part of the HRE.
+			"development": c->development,
+			"institutions": `+(@(array(int))c->institutions),
 		]);
 	};
 	write->countries = filter(write->countries) {return __ARGS__[0];}; //Keep only countries that actually have territory
