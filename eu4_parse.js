@@ -74,7 +74,7 @@ function update_hover_country() {
 			), " "])]),
 			LI(["Capital: ", PROV(c.capital, c.capitalname)]),
 			LI("Provinces: " + c.province_count + " (total " + c.development + " dev)"),
-			LI(["Instutions: ", SPAN(attrs(c.institutions - me.institutions), ""+c.institutions)]),
+			LI(["Institutions: ", SPAN(attrs(c.institutions - me.institutions), ""+c.institutions)]),
 		]),
 	]).classList.remove("hidden");
 }
