@@ -718,6 +718,12 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		]);
 	};
 	write->countries = filter(write->countries) {return __ARGS__[0];}; //Keep only countries that actually have territory
+	foreach (Array.arrayify(data->diplomacy->dependency), mapping dep) {
+		mapping c = write->countries[dep->second]; if (!c) continue;
+		c->overlord = dep->first;
+		c->subject_type = dep->subject_type;
+		write->countries[dep->first]->subjects++;
+	}
 }
 
 mapping(string:array) interesting_provinces = ([]);
