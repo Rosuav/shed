@@ -124,6 +124,7 @@ export function render(state) {
 	if (!DOM("#error")) set_content("main", [
 		DIV({id: "error", className: "hidden"}),
 		DIV({id: "menu", className: "hidden"}),
+		IMG({className: "flag large", id: "playerflag", alt: "[flag of player's nation]"}),
 		H1({id: "player"}),
 		DETAILS({id: "selectprov"}, [
 			SUMMARY("Find a province"),
@@ -157,7 +158,10 @@ export function render(state) {
 	set_content("#error", "").classList.add("hidden");
 	if (state.discovered_provinces) discovered_provinces = state.discovered_provinces;
 	if (state.countries) country_info = state.countries;
-	if (state.tag) countrytag = state.tag;
+	if (state.tag) {
+		const c = country_info[countrytag = state.tag];
+		DOM("#playerflag").src = "/flags/" + c.flag + ".png";
+	}
 	if (state.pinned_provinces) {
 		pinned_provinces = { };
 		set_content("#pin", [H3([proventer("pin"), "Pinned provinces: " + state.pinned_provinces.length]),

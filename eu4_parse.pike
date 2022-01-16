@@ -36,6 +36,7 @@ class maparray {
 	//of values, indexed numerically.
 	mapping keyed = ([]);
 	array indexed = ({ });
+	multiset _is_auto_array = (<>);
 	object addkey(string key, mixed value) {
 		if (retain_map_indices && mappingp(value)) value |= (["_index": sizeof(keyed)]);
 		keyed[key] = value;
@@ -51,6 +52,7 @@ class maparray {
 			case "indexed": return indexed;
 			case "addkey": return addkey;
 			case "addidx": return addidx;
+			case "_is_auto_array": return _is_auto_array;
 			default: return keyed[key];
 		}
 	}
@@ -76,11 +78,10 @@ mapping|array|maparray coalesce(mixed ret_or_brace, mixed ret) {
 maparray makemapping(mixed name, mixed _, mixed val) {return maparray()->addkey(name, val);}
 maparray addmapping(maparray map, mixed name, mixed _, mixed val) {
 	//Note that, sometimes, an array is defined by simply assigning multiple times.
-	//I have no way of distinguishing an array of one element in that form from a
-	//simple entry; and currently, since this is stateless, I can't properly handle
-	//an array of arrays.
-	if (arrayp(map[name])) map[name] += ({val});
-	else if (map[name]) map[name] = ({map[name], val});
+	//To properly handle arrays of arrays, we keep track of every key for which such
+	//auto-collection has been done.
+	if (map->_is_auto_array[name]) map[name] += ({val});
+	else if (map[name]) {map[name] = ({map[name], val}); map->_is_auto_array[name] = 1;}
 	else map->addkey(name, val);
 	return map;
 }
@@ -693,7 +694,18 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		if (!c->owned_provinces) return 0;
 		mapping capital = data->provinces["-" + c->capital];
 		string flag = c->tag;
-		if (c->colonial_parent) flag = sprintf("%s-%{%02X%}", c->colonial_parent, (array(int))c->colors->country_color);
+		if (mapping cust = c->colors->custom_colors) {
+			//Custom flags are defined by a symbol and four colours.
+			//These are available in the savefile as:
+			//cust->symbol_index = emblem
+			//cust->flag = background
+			//cust->flag_colors = ({color 1, color 2, color 3})
+			//(Also, cust->color = map color, fwiw)
+			//In each case, the savefile is zero-based, but otherwise, the numbers are
+			//the same as can be seen in the nation designer.
+			flag = (({"Custom", cust->symbol_index, cust->flag}) + cust->flag_colors) * "-";
+		}
+		else if (c->colonial_parent) flag = sprintf("%s-%{%02X%}", c->colonial_parent, (array(int))c->colors->country_color);
 		return ([
 			"name": c->name || L10n[c->tag] || c->tag,
 			"tech": ({(int)c->technology->adm_tech, (int)c->technology->dip_tech, (int)c->technology->mil_tech}),
@@ -1185,6 +1197,33 @@ class PipeConnection {
 	}
 }
 
+mapping(string:Image.Image) image_cache = ([]);
+mapping custom_country_colors;
+Image.Image|array(Image.Image|int) load_image(string fn, int|void withhash) {
+	if (!image_cache[fn]) {
+		string raw = Stdio.read_file(fn);
+		if (!raw) return withhash ? ({0, 0}) : 0;
+		sscanf(Crypto.SHA1.hash(raw), "%20c", int hash);
+		function decoder = Image.ANY.decode;
+		if (has_suffix(fn, ".tga")) decoder = Image.TGA.decode; //Automatic detection doesn't pick these properly.
+		if (has_prefix(raw, "DDS")) {
+			//Custom flag symbols, unfortunately, come from a MS DirectDraw file. Pike's image
+			//library can't read this format, so we have to get help from ImageMagick.
+			mapping rc = Process.run(({"convert", fn, "png:-"}));
+			//assert rc=0, stderr=""
+			raw = rc->stdout;
+			decoder = Image.PNG._decode; //HACK: This actually returns a mapping, not just an image.
+		}
+		if (catch {image_cache[fn] = ({decoder(raw), hash});}) {
+			//Try again via ImageMagick.
+			mapping rc = Process.run(({"convert", fn, "png:-"}));
+			image_cache[fn] = ({Image.PNG.decode(rc->stdout), hash});
+		}
+	}
+	if (withhash) return image_cache[fn];
+	else return image_cache[fn][0];
+}
+
 mapping(string:array(object)) websocket_groups = ([]);
 mapping respond(Protocols.HTTP.Server.Request req) {
 	mapping mimetype = (["eu4_parse.js": "text/javascript", "eu4_parse.css": "text/css"]);
@@ -1208,18 +1247,56 @@ let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then
 	}
 	if (sscanf(req->not_query, "/flags/%[A-Z_a-z]%[-0-9A-F].%s", string tag, string color, string ext) && tag != "" && ext == "png") {
 		//Generate a country flag in PNG format
-		string tga = Stdio.read_file(PROGRAM_PATH + "/gfx/flags/" + tag + ".tga");
-		if (!tga) return 0;
-		//For colonial nations, instead of using the country's own tag (eg C03), we get
-		//a flag definition based on the parent country and a colour.
-		if (!color || sizeof(color) != 7 || color[0] != '-') color = "";
-		//NOTE: Using weak etags since the result will be semantically identical, but
-		//might not be byte-for-byte (since the conversion to PNG might change it).
-		string etag = sprintf("W/\"%x%s\"", array_sscanf(Crypto.SHA1.hash(tga), "%20c")[0], color);
-		if (has_value(req->request_headers["if-none-match"] || "", etag)) return (["error": 304]); //Already in cache
-		Image.Image img = Image.TGA.decode(tga);
-		if (sscanf(color, "-%2x%2x%2x", int r, int g, int b))
-			img->box(img->xsize() / 2, 0, img->xsize(), img->ysize(), r, g, b);
+		string etag; Image.Image img;
+		if (tag == "Custom") {
+			//Custom nation flags are defined by a symbol and four colours.
+			sscanf(color, "-%d-%d-%d-%d-%d", int symbol, int flag, int color1, int color2, int color3);
+			//If flag (the "Background" in the UI) is 0-33 (1-34 in the UI), it is a two-color
+			//flag defined in gfx/custom_flags/pattern.tga, which is a spritesheet of 128x128
+			//sections, ten per row, four rows. Replace red with color1, green with color2.
+			//If it is 34-53 (35-54 in the UI), it is a three-color flag from pattern2.tga,
+			//also ten per row, two rows, also 128x128. Replace blue with color3.
+			//(Some of this could be parsed out of custom_country_colors. Hardcoded for now.)
+			[Image.Image backgrounds, int bghash] = load_image(PROGRAM_PATH + "/gfx/custom_flags/pattern" + "2" * (flag >= 34) + ".tga", 1);
+			//NOTE: Symbols for custom nations are drawn from a pool of 120, of which client states
+			//are also selected, but restricted by religious group. (Actually there seem to be 121 on
+			//the spritesheet, but the last one isn't available to customs.)
+			//The symbol spritesheet is 4 rows of 32, each 64x64. It might be possible to find
+			//this info in the edit files somewhere, but for now I'm hard-coding it.
+			[mapping symbols, int symhash] = load_image(PROGRAM_PATH + "/gfx/interface/client_state_symbols_large.dds", 1);
+			//Note that if the definitions of the colors change but the spritesheets don't,
+			//we'll generate the exact same etag. Seems unlikely, and not that big a deal anyway.
+			etag = sprintf("W/\"%x-%x-%d-%d-%d-%d-%d\"", bghash, symhash, symbol, flag, color1, color2, color3);
+			if (has_value(req->request_headers["if-none-match"] || "", etag)) return (["error": 304]); //Already in cache
+			if (flag >= 34) flag -= 34; //Second sheet of patterns
+			int bgx = 128 * (flag % 10), bgy = 128 * (flag / 10);
+			int symx = 64 * (symbol % 32), symy = 64 * (symbol / 32);
+			img = backgrounds->copy(bgx, bgy, bgx + 127, bgy + 127)
+				->change_color(255, 0, 0, @(array(int))custom_country_colors->flag_color[color1])
+				->change_color(0, 255, 0, @(array(int))custom_country_colors->flag_color[color2])
+				->change_color(0, 0, 255, @(array(int))custom_country_colors->flag_color[color3])
+				->paste_mask(
+					symbols->image->copy(symx, symy, symx + 63, symy + 63),
+					symbols->alpha->copy(symx, symy, symx + 63, symy + 63),
+				32, 32);
+		}
+		else {
+			//Standard flags are loaded as-is.
+			[img, int hash] = load_image(PROGRAM_PATH + "/gfx/flags/" + tag + ".tga", 1);
+			if (!img) return 0;
+			//For colonial nations, instead of using the country's own tag (eg C03), we get
+			//a flag definition based on the parent country and a colour.
+			if (!color || sizeof(color) != 7 || color[0] != '-') color = "";
+			//NOTE: Using weak etags since the result will be semantically identical, but
+			//might not be byte-for-byte (since the conversion to PNG might change it).
+			etag = sprintf("W/\"%x%s\"", hash, color);
+			if (has_value(req->request_headers["if-none-match"] || "", etag)) return (["error": 304]); //Already in cache
+			if (sscanf(color, "-%2x%2x%2x", int r, int g, int b))
+				img->box(img->xsize() / 2, 0, img->xsize(), img->ysize(), r, g, b);
+		}
+		//TODO: Mask flags off with shield_mask.tga or shield_fancy_mask.tga or small_shield_mask.tga
+		//I'm using 128x128 everywhere, but the fancy mask (the largest) is only 92x92. For inline
+		//flags in text, small_shield_mask is the perfect 24x24.
 		return ([
 			"type": "image/png", "data": Image.PNG.encode(img),
 			"extra_heads": (["ETag": etag, "Cache-Control": "max-age=604800"]),
@@ -1522,6 +1599,7 @@ int main(int argc, array(string) argv) {
 	imperial_reforms = parse_config_dir(PROGRAM_PATH + "/common/imperial_reforms");
 	cb_types = parse_config_dir(PROGRAM_PATH + "/common/cb_types");
 	wargoal_types = parse_config_dir(PROGRAM_PATH + "/common/wargoal_types");
+	custom_country_colors = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/custom_country_colors/00_custom_country_colors.txt"));
 
 	//Parse out localised province names and map from province ID to all its different names
 	province_localised_names = ([]);
