@@ -72,7 +72,7 @@ function update_hover_country() {
 				attrs(c.tech[i] - me.tech[i]),
 				cat + " " + c.tech[i],
 			), " "])]),
-			LI(["Capital: ", PROV(c.capital, c.capitalname)]),
+			LI(["Capital: ", PROV(c.capital, c.capitalname, 1), c.hre && SPAN({title: "Member of the HRE"}, "👑")]),
 			LI("Provinces: " + c.province_count + " (total " + c.development + " dev)"),
 			LI(["Institutions: ", SPAN(attrs(c.institutions - me.institutions), ""+c.institutions)]),
 		]),
