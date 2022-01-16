@@ -45,7 +45,6 @@ function PROV(id, name, namelast) {
 let countrytag = "", hovertag = ""; //The country we're looking at (usually a player-owned one)
 let country_info = { };
 function COUNTRY(tag) {
-	//TODO: Click to go to country's capital
 	const c = country_info[tag] || {name: tag};
 	return SPAN({className: "country", "data-tag": tag}, [
 		IMG({className: "flag small", src: "/flags/" + tag + ".png", alt: "[flag of " + c.name + "]"}),
@@ -72,6 +71,7 @@ function update_hover_country() {
 				attrs(c.tech[i] - me.tech[i]),
 				cat + " " + c.tech[i],
 			), " "])]),
+			LI(["Capital: ", PROV(c.capital, c.capitalname)]),
 		]),
 	]).classList.remove("hidden");
 }

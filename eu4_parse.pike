@@ -694,7 +694,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			"name": c->name || L10n[c->tag] || c->tag,
 			"tech": ({(int)c->technology->adm_tech, (int)c->technology->dip_tech, (int)c->technology->mil_tech}),
 			"province_count": sizeof(Array.arrayify(c->owned_provinces)),
-			"capital": c->capital,
+			"capital": c->capital, "capitalname": capital->name,
 			"hre": capital->hre, //If the country's capital is in the HRE, the country itself is part of the HRE.
 		]);
 	};
@@ -1320,7 +1320,7 @@ void ws_handler(array(string) proto, Protocols.WebSocket.Request req)
 
 void send_update(array(object) socks, mapping state) {
 	if (!socks || !sizeof(socks)) return;
-	string resp = Standards.JSON.encode((["cmd": "update"]) | state);
+	string resp = Standards.JSON.encode((["cmd": "update"]) | state, 4);
 	foreach (socks, object sock)
 		if (sock && sock->state == 1) sock->send_text(resp);
 }
