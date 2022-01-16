@@ -293,18 +293,21 @@ export function render(state) {
 	}
 	if (state.badboy_hatred) set_content("#badboy", [
 		SUMMARY("Badboy Haters (" + state.badboy_hatred.length + ")"),
-		!(max_interesting.badboy = state.badboy_hatred.length ? 2 : 0) && "Nobody hates you enough to join a coalition.",
+		!(max_interesting.badboy = state.badboy_hatred.length ? 1 : 0) && "Nobody hates you enough to join a coalition.",
 		TABLE({border: "1"}, [
 			table_head(["Opinion", ABBR({title: "Aggressive Expansion"}, "Badboy"), "Country", "Notes"]),
 			state.badboy_hatred.map(hater => {
 				const info = country_info[hater.tag];
+				const attr = { };
+				if (hater.in_coalition) {attr.className = "interesting2"; max_interesting.badboy = 2;}
 				return TR([
 					TD({className: info.opinion_theirs < 0 ? "interesting1" : ""}, info.opinion_theirs),
-					TD(Math.floor(hater.badboy / 1000) + ""),
-					TD(COUNTRY(hater.tag)),
-					TD([
-						info.overlord && ABBR({title: "Is a " + info.subject_type + " of " + country_info[info.overlord].name}, "🙏"),
-						info.truce && ABBR({title: "Truce until " + info.truce}, "🏳"),
+					TD({className: hater.badboy >= 50000 ? "interesting1" : ""}, Math.floor(hater.badboy / 1000) + ""),
+					TD(attr, COUNTRY(hater.tag)),
+					TD(attr, [
+						info.overlord && SPAN({title: "Is a " + info.subject_type + " of " + country_info[info.overlord].name}, "🙏"),
+						info.truce && SPAN({title: "Truce until " + info.truce}, "🏳"),
+						hater.in_coalition && SPAN({title: "In coalition against you!"}, "😠"),
 					]),
 				]);
 			}),
