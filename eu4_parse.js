@@ -73,7 +73,7 @@ function update_hover_country() {
 				cat + " " + c.tech[i],
 			), " "])]),
 			LI(["Capital: ", PROV(c.capital, c.capitalname)]),
-			LI("Provinces: " + c.province_count + " Dev: " + c.development),
+			LI("Provinces: " + c.province_count + " (total " + c.development + " dev)"),
 			LI(["Instutions: ", SPAN(attrs(c.institutions - me.institutions), ""+c.institutions)]),
 		]),
 	]).classList.remove("hidden");
