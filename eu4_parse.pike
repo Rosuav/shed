@@ -167,6 +167,7 @@ mapping parse_savefile(string data, int|void verbose) {
 	mapping cache = Standards.JSON.decode_utf8(Stdio.read_file("eu4_parse.json") || "{}");
 	if (cache->hash == hexhash) return cache->data;
 	mapping ret = parse_savefile_string(data, verbose);
+	foreach (ret->countries; string tag; mapping c) c->tag = tag; //When looking at a country, it's often convenient to know its tag (reverse linkage).
 	Stdio.write_file("eu4_parse.json", string_to_utf8(Standards.JSON.encode((["hash": hexhash, "data": ret]))));
 	return ret;
 }
@@ -735,7 +736,6 @@ mapping(string:array) interesting_provinces = ([]);
 void analyze(mapping data, string name, string tag, function|mapping|void write, string|void highlight) {
 	if (!write) write = Stdio.stdin->write;
 	interesting_province = ({ }); interest_priority = 0;
-	foreach (data->countries; string tag; mapping c) c->tag = tag; //When looking at a country, it's often convenient to know its tag (reverse linkage).
 	if (mappingp(write)) write->name = name + " (" + (data->countries[tag]->name || L10n[tag] || tag) + ")";
 	else write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
 	({analyze_cot, analyze_leviathans, analyze_furnace, analyze_upgrades})(data, name, tag, write);
