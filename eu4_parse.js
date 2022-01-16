@@ -64,6 +64,7 @@ function update_hover_country() {
 		return {className: "tech same", title: "Same as you"};
 	}
 	set_content("#hovercountry", [
+		DIV({className: "close"}, "☒"),
 		IMG({className: "flag large", src: "/flags/" + tag + ".png", alt: "[flag of " + c.name + "]"}),
 		H3(c.name),
 		UL([
@@ -77,6 +78,8 @@ function update_hover_country() {
 }
 //Note that there is no mouseout. Once you point to a country, it will remain highlighted (even through savefile updates).
 on("mouseover", ".country", e => {hovertag = e.match.dataset.tag; update_hover_country();});
+//The hovered country can only be removed with its little Close button.
+on("click", "#hovercountry .close", e => {hovertag = ""; update_hover_country();});
 
 on("click", ".goto-province", e => {
 	ws_sync.send({cmd: "goto", tag: countrytag, province: e.match.dataset.provid});
