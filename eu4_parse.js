@@ -1,6 +1,6 @@
 //Not to be confused with eu4_parse.json which is a cache
 import choc, {set_content, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
-const {A, ABBR, BLOCKQUOTE, DETAILS, DIV, FORM, H1, H3, H4, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
+const {A, ABBR, B, BLOCKQUOTE, DETAILS, DIV, FORM, H1, H3, H4, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
 
 function table_head(headings) {
 	if (typeof headings === "string") headings = headings.split(" ");
@@ -74,12 +74,16 @@ function update_hover_country() {
 			), " "])]),
 			LI(["Capital: ", PROV(c.capital, c.capitalname, 1), c.hre && SPAN({title: "Member of the HRE"}, "👑")]),
 			LI("Provinces: " + c.province_count + " (total " + c.development + " dev)"),
-			LI(["Institutions: ", SPAN(attrs(c.institutions - me.institutions), ""+c.institutions)]),
+			LI(["Institutions embraced: ", SPAN(attrs(c.institutions - me.institutions), ""+c.institutions)]),
+			c.subjects && LI("Subject nations: " + c.subjects),
+			c.alliances && LI("Allied with: " + c.alliances),
+			c.overlord && LI(["Is a ", B(c.subject_type), " of ", COUNTRY(c.overlord)]),
 		]),
 	]).classList.remove("hidden");
 }
 //Note that there is no mouseout. Once you point to a country, it will remain highlighted (even through savefile updates).
-on("mouseover", ".country", e => {hovertag = e.match.dataset.tag; update_hover_country();});
+on("mouseover", ".country:not(#hovercountry .country)", e => {hovertag = e.match.dataset.tag; update_hover_country();});
+on("click", "#hovercountry .country", e => {hovertag = e.match.dataset.tag; update_hover_country();});
 //The hovered country can only be removed with its little Close button.
 on("click", "#hovercountry .close", e => {hovertag = ""; update_hover_country();});
 

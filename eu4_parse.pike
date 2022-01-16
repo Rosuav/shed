@@ -721,9 +721,14 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	foreach (Array.arrayify(data->diplomacy->dependency), mapping dep) {
 		mapping c = write->countries[dep->second]; if (!c) continue;
 		c->overlord = dep->first;
-		c->subject_type = dep->subject_type;
+		c->subject_type = L10n[dep->subject_type + "_title"] || dep->subject_type;
 		write->countries[dep->first]->subjects++;
 	}
+	foreach (Array.arrayify(data->diplomacy->alliance), mapping dep) {
+		write->countries[dep->first]->alliances++;
+		write->countries[dep->second]->alliances++;
+	}
+	//TODO: Maybe count weaker one-way relationships like guarantees and tributary subjects separately?
 }
 
 mapping(string:array) interesting_provinces = ([]);
