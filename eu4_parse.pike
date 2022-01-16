@@ -662,6 +662,8 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		write->navy_upgrades += ({navy});
 	}
 	//Enumerate all CBs from and against you, categorized by type
+	//TODO: On Conquest CBs, find all provinces with claims and find
+	//the last to expire, or a permanent, to show as CB expiration.
 	write->cbs = (["from": (["tags": ({ })]), "against": (["tags": ({ })]), "types": ([])]);
 	foreach (Array.arrayify(data->diplomacy->casus_belli), mapping cb) {
 		if (cb->first != tag && cb->second != tag) continue;
