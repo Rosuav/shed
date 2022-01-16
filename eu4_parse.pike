@@ -720,6 +720,8 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			"development": c->development,
 			"institutions": `+(@(array(int))c->institutions),
 			"flag": flag,
+			"opinion_theirs": c->opinion_cache[country->_index],
+			"opinion_yours": country->opinion_cache[c->_index],
 		]);
 	};
 	write->countries = filter(write->countries) {return __ARGS__[0];}; //Keep only countries that actually have territory

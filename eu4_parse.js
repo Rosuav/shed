@@ -75,6 +75,8 @@ function update_hover_country() {
 			LI(["Capital: ", PROV(c.capital, c.capitalname, 1), c.hre && SPAN({title: "Member of the HRE"}, "👑")]),
 			LI("Provinces: " + c.province_count + " (total " + c.development + " dev)"),
 			LI(["Institutions embraced: ", SPAN(attrs(c.institutions - me.institutions), ""+c.institutions)]),
+			LI(["Opinion: ", B({title: "Their opinion of you"}, c.opinion_theirs),
+				" / ", B({title: "Your opinion of them"}, c.opinion_yours)]),
 			c.subjects && LI("Subject nations: " + c.subjects),
 			c.alliances && LI("Allied with: " + c.alliances),
 			c.overlord && LI(["Is a ", B(c.subject_type), " of ", COUNTRY(c.overlord)]),
