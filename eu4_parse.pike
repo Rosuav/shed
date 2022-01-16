@@ -692,6 +692,8 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	write->countries = map(data->countries) {mapping c = __ARGS__[0];
 		if (!c->owned_provinces) return 0;
 		mapping capital = data->provinces["-" + c->capital];
+		string flag = c->tag;
+		if (c->colonial_parent) flag = sprintf("%s-%{%02X%}", c->colonial_parent, (array(int))c->colors->country_color);
 		return ([
 			"name": c->name || L10n[c->tag] || c->tag,
 			"tech": ({(int)c->technology->adm_tech, (int)c->technology->dip_tech, (int)c->technology->mil_tech}),
@@ -700,6 +702,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			"hre": capital->hre, //If the country's capital is in the HRE, the country itself is part of the HRE.
 			"development": c->development,
 			"institutions": `+(@(array(int))c->institutions),
+			"flag": flag,
 		]);
 	};
 	write->countries = filter(write->countries) {return __ARGS__[0];}; //Keep only countries that actually have territory
@@ -1203,15 +1206,20 @@ let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then
 		//TODO: Search for a country by tag, name, etc. Return a redirect to /tag/%s, or maybe a menu.
 		return 0;
 	}
-	if (sscanf(req->not_query, "/flags/%[A-Z_a-z].%s", string tag, string ext) && tag != "" && ext == "png") {
+	if (sscanf(req->not_query, "/flags/%[A-Z_a-z]%[-0-9A-F].%s", string tag, string color, string ext) && tag != "" && ext == "png") {
 		//Generate a country flag in PNG format
 		string tga = Stdio.read_file(PROGRAM_PATH + "/gfx/flags/" + tag + ".tga");
 		if (!tga) return 0;
+		//For colonial nations, instead of using the country's own tag (eg C03), we get
+		//a flag definition based on the parent country and a colour.
+		if (!color || sizeof(color) != 7 || color[0] != '-') color = "";
 		//NOTE: Using weak etags since the result will be semantically identical, but
 		//might not be byte-for-byte (since the conversion to PNG might change it).
-		string etag = sprintf("W/\"%x\"", array_sscanf(Crypto.SHA1.hash(tga), "%20c")[0]);
+		string etag = sprintf("W/\"%x%s\"", array_sscanf(Crypto.SHA1.hash(tga), "%20c")[0], color);
 		if (has_value(req->request_headers["if-none-match"] || "", etag)) return (["error": 304]); //Already in cache
 		Image.Image img = Image.TGA.decode(tga);
+		if (sscanf(color, "-%2x%2x%2x", int r, int g, int b))
+			img->box(img->xsize() / 2, 0, img->xsize(), img->ysize(), r, g, b);
 		return ([
 			"type": "image/png", "data": Image.PNG.encode(img),
 			"extra_heads": (["ETag": etag, "Cache-Control": "max-age=604800"]),

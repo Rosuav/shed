@@ -47,7 +47,7 @@ let country_info = { };
 function COUNTRY(tag) {
 	const c = country_info[tag] || {name: tag};
 	return SPAN({className: "country", "data-tag": tag}, [
-		IMG({className: "flag small", src: "/flags/" + tag + ".png", alt: "[flag of " + c.name + "]"}),
+		IMG({className: "flag small", src: "/flags/" + c.flag + ".png", alt: "[flag of " + c.name + "]"}),
 		" " + c.name,
 	]);
 }
@@ -65,7 +65,7 @@ function update_hover_country() {
 	}
 	set_content("#hovercountry", [
 		DIV({className: "close"}, "☒"),
-		IMG({className: "flag large", src: "/flags/" + tag + ".png", alt: "[flag of " + c.name + "]"}),
+		IMG({className: "flag large", src: "/flags/" + c.flag + ".png", alt: "[flag of " + c.name + "]"}),
 		H3(c.name),
 		UL([
 			LI(["Tech: ", ["Adm", "Dip", "Mil"].map((cat, i) => [SPAN(
