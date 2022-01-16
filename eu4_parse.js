@@ -42,7 +42,7 @@ function PROV(id, name, namelast) {
 	]);
 }
 
-let countrytag = "", hovertag = ""; //The country we're looking at (usually a player-owned one)
+let countrytag = "", hovertag = ""; //The country we're focusing on (usually a player-owned one) and the one highlighted.
 let country_info = { };
 function COUNTRY(tag) {
 	const c = country_info[tag] || {name: tag};
