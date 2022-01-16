@@ -121,3 +121,7 @@ color choice can be overridden based on its parent. */
 	margin: 0;
 	text-align: center; /* Center the country name under the flag */
 }
+
+.tech {padding: 0 0.25em;}
+.tech.above {background: #fbd;}
+.tech.below {background: #efe;}

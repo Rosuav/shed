@@ -53,15 +53,26 @@ function COUNTRY(tag) {
 	]);
 }
 function update_hover_country() {
-	//TODO: Show country tech level compared to yours (green = worse tech, red = better tech)
 	const tag = hovertag, c = country_info[tag];
+	const me = country_info[countrytag] || {tech: [0,0,0]};
 	if (!c) {
 		set_content("#hovercountry", "").classList.add("hidden");
 		return;
 	}
+	function attrs(n) {
+		if (n > 0) return {className: "tech above", title: n + " ahead of you"};
+		if (n < 0) return {className: "tech below", title: -n + " behind you"};
+		return {className: "tech same", title: "Same as you"};
+	}
 	set_content("#hovercountry", [
 		IMG({className: "flag large", src: "/flags/" + tag + ".png", alt: "[flag of " + c.name + "]"}),
 		H3(c.name),
+		UL([
+			LI(["Tech: ", ["Adm", "Dip", "Mil"].map((cat, i) => [SPAN(
+				attrs(c.tech[i] - me.tech[i]),
+				cat + " " + c.tech[i],
+			), " "])]),
+		]),
 	]).classList.remove("hidden");
 }
 //Note that there is no mouseout. Once you point to a country, it will remain highlighted (even through savefile updates).
