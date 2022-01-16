@@ -38,6 +38,10 @@ class maparray {
 	array indexed = ({ });
 	multiset _is_auto_array = (<>);
 	object addkey(string key, mixed value) {
+		//HACK: Track country order even though the rest of the file isn't tracked that way
+		//If Pike had an order-retaining mapping, this would be unnecessary. Hmm.
+		if (key == "---" && !retain_map_indices) retain_map_indices = 2;
+		if (key == "countries" && retain_map_indices == 2) retain_map_indices = 0;
 		if (retain_map_indices && mappingp(value)) value |= (["_index": sizeof(keyed)]);
 		keyed[key] = value;
 		return this;
