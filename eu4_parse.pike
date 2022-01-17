@@ -1323,7 +1323,7 @@ let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then
 			etag = sprintf("W/\"%x%s\"", hash, color);
 			if (has_value(req->request_headers["if-none-match"] || "", etag)) return (["error": 304]); //Already in cache
 			if (sscanf(color, "-%2x%2x%2x", int r, int g, int b))
-				img->box(img->xsize() / 2, 0, img->xsize(), img->ysize(), r, g, b);
+				img = img->copy()->box(img->xsize() / 2, 0, img->xsize(), img->ysize(), r, g, b);
 		}
 		//TODO: Mask flags off with shield_mask.tga or shield_fancy_mask.tga or small_shield_mask.tga
 		//I'm using 128x128 everywhere, but the fancy mask (the largest) is only 92x92. For inline
