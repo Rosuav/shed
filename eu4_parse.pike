@@ -1516,7 +1516,7 @@ mapping get_state(string group) {
 			if (sizeof(results) >= 25) break;
 		}
 		if (sizeof(results) < 25) foreach (sort(indices(ret->countries)), string t) {
-			string tryme = ret->countries[t]->name;
+			string tryme = ret->countries[t]->name + " (" + t + ")";
 			string folded = lower_case(tryme); //TODO: As above. Also, dedup if possible.
 			int pos = search(folded, term);
 			if (pos == -1) continue;
