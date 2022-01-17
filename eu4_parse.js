@@ -44,11 +44,12 @@ function PROV(id, name, namelast) {
 
 let countrytag = "", hovertag = ""; //The country we're focusing on (usually a player-owned one) and the one highlighted.
 let country_info = { };
-function COUNTRY(tag) {
+function COUNTRY(tag, nameoverride) {
+	if (tag === "") return "";
 	const c = country_info[tag] || {name: tag};
 	return SPAN({className: "country", "data-tag": tag}, [
 		IMG({className: "flag small", src: "/flags/" + c.flag + ".png", alt: "[flag of " + c.name + "]"}),
-		" " + c.name,
+		" ", nameoverride || c.name,
 	]);
 }
 function update_hover_country() {
@@ -181,7 +182,9 @@ export function render(state) {
 		const focus = input === document.activeElement;
 		set_content("#search", [H3([proventer("search"), "Search results: " + state.search.results.length]),
 			P({className: "indent"}, LABEL(["Search for:", input])),
-			UL(state.search.results.map(info => LI(PROV(info[0], [info[1], STRONG(info[2]), info[3]])))),
+			UL(state.search.results.map(info => LI(
+				(typeof info[0] === "number" ? PROV : COUNTRY)(info[0], [info[1], STRONG(info[2]), info[3]])
+			))),
 		]);
 		if (state.search.term !== input.value) {
 			//Update the input, but avoid fighting with the user
@@ -243,7 +246,7 @@ export function render(state) {
 		});
 		const countries = Object.entries(state.favors.owed).sort((a,b) => b[1][0] - a[1][0]).map(([c, f]) => {
 			++owed_total; if (f[0] >= 10) ++owed;
-			return TR({className: f[0] >= 10 ? "interesting1" : ""}, [TD(c), f.map((n,i) => TD(compare(n, i ? +state.favors.cooldowns[i-1][4] : n)))]);
+			return TR({className: f[0] >= 10 ? "interesting1" : ""}, [TD(COUNTRY(c)), f.map((n,i) => TD(compare(n, i ? +state.favors.cooldowns[i-1][4] : n)))]);
 		});
 		max_interesting.favors = free && owed ? 1 : 0;
 		set_content("#favors", [
@@ -280,13 +283,13 @@ export function render(state) {
 						"Total", "Manpower", ABBR({title: "Army professionalism"}, "Prof"),
 						ABBR({title: "Army tradition"}, "Trad"),
 					]),
-					war.armies.map(army => TR({className: army[0].replace(",", "-")}, army.slice(1).map(x => TD(x ? ""+x : "")))),
+					war.armies.map(army => TR({className: army[0].replace(",", "-")}, [TD(COUNTRY(army[1])), army.slice(2).map(x => TD(x ? ""+x : ""))])),
 				]),
 				TABLE({border: "1"}, [
 					table_head(["Country", "Heavy", "Light", "Galley", "Transport", "Total", "Sailors",
 						ABBR({title: "Navy tradition"}, "Trad"),
 					]),
-					war.navies.map(navy => TR({className: navy[0].replace(",", "-")}, navy.slice(1).map(x => TD(x ? ""+x : "")))),
+					war.navies.map(navy => TR({className: navy[0].replace(",", "-")}, [TD(COUNTRY(navy[1])), navy.slice(2).map(x => TD(x ? ""+x : ""))])),
 				]),
 			]);
 		})]);
@@ -372,14 +375,14 @@ export function render(state) {
 		SUMMARY("Flagships of the World (" + state.flagships.length + ")"),
 		TABLE({border: true}, [
 			table_head(["Country", "Fleet", "Vessel", "Modifications", "Built by"]),
-			state.flagships.map(f => TR([TD(f[0]), TD(f[1]), TD(f[2] + ' "' + f[3] + '"'), TD(f[4].join(", ")), TD(f[5])])),
+			state.flagships.map(f => TR([TD(COUNTRY(f[0])), TD(f[1]), TD(f[2] + ' "' + f[3] + '"'), TD(f[4].join(", ")), TD(f[5])])),
 		]),
 	]);
 	if (state.truces) set_content("#truces", [
 		SUMMARY("Truces: " + state.truces.map(t => t.length - 1).reduce((a,b) => a+b, 0) + " countries, " + state.truces.length + " blocks"),
 		state.truces.map(t => [
 			H3(t[0]),
-			UL(t.slice(1).map(c => LI(c))),
+			UL(t.slice(1).map(c => LI(COUNTRY(c)))),
 		]),
 	]);
 	if (state.cbs) set_content("#cbs", [

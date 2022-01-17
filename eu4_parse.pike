@@ -478,7 +478,7 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 		mapping owed = ([]);
 		foreach (data->countries; string other; mapping c) {
 			int favors = threeplace(c->active_relations[tag]->?favors);
-			if (favors > 0) owed[c->name || L10n[other] || other] = ({favors / 1000.0}) + estimate_per_month(data, c)[*] * 6;
+			if (favors > 0) owed[other] = ({favors / 1000.0}) + estimate_per_month(data, c)[*] * 6;
 		}
 		write->favors = (["cooldowns": cooldowns, "owed": owed]);
 		return;
@@ -750,7 +750,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		if (mon > 12) mon -= 12;
 		string key = sprintf("%04d.%02d", year, mon);
 		if (!truces[key]) truces[key] = ({sprintf("%s %d", ("- Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec" / " ")[mon], year)});
-		truces[key] += ({c->name || L10n[other] || other});
+		truces[key] += ({other});
 		if (mapping info = write->countries[other]) info->truce = truces[key][0];
 	}
 	sort(indices(truces), write->truces = values(truces));
@@ -842,20 +842,20 @@ void analyze_flagships(mapping data, function|mapping write) {
 				string was = ship->flagship->is_captured && ship->flagship->original_owner;
 				string cap = was ? " CAPTURED from " + (data->countries[was]->name || L10n[was] || was) : "";
 				if (mappingp(write)) flagships += ({({
-					country->name || L10n[tag] || tag, fleet->name,
-					String.capitalize(ship->type), ship->name,
-					ship->flagship->modification,
+					tag, fleet->name,
+					L10n[ship->type], ship->name,
+					L10n[ship->flagship->modification[*]],
 					ship->flagship->is_captured ? (data->countries[was]->name || L10n[was] || was) : ""
 				})});
 				else flagships += ({({
 					string_to_utf8(sprintf("\e[1m%s\e[0m - %s: \e[36m%s %q\e[31m%s\e[0m",
 						country->name || L10n[tag] || tag, fleet->name,
-						String.capitalize(ship->type), ship->name, cap)),
+						L10n[ship->type], ship->name, cap)),
 					//Measure size without colour codes or UTF-8 encoding
 					sizeof(sprintf("%s - %s: %s %q%s",
 						country->name || L10n[tag] || tag, fleet->name,
-						String.capitalize(ship->type), ship->name, cap)),
-					ship->flagship->modification * ", ",
+						L10n[ship->type], ship->name, cap)),
+					L10n[ship->flagship->modification[*]] * ", ",
 				})});
 				//write("%O\n", ship->flagship);
 			}
@@ -958,7 +958,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|mapping|void wri
 				-total_army * 1000000000 - mp,
 				({
 					side,
-					country->name || L10n[p->tag] || p->tag,
+					mappingp(write) ? p->tag : country->name || L10n[p->tag] || p->tag,
 					mil->infantry, mil->cavalry, mil->artillery,
 					mil->merc_infantry, mil->merc_cavalry, mil->merc_artillery,
 					total_army, mp,
@@ -973,7 +973,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|mapping|void wri
 				-total_navy * 1000000000 - sailors,
 				({
 					side,
-					country->name || L10n[p->tag] || p->tag,
+					mappingp(write) ? p->tag : country->name || L10n[p->tag] || p->tag,
 					mil->heavy_ship, mil->light_ship, mil->galley, mil->transport, total_navy, sailors,
 					sprintf("%3.0f%%", (float)country->navy_tradition),
 				}),
@@ -1276,10 +1276,6 @@ let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then
 </script><main></main></body></html>
 ", Protocols.HTTP.uri_decode(tag || "?!?")),
 	]);
-	if (req->not_query == "/search") {
-		//TODO: Search for a country by tag, name, etc. Return a redirect to /tag/%s, or maybe a menu.
-		return 0;
-	}
 	if (sscanf(req->not_query, "/flags/%[A-Z_a-z]%[-0-9A-F].%s", string tag, string color, string ext) && tag != "" && ext == "png") {
 		//Generate a country flag in PNG format
 		string etag; Image.Image img;
@@ -1503,20 +1499,33 @@ mapping get_state(string group) {
 
 	string term = prefs->search;
 	array results = ({ }), order = ({ });
-	if (term != "") foreach (sort(indices(data->provinces)), string id) { //Sort by ID for consistency
-		mapping prov = data->provinces[id];
-		foreach (({({prov->name, ""})}) + (province_localised_names[id - "-"]||({ })), [string tryme, string lang]) {
-			string folded = lower_case(tryme); //TODO: Fold to ASCII for the search
+	if (term != "") {
+		foreach (sort(indices(data->provinces)), string id) { //Sort by ID for consistency
+			mapping prov = data->provinces[id];
+			foreach (({({prov->name, ""})}) + (province_localised_names[id - "-"]||({ })), [string tryme, string lang]) {
+				string folded = lower_case(tryme); //TODO: Fold to ASCII for the search
+				int pos = search(folded, term);
+				if (pos == -1) continue;
+				int end = pos + sizeof(term);
+				string before = tryme[..pos-1], match = tryme[pos..end-1], after = tryme[end..];
+				if (lang != "") {before = prov->name + " (" + lang + ": " + before; after += ")";}
+				results += ({({(int)(id - "-"), before, match, after})});
+				order += ({folded}); //Is it better to sort by the folded or by the tryme?
+				break;
+			}
+			if (sizeof(results) >= 25) break;
+		}
+		if (sizeof(results) < 25) foreach (sort(indices(ret->countries)), string t) {
+			string tryme = ret->countries[t]->name;
+			string folded = lower_case(tryme); //TODO: As above. Also, dedup if possible.
 			int pos = search(folded, term);
 			if (pos == -1) continue;
 			int end = pos + sizeof(term);
 			string before = tryme[..pos-1], match = tryme[pos..end-1], after = tryme[end..];
-			if (lang != "") {before = prov->name + " (" + lang + ": " + before; after += ")";}
-			results += ({({id - "-", before, match, after})});
-			order += ({folded}); //Is it better to sort by the folded or by the tryme?
-			break;
+			results += ({({t, before, match, after})});
+			order += ({folded});
+			if (sizeof(results) >= 25) break;
 		}
-		if (sizeof(results) >= 25) break;
 	}
 	sort(order, results); //Sort by name for the actual results. So if it's truncated to 25, it'll be the first 25 by (string)id, but they'll be in name order.
 	ret->search = (["term": term, "results": results]);
