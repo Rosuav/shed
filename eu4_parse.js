@@ -66,8 +66,10 @@ function update_hover_country() {
 	}
 	set_content("#hovercountry", [
 		DIV({className: "close"}, "☒"),
-		IMG({className: "flag large", src: "/flags/" + c.flag + ".png", alt: "[flag of " + c.name + "]"}),
-		H3(c.name),
+		A({href: "/tag/" + hovertag, target: "_blank"}, [
+			IMG({className: "flag large", src: "/flags/" + c.flag + ".png", alt: "[flag of " + c.name + "]"}),
+			H3(c.name),
+		]),
 		UL([
 			LI(["Tech: ", ["Adm", "Dip", "Mil"].map((cat, i) => [SPAN(
 				attrs(c.tech[i] - me.tech[i]),
