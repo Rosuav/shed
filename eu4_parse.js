@@ -136,8 +136,8 @@ export function render(state) {
 		IMG({className: "flag large", id: "playerflag", alt: "[flag of player's nation]"}),
 		H1({id: "player"}),
 		DETAILS({id: "selectprov"}, [
-			SUMMARY("Find a province"),
-			DIV({id: "search"}, H3("Search for a province")),
+			SUMMARY("Find a province/country"),
+			DIV({id: "search"}, H3("Search for a province or country")),
 			DIV({id: "pin"}, H3("Pinned provinces")),
 		]),
 		DETAILS({id: "cot"}, SUMMARY("Centers of Trade")),
