@@ -34,7 +34,7 @@ function PROV(id, name, namelast) {
 		if (provgroups[g].indexOf(id) < 0) provgroups[g].push(id);
 	}
 	const pin = pinned_provinces[id], disc = discovered_provinces[id];
-	return DIV({className: "province"}, [
+	return SPAN({className: "province"}, [
 		!namelast && name,
 		SPAN({className: "goto-province provbtn", title: (disc ? "Go to #" : "Terra Incognita, cannot goto #") + id, "data-provid": id}, disc ? "🔭" : "🌐"),
 		SPAN({className: "pin-province provbtn", title: (pin ? "Unpin #" : "Pin #") + id, "data-provid": id}, pin ? "⛳" : "📌"),
@@ -76,13 +76,16 @@ function update_hover_country() {
 				cat + " " + c.tech[i],
 			), " "])]),
 			LI(["Capital: ", PROV(c.capital, c.capitalname, 1), c.hre && SPAN({title: "Member of the HRE"}, "👑")]),
-			LI("Provinces: " + c.province_count + " (total " + c.development + " dev)"),
+			LI(["Provinces: " + c.province_count + " (",
+				SPAN({title: "Total province development, modified by local autonomy"}, c.development + " dev"), ")"]),
 			LI(["Institutions embraced: ", SPAN(attrs(c.institutions - me.institutions), ""+c.institutions)]),
 			LI(["Opinion: ", B({title: "Their opinion of you"}, c.opinion_theirs),
 				" / ", B({title: "Your opinion of them"}, c.opinion_yours)]),
+			LI(["Mil units: ", SPAN(attrs(c.armies - me.armies), c.armies + " land"),
+				" ", SPAN(attrs(c.navies - me.navies), c.navies + " sea")]),
 			c.subjects && LI("Subject nations: " + c.subjects),
 			c.alliances && LI("Allied with: " + c.alliances),
-			c.overlord && LI(["Is a ", B(c.subject_type), " of ", COUNTRY(c.overlord)]),
+			c.overlord && LI([B(c.subject_type), " of ", COUNTRY(c.overlord)]),
 		]),
 	]).classList.remove("hidden");
 }

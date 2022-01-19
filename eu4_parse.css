@@ -75,9 +75,7 @@ color choice can be overridden based on its parent. */
 	padding: 0 0.5em;
 }
 
-.province {
-	display: inline-block;
-}
+.province,.country {white-space: nowrap;}
 #upgradeables .province {margin-left: 1em;}
 
 #interesting_details {margin: 0;}
@@ -118,6 +116,11 @@ color choice can be overridden based on its parent. */
 	border: 1px solid black;
 	padding: 0.5em;
 	position: relative;
+	max-width: 251px;
+}
+#hovercountry li {
+	padding-left: 1em; /* Indent wrapped lines */
+	text-indent: -1em;
 }
 #hovercountry h3 {
 	margin: 0;

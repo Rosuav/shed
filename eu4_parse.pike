@@ -701,6 +701,8 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			"flag": flag,
 			"opinion_theirs": c->opinion_cache[country->_index],
 			"opinion_yours": country->opinion_cache[c->_index],
+			"armies": sizeof(Array.arrayify(c->army)),
+			"navies": sizeof(Array.arrayify(c->navy)),
 		]);
 	};
 	write->countries = filter(write->countries) {return __ARGS__[0];}; //Keep only countries that actually have territory
