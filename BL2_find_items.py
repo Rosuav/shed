@@ -21,7 +21,7 @@ import random
 from fnmatch import fnmatch
 from dataclasses import dataclass # ImportError? Upgrade to Python 3.7 or pip install dataclasses
 from pprint import pprint
-import lzo # ImportError? pip install python-lzo (or downgrade to Python 3.9 possibly)
+import lzo # ImportError? pip install python-lzo
 from BL1_find_items import FunctionArg, Consumable
 
 # python-lzo 1.12 on Python 3.8 causes a DeprecationWarning regarding arg parsing with integers.
