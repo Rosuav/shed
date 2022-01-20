@@ -173,7 +173,7 @@ def get_piece_options(obj):
 	pieces = [None] * len(obj.partnames)
 	while checkme:
 		print(checkme)
-		if "parts" not in allbal[checkme] and "type" in allbal[checkme]:
+		if "type" in allbal[checkme]:
 			# FIXME: When working with turtle shields, need to look up the type, but they
 			# also have some parts in the balance. Maybe always look up both and merge??
 			# Some items don't have their parts in their balance definition, but they have
@@ -181,7 +181,7 @@ def get_piece_options(obj):
 			typeinfo = get_asset(cls + " Types")[allbal[checkme]["type"]]
 			pieces = [p or typeinfo.get(part + "_parts") for p, part in zip(pieces, obj.partnames)]
 			# Is it possible to have a base but no parts?
-			break
+		if "parts" not in allbal[checkme]: break
 		parts = allbal[checkme]["parts"]
 		pieces = [p or parts.get(part) for p, part in zip(pieces, obj.partnames)]
 		checkme = allbal[checkme].get("base")
