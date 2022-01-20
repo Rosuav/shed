@@ -113,13 +113,18 @@ def item(savefile, bal):
 	# eg GD_Ma_Weapons.Glitch_Attachments.Glitch_Attachment_0421 gives O0L4M2A1.
 	# Other attachments have the internal name give an Amplify value higher by one
 	# eg GD_Ma_Weapons.Glitch_Attachments.Glitch_Attachment_2144 is O2L1M4A3. Odd.
+	bal, _, type = bal.partition("/")
 	try:
 		balance = get_balance_info(0, bal)
 		is_weapon = 0
 	except KeyError:
 		balance = get_balance_info(1, bal)
 		is_weapon = 1
-	if "type" in balance: type = balance["type"]
+	if type:
+		# Custom type selected. Ensure that it's valid.
+		if type not in balance.get("types", [balance.get("type")]):
+			print("\nType invalid, will probably break")
+	elif "type" in balance: type = balance["type"]
 	else: type = balance["types"][0]
 	typeinfo = get_asset("Weapon Types" if is_weapon else "Item Types")[type]
 	def p(part):
@@ -199,6 +204,12 @@ def crossproduct(savefile, baseid):
 			if fixed.startswith("-") and fixed[1:] in obj.partnames:
 				# Specify "-delta" to have nothing in slot delta
 				pieces[partnames.index(fixed[1:])] = [None]
+				continue
+			if fixed.startswith("pfx-"):
+				obj.pfx = fixed[4:] # Hack: Directly change the basis object
+				continue
+			if fixed.startswith("title-"):
+				obj.title = fixed[4:]
 				continue
 			for n, p in enumerate(pieces):
 				if fixed in p:
