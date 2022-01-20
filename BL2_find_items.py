@@ -429,6 +429,10 @@ library = {
 		"BwAAADIFS20A5dYAwOjFy36jlwaOWhu9DQCq+cYQIWYwsKlW6fs": "Flame of the Firehawk",
 		"BwAAADIFS20A5dYAwOjWS7qYugbmPhu7DWqq+cUQYWcwsSlYaeg": "Chitinous Turtle Shield", # Massive capacity, slow recharge.
 		"BwAAADIFS20A5dYAwOjWy76YugZn0hu7DWqq+cUQ4WcwtqlWaeg": "Selected Turtle Shield", # A bit less capacity but better recharge
+		"BwAAADIFS20A5dYAwKjWS76YugbEWRu7DTSq+cUQ4WcwsalWaeg": "Fit Turtle Shield", # Blue rarity
+		"BwAAADIFS20A5dYAwGjoi8MYlgbWihu0DTaqGccQYWcwsalWqdc": "Supersized Shield", # Blue rarity, nice and vanilla
+		"BwAAADIFS20A5dYAwKjdy80Y0wa1HhuxDTqq+cYQ4WcwsalW6bU": "Devastating Fire Nova Shield", # Blue rarity
+		"BwAAADIFS20A5dYAwKjQS7WYrwYKFBu5DSqqGcYQ4WcwsalWae4": "Hippocratic Adaptive Shield", # Blue rarity
 		"BwAAADIFS20A5dYAwGidy36j2ga/nRukDXaq+cYQ4WcwsalW6aw": "Black Hole", # Good capacity, moderate nova
 		"BwAAADIFS20A5dYAwGidy4yY2gbR0RukDXaq+cYQIWfwsWlX6aw": "Grounded Black Hole", # Great nova, lower capacity
 		"BwAAADIiS20A5dYAwGjK7H4jgSGEjRK9Cgu66sYQ4WcwsalWqfU": "Antagonist",
@@ -438,6 +442,7 @@ library = {
 		"hwAAADKNsQoA5dYAwGidjDhd4s8iQdS8mCyKu9EDK2P17C3D7zJN": "Kull Trespasser", # Hard
 		"hwAAADINsArjKkufwWgdL60Yg0A0ere9n6yL+cYDKzv21C2jbARN": "Monstrous Pimpernel", # Slag
 		"hwAAADLNsYrjKkufwWhFjagY08kiKwG8n0yJu8cDK+/21C3z5DJN": "Monstrous Railer", # Acid
+		"hwAAADJNsQrkKkufwWipjagYQ8EiWeu8nwyIu8cDKzv21C1D7DJN": "Monstrous Snider", # Elec (blue rarity)
 		"hwAAADINsArkKkufwWhljZgYA8kiXSS8nAyOu9sDKwv21C3z5xJN": "Resource Invader", # Burst-fire elec, good for bosses maybe
 		# Kabooms
 		"hwAAADJEr5j3Dj/XwWihrbFeUUcm76O8XCOIxdkDKwPWvW4Ba9ZI": "Bonus Launcher",
@@ -485,11 +490,13 @@ library = {
 		"BwAAADI+S20A5dYAwCjJjpkdgAMXxxubEXyr+cYQoWO1tGxQLAs": "Legendary Siren",
 		"BwAAADI+S20A5dYAwKjOzpsdgAPwuBuUEX6r+cYQIWO1tGxQLAs": "Chrono Binder", # Left tree focus
 		"BwAAADI+S20A5dYAwKjODpodgAMyehuUEX6r+cYQoWG1tGxQLAs": "Hell Binder", # Right tree focus
+		"BwAAADI+S20A5dYAwCjOzpsdgAMCwxuUEXirGcYQ4WO1tGxQLAs": "Chrono Binder Class Mod", # Blue rarity
 		# Assassin:
 		"BwAAADI+S20A5dYAwOjJzogdgAMXIBufEZarmccQoWO1tGxQLAs": "Slayer Of Terramorphous Class Mod",
 		# Merc:
 		"BwAAADI+S20A5dYAwKjOzogdgAM/jBueEYCr2ccQoWN1t6xQLAs": "Slayer Of Terramorphous",
 		"BwAAADI+S20A5dYAwKjOTqMdgANlvhugEYyrWccQoWG1tGxQLAs": "Lucky Hoarder",
+		"BwAAADI+S20A5dYAwCjOTqMdgAO6yBugEY6rGcYQYWC1tGxQLAs": "Lucky Hoarder Class Mod", # Blue rarity
 		"BwAAADI+S20A5dYAwKjOzoA8gAPF5RG0HA0KSscQoWO1tGxQLAs": "Legendary Hoarder", # Synthesized, unconfirmed.
 		"BwAAADI+S20A5dYAwCjJDoI8gAP3KRG7HA0KascQoWO1tGxQLAs": "Legendary Gunzerker",
 		"BwAAADI+S20AJSlfPXdifokcgMPMlQqOBQSK/RcqeJk": "Blood of the Ancients", # SMG and Launcher ammo - other options available
