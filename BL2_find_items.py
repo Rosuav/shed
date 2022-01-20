@@ -169,6 +169,8 @@ def get_piece_options(obj):
 	while checkme:
 		print(checkme)
 		if "parts" not in allbal[checkme] and "type" in allbal[checkme]:
+			# FIXME: When working with turtle shields, need to look up the type, but they
+			# also have some parts in the balance. Maybe always look up both and merge??
 			# Some items don't have their parts in their balance definition, but they have
 			# a type definition that has them instead.
 			typeinfo = get_asset(cls + " Types")[allbal[checkme]["type"]]
