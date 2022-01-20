@@ -203,13 +203,16 @@ def crossproduct(savefile, baseid):
 				continue
 			if fixed.startswith("-") and fixed[1:] in obj.partnames:
 				# Specify "-delta" to have nothing in slot delta
-				pieces[partnames.index(fixed[1:])] = [None]
+				pieces[obj.partnames.index(fixed[1:])] = [None]
 				continue
 			if fixed.startswith("pfx-"):
 				obj.pfx = fixed[4:] # Hack: Directly change the basis object
 				continue
 			if fixed.startswith("title-"):
-				obj.title = fixed[4:]
+				obj.title = fixed[6:]
+				continue
+			if fixed.startswith("material-"):
+				obj.material = fixed[9:]
 				continue
 			for n, p in enumerate(pieces):
 				if fixed in p:
