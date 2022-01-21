@@ -106,6 +106,16 @@ def invdup(savefile, level):
 				it.seed = random.randrange(1<<31)
 				savefile.add_inventory(it)
 
+def get_part_list(cls, lst):
+	if isinstance(lst, str):
+		# Instead of having all the parts here, they're a reference to another file
+		bal = get_asset(cls + " Balance Part Lists").get(lst)
+		if bal: return bal
+		type = get_asset(cls + " Part Lists").get(lst)
+		if type: return type
+		return [] # Unknown
+	return lst
+
 @synthesizer
 def item(savefile, bal):
 	"""Synthesize some possible weapon/item based on its Balance definition"""
@@ -122,15 +132,18 @@ def item(savefile, bal):
 		is_weapon = 1
 	if type:
 		# Custom type selected. Ensure that it's valid.
-		if type not in balance.get("types", [balance.get("type")]):
+		if type not in balance.get("types", [balance.get("type"), balance.get("item")]):
 			print("\nType invalid, will probably break")
 	elif "type" in balance: type = balance["type"]
+	elif "item" in balance: type = balance["item"]
+	elif "weapon_type" in balance: type = balance["weapon_type"]
+	elif "item_type" in balance: type = balance["item_type"]
 	else: type = balance["types"][0]
 	typeinfo = get_asset("Weapon Types" if is_weapon else "Item Types")[type]
 	def p(part):
-		b = balance.get(part)
+		b = get_part_list("Weapon" if is_weapon else "Item", balance.get(part))
 		if b: return b[0]
-		t = typeinfo.get(part + "_parts")
+		t = get_part_list("Weapon" if is_weapon else "Item", typeinfo.get(part + "_parts"))
 		if t: return t[0]
 		return None
 	def sp(name): return name and strip_prefix(name)
@@ -178,11 +191,11 @@ def get_piece_options(obj):
 			# also have some parts in the balance. Maybe always look up both and merge??
 			# Some items don't have their parts in their balance definition, but they have
 			# a type definition that has them instead.
-			typeinfo = get_asset(cls + " Types")[allbal[checkme]["type"]]
-			pieces = [p or typeinfo.get(part + "_parts") for p, part in zip(pieces, obj.partnames)]
+			typeinfo = get_asset(cls + " Types")[allbal[checkme]["item"]]
+			pieces = [p or get_part_list(cls, typeinfo.get(part + "_parts")) for p, part in zip(pieces, obj.partnames)]
 			# Is it possible to have a base but no parts?
 			break
-		parts = allbal[checkme]["parts"]
+		parts = get_part_list(cls, allbal[checkme]["parts"])
 		pieces = [p or parts.get(part) for p, part in zip(pieces, obj.partnames)]
 		checkme = allbal[checkme].get("base")
 	return [p1 or [p2] for p1, p2 in zip(pieces, obj.pieces)] # Any still unfound, just leave the current piece (or None) in them
@@ -430,6 +443,7 @@ library = {
 		"BwAAADIFS20A5dYAwGjoi8MYlgbWihu0DTaqGccQYWcwsalWqdc": "Supersized Shield", # Blue rarity, nice and vanilla
 		"BwAAADIFS20A5dYAwKjdy80Y0wa1HhuxDTqq+cYQ4WcwsalW6bU": "Devastating Fire Nova Shield", # Blue rarity
 		"BwAAADIFS20A5dYAwKjQS7WYrwYKFBu5DSqqGcYQ4WcwsalWae4": "Hippocratic Adaptive Shield", # Blue rarity
+		"BwAAADIFS20A5dYAwKjRy7gYtQYY9Ru6DTCqOccQoWQwselXae8": "Action Itemized Amplify Shield", # Blue rarity
 		"BwAAADIFS20A5dYAwGidy36j2ga/nRukDXaq+cYQ4WcwsalW6aw": "Black Hole", # Good capacity, moderate nova
 		"BwAAADIFS20A5dYAwGidy4yY2gbR0RukDXaq+cYQIWfwsWlX6aw": "Grounded Black Hole", # Great nova, lower capacity
 		"BwAAADIiS20A5dYAwGjK7H4jgSGEjRK9Cgu66sYQ4WcwsalWqfU": "Antagonist",
@@ -590,7 +604,7 @@ library = {
 
 # Requires access to the Gibbed data files. One version works on pre-Commander-Lilith game files,
 # the other on post-Commander, since that update changed a bunch of stuff.
-ASSET_PATH = "../GibbedBL2/Gibbed.Borderlands{game}/projects/Gibbed.Borderlands{game}.GameInfo/Resources/{fn}s.json"
+ASSET_PATH = "../GibbedBL2/Gibbed.Borderlands{game}/projects/Gibbed.Borderlands{game}.GameInfo/Resources/{fn}.json"
 ASSET_PATH = "../Borderlands{game}Dumps/{fn}.json"
 def get_asset(fn, cache={}):
 	if fn not in cache:
@@ -610,7 +624,10 @@ def get_asset_library_manager():
 		for set in config["sets"]:
 			for field, libinfo in set["libraries"].items():
 				for sublib, info in enumerate(libinfo["sublibraries"]):
-					for asset, name in enumerate(info["assets"]):
+					for asset, name in enumerate(info.get("assets", [])):
+						# HACK: Exclude everything from the Commander Lilith DLC
+						# I'm seeing a bunch of duplication that is causing issues.
+						if "Anemone" in info["package"]: continue
 						if args.verify and name in cfg[field]:
 							print("Got duplicate", field, name, cfg[field][name], (set["id"], sublib, asset))
 						cfg[field][name] = set["id"], sublib, asset, info["package"]
@@ -629,6 +646,9 @@ def get_balance_info(is_weapon, balance):
 	ret = {k:v for k,v in base.items() if k != "parts"}
 	for k,v in info.items():
 		if k == "parts":
+			if isinstance(v, str):
+				# Instead of having all the parts here, they're a reference to another file
+				v = get_asset(cls + " Balance Part Lists")[v]
 			mode = v.get("mode")
 			# I *think* that Complete means to ignore the base? There never seems to be a base anyhow.
 			if mode == "Complete": ret["parts"] = { }
