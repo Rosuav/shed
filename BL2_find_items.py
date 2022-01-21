@@ -141,14 +141,15 @@ def item(savefile, bal):
 	else: type = balance["types"][0]
 	typeinfo = get_asset("Weapon Types" if is_weapon else "Item Types")[type]
 	def p(part):
-		b = get_part_list("Weapon" if is_weapon else "Item", balance.get(part))
+		b = balance.get(part) or balance["parts"].get(part)
 		if b: return b[0]
-		t = get_part_list("Weapon" if is_weapon else "Item", typeinfo.get(part + "_parts"))
+		# if b is not None: return None # If balance returns [], return None, don't look at the type. Maybe. Not sure.
+		t = get_part_list("Weapon" if is_weapon else "Item", typeinfo.get(part + "_parts", typeinfo.get(part + "s")))
 		if t: return t[0]
 		return None
 	def sp(name): return name and strip_prefix(name)
 	lvl = savefile if isinstance(savefile, int) else savefile.level
-	obj = Asset(seed=random.randrange(1<<31), is_weapon=is_weapon, type=sp(type), balance=bal,
+	obj = Asset(seed=random.randrange(1<<31), is_weapon=is_weapon, type=sp(type), balance=sp(bal),
 		brand=sp(balance["manufacturers"][0]), grade=lvl, stage=lvl,
 		pieces=[sp(p(n)) for n in partnames(is_weapon)], material=sp(p("material")),
 		pfx=sp(typeinfo.get("prefixes", [None])[0]), title=sp(typeinfo.get("titles", [None])[0]))
@@ -195,7 +196,7 @@ def get_piece_options(obj):
 			pieces = [p or get_part_list(cls, typeinfo.get(part + "_parts")) for p, part in zip(pieces, obj.partnames)]
 			# Is it possible to have a base but no parts?
 			break
-		parts = get_part_list(cls, allbal[checkme]["parts"])
+		
 		pieces = [p or parts.get(part) for p, part in zip(pieces, obj.partnames)]
 		checkme = allbal[checkme].get("base")
 	return [p1 or [p2] for p1, p2 in zip(pieces, obj.pieces)] # Any still unfound, just leave the current piece (or None) in them
@@ -279,11 +280,8 @@ def tweak(savefile, baseid):
 	def opt(f): get_balance_options[f.__name__] = f
 	@opt
 	def type(info):
-		if "type" in info:
-			# The type could come from info["type"] or from info["types"].
-			if "types" not in info: info["types"] = [info["type"]]
-			elif info["type"] not in info["types"]: info["types"].append(info["type"])
-		return info["types"]
+		if "types" in info: return info["types"]
+		return list(filter(None, (info.get(x) for x in "type item weapon_type item_type".split())))
 	@opt
 	def brand(info): return info["manufacturers"]
 	@opt
@@ -343,7 +341,7 @@ def tweak(savefile, baseid):
 			stdscr.refresh()
 			key = stdscr.getkey()
 			# Filter, select, enter to change item. Example: Typing "maliwan" will let
-			# you go "enter, down, enter, down enter" to make an all-Maliwan item.
+			# you go "enter, down, enter, down, enter" to make an all-Maliwan item.
 			if key == "\x1b":
 				if filter: filter = ""
 				else: break
@@ -367,7 +365,9 @@ def tweak(savefile, baseid):
 					obj.pieces[obj.partnames.index(selectme[0])] = selectme[1] if selectme[1] != "None" else None
 				else:
 					setattr(obj, selectme[0], selectme[1] if selectme[1] != "None" else None)
-			elif key == "KEY_ENTER": savefile.add_inventory(obj) # Keypad enter to take the item
+			elif key == "KEY_ENTER": # Keypad enter to take the item
+				obj.seed = random.randrange(1<<31)
+				savefile.add_inventory(obj)
 			elif key == "KEY_IC": filter = repr(stdscr.getkey()) # Debug - hit Insert then a key to see its name
 
 parser = argparse.ArgumentParser(description="Borderlands 2/Pre-Sequel save file reader")
