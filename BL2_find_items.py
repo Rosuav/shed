@@ -588,12 +588,14 @@ library = {
 	},
 }
 
-# Requires access to the Gibbed data files.
-ASSET_PATH = "../GibbedBL2/Gibbed.Borderlands%s/projects/Gibbed.Borderlands%s.GameInfo/Resources/%s.json"
+# Requires access to the Gibbed data files. One version works on pre-Commander-Lilith game files,
+# the other on post-Commander, since that update changed a bunch of stuff.
+ASSET_PATH = "../GibbedBL2/Gibbed.Borderlands{game}/projects/Gibbed.Borderlands{game}.GameInfo/Resources/{fn}s.json"
+ASSET_PATH = "../Borderlands{game}Dumps/{fn}.json"
 def get_asset(fn, cache={}):
 	if fn not in cache:
-		if GAME == "borderlands 2": path = ASSET_PATH % ("2", "2", fn)
-		else: path = ASSET_PATH % ("Oz", "Oz", fn)
+		if GAME == "borderlands 2": path = ASSET_PATH.format(game="2", fn=fn)
+		else: path = ASSET_PATH.format(game="Oz", fn=fn)
 		with open(path, "rb") as f: cache[fn] = json.load(f)
 	return cache[fn]
 
