@@ -62,7 +62,7 @@ PIGMENTS = {
 	"Sky Blue": (0x57, 0xCE, 0xFA), # Bg
 	# Special colors, not part of the primary/secondary pattern
 	"Rebecca Purple": (0x66, 0x33, 0x99),
-	"Chocolate": (0xD2, 0x69, 0x1E),
+	"Chocolate": (0x7B, 0x3F, 0x11),
 	"Alice Blue": (0xF0, 0xF8, 0xFE),
 }
 STRENGTHS = "spot", "spoonful", "splash"
@@ -101,7 +101,7 @@ with open("../tmp/mixing.html", "w") as f:
 			swatches.append('<div class="swatch %s-%d">%s-%s</div>' % (name, i, pigment, STRENGTHS[strength - 1]))
 			print(".%s-%d {background: #%s;}" % (name, i, hexcolor(color)), file=f)
 		print(".%s {background: #%s;}" % (name, hexcolor(color)), file=f)
-		swatches.append('==&gt; <div class="swatch %s">%s: %s</div>' % (name, name, hexcolor(color)))
+		swatches.append('==&gt; %s: %s' % (name, hexcolor(color)))
 		swatches.append('</p>')
 	print("</style>", file=f)
 	print("\n".join(swatches), file=f)
