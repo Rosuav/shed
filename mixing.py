@@ -71,27 +71,36 @@ rounding or inaccuracies.)
 STANDARD_BASE = 0xF5, 0xF5, 0xDC
 
 def _mix_part(base, modifier):
-	effect = modifier / 256
-	return base * (effect ** 0.25)
+	effect = 1 - (1 - (modifier / 256)) / 5
+	return base * effect
 def mix(base, modifier):
 	return tuple(_mix_part(b, m) for b, m in zip(base, modifier))
 def hexcolor(color):
-	return "%02X%02X%02X" % tuple(int(c + 0.5) for c in color)
+	return "%02X%02X%02X" % tuple(min(int(c + 0.5), 255) for c in color)
 
 PIGMENTS = {
-	"Crimson": (0xDC, 0x14, 0x3C),
-	"Jade": (0x37, 0xFD, 0x12),
-	"Orchid": (0x1F, 0x45, 0xFC),
-	"Orange": (0xFF, 0x8C, 0x0A), # Rg
+	# Primary colors
+	"Crimson": (0xDC, 0x14, 0x3C), # Red
+	"Jade": (0x37, 0xFD, 0x12), # Green
+	"Cobalt": (0x1F, 0x45, 0xFC), # Blue
+	# Secondary colors
 	"Hot Pink": (0xFF, 0x14, 0x93), # Rb
+	"Orange": (0xFF, 0x8C, 0x0A), # Rg
 	"Lawn Green": (0x9C, 0xFC, 0x0D), # Gr
 	"Spring Green": (0x03, 0xFA, 0x9A), # Gb
-	"Orchid": (0xDA, 0x40, 0xE6), # Br
 	"Sky Blue": (0x57, 0xCE, 0xFA), # Bg
+	"Orchid": (0xDA, 0x40, 0xE6), # Br
 	# Special colors, not part of the primary/secondary pattern
 	"Rebecca Purple": (0x66, 0x33, 0x99),
 	"Chocolate": (0x7B, 0x3F, 0x11),
 	"Alice Blue": (0xF0, 0xF8, 0xFE),
+	"Bulker": tuple(x*2 for x in STANDARD_BASE), # Add more base colour to pale out your paint. Special-case this one and don't show swatches.
+	"Charcoal": (0x44, 0x45, 0x4f),
+	"Beige": STANDARD_BASE, # Yaknow, in case the default beige just isn't beigey enough for you
+	# Special-case this one. Swatch it as a vibrant crimson (fresh blood), but use the actual "Blood" value for mixing (old blood).
+	"Blood-fresh": (0xAA, 0, 0),
+	"Blood": (0x7E, 0x35, 0x17),
+	"Mint Mus": (0x99, 0xFD, 0x97),
 }
 STRENGTHS = "spot", "spoonful", "splash"
 
@@ -153,22 +162,28 @@ def devise_message():
 
 for _ in range(20): print(devise_message())
 
+KEY1 = [("Lawn Green", 3), ("Hot Pink", 1), ("Alice Blue", 3), ("Crimson", 1), ("Orchid", 3)]
+KEY2 = [("Orchid", 2), ("Cobalt", 3), ("Bulker", 3), ("Chocolate", 1), ("Rebecca Purple", 1)]
 patterns = {
 	"Foo": [("Crimson", 3), ("Jade", 1)],
 	"Bar": [("Jade", 1), ("Crimson", 3)],
 	"Fum": [("Crimson", 2), ("Jade", 1), ("Crimson", 1)],
-	"Spam": [("Lawn Green", 3), ("Hot Pink", 1), ("Orchid", 2), ("Spring Green", 1)],
-	"Ham": [("Orchid", 2), ("Spring Green", 1), ("Lawn Green", 3), ("Hot Pink", 1)],
+	"Spam": [*KEY1, *KEY2],
+	"Ham": [*KEY2, *KEY1],
 }
 with open("../tmp/mixing.html", "w") as f:
+	print("<!doctype html><html><body>", file=f)
 	print("<style>", file=f)
 	print(".swatch {display: inline-block; width: 200px; height: 150px; border: 1px solid black;}", file=f)
+	print(".small {width: 160px; height: 120px;}", file=f)
+	print(".label {display: inline-block; height: 120px;}", file=f)
 	print(".base {background: #%s;}" % hexcolor(STANDARD_BASE), file=f)
+	print(".design {display: flex; margin: 8px 0; gap: 5px;}", file=f)
 	swatches = []
 	for name, modifier in PIGMENTS.items():
 		name = name.replace(" ", "")
 		color = STANDARD_BASE
-		swatches.append('<p>')
+		swatches.append('<div class=design>')
 		swatches.append('<div class="swatch base">Base</div>')
 		print(".%s {background: #%s;}" % (name, hexcolor(modifier)), file=f)
 		for strength in STRENGTHS:
@@ -177,18 +192,19 @@ with open("../tmp/mixing.html", "w") as f:
 			swatches.append('<div class="swatch %s-%s">%s-%s</div>' % (name, strength, name, strength))
 			print(".%s-%s {background: #%s;}" % (name, strength, hexcolor(color)), file=f)
 		swatches.append('<div class="swatch %s">%s</div>' % (name, name))
-		swatches.append('</p>')
+		swatches.append('</div>')
 	for name, sequence in patterns.items():
 		color = STANDARD_BASE
-		swatches.append('<p>')
-		swatches.append('<div class="swatch base">Base</div>')
+		swatches.append('<div class=design>')
+		swatches.append('<div class="swatch small base">Base</div>')
 		for i, (pigment, strength) in enumerate(sequence, 1):
 			for _ in range(strength):
 				color = mix(color, PIGMENTS[pigment])
-			swatches.append('<div class="swatch %s-%d">%s-%s</div>' % (name, i, pigment, STRENGTHS[strength - 1]))
+			swatches.append('<div class="swatch small %s-%d">%s-%s</div>' % (name, i, pigment, STRENGTHS[strength - 1]))
 			print(".%s-%d {background: #%s;}" % (name, i, hexcolor(color)), file=f)
 		print(".%s {background: #%s;}" % (name, hexcolor(color)), file=f)
-		swatches.append('==&gt; %s: %s' % (name, hexcolor(color)))
-		swatches.append('</p>')
+		swatches.append('<div class="label">==&gt; %s:<br>%s</div>' % (name, hexcolor(color)))
+		swatches.append('</div>')
 	print("</style>", file=f)
 	print("\n".join(swatches), file=f)
+	print("</body></html>", file=f)
