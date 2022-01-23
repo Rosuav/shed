@@ -107,7 +107,7 @@ MESSAGES = [
 	"Ride the elevator to the 51st floor and {action}. Beware of vertigo.",
 	"Join Agent {codename} in Discord. After five minutes, {action}.",
 	"Locate the nearest fire station and {action}.",
-	"Connect to 93.184.216.34 on port 80.",
+	"Connect to 203.0.113.34 on port 80.",
 	"Proceed to the {codename} theatre in the Arts Centre. At the box office, {action}.",
 	"At the stone circle, find the {codename} and read its inscription.",
 	"Tell {codename} the dancing stones are restless. They will give you a van.",
