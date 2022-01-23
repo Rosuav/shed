@@ -20,6 +20,10 @@ have - "identical", "similar", "different".
 
 With zero private communication, communicate safely.
 
+The trick to it is: Choose *and remember* any combination of pigments. Mix this and leave it under your
+name. Your contact does likewise. Then you pick up your contact's paint pot, and mix in the same pigments
+that you put into your own; contact does likewise with yours. You are now in possession of identically
+coloured pots of paint (which you will not share), and can use them to communicate reliably.
 
 Crucial: Paint mixing. Every paint pot is identified on the server by a unique ID that is *not* defined
 by its composition. When you attempt a mix, you get back a new paint pot, and you (but only you) can see
