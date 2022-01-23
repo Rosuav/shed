@@ -113,6 +113,10 @@ MESSAGES = [
 	"Tell {codename} the dancing stones are restless. They will give you a van.",
 	"Go to Teufort. Find {codename} in RED sewers and {action}.",
 	"Meet me in the coffee shop. I will be wearing a {codename} T-shirt.",
+	"In a garden full of posies, gather flowers. You will be offered an apple. Refuse it.",
+	"Tune in to the classical music station. DJ {codename} will instruct you.",
+	"Buy a Mars Bar and eat it on Venus.",
+	"Borrow Mr {codename}'s camera. If it takes more than one shot, it wasn't a Jakobs.",
 ]
 MESSAGES.extend([m for m in MESSAGES if m.count("{") > 1]) # Increase the weight of those with multiple placeholders.
 
