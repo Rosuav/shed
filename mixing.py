@@ -28,6 +28,19 @@ that you put into your own; contact does likewise with yours. You are now in pos
 coloured pots of paint (which you will not share), and can use them to communicate reliably.
 
 
+Public paint pots starts out with {"Beige": STANDARD_BASE}
+Personal paint pots starts out empty for all players.
+During paint mixing phase, all players may take any base colour (public or personal paint) and add any
+pigments, and can save the current paint to personal collection, optionally with a label.
+Players get one opportunity to post one of their pots in public. All players see it with the name of the
+one who posted it. All players may use it as a base.
+Optional: To avoid too much information leakage through timings, players must explicitly check for public pots?
+Otherwise, push 'em out on websocket.
+When paint mixing phase ends, all players retain access to their personal collections. All players may then
+select one paint colour to post a message with. Once all players have done so, the message board is revealed.
+Success is defined as your contact correctly selecting your message out of all the messages on the board.
+
+
 Crucial: Paint mixing. Every paint pot is identified on the server by a unique ID that is *not* defined
 by its composition. When you attempt a mix, you get back a new paint pot, and you (but only you) can see
 that it's "this base plus these pigments". Everyone else just sees the new ID (if you share it).
@@ -45,6 +58,15 @@ for the darkening effect of the pigmentation?
 
 Note: If both sides choose 3-5 pigments at random, and strengths 1-3 each, this gives about 41 bits of key length.
 Not a lot by computing standards, but 3e12 possibilities isn't bad for a (pseudo-)game.
+
+Current algorithm uses fractions out of 256, then takes the fourth root. It may be worth rationalizing these
+to some nearby approximation, and then differentiating between the "label colour" (the original) and the
+"mixing colour" (the three rationals). This will allow efficient and 100% reproducible colour creation. Do not
+reveal the actual rational numbers that form the resultant colour, as factors may leak information, but it would
+be possible to retain them in that form internally.
+
+(Note that real DHKE uses modulo arithmetic to keep storage requirements sane, so it doesn't have to worry about
+rounding or inaccuracies.)
 """
 STANDARD_BASE = 0xF5, 0xF5, 0xDC
 
