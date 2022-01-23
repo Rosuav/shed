@@ -108,10 +108,10 @@ MESSAGES = [
 	"Join Agent {codename} in Discord. After five minutes, {action}.",
 	"Locate the nearest fire station and {action}.",
 	"Connect to 203.0.113.34 on port 80.",
-	"Proceed to the {codename} theatre in the Arts Centre. At the box office, {action}.",
+	"Proceed to the {codename} theatre in the Arts Centre. At the box office, {action}.", # TODO: Abbreviate (too long, esp w/ action)
 	"At the stone circle, find the {codename} and read its inscription.",
 	"Tell {codename} the dancing stones are restless. They will give you a van.",
-	"Join a TF2 game on 2Fort. Find {codename} in RED sewers and {action}.",
+	"Go to Teufort. Find {codename} in RED sewers and {action}.",
 	"Meet me in the coffee shop. I will be wearing a {codename} T-shirt.",
 ]
 MESSAGES.extend([m for m in MESSAGES if m.count("{") > 1]) # Increase the weight of those with multiple placeholders.
