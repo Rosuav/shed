@@ -54,12 +54,24 @@ PIGMENTS = {
 	"Crimson": (0xDC, 0x14, 0x3C),
 	"Jade": (0x37, 0xFD, 0x12),
 	"Orchid": (0x1F, 0x45, 0xFC),
+	"Orange": (0xFF, 0x8C, 0x0A), # Rg
+	"Hot Pink": (0xFF, 0x14, 0x93), # Rb
+	"Lawn Green": (0x9C, 0xFC, 0x0D), # Gr
+	"Spring Green": (0x03, 0xFA, 0x9A), # Gb
+	"Orchid": (0xDA, 0x40, 0xE6), # Br
+	"Sky Blue": (0x57, 0xCE, 0xFA), # Bg
+	# Special colors, not part of the primary/secondary pattern
+	"Rebecca Purple": (0x66, 0x33, 0x99),
+	"Chocolate": (0xD2, 0x69, 0x1E),
+	"Alice Blue": (0xF0, 0xF8, 0xFE),
 }
 STRENGTHS = "spot", "spoonful", "splash"
 patterns = {
 	"Foo": [("Crimson", 3), ("Jade", 1)],
 	"Bar": [("Jade", 1), ("Crimson", 3)],
 	"Fum": [("Crimson", 2), ("Jade", 1), ("Crimson", 1)],
+	"Spam": [("Lawn Green", 3), ("Hot Pink", 1), ("Orchid", 2), ("Spring Green", 1)],
+	"Ham": [("Orchid", 2), ("Spring Green", 1), ("Lawn Green", 3), ("Hot Pink", 1)],
 }
 with open("../tmp/mixing.html", "w") as f:
 	print("<style>", file=f)
@@ -67,6 +79,7 @@ with open("../tmp/mixing.html", "w") as f:
 	print(".base {background: #%s;}" % hexcolor(STANDARD_BASE), file=f)
 	swatches = []
 	for name, modifier in PIGMENTS.items():
+		name = name.replace(" ", "")
 		color = STANDARD_BASE
 		swatches.append('<p>')
 		swatches.append('<div class="swatch base">Base</div>')
@@ -88,7 +101,7 @@ with open("../tmp/mixing.html", "w") as f:
 			swatches.append('<div class="swatch %s-%d">%s-%s</div>' % (name, i, pigment, STRENGTHS[strength - 1]))
 			print(".%s-%d {background: #%s;}" % (name, i, hexcolor(color)), file=f)
 		print(".%s {background: #%s;}" % (name, hexcolor(color)), file=f)
-		swatches.append('==&gt; <div class="swatch %s">%s</div>' % (name, name))
+		swatches.append('==&gt; <div class="swatch %s">%s: %s</div>' % (name, name, hexcolor(color)))
 		swatches.append('</p>')
 	print("</style>", file=f)
 	print("\n".join(swatches), file=f)
