@@ -94,13 +94,32 @@ PIGMENTS = {
 	"Rebecca Purple": (0x66, 0x33, 0x99),
 	"Chocolate": (0x7B, 0x3F, 0x11),
 	"Alice Blue": (0xF0, 0xF8, 0xFE),
-	"Bulker": tuple(x*2 for x in STANDARD_BASE), # Add more base colour to pale out your paint. Special-case this one and don't show swatches.
+	"Mint Mus": (0x99, 0xFD, 0x97),
+	"Bulker": tuple(x*2 for x in STANDARD_BASE), # Special-case this one and don't show swatches.
 	"Charcoal": (0x44, 0x45, 0x4f),
-	"Beige": STANDARD_BASE, # Yaknow, in case the default beige just isn't beigey enough for you
+	"Beige": STANDARD_BASE,
 	# Special-case this one. Swatch it as a vibrant crimson (fresh blood), but use the actual "Blood" value for mixing (old blood).
 	"Blood-fresh": (0xAA, 0, 0),
 	"Blood": (0x7E, 0x35, 0x17),
-	"Mint Mus": (0x99, 0xFD, 0x97),
+}
+PIGMENT_DESCRIPTIONS = {
+	"Crimson": "It's red. What did you expect?",
+	"Jade": "Derived from pulverised ancient artifacts. Probably not cursed.",
+	"Cobalt": "Like balt, but the other way around",
+	"Hot Pink": "Use it quickly before it cools down!",
+	"Orange": "For when security absolutely depends on not being able to rhyme",
+	"Lawn Green": "Not to be confused with Australian Lawn Green, which is brown",
+	"Spring Green": "It's a lie; most of my springs are unpainted",
+	"Sky Blue": "Paint your ceiling in this colour and pretend you're outside!",
+	"Orchid": "And Kid didn't want to participate, so I got his brother instead",
+	"Rebecca Purple": "A tribute to Eric Meyer's daughter. #663399",
+	"Chocolate": "Everything's better with chocolate.",
+	"Alice Blue": "Who is more famous - the president or his wife?",
+	"Mint Mus": "Definitely not a frozen dessert.",
+	"Bulker": "Add some more base colour to pale out your paint",
+	"Charcoal": "Dirty grey for when vibrant colours just aren't your thing",
+	"Beige": "In case the default beige just isn't beigey enough for you",
+	"Blood": "This pigment is made from real blood. Use it wisely.",
 }
 STRENGTHS = "spot", "spoonful", "splash"
 
