@@ -90,6 +90,11 @@ ACTIONS = [
 	"whistle the Blue Danube Waltz",
 	"wave your sword like a feather duster",
 	"apply for the job",
+	"enter the code 7355608",
+	"take the red pill",
+	"dance",
+	"sit down",
+	"roll for initiative",
 ]
 MESSAGES = [
 	"Go to {codename} Office and {action}.",
@@ -102,6 +107,12 @@ MESSAGES = [
 	"Ride the elevator to the 51st floor and {action}. Beware of vertigo.",
 	"Join Agent {codename} in Discord. After five minutes, {action}.",
 	"Locate the nearest fire station and {action}.",
+	"Connect to 93.184.216.34 on port 80.",
+	"Proceed to the {codename} theatre in the Arts Centre. At the box office, {action}.",
+	"At the stone circle, find the {codename} and read its inscription.",
+	"Tell {codename} the dancing stones are restless. They will give you a van.",
+	"Join a TF2 game on 2Fort. Find {codename} in RED sewers and {action}.",
+	"Meet me in the coffee shop. I will be wearing a {codename} T-shirt.",
 ]
 MESSAGES.extend([m for m in MESSAGES if m.count("{") > 1]) # Increase the weight of those with multiple placeholders.
 
