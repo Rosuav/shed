@@ -5,8 +5,10 @@ it's to be a demonstration. The principles on which this works are the same as t
 underpin a lot of internet security, and I'm hoping this can be a fun visualization.
 
 Scenario:
-There is a public message board on which anyone may leave a note. You need to send a vital message to your
-contact, but other people may also leave messages, so your contact needs to be sure which one is from you.
+Coded messages are no longer safe. Your enemies have discovered your code, and can both read your messages
+and write fake messages of your own. You need a way to send your contact one crucial instruction which will
+allow you to share a new code. How? There is a public message board on which anyone may leave a note, so
+you must leave a message there, with some proof that it is truly from you.
 
 The Diffie Hellman Paint Company has a public mixing facility. Starting with an ugly beige, you can add
 any pigments you like, selected from seventeen options (various secondary or tertiary colours), in any of
@@ -25,24 +27,24 @@ name. Your contact does likewise. Then you pick up your contact's paint pot, and
 that you put into your own; contact does likewise with yours. You are now in possession of identically
 coloured pots of paint (which you will not share), and can use them to communicate reliably.
 
+
 Crucial: Paint mixing. Every paint pot is identified on the server by a unique ID that is *not* defined
 by its composition. When you attempt a mix, you get back a new paint pot, and you (but only you) can see
-that it's "this base plus these pigments". Everyone else just sees the new ID and label (if you share it).
+that it's "this base plus these pigments". Everyone else just sees the new ID (if you share it).
 Any existing paint pot can be used as a base, or you can use the standard beige base any time.
-
-Standard Base: F5F5DC
-Pigments:
-* Crimson DC143C
-* Jade (might need better name) 37FD12
-* Orchid 1F45FC
-* Need secondary colours and a few others just for the sake of things
 
 Essential: Find a mathematical operation which takes a base and a modifier.
 * Must be transitive: f(f(b, m1), m2) == f(f(b, m2), m1)
-* Must be repeatable: f(f(b, m1), m1) != f(b, m1) up to (at least) three times
+* Must be repeatable: f(f(b, m1), m1) != f(b, m1) up to 3-6 times (it's okay if x*5 and x*6 are visually similar)
 * Must "feel" like it's becoming more like that colour (subjective)
 * Must not overly darken the result.
 The current algorithm works, but probably won't scale to 3-5 pigments without going ugly brown.
+Ideally I would like each key to be able to be 3-5 pigments at 1-3 strength each, totalling anywhere from
+6 to 30 pigment additions. Maybe add a little bit to the colour each time it's modified, to compensate
+for the darkening effect of the pigmentation?
+
+Note: If both sides choose 3-5 pigments at random, and strengths 1-3 each, this gives about 41 bits of key length.
+Not a lot by computing standards, but 3e12 possibilities isn't bad for a (pseudo-)game.
 """
 STANDARD_BASE = 0xF5, 0xF5, 0xDC
 
@@ -70,6 +72,50 @@ PIGMENTS = {
 	"Alice Blue": (0xF0, 0xF8, 0xFE),
 }
 STRENGTHS = "spot", "spoonful", "splash"
+
+# Craft some spy-speak instructions. The game is not about hiding information in the
+# text, so we provide the text as a fully-randomized Mad Libs system.
+CODENAMES = """Angel Ape Archer Badger Bat Bear Bird Boar Camel Caribou Cat Chimera Cleric Crab Crocodile
+Dinosaur Dog Dragon Druid Dwarf Elephant Elk Ferret Fish Fox Frog Giant Goblin Griffin Hamster Hippo
+Horse Hyena Insect Jellyfish Knight Kraken Leech Lizard Minotaur Mole Monkey Mouse Ninja Octopus Ogre
+Oyster Pangolin Phoenix Pirate Plant Prism Rabbit Ranger Rat Rhino Rogue Salamander Scarecrow Scorpion
+Shark Sheep Skeleton Snake Soldier Sphinx Spider Spirit Squirrel Turtle Unicorn Werewolf Whale Worm Yeti
+""".split()
+ACTIONS = [
+	"proceed as planned",
+	"ask what the time in London is",
+	"complain that the record was scratched",
+	"report the theft of your passport",
+	"knock six thousand times",
+	"whistle the Blue Danube Waltz",
+	"wave your sword like a feather duster",
+	"apply for the job",
+]
+MESSAGES = [
+	"Go to {codename} Office and {action}.",
+	"Speak with Agent {codename} for further instructions.",
+	"At 11:23 precisely, knock fifty-eight times on Mr Fibonacci's door.",
+	"Return to HQ at once.",
+	"Mrs {codename}'s bakery serves the best beef and onion pies in the city.",
+	"Under the clocks, speak with Authorized Officer {codename}.",
+	"When daylight is fading, softly serenade Agent {codename}.",
+	"Ride the elevator to the 51st floor and {action}. Beware of vertigo.",
+	"Join Agent {codename} in Discord. After five minutes, {action}.",
+	"Locate the nearest fire station and {action}.",
+]
+MESSAGES.extend([m for m in MESSAGES if m.count("{") > 1]) # Increase the weight of those with multiple placeholders.
+
+_messages_used = { }
+def devise_message():
+	from random import choice
+	while "avoid duplication":
+		msg = choice(MESSAGES).format(codename=choice(CODENAMES), action=choice(ACTIONS))
+		if msg not in _messages_used: break
+	_messages_used[msg] = 1 # Ultimately, use this to record whether it's your secret message or not
+	return msg
+
+for _ in range(20): print(devise_message())
+
 patterns = {
 	"Foo": [("Crimson", 3), ("Jade", 1)],
 	"Bar": [("Jade", 1), ("Crimson", 3)],
@@ -90,7 +136,7 @@ with open("../tmp/mixing.html", "w") as f:
 		print(".%s {background: #%s;}" % (name, hexcolor(modifier)), file=f)
 		for strength in STRENGTHS:
 			color = mix(color, modifier)
-			print("%s (%s): %s" % (name, strength, hexcolor(color)))
+			# print("%s (%s): %s" % (name, strength, hexcolor(color)))
 			swatches.append('<div class="swatch %s-%s">%s-%s</div>' % (name, strength, name, strength))
 			print(".%s-%s {background: #%s;}" % (name, strength, hexcolor(color)), file=f)
 		swatches.append('<div class="swatch %s">%s</div>' % (name, name))
