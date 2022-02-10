@@ -1,8 +1,6 @@
 #define POLYGLOT "This script can be run as Python or Pike code. The Python code is client-only. \
 """
 //Read a text (non-ironman) EU4 savefile and scan for matters of interest. Provides info to networked clients.
-//TODO: Show a coalition as if it's a war? self->coalition_against_us lists countries
-//TODO: Allow input on the primary console, stateless infodumps only
 /* Browser mode
 
 TODO: For all provinces, record sea or land, transmit to front end for icon
