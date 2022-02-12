@@ -750,8 +750,24 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		if (mon > 12) mon -= 12;
 		string key = sprintf("%04d.%02d", year, mon);
 		if (!truces[key]) truces[key] = ({sprintf("%s %d", ("- Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec" / " ")[mon], year)});
-		truces[key] += ({other});
+		truces[key] += ({({other, ""})}); //TODO: Put info about the war in the second slot?
 		if (mapping info = write->countries[other]) info->truce = truces[key][0];
+	}
+	//Since "annul treaties" has a similar sort of cooldown, and since it can be snuck in
+	//when the other party loses very minorly in a war, list those too.
+	foreach (Array.arrayify(data->diplomacy->annul_treaties), mapping annulment) {
+		string other;
+		if (annulment->first == tag) other = annulment->second;
+		else if (annulment->second == tag) other = annulment->first;
+		else continue;
+		//We have the start date; the annulment is always for precisely ten years.
+		sscanf(annulment->start_date, "%d.%d.%*d", int year, int mon);
+		year += 10;
+		//TODO: Should I increment the month to the next one? If you have annul treaties until May 25th,
+		//is it more useful to show "May" or "June"?
+		string key = sprintf("%04d.%02d", year, mon);
+		if (!truces[key]) truces[key] = ({sprintf("%s %d", ("- Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec" / " ")[mon], year)});
+		truces[key] += ({({other, "(annul treaties)"})});
 	}
 	sort(indices(truces), write->truces = values(truces));
 }

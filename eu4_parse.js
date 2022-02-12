@@ -387,7 +387,7 @@ export function render(state) {
 		SUMMARY("Truces: " + state.truces.map(t => t.length - 1).reduce((a,b) => a+b, 0) + " countries, " + state.truces.length + " blocks"),
 		state.truces.map(t => [
 			H3(t[0]),
-			UL(t.slice(1).map(c => LI(COUNTRY(c)))),
+			UL(t.slice(1).map(c => LI([COUNTRY(c[0]), " ", c[1]]))),
 		]),
 	]);
 	if (state.cbs) set_content("#cbs", [
