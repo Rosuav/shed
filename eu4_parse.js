@@ -113,7 +113,7 @@ on("click", "#interesting_details li", e => {
 	el.scrollIntoView({block: "start", inline: "nearest"});
 });
 
-on("change", "#highlight", e => {
+on("change", "#highlight_options", e => {
 	ws_sync.send({cmd: "highlight", building: e.match.value});
 });
 
@@ -160,6 +160,174 @@ section("monuments", "Monuments", state => [
 	provleave(),
 ]);
 
+section("favors", "Favors", state => {
+	let free = 0, owed = 0, owed_total = 0;
+	function compare(val, base) {
+		if (val <= base) return val.toFixed(3);
+		return ABBR({title: val.toFixed(3) + " before cap"}, base.toFixed(3));
+	}
+	const cooldowns = state.favors.cooldowns.map(cd => {
+		if (cd[1] === "---") ++free;
+		return TR({className: cd[1] === "---" ? "interesting1" : ""}, cd.slice(1).map(TD));
+	});
+	const countries = Object.entries(state.favors.owed).sort((a,b) => b[1][0] - a[1][0]).map(([c, f]) => {
+		++owed_total; if (f[0] >= 10) ++owed;
+		return TR({className: f[0] >= 10 ? "interesting1" : ""}, [TD(COUNTRY(c)), f.map((n,i) => TD(compare(n, i ? +state.favors.cooldowns[i-1][4] : n)))]);
+	});
+	max_interesting.favors = free && owed ? 1 : 0;
+	return [
+		SUMMARY(`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`),
+		P("NOTE: Yield estimates are often a bit wrong, but can serve as a guideline."),
+		TABLE({border: "1"}, cooldowns),
+		TABLE({border: "1"}, [
+			table_head("Country Favors Ducats Manpower Sailors"),
+			countries,
+		]),
+	];
+});
+
+section("wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.length || "None")), state.wars.map(war => {
+	//For each war, create or update its own individual DETAILS/SUMMARY. This allows
+	//individual wars to be collapsed as uninteresting without disrupting others.
+	let id = "warinfo-" + war.name.toLowerCase().replace(/[^a-z]/g, " ").replace(/ +/g, "-");
+	//It's possible that a war involving "conquest of X" might collide with another war
+	//involving "conquest of Y" if the ASCII alphabetics in the province names are identical.
+	//While unlikely, this would be quite annoying, so we add in the province ID when a
+	//conquest CB is used. TODO: Check this for other CBs eg occupy/retain capital.
+	if (war.cb) id += "-" + war.cb.type + "-" + (war.cb.province||"no-province");
+	//NOTE: The atk and def counts refer to all players. Even if you aren't interested in
+	//wars involving other players but not yourself, they'll still have their "sword" or
+	//"shield" indicator given based on any player involvement.
+	const atkdef = (war.atk ? "\u{1f5e1}\ufe0f" : "") + (war.def ? "\u{1f6e1}\ufe0f" : "");
+	return set_content(DOM("#" + id) || DETAILS({id, open: true}), [
+		SUMMARY(atkdef + " " + war.name),
+		TABLE({border: "1"}, [
+			table_head(["Country", "Infantry", "Cavalry", "Artillery",
+				ABBR({title: "Merc infantry"}, "Inf $$"),
+				ABBR({title: "Merc cavalry"}, "Cav $$"),
+				ABBR({title: "Merc artillery"}, "Art $$"),
+				"Total", "Manpower", ABBR({title: "Army professionalism"}, "Prof"),
+				ABBR({title: "Army tradition"}, "Trad"),
+			]),
+			war.armies.map(army => TR({className: army[0].replace(",", "-")}, [TD(COUNTRY(army[1])), army.slice(2).map(x => TD(x ? ""+x : ""))])),
+		]),
+		TABLE({border: "1"}, [
+			table_head(["Country", "Heavy", "Light", "Galley", "Transport", "Total", "Sailors",
+				ABBR({title: "Navy tradition"}, "Trad"),
+			]),
+			war.navies.map(navy => TR({className: navy[0].replace(",", "-")}, [TD(COUNTRY(navy[1])), navy.slice(2).map(x => TD(x ? ""+x : ""))])),
+		]),
+	]);
+})]);
+
+section("badboy_hatred", "Badboy Haters", state => [
+	SUMMARY("Badboy Haters (" + state.badboy_hatred.length + ")"),
+	!(max_interesting.badboy_hatred = state.badboy_hatred.length ? 1 : 0) && "Nobody hates you enough to join a coalition.",
+	TABLE({border: "1"}, [
+		table_head(["Opinion", ABBR({title: "Aggressive Expansion"}, "Badboy"), "Country", "Notes"]),
+		state.badboy_hatred.map(hater => {
+			const info = country_info[hater.tag];
+			const attr = { };
+			if (hater.in_coalition) {attr.className = "interesting2"; max_interesting.badboy = 2;}
+			return TR([
+				TD({className: info.opinion_theirs < 0 ? "interesting1" : ""}, info.opinion_theirs),
+				TD({className: hater.badboy >= 50000 ? "interesting1" : ""}, Math.floor(hater.badboy / 1000) + ""),
+				TD(attr, COUNTRY(hater.tag)),
+				TD(attr, [
+					info.overlord && SPAN({title: "Is a " + info.subject_type + " of " + country_info[info.overlord].name}, "🙏"),
+					info.truce && SPAN({title: "Truce until " + info.truce}, "🏳"),
+					hater.in_coalition && SPAN({title: "In coalition against you!"}, "😠"),
+				]),
+			]);
+		}),
+	]),
+]);
+
+section("highlight", "Building expansions", state => state.highlight.id ? [
+	SUMMARY("Building expansions: " + state.highlight.name),
+	P([proventer("expansions"), "If developed, these places could support a new " + state.highlight.name + ". "
+		+ "They do not currently contain one, there is no building that could be upgraded "
+		+ "to one, and there are no building slots free. This list allows you to focus "
+		+ "province development in a way that enables a specific building; once the slot "
+		+ "is opened up, the province will disappear from here and appear in the in-game "
+		+ "macro-builder list for that building."]),
+	TABLE({border: true}, [
+		table_head("Province Buildings Devel MP-cost"),
+		state.highlight.provinces.map(prov => TR([
+			TD(PROV(prov.id, prov.name)),
+			TD(`${prov.buildings}/${prov.maxbuildings}`),
+			TD(""+prov.dev),
+			TD(""+prov.cost[3]),
+		])),
+	]),
+	provleave(),
+] : [
+	SUMMARY("Building expansions"),
+	P("To search for provinces that could be developed to build something, choose a building in" +
+	" the top right options."),
+]);
+
+section("upgradeables", "Upgrades available", state => [ //Assumes that we get navy_upgrades with upgradeables
+	SUMMARY("Upgrades available: " + state.upgradeables.length + " building type(s), " + state.navy_upgrades.length + " fleet(s)"),
+	P([proventer("upgradeables"), state.upgradeables.length + " building type(s) available for upgrade."]),
+	UL(state.upgradeables.map(upg => LI([
+		proventer(upg[0]), upg[0] + ": ",
+		upg[1].map(prov => PROV(prov.id, prov.name)),
+		provleave(),
+	]))),
+	provleave(),
+	P(state.navy_upgrades.length + " fleets(s) have outdated ships."),
+	TABLE({border: true}, [
+		table_head(["Fleet", "Heavy ships", "Light ships", "Galleys", "Transports"]),
+		state.navy_upgrades.map(f => TR([
+			TD(f.name),
+			upgrade(...f.heavy_ship),
+			upgrade(...f.light_ship),
+			upgrade(...f.galley),
+			upgrade(...f.transport),
+		])),
+	]),
+]);
+
+section("flagships", "Flagships of the World", state => [
+	SUMMARY("Flagships of the World (" + state.flagships.length + ")"),
+	TABLE({border: true}, [
+		table_head(["Country", "Fleet", "Vessel", "Modifications", "Built by"]),
+		state.flagships.map(f => TR([TD(COUNTRY(f[0])), TD(f[1]), TD(f[2] + ' "' + f[3] + '"'), TD(f[4].join(", ")), TD(f[5])])),
+	]),
+]);
+
+section("truces", "Truces", state => [
+	SUMMARY("Truces: " + state.truces.map(t => t.length - 1).reduce((a,b) => a+b, 0) + " countries, " + state.truces.length + " blocks"),
+	state.truces.map(t => [
+		H3(t[0]),
+		UL(t.slice(1).map(c => LI([COUNTRY(c[0]), " ", c[1]]))),
+	]),
+]);
+
+section("cbs", "Casus belli", state => [
+	SUMMARY(`Casus belli: ${state.cbs.from.tags.length} potential victims, ${state.cbs.against.tags.length} potential aggressors`),
+	//NOTE: The order here (from, against) has to match the order in the badboy/prestige/peace_cost arrays (attacker, defender)
+	[["from", "CBs you have on others"], ["against", "CBs others have against you"]].map(([grp, lbl], scoreidx) => [
+		H3(lbl),
+		BLOCKQUOTE(Object.entries(state.cbs[grp]).map(([type, cbs]) => type !== "tags" && [
+			(t => H4([
+				ABBR({title: t.desc}, t.name),
+				" ",
+				t.restricted && SPAN({className: "caution", title: t.restricted}, "⚠️"),
+				" (", ABBR({title: "Aggressive Expansion"}, Math.floor(t.badboy[scoreidx] * 100) + "%"),
+				", ", ABBR({title: "Prestige"}, Math.floor(t.prestige[scoreidx] * 100) + "%"),
+				", ", ABBR({title: "Peace cost"}, Math.floor(t.peace_cost[scoreidx] * 100) + "%"),
+				")",
+			]))(state.cbs.types[type]),
+			UL(cbs.map(cb => LI([
+				COUNTRY(cb.tag),
+				cb.end_date && " (until " + cb.end_date + ")",
+			]))),
+		])),
+	]),
+]);
+
 export function render(state) {
 	curgroup = []; provgroups = { };
 	//Set up one-time structure. Every subsequent render will update within that.
@@ -174,16 +342,8 @@ export function render(state) {
 			DIV({id: "pin"}, H3("Pinned provinces")),
 		]),
 		sections.map(s => DETAILS({id: s.id}, SUMMARY(s.lbl))),
-		DETAILS({id: "favors"}, SUMMARY("Favors")),
-		DETAILS({id: "wars"}, SUMMARY("Wars")),
-		DETAILS({id: "badboy"}, SUMMARY("Badboy Haters")),
-		DETAILS({id: "expansions"}, SUMMARY("Building expansions")),
-		DETAILS({id: "upgradeables"}, SUMMARY("Upgrades available")),
-		DETAILS({id: "flagships"}, SUMMARY("Flagships of the World")),
-		DETAILS({id: "truces"}, SUMMARY("Truces")),
-		DETAILS({id: "cbs"}, SUMMARY("Casus Belli")),
 		DIV({id: "options"}, [ //Positioned fixed in the top corner
-			LABEL(["Building highlight: ", SELECT({id: "highlight"}, OPTGROUP({label: "Building highlight"}))]),
+			LABEL(["Building highlight: ", SELECT({id: "highlight_options"}, OPTGROUP({label: "Building highlight"}))]),
 			DIV({id: "cyclegroup"}),
 			UL({id: "interesting_details"}),
 			DIV({id: "now_parsing", className: "hidden"}),
@@ -244,115 +404,7 @@ export function render(state) {
 	}
 	if (state.name) set_content("#player", state.name);
 	sections.forEach(s => state[s.id] && set_content("#" + s.id, s.render(state)));
-	if (state.favors) {
-		let free = 0, owed = 0, owed_total = 0;
-		function compare(val, base) {
-			if (val <= base) return val.toFixed(3);
-			return ABBR({title: val.toFixed(3) + " before cap"}, base.toFixed(3));
-		}
-		const cooldowns = state.favors.cooldowns.map(cd => {
-			if (cd[1] === "---") ++free;
-			return TR({className: cd[1] === "---" ? "interesting1" : ""}, cd.slice(1).map(TD));
-		});
-		const countries = Object.entries(state.favors.owed).sort((a,b) => b[1][0] - a[1][0]).map(([c, f]) => {
-			++owed_total; if (f[0] >= 10) ++owed;
-			return TR({className: f[0] >= 10 ? "interesting1" : ""}, [TD(COUNTRY(c)), f.map((n,i) => TD(compare(n, i ? +state.favors.cooldowns[i-1][4] : n)))]);
-		});
-		max_interesting.favors = free && owed ? 1 : 0;
-		set_content("#favors", [
-			SUMMARY(`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`),
-			P("NOTE: Yield estimates are often a bit wrong, but can serve as a guideline."),
-			TABLE({border: "1"}, cooldowns),
-			TABLE({border: "1"}, [
-				table_head("Country Favors Ducats Manpower Sailors"),
-				countries
-			]),
-		]);
-	}
-	if (state.wars) {
-		//For each war, create or update its own individual DETAILS/SUMMARY. This allows
-		//individual wars to be collapsed as uninteresting without disrupting others.
-		set_content("#wars", [SUMMARY("Wars: " + (state.wars.length || "None")), state.wars.map(war => {
-			let id = "warinfo-" + war.name.toLowerCase().replace(/[^a-z]/g, " ").replace(/ +/g, "-");
-			//It's possible that a war involving "conquest of X" might collide with another war
-			//involving "conquest of Y" if the ASCII alphabetics in the province names are identical.
-			//While unlikely, this would be quite annoying, so we add in the province ID when a
-			//conquest CB is used. TODO: Check this for other CBs eg occupy/retain capital.
-			if (war.cb) id += "-" + war.cb.type + "-" + (war.cb.province||"no-province");
-			//NOTE: The atk and def counts refer to all players. Even if you aren't interested in
-			//wars involving other players but not yourself, they'll still have their "sword" or
-			//"shield" indicator given based on any player involvement.
-			const atkdef = (war.atk ? "\u{1f5e1}\ufe0f" : "") + (war.def ? "\u{1f6e1}\ufe0f" : "");
-			return set_content(DOM("#" + id) || DETAILS({id, open: true}), [
-				SUMMARY(atkdef + " " + war.name),
-				TABLE({border: "1"}, [
-					table_head(["Country", "Infantry", "Cavalry", "Artillery",
-						ABBR({title: "Merc infantry"}, "Inf $$"),
-						ABBR({title: "Merc cavalry"}, "Cav $$"),
-						ABBR({title: "Merc artillery"}, "Art $$"),
-						"Total", "Manpower", ABBR({title: "Army professionalism"}, "Prof"),
-						ABBR({title: "Army tradition"}, "Trad"),
-					]),
-					war.armies.map(army => TR({className: army[0].replace(",", "-")}, [TD(COUNTRY(army[1])), army.slice(2).map(x => TD(x ? ""+x : ""))])),
-				]),
-				TABLE({border: "1"}, [
-					table_head(["Country", "Heavy", "Light", "Galley", "Transport", "Total", "Sailors",
-						ABBR({title: "Navy tradition"}, "Trad"),
-					]),
-					war.navies.map(navy => TR({className: navy[0].replace(",", "-")}, [TD(COUNTRY(navy[1])), navy.slice(2).map(x => TD(x ? ""+x : ""))])),
-				]),
-			]);
-		})]);
-	}
-	if (state.badboy_hatred) set_content("#badboy", [
-		SUMMARY("Badboy Haters (" + state.badboy_hatred.length + ")"),
-		!(max_interesting.badboy = state.badboy_hatred.length ? 1 : 0) && "Nobody hates you enough to join a coalition.",
-		TABLE({border: "1"}, [
-			table_head(["Opinion", ABBR({title: "Aggressive Expansion"}, "Badboy"), "Country", "Notes"]),
-			state.badboy_hatred.map(hater => {
-				const info = country_info[hater.tag];
-				const attr = { };
-				if (hater.in_coalition) {attr.className = "interesting2"; max_interesting.badboy = 2;}
-				return TR([
-					TD({className: info.opinion_theirs < 0 ? "interesting1" : ""}, info.opinion_theirs),
-					TD({className: hater.badboy >= 50000 ? "interesting1" : ""}, Math.floor(hater.badboy / 1000) + ""),
-					TD(attr, COUNTRY(hater.tag)),
-					TD(attr, [
-						info.overlord && SPAN({title: "Is a " + info.subject_type + " of " + country_info[info.overlord].name}, "🙏"),
-						info.truce && SPAN({title: "Truce until " + info.truce}, "🏳"),
-						hater.in_coalition && SPAN({title: "In coalition against you!"}, "😠"),
-					]),
-				]);
-			}),
-		]),
-	]);
-	if (state.highlight) {
-		if (state.highlight.id) set_content("#expansions", [
-			SUMMARY("Building expansions: " + state.highlight.name),
-			P([proventer("expansions"), "If developed, these places could support a new " + state.highlight.name + ". "
-				+ "They do not currently contain one, there is no building that could be upgraded "
-				+ "to one, and there are no building slots free. This list allows you to focus "
-				+ "province development in a way that enables a specific building; once the slot "
-				+ "is opened up, the province will disappear from here and appear in the in-game "
-				+ "macro-builder list for that building."]),
-			TABLE({border: true}, [
-				table_head("Province Buildings Devel MP-cost"),
-				state.highlight.provinces.map(prov => TR([
-					TD(PROV(prov.id, prov.name)),
-					TD(`${prov.buildings}/${prov.maxbuildings}`),
-					TD(""+prov.dev),
-					TD(""+prov.cost[3]),
-				])),
-			]),
-			provleave(),
-		]);
-		else set_content("#expansions", [
-			SUMMARY("Building expansions"),
-			P("To search for provinces that could be developed to build something, choose a building in" +
-			" the top right options."),
-		]);
-	}
-	if (state.buildings_available) set_content("#highlight", [
+	if (state.buildings_available) set_content("#highlight_options", [
 		OPTION({value: "none"}, "None"),
 		OPTGROUP({label: "Need more of a building? Choose one to highlight places that could be expanded to build it."}), //hack
 		Object.values(state.buildings_available).map(b => OPTION(
@@ -360,63 +412,6 @@ export function render(state) {
 			b.name, //TODO: Keep this brief, but give extra info, maybe in hover text??
 		)),
 	]).value = (state.highlight && state.highlight.id) || "none";
-	if (state.upgradeables && state.navy_upgrades) set_content("#upgradeables", [ //Yeah, gotta get both or neither for proper rendering.
-		SUMMARY("Upgrades available: " + state.upgradeables.length + " building type(s), " + state.navy_upgrades.length + " fleet(s)"),
-		P([proventer("upgradeables"), state.upgradeables.length + " building type(s) available for upgrade."]),
-		UL(state.upgradeables.map(upg => LI([
-			proventer(upg[0]), upg[0] + ": ",
-			upg[1].map(prov => PROV(prov.id, prov.name)),
-			provleave(),
-		]))),
-		provleave(),
-		P(state.navy_upgrades.length + " fleets(s) have outdated ships."),
-		TABLE({border: true}, [
-			table_head(["Fleet", "Heavy ships", "Light ships", "Galleys", "Transports"]),
-			state.navy_upgrades.map(f => TR([
-				TD(f.name),
-				upgrade(...f.heavy_ship),
-				upgrade(...f.light_ship),
-				upgrade(...f.galley),
-				upgrade(...f.transport),
-			])),
-		]),
-	]);
-	if (state.flagships) set_content("#flagships", [
-		SUMMARY("Flagships of the World (" + state.flagships.length + ")"),
-		TABLE({border: true}, [
-			table_head(["Country", "Fleet", "Vessel", "Modifications", "Built by"]),
-			state.flagships.map(f => TR([TD(COUNTRY(f[0])), TD(f[1]), TD(f[2] + ' "' + f[3] + '"'), TD(f[4].join(", ")), TD(f[5])])),
-		]),
-	]);
-	if (state.truces) set_content("#truces", [
-		SUMMARY("Truces: " + state.truces.map(t => t.length - 1).reduce((a,b) => a+b, 0) + " countries, " + state.truces.length + " blocks"),
-		state.truces.map(t => [
-			H3(t[0]),
-			UL(t.slice(1).map(c => LI([COUNTRY(c[0]), " ", c[1]]))),
-		]),
-	]);
-	if (state.cbs) set_content("#cbs", [
-		SUMMARY(`Casus belli: ${state.cbs.from.tags.length} potential victims, ${state.cbs.against.tags.length} potential aggressors`),
-		//NOTE: The order here (from, against) has to match the order in the badboy/prestige/peace_cost arrays (attacker, defender)
-		[["from", "CBs you have on others"], ["against", "CBs others have against you"]].map(([grp, lbl], scoreidx) => [
-			H3(lbl),
-			BLOCKQUOTE(Object.entries(state.cbs[grp]).map(([type, cbs]) => type !== "tags" && [
-				(t => H4([
-					ABBR({title: t.desc}, t.name),
-					" ",
-					t.restricted && SPAN({className: "caution", title: t.restricted}, "⚠️"),
-					" (", ABBR({title: "Aggressive Expansion"}, Math.floor(t.badboy[scoreidx] * 100) + "%"),
-					", ", ABBR({title: "Prestige"}, Math.floor(t.prestige[scoreidx] * 100) + "%"),
-					", ", ABBR({title: "Peace cost"}, Math.floor(t.peace_cost[scoreidx] * 100) + "%"),
-					")",
-				]))(state.cbs.types[type]),
-				UL(cbs.map(cb => LI([
-					COUNTRY(cb.tag),
-					cb.end_date && " (until " + cb.end_date + ")",
-				]))),
-			])),
-		]),
-	]);
 	update_hover_country();
 	const is_interesting = [];
 	Object.entries(max_interesting).forEach(([id, lvl]) => {
