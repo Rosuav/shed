@@ -130,6 +130,27 @@ function upgrade(upg, tot) {
 	return TD({className: upg ? "interesting1" : ""}, upg + "/" + tot);
 }
 
+const sections = [];
+function section(id, lbl, render) {sections.push({id, lbl, render});}
+
+section("cot", "Centers of Trade", state => {
+	max_interesting.cot = state.cot.maxinteresting;
+	const content = [SUMMARY(`Centers of Trade (${state.cot.level3}/${state.cot.max} max level)`), proventer("cot")];
+	for (let kwd of ["upgradeable", "developable"]) {
+		const cots = state.cot[kwd];
+		if (!cots.length) continue;
+		content.push(TABLE({id: kwd, border: "1"}, [
+			TR(TH({colSpan: 4}, [proventer(kwd), `${kwd[0].toUpperCase()}${kwd.slice(1)} CoTs:`])),
+			cots.map(cot => TR({className: "interesting" + cot.interesting}, [
+				TD(PROV(cot.id, cot.name)), TD("Lvl "+cot.level), TD("Dev "+cot.dev), TD(cot.noupgrade)
+			])),
+		]));
+		provleave();
+	}
+	provleave();
+	return content;
+});
+
 export function render(state) {
 	curgroup = []; provgroups = { };
 	//Set up one-time structure. Every subsequent render will update within that.
@@ -143,7 +164,7 @@ export function render(state) {
 			DIV({id: "search"}, H3("Search for a province or country")),
 			DIV({id: "pin"}, H3("Pinned provinces")),
 		]),
-		DETAILS({id: "cot"}, SUMMARY("Centers of Trade")),
+		sections.map(s => DETAILS({id: s.id}, SUMMARY(s.lbl))),
 		DETAILS({id: "monuments"}, SUMMARY("Monuments")),
 		DETAILS({id: "favors"}, SUMMARY("Favors")),
 		DETAILS({id: "wars"}, SUMMARY("Wars")),
@@ -214,23 +235,7 @@ export function render(state) {
 		return;
 	}
 	if (state.name) set_content("#player", state.name);
-	if (state.cot) {
-		max_interesting.cot = state.cot.maxinteresting;
-		const content = [SUMMARY(`Centers of Trade (${state.cot.level3}/${state.cot.max} max level)`), proventer("cot")];
-		for (let kwd of ["upgradeable", "developable"]) {
-			const cots = state.cot[kwd];
-			if (!cots.length) continue;
-			content.push(TABLE({id: kwd, border: "1"}, [
-				TR(TH({colSpan: 4}, [proventer(kwd), `${kwd[0].toUpperCase()}${kwd.slice(1)} CoTs:`])),
-				cots.map(cot => TR({className: "interesting" + cot.interesting}, [
-					TD(PROV(cot.id, cot.name)), TD("Lvl "+cot.level), TD("Dev "+cot.dev), TD(cot.noupgrade)
-				])),
-			]));
-			provleave();
-		}
-		set_content("#cot", content);
-		provleave();
-	}
+	sections.forEach(s => state[s.id] && set_content("#" + s.id, s.render(state)));
 	if (state.monuments) set_content("#monuments", [
 		SUMMARY(`Monuments [${state.monuments.length}]`),
 		TABLE({border: "1"}, [
