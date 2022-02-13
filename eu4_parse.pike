@@ -770,6 +770,57 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		truces[key] += ({({other, "(annul treaties)"})});
 	}
 	sort(indices(truces), write->truces = values(truces));
+
+	//Previous wars have an "outcome" which isn't always present, but seems to be
+	//"2" or "3". Most often 2. I would guess that 2 means victory for attackers,
+	//3 victory for defenders, absent means white peace.
+	//I'd like to be able to reconstruct the peace treaty, but currently, can't
+	//find the necessary info. It might not be saved.
+	/*foreach (Array.arrayify(data->previous_war), mapping war) {
+		werror("%O [%O/%O] ==> %s\n", war->outcome, war->attacker_score, war->defender_score, war->name);
+	}*/
+
+	//Potential colonies, regardless of distance.
+	array(mapping) colonization_targets = ({ });
+	foreach (data->provinces; string id; mapping prov) {
+		if (prov->controller) continue;
+		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
+		if (dev < 3) continue; //Sea province, probably
+		if (!has_value(prov->discovered_by || ({ }), tag)) continue; //Filter to the ones you're aware of
+		array modifiers = map(Array.arrayify(prov->modifier)) { [mapping mod] = __ARGS__;
+			array effects = ({ });
+			foreach (country_modifiers[mod->modifier] || ([]); string effect; string value) {
+				if (effect == "picture") continue; //Would be cool to show the icon in the front end, but whatever
+				string desc = upper_case(effect);
+				if (effect == "province_trade_power_value") desc = "PROVINCE_TRADE_VALUE"; //Not sure why, but the localisation files write this one differently.
+				effects += ({sprintf("%s: %s", L10n[desc] || L10n["MODIFIER_" + desc] || effect, value)});
+			}
+			return ([
+				"name": L10n[mod->modifier],
+				"effects": effects,
+			]);
+		};
+		mapping provinfo = province_info[id - "-"];
+		mapping terraininfo = terrain_definitions->categories[provinfo->terrain] || ([]);
+		mapping climateinfo = static_modifiers[provinfo->climate] || ([]);
+		colonization_targets += ({([
+			"id": id - "-",
+			"name": prov->name,
+			"cot": (int)prov->center_of_trade,
+			"dev": dev,
+			"modifiers": modifiers,
+			"terrain": provinfo->terrain,
+			"climate": provinfo->climate || "temperate", //I *think* the ones with no climate specification are always Temperate??
+			"has_port": provinfo->has_port,
+			"settler_penalty": -(int)climateinfo->local_colonial_growth,
+			//Default sort order: "interestingness"
+			"score": dev - (int)climateinfo->local_colonial_growth + 100 * (int)prov->center_of_trade + 1000 * sizeof(modifiers),
+		])});
+		//Is there any way to figure out whether the province is accessible? Anything that has_port
+		//is accessible, as is anything adjacent to an existing province - even an unfinished colony,
+		//since it will at some point be viable. TODO?
+	}
+	write->colonization_targets = colonization_targets;
 }
 
 mapping(string:array) interesting_provinces = ([]);
