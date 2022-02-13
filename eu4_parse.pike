@@ -839,7 +839,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			float threshold = estate->estimated_milliinfluence >= 100000 ? 70.0 : 50.0;
 			if ((float)estate->loyalty < threshold) ok = 0;
 		}
-		if (ok) write->notifications += ({"Estate land seizure is an option"});
+		if (ok) write->notifications += ({"Estate land seizure is available"});
 	}
 }
 
