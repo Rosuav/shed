@@ -815,7 +815,8 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			"has_port": provinfo->has_port,
 			"settler_penalty": -(int)climateinfo->local_colonial_growth,
 			//Default sort order: "interestingness"
-			"score": dev + (int)climateinfo->local_colonial_growth + 100 * (int)prov->center_of_trade + 1000 * sizeof(modifiers),
+			"score": (int)id + //Disambiguation
+				10000 * (dev + (int)climateinfo->local_colonial_growth + 100 * (int)prov->center_of_trade + 1000 * sizeof(modifiers)),
 		])});
 		//Is there any way to figure out whether the province is accessible? Anything that has_port
 		//is accessible, as is anything adjacent to an existing province - even an unfinished colony,
