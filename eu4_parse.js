@@ -363,6 +363,7 @@ export function render(state) {
 			LABEL(["Building highlight: ", SELECT({id: "highlight_options"}, OPTGROUP({label: "Building highlight"}))]),
 			DIV({id: "cyclegroup"}),
 			UL({id: "interesting_details"}),
+			UL({id: "notifications"}),
 			DIV({id: "now_parsing", className: "hidden"}),
 			DIV({id: "hovercountry", className: "hidden"}),
 		]),
@@ -442,4 +443,5 @@ export function render(state) {
 		set_content("#cyclegroup", ["Selected group: " + state.cyclegroup + " ", SPAN({className: "provgroup clear"}, "❎")]);
 	}
 	else set_content("#cyclegroup", "");
+	if (state.notifications) set_content("#notifications", state.notifications.map(n => LI({className: "interesting2"}, "🔔 " + n))); //Might end up having a "go-to" button on these
 }

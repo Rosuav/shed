@@ -343,6 +343,8 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	//Having gone through all of the above, we should now have estate influence modifiers.
 	//Now we can calculate the total influence, and then add in the effects of each estate.
 	if (country->estate) {
+		//TODO: Get a country with just one estate (maybe Tribes) and see if this needs to be
+		//arrayified. If it does, store it back so others can use it.
 		//Some estates might not work like this. Not sure.
 		//First, incorporate country-wide modifiers from privileges. (It's possible for privs to
 		//affect other estates' influences.)
@@ -374,6 +376,7 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 			if (influence < 40000) mul = 2;
 			if (influence < 20000) mul = 1;
 			_incorporate(modifiers, estate_defn["country_modifier_" + opinion], mul, 4);
+			estate->estimated_milliinfluence = influence;
 		}
 	}
 	return country->all_country_modifiers = modifiers;
@@ -824,6 +827,20 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	}
 	sort(-colonization_targets->score[*], colonization_targets);
 	write->colonization_targets = colonization_targets;
+
+	//Pick up a few possible notifications. The format may change (maybe a mapping with
+	//more info, maybe it'd include a keysend sequence or province ID?), but this is a start.
+	write->notifications = ({ });
+	//Would it be safe to seize land?
+	object seizetime = calendar(country->flags->?recent_land_seizure || "1.1.1")->add(Calendar.Gregorian.Year() * 5);
+	if (seizetime < calendar(data->date)) {
+		int ok = 1;
+		foreach (country->estate, mapping estate) {
+			float threshold = estate->estimated_milliinfluence >= 100000 ? 70.0 : 50.0;
+			if ((float)estate->loyalty < threshold) ok = 0;
+		}
+		if (ok) write->notifications += ({"Estate land seizure is an option"});
+	}
 }
 
 mapping(string:array) interesting_provinces = ([]);
