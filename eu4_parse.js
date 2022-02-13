@@ -160,8 +160,8 @@ export function render(state) {
 			DIV({id: "now_parsing", className: "hidden"}),
 			DIV({id: "hovercountry", className: "hidden"}),
 		]),
-		//TODO: Have DETAILS/SUMMARY nodes for every expandable, such that,
-		//whenever content is updated, they remain in their open/closed state
+		//Always have DETAILS/SUMMARY nodes for every expandable, such that,
+		//whenever content is updated, they remain in their open/closed state.
 	]);
 
 	if (state.error) {
