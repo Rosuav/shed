@@ -243,6 +243,23 @@ section("badboy_hatred", "Badboy Haters", state => [
 	]),
 ]);
 
+section("colonization_targets", "Colonization targets", state => [
+	SUMMARY("Colonization targets (" + state.colonization_targets.length + ")"), //TODO: Count interesting ones too?
+	TABLE({border: "1"}, [
+		table_head(["Province", "Dev", "Geography", "Settler penalty", "Features"]),
+		state.colonization_targets.map(prov => TR([
+			TD(PROV(prov.id, prov.name)),
+			TD(""+prov.dev),
+			TD(prov.climate + " " + prov.terrain + (prov.has_port ? " port" : "")),
+			TD(""+prov.settler_penalty),
+			TD(UL([
+				prov.cot && LI("L" + prov.cot + " center of trade"),
+				prov.modifiers.map(mod => LI(ABBR({title: mod.effects.join("\n")}, mod.name))),
+			])),
+		])),
+	]),
+]);
+
 section("highlight", "Building expansions", state => state.highlight.id ? [
 	SUMMARY("Building expansions: " + state.highlight.name),
 	P([proventer("expansions"), "If developed, these places could support a new " + state.highlight.name + ". "

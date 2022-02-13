@@ -78,6 +78,8 @@ color choice can be overridden based on its parent. */
 .province,.country {white-space: nowrap;}
 #upgradeables .province {margin-left: 1em;}
 
+#colonization_targets ul {margin: 0;}
+
 #interesting_details {margin: 0;}
 #interesting_details li {
 	margin: 1em 0;

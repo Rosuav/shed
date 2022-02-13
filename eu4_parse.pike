@@ -788,6 +788,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		if (dev < 3) continue; //Sea province, probably
 		if (!has_value(prov->discovered_by || ({ }), tag)) continue; //Filter to the ones you're aware of
 		array modifiers = map(Array.arrayify(prov->modifier)) { [mapping mod] = __ARGS__;
+			if (mod->hidden) return 0;
 			array effects = ({ });
 			foreach (country_modifiers[mod->modifier] || ([]); string effect; string value) {
 				if (effect == "picture") continue; //Would be cool to show the icon in the front end, but whatever
@@ -799,7 +800,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 				"name": L10n[mod->modifier],
 				"effects": effects,
 			]);
-		};
+		} - ({0});
 		mapping provinfo = province_info[id - "-"];
 		mapping terraininfo = terrain_definitions->categories[provinfo->terrain] || ([]);
 		mapping climateinfo = static_modifiers[provinfo->climate] || ([]);
@@ -820,6 +821,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		//is accessible, as is anything adjacent to an existing province - even an unfinished colony,
 		//since it will at some point be viable. TODO?
 	}
+	sort(-colonization_targets->score[*], colonization_targets);
 	write->colonization_targets = colonization_targets;
 }
 
