@@ -151,6 +151,15 @@ section("cot", "Centers of Trade", state => {
 	return content;
 });
 
+section("monuments", "Monuments", state => [
+	SUMMARY(`Monuments [${state.monuments.length}]`),
+	TABLE({border: "1"}, [
+		TR([TH([proventer("monuments"), "Province"]), TH("Tier"), TH("Project"), TH("Upgrading")]),
+		state.monuments.map(m => TR([TD(PROV(m[1], m[3])), TD(m[2]), TD(m[4]), TD(m[5])])),
+	]),
+	provleave(),
+]);
+
 export function render(state) {
 	curgroup = []; provgroups = { };
 	//Set up one-time structure. Every subsequent render will update within that.
@@ -165,7 +174,6 @@ export function render(state) {
 			DIV({id: "pin"}, H3("Pinned provinces")),
 		]),
 		sections.map(s => DETAILS({id: s.id}, SUMMARY(s.lbl))),
-		DETAILS({id: "monuments"}, SUMMARY("Monuments")),
 		DETAILS({id: "favors"}, SUMMARY("Favors")),
 		DETAILS({id: "wars"}, SUMMARY("Wars")),
 		DETAILS({id: "badboy"}, SUMMARY("Badboy Haters")),
@@ -236,14 +244,6 @@ export function render(state) {
 	}
 	if (state.name) set_content("#player", state.name);
 	sections.forEach(s => state[s.id] && set_content("#" + s.id, s.render(state)));
-	if (state.monuments) set_content("#monuments", [
-		SUMMARY(`Monuments [${state.monuments.length}]`),
-		TABLE({border: "1"}, [
-			TR([TH([proventer("monuments"), "Province"]), TH("Tier"), TH("Project"), TH("Upgrading")]),
-			state.monuments.map(m => TR([TD(PROV(m[1], m[3])), TD(m[2]), TD(m[4]), TD(m[5])])),
-		]),
-		provleave(),
-	]);
 	if (state.favors) {
 		let free = 0, owed = 0, owed_total = 0;
 		function compare(val, base) {
