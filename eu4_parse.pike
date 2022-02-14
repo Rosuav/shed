@@ -343,11 +343,10 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	//Having gone through all of the above, we should now have estate influence modifiers.
 	//Now we can calculate the total influence, and then add in the effects of each estate.
 	if (country->estate) {
-		//TODO: Get a country with just one estate (maybe Tribes) and see if this needs to be
-		//arrayified. If it does, store it back so others can use it.
 		//Some estates might not work like this. Not sure.
 		//First, incorporate country-wide modifiers from privileges. (It's possible for privs to
 		//affect other estates' influences.)
+		country->estate = Array.arrayify(country->estate); //In case there's only one estate
 		foreach (country->estate, mapping estate) {
 			foreach (Array.arrayify(estate->granted_privileges), [string priv, string date]) {
 				mapping privilege = estate_privilege_definitions[priv];
