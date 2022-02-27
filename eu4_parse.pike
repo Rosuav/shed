@@ -858,7 +858,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	//(note that Supremacy agendas don't block this, though they still count as a current agenda)
 	//and (c) you have to not have any of those things that prevent you from summoning, like
 	//being England or not having estates.
-	object agendatime = calendar(country->flags->?recent_land_seizure || "1.1.1")->add(Calendar.Gregorian.Year() * 5);
+	object agendatime = calendar(country->flags->?recent_estate_agenda || "1.1.1")->add(Calendar.Gregorian.Year() * 5);
 	if (agendatime < calendar(data->date) && !country->active_agenda &&
 			!country->all_country_modifiers->blocked_call_diet && sizeof(country->estate)) {
 		write->notifications += ({"It's possible to summon the diet"});
