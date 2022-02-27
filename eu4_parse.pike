@@ -480,9 +480,9 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 	foreach ("gold men sailors" / " "; int i; string tradefor) {
 		string date = cd["trade_favors_for_" + tradefor];
 		string cur = sprintf("%.3f", permonth[i] * 6);
-		if (!date) {cooldowns += ({({"", "---", "--------", String.capitalize(tradefor), cur})}); continue;}
-		//FIXME: This is sometimes bombing out with a negative distance. Why?
-		int days; catch {days = today->distance(calendar(date)) / today;};
+		//Sometimes the cooldown is still recorded, but is in the past. No idea why. We hide that completely.
+		int days; catch {if (date) days = today->distance(calendar(date)) / today;};
+		if (!days) {cooldowns += ({({"", "---", "--------", String.capitalize(tradefor), cur})}); continue;}
 		cooldowns += ({({"", days, date, String.capitalize(tradefor), cur})}); //TODO: Don't include the initial empty string here, add it for tabulate() only
 	}
 	if (mappingp(write)) {
