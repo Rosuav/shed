@@ -481,7 +481,8 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 		string date = cd["trade_favors_for_" + tradefor];
 		string cur = sprintf("%.3f", permonth[i] * 6);
 		if (!date) {cooldowns += ({({"", "---", "--------", String.capitalize(tradefor), cur})}); continue;}
-		int days = today->distance(calendar(date)) / today;
+		//FIXME: This is sometimes bombing out with a negative distance. Why?
+		int days; catch {days = today->distance(calendar(date)) / today;};
 		cooldowns += ({({"", days, date, String.capitalize(tradefor), cur})}); //TODO: Don't include the initial empty string here, add it for tabulate() only
 	}
 	if (mappingp(write)) {
