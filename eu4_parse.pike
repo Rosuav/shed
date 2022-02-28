@@ -519,43 +519,52 @@ int count_building_slots(mapping data, string id) {
 
 mapping(string:string) manufactories = ([]); //Calculated from building_types
 void analyze_furnace(mapping data, string name, string tag, function|mapping write) {
-	if (mappingp(write)) return; //TODO UNSUPPORTED
 	mapping country = data->countries[tag];
-	array maxlvl = ({ }), upgradeable = ({ }), developable = ({ });
-	int seen = 0;
+	array coalprov = ({ });
 	foreach (country->owned_provinces, string id) {
 		mapping prov = data->provinces["-" + id];
 		if (prov->trade_goods != "coal") continue;
-		if (!seen) {write("Coal-producing provinces:\n"); seen = 1;}
 		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
 		mapping bldg = prov->buildings || ([]);
 		mapping mfg = bldg & manufactories;
-		if (bldg->furnace) write("%s\tHas Furnace\tDev %d\t%s\n", id, dev, string_to_utf8(prov->name));
+		string status = "";
+		if (bldg->furnace) status = "Has Furnace";
 		else if (building_id[(int)prov->building_construction->?building] == "furnace")
-			write("%s\t%s\tDev %d\t%s\n", id, prov->building_construction->date, dev, string_to_utf8(prov->name));
-		else if (sizeof(mfg)) write("\e[1;31m%s\tHas %s\tDev %d\t%s\e[0m\n", id, values(mfg)[0], dev, string_to_utf8(prov->name));
-		else {
-			int slots = count_building_slots(data, id);
-			int buildings = sizeof(bldg);
-			if (prov->building_construction) {
-				//There's something being built. That consumes a slot, but if it's an
-				//upgrade, then that slot doesn't really count. If you have four slots,
-				//four buildings, and one of them is being upgraded, the game will show
-				//that there are five occupied slots and none open; for us here, it's
-				//cleaner to show it as 4/4.
-				++buildings;
-				string upg = building_id[(int)prov->building_construction->building];
-				while (string was = building_types[upg]->make_obsolete) {
-					if (bldg[was]) {--buildings; break;}
-					upg = was;
-				}
+			status = prov->building_construction->date;
+		else if (sizeof(mfg)) status = values(mfg)[0];
+		else if (prov->settlement_growth_construction) status = "SETTLER ACTIVE"; //Can't build while there's a settler promoting growth);
+		int slots = count_building_slots(data, id);
+		int buildings = sizeof(bldg);
+		if (prov->building_construction) {
+			//There's something being built. That consumes a slot, but if it's an
+			//upgrade, then that slot doesn't really count. If you have four slots,
+			//four buildings, and one of them is being upgraded, the game will show
+			//that there are five occupied slots and none open; for us here, it's
+			//cleaner to show it as 4/4.
+			++buildings;
+			string upg = building_id[(int)prov->building_construction->building];
+			while (string was = building_types[upg]->make_obsolete) {
+				if (bldg[was]) {--buildings; break;}
+				upg = was;
 			}
-			interesting(id, PRIO_IMMEDIATE); //TODO: Should it always be highlighted at the same prio? Should it always even be highlighted?
-			write("\e[1;%dm%s\t%d/%d bldg\tDev %d\t%s%s\e[0m\n", buildings < slots ? 32 : 36, id, buildings, slots, dev,
-				string_to_utf8(prov->name), prov->settlement_growth_construction ? " - SETTLER ACTIVE" : ""); //Can't build while there's a settler promoting growth);
 		}
+		coalprov += ({([
+			"id": id, "name": prov->name,
+			"status": status, "dev": dev,
+			"buildings": buildings, "slots": slots,
+		])});
 	}
-	if (seen) write("\n");
+	if (mappingp(write)) {write->coal_provinces = coalprov; return;}
+	if (!sizeof(coalprov)) return;
+	write("Coal-producing provinces:\n");
+	foreach (coalprov, mapping p)
+		if (p->status == "") {
+			interesting(p->id, PRIO_IMMEDIATE); //TODO: Should it always be highlighted at the same prio? Should it always even be highlighted?
+			write("e[1;%dm%s\t%d/%d bldg\t%d dev\t%s\n", p->buildings < p->slots ? 32 : 36,
+				p->id, p->buildings, p->slots, p->dev, string_to_utf8(p->name));
+		}
+		else write("%s\t%s\t%d dev\t%s\n", p->id, p->status, p->dev, string_to_utf8(p->name));
+	write("\n");
 }
 
 void analyze_upgrades(mapping data, string name, string tag, function|mapping write) {

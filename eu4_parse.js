@@ -161,6 +161,20 @@ section("monuments", "Monuments", state => [
 	provleave(),
 ]);
 
+section("coal_provinces", "Coal provinces", state => {
+	max_interesting.coal_provinces = 0;
+	const content = [
+		SUMMARY(`Coal-producing provinces [${state.coal_provinces.length}]`),
+		TABLE({border: "1"}, [
+			TR([TH([proventer("coal_provinces"), "Province"]), TH("Manufactory"), TH("Dev"), TH("Buildings")]),
+			state.coal_provinces.map(m => TR({className: m.status ? "" : "interesting" + (max_interesting.coal_provinces = 1)},
+				[TD(PROV(m.id, m.name)), TD(m.status), TD(m.dev+""), TD(m.buildings + "/" + m.slots)])),
+		]),
+	];
+	provleave();
+	return content;
+});
+
 section("favors", "Favors", state => {
 	let free = 0, owed = 0, owed_total = 0;
 	function compare(val, base) {
