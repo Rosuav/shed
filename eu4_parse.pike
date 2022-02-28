@@ -880,8 +880,19 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			case "agenda_trade_node": //TODO: Show that it's actually the trade node there??
 			case "agenda_province": write->agenda->province = target->province; break;
 			case "agenda_country": write->agenda->country = target->country; break;
+			case "rival_country": write->agenda->rival_country = target->country; break;
 		}
+		if (write->agenda->province) write->agenda->province_name = data->provinces["-" + write->agenda->province]->name;
 		//If we never find a target of a type we recognize, there's nothing to highlight.
+		//TODO: Process some other agenda description placeholders before shooting it through to the front end
+		//agenda_province.GetAreaName
+		//agenda_trade_node.GetTradeNodeName (hack it, replace with "[agenda_province.GetName]"?)
+		//Root.Religion.GetName (hack it, replace with ""?)
+		//Root.Culture.GetName
+		//Root.GetLegitimacyOrMeritocracy
+		//agenda_country.GetAdjective (replace with "[agenda_country.GetUsableName]"? Close enough?)
+		//Root.GetAdjective (replace with ""?)
+		//Root.GetReligionNoun (replace with "religion"?)
 	}
 	else {
 		//Can you summon the diet?

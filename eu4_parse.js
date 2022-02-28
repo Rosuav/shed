@@ -1,6 +1,7 @@
 //Not to be confused with eu4_parse.json which is a cache
 import choc, {set_content, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
-const {A, ABBR, B, BLOCKQUOTE, DETAILS, DIV, FORM, H1, H3, H4, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
+const {A, ABBR, B, BR, DETAILS, DIV, FORM, H1, H3, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
+const {BLOCKQUOTE, H4} = choc; //Currently autoimport doesn't recognize the section() decorator
 
 function table_head(headings) {
 	if (typeof headings === "string") headings = headings.split(" ");
@@ -364,6 +365,7 @@ export function render(state) {
 			DIV({id: "cyclegroup"}),
 			UL({id: "interesting_details"}),
 			UL({id: "notifications"}),
+			DIV({id: "agenda"}),
 			DIV({id: "now_parsing", className: "hidden"}),
 			DIV({id: "hovercountry", className: "hidden"}),
 		]),
@@ -444,4 +446,32 @@ export function render(state) {
 	}
 	else set_content("#cyclegroup", "");
 	if (state.notifications) set_content("#notifications", state.notifications.map(n => LI({className: "interesting2"}, "🔔 " + n))); //Might end up having a "go-to" button on these
+	if (state.agenda) {
+		//Regardless of the agenda, you'll have a description and an expiry date.
+		//The description might contain placeholders "[agenda_province.GetName]"
+		//and/or "[agenda_country.GetUsableName]", which should be replaced with
+		//PROV() and COUNTRY() markers respectively. It may also contain other
+		//markers. Currently we have no way to handle these here on the client,
+		//so hopefully the server can cope with them on our behalf.
+		let prov = state.agenda.province && PROV(state.agenda.province, state.agenda.province_name);
+		let country = state.agenda.country && COUNTRY(state.agenda.country);
+		let rival_country = state.agenda.rival_country && COUNTRY(state.agenda.rival_country);
+		let info = ["Agenda expires ", state.agenda.expiry, ": ", BR()];
+		let desc = state.agenda.desc;
+		let spl;
+		while (spl = /^(.*)\[([^\]]*)\](.*)$/.exec(desc)) {
+			info.push(spl[1]);
+			switch (spl[2]) {
+				case "agenda_province.GetName": info.push(prov || "(province)"); prov = null; break;
+				case "agenda_country.GetUsableName": info.push(country || "(country)"); country = null; break;
+				case "rival_country.GetUsableName": info.push(rival_country || "(rival)"); rival_country = null; break;
+				default: info.push(B(spl[2])); //Unknown marker type, which the server didn't translate for us. A bit ugly.
+			}
+			desc = spl[3];
+		}
+		info.push(desc);
+		if (prov) info.push(BR(), "See: ", prov); //If there's no placeholder, but there is a focus-on province/country, show it underneath.
+		if (country) info.push(BR(), "See: ", country);
+		set_content("#agenda", info);
+	}
 }
