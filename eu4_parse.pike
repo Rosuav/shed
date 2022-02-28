@@ -286,7 +286,7 @@ object calendar(string date) {
 mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers;
 mapping trade_goods, country_modifiers, age_definitions, tech_definitions, institutions;
 mapping cot_definitions, state_edicts, terrain_definitions, imperial_reforms;
-mapping cb_types, wargoal_types;
+mapping cb_types, wargoal_types, estate_agendas;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -858,15 +858,42 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		if (estateland < 1000) ok = 0;
 		if (ok) write->notifications += ({"Estate land seizure is available"});
 	}
-	//Can you summon the diet?
-	//This requires (a) no current agenda, (b) at least five years since last diet summoned
-	//(note that Supremacy agendas don't block this, though they still count as a current agenda)
-	//and (c) you have to not have any of those things that prevent you from summoning, like
-	//being England or not having estates.
-	object agendatime = calendar(country->flags->?recent_estate_agenda || "1.1.1")->add(Calendar.Gregorian.Year() * 5);
-	if (agendatime < calendar(data->date) && !country->active_agenda &&
-			!country->all_country_modifiers->blocked_call_diet && sizeof(country->estate)) {
-		write->notifications += ({"It's possible to summon the diet"});
+	if (mapping ag = country->active_agenda) {
+		//You have an active agenda.
+		write->agenda = ([
+			"expiry": ag->expiry_date,
+			"desc": L10n[ag->agenda] || ag->agenda,
+		]);
+		//Agendas have different types of highlighting available to them.
+		//We support agenda_province and agenda_country modes, but that's
+		//all; there are a number of more complicated ones, including:
+		//- Any in this area
+		//- All in this area
+		//- All non-owned in this area
+		//- Provinces controlled by rebels
+		//We don't support these. Some of them will highlight a province
+		//(eg the "area" ones), others won't highlight anything.
+		//Proper handling of highlight types would require parsing the estate_agendas
+		//files and interpreting the provinces_to_highlight block. These files can now
+		//be parsed (see below, commented out), but executing the highlight block is hard.
+		foreach (Array.arrayify(ag->scope->?saved_event_target), mapping target) switch (target->name) {
+			case "agenda_trade_node": //TODO: Show that it's actually the trade node there??
+			case "agenda_province": write->agenda->province = target->province; break;
+			case "agenda_country": write->agenda->country = target->country; break;
+		}
+		//If we never find a target of a type we recognize, there's nothing to highlight.
+	}
+	else {
+		//Can you summon the diet?
+		//This requires (a) no current agenda, (b) at least five years since last diet summoned
+		//(note that Supremacy agendas don't block this, though they still count as a current agenda)
+		//and (c) you have to not have any of those things that prevent you from summoning, like
+		//being England or not having estates.
+		object agendatime = calendar(country->flags->?recent_estate_agenda || "1.1.1")->add(Calendar.Gregorian.Year() * 5);
+		if (agendatime < calendar(data->date) && sizeof(country->estate) &&
+				!country->all_country_modifiers->blocked_call_diet) {
+			write->notifications += ({"It's possible to summon the diet"});
+		}
 	}
 }
 
@@ -1758,6 +1785,7 @@ int main(int argc, array(string) argv) {
 	cb_types = parse_config_dir(PROGRAM_PATH + "/common/cb_types");
 	wargoal_types = parse_config_dir(PROGRAM_PATH + "/common/wargoal_types");
 	custom_country_colors = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/custom_country_colors/00_custom_country_colors.txt"));
+	//estate_agendas = parse_config_dir(PROGRAM_PATH + "/common/estate_agendas"); //Not currently in use
 
 	//Parse out localised province names and map from province ID to all its different names
 	province_localised_names = ([]);
