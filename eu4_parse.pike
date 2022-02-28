@@ -110,7 +110,7 @@ mapping low_parse_savefile(string|Stdio.Buffer data, int|void verbose) {
 			return ({"string", str[0]});
 		}
 		if (array digits = data->sscanf("%[-0-9.]")) return ({"string", digits[0]});
-		if (array|string word = data->sscanf("%[0-9a-zA-Z_\x81-\xFE]")) { //Include non-ASCII characters as letters
+		if (array|string word = data->sscanf("%[0-9a-zA-Z_\x81-\xFE:]")) { //Include non-ASCII characters as letters
 			word = word[0];
 			//Unquoted tokens like institution_events.2 should be atoms, not atom-followed-by-number
 			if (array dotnumber = data->sscanf(".%[0-9]")) word += "." + dotnumber[0];
@@ -179,7 +179,7 @@ mapping parse_savefile(string data, int|void verbose) {
 mapping parse_config_dir(string dir) {
 	mapping ret = ([]);
 	foreach (sort(get_dir(dir)), string fn)
-		ret |= low_parse_savefile(Stdio.read_file(dir + "/" + fn));
+		ret |= low_parse_savefile(Stdio.read_file(dir + "/" + fn)) || ([]);
 	return ret;
 }
 
