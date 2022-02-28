@@ -851,6 +851,11 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			float threshold = estate->estimated_milliinfluence >= 100000 ? 70.0 : 50.0;
 			if ((float)estate->loyalty < threshold) ok = 0;
 		}
+		//How much crownland do you have? Or rather: how much land do your estates have?
+		//If you have 100% crownland, you can't seize. But if you have 99%, you probably
+		//don't want to seize, so don't prompt.
+		int estateland = `+(0, @threeplace(country->estate->territory[*]));
+		if (estateland < 1000) ok = 0;
 		if (ok) write->notifications += ({"Estate land seizure is available"});
 	}
 	//Can you summon the diet?
