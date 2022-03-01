@@ -911,6 +911,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		//Root.GetReligionNoun (replace with "religion"?)
 	}
 	else {
+		write->agenda = ([]);
 		//Can you summon the diet?
 		//This requires (a) no current agenda, (b) at least five years since last diet summoned
 		//(note that Supremacy agendas don't block this, though they still count as a current agenda)

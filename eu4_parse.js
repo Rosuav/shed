@@ -460,7 +460,7 @@ export function render(state) {
 	}
 	else set_content("#cyclegroup", "");
 	if (state.notifications) set_content("#notifications", state.notifications.map(n => LI({className: "interesting2"}, "🔔 " + n))); //Might end up having a "go-to" button on these
-	if (state.agenda) {
+	if (state.agenda && state.agenda.expires) {
 		//Regardless of the agenda, you'll have a description and an expiry date.
 		//The description might contain placeholders "[agenda_province.GetName]"
 		//and/or "[agenda_country.GetUsableName]", which should be replaced with
@@ -488,4 +488,5 @@ export function render(state) {
 		if (country) info.push(BR(), "See: ", country);
 		set_content("#agenda", info);
 	}
+	else if (state.agenda) set_content("#agenda", "");
 }
