@@ -523,12 +523,19 @@ void analyze_furnace(mapping data, string name, string tag, function|mapping wri
 	array coalprov = ({ });
 	foreach (country->owned_provinces, string id) {
 		mapping prov = data->provinces["-" + id];
-		if (prov->trade_goods != "coal") continue;
+		if (!province_info[id]->has_coal) continue;
 		int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
 		mapping bldg = prov->buildings || ([]);
 		mapping mfg = bldg & manufactories;
 		string status = "";
-		if (bldg->furnace) status = "Has Furnace";
+		if (prov->trade_goods != "coal") {
+			//Not yet producing coal. There are a few reasons this could be the case.
+			if (country->institutions[6] != "1") status = "Not embraced";
+			else if (prov->institutions[6] != "100.000") status = "Not Enlightened";
+			else if (dev < 20 && (int)country->innovativeness < 20) status = "Need 20 dev/innov";
+			else status = "Producing " + prov->trade_goods; //Assuming the above checks are bug-free, the province should flip to coal at the start of the next month.
+		}
+		else if (bldg->furnace) status = "Has Furnace";
 		else if (building_id[(int)prov->building_construction->?building] == "furnace")
 			status = prov->building_construction->date;
 		else if (sizeof(mfg)) status = values(mfg)[0];
@@ -560,7 +567,7 @@ void analyze_furnace(mapping data, string name, string tag, function|mapping wri
 	foreach (coalprov, mapping p)
 		if (p->status == "") {
 			interesting(p->id, PRIO_IMMEDIATE); //TODO: Should it always be highlighted at the same prio? Should it always even be highlighted?
-			write("e[1;%dm%s\t%d/%d bldg\t%d dev\t%s\n", p->buildings < p->slots ? 32 : 36,
+			write("\e[1;%dm%s\t%d/%d bldg\t%d dev\t%s\n", p->buildings < p->slots ? 32 : 36,
 				p->id, p->buildings, p->slots, p->dev, string_to_utf8(p->name));
 		}
 		else write("%s\t%s\t%d dev\t%s\n", p->id, p->status, p->dev, string_to_utf8(p->name));
@@ -1849,6 +1856,15 @@ int main(int argc, array(string) argv) {
 			script->write(
 #"%s = {
 	set_variable = { which = terrain_reported value = -1 }
+	if = {
+		limit = {
+			OR = {
+				trade_goods = coal
+				has_latent_trade_goods = coal
+			}
+		}
+		log = \"PROV-TERRAIN: %<s has_coal=1\"
+	}
 	if = {
 		limit = { has_port = yes is_wasteland = no }
 		log = \"PROV-TERRAIN: %<s has_port=1\"
