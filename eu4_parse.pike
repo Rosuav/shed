@@ -878,7 +878,6 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		//You have an active agenda.
 		write->agenda = ([
 			"expiry": ag->expiry_date,
-			"desc": L10n[ag->agenda] || ag->agenda,
 		]);
 		//Agendas have different types of highlighting available to them.
 		//We support agenda_province and agenda_country modes, but that's
@@ -900,15 +899,25 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		}
 		if (write->agenda->province) write->agenda->province_name = data->provinces["-" + write->agenda->province]->name;
 		//If we never find a target of a type we recognize, there's nothing to highlight.
-		//TODO: Process some other agenda description placeholders before shooting it through to the front end
+		string desc = L10n[ag->agenda] || ag->agenda;
+		//Process some other agenda description placeholders before shooting it through to the front end
+		//Most of these are hacks to make it less ugly, because the specific info isn't really interesting.
+		desc = replace(desc, ([
+			//Trade node names aren't easy to get, and we can't focus on the trade node
+			//anyway, so just focus on the (sea) province and name it.
+			"[agenda_trade_node.GetTradeNodeName]": "[agenda_province.GetName]",
+			//When you need to convert a province, it's obvious which religion to convert to.
+			"[Root.Religion.GetName]": "", "[Root.GetReligionNoun]": "",
+			//If you have Meritocracy mechanics, yeah, whatever, it's just legitimacy in the description.
+			"[Root.GetLegitimacyOrMeritocracy]": "Legitimacy",
+			//This might be close enough?
+			"[agenda_country.GetAdjective]": "[agenda_country.GetUsableName]",
+			"[Root.GetAdjective]": "",
+		]));
+		//TODO: Actually dig up culture and area names
 		//agenda_province.GetAreaName
-		//agenda_trade_node.GetTradeNodeName (hack it, replace with "[agenda_province.GetName]"?)
-		//Root.Religion.GetName (hack it, replace with ""?)
 		//Root.Culture.GetName
-		//Root.GetLegitimacyOrMeritocracy
-		//agenda_country.GetAdjective (replace with "[agenda_country.GetUsableName]"? Close enough?)
-		//Root.GetAdjective (replace with ""?)
-		//Root.GetReligionNoun (replace with "religion"?)
+		write->agenda->desc = desc;
 	}
 	else {
 		write->agenda = ([]);
