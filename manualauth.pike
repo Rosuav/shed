@@ -1,4 +1,5 @@
 #!/usr/local/bin/pike
+object oldhttp, httptimer;
 class Connection(object sock) {
 	Stdio.Buffer buf = Stdio.Buffer();
 	string token, validation;
@@ -13,13 +14,16 @@ class Connection(object sock) {
 			write("GOT LINE %O %O\n", ret[0], ret[1]);
 			sock->close();
 			[token, validation] = ret;
-			http = Protocols->HTTP->Server->Port(handler, 80); //Not doing compile-time lookup to avoid spamming warnings in the parent
+			if (oldhttp && httptimer->peek() > 60) {oldhttp->close(); sleep(1);}
+			oldhttp = http = Protocols->HTTP->Server->Port(handler, 80); //Not doing compile-time lookup to avoid spamming warnings in the parent
+			httptimer = System.Timer();
 		}
 	}
 	void handler(object req) {
 		if (req->not_query == "/.well-known/acme-challenge/" + token) {
 			req->response_and_finish((["data": validation, "type": "text/plain; charset=\"UTF-8\""]));
 			call_out(http->close, 1, 0); //Dwell for one second in case there are doubled requests
+			oldhttp = 0;
 		}
 		else req->response_and_finish((["error": 404]));
 	}
