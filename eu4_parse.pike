@@ -1572,7 +1572,7 @@ void websocket_cmd_cycleprovinces(mapping conn, mapping data) {
 
 void websocket_cmd_search(mapping conn, mapping data) {
 	mapping prefs = persist_path(conn->group);
-	prefs->search = stringp(data->term) ? data->term : "";
+	prefs->search = stringp(data->term) ? lower_case(data->term) : "";
 	persist_save(); update_group(conn->group);
 }
 
