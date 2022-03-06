@@ -1968,6 +1968,9 @@ log = \"PROV-TERRAIN-END\"
 	Stdio.Port mainsock = Stdio.Port();
 	mainsock->bind(1444, sock_connected, "::", 1);
 	Protocols.WebSocket.Port(http_handler, ws_handler, 8087, "::");
+	//TODO: Monitor the log, and every time there's a new line that matches "[messagehandler.cpp:351]: ... peace ...",
+	//add it to a list of peace treaties. When the log is truncated or replaced, clear that list.
+	//object log = Stdio.File(SAVE_PATH + "/../logs/game.log");
 	return -1;
 }
 #ifdef G
