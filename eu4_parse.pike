@@ -361,7 +361,7 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 		country->estate = Array.arrayify(country->estate); //In case there's only one estate
 		foreach (country->estate, mapping estate) {
 			foreach (Array.arrayify(estate->granted_privileges), [string priv, string date]) {
-				mapping privilege = estate_privilege_definitions[priv];
+				mapping privilege = estate_privilege_definitions[priv]; if (!privilege) continue;
 				_incorporate(data, modifiers, privilege->penalties);
 				_incorporate(data, modifiers, privilege->benefits);
 			}
