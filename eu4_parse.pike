@@ -1736,6 +1736,9 @@ void watch_game_log(object inot) {
 			if (!sscanf(line, "[messagehandler.cpp:%*d]: %s", line)) continue;
 			if (has_value(line, "peace")) { //TODO: Filter out any that don't belong, like some event choices
 				write("PEACE: %O\n", line);
+				//TODO: Tag something so that, the next time we see a save file, we augment the
+				//peace info with the participants, the peace treaty value (based on truce length),
+				//and the name of the war. Should be possible to match on the date (beginning of line).
 				//Parse out colour codes and other markers
 				array info = ({ });
 				while (sscanf(line, "%s\xA7%c%s", string txt, int code, line) == 3) {
