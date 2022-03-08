@@ -1780,7 +1780,7 @@ array parse_text_markers(string line) {
 }
 
 void watch_game_log(object inot) {
-	//Monitor the log, and every time there's a new line that matches "[messagehandler.cpp:351]: ... peace ...",
+	//Monitor the log, and every time there's a new line that matches "[messagehandler.cpp:351]: ... accepted peace ...",
 	//add it to a list of peace treaties. When the log is truncated or replaced, clear that list.
 	string logfn = SAVE_PATH + "/../logs/game.log";
 	object log = Stdio.File(logfn);
@@ -1791,7 +1791,7 @@ void watch_game_log(object inot) {
 		while (sscanf(data, "%s\n%s", string line, data)) {
 			line = String.trim(line);
 			if (!sscanf(line, "[messagehandler.cpp:%*d]: %s", line)) continue;
-			if (has_value(line, "peace")) { //TODO: Filter out any that don't belong, like some event choices
+			if (has_value(line, "accepted peace")) { //TODO: Make sure this filters out any that don't belong, like some event choices
 				write("PEACE: %O\n", line);
 				//TODO: Tag something so that, the next time we see a save file, we augment the
 				//peace info with the participants, the peace treaty value (based on truce length),
