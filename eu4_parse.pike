@@ -1719,6 +1719,8 @@ mapping get_state(string group) {
 array text_with_icons(string text) {
 	//TODO: Check character encoding. This is assuming the log file is ISO-8859-1.
 	//TODO: Parse out icons like "\xA3dip" into image references
+	//See interface/texticons.gfx, then parse the files (use imagemagick if needed),
+	//and cache the results. May be able to reuse some of the flag rendering code.
 	return ({"", text});
 }
 
