@@ -336,6 +336,7 @@ function render_text(txt) {
 	if (Array.isArray(txt)) return txt.map(render_text);
 	if (txt.color) return SPAN({style: "color: rgb(" + txt.color + ")"}, render_text(txt.text));
 	if (txt.abbr) return ABBR({title: txt.title}, txt.abbr);
+	if (txt.icon) return IMG({src: txt.icon, alt: txt.title, title: txt.title});
 	return render_text({abbr: "<ERROR>", title: "Unknown text format: " + Object.keys(txt)});
 }
 //Note that this can and will be updated independently of the rest of the save file.

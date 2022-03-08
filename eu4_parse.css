@@ -145,3 +145,6 @@ color choice can be overridden based on its parent. */
 	margin: 0.5em 1em 0.5em 0;
 	padding: 0.25em 0.5em;
 }
+#recent_peace_treaties img {
+	vertical-align: middle;
+}

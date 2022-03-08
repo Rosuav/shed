@@ -1719,12 +1719,64 @@ mapping get_state(string group) {
 	return ret;
 }
 
-array text_with_icons(string text) {
+mapping(string:array|string|object) icons = ([]);
+array|string text_with_icons(string text) {
 	//TODO: Check character encoding. This is assuming the log file is ISO-8859-1.
-	//TODO: Parse out icons like "\xA3dip" into image references
-	//See interface/texticons.gfx, then parse the files (use imagemagick if needed),
-	//and cache the results. May be able to reuse some of the flag rendering code.
-	return text;
+	//Parse out icons like "\xA3dip" into image references
+	text = replace(text, "\xA4", "\xA3icon_gold\xA3"); //\xA4 is a shorthand for the "ducats" icon
+	array ret = ({ });
+	while (sscanf(text, "%s\xA3%s%[ .,()\xA3]%s", string plain, string icon, string end, text) == 4) {
+		//For some reason, %1[...] doesn't do what I want.
+		sscanf(end, "%1s%s", end, string trail); text = trail + text;
+		//The icon marker ends with either another \xA3 or some punctuation. If it's punctuation, retain it.
+		if (end != "\xA3") text = end + text;
+		string key;
+		//TODO: If we find multiple arrays of filenames, join them together
+		foreach (({"GFX_text_" + icon, "GFX_" + icon}), string tryme) if (icons[tryme]) {key = tryme; break;}
+		array|string img = key ? icons[key] : "data:image/borked,unknown_key";
+		if (arrayp(img)) {
+			//Some icons have multiple files. Try each one in turn until one succeeds.
+			//Hack: Some are listed with TGA files, but actually have DDSes provided.
+			//So we ignore the suffix and just try both.
+			array allfn = ({ });
+			foreach (img, string fn) allfn += ({fn, replace(fn, ".dds", ".tga"), replace(fn, ".tga", ".dds")});
+			img = Array.uniq(allfn);
+			foreach (img, string fn) {
+				object|mapping png = load_image(PROGRAM_PATH + "/" + fn);
+				if (mappingp(png)) png = png->image;
+				if (!png) continue;
+				img = "data:image/png;base64," + MIME.encode_base64(Image.PNG.encode(png), 1);
+				break;
+			}
+			if (arrayp(img)) img = "data:image/borked," + img * ","; //Hopefully browsers will know that they can't render this
+			icons["GFX_text_" + icon] = img;
+		}
+		ret += ({plain, (["icon": img, "title": icon])});
+	}
+	if (!sizeof(ret)) return text;
+	return ret + ({text});
+}
+
+mapping textcolors;
+array parse_text_markers(string line) {
+	//Parse out colour codes and other markers
+	array info = ({ });
+	while (sscanf(line, "%s\xA7%1s%s", string txt, string code, line) == 3) {
+		if (txt != "") info += ({text_with_icons(txt)});
+		//"\xA7!" means reset, and "\xA7W" means white, which seems to be used
+		//as a reset. Ignore them both and just return the text as-is.
+		if (code == "!" || code == "W") continue;
+		array(string) color = textcolors[code];
+		if (!color) {
+			info += ({(["abbr": "<COLOR>", "title": "Unknown color code (" + code + ")"])});
+			continue;
+		}
+		//Sometimes color codes daisy-chain into each other. We prefer to treat them as containers though.
+		sscanf(line, "%s\xA7%s", line, string next);
+		info += ({(["color": color * ",", "text": text_with_icons(line)])});
+		if (next) line = "\xA7" + next; else line = "";
+	}
+	return info + ({text_with_icons(line)});
 }
 
 void watch_game_log(object inot) {
@@ -1734,11 +1786,6 @@ void watch_game_log(object inot) {
 	object log = Stdio.File(logfn);
 	log->set_nonblocking();
 	string data = "";
-	mapping gfx = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/interface/core.gfx"));
-	//There might be multiple bitmapfonts entries. Logically, I think they should just be merged? Not sure.
-	//It seems that only one of them has the textcolors block that we need.
-	mapping|array textcolors = gfx->bitmapfonts->textcolors;
-	if (arrayp(textcolors)) textcolors = (textcolors - ({0}))[0];
 	void parse() {
 		data += log->read();
 		while (sscanf(data, "%s\n%s", string line, data)) {
@@ -1749,21 +1796,7 @@ void watch_game_log(object inot) {
 				//TODO: Tag something so that, the next time we see a save file, we augment the
 				//peace info with the participants, the peace treaty value (based on truce length),
 				//and the name of the war. Should be possible to match on the date (beginning of line).
-				//Parse out colour codes and other markers
-				array info = ({ });
-				while (sscanf(line, "%s\xA7%1s%s", string txt, string code, line) == 3) {
-					info += ({text_with_icons(txt)});
-					array(string) color = textcolors[code];
-					if (!color) {
-						//This includes a loose "!"
-						info += ({(["abbr": "<COLOR>", "title": "Unknown color code (" + code + ")"])});
-						continue;
-					}
-					if (sscanf(line, "%s\xA7!%s", string colored, line)) info += ({(["color": color * ",", "text": colored])});
-					else info += ({(["abbr": "<COLOR>", "title": "Dangling color code (" + code + ")"])});
-				}
-				info += ({text_with_icons(line)});
-				recent_peace_treaties += ({info});
+				recent_peace_treaties += ({parse_text_markers(line)});
 				string msg = Standards.JSON.encode((["cmd": "update", "recent_peace_treaties": recent_peace_treaties]));
 				foreach (websocket_groups;; array socks)
 					foreach (socks, object sock)
@@ -1818,6 +1851,20 @@ int main(int argc, array(string) argv) {
 	}
 
 	//Load up some info that is presumed to not change. If you're modding the game, this may break.
+	mapping gfx = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/interface/core.gfx"));
+	//There might be multiple bitmapfonts entries. Logically, I think they should just be merged? Not sure.
+	//It seems that only one of them has the textcolors block that we need.
+	array|mapping tc = gfx->bitmapfonts->textcolors;
+	if (arrayp(tc)) textcolors = (tc - ({0}))[0]; else textcolors = tc;
+	foreach (sort(glob("*.gfx", get_dir(PROGRAM_PATH + "/interface"))), string fn) {
+		string raw = Stdio.read_file(PROGRAM_PATH + "/interface/" + fn);
+		//HACK: One of the files has a weird loose semicolon in it! Comment character? Unnecessary separator?
+		raw = replace(raw, ";", "");
+		mapping data = low_parse_savefile(raw);
+		array sprites = data->?spriteTypes->?spriteType;
+		if (sprites) foreach (Array.arrayify(sprites), mapping sprite)
+			icons[sprite->name] += ({sprite->texturefile});
+	}
 	catch {L10n = Standards.JSON.decode_utf8(Stdio.read_file(".eu4_localisation.json"));};
 	if (!mappingp(L10n)) {
 		L10n = ([]);
