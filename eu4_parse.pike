@@ -1626,6 +1626,7 @@ void send_update(array(object) socks, mapping state) {
 void update_group(string tag) {send_update(websocket_groups[tag], get_state(tag) | (["parsing": parsing && (parsing - 1) * 100 / PARSE_PROGRESS_FRACTION]));}
 void send_updates_all() {foreach (websocket_groups; string tag;) update_group(tag);}
 
+array recent_peace_treaties = ({ }); //Recent peace treaties only, but hopefully useful
 mapping get_state(string group) {
 	mapping data = last_parsed_savefile; //Get a local reference in case it changes while we're processing
 	if (!data) return (["error": "Processing savefile... "]);
@@ -1642,7 +1643,7 @@ mapping get_state(string group) {
 	}
 	mapping country = data->countries[tag];
 	if (!country) return (["error": "Country/player not found: " + group]);
-	mapping ret = (["tag": tag, "self": data->countries[tag], "highlight": ([])]);
+	mapping ret = (["tag": tag, "self": data->countries[tag], "highlight": ([]), "recent_peace_treaties": recent_peace_treaties]);
 	analyze(data, group, tag, ret, persist_path(group)->highlight_interesting);
 	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1], ret);
 	analyze_flagships(data, ret);
@@ -1713,6 +1714,41 @@ mapping get_state(string group) {
 	foreach (data->provinces; string id; mapping prov) if (has_value(Array.arrayify(prov->discovered_by), tag)) discov[id - "-"] = 1;
 
 	return ret;
+}
+
+void watch_game_log(object inot) {
+	//Monitor the log, and every time there's a new line that matches "[messagehandler.cpp:351]: ... peace ...",
+	//add it to a list of peace treaties. When the log is truncated or replaced, clear that list.
+	string logfn = SAVE_PATH + "/../logs/game.log";
+	object log = Stdio.File(logfn);
+	log->set_nonblocking();
+	string data = "";
+	void parse() {
+		data += log->read();
+		while (sscanf(data, "%s\n%s", string line, data)) {
+			line = String.trim(line);
+			if (!sscanf(line, "[messagehandler.cpp:%*d]: %s", line)) continue;
+			if (has_value(line, "peace")) {recent_peace_treaties += ({line}); write("PEACE: %O\n", line);}
+		}
+	}
+	parse();
+	int pos = log->tell();
+	inot->add_watch(logfn, System.Inotify.IN_MODIFY) {
+		[int event, int cookie, string path] = __ARGS__;
+		if (file_stat(logfn)->size < pos) {
+			//File seems to have been truncated. Note that this won't catch
+			//deleting the file and creating a new one.
+			log->seek(0);
+			recent_peace_treaties = ({ });
+		}
+		parse();
+		pos = log->tell();
+	};
+	//If we need to handle deletes/recreations or file movements, watch the directory too.
+	/*inot->add_watch(SAVE_PATH + "/../logs", System.Inotify.IN_CREATE | System.Inotify.IN_MOVED_TO) {
+		[int event, int cookie, string path] = __ARGS__;
+		write("Got a dir event! %O %O %O\n", event, cookie, path); //Moved is 128, create is 256
+	};*/
 }
 
 int main(int argc, array(string) argv) {
@@ -1964,13 +2000,11 @@ log = \"PROV-TERRAIN-END\"
 			case System.Inotify.IN_MOVED_TO: if (cookie == nomnomcookie) {nomnomcookie = 0; process_savefile(path);} break;
 		}
 	};
+	watch_game_log(inot);
 	inot->set_nonblocking();
 	Stdio.Port mainsock = Stdio.Port();
 	mainsock->bind(1444, sock_connected, "::", 1);
 	Protocols.WebSocket.Port(http_handler, ws_handler, 8087, "::");
-	//TODO: Monitor the log, and every time there's a new line that matches "[messagehandler.cpp:351]: ... peace ...",
-	//add it to a list of peace treaties. When the log is truncated or replaced, clear that list.
-	//object log = Stdio.File(SAVE_PATH + "/../logs/game.log");
 	return -1;
 }
 #ifdef G
