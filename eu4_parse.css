@@ -142,5 +142,6 @@ color choice can be overridden based on its parent. */
 #recent_peace_treaties li {
 	color: white;
 	background: black;
-	margin: 0.5em 0;
+	margin: 0.5em 1em 0.5em 0;
+	padding: 0.25em 0.5em;
 }

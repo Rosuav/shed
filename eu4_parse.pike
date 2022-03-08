@@ -109,7 +109,10 @@ mapping low_parse_savefile(string|Stdio.Buffer data, int|void verbose) {
 			//How are embedded quotes and/or backslashes handled?
 			return ({"string", str[0]});
 		}
-		if (array digits = data->sscanf("%[-0-9.]")) return ({"string", digits[0]});
+		if (array digits = data->sscanf("%[-0-9.]")) {
+			if (array hex = digits[0] == "0" && data->sscanf("x%[0-9a-fA-F]")) return ({"string", "0x" + hex[0]}); //Or should this be converted to decimal?
+			return ({"string", digits[0]});
+		}
 		if (array|string word = data->sscanf("%[0-9a-zA-Z_\x81-\xFE:]")) { //Include non-ASCII characters as letters
 			word = word[0];
 			//Unquoted tokens like institution_events.2 should be atoms, not atom-followed-by-number
@@ -1731,6 +1734,11 @@ void watch_game_log(object inot) {
 	object log = Stdio.File(logfn);
 	log->set_nonblocking();
 	string data = "";
+	mapping gfx = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/interface/core.gfx"));
+	//There might be multiple bitmapfonts entries. Logically, I think they should just be merged? Not sure.
+	//It seems that only one of them has the textcolors block that we need.
+	mapping|array textcolors = gfx->bitmapfonts->textcolors;
+	if (arrayp(textcolors)) textcolors = (textcolors - ({0}))[0];
 	void parse() {
 		data += log->read();
 		while (sscanf(data, "%s\n%s", string line, data)) {
@@ -1743,23 +1751,16 @@ void watch_game_log(object inot) {
 				//and the name of the war. Should be possible to match on the date (beginning of line).
 				//Parse out colour codes and other markers
 				array info = ({ });
-				while (sscanf(line, "%s\xA7%c%s", string txt, int code, line) == 3) {
+				while (sscanf(line, "%s\xA7%1s%s", string txt, string code, line) == 3) {
 					info += ({text_with_icons(txt)});
-					//TODO: Load interface/core.gfx and translate color codes from there
-					switch (code) {
-						case 'R': case 'Y': case 'G': {
-							//Color code
-							string color = (['R': "red", 'Y': "yellow", 'G': "green"])[code];
-							if (sscanf(line, "%s\xA7!%s", string colored, line)) info += ({(["color": color, "text": colored])});
-							else info += ({(["abbr": "<COLOR>", "title": "Dangling color code (" + color + ")"])});
-							break;
-						}
-						case '!':
-							info += ({(["abbr": "<COLOR>", "title": "Dangling color code (reset)"])});
-							break;
-						default:
-							info += ({(["abbr": "<CODE>", "title": sprintf("Unknown escape code (%c / 0x%<02X)", code)])});
+					array(string) color = textcolors[code];
+					if (!color) {
+						//This includes a loose "!"
+						info += ({(["abbr": "<COLOR>", "title": "Unknown color code (" + code + ")"])});
+						continue;
 					}
+					if (sscanf(line, "%s\xA7!%s", string colored, line)) info += ({(["color": color * ",", "text": colored])});
+					else info += ({(["abbr": "<COLOR>", "title": "Dangling color code (" + code + ")"])});
 				}
 				info += ({text_with_icons(line)});
 				recent_peace_treaties += ({info});

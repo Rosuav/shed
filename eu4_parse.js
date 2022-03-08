@@ -334,7 +334,7 @@ function render_text(txt) {
 	console.log(txt)
 	if (typeof txt === "string") return txt;
 	if (Array.isArray(txt)) return txt.map(render_text);
-	if (txt.color) return SPAN({style: "color: " + txt.color}, render_text(txt.text));
+	if (txt.color) return SPAN({style: "color: rgb(" + txt.color + ")"}, render_text(txt.text));
 	if (txt.abbr) return ABBR({title: txt.title}, txt.abbr);
 	return render_text({abbr: "<ERROR>", title: "Unknown text format: " + Object.keys(txt)});
 }
