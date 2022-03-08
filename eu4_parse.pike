@@ -1721,7 +1721,7 @@ mapping get_state(string group) {
 
 mapping(string:array|string|object) icons = ([]);
 array|string text_with_icons(string text) {
-	//TODO: Check character encoding. This is assuming the log file is ISO-8859-1.
+	//Note: This assumes the log file is ISO-8859-1. (It does always seem to be.)
 	//Parse out icons like "\xA3dip" into image references
 	text = replace(text, "\xA4", "\xA3icon_gold\xA3"); //\xA4 is a shorthand for the "ducats" icon
 	array ret = ({ });
