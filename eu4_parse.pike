@@ -1796,7 +1796,7 @@ void watch_game_log(object inot) {
 				//TODO: Tag something so that, the next time we see a save file, we augment the
 				//peace info with the participants, the peace treaty value (based on truce length),
 				//and the name of the war. Should be possible to match on the date (beginning of line).
-				recent_peace_treaties += ({parse_text_markers(line)});
+				recent_peace_treaties = ({parse_text_markers(line)}) + recent_peace_treaties;
 				string msg = Standards.JSON.encode((["cmd": "update", "recent_peace_treaties": recent_peace_treaties]));
 				foreach (websocket_groups;; array socks)
 					foreach (socks, object sock)
