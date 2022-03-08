@@ -329,6 +329,21 @@ section("flagships", "Flagships of the World", state => [
 	]),
 ]);
 
+//Render an array of text segments as DOM elements
+function render_text(txt) {
+	console.log(txt)
+	if (typeof txt === "string") return txt;
+	if (Array.isArray(txt)) return txt.map(render_text);
+	if (txt.color) return SPAN({style: "color: " + txt.color}, render_text(txt.text));
+	if (txt.abbr) return ABBR({title: txt.title}, txt.abbr);
+	return render_text({abbr: "<ERROR>", title: "Unknown text format: " + Object.keys(txt)});
+}
+//Note that this can and will be updated independently of the rest of the save file.
+section("recent_peace_treaties", "Recent peace treaties", state => [
+	SUMMARY(`Recent peace treaties: ${state.recent_peace_treaties.length}`),
+	UL(state.recent_peace_treaties.map(t => LI(render_text(t)))),
+]);
+
 section("truces", "Truces", state => [
 	SUMMARY("Truces: " + state.truces.map(t => t.length - 1).reduce((a,b) => a+b, 0) + " countries, " + state.truces.length + " blocks"),
 	state.truces.map(t => [

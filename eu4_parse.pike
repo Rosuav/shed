@@ -1721,7 +1721,7 @@ array text_with_icons(string text) {
 	//TODO: Parse out icons like "\xA3dip" into image references
 	//See interface/texticons.gfx, then parse the files (use imagemagick if needed),
 	//and cache the results. May be able to reuse some of the flag rendering code.
-	return ({"", text});
+	return text;
 }
 
 void watch_game_log(object inot) {
@@ -1750,15 +1750,15 @@ void watch_game_log(object inot) {
 						case 'R': case 'Y': case 'G': {
 							//Color code
 							string color = (['R': "red", 'Y': "yellow", 'G': "green"])[code];
-							if (sscanf(line, "%s\xA7!%s", string colored, line)) info += ({({color, colored})});
-							else info += ({({"abbr", "<COLOR>", "Dangling color code (" + color + ")"})});
+							if (sscanf(line, "%s\xA7!%s", string colored, line)) info += ({(["color": color, "text": colored])});
+							else info += ({(["abbr": "<COLOR>", "title": "Dangling color code (" + color + ")"])});
 							break;
 						}
 						case '!':
-							info += ({({"abbr", "<COLOR>", "Dangling color code (reset)"})});
+							info += ({(["abbr": "<COLOR>", "title": "Dangling color code (reset)"])});
 							break;
 						default:
-							info += ({({"abbr", "<CODE>", sprintf("Unknown escape code (%c / 0x%<02X)", code)})});
+							info += ({(["abbr": "<CODE>", "title": sprintf("Unknown escape code (%c / 0x%<02X)", code)])});
 					}
 				}
 				info += ({text_with_icons(line)});

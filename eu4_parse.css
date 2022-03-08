@@ -138,3 +138,9 @@ color choice can be overridden based on its parent. */
 .tech {padding: 0 0.25em;}
 .tech.above {background: #fbd;}
 .tech.below {background: #efe;}
+
+#recent_peace_treaties li {
+	color: white;
+	background: black;
+	margin: 0.5em 0;
+}
