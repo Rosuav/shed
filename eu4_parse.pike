@@ -1716,6 +1716,12 @@ mapping get_state(string group) {
 	return ret;
 }
 
+array text_with_icons(string text) {
+	//TODO: Check character encoding. This is assuming the log file is ISO-8859-1.
+	//TODO: Parse out icons like "\xA3dip" into image references
+	return ({"", text});
+}
+
 void watch_game_log(object inot) {
 	//Monitor the log, and every time there's a new line that matches "[messagehandler.cpp:351]: ... peace ...",
 	//add it to a list of peace treaties. When the log is truncated or replaced, clear that list.
@@ -1728,7 +1734,35 @@ void watch_game_log(object inot) {
 		while (sscanf(data, "%s\n%s", string line, data)) {
 			line = String.trim(line);
 			if (!sscanf(line, "[messagehandler.cpp:%*d]: %s", line)) continue;
-			if (has_value(line, "peace")) {recent_peace_treaties += ({line}); write("PEACE: %O\n", line);}
+			if (has_value(line, "peace")) { //TODO: Filter out any that don't belong, like some event choices
+				write("PEACE: %O\n", line);
+				//Parse out colour codes and other markers
+				array info = ({ });
+				while (sscanf(line, "%s\xA7%c%s", string txt, int code, line) == 3) {
+					info += ({text_with_icons(txt)});
+					//TODO: Load interface/core.gfx and translate color codes from there
+					switch (code) {
+						case 'R': case 'Y': case 'G': {
+							//Color code
+							string color = (['R': "red", 'Y': "yellow", 'G': "green"])[code];
+							if (sscanf(line, "%s\xA7!%s", string colored, line)) info += ({({color, colored})});
+							else info += ({({"abbr", "<COLOR>", "Dangling color code (" + color + ")"})});
+							break;
+						}
+						case '!':
+							info += ({({"abbr", "<COLOR>", "Dangling color code (reset)"})});
+							break;
+						default:
+							info += ({({"abbr", "<CODE>", sprintf("Unknown escape code (%c / 0x%<02X)", code)})});
+					}
+				}
+				info += ({text_with_icons(line)});
+				recent_peace_treaties += ({info});
+				string msg = Standards.JSON.encode((["cmd": "update", "recent_peace_treaties": recent_peace_treaties]));
+				foreach (websocket_groups;; array socks)
+					foreach (socks, object sock)
+						if (sock && sock->state == 1) sock->send_text(msg);
+			}
 		}
 	}
 	parse();
