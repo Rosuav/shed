@@ -37,6 +37,11 @@ def tidy_file(fn):
 		# even though I clearly said not to. So let's wipe that
 		# part of the config too.
 		data["saved_projectors"] = []
+	try: groups = data["groups"]
+	except KeyError: pass
+	else:
+		# Similarly, sort groups by their names.
+		groups.sort(key=lambda obj: obj["name"])
 	# And write the data out tidily, with consistent indent.
 	with open(fn, "w") as f:
 		json.dump(data, f, indent=4, sort_keys=True)
