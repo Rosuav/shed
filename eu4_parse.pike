@@ -1629,6 +1629,30 @@ void send_update(array(object) socks, mapping state) {
 void update_group(string tag) {send_update(websocket_groups[tag], get_state(tag) | (["parsing": parsing && (parsing - 1) * 100 / PARSE_PROGRESS_FRACTION]));}
 void send_updates_all() {foreach (websocket_groups; string tag;) update_group(tag);}
 
+/* Peace treaty analysis
+
+A peace treaty found in game.log begins with a date, eg "20 November 1445".
+If this was the final peace treaty (between war leaders), then data->previous_war will contain an entry
+that has its final history block carrying the same date ("1445.11.20").
+If it's a separate peace and the war is still ongoing in the current savefile, then data->active_war
+will contain an entry with a history block for the same date, stating that the attacker or defender
+was removed from the war.
+If it was a separate peace, but the entire war has closed out before the savefile happened, then the
+same war entry will be in data->previous_war.
+
+To check:
+1) In a non-final history entry, is it possible to get rem_attacker and rem_defender with the same date? It
+   would require a separate peace each direction while the game is paused. Get Stephen to help test.
+   (To test, declare war on each other, both with allies. Drag out the war, don't accept any peace terms,
+   until allies on both sides are willing to white peace. White peace one ally out. Can the *opposite* war
+   leader send a peace treaty? The same one can't. Keep war going until next save, or just save immediately.)
+2) When a country is annexed, does their entry remain, with the same country_name visible? We get tags in the
+   save file, but names in the summary ("Yas have accepted peace with Hormuz").
+3) Does a country always have a truce entry for that war? Check odd edge cases. Normally, if rem_attacker,
+   look for original_defender, and vice versa; self->active_relations[original_other] should have entries.
+4) What is last_war_status?
+*/
+
 array recent_peace_treaties = ({ }); //Recent peace treaties only, but hopefully useful
 mapping get_state(string group) {
 	mapping data = last_parsed_savefile; //Get a local reference in case it changes while we're processing
