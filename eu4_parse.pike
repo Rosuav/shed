@@ -172,6 +172,7 @@ mapping parse_savefile(string data, int|void verbose) {
 	mapping cache = Standards.JSON.decode_utf8(Stdio.read_file("eu4_parse.json") || "{}");
 	if (cache->hash == hexhash) return cache->data;
 	mapping ret = parse_savefile_string(data, verbose);
+	if (!ret) return 0; //Probably an Ironman save (binary format, can't be parsed by this system).
 	foreach (ret->countries; string tag; mapping c) c->tag = tag; //When looking at a country, it's often convenient to know its tag (reverse linkage).
 	Stdio.write_file("eu4_parse.json", string_to_utf8(Standards.JSON.encode((["hash": hexhash, "data": ret]))));
 	return ret;
@@ -1779,6 +1780,16 @@ array parse_text_markers(string line) {
 	return info + ({text_with_icons(line)});
 }
 
+string render_text(array|string|mapping txt) {
+	//Inverse of parse_text_markers: convert the stream into ANSI escape sequences.
+	if (stringp(txt)) return txt;
+	if (arrayp(txt)) return render_text(txt[*]) * "";
+	if (txt->color) return sprintf("\e[38;2;%sm%s\e[0m", replace(txt->color, ",", ";"), render_text(txt->text));
+	if (txt->abbr) return txt->abbr; //Ignore the hover (if there's no easy way to put it)
+	if (txt->icon) return "[" + txt->title + "]";
+	return "<ERROR>";
+}
+
 void watch_game_log(object inot) {
 	//Monitor the log, and every time there's a new line that matches "[messagehandler.cpp:351]: ... accepted peace ...",
 	//add it to a list of peace treaties. When the log is truncated or replaced, clear that list.
@@ -1792,11 +1803,11 @@ void watch_game_log(object inot) {
 			line = String.trim(line);
 			if (!sscanf(line, "[messagehandler.cpp:%*d]: %s", line)) continue;
 			if (has_value(line, "accepted peace")) { //TODO: Make sure this filters out any that don't belong, like some event choices
-				write("PEACE: %O\n", line);
 				//TODO: Tag something so that, the next time we see a save file, we augment the
 				//peace info with the participants, the peace treaty value (based on truce length),
 				//and the name of the war. Should be possible to match on the date (beginning of line).
 				recent_peace_treaties = ({parse_text_markers(line)}) + recent_peace_treaties;
+				write("PEACE: %s\n", render_text(recent_peace_treaties[0]));
 				string msg = Standards.JSON.encode((["cmd": "update", "recent_peace_treaties": recent_peace_treaties]));
 				foreach (websocket_groups;; array socks)
 					foreach (socks, object sock)

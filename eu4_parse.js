@@ -331,7 +331,6 @@ section("flagships", "Flagships of the World", state => [
 
 //Render an array of text segments as DOM elements
 function render_text(txt) {
-	console.log(txt)
 	if (typeof txt === "string") return txt;
 	if (Array.isArray(txt)) return txt.map(render_text);
 	if (txt.color) return SPAN({style: "color: rgb(" + txt.color + ")"}, render_text(txt.text));
