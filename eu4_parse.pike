@@ -1685,6 +1685,9 @@ mapping get_state(string group) {
 		foreach (sort(indices(data->provinces)), string id) { //Sort by ID for consistency
 			mapping prov = data->provinces[id];
 			foreach (({({prov->name, ""})}) + (province_localised_names[id - "-"]||({ })), [string tryme, string lang]) {
+				//I think this is sometimes getting an array of localised names
+				//(possibly including a capital name??). Should we pick one, or
+				//search all?
 				string folded = lower_case(tryme); //TODO: Fold to ASCII for the search
 				int pos = search(folded, term);
 				if (pos == -1) continue;
