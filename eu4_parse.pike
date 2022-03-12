@@ -1782,13 +1782,17 @@ array parse_text_markers(string line) {
 	return info + ({text_with_icons(line)});
 }
 
+constant ICON_REPRESENTATIONS = ([
+	"dip": "\U0001F54A\uFE0F", //Diplomacy is for the birds
+]);
+
 string render_text(array|string|mapping txt) {
 	//Inverse of parse_text_markers: convert the stream into ANSI escape sequences.
 	if (stringp(txt)) return txt;
 	if (arrayp(txt)) return render_text(txt[*]) * "";
 	if (txt->color) return sprintf("\e[38;2;%sm%s\e[0m", replace(txt->color, ",", ";"), render_text(txt->text));
 	if (txt->abbr) return txt->abbr; //Ignore the hover (if there's no easy way to put it)
-	if (txt->icon) return "[" + txt->title + "]";
+	if (txt->icon) return ICON_REPRESENTATIONS[txt->title] || "[" + txt->title + "]";
 	return "<ERROR>";
 }
 
@@ -1809,7 +1813,7 @@ void watch_game_log(object inot) {
 				//peace info with the participants, the peace treaty value (based on truce length),
 				//and the name of the war. Should be possible to match on the date (beginning of line).
 				recent_peace_treaties = ({parse_text_markers(line)}) + recent_peace_treaties;
-				write("PEACE: %s\n", render_text(recent_peace_treaties[0]));
+				write("PEACE: %s\n", string_to_utf8(render_text(recent_peace_treaties[0])));
 				string msg = Standards.JSON.encode((["cmd": "update", "recent_peace_treaties": recent_peace_treaties]));
 				foreach (websocket_groups;; array socks)
 					foreach (socks, object sock)
