@@ -1408,8 +1408,7 @@ class PipeConnection {
 			[string fn] = ret;
 			write("Reading save file %s\n", basename(fn));
 			string raw = Stdio.read_file(fn); //Assumes ISO-8859-1, which I think is correct
-			parse_savefile(raw);
-			sock->write("*"); //Signal the parent. It can read it back from the cache.
+			if (parse_savefile(raw)) sock->write("*"); //Signal the parent. It can read it back from the cache.
 		}
 	}
 }
