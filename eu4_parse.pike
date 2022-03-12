@@ -1648,7 +1648,9 @@ mapping get_state(string group) {
 	if (!country) return (["error": "Country/player not found: " + group]);
 	mapping ret = (["tag": tag, "self": data->countries[tag], "highlight": ([]), "recent_peace_treaties": recent_peace_treaties]);
 	analyze(data, group, tag, ret, persist_path(group)->highlight_interesting);
-	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1], ret);
+	multiset players = (multiset)(data->players_countries / 2)[*][1]; //Normally, show all wars involving players.
+	if (!players[tag]) players = (<tag>); //But if you switch to a non-player country, show that country's wars instead.
+	analyze_wars(data, players, ret);
 	analyze_flagships(data, ret);
 	//Enumerate available building types for highlighting. TODO: Check if some changes here need to be backported to the console interface.
 	mapping available = ([]);
