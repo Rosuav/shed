@@ -1686,10 +1686,11 @@ mapping get_state(string group) {
 	if (term != "") {
 		foreach (sort(indices(data->provinces)), string id) { //Sort by ID for consistency
 			mapping prov = data->provinces[id];
-			foreach (({({prov->name, ""})}) + (province_localised_names[id - "-"]||({ })), [string tryme, string lang]) {
+			foreach (({({prov->name, ""})}) + (province_localised_names[id - "-"]||({ })), [string|array(string) tryme, string lang]) {
 				//I think this is sometimes getting an array of localised names
 				//(possibly including a capital name??). Should we pick one, or
 				//search all?
+				if (arrayp(tryme)) tryme = tryme[0];
 				string folded = lower_case(tryme); //TODO: Fold to ASCII for the search
 				int pos = search(folded, term);
 				if (pos == -1) continue;
