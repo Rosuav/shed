@@ -1646,6 +1646,9 @@ To check:
    (To test, declare war on each other, both with allies. Drag out the war, don't accept any peace terms,
    until allies on both sides are willing to white peace. White peace one ally out. Can the *opposite* war
    leader send a peace treaty? The same one can't. Keep war going until next save, or just save immediately.)
+   - Yes. It is absolutely possible to send peace treaties both directions on the same day. They show up in
+     the file as separate blocks with the same key, which the parser will combine. You can't get two blocks
+     with rem_attacker or two with rem_defender, but you CAN have one of each getting merged.
 2) When a country is annexed, does their entry remain, with the same country_name visible? We get tags in the
    save file, but names in the summary ("Yas have accepted peace with Hormuz").
 3) Does a country always have a truce entry for that war? Check odd edge cases. Normally, if rem_attacker,
