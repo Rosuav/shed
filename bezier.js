@@ -15,10 +15,10 @@ const {BUTTON, DIV, LABEL, INPUT, SELECT, OPTION, TR, TD, TEXTAREA, LI, CODE} = 
 const canvas = DOM("canvas");
 const ctx = canvas.getContext('2d');
 const elements = [
-	{type: "start", x: 500, y: 550},
-	{type: "end", x: 300, y: 50},
-	{type: "control", x: 500, y: 300},
-	{type: "control", x: 300, y: 300},
+	{type: "start", x: 600, y: 550},
+	{type: "control", x: 600, y: 200},
+	{type: "control", x: 200, y: 400},
+	{type: "end", x: 200, y: 50},
 ];
 
 const path_cache = { };
@@ -51,7 +51,15 @@ function repaint() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	elements.forEach(el => el === dragging || draw_at(ctx, el));
 	if (dragging) draw_at(ctx, dragging); //Anything being dragged gets drawn last, ensuring it is at the top of z-order.
-	//TODO: Draw the Bezier curve joining these points
+	//HACK: Assume that (a) we have a cubic curve, (b) the start is the first element, (c) the next two are the
+	//control points, and (d) the end is the fourth element.
+	//I don't think the HTML5 Canvas can do anything higher-order than quadratic, so if we support that, we might
+	//have to replace all this with manual drawing anyway.
+	const path = new Path2D;
+	path.moveTo(elements[0].x, elements[0].y);
+	path.bezierCurveTo(elements[1].x, elements[1].y, elements[2].x, elements[2].y, elements[3].x, elements[3].y);
+	ctx.fillStyle = "#000000";
+	ctx.stroke(path);
 }
 repaint();
 
