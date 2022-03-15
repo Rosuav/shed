@@ -20,7 +20,7 @@ const options = [
 	{kwd: "shownearest", lbl: "Show nearest", dflt: false},
 ];
 set_content("#options", options.map(o => LABEL([INPUT({type: "checkbox", "data-kwd": o.kwd, checked: state[o.kwd] = o.dflt}), o.lbl])));
-on("click", "#options input", e => state[e.match.dataset.kwd] = e.match.checked);
+on("click", "#options input", e => {state[e.match.dataset.kwd] = e.match.checked; repaint();});
 
 const canvas = DOM("canvas");
 const ctx = canvas.getContext('2d');
@@ -29,8 +29,8 @@ const elements = [
 	{type: "control", x: 600, y: 200},
 	{type: "control", x: 200, y: 400},
 	{type: "end", x: 200, y: 50},
-	{type: "nearest", x: 600, y: 550, fixed: true}, //Can't be dragged around (moves autonomously when active)
 ];
+let highlight_t_value = 0.0;
 
 const path_cache = { };
 function element_path(name) {
@@ -85,22 +85,28 @@ function interpolate(points, t) {
 
 function repaint() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	elements.forEach(el => el === dragging || (el.type === "nearest" && !state.shownearest) || draw_at(ctx, el));
-	if (dragging) draw_at(ctx, dragging); //Anything being dragged gets drawn last, ensuring it is at the top of z-order.
+	elements.forEach(el => el === dragging || draw_at(ctx, el));
 	//I don't think the HTML5 Canvas can do anything higher-order than cubic, so if we support that, we might
 	//have to replace all this with manual drawing anyway.
 	//Is it possible to subdivide a higher-order curve into segments and then approximate those with cubic curves??
 	//Otherwise, just subdivide into *very* short segments and approximate those with lines.
+	ctx.save();
 	const points = get_curve_points();
 	const path = new Path2D;
 	const method = {2: "lineTo", 3: "quadraticCurveTo", 4: "bezierCurveTo"}[points.length];
 	if (!method) return; //Maybe we need to render manually?
-	path.moveTo(points[0].x, points[0].y); points.shift();
 	const coords = [];
 	points.forEach(p => coords.push(p.x, p.y));
+	path.moveTo(coords.shift(), coords.shift());
 	path[method](...coords);
 	ctx.fillStyle = "#000000";
 	ctx.stroke(path);
+	ctx.restore();
+	if (state.shownearest) {
+		//Highlight a point near to the mouse cursor
+		draw_at(ctx, {type: "nearest", ...interpolate(points, highlight_t_value)});
+	}
+	if (dragging) draw_at(ctx, dragging); //Anything being dragged gets drawn last, ensuring it is at the top of z-order.
 }
 repaint();
 
@@ -129,14 +135,13 @@ canvas.addEventListener("pointermove", e => {
 	}
 	if (state.shownearest) {
 		const points = get_curve_points();
-		let best = {x:0, y:0}, bestdist = -1;
+		let best = 0.0, bestdist = -1;
 		for (let t = 0; t <= 1; t += 1/RESOLUTION) {
 			const p = interpolate(points, t);
 			const dist = (p.x - e.offsetX) ** 2 + (p.y - e.offsetY) ** 2;
-			if (bestdist < 0 || dist < bestdist) {bestdist = dist; best = p;}
+			if (bestdist < 0 || dist < bestdist) {bestdist = dist; best = t;}
 		}
-		const nearest = elements.find(el => el.type === "nearest");
-		nearest.x = best.x; nearest.y = best.y;
+		highlight_t_value = best;
 		repaint();
 	}
 });
