@@ -18,6 +18,7 @@ const state = { };
 const options = [
 	{kwd: "allowdrag", lbl: "Allow drag", dflt: true},
 	{kwd: "shownearest", lbl: "Show nearest", dflt: false},
+	{kwd: "shownearestlines", lbl: "... with lines", dflt: false},
 ];
 set_content("#options", options.map(o => LABEL([INPUT({type: "checkbox", "data-kwd": o.kwd, checked: state[o.kwd] = o.dflt}), o.lbl])));
 on("click", "#options input", e => {state[e.match.dataset.kwd] = e.match.checked; repaint();});
@@ -104,7 +105,31 @@ function repaint() {
 	ctx.restore();
 	if (state.shownearest) {
 		//Highlight a point near to the mouse cursor
-		draw_at(ctx, {type: "nearest", ...interpolate(points, highlight_t_value)});
+		const t = highlight_t_value;
+		if (state.shownearestlines) {
+			//Show the lerp lines
+			let ends = points;
+			while (ends.length > 1) {
+				//For every pair of points, draw the line, and retain the position t
+				//of the way through that line as the next point.
+				ctx.save();
+				const path = new Path2D;
+				path.moveTo(ends[0].x, ends[0].y);
+				const mids = [];
+				for (let i = 1; i < ends.length; ++i) {
+					path.lineTo(ends[i].x, ends[i].y);
+					mids.push({
+						x: ends[i-1].x * (1-t) + ends[i].x * t,
+						y: ends[i-1].y * (1-t) + ends[i].y * t,
+					});
+				}
+				ctx.fillStyle = "#000000"; //TODO: Change the colour every time?
+				ctx.stroke(path);
+				ctx.restore();
+				ends = mids;
+			}
+		}
+		draw_at(ctx, {type: "nearest", ...interpolate(points, t)});
 	}
 	if (dragging) draw_at(ctx, dragging); //Anything being dragged gets drawn last, ensuring it is at the top of z-order.
 }
