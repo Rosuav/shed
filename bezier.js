@@ -10,7 +10,15 @@
 
 */
 import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
-const {BUTTON, DIV, LABEL, INPUT, SELECT, OPTION, TR, TD, TEXTAREA, LI, CODE} = choc; //autoimport
+const {INPUT, LABEL} = choc; //autoimport
+
+const state = { };
+const options = [
+	{kwd: "allowdrag", lbl: "Allow drag", dflt: true},
+	{kwd: "shownearest", lbl: "Show nearest", dflt: false},
+];
+set_content("#options", options.map(o => LABEL([INPUT({type: "checkbox", "data-kwd": o.kwd, checked: state[o.kwd] = o.dflt}), o.lbl])));
+on("click", "#options input", e => state[e.match.dataset.kwd] = e.match.checked);
 
 const canvas = DOM("canvas");
 const ctx = canvas.getContext('2d');
@@ -19,6 +27,7 @@ const elements = [
 	{type: "control", x: 600, y: 200},
 	{type: "control", x: 200, y: 400},
 	{type: "end", x: 200, y: 50},
+	{type: "nearest", x: 600, y: 550, fixed: true}, //Can't be dragged around (moves autonomously when active)
 ];
 
 const path_cache = { };
@@ -71,6 +80,7 @@ function element_at_position(x, y, filter) {
 }
 
 canvas.addEventListener("pointerdown", e => {
+	if (!state.allowdrag) return;
 	if (e.button) return; //Only left clicks
 	e.preventDefault();
 	dragging = null;
