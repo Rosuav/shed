@@ -53,7 +53,7 @@ function repaint() {
 	if (dragging) draw_at(ctx, dragging); //Anything being dragged gets drawn last, ensuring it is at the top of z-order.
 	//HACK: Assume that (a) we have a cubic curve, (b) the start is the first element, (c) the next two are the
 	//control points, and (d) the end is the fourth element.
-	//I don't think the HTML5 Canvas can do anything higher-order than quadratic, so if we support that, we might
+	//I don't think the HTML5 Canvas can do anything higher-order than cubic, so if we support that, we might
 	//have to replace all this with manual drawing anyway.
 	const path = new Path2D;
 	path.moveTo(elements[0].x, elements[0].y);
