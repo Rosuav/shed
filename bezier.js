@@ -6,6 +6,7 @@
 * Allow dragging of points to move them
 * Allow insertion of points
 * On mouseover, show cursor indicating draggability
+* Controlled by tickbox: On hover, show the nearest point on the curve, and the lerps that get us there.
 
 */
 import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
@@ -20,17 +21,16 @@ const elements = [
 	{type: "control", x: 300, y: 300},
 ];
 
-//TODO: Design a nice path for a grabbable marker (maybe a circle with crosshair?)
-//Unlike this stub, it should be centered around (0,0).
 const path_cache = { };
 function element_path(name) {
 	if (path_cache[name]) return path_cache[name];
 	const path = new Path2D;
-	path.moveTo(0, 0);
-	path.lineTo(10, 0);
-	path.lineTo(10, 10);
-	path.lineTo(0, 10);
-	path.lineTo(0, 10);
+	path.arc(0, 0, 5, 0, 2*Math.PI);
+	const crosshair_size = 8;
+	path.moveTo(-crosshair_size, 0);
+	path.lineTo(crosshair_size, 0);
+	path.moveTo(0, -crosshair_size);
+	path.lineTo(0, crosshair_size);
 	path.closePath();
 	return path_cache[name] = path;
 }
@@ -40,9 +40,9 @@ function draw_at(ctx, el) {
 	const path = element_path(el.type);
 	ctx.save();
 	ctx.translate(el.x|0, el.y|0);
-	ctx.fillStyle = el.color || "#000000";
+	ctx.fillStyle = el.fillcolor || "#a0f0c080";
 	ctx.fill(path);
-	ctx.fillStyle = "black";
+	ctx.fillStyle = el.bordercolor || "#000000";
 	ctx.stroke(path);
 	ctx.restore();
 }
