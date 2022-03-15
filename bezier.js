@@ -72,12 +72,25 @@ function get_curve_points() {
 	return ret;
 }
 
+//Calculate {x: N, y: N} for the point on the curve at time t
+const interpolation_factors = {
+	4: t => [(1-t)**3, 3 * (1-t)**2 * t, 3 * (1-t) * t**2, t**3],
+};
+function interpolate(points, t) {
+	const factors = interpolation_factors[points.length](t);
+	let x = 0, y = 0;
+	factors.forEach((f, i) => {x += points[i].x * f; y += points[i].y * f;});
+	return {x, y};
+}
+
 function repaint() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	elements.forEach(el => el === dragging || draw_at(ctx, el));
+	elements.forEach(el => el === dragging || (el.type === "nearest" && !state.shownearest) || draw_at(ctx, el));
 	if (dragging) draw_at(ctx, dragging); //Anything being dragged gets drawn last, ensuring it is at the top of z-order.
 	//I don't think the HTML5 Canvas can do anything higher-order than cubic, so if we support that, we might
 	//have to replace all this with manual drawing anyway.
+	//Is it possible to subdivide a higher-order curve into segments and then approximate those with cubic curves??
+	//Otherwise, just subdivide into *very* short segments and approximate those with lines.
 	const points = get_curve_points();
 	const path = new Path2D;
 	const method = {2: "lineTo", 3: "quadraticCurveTo", 4: "bezierCurveTo"}[points.length];
@@ -115,7 +128,16 @@ canvas.addEventListener("pointermove", e => {
 		repaint();
 	}
 	if (state.shownearest) {
-		//
+		const points = get_curve_points();
+		let best = {x:0, y:0}, bestdist = -1;
+		for (let t = 0; t <= 1; t += 1/RESOLUTION) {
+			const p = interpolate(points, t);
+			const dist = (p.x - e.offsetX) ** 2 + (p.y - e.offsetY) ** 2;
+			if (bestdist < 0 || dist < bestdist) {bestdist = dist; best = p;}
+		}
+		const nearest = elements.find(el => el.type === "nearest");
+		nearest.x = best.x; nearest.y = best.y;
+		repaint();
 	}
 });
 
