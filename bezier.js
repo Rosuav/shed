@@ -75,6 +75,8 @@ function get_curve_points() {
 
 //Calculate {x: N, y: N} for the point on the curve at time t
 const interpolation_factors = {
+	2: t => [1 - t, t],
+	3: t => [(1-t)**2, 2 * (1-t)**1 * t, t**2],
 	4: t => [(1-t)**3, 3 * (1-t)**2 * t, 3 * (1-t) * t**2, t**3],
 };
 function interpolate(points, t) {
