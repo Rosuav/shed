@@ -12,6 +12,8 @@
 import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
 const {INPUT, LABEL} = choc; //autoimport
 
+const RESOLUTION = 256; //Spread this many points across the curve to do our calculations
+
 const state = { };
 const options = [
 	{kwd: "allowdrag", lbl: "Allow drag", dflt: true},
@@ -56,17 +58,34 @@ function draw_at(ctx, el) {
 	ctx.restore();
 }
 
+function get_curve_points() {
+	const ret = [null];
+	let end = null;
+	for (let el of elements) switch (el.type) {
+		case "start": ret[0] = el; break;
+		case "control": ret.push(el); break;
+		case "end": end = el; break;
+		default: break;
+	}
+	//assert ret[0] && end; //we need endpoints, even if we don't have any control points
+	ret.push(end);
+	return ret;
+}
+
 function repaint() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	elements.forEach(el => el === dragging || draw_at(ctx, el));
 	if (dragging) draw_at(ctx, dragging); //Anything being dragged gets drawn last, ensuring it is at the top of z-order.
-	//HACK: Assume that (a) we have a cubic curve, (b) the start is the first element, (c) the next two are the
-	//control points, and (d) the end is the fourth element.
 	//I don't think the HTML5 Canvas can do anything higher-order than cubic, so if we support that, we might
 	//have to replace all this with manual drawing anyway.
+	const points = get_curve_points();
 	const path = new Path2D;
-	path.moveTo(elements[0].x, elements[0].y);
-	path.bezierCurveTo(elements[1].x, elements[1].y, elements[2].x, elements[2].y, elements[3].x, elements[3].y);
+	const method = {2: "lineTo", 3: "quadraticCurveTo", 4: "bezierCurveTo"}[points.length];
+	if (!method) return; //Maybe we need to render manually?
+	path.moveTo(points[0].x, points[0].y); points.shift();
+	const coords = [];
+	points.forEach(p => coords.push(p.x, p.y));
+	path[method](...coords);
 	ctx.fillStyle = "#000000";
 	ctx.stroke(path);
 }
@@ -91,9 +110,13 @@ canvas.addEventListener("pointerdown", e => {
 });
 
 canvas.addEventListener("pointermove", e => {
-	if (!dragging) return;
-	[dragging.x, dragging.y] = [e.offsetX - dragbasex, e.offsetY - dragbasey];
-	repaint();
+	if (dragging) {
+		[dragging.x, dragging.y] = [e.offsetX - dragbasex, e.offsetY - dragbasey];
+		repaint();
+	}
+	if (state.shownearest) {
+		//
+	}
 });
 
 canvas.addEventListener("pointerup", e => {
