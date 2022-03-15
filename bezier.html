@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Bezier Curve/Spline Testing</title>
+<style>
+main {
+	max-width: 815px;
+	margin: auto;
+	padding: 5px;
+}
+.scrollcontext {
+	overflow: auto;
+	max-height: 606px;
+}
+canvas {
+	border: 1px solid black;
+}
+</style>
+<script type=module src="bezier.js"></script>
+</head>
+<body>
+<main>
+<p>Play around with control points and see what the minimum curve radius is.</p>
+<details><summary>TODO</summary><ul>
+<li>Spline building with multiple Bezier curves. Does putting [last ctrl, endpoint, first ctrl] on a straight line
+ensure that the transition is smooth?</li>
+<li>Importing of points, esp the endpoints</li>
+<li>Exporting of results</li>
+<li>Calculation of minimum curve radius and colour highlighting of that point on the curve</li>
+</ul></details>
+<div class=scrollcontext><canvas width=800 height=600>
+I guess you can't see my canvas?
+</canvas></div>
+</main>
+</html>
+
