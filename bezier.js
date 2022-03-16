@@ -20,6 +20,7 @@ const options = [
 	{kwd: "shownearest", lbl: "Show nearest", dflt: false},
 	{kwd: "shownearestlines", lbl: "... with lines", dflt: false},
 	{kwd: "shownearestvectors", lbl: "... with vectors", dflt: false},
+	{kwd: "shownearestcircle", lbl: "... and circle", dflt: false},
 ];
 set_content("#options", options.map(o => LABEL([INPUT({type: "checkbox", "data-kwd": o.kwd, checked: state[o.kwd] = o.dflt}), o.lbl])));
 on("click", "#options input", e => {state[e.match.dataset.kwd] = e.match.checked; repaint();});
@@ -76,6 +77,7 @@ function get_curve_points() {
 
 //Calculate {x: N, y: N} for the point on the curve at time t
 const interpolation_factors = {
+	1: t => [1],
 	2: t => [1 - t, t],
 	3: t => [(1-t)**2, 2 * (1-t)**1 * t, t**2],
 	4: t => [(1-t)**3, 3 * (1-t)**2 * t, 3 * (1-t) * t**2, t**3],
@@ -137,7 +139,8 @@ function repaint() {
 			//Show the derivative vectors
 			let deriv = points, factor = 1;
 			let derivs = ["Derivatives at " + t.toFixed(3) + ": "];
-			while (deriv.length > 2) {
+			let d1 = null, d2 = null; //Track the first and second derivatives for the sake of osculating circle calculation
+			while (deriv.length > 1) {
 				factor *= (deriv.length - 1); //The derivative is multiplied by the curve's degree at each step
 				//The derivative of a curve is another curve with one degree lower,
 				//whose points are all defined by the differences between other points.
@@ -152,18 +155,21 @@ function repaint() {
 					});
 				}
 				deriv = nextcurve;
-				const d = interpolate(deriv, t); //Not quite the derivative at t (still needs to be multiplied by factor)
+				const d = interpolate(deriv, t);
+				d.x *= factor; d.y *= factor; //Now it's the actual derivative at t.
+				if (!d1) d1 = d;
+				else if (!d2) d2 = d;
 				const vector = {
 					angle: Math.atan2(d.y, d.x),
-					length: Math.sqrt(d.x * d.x + d.y * d.y) * factor,
+					length: Math.sqrt(d.x * d.x + d.y * d.y),
 				};
 				derivs.push(SPAN({style: "color: " + lerp_colors[points.length - deriv.length]}, vector.length.toFixed(3)), ", ");
 				ctx.save();
 				const path = new Path2D;
 				path.moveTo(curve_at_t.x, curve_at_t.y);
 				const arrow = {
-					x: curve_at_t.x + d.x * factor / 20, //Divide through by a constant factor to make the lines fit nicely
-					y: curve_at_t.y + d.y * factor / 20,
+					x: curve_at_t.x + d.x / factor / factor / 2, //Divide through by a constant to make the lines fit nicely
+					y: curve_at_t.y + d.y / factor / factor / 2, //I'm not sure why we're dividing by factor^2 here, but it seems to look better.
 				};
 				path.lineTo(arrow.x, arrow.y);
 				const ARROW_ANGLE = 2.6; //Radians. If the primary vector is pointing on the X axis, the arrowhead lines point this many radians positive and negative.
@@ -180,6 +186,29 @@ function repaint() {
 				ctx.restore();
 			}
 			derivs.push("and zero.");
+			const k = (d1.x * d2.y - d1.y * d2.x) / (d1.x ** 2 + d2.y ** 2) ** 1.5;
+			if (k) {
+				const radius = 1 / k / 20;
+				derivs.push(" Curve radius is ", radius.toFixed(3));
+				if (state.shownearestcircle) {
+					//Show the osculating circle at this point.
+					//The center of it is 'radius' pixels away and is in the
+					//direction orthogonal to the first derivative.
+					const angle = Math.atan2(d1.y, d1.x) + Math.PI / 2;
+					const circle_x = curve_at_t.x + Math.cos(angle) * radius;
+					const circle_y = curve_at_t.y + Math.sin(angle) * radius;
+					ctx.save();
+					const path = new Path2D;
+					path.arc(circle_x, circle_y, Math.abs(radius), 0, Math.PI * 2);
+					//Mark the center
+					path.moveTo(circle_x + 2, circle_y + 2);
+					path.lineTo(circle_x - 2, circle_y - 2);
+					path.moveTo(circle_x - 2, circle_y + 2);
+					path.lineTo(circle_x + 2, circle_y - 2);
+					ctx.stroke(path);
+					ctx.restore();
+				}
+			}
 			set_content("#derivatives", derivs);
 		}
 		draw_at(ctx, {type: "nearest", ...curve_at_t});
