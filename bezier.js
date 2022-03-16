@@ -1,12 +1,21 @@
 /* TODO
 
-* Place control points and endpoints
-* Draw Bezier curve
-* Show stats about the curve
-* Allow dragging of points to move them
-* Allow insertion of points
+* Place and remove control points (changing the degree of the curve)
+* Degrees higher than cubic
 * On mouseover, show cursor indicating draggability
-* Controlled by tickbox: On hover, show the nearest point on the curve, and the lerps that get us there.
+* Refine "nearest" with fewer than 256 initial samples, but then perturb around the last sample
+* Different colours for different types of markers
+
+Big TODO: Find minimum curve radius.
+* Curvature is calculated from the first and second derivatives.
+* Therefore curvature itself should be a smooth curve.
+* Find all the local maxima and minima by finding where the derivative of curvature is zero.
+* Scan these t-values and pick the lowest. (It might be unsolvable - a straight line never has curvature.)
+* Doing it properly, for arbitrary degree curves, would mean a LOT of math. Restricting it to cubic curves
+  would allow us to precompute a lot of that.
+* Alternatively, we can just poke some number of points, pick the tightest curve, and use that.
+  - Possibly perturb the t-value near that point to adjust?
+
 
 */
 import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
