@@ -54,7 +54,7 @@ function draw_at(ctx, el) {
 	ctx.translate(el.x|0, el.y|0);
 	ctx.fillStyle = el.fillcolor || "#a0f0c080";
 	ctx.fill(path);
-	ctx.fillStyle = el.bordercolor || "#000000";
+	ctx.strokeStyle = el.bordercolor || "#000000";
 	ctx.stroke(path);
 	ctx.restore();
 }
@@ -86,6 +86,7 @@ function interpolate(points, t) {
 	return {x, y};
 }
 
+const lerp_colors = ["#000000", "#000000", "#ee2222", "#11aa11", "#2222ee"];
 function repaint() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	elements.forEach(el => el === dragging || draw_at(ctx, el));
@@ -102,7 +103,7 @@ function repaint() {
 	points.forEach(p => coords.push(p.x, p.y));
 	path.moveTo(coords.shift(), coords.shift());
 	path[method](...coords);
-	ctx.fillStyle = "#000000";
+	ctx.strokeStyle = "#000000";
 	ctx.stroke(path);
 	ctx.restore();
 	if (state.shownearest) {
@@ -125,7 +126,7 @@ function repaint() {
 						y: ends[i-1].y * (1-t) + ends[i].y * t,
 					});
 				}
-				ctx.fillStyle = "#000000"; //TODO: Change the colour every time?
+				ctx.strokeStyle = lerp_colors[ends.length];
 				ctx.stroke(path);
 				ctx.restore();
 				ends = mids;
