@@ -157,8 +157,8 @@ function repaint() {
 		if (state.shownearestvectors) {
 			//Show the derivative vectors
 			let deriv = points, factor = 1;
-			let derivs = ["Derivatives at " + t.toFixed(3) + ": "];
-			let d1 = null, d2 = null; //Track the first and second derivatives for the sake of osculating circle calculation
+			let derivdesc = ["Derivatives at " + t.toFixed(3) + ": "];
+			let derivs = []; //Mainly, track the first and second derivatives for the sake of osculating circle calculation
 			while (deriv.length > 1) {
 				factor *= (deriv.length - 1); //The derivative is multiplied by the curve's degree at each step
 				//The derivative of a curve is another curve with one degree lower,
@@ -176,13 +176,12 @@ function repaint() {
 				deriv = nextcurve;
 				const d = interpolate(deriv, t);
 				d.x *= factor; d.y *= factor; //Now it's the actual derivative at t.
-				if (!d1) d1 = d;
-				else if (!d2) d2 = d;
+				derivs.push(d);
 				const vector = {
 					angle: Math.atan2(d.y, d.x),
 					length: Math.sqrt(d.x * d.x + d.y * d.y),
 				};
-				derivs.push(SPAN({style: "color: " + lerp_colors[points.length - deriv.length]}, vector.length.toFixed(3)), ", ");
+				derivdesc.push(SPAN({style: "color: " + lerp_colors[points.length - deriv.length]}, vector.length.toFixed(3)), ", ");
 				ctx.save();
 				const path = new Path2D;
 				path.moveTo(curve_at_t.x, curve_at_t.y);
@@ -204,11 +203,12 @@ function repaint() {
 				ctx.stroke(path);
 				ctx.restore();
 			}
-			derivs.push("and zero.");
+			derivdesc.push("and zero.");
+			const d1 = derivs[0], d2 = derivs[1];
 			const k = (d1.x * d2.y - d1.y * d2.x) / (d1.x ** 2 + d2.y ** 2) ** 1.5;
 			if (k) {
 				const radius = 1 / k / 20;
-				derivs.push(" Curve radius is ", radius.toFixed(3));
+				derivdesc.push(" Curve radius is ", SPAN({style: "color: rebeccapurple"}, radius.toFixed(3)));
 				if (state.shownearestcircle) {
 					//Show the osculating circle at this point.
 					//The center of it is 'radius' pixels away and is in the
@@ -224,11 +224,14 @@ function repaint() {
 					path.lineTo(circle_x - 2, circle_y - 2);
 					path.moveTo(circle_x - 2, circle_y + 2);
 					path.lineTo(circle_x + 2, circle_y - 2);
+					//Since curvature is denoted with Kappa, it seems right to use
+					//purple. But not Twitch Purple. Let's use Rebecca Purple.
+					ctx.strokeStyle = "rebeccapurple";
 					ctx.stroke(path);
 					ctx.restore();
 				}
 			}
-			set_content("#derivatives", derivs);
+			set_content("#derivatives", derivdesc);
 		}
 		draw_at(ctx, {type: "nearest", ...curve_at_t});
 	}
