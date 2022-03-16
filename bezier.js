@@ -18,12 +18,31 @@ const state = { };
 const options = [
 	{kwd: "allowdrag", lbl: "Allow drag", dflt: true},
 	{kwd: "shownearest", lbl: "Show nearest", dflt: false},
-	{kwd: "shownearestlines", lbl: "... with lines", dflt: false},
-	{kwd: "shownearestvectors", lbl: "... with vectors", dflt: false},
-	{kwd: "shownearestcircle", lbl: "... and circle", dflt: false},
+	{kwd: "shownearestlines", lbl: "... with lines", dflt: false, depend: "shownearest"},
+	{kwd: "shownearestvectors", lbl: "... with vectors", dflt: false, depend: "shownearest"},
+	{kwd: "shownearestcircle", lbl: "... and circle", dflt: false, depend: "shownearestvectors"},
 ];
 set_content("#options", options.map(o => LABEL([INPUT({type: "checkbox", "data-kwd": o.kwd, checked: state[o.kwd] = o.dflt}), o.lbl])));
-on("click", "#options input", e => {state[e.match.dataset.kwd] = e.match.checked; repaint();});
+const _optlookup = { };
+options.forEach(o => {_optlookup[o.kwd] = o; o.rdepend = []; if (o.depend) _optlookup[o.depend].rdepend.push(o.kwd);});
+on("click", "#options input", e => {
+	state[e.match.dataset.kwd] = e.match.checked;
+	if (e.match.checked) {
+		//Ensure that dependencies are also checked.
+		let o = _optlookup[e.match.dataset.kwd];
+		while (o.depend && !state[o.depend]) {
+			DOM("[data-kwd=" + o.depend + "]").checked = state[o.depend] = true;
+			o = _optlookup[o.depend];
+		}
+	} else {
+		function cleartree(kwd) {
+			if (state[kwd]) DOM("[data-kwd=" + kwd + "]").checked = state[kwd] = false;
+			_optlookup[kwd].rdepend.forEach(cleartree);
+		}
+		cleartree(e.match.dataset.kwd);
+	}
+	repaint();
+});
 
 const canvas = DOM("canvas");
 const ctx = canvas.getContext('2d');
