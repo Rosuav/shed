@@ -10,7 +10,7 @@
 
 */
 import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
-const {INPUT, LABEL} = choc; //autoimport
+const {INPUT, LABEL, SPAN} = choc; //autoimport
 
 const RESOLUTION = 256; //Spread this many points across the curve to do our calculations
 
@@ -19,6 +19,7 @@ const options = [
 	{kwd: "allowdrag", lbl: "Allow drag", dflt: true},
 	{kwd: "shownearest", lbl: "Show nearest", dflt: false},
 	{kwd: "shownearestlines", lbl: "... with lines", dflt: false},
+	{kwd: "shownearestvectors", lbl: "... with vectors", dflt: false},
 ];
 set_content("#options", options.map(o => LABEL([INPUT({type: "checkbox", "data-kwd": o.kwd, checked: state[o.kwd] = o.dflt}), o.lbl])));
 on("click", "#options input", e => {state[e.match.dataset.kwd] = e.match.checked; repaint();});
@@ -86,7 +87,7 @@ function interpolate(points, t) {
 	return {x, y};
 }
 
-const lerp_colors = ["#000000", "#000000", "#ee2222", "#11aa11", "#2222ee"];
+const lerp_colors = ["#00000080", "#ee2222", "#11aa11", "#2222ee"];
 function repaint() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	elements.forEach(el => el === dragging || draw_at(ctx, el));
@@ -108,7 +109,7 @@ function repaint() {
 	ctx.restore();
 	if (state.shownearest) {
 		//Highlight a point near to the mouse cursor
-		const t = highlight_t_value;
+		const t = highlight_t_value, curve_at_t = interpolate(points, highlight_t_value);
 		if (state.shownearestlines) {
 			//Show the lerp lines
 			let ends = points;
@@ -126,13 +127,62 @@ function repaint() {
 						y: ends[i-1].y * (1-t) + ends[i].y * t,
 					});
 				}
-				ctx.strokeStyle = lerp_colors[ends.length];
+				ctx.strokeStyle = lerp_colors[points.length - ends.length];
 				ctx.stroke(path);
 				ctx.restore();
 				ends = mids;
 			}
 		}
-		draw_at(ctx, {type: "nearest", ...interpolate(points, t)});
+		if (state.shownearestvectors) {
+			//Show the derivative vectors
+			let deriv = points, factor = 1;
+			let derivs = ["Derivatives at " + t.toFixed(3) + ": "];
+			while (deriv.length > 2) {
+				factor *= (deriv.length - 1); //The derivative is multiplied by the curve's degree at each step
+				//The derivative of a curve is another curve with one degree lower,
+				//whose points are all defined by the differences between other points.
+				//This will tend to bring it close to zero, so it may not be viable to
+				//draw the entire curve (unless we find a midpoint of some sort), but
+				//we can certainly get a vector by taking some point on this curve.
+				const nextcurve = [];
+				for (let i = 1; i < deriv.length; ++i) {
+					nextcurve.push({
+						x: deriv[i].x - deriv[i - 1].x,
+						y: deriv[i].y - deriv[i - 1].y,
+					});
+				}
+				deriv = nextcurve;
+				const d = interpolate(deriv, t); //Not quite the derivative at t (still needs to be multiplied by factor)
+				const vector = {
+					angle: Math.atan2(d.y, d.x),
+					length: Math.sqrt(d.x * d.x + d.y * d.y) * factor,
+				};
+				derivs.push(SPAN({style: "color: " + lerp_colors[points.length - deriv.length]}, vector.length.toFixed(3)), ", ");
+				ctx.save();
+				const path = new Path2D;
+				path.moveTo(curve_at_t.x, curve_at_t.y);
+				const arrow = {
+					x: curve_at_t.x + d.x * factor / 20, //Divide through by a constant factor to make the lines fit nicely
+					y: curve_at_t.y + d.y * factor / 20,
+				};
+				path.lineTo(arrow.x, arrow.y);
+				const ARROW_ANGLE = 2.6; //Radians. If the primary vector is pointing on the X axis, the arrowhead lines point this many radians positive and negative.
+				const ARROW_LENGTH = 12;
+				for (let i = -1; i <= 1; i += 2) {
+					path.lineTo(
+						arrow.x + Math.cos(vector.angle + ARROW_ANGLE * i) * ARROW_LENGTH,
+						arrow.y + Math.sin(vector.angle + ARROW_ANGLE * i) * ARROW_LENGTH,
+					);
+					path.moveTo(arrow.x, arrow.y);
+				}
+				ctx.strokeStyle = lerp_colors[points.length - deriv.length];
+				ctx.stroke(path);
+				ctx.restore();
+			}
+			derivs.push("and zero.");
+			set_content("#derivatives", derivs);
+		}
+		draw_at(ctx, {type: "nearest", ...curve_at_t});
 	}
 	if (dragging) draw_at(ctx, dragging); //Anything being dragged gets drawn last, ensuring it is at the top of z-order.
 }
