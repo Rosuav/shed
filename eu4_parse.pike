@@ -150,7 +150,7 @@ class StringFile(string basis) {
 	void stat() { } //No file system stats available.
 }
 
-mapping parse_savefile_string(string data, int|void verbose) {
+mapping parse_savefile_string(string data, string|void filename) {
 	if (has_prefix(data, "PK\3\4")) {
 		//Compressed savefile. Consists of three files, one of which ("ai") we don't care
 		//about. The other two can be concatenated after stripping their "EU4txt" headers,
@@ -162,16 +162,16 @@ mapping parse_savefile_string(string data, int|void verbose) {
 		if (meta && state) data = meta + state; else return 0;
 	}
 	else if (!sscanf(data, "EU4txt%s", data)) return 0;
-	if (verbose) write("Parsing %d bytes...\n", sizeof(data));
-	return low_parse_savefile(data, verbose);
+	if (filename) write("Reading save file %s (%d bytes)...\n", filename, sizeof(data));
+	return low_parse_savefile(data);
 }
 
-mapping parse_savefile(string data, int|void verbose) {
+mapping parse_savefile(string data, string|void filename) {
 	sscanf(Crypto.SHA256.hash(data), "%32c", int hash);
 	string hexhash = sprintf("%64x", hash);
 	mapping cache = Standards.JSON.decode_utf8(Stdio.read_file("eu4_parse.json") || "{}");
 	if (cache->hash == hexhash) return cache->data;
-	mapping ret = parse_savefile_string(data, verbose);
+	mapping ret = parse_savefile_string(data, filename);
 	if (!ret) return 0; //Probably an Ironman save (binary format, can't be parsed by this system).
 	foreach (ret->countries; string tag; mapping c) c->tag = tag; //When looking at a country, it's often convenient to know its tag (reverse linkage).
 	Stdio.write_file("eu4_parse.json", string_to_utf8(Standards.JSON.encode((["hash": hexhash, "data": ret]))));
@@ -1406,9 +1406,8 @@ class PipeConnection {
 		progress_pipe = sock;
 		while (array ret = incoming->sscanf("%s\n")) {
 			[string fn] = ret;
-			write("Reading save file %s\n", basename(fn));
 			string raw = Stdio.read_file(fn); //Assumes ISO-8859-1, which I think is correct
-			if (parse_savefile(raw)) sock->write("*"); //Signal the parent. It can read it back from the cache.
+			if (parse_savefile(raw, basename(fn))) sock->write("*"); //Signal the parent. It can read it back from the cache.
 		}
 	}
 }
@@ -1843,7 +1842,7 @@ void watch_game_log(object inot) {
 				//peace info with the participants, the peace treaty value (based on truce length),
 				//and the name of the war. Should be possible to match on the date (beginning of line).
 				recent_peace_treaties = ({parse_text_markers(line)}) + recent_peace_treaties;
-				write("PEACE: %s\n", string_to_utf8(render_text(recent_peace_treaties[0])));
+				write("\e[1mPEACE:\e[0m %s\n", string_to_utf8(render_text(recent_peace_treaties[0])));
 				string msg = Standards.JSON.encode((["cmd": "update", "recent_peace_treaties": recent_peace_treaties]));
 				foreach (websocket_groups;; array socks)
 					foreach (socks, object sock)
