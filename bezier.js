@@ -54,6 +54,17 @@ const element_types = {
 	nearest: {color: "#aaaa2280", radius: 3.5, crosshair: 0},
 };
 let highlight_t_value = 0.0, minimum_curve_radius = 0.0;
+let animating = 0, animation_timer = null;
+window.animate = () => {
+	animating = !animating;
+	if (animating) animation_timer = setInterval(() => {
+		highlight_t_value += animating / RESOLUTION;
+		if (highlight_t_value > 1.0) {animating = -1; highlight_t_value = 2 - highlight_t_value;}
+		if (highlight_t_value < 0.0) {animating = +1; highlight_t_value = 0 - highlight_t_value;}
+		repaint();
+	}, 10);
+	else clearInterval(animation_timer);
+};
 
 const path_cache = { };
 function element_path(name) {
@@ -389,7 +400,7 @@ canvas.addEventListener("pointermove", e => {
 	else if (element_at_position(e.offsetX, e.offsetY, el => !el.fixed))
 		canvas.style.cursor = "pointer";
 	else canvas.style.cursor = null;
-	if (state.shownearest) {
+	if (state.shownearest && !animating) {
 		const points = get_curve_points();
 		let best = 0.0, bestdist = -1;
 		for (let t = 0; t <= 1; t += 1/RESOLUTION) {
