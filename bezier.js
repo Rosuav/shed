@@ -1,22 +1,9 @@
 /* TODO
 
 * Place and remove control points (changing the degree of the curve)
-* Degrees higher than cubic
 * On mouseover, show cursor indicating draggability
 * Refine "nearest" with fewer than 256 initial samples, but then perturb around the last sample
 * Different colours for different types of markers
-
-Big TODO: Find minimum curve radius.
-* Curvature is calculated from the first and second derivatives.
-* Therefore curvature itself should be a smooth curve.
-* Find all the local maxima and minima by finding where the derivative of curvature is zero.
-* Scan these t-values and pick the lowest. (It might be unsolvable - a straight line never has curvature.)
-* Doing it properly, for arbitrary degree curves, would mean a LOT of math. Restricting it to cubic curves
-  would allow us to precompute a lot of that.
-* Alternatively, we can just poke some number of points, pick the tightest curve, and use that.
-  - Possibly perturb the t-value near that point to adjust?
-
-
 */
 import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
 const {INPUT, LABEL, SPAN} = choc; //autoimport
@@ -105,16 +92,33 @@ function get_curve_points() {
 }
 
 //Calculate {x: N, y: N} for the point on the curve at time t
-const interpolation_factors = {
-	1: t => [1],
-	2: t => [1 - t, t],
-	3: t => [(1-t)**2, 2 * (1-t)**1 * t, t**2],
-	4: t => [(1-t)**3, 3 * (1-t)**2 * t, 3 * (1-t) * t**2, t**3],
-};
+const _pascals_triangle = [[1], [1]]
+function _coefficients(degree) {
+	if (degree <= 0) return []; //wut
+	//assert intp(degree);
+	if (!_pascals_triangle[degree]) {
+		const prev = _coefficients(degree - 1); //Calculate (and cache) previous row as needed
+		const ret = prev.map((c,i) => c + (prev[i-1]||0));
+		_pascals_triangle[degree] = [...ret, 1];
+	}
+	return _pascals_triangle[degree];
+}
 function interpolate(points, t) {
-	const factors = interpolation_factors[points.length](t);
+	if (points.length <= 1) return points[0];
+	const coef = _coefficients(points.length);
+	//Calculate the binomial expansion of ((1-t) + t)^n as factors that apply to the points
+	//I don't really have a good explanation of exactly what this is doing, if you feel like
+	//contributing, please drop in a PR. Each term in the binomial expansion corresponds to
+	//one of the points.
+	const omt = 1 - t;
 	let x = 0, y = 0;
-	factors.forEach((f, i) => {x += points[i].x * f; y += points[i].y * f;});
+	coef.forEach((c, i) => {
+		//We raise (1-t) to the power of a decreasing value, and
+		//t to the power of an increasing value, and that gives us
+		//the next term in the series.
+		x += points[i].x * c * (omt ** (coef.length - i - 1)) * (t ** i);
+		y += points[i].y * c * (omt ** (coef.length - i - 1)) * (t ** i);
+	});
 	return {x, y};
 }
 
@@ -154,7 +158,7 @@ function curvature(t, deriv1, deriv2) {
 	return Math.abs(signed_curvature(t, deriv1, deriv2));
 }
 
-const lerp_colors = ["#00000080", "#ee2222", "#11aa11", "#2222ee"];
+const lerp_colors = ["#00000080", "#ee2222", "#11aa11", "#2222ee", "#ee22ee", "#aaaa11", "#11cccc"];
 function repaint() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	elements.forEach(el => el === dragging || draw_at(ctx, el));
@@ -166,11 +170,23 @@ function repaint() {
 	const points = get_curve_points();
 	const path = new Path2D;
 	const method = {2: "lineTo", 3: "quadraticCurveTo", 4: "bezierCurveTo"}[points.length];
-	if (!method) return; //Maybe we need to render manually?
-	const coords = [];
-	points.forEach(p => coords.push(p.x, p.y));
-	path.moveTo(coords.shift(), coords.shift());
-	path[method](...coords);
+	if (method) {
+		//Let the browser do the work for us.
+		const coords = [];
+		points.forEach(p => coords.push(p.x, p.y));
+		path.moveTo(coords.shift(), coords.shift());
+		path[method](...coords);
+	}
+	else if (points.length < 2) return; //C'mon, at least give me both endpoints!!
+	else {
+		//It's higher order than cubic, so we'll approximate it with RESOLUTION line segments.
+		path.moveTo(points[0].x, points[0].y); //Start at the beginning...
+		for (let i = 1; i <= RESOLUTION; ++i) { //Go on till you reach the end...
+			const p = interpolate(points, i/RESOLUTION);
+			path.lineTo(p.x, p.y);
+		}
+		//... then, uhh, stop? I guess?
+	}
 	ctx.strokeStyle = "#000000";
 	ctx.stroke(path);
 	ctx.restore();
