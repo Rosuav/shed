@@ -47,18 +47,27 @@ const elements = [
 	{type: "control", x: 200, y: 400},
 	{type: "end", x: 200, y: 50},
 ];
+const element_types = {
+	start: {color: "#a0f0c080", radius: 6, crosshair: 9},
+	control: {color: "#a0f0c080", radius: 6, crosshair: 9},
+	end: {color: "#a0f0c080", radius: 6, crosshair: 9},
+	nearest: {color: "#aaaa2280", radius: 3.5, crosshair: 0},
+};
 let highlight_t_value = 0.0, minimum_curve_radius = 0.0;
 
 const path_cache = { };
 function element_path(name) {
 	if (path_cache[name]) return path_cache[name];
 	const path = new Path2D;
-	path.arc(0, 0, 5, 0, 2*Math.PI);
-	const crosshair_size = 8;
-	path.moveTo(-crosshair_size, 0);
-	path.lineTo(crosshair_size, 0);
-	path.moveTo(0, -crosshair_size);
-	path.lineTo(0, crosshair_size);
+	const t = element_types[name] || { };
+	path.arc(0, 0, t.radius || 5, 0, 2*Math.PI);
+	const crosshair_size = t.crosshair;
+	if (crosshair_size) {
+		path.moveTo(-crosshair_size, 0);
+		path.lineTo(crosshair_size, 0);
+		path.moveTo(0, -crosshair_size);
+		path.lineTo(0, crosshair_size);
+	}
 	path.closePath();
 	return path_cache[name] = path;
 }
@@ -68,7 +77,7 @@ function draw_at(ctx, el) {
 	const path = element_path(el.type);
 	ctx.save();
 	ctx.translate(el.x|0, el.y|0);
-	ctx.fillStyle = el.fillcolor || "#a0f0c080";
+	ctx.fillStyle = el.fillcolor || element_types[el.type]?.color || "#a0f0c080";
 	ctx.fill(path);
 	ctx.strokeStyle = el.bordercolor || "#000000";
 	ctx.stroke(path);
@@ -355,7 +364,7 @@ repaint();
 function element_at_position(x, y, filter) {
 	for (let el of elements) {
 		if (filter && !filter(el)) continue;
-		if (ctx.isPointInPath(element_path(el), x - el.x, y - el.y)) return el;
+		if (ctx.isPointInPath(element_path(el.type), x - el.x, y - el.y)) return el;
 	}
 }
 
