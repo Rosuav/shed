@@ -30,6 +30,7 @@ const options = [
 	{kwd: "shownearestlines", lbl: "... with lines", dflt: false, depend: "shownearest"},
 	{kwd: "shownearestvectors", lbl: "... with vectors", dflt: false, depend: "shownearest"},
 	{kwd: "shownearestcircle", lbl: "... and circle", dflt: false, depend: "shownearestvectors"},
+	{kwd: "showminimum", lbl: "Show tightest curve", dflt: false},
 ];
 set_content("#options", options.map(o => LABEL([INPUT({type: "checkbox", "data-kwd": o.kwd, checked: state[o.kwd] = o.dflt}), o.lbl])));
 const _optlookup = { };
@@ -61,7 +62,7 @@ const elements = [
 	{type: "control", x: 200, y: 400},
 	{type: "end", x: 200, y: 50},
 ];
-let highlight_t_value = 0.0;
+let highlight_t_value = 0.0, minimum_curve_radius = 0.0;
 
 const path_cache = { };
 function element_path(name) {
@@ -117,6 +118,42 @@ function interpolate(points, t) {
 	return {x, y};
 }
 
+function curve_derivative(points) {
+	//The derivative of a curve is another curve with one degree lower,
+	//whose points are all defined by the differences between other points.
+	//This will tend to bring it close to zero, so it may not be viable to
+	//draw the entire curve (unless we find a midpoint of some sort), but
+	//we can certainly get a vector by taking some point on this curve.
+	const deriv = [];
+	for (let i = 1; i < points.length; ++i) {
+		deriv.push({
+			x: points[i].x - points[i - 1].x,
+			y: points[i].y - points[i - 1].y,
+		});
+	}
+	return deriv;
+}
+
+function signed_curvature(t, deriv1, deriv2) {
+	//Calculate signed curvature, positive means curving right, negative means left
+	const d1 = interpolate(deriv1, t);
+	const d2 = interpolate(deriv2, t);
+	//Since these interpolations aren't actually the derivatives (they need to be
+	//scaled by 3 and 6 respectively), the final k-value needs to be adjusted to
+	//compensate. The net effect is a two-thirds scaling factor.
+	return (d1.x * d2.y - d1.y * d2.x) / (d1.x ** 2 + d1.y ** 2) ** 1.5 * 2/3;
+}
+
+function curvature(t, deriv1, deriv2) {
+	//Calculate curvature (often denoted Kappa), which we can depict
+	//as 1/r for the osculating circle. If the curve derivatives are
+	//precalculated, pass them, otherwise uses the elements list.
+	if (!deriv1) deriv1 = curve_derivative(get_curve_points());
+	if (deriv1.length < 2) return 0; //Lines don't have curvature.
+	if (!deriv2) deriv2 = curve_derivative(deriv1);
+	return Math.abs(signed_curvature(t, deriv1, deriv2));
+}
+
 const lerp_colors = ["#00000080", "#ee2222", "#11aa11", "#2222ee"];
 function repaint() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -170,19 +207,7 @@ function repaint() {
 			let derivs = []; //Mainly, track the first and second derivatives for the sake of osculating circle calculation
 			while (deriv.length > 1) {
 				factor *= (deriv.length - 1); //The derivative is multiplied by the curve's degree at each step
-				//The derivative of a curve is another curve with one degree lower,
-				//whose points are all defined by the differences between other points.
-				//This will tend to bring it close to zero, so it may not be viable to
-				//draw the entire curve (unless we find a midpoint of some sort), but
-				//we can certainly get a vector by taking some point on this curve.
-				const nextcurve = [];
-				for (let i = 1; i < deriv.length; ++i) {
-					nextcurve.push({
-						x: deriv[i].x - deriv[i - 1].x,
-						y: deriv[i].y - deriv[i - 1].y,
-					});
-				}
-				deriv = nextcurve;
+				deriv = curve_derivative(deriv);
 				const d = interpolate(deriv, t);
 				d.x *= factor; d.y *= factor; //Now it's the actual derivative at t.
 				derivs.push(d);
@@ -244,8 +269,54 @@ function repaint() {
 		}
 		draw_at(ctx, {type: "nearest", ...curve_at_t});
 	}
+	set_content("#minimum_curve_radius", [
+		"Minimum curve radius for this curve is: ",
+		SPAN({style: "display: none"}, "at t=" + minimum_curve_radius + " "), //Currently not shown
+		SPAN("" + (1/curvature(minimum_curve_radius)).toFixed(3)),
+	]);
+	if (state.showminimum && points.length > 2) {
+		const deriv1 = curve_derivative(points);
+		const deriv2 = curve_derivative(deriv1);
+		const radius = 1 / signed_curvature(minimum_curve_radius, deriv1, deriv2);
+		const curve_at_t = interpolate(points, minimum_curve_radius);
+		const d1 = interpolate(deriv1, minimum_curve_radius);
+		//Show the osculating circle at the point of minimum curve radius.
+		const angle = Math.atan2(d1.y, d1.x) + Math.PI / 2; //A quarter turn away from the first derivative
+		const circle_x = curve_at_t.x + Math.cos(angle) * radius;
+		const circle_y = curve_at_t.y + Math.sin(angle) * radius;
+		ctx.save();
+		const path = new Path2D;
+		path.arc(circle_x, circle_y, Math.abs(radius), 0, Math.PI * 2);
+		//Mark the center
+		path.moveTo(circle_x + 2, circle_y + 2);
+		path.lineTo(circle_x - 2, circle_y - 2);
+		path.moveTo(circle_x - 2, circle_y + 2);
+		path.lineTo(circle_x + 2, circle_y - 2);
+		ctx.strokeStyle = "#880";
+		ctx.stroke(path);
+		ctx.restore();
+	}
 	if (dragging) draw_at(ctx, dragging); //Anything being dragged gets drawn last, ensuring it is at the top of z-order.
 }
+
+function calc_min_curve_radius() {
+	//Calculate the minimum curve radius and the t-value at which that occurs.
+	//Note that, since this uses sampling rather than truly solving the equation,
+	//it may not give the precise minimum in situations where there are two local
+	//minima that are comparably close. It'll show the other one though.
+	const deriv1 = curve_derivative(get_curve_points());
+	if (deriv1.length < 2) {minimum_curve_radius = 0.0; return;} //Lines aren't curved.
+	const deriv2 = curve_derivative(deriv1);
+	let best = 0.0, curve = 0;
+	for (let t = 0; t <= 1; t += 1/RESOLUTION) {
+		const k = curvature(t, deriv1, deriv2);
+		if (k > curve) {curve = k; best = t;}
+	}
+	//TODO: Binary search +/- RESOLUTION from this t-value to see if we can refine the
+	//calculation a bit. We could then lower the resolution a bit.
+	minimum_curve_radius = best;
+}
+calc_min_curve_radius();
 repaint();
 
 function element_at_position(x, y, filter) {
@@ -269,6 +340,7 @@ canvas.addEventListener("pointerdown", e => {
 canvas.addEventListener("pointermove", e => {
 	if (dragging) {
 		[dragging.x, dragging.y] = [e.offsetX - dragbasex, e.offsetY - dragbasey];
+		calc_min_curve_radius();
 		repaint();
 	}
 	if (state.shownearest) {
@@ -289,5 +361,6 @@ canvas.addEventListener("pointerup", e => {
 	e.target.releasePointerCapture(e.pointerId);
 	[dragging.x, dragging.y] = [e.offsetX - dragbasex, e.offsetY - dragbasey];
 	dragging = null;
+	calc_min_curve_radius();
 	repaint();
 });
