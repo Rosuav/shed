@@ -1,8 +1,6 @@
 /* TODO
 
 * Place and remove control points (changing the degree of the curve)
-* On mouseover, show cursor indicating draggability
-* Refine "nearest" with fewer than 256 initial samples, but then perturb around the last sample
 * Different colours for different types of markers
 */
 import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
@@ -377,7 +375,11 @@ canvas.addEventListener("pointermove", e => {
 		[dragging.x, dragging.y] = [e.offsetX - dragbasex, e.offsetY - dragbasey];
 		calc_min_curve_radius();
 		repaint();
+		canvas.style.cursor = "pointer";
 	}
+	else if (element_at_position(e.offsetX, e.offsetY, el => !el.fixed))
+		canvas.style.cursor = "pointer";
+	else canvas.style.cursor = null;
 	if (state.shownearest) {
 		const points = get_curve_points();
 		let best = 0.0, bestdist = -1;
