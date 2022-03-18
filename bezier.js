@@ -4,15 +4,15 @@
 * Different colours for different types of markers
 */
 import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
-const {INPUT, LABEL, SPAN} = choc; //autoimport
+const {BUTTON, INPUT, LABEL, SPAN} = choc; //autoimport
 
 const RESOLUTION = 256; //Spread this many points across the curve to do our calculations
 
 const state = { };
 const options = [
 	{kwd: "allowdrag", lbl: "Allow drag", dflt: true},
-	{kwd: "shownearest", lbl: "Show nearest", dflt: false},
-	{kwd: "shownearestlines", lbl: "... with lines", dflt: false, depend: "shownearest"},
+	{kwd: "shownearest", lbl: "Highlight a point", dflt: false},
+	{kwd: "shownearestlines", lbl: "... with lerp lines", dflt: false, depend: "shownearest"},
 	{kwd: "shownearestvectors", lbl: "... with vectors", dflt: false, depend: "shownearest"},
 	{kwd: "shownearestcircle", lbl: "... and circle", dflt: false, depend: "shownearestvectors"},
 	{kwd: "showminimum", lbl: "Show tightest curve", dflt: false},
@@ -55,8 +55,9 @@ const element_types = {
 };
 let highlight_t_value = 0.0, minimum_curve_radius = 0.0;
 let animating = 0, animation_timer = null;
-window.animate = () => {
+on("click", "#toggle_animation", () => {
 	animating = !animating;
+	if (animating && !state.shownearest) DOM("[data-kwd=shownearest]").click(); //eh whatever
 	if (animating) animation_timer = setInterval(() => {
 		highlight_t_value += animating / RESOLUTION;
 		if (highlight_t_value > 1.0) {animating = -1; highlight_t_value = 2 - highlight_t_value;}
@@ -64,7 +65,7 @@ window.animate = () => {
 		repaint();
 	}, 10);
 	else clearInterval(animation_timer);
-};
+});
 
 const path_cache = { };
 function element_path(name) {

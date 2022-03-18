@@ -21,6 +21,10 @@ canvas {
 	list-style-type: none;
 	column-gap: 10px;
 }
+#actions {
+	display: flex;
+	column-gap: 10px;
+}
 </style>
 <script type=module src="bezier.js"></script>
 </head>
@@ -37,6 +41,7 @@ ensure that the transition is smooth, or do they also have to be equidistant?</l
 I guess you can't see my canvas?
 </canvas></div>
 <ul id=options></ul>
+<div id=actions><button type=button id=toggle_animation>Animate</button></div>
 <p id=derivatives></p>
 <p id=minimum_curve_radius></p>
 </main>
