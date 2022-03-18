@@ -324,13 +324,32 @@ function calc_min_curve_radius() {
 	if (deriv1.length < 2) {minimum_curve_radius = 0.0; return;} //Lines aren't curved.
 	const deriv2 = curve_derivative(deriv1);
 	let best = 0.0, curve = 0;
-	for (let t = 0; t <= 1; t += 1/RESOLUTION) {
+	const probe_span = 8/RESOLUTION; //Start by jumping every eighth spot, as defined by the mouse cursor nearest calculation
+	for (let t = 0; t <= 1; t += probe_span) {
 		const k = curvature(t, deriv1, deriv2);
 		if (k > curve) {curve = k; best = t;}
 	}
-	//TODO: Binary search +/- RESOLUTION from this t-value to see if we can refine the
-	//calculation a bit. We could then lower the resolution a bit.
+	//const probed_best = best, probed_curve = curve;
+	let earlier = best - probe_span, later = best + probe_span;
+	let earlier_curve = curvature(earlier, deriv1, deriv2);
+	let later_curve = curvature(later, deriv1, deriv2);
+	const epsilon = 1/16384;
+	while (later - earlier > epsilon) {
+		//We now have three points [earlier, best, later],
+		//with curvatures [earlier_curve, curve, later_curve]
+		//and we want to find the highest curvature within that range.
+		if (later_curve > earlier_curve) {
+			earlier = best;
+			earlier_curve = curve;
+		} else {
+			later = best;
+			later_curve = curve;
+		}
+		best = (earlier + later) / 2;
+		curve = curvature(best, deriv1, deriv2);
+	}
 	minimum_curve_radius = best;
+	//console.log("Probed:", probed_best, " Refined:", best);
 }
 calc_min_curve_radius();
 repaint();
