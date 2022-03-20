@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>Bezier Curve/Spline Testing</title>
 <style>
+* {box-sizing: border-box;}
 main {
 	max-width: 815px;
 	margin: auto;
@@ -11,10 +12,12 @@ main {
 }
 .scrollcontext {
 	overflow: auto;
-	max-height: 606px;
-}
-canvas {
+	max-height: 615px; /* Why this figure? Is that the height of the scroll bar? */
 	border: 1px solid black;
+}
+#canvasborder {
+	width: 800px; height: 600px;
+	margin: 0; padding: 0;
 }
 #options {
 	display: flex;
@@ -41,9 +44,9 @@ ensure that the transition is smooth, or do they also have to be equidistant?</l
 <li>Importing of points, esp the endpoints</li>
 <li>Exporting of results</li>
 </ul></details>
-<div class=scrollcontext><canvas width=800 height=600>
+<div class=scrollcontext><div id=canvasborder><canvas width=800 height=600>
 I guess you can't see my canvas?
-</canvas></div>
+</canvas></div></div>
 <ul id=options></ul>
 <div id=actions><button type=button id=toggle_animation>Animate</button></div>
 <p id=derivatives></p>

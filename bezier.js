@@ -216,8 +216,11 @@ function curvature(t, deriv1, deriv2) {
 }
 
 const lerp_colors = ["#00000080", "#ee2222", "#11aa11", "#2222ee", "#ee22ee", "#aaaa11", "#11cccc"];
+let zoomlevel = 0, scale = 1.0;
 function repaint() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.save();
+	//ctx.scale(scale, scale); //Is it better to do the scaling here or in CSS?
 	elements.forEach(el => el === dragging || draw_at(ctx, el));
 	//I don't think the HTML5 Canvas can do anything higher-order than cubic, so if we support that, we might
 	//have to replace all this with manual drawing anyway.
@@ -370,6 +373,7 @@ function repaint() {
 		ctx.restore();
 	}
 	if (dragging) draw_at(ctx, dragging); //Anything being dragged gets drawn last, ensuring it is at the top of z-order.
+	ctx.restore();
 }
 
 function calc_min_curve_radius() {
@@ -460,3 +464,17 @@ canvas.addEventListener("pointerup", e => {
 	calc_min_curve_radius();
 	repaint();
 });
+
+DOM("#canvasborder").addEventListener("wheel", e => {
+	console.log(e);
+	if (e.ctrlKey || e.shiftKey) {
+		e.preventDefault();
+		if (e.shiftKey) zoomlevel += e.wheelDelta / 5; //Ctrl-Shift (or just Shift) for finer scroll zoom
+		else zoomlevel += e.wheelDelta;
+		const scale = Math.exp(zoomlevel / 500); //Tweak the number 500 to adjust zoom scaling
+		//NOTE: This is sometimes leaving scroll bars even when the scale is set to 1. Not sure why.
+		//Fiddling with the zoom level can remove them again. It's weird.
+		canvas.style.transform = "scale(" + scale + ")";
+	}
+});
+//Can we get PS-style "hold space and move mouse to pan"?
