@@ -2,12 +2,27 @@
 
 * Place and remove control points (changing the degree of the curve)
 * Different colours for different types of markers
+* List (maybe drop-down) of all points
+  - Show info about point when selected, and highlight it
+  - Change selection in drop-down when point clicked on
+    - Disallow movement less than 5px
+  - Have inputs for x/y position
+    - Fine adjustment
+    - Lost point retrieval (sorry Anne, we're not sending you any control points)
 
 For Midga:
 * Upload background image
 * Pan/zoom (native size == image size)
 * Stroke width (in pixels)
 * Splines: multiple cubic Bezier curves, chained, all inline control points
+* Show direction of travel somewhere (maybe the Next marker needs an orientation?)
+* Link Next to the control points before and after it
+* Automatic symmetry
+  - When you drag a point immediately before a Next node, also correspondingly move
+    the point immediately after the Next node, and vice versa.
+  - Level of symmetry: require colinear, require equidistant
+    - Default to both active. Experiment to see what happens if you change one.
+  - May help to have a polarize function to give r,theta from one point to another
 * Import/export JSON
 * Minimum curve radius per spline and overall
 
@@ -51,10 +66,13 @@ on("click", "#options input", e => {
 const canvas = DOM("canvas");
 const ctx = canvas.getContext('2d');
 const elements = [
-	{type: "start", x: 600, y: 550},
-	{type: "control", x: 600, y: 200},
-	{type: "control", x: 200, y: 400},
-	{type: "end", x: 200, y: 50},
+	{type: "start", x: 500, y: 400},
+	{type: "control", x: 600, y: 500},
+	{type: "control", x: 450, y: 550},
+	/*{type: "next", x: 450, y: 500},
+	{type: "control", x: 450, y: 200},
+	{type: "control", x: 50, y: 400},*/
+	{type: "end", x: 50, y: 50},
 ];
 const element_types = {
 	start: {color: "#a0f0c080", radius: 6, crosshair: 9},
