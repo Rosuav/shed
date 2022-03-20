@@ -15,6 +15,13 @@ For Midga:
 * Pan/zoom (native size == image size)
 * Stroke width (in pixels)
 * Splines: multiple cubic Bezier curves, chained, all inline control points
+  - For the most part, don't assume cubic, but have a simple UI to "add curve"
+    - Measure delta-x, delta-y from point prior to "end" to "end" itself
+    - Replace the current "end" with "next"
+    - Append control point end+dx, end+dy
+    - Append control point end+dx*2, end+dy*2
+    - Append end point end+dx*3, end+dy*3
+  - Also: "add line". Exactly as above but zero control points.
 * Show direction of travel somewhere (maybe the Next marker needs an orientation?)
 * Link Next to the control points before and after it
 * Automatic symmetry
@@ -23,6 +30,10 @@ For Midga:
   - Level of symmetry: require colinear, require equidistant
     - Default to both active. Experiment to see what happens if you change one.
   - May help to have a polarize function to give r,theta from one point to another
+  - If both are active, don't bother polarizing, just mirror the x and y coords.
+  - What happens if you have ["next", "next", "control"]? (This would be a line
+    segment followed by a curve.) Lock the control point to colinearity?
+  - If you drag a "next", "start", or "end", move its adjacent control points too?
 * Import/export JSON
 * Minimum curve radius per spline and overall
 
