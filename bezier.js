@@ -2,41 +2,7 @@
 
 * Place and remove control points (changing the degree of the curve)
 * Different colours for different types of markers
-* List (maybe drop-down) of all points
-  - Show info about point when selected, and highlight it
-  - Change selection in drop-down when point clicked on
-    - Disallow movement less than 5px
-  - Have inputs for x/y position
-    - Fine adjustment
-    - Lost point retrieval (sorry Anne, we're not sending you any control points)
-
-For Midga:
-* Upload background image
-* Pan/zoom (native size == image size)
-* Stroke width (in pixels)
-* Splines: multiple cubic Bezier curves, chained, all inline control points
-  - For the most part, don't assume cubic, but have a simple UI to "add curve"
-    - Measure delta-x, delta-y from point prior to "end" to "end" itself
-    - Replace the current "end" with "next"
-    - Append control point end+dx, end+dy
-    - Append control point end+dx*2, end+dy*2
-    - Append end point end+dx*3, end+dy*3
-  - Also: "add line". Exactly as above but zero control points.
-* Show direction of travel somewhere (maybe the Next marker needs an orientation?)
-* Link Next to the control points before and after it
-* Automatic symmetry
-  - When you drag a point immediately before a Next node, also correspondingly move
-    the point immediately after the Next node, and vice versa.
-  - Level of symmetry: require colinear, require equidistant
-    - Default to both active. Experiment to see what happens if you change one.
-  - May help to have a polarize function to give r,theta from one point to another
-  - If both are active, don't bother polarizing, just mirror the x and y coords.
-  - What happens if you have ["next", "next", "control"]? (This would be a line
-    segment followed by a curve.) Lock the control point to colinearity?
-  - If you drag a "next", "start", or "end", move its adjacent control points too?
-* Import/export JSON
-* Minimum curve radius per spline and overall
-
+* List (maybe drop-down) of all points, borrowing from railways.js maybe
 */
 import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
 const {BUTTON, INPUT, LABEL, SPAN} = choc; //autoimport
@@ -80,9 +46,6 @@ const elements = [
 	{type: "start", x: 500, y: 400},
 	{type: "control", x: 600, y: 500},
 	{type: "control", x: 450, y: 550},
-	/*{type: "next", x: 450, y: 500},
-	{type: "control", x: 450, y: 200},
-	{type: "control", x: 50, y: 400},*/
 	{type: "end", x: 50, y: 50},
 ];
 const element_types = {
