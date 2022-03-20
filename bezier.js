@@ -2,6 +2,15 @@
 
 * Place and remove control points (changing the degree of the curve)
 * Different colours for different types of markers
+
+For Midga:
+* Upload background image
+* Pan/zoom (native size == image size)
+* Stroke width (in pixels)
+* Splines: multiple cubic Bezier curves, chained, all inline control points
+* Import/export JSON
+* Minimum curve radius per spline and overall
+
 */
 import choc, {set_content, DOM, on} from "https://rosuav.github.io/shed/chocfactory.js";
 const {BUTTON, INPUT, LABEL, SPAN} = choc; //autoimport
