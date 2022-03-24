@@ -10,6 +10,11 @@ Search options:
   restrict search to current province names rather than matching any culture's name
 - Can these options be remembered in local storage???
 
+"Provinces of Vital Interest" ought to be stored in the savefile somewhere. Show those
+in the highlight provinces too?
+Is it possible to tag up a set of provinces based on a decision or mission, and monitor
+the ownership of them?
+
 NOTE: Province group selection inverts the normal rules and has the web client in charge.
 This ensures that there can be no desynchronization between user view and province ID
 selection, but it does mean that the client must remain active in order to keep things
