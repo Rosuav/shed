@@ -1344,7 +1344,8 @@ int parsing = 0;
 void process_savefile(string fn) {parsing = 1; send_updates_all(); parser_pipe->write(fn + "\n");}
 void done_processing_savefile(object pipe, string msg) {
 	msg += parser_pipe->read() || ""; //Purge any spare text
-	if (has_value(msg, '+')) {++parsing; send_updates_all();}
+	//TODO: Deduplicate parsing definition with the main update handler
+	if (has_value(msg, '+')) {++parsing; send_update(`+(({ }), @values(websocket_groups)), (["parsing": parsing && (parsing - 1) * 100 / PARSE_PROGRESS_FRACTION]));}
 	if (!has_value(msg, '*')) return;
 	mapping data = Standards.JSON.decode_utf8(Stdio.read_file("eu4_parse.json") || "{}")->data;
 	if (!data) {werror("Unable to parse save file (see above for errors, hopefully)\n"); return;}
