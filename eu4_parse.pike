@@ -130,7 +130,7 @@ mapping low_parse_savefile(string|Stdio.Buffer data, int|void verbose) {
 			if (array hex = digits[0] == "0" && data->sscanf("x%[0-9a-fA-F]")) return ({"string", "0x" + hex[0]}); //Or should this be converted to decimal?
 			return ({"string", digits[0]});
 		}
-		if (array|string word = data->sscanf("%[0-9a-zA-Z_\x81-\xFE:]")) { //Include non-ASCII characters as letters
+		if (array|string word = data->sscanf("%[0-9a-zA-Z_'\x81-\xFE:]")) { //Include non-ASCII characters as letters
 			word = word[0];
 			//Unquoted tokens like institution_events.2 should be atoms, not atom-followed-by-number
 			if (array dotnumber = data->sscanf(".%[0-9]")) word += "." + dotnumber[0];
@@ -197,10 +197,14 @@ mapping parse_savefile(string data, string|void filename) {
 
 //Parse a full directory of configs and merge them into one mapping
 //The specified directory name should not end with a slash.
-mapping parse_config_dir(string dir) {
+//If key is provided, will return only that key from each file.
+mapping parse_config_dir(string dir, string|void key) {
 	mapping ret = ([]);
-	foreach (sort(get_dir(dir)), string fn)
-		ret |= low_parse_savefile(Stdio.read_file(dir + "/" + fn)) || ([]);
+	foreach (sort(get_dir(dir)), string fn) {
+		mapping cur = low_parse_savefile(Stdio.read_file(dir + "/" + fn) + "\n") || ([]);
+		if (key) cur = cur[key] || ([]);
+		ret |= cur;
+	}
 	return ret;
 }
 
@@ -2011,6 +2015,8 @@ int main(int argc, array(string) argv) {
 	wargoal_types = parse_config_dir(PROGRAM_PATH + "/common/wargoal_types");
 	custom_country_colors = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/custom_country_colors/00_custom_country_colors.txt"));
 	//estate_agendas = parse_config_dir(PROGRAM_PATH + "/common/estate_agendas"); //Not currently in use
+	//decisions = parse_config_dir(PROGRAM_PATH + "/decisions", "country_decisions"); //Not currently in use
+	//missions = parse_config_dir(PROGRAM_PATH + "/missions"); //Not currently in use
 
 	//Parse out localised province names and map from province ID to all its different names
 	province_localised_names = ([]);
