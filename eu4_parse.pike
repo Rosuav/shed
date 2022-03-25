@@ -10,9 +10,6 @@ Search options:
   restrict search to current province names rather than matching any culture's name
 - Can these options be remembered in local storage???
 
-"Provinces of Vital Interest" ought to be stored in the savefile somewhere. Show those
-in the highlight provinces too?
-- self->vital_provinces
 Is it possible to tag up a set of provinces based on a decision or mission, and monitor
 the ownership of them?
 - Will need to list all missions, then filter them
@@ -956,6 +953,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			write->notifications += ({"It's possible to summon the diet"});
 		}
 	}
+	write->vital_interest = map(Array.arrayify(country->vital_provinces)) {return ({__ARGS__[0], data->provinces["-" + __ARGS__[0]]->?name || "(unknown)"});};
 }
 
 mapping(string:array) interesting_provinces = ([]);

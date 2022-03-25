@@ -387,6 +387,7 @@ export function render(state) {
 			SUMMARY("Find a province/country"),
 			DIV({id: "search"}, H3("Search for a province or country")),
 			DIV({id: "pin"}, H3("Pinned provinces")),
+			DIV({id: "vital_interest"}, H3("Vital Interest")),
 		]),
 		sections.map(s => DETAILS({id: s.id}, SUMMARY(s.lbl))),
 		DIV({id: "options"}, [ //Positioned fixed in the top corner
@@ -420,6 +421,10 @@ export function render(state) {
 		]);
 		provleave();
 	}
+	if (state.vital_interest) set_content("#vital_interest", [
+		H3([proventer("vital_interest"), "Vital Interest: " + state.vital_interest.length]),
+		UL(state.vital_interest.map(([id, name]) => LI(PROV(id, name, 1)))),
+	]);
 	if (state.search) {
 		const input = DOM("#searchterm") || INPUT({id: "searchterm", size: 30});
 		const focus = input === document.activeElement;
