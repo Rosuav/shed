@@ -12,15 +12,15 @@ Search options:
 
 Is it possible to tag up a set of provinces based on a decision or mission, and monitor
 the ownership of them?
-- Will need to list all missions, then filter them
+- Will need to list all decisions/missions, then filter them
 - For the most part, just filter by tag, nothing else. Be aware that there might be
-  OR = { tag = X tag = Y }, as quite a few missions are shared.
+  "OR = { tag = X tag = Y }", as quite a few missions are shared.
 - provinces_to_highlight
   - May list a single province_id
-  - May list several, OR = {province_id = 1 province_id = 2}
-  - May list one area or multiple OR = {area = x area = y}
+  - May list several, "OR = {province_id = 1 province_id = 2}"
+  - May list one area or multiple "OR = {area = x area = y}"
   - Combinations of area and province are possible inside OR blocks
-  - Unsure if provinces_to_highlight { province_id = 1 area = yemen_area } would work
+  - Unsure if "provinces_to_highlight { province_id = 1 area = yemen_area }" would work
   - Filters are tricky. Look for a few of the most common, ignore the rest.
     - NOT = { country_or_non_sovereign_subject_holds = ROOT }
       - ie ignore everything you or a non-tributary subject owns
