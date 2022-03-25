@@ -12,8 +12,23 @@ Search options:
 
 "Provinces of Vital Interest" ought to be stored in the savefile somewhere. Show those
 in the highlight provinces too?
+- self->vital_provinces
 Is it possible to tag up a set of provinces based on a decision or mission, and monitor
 the ownership of them?
+- Will need to list all missions, then filter them
+- For the most part, just filter by tag, nothing else. Be aware that there might be
+  OR = { tag = X tag = Y }, as quite a few missions are shared.
+- provinces_to_highlight
+  - May list a single province_id
+  - May list several, OR = {province_id = 1 province_id = 2}
+  - May list one area or multiple OR = {area = x area = y}
+  - Combinations of area and province are possible inside OR blocks
+  - Unsure if provinces_to_highlight { province_id = 1 area = yemen_area } would work
+  - Filters are tricky. Look for a few of the most common, ignore the rest.
+    - NOT = { country_or_non_sovereign_subject_holds = ROOT }
+      - ie ignore everything you or a non-tributary subject owns
+    - others?
+  
 
 NOTE: Province group selection inverts the normal rules and has the web client in charge.
 This ensures that there can be no desynchronization between user view and province ID
