@@ -54,6 +54,7 @@ function COUNTRY(tag, nameoverride) {
 	]);
 }
 function update_hover_country() {
+	//TODO: Show if you're truced out, and if so, until when
 	const tag = hovertag, c = country_info[tag];
 	const me = country_info[countrytag] || {tech: [0,0,0]};
 	if (!c) {
@@ -91,7 +92,7 @@ function update_hover_country() {
 	]).classList.remove("hidden");
 }
 //Note that there is no mouseout. Once you point to a country, it will remain highlighted (even through savefile updates).
-on("mouseover", ".country:not(#hovercountry .country)", e => {hovertag = e.match.dataset.tag; update_hover_country();});
+on("mouseover", ".country:not(#hovercountry .country)", e => {if (e.match.dataset.tag !== countrytag) {hovertag = e.match.dataset.tag; update_hover_country();}});
 on("click", "#hovercountry .country", e => {hovertag = e.match.dataset.tag; update_hover_country();});
 //The hovered country can only be removed with its little Close button.
 on("click", "#hovercountry .close", e => {hovertag = ""; update_hover_country();});
@@ -133,6 +134,15 @@ function upgrade(upg, tot) {
 
 const sections = [];
 function section(id, lbl, render) {sections.push({id, lbl, render});}
+
+section("decisions_missions", "Decisions and Missions", state => [
+	SUMMARY(`Decisions and Missions [${state.decisions_missions.length}]`),
+	state.decisions_missions.map(mission => [
+		H3([proventer(mission.id), mission.name]),
+		UL(mission.provinces.map(p => LI(PROV(...p)))),
+		provleave(),
+	]),
+]);
 
 section("cot", "Centers of Trade", state => {
 	max_interesting.cot = state.cot.maxinteresting;

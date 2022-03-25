@@ -246,7 +246,7 @@ void interesting(string id, int|void prio) {
 	if (!has_value(interesting_province, id)) interesting_province += ({id}); //Retain order but avoid duplicates
 }
 
-mapping prov_area = ([]);
+mapping prov_area = ([]), map_areas = ([]);
 mapping province_info;
 mapping building_types; array building_id;
 mapping building_slots = ([]);
@@ -311,7 +311,7 @@ object calendar(string date) {
 mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers;
 mapping trade_goods, country_modifiers, age_definitions, tech_definitions, institutions;
 mapping cot_definitions, state_edicts, terrain_definitions, imperial_reforms;
-mapping cb_types, wargoal_types, estate_agendas;
+mapping cb_types, wargoal_types, estate_agendas, country_decisions, country_missions;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -957,7 +957,58 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			write->notifications += ({"It's possible to summon the diet"});
 		}
 	}
+
 	write->vital_interest = map(Array.arrayify(country->vital_provinces)) {return ({__ARGS__[0], data->provinces["-" + __ARGS__[0]]->?name || "(unknown)"});};
+
+	//What decisions and missions are open to you, and what provinces should they highlight?
+	write->decisions_missions = ({ });
+	foreach (Array.arrayify(country->country_missions->?mission_slot), array slot) {
+		foreach (slot, string kwd) {
+			//Each of these is a mission chain, I think. They're indexed by slot
+			//which is 1-5 going across, and each mission has one or two parents
+			//that have to be completed. I think that, if there are multiple
+			//mission chains in a slot, they are laid out vertically. In any case,
+			//we don't really care about layout, just which missions there are.
+			mapping mission = country_missions[kwd];
+			foreach (mission; string id; mixed info) {
+				if (has_value(country->completed_missions, id)) continue; //Already done this mission, don't highlight it.
+				string title = L10n[id + "_title"];
+				if (!title) continue; //TODO: What happens if there's a L10n failure?
+				//if (!mappingp(info)) {werror("WARNING: Not mapping - %O\n", id); continue;} //FIXME: Parse error on Ottoman_Missions, conquer_serbia, fails this assertion (see icon)
+				int prereq = 1;
+				if (arrayp(info->required_missions)) foreach (info->required_missions, string req)
+					if (!has_value(country->completed_missions, req)) prereq = 0;
+				if (!prereq) continue; //One or more prerequisite missions isn't completed, don't highlight it
+				mapping highlight = info->provinces_to_highlight;
+				if (!highlight) continue; //Mission does not involve provinces, don't highlight it.
+				//Very simplistic filter handling.
+				array filters = ({ });
+				//TODO: Require that the province not be owned by you *or any non-trib subject*
+				if (highlight->NOT->?country_or_non_sovereign_subject_holds == "ROOT")
+					filters += ({ lambda(mapping p) {return p->controller != tag;} });
+				//Very simplistic search criteria.
+				array provs = Array.arrayify(highlight->province_id) + Array.arrayify(highlight->OR->province_id);
+				array areas = Array.arrayify(highlight->area) + Array.arrayify(highlight->OR->area);
+				array interesting = ({ });
+				foreach (map_areas[areas[*]] + ({provs}), array|maparray area)
+					foreach (area;; string provid) {
+						mapping prov = data->provinces["-" + provid];
+						int keep = 1;
+						foreach (filters, function f) keep = keep && f(prov);
+						if (!keep) continue;
+						interesting += ({({provid, prov->name})});
+					}
+				if (sizeof(interesting)) write->decisions_missions += ({([
+					"id": id,
+					"name": title,
+					"provinces": interesting,
+				])});
+			}
+		}
+	}
+	foreach (country_decisions; string kwd; mapping info) {
+		//TODO.
+	}
 }
 
 mapping(string:array) interesting_provinces = ([]);
@@ -1941,8 +1992,8 @@ int main(int argc, array(string) argv) {
 			parse_localisation(Stdio.read_file(PROGRAM_PATH + "/localisation/" + fn));
 		Stdio.write_file(".eu4_localisation.json", Standards.JSON.encode(L10n, 1));
 	}
-	mapping areas = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/area.txt"));
-	foreach (areas; string areaname; array|maparray provinces)
+	map_areas = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/area.txt"));
+	foreach (map_areas; string areaname; array|maparray provinces)
 		foreach (provinces;; string id) prov_area[id] = areaname;
 	terrain_definitions = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/terrain.txt"));
 	mapping climates = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/climate.txt"));
@@ -2015,8 +2066,8 @@ int main(int argc, array(string) argv) {
 	wargoal_types = parse_config_dir(PROGRAM_PATH + "/common/wargoal_types");
 	custom_country_colors = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/custom_country_colors/00_custom_country_colors.txt"));
 	//estate_agendas = parse_config_dir(PROGRAM_PATH + "/common/estate_agendas"); //Not currently in use
-	//decisions = parse_config_dir(PROGRAM_PATH + "/decisions", "country_decisions"); //Not currently in use
-	//missions = parse_config_dir(PROGRAM_PATH + "/missions"); //Not currently in use
+	country_decisions = parse_config_dir(PROGRAM_PATH + "/decisions", "country_decisions");
+	country_missions = parse_config_dir(PROGRAM_PATH + "/missions");
 
 	//Parse out localised province names and map from province ID to all its different names
 	province_localised_names = ([]);
