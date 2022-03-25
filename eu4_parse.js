@@ -39,6 +39,7 @@ function PROV(id, name, namelast) {
 		!namelast && name,
 		SPAN({className: "goto-province provbtn", title: (disc ? "Go to #" : "Terra Incognita, cannot goto #") + id, "data-provid": id}, disc ? "🔭" : "🌐"),
 		SPAN({className: "pin-province provbtn", title: (pin ? "Unpin #" : "Pin #") + id, "data-provid": id}, pin ? "⛳" : "📌"),
+		//COUNTRY(owner, ""), //TODO
 		namelast && name,
 	]);
 }
