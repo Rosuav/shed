@@ -5,6 +5,9 @@
 
 TODO: For all provinces, record sea or land, transmit to front end for icon
 
+TODO: Give a warning if you have a state edict that won't matter, like Enforced Religious
+Unity in a state with all true faith provinces.
+
 Search options:
 - Filter to owned provinces, and/or provinces not under TI, and/or non-sea provinces;
   restrict search to current province names rather than matching any culture's name
