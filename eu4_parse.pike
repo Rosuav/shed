@@ -1014,6 +1014,13 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	foreach (country_decisions; string kwd; mapping info) {
 		//TODO.
 	}
+
+	//Get some info about provinces, for the sake of the province details view
+	write->province_info = map(data->provinces) {[mapping prov] = __ARGS__;
+		return ([
+			"discovered": has_value(Array.arrayify(prov->discovered_by), tag),
+		]);
+	};
 }
 
 mapping(string:array) interesting_provinces = ([]);
@@ -1824,6 +1831,7 @@ mapping get_state(string group) {
 	ret->search = (["term": term, "results": results]);
 
 	//Scan all provinces for whether you've discovered them or not
+	//Deprecated in favour of the province_info[] mapping
 	mapping discov = ret->discovered_provinces = ([]);
 	foreach (data->provinces; string id; mapping prov) if (has_value(Array.arrayify(prov->discovered_by), tag)) discov[id - "-"] = 1;
 

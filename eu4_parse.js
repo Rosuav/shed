@@ -8,7 +8,7 @@ function table_head(headings) {
 	return TR(headings.map(h => TH(h))); //TODO: Click to sort
 }
 
-let curgroup = [], provgroups = { }, provelem = { }, pinned_provinces = { }, discovered_provinces = { };
+let curgroup = [], provgroups = { }, provelem = { }, pinned_provinces = { }, province_info = { };
 function proventer(kwd) {
 	curgroup.push(kwd);
 	const g = curgroup.join("/");
@@ -34,7 +34,7 @@ function PROV(id, name, namelast) {
 		if (g) g += "/" + kwd; else g = kwd;
 		if (provgroups[g].indexOf(id) < 0) provgroups[g].push(id);
 	}
-	const pin = pinned_provinces[id], disc = discovered_provinces[id];
+	const pin = pinned_provinces[id], disc = province_info["-" + id]?.discovered;
 	return SPAN({className: "province"}, [
 		!namelast && name,
 		SPAN({className: "goto-province provbtn", title: (disc ? "Go to #" : "Terra Incognita, cannot goto #") + id, "data-provid": id}, disc ? "🔭" : "🌐"),
@@ -419,7 +419,7 @@ export function render(state) {
 		return;
 	}
 	set_content("#error", "").classList.add("hidden");
-	if (state.discovered_provinces) discovered_provinces = state.discovered_provinces;
+	if (state.province_info) province_info = state.province_info;
 	if (state.countries) country_info = state.countries;
 	if (state.tag) {
 		const c = country_info[countrytag = state.tag];
