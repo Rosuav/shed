@@ -4,6 +4,7 @@
 /* Browser mode
 
 TODO: For all provinces, record sea or land, transmit to front end for icon
+Also owner.
 
 TODO: Give a warning if you have a state edict that won't matter, like Enforced Religious
 Unity in a state with all true faith provinces.
