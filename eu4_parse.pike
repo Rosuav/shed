@@ -966,6 +966,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 
 	//What decisions and missions are open to you, and what provinces should they highlight?
 	write->decisions_missions = ({ });
+	array completed = country->completed_missions || ({ });
 	foreach (Array.arrayify(country->country_missions->?mission_slot), array slot) {
 		foreach (slot, string kwd) {
 			//Each of these is a mission chain, I think. They're indexed by slot
@@ -975,13 +976,13 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			//we don't really care about layout, just which missions there are.
 			mapping mission = country_missions[kwd];
 			foreach (mission; string id; mixed info) {
-				if (has_value(country->completed_missions, id)) continue; //Already done this mission, don't highlight it.
+				if (has_value(completed, id)) continue; //Already done this mission, don't highlight it.
 				string title = L10n[id + "_title"];
 				if (!title) continue; //TODO: What happens if there's a L10n failure?
 				//if (!mappingp(info)) {werror("WARNING: Not mapping - %O\n", id); continue;} //FIXME: Parse error on Ottoman_Missions, conquer_serbia, fails this assertion (see icon)
 				int prereq = 1;
 				if (arrayp(info->required_missions)) foreach (info->required_missions, string req)
-					if (!has_value(country->completed_missions, req)) prereq = 0;
+					if (!has_value(completed, req)) prereq = 0;
 				if (!prereq) continue; //One or more prerequisite missions isn't completed, don't highlight it
 				mapping highlight = info->provinces_to_highlight;
 				if (!highlight) continue; //Mission does not involve provinces, don't highlight it.
@@ -991,8 +992,8 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 				if (highlight->NOT->?country_or_non_sovereign_subject_holds == "ROOT")
 					filters += ({ lambda(mapping p) {return p->controller != tag;} });
 				//Very simplistic search criteria.
-				array provs = Array.arrayify(highlight->province_id) + Array.arrayify(highlight->OR->province_id);
-				array areas = Array.arrayify(highlight->area) + Array.arrayify(highlight->OR->area);
+				array provs = Array.arrayify(highlight->province_id) + Array.arrayify(highlight->OR->?province_id);
+				array areas = Array.arrayify(highlight->area) + Array.arrayify(highlight->OR->?area);
 				array interesting = ({ });
 				foreach (map_areas[areas[*]] + ({provs}), array|maparray area)
 					foreach (area;; string provid) {
