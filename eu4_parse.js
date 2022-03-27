@@ -28,7 +28,7 @@ function provleave() { //Can safely be put into a DOM array (will be ignored)
 	}
 	curgroup.pop();
 }
-function PROV(id, name, namelast) {
+function PROV(id, nameoverride, namelast) {
 	let g;
 	for (let kwd of curgroup) {
 		if (g) g += "/" + kwd; else g = kwd;
@@ -36,11 +36,12 @@ function PROV(id, name, namelast) {
 	}
 	const pin = pinned_provinces[id], info = province_info["-" + id] || { };
 	const disc = info.discovered;
+	nameoverride = nameoverride || info?.name || "";
 	return SPAN({className: "province"}, [
-		!namelast && name,
+		!namelast && nameoverride,
 		SPAN({className: "goto-province provbtn", title: (disc ? "Go to #" : "Terra Incognita, cannot goto #") + id, "data-provid": id}, disc ? "🔭" : "🌐"),
 		SPAN({className: "pin-province provbtn", title: (pin ? "Unpin #" : "Pin #") + id, "data-provid": id}, pin ? "⛳" : "📌"),
-		namelast && name,
+		namelast && nameoverride,
 		info.owner && [" ", COUNTRY(info.owner, " ")], //No flag if unowned
 		//What if info.controller !== info.owner? Should we show some indication? Currently not bothering.
 	]);

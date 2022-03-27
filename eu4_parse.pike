@@ -1020,6 +1020,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		return ([
 			"discovered": has_value(Array.arrayify(prov->discovered_by), tag),
 			"controller": prov->controller, "owner": prov->owner,
+			"name": prov->name,
 			//"raw": prov,
 		]);
 	};
