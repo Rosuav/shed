@@ -1019,6 +1019,8 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	write->province_info = map(data->provinces) {[mapping prov] = __ARGS__;
 		return ([
 			"discovered": has_value(Array.arrayify(prov->discovered_by), tag),
+			"controller": prov->controller, "owner": prov->owner,
+			//"raw": prov,
 		]);
 	};
 }

@@ -107,6 +107,7 @@ color choice can be overridden based on its parent. */
 
 .flag.small {
 	width: 24px; height: 24px;
+	vertical-align: bottom;
 }
 .flag.large {
 	display: block;
@@ -147,4 +148,8 @@ color choice can be overridden based on its parent. */
 }
 #recent_peace_treaties img {
 	vertical-align: middle;
+}
+
+#truces li {
+	margin: 0.4em 0;
 }

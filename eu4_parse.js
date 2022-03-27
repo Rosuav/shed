@@ -34,13 +34,15 @@ function PROV(id, name, namelast) {
 		if (g) g += "/" + kwd; else g = kwd;
 		if (provgroups[g].indexOf(id) < 0) provgroups[g].push(id);
 	}
-	const pin = pinned_provinces[id], disc = province_info["-" + id]?.discovered;
+	const pin = pinned_provinces[id], info = province_info["-" + id] || { };
+	const disc = info.discovered;
 	return SPAN({className: "province"}, [
 		!namelast && name,
 		SPAN({className: "goto-province provbtn", title: (disc ? "Go to #" : "Terra Incognita, cannot goto #") + id, "data-provid": id}, disc ? "🔭" : "🌐"),
 		SPAN({className: "pin-province provbtn", title: (pin ? "Unpin #" : "Pin #") + id, "data-provid": id}, pin ? "⛳" : "📌"),
-		//COUNTRY(owner, ""), //TODO
 		namelast && name,
+		info.owner && [" ", COUNTRY(info.owner, " ")], //No flag if unowned
+		//What if info.controller !== info.owner? Should we show some indication? Currently not bothering.
 	]);
 }
 
