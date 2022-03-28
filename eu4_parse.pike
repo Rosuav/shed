@@ -652,17 +652,23 @@ void analyze_findbuildings(mapping data, string name, string tag, function|mappi
 }
 
 int(0..1) passes_filter(mapping country, mapping|array filter) {
-	if (filter->OR) {
-		//Require that at least one of the filters pass
-		//Note: If filter->OR is an array, there are actually multiple
-		//independent OR blocks, all of which must pass; but within an
-		//OR block, any must pass.
-		int ok = 0;
-		foreach (Array.arrayify(filter->OR), mapping f) {
-			if (!passes_filter(country, f)) return 0;
+	foreach (filter; string kwd; mixed values) {
+		//There could be multiple of the same keyword (eg in an OR block, or multiple OR blocks). They're independent.
+		foreach (Array.arrayify(values), mixed value) switch (kwd) {
+			case "OR": {
+				//Require that at least one of the filters pass
+				//Note: If filter->OR is an array, there are actually multiple
+				//independent OR blocks, all of which must pass; but within an
+				//OR block, any must pass.
+				int ok = 0;
+				foreach (Array.arrayify(filter->OR), mapping f) {
+					if (!passes_filter(country, f)) return 0;
+				}
+			}
+			break;
+			default: break; //Unknown type, don't do anything
 		}
 	}
-	if (filter->ai) return 0;
 	return 1;
 }
 
