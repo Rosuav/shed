@@ -3,9 +3,6 @@
 //Read a text (non-ironman) EU4 savefile and scan for matters of interest. Provides info to networked clients.
 /* Browser mode
 
-TODO: For all provinces, record sea or land, transmit to front end for icon
-Also owner.
-
 TODO: Give a warning if you have a state edict that won't matter, like Enforced Religious
 Unity in a state with all true faith provinces.
 
@@ -1016,13 +1013,16 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	}
 
 	//Get some info about provinces, for the sake of the province details view
-	write->province_info = map(data->provinces) {[mapping prov] = __ARGS__;
-		return ([
+	write->province_info = (mapping)map((array)data->provinces) {[[string id, mapping prov]] = __ARGS__;
+		return ({id, ([
 			"discovered": has_value(Array.arrayify(prov->discovered_by), tag),
 			"controller": prov->controller, "owner": prov->owner,
 			"name": prov->name,
+			"wet": terrain_definitions->categories[province_info[id - "-"]->?terrain]->?is_water,
+			"terrain": province_info[id - "-"]->?terrain,
+			"climate": province_info[id - "-"]->?climate,
 			//"raw": prov,
-		]);
+		])});
 	};
 }
 

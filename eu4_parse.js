@@ -36,9 +36,10 @@ function PROV(id, nameoverride, namelast) {
 	}
 	const pin = pinned_provinces[id], info = province_info["-" + id] || { };
 	const disc = info.discovered;
-	nameoverride = nameoverride || info?.name || "";
+	if (!nameoverride && nameoverride !== "") nameoverride = info?.name || "";
 	return SPAN({className: "province"}, [
 		!namelast && nameoverride,
+		info.wet && "🌊",
 		SPAN({className: "goto-province provbtn", title: (disc ? "Go to #" : "Terra Incognita, cannot goto #") + id, "data-provid": id}, disc ? "🔭" : "🌐"),
 		SPAN({className: "pin-province provbtn", title: (pin ? "Unpin #" : "Pin #") + id, "data-provid": id}, pin ? "⛳" : "📌"),
 		namelast && nameoverride,
