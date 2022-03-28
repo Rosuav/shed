@@ -1,33 +1,7 @@
 #define POLYGLOT "This script can be run as Python or Pike code. The Python code is client-only. \
 """
 //Read a text (non-ironman) EU4 savefile and scan for matters of interest. Provides info to networked clients.
-/* Browser mode
-
-TODO: Give a warning if you have a state edict that won't matter, like Enforced Religious
-Unity in a state with all true faith provinces.
-
-Search options:
-- Filter to owned provinces, and/or provinces not under TI, and/or non-sea provinces;
-  restrict search to current province names rather than matching any culture's name
-- Can these options be remembered in local storage???
-
-Is it possible to tag up a set of provinces based on a decision or mission, and monitor
-the ownership of them?
-- Will need to list all decisions/missions, then filter them
-- For the most part, just filter by tag, nothing else. Be aware that there might be
-  "OR = { tag = X tag = Y }", as quite a few missions are shared.
-- provinces_to_highlight
-  - May list a single province_id
-  - May list several, "OR = {province_id = 1 province_id = 2}"
-  - May list one area or multiple "OR = {area = x area = y}"
-  - Combinations of area and province are possible inside OR blocks
-  - Unsure if "provinces_to_highlight { province_id = 1 area = yemen_area }" would work
-  - Filters are tricky. Look for a few of the most common, ignore the rest.
-    - NOT = { country_or_non_sovereign_subject_holds = ROOT }
-      - ie ignore everything you or a non-tributary subject owns
-    - others?
-  
-
+/*
 NOTE: Province group selection inverts the normal rules and has the web client in charge.
 This ensures that there can be no desynchronization between user view and province ID
 selection, but it does mean that the client must remain active in order to keep things
@@ -1008,6 +982,20 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			}
 		}
 	}
+	/* TODO: List decisions as well as missions
+	- For the most part, just filter by tag, nothing else. Be aware that there might be
+	  "OR = { tag = X tag = Y }", as quite a few decisions are shared.
+	- May also need to check "culture_group = iberian" and "primary_culture = basque"
+	- Show if major decision
+	- provinces_to_highlight
+	  - May list a single province_id, an area name, or a region name
+	  - May instead have an OR block with zero or more of any of the above
+	  - Unsure if "provinces_to_highlight { province_id = 1 area = yemen_area }" would work
+	  - Filters are tricky. Look for a few of the most common, ignore the rest.
+	    - NOT = { country_or_non_sovereign_subject_holds = ROOT }
+	      - ie ignore everything you or a non-tributary subject owns
+	    - others?
+	*/
 	foreach (country_decisions; string kwd; mapping info) {
 		//TODO.
 	}
@@ -1024,6 +1012,11 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			//"raw": prov,
 		])});
 	};
+
+	//State edicts
+	//TODO: Give a warning if you have a state edict that won't matter, like Enforced Religious
+	//Unity in a state with all true faith provinces.
+
 }
 
 mapping(string:array) interesting_provinces = ([]);
