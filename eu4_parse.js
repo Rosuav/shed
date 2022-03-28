@@ -351,6 +351,8 @@ function render_text(txt) {
 	if (txt.color) return SPAN({style: "color: rgb(" + txt.color + ")"}, render_text(txt.text));
 	if (txt.abbr) return ABBR({title: txt.title}, txt.abbr);
 	if (txt.icon) return IMG({src: txt.icon, alt: txt.title, title: txt.title});
+	if (txt.prov) return PROV(txt.prov, txt.nameoverride, txt.namelast);
+	if (txt.country) return PROV(txt.country, txt.nameoverride);
 	return render_text({abbr: "<ERROR>", title: "Unknown text format: " + Object.keys(txt)});
 }
 //Note that this can and will be updated independently of the rest of the save file.
@@ -494,7 +496,7 @@ export function render(state) {
 		set_content("#cyclegroup", ["Selected group: " + state.cyclegroup + " ", SPAN({className: "provgroup clear"}, "❎")]);
 	}
 	else set_content("#cyclegroup", "");
-	if (state.notifications) set_content("#notifications", state.notifications.map(n => LI({className: "interesting2"}, "🔔 " + n))); //Might end up having a "go-to" button on these
+	if (state.notifications) set_content("#notifications", state.notifications.map(n => LI({className: "interesting2"}, ["🔔 ", render_text(n)])));
 	if (state.agenda && state.agenda.expires) {
 		//Regardless of the agenda, you'll have a description and an expiry date.
 		//The description might contain placeholders "[agenda_province.GetName]"

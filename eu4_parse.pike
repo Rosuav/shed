@@ -964,12 +964,13 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 					default: break; //All other edicts are presumed to be deliberate.
 				}
 			}
-			//TODO: Allow some formatting in notifications, and a highlight province
-			if (unnecessary) write->notifications += ({sprintf(
-				"Unnecessary %s in %s",
-				L10n[state->active_edict->which],
-				L10n[area],
-			)});
+			if (unnecessary) write->notifications += ({({
+				"Unnecessary ",
+				(["color": textcolors->B * ",", "text": L10n[state->active_edict->which]]),
+				" in ",
+				(["color": textcolors->B * ",", "text": L10n[area]]),
+				(["prov": highlightid, "nameoverride": ""]),
+			})});
 		}
 	}
 
