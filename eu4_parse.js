@@ -34,7 +34,7 @@ function PROV(id, nameoverride, namelast) {
 		if (g) g += "/" + kwd; else g = kwd;
 		if (provgroups[g].indexOf(id) < 0) provgroups[g].push(id);
 	}
-	const pin = pinned_provinces[id], info = province_info["-" + id] || { };
+	const pin = pinned_provinces[id], info = province_info[id] || { };
 	const disc = info.discovered;
 	if (!nameoverride && nameoverride !== "") nameoverride = info?.name || "";
 	return SPAN({className: "province"}, [

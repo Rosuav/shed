@@ -1014,7 +1014,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 
 	//Get some info about provinces, for the sake of the province details view
 	write->province_info = (mapping)map((array)data->provinces) {[[string id, mapping prov]] = __ARGS__;
-		return ({id, ([
+		return ({id - "-", ([
 			"discovered": has_value(Array.arrayify(prov->discovered_by), tag),
 			"controller": prov->controller, "owner": prov->owner,
 			"name": prov->name,
