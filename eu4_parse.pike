@@ -946,14 +946,25 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 					case "edict_advancement_effort": {
 						//Necessary if any spawned institution is neither embraced by your
 						//country nor at 100% in the province
+						foreach (data->institutions; int i; string spawned) if (spawned == "1") {
+							if (prov->institutions[i] != "100.000" && country->institutions[i] != "1")
+								unnecessary = 0;
+						}
 						break;
 					}
 					case "edict_centralization_effort": {
-						//Necessary when local autonomy is above the autonomy floor
+						//Necessary when local autonomy is above the autonomy floor.
+						//This doesn't reflect the floor, so the edict might become
+						//functionally unnecessary before it gets flagged here. Note
+						//that this actually ignores fractional autonomy, on the basis
+						//that it's not really significant anyway.
+						if ((int)prov->local_autonomy) unnecessary = 0;
 						break;
 					}
 					case "edict_feudal_de_jure_law": {
 						//Necessary when net unrest is above -5
+						//Not sure where unrest is stored. It's probably in separate pieces, like
+						//the whiskey wasn't.
 						break;
 					}
 					case "edict_religious_unity": {
