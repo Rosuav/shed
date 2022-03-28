@@ -932,6 +932,46 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			write->notifications += ({"It's possible to summon the diet"});
 		}
 	}
+	foreach (data->map_area_data; string area; mapping info) {
+		foreach (Array.arrayify(info->state->?country_state), mapping state) {
+			if (state->country != tag) continue;
+			if (!state->active_edict) continue;
+			int unnecessary = 1;
+			string highlightid = ""; //There should always be at least ONE owned province, otherwise you can't have a state!
+			foreach (map_areas[area];; string provid) {
+				mapping prov = data->provinces["-" + provid];
+				if (prov->owner != tag) continue; //Ignore other people's land in your state
+				highlightid = provid;
+				switch (state->active_edict->which) {
+					case "edict_advancement_effort": {
+						//Necessary if any spawned institution is neither embraced by your
+						//country nor at 100% in the province
+						break;
+					}
+					case "edict_centralization_effort": {
+						//Necessary when local autonomy is above the autonomy floor
+						break;
+					}
+					case "edict_feudal_de_jure_law": {
+						//Necessary when net unrest is above -5
+						break;
+					}
+					case "edict_religious_unity": {
+						//Necessary if province does not follow state religion
+						if (prov->religion != country->religion) unnecessary = 0;
+						break;
+					}
+					default: break; //All other edicts are presumed to be deliberate.
+				}
+			}
+			//TODO: Allow some formatting in notifications, and a highlight province
+			if (unnecessary) write->notifications += ({sprintf(
+				"Unnecessary %s in %s",
+				L10n[state->active_edict->which],
+				L10n[area],
+			)});
+		}
+	}
 
 	write->vital_interest = map(Array.arrayify(country->vital_provinces)) {return ({__ARGS__[0], data->provinces["-" + __ARGS__[0]]->?name || "(unknown)"});};
 
@@ -1012,11 +1052,6 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			//"raw": prov,
 		])});
 	};
-
-	//State edicts
-	//TODO: Give a warning if you have a state edict that won't matter, like Enforced Religious
-	//Unity in a state with all true faith provinces.
-
 }
 
 mapping(string:array) interesting_provinces = ([]);
