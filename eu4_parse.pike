@@ -651,6 +651,21 @@ void analyze_findbuildings(mapping data, string name, string tag, function|mappi
 	if (mappingp(write)) sort(write->highlight->provinces->cost[*][-1], write->highlight->provinces);
 }
 
+int(0..1) passes_filter(mapping country, mapping|array filter) {
+	if (filter->OR) {
+		//Require that at least one of the filters pass
+		//Note: If filter->OR is an array, there are actually multiple
+		//independent OR blocks, all of which must pass; but within an
+		//OR block, any must pass.
+		int ok = 0;
+		foreach (Array.arrayify(filter->OR), mapping f) {
+			if (!passes_filter(country, f)) return 0;
+		}
+	}
+	if (filter->ai) return 0;
+	return 1;
+}
+
 void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	//Gather some more obscure or less-interesting data for the web interface only.
 	//It's not worth consuming visual space for these normally, but the client might
@@ -856,8 +871,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	sort(-colonization_targets->score[*], colonization_targets);
 	write->colonization_targets = colonization_targets;
 
-	//Pick up a few possible notifications. The format may change (maybe a mapping with
-	//more info, maybe it'd include a keysend sequence or province ID?), but this is a start.
+	//Pick up a few possible notifications.
 	write->notifications = ({ });
 	//Would it be safe to seize land?
 	object seizetime = calendar(country->flags->?recent_land_seizure || "1.1.1")->add(Calendar.Gregorian.Year() * 5);
@@ -1050,6 +1064,8 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	*/
 	foreach (country_decisions; string kwd; mapping info) {
 		//TODO.
+		if (!passes_filter(country, info->potential)) continue;
+		werror("%s -> %s %O\n", tag, kwd, info->potential);
 	}
 
 	//Get some info about provinces, for the sake of the province details view
