@@ -497,7 +497,7 @@ export function render(state) {
 	}
 	else set_content("#cyclegroup", "");
 	if (state.notifications) set_content("#notifications", state.notifications.map(n => LI({className: "interesting2"}, ["🔔 ", render_text(n)])));
-	if (state.agenda && state.agenda.expires) {
+	if (state.agenda && state.agenda.expiry) {
 		//Regardless of the agenda, you'll have a description and an expiry date.
 		//The description might contain placeholders "[agenda_province.GetName]"
 		//and/or "[agenda_country.GetUsableName]", which should be replaced with
