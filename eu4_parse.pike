@@ -651,25 +651,19 @@ void analyze_findbuildings(mapping data, string name, string tag, function|mappi
 	if (mappingp(write)) sort(write->highlight->provinces->cost[*][-1], write->highlight->provinces);
 }
 
-int(0..1) passes_filter(mapping country, mapping|array filter) {
+int(0..1) passes_filter(mapping country, mapping|array filter, int|void any) {
+	//If any is 1, then as soon as we find a true return, we propagate it.
+	//If any is 0 (ie we need all, the default), we propagate false instead.
+	//An empty block - or one containing only types we don't know - will
+	//pass an AND check (no restrictions, all fine), but fail an OR check.
 	foreach (filter; string kwd; mixed values) {
 		//There could be multiple of the same keyword (eg in an OR block, or multiple OR blocks). They're independent.
 		foreach (Array.arrayify(values), mixed value) switch (kwd) {
-			case "OR": {
-				//Require that at least one of the filters pass
-				//Note: If filter->OR is an array, there are actually multiple
-				//independent OR blocks, all of which must pass; but within an
-				//OR block, any must pass.
-				int ok = 0;
-				foreach (Array.arrayify(filter->OR), mapping f) {
-					if (!passes_filter(country, f)) return 0;
-				}
-			}
-			break;
+			case "OR": if (passes_filter(country, value, 1) == any) return any;
 			default: break; //Unknown type, don't do anything
 		}
 	}
-	return 1;
+	return !any;
 }
 
 void analyze_obscurities(mapping data, string name, string tag, mapping write) {
