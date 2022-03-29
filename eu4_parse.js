@@ -258,7 +258,7 @@ section("badboy_hatred", "Badboy Haters", state => [
 		state.badboy_hatred.map(hater => {
 			const info = country_info[hater.tag];
 			const attr = { };
-			if (hater.in_coalition) {attr.className = "interesting2"; max_interesting.badboy = 2;}
+			if (hater.in_coalition) {attr.className = "interesting2"; max_interesting.badboy_hatred = 2;}
 			return TR([
 				TD({className: info.opinion_theirs < 0 ? "interesting1" : ""}, info.opinion_theirs),
 				TD({className: hater.badboy >= 50000 ? "interesting1" : ""}, Math.floor(hater.badboy / 1000) + ""),
