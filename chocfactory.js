@@ -1,5 +1,8 @@
 /* Chocolate Factory v0.6.1
 
+NOTE: This version is static and unchanging. New updates are only found at the
+canonial location: https://rosuav.github.io/choc/
+
 DOM object builder. (Thanks to DeviCat for the name!)
 
 Recommended for use in a module script:
