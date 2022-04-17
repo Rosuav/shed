@@ -1,7 +1,7 @@
 //Not to be confused with eu4_parse.json which is a cache
-import choc, {set_content, DOM} from "https://rosuav.github.io/shed/chocfactory.js";
-const {A, ABBR, B, BR, DETAILS, DIV, FORM, H1, H3, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = choc; //autoimport
-const {BLOCKQUOTE, H4} = choc; //Currently autoimport doesn't recognize the section() decorator
+import {lindt, replace_content, DOM} from "https://rosuav.github.io/choc/factory.js";
+const {A, ABBR, B, BR, DETAILS, DIV, FORM, H1, H3, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = lindt; //autoimport
+const {BLOCKQUOTE, H4} = lindt; //Currently autoimport doesn't recognize the section() decorator
 
 function table_head(headings) {
 	if (typeof headings === "string") headings = headings.split(" ");
@@ -22,9 +22,9 @@ function provleave() { //Can safely be put into a DOM array (will be ignored)
 	const g = curgroup.join("/");
 	if (!provgroups[g].length) {
 		const el = provelem[g];
-		set_content(el, "📃");
-		el.title = "No provinces in group " + g;
-		el.classList.add("empty");
+		el.children[0] = "📃"; //FIXME: Don't monkeypatch.
+		el.attributes.title = "No provinces in group " + g;
+		el.className += " empty";
 	}
 	curgroup.pop();
 }
@@ -64,7 +64,7 @@ function update_hover_country() {
 	const tag = hovertag, c = country_info[tag];
 	const me = country_info[countrytag] || {tech: [0,0,0]};
 	if (!c) {
-		set_content("#hovercountry", "").classList.add("hidden");
+		replace_content("#hovercountry", "").classList.add("hidden");
 		return;
 	}
 	function attrs(n) {
@@ -72,7 +72,7 @@ function update_hover_country() {
 		if (n < 0) return {className: "tech below", title: -n + " behind you"};
 		return {className: "tech same", title: "Same as you"};
 	}
-	set_content("#hovercountry", [
+	replace_content("#hovercountry", [
 		DIV({className: "close"}, "☒"),
 		A({href: "/tag/" + hovertag, target: "_blank"}, [
 			IMG({className: "flag large", src: "/flags/" + c.flag + ".png", alt: "[flag of " + c.name + "]"}),
@@ -230,7 +230,7 @@ section("wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.length || "None
 	//wars involving other players but not yourself, they'll still have their "sword" or
 	//"shield" indicator given based on any player involvement.
 	const atkdef = (war.atk ? "\u{1f5e1}\ufe0f" : "") + (war.def ? "\u{1f6e1}\ufe0f" : "");
-	return set_content(DOM("#" + id) || DETAILS({id, open: true}), [
+	return DETAILS({open: true}, [
 		SUMMARY(atkdef + " " + war.name),
 		TABLE({border: "1"}, [
 			table_head(["Country", "Infantry", "Cavalry", "Artillery",
@@ -396,7 +396,7 @@ section("cbs", "Casus belli", state => [
 export function render(state) {
 	curgroup = []; provgroups = { };
 	//Set up one-time structure. Every subsequent render will update within that.
-	if (!DOM("#error")) set_content("main", [
+	if (!DOM("#error")) replace_content("main", [
 		DIV({id: "error", className: "hidden"}),
 		DIV({id: "menu", className: "hidden"}),
 		IMG({className: "flag large", id: "playerflag", alt: "[flag of player's nation]"}),
@@ -422,10 +422,10 @@ export function render(state) {
 	]);
 
 	if (state.error) {
-		set_content("#error", [state.error, state.parsing ? state.parsing + "%" : ""]).classList.remove("hidden");
+		replace_content("#error", [state.error, state.parsing ? state.parsing + "%" : ""]).classList.remove("hidden");
 		return;
 	}
-	set_content("#error", "").classList.add("hidden");
+	replace_content("#error", "").classList.add("hidden");
 	if (state.province_info) province_info = state.province_info;
 	if (state.countries) country_info = state.countries;
 	if (state.tag) {
@@ -434,19 +434,19 @@ export function render(state) {
 	}
 	if (state.pinned_provinces) {
 		pinned_provinces = { };
-		set_content("#pin", [H3([proventer("pin"), "Pinned provinces: " + state.pinned_provinces.length]),
+		replace_content("#pin", [H3([proventer("pin"), "Pinned provinces: " + state.pinned_provinces.length]),
 			UL(state.pinned_provinces.map(([id, name]) => LI(PROV(pinned_provinces[id] = id, name, 1)))),
 		]);
 		provleave();
 	}
-	if (state.vital_interest) set_content("#vital_interest", [
+	if (state.vital_interest) replace_content("#vital_interest", [
 		H3([proventer("vital_interest"), "Vital Interest: " + state.vital_interest.length]),
 		UL(state.vital_interest.map(([id, name]) => LI(PROV(id, name, 1)))),
 	]);
 	if (state.search) {
 		const input = DOM("#searchterm") || INPUT({id: "searchterm", size: 30});
 		const focus = input === document.activeElement;
-		set_content("#search", [H3([proventer("search"), "Search results: " + state.search.results.length]),
+		replace_content("#search", [H3([proventer("search"), "Search results: " + state.search.results.length]),
 			P({className: "indent"}, LABEL(["Search for:", input])),
 			UL(state.search.results.map(info => LI(
 				(typeof info[0] === "number" ? PROV : COUNTRY)(info[0], [info[1], STRONG(info[2]), info[3]])
@@ -460,11 +460,11 @@ export function render(state) {
 		}
 		if (focus) input.focus();
 	}
-	if (state.parsing) set_content("#now_parsing", "Parsing savefile... " + state.parsing + "%").classList.remove("hidden");
-	else set_content("#now_parsing", "").classList.add("hidden");
+	if (state.parsing) replace_content("#now_parsing", "Parsing savefile... " + state.parsing + "%").classList.remove("hidden");
+	else replace_content("#now_parsing", "").classList.add("hidden");
 	if (state.menu) {
 		function lnk(dest) {return A({href: "/tag/" + encodeURIComponent(dest)}, dest);}
-		set_content("#menu", [
+		replace_content("#menu", [
 			"Save file parsed. Pick a player nation to monitor, or search for a country:",
 			UL(state.menu.map(c => LI([lnk(c[0]), " - ", lnk(c[1])]))),
 			FORM([
@@ -474,9 +474,9 @@ export function render(state) {
 		]).classList.remove("hidden");
 		return;
 	}
-	if (state.name) set_content("#player", state.name);
-	sections.forEach(s => state[s.id] && set_content("#" + s.id, s.render(state)));
-	if (state.buildings_available) set_content("#highlight_options", [
+	if (state.name) replace_content("#player", state.name);
+	sections.forEach(s => state[s.id] && replace_content("#" + s.id, s.render(state)));
+	if (state.buildings_available) replace_content("#highlight_options", [
 		OPTION({value: "none"}, "None"),
 		OPTGROUP({label: "Need more of a building? Choose one to highlight places that could be expanded to build it."}), //hack
 		Object.values(state.buildings_available).map(b => OPTION(
@@ -491,13 +491,13 @@ export function render(state) {
 		if (lvl) is_interesting.push(LI({className: "interesting" + lvl, "data-id": id}, el.innerText));
 		el.className = "interesting" + lvl;
 	});
-	set_content("#interesting_details", is_interesting);
+	replace_content("#interesting_details", is_interesting);
 	if (state.cyclegroup) {
 		if (!state.cycleprovinces) ws_sync.send({cmd: "cycleprovinces", provinces: provgroups[state.cyclegroup] || []});
-		set_content("#cyclegroup", ["Selected group: " + state.cyclegroup + " ", SPAN({className: "provgroup clear"}, "❎")]);
+		replace_content("#cyclegroup", ["Selected group: " + state.cyclegroup + " ", SPAN({className: "provgroup clear"}, "❎")]);
 	}
-	else set_content("#cyclegroup", "");
-	if (state.notifications) set_content("#notifications", state.notifications.map(n => LI({className: "interesting2"}, ["🔔 ", render_text(n)])));
+	else replace_content("#cyclegroup", "");
+	if (state.notifications) replace_content("#notifications", state.notifications.map(n => LI({className: "interesting2"}, ["🔔 ", render_text(n)])));
 	if (state.agenda && state.agenda.expiry) {
 		//Regardless of the agenda, you'll have a description and an expiry date.
 		//The description might contain placeholders "[agenda_province.GetName]"
@@ -524,7 +524,7 @@ export function render(state) {
 		info.push(desc);
 		if (prov) info.push(BR(), "See: ", prov); //If there's no placeholder, but there is a focus-on province/country, show it underneath.
 		if (country) info.push(BR(), "See: ", country);
-		set_content("#agenda", info);
+		replace_content("#agenda", info);
 	}
-	else if (state.agenda) set_content("#agenda", "");
+	else if (state.agenda) replace_content("#agenda", "");
 }
