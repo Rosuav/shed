@@ -56,6 +56,7 @@ function COUNTRY(tag, nameoverride) {
 	return SPAN({className: "country", "data-tag": tag}, [
 		IMG({className: "flag small", src: "/flags/" + c.flag + ".png", alt: "[flag of " + c.name + "]"}),
 		" ", nameoverride || c.name,
+		c.overlord && SPAN({title: "Is a " + c.subject_type + " of " + country_info[c.overlord].name}, "🙏"),
 	]);
 }
 function update_hover_country() {
