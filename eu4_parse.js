@@ -198,7 +198,7 @@ section("favors", "Favors", state => {
 	}
 	const cooldowns = state.favors.cooldowns.map(cd => {
 		if (cd[1] === "---") ++free;
-		return TR({className: cd[1] === "---" ? "interesting1" : ""}, cd.slice(1).map(TD));
+		return TR({className: cd[1] === "---" ? "interesting1" : ""}, cd.slice(1).map(d => TD(d)));
 	});
 	const countries = Object.entries(state.favors.owed).sort((a,b) => b[1][0] - a[1][0]).map(([c, f]) => {
 		++owed_total; if (f[0] >= 10) ++owed;
