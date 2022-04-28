@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html><head><title>Bentley Chat</title></head>
+<body>
+<div id=messages>
+<div data-start=0>thanks for being here!</div>
+<div data-start=3000>we're starting soon! promise ♥ ...</div>
+<div data-start=6000><span id=countdown>05:00</span></div>
+</div>
+<script type=module>
+function anim(el) {
+	el.classList.add("visible");
+	setTimeout(() => el.classList.remove("visible"), 20000); //This is how long each thing is readable
+}
+function animate() {
+	document.querySelectorAll("[data-start]").forEach(
+		el => setTimeout(anim, +el.dataset.start, el)
+	);
+}
+animate();
+setInterval(animate, 30000); //This is how frequently the entire thing cycles
+const target_time = +new Date + 300000; //Five minute timer. If you can set this to an absolute time point, it'll be more reliable.
+setInterval(() => {
+	let sec = (target_time - +new Date) / 1000;
+	if (sec < 0) sec = 0;
+	const min = Math.floor(sec / 60); sec %= 60;
+	const tm = ("0" + min).slice(-2) + ":" + ("0" + sec).slice(-2);
+	document.getElementById("countdown").innerHTML = tm;
+}, 1000);
+</script>
+<style>
+* {box-sizing: border-box;}
+#messages {
+	width: 300px; height: 400px;
+	display: flex;
+	flex-direction: column;
+	justify-content: end;
+	border: 10px solid firebrick;
+	padding-left: 100px;
+}
+#messages div {
+	background: olive;
+	color: white;
+	margin: 0.5em;
+	border-radius: 10px;
+	padding: 0.5em;
+}
+#messages div:not(.visible) {
+	visibility: hidden;
+	height: 0; margin: 0; padding: 0;
+}
+</style>
+</body>
+</html>
