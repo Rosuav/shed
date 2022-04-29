@@ -44,12 +44,13 @@ setInterval(() => {
 	margin: 0.5em;
 	border-radius: 10px;
 	padding: 0.5em;
-	transition: transform 1s cubic-bezier(0.175, 0.885, 0.8, 1.1);
+	transition: all 0.5s ease, transform 1s cubic-bezier(0.175, 0.885, 0.8, 1.1);
 }
 #messages div:not(.visible) {
 	visibility: hidden;
 	height: 0; margin: 0; padding: 0;
 	transform: translate(0, 200px);
+	transition: all 0s;
 }
 </style>
 </body>
