@@ -875,7 +875,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	write->notifications = ({ });
 	//Would it be safe to seize land?
 	object seizetime = calendar(country->flags->?recent_land_seizure || "1.1.1")->add(Calendar.Gregorian.Year() * 5);
-	if (seizetime < calendar(data->date)) {
+	if (country->estate && seizetime < calendar(data->date)) {
 		int ok = 1;
 		foreach (country->estate, mapping estate) {
 			float threshold = estate->estimated_milliinfluence >= 100000 ? 70.0 : 50.0;
@@ -933,7 +933,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		//Root.Culture.GetName
 		write->agenda->desc = desc;
 	}
-	else {
+	else if (country->estate) {
 		write->agenda = ([]);
 		//Can you summon the diet?
 		//This requires (a) no current agenda, (b) at least five years since last diet summoned
