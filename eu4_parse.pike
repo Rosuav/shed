@@ -1065,7 +1065,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	foreach (country_decisions; string kwd; mapping info) {
 		//TODO.
 		if (!passes_filter(country, info->potential)) continue;
-		werror("%s -> %s %O\n", tag, kwd, info->potential);
+		//werror("%s -> %s %O\n", tag, kwd, info->potential);
 	}
 
 	//Get some info about provinces, for the sake of the province details view
