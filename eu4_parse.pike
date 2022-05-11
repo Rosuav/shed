@@ -2095,6 +2095,7 @@ int main(int argc, array(string) argv) {
 	retain_map_indices = 1;
 	idea_definitions = parse_config_dir(PROGRAM_PATH + "/common/ideas");
 	retain_map_indices = 0;
+	mapping cat_ideas = ([]);
 	foreach (idea_definitions; string grp; mapping group) {
 		array basic_ideas = ({ }), pos = ({ });
 		mapping tidied = ([]);
@@ -2107,10 +2108,32 @@ int main(int argc, array(string) argv) {
 			pos += ({idx});
 		}
 		sort(pos, basic_ideas);
+		//tidied->category = group->category; //useful?
 		tidied->ideas = basic_ideas;
 		idea_definitions[grp] = tidied;
+		if (group->category) cat_ideas[group->category] += ({grp});
 	}
 	policy_definitions = parse_config_dir(PROGRAM_PATH + "/common/policies");
+	/*mapping policies = ([]);
+	foreach (policy_definitions; string id; mapping info) {
+		array ideas = info->allow->?full_idea_group; if (!ideas) continue;
+		string cat = info->monarch_power; //Category of the policy. Usually will be one of the idea groups' categories.
+		array cats = idea_definitions[ideas[*]]->category;
+		sort(cats, ideas);
+		if (!policies[ideas[0]]) policies[ideas[0]] = ([]);
+		policies[ideas[0]][ideas[1]] = cat;
+	}
+	mapping counts = ([]);
+	foreach (cat_ideas->ADM, string adm) {
+		foreach (cat_ideas->DIP, string dip) {
+			foreach (cat_ideas->MIL, string mil) {
+				string cats = sort(({policies[adm][dip], policies[adm][mil], policies[dip][mil]})) * " ";
+				//werror("%s %s %s -> %s\n", adm, dip, mil, cats);
+				counts[cats] += ({sprintf("%s %s %s", adm - "_ideas", dip - "_ideas", mil - "_ideas")});
+			}
+		}
+	}
+	exit(0, "%O\n", counts);*/
 	estate_definitions = parse_config_dir(PROGRAM_PATH + "/common/estates");
 	estate_privilege_definitions = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/estate_privileges/00_privileges.txt"));
 	reform_definitions = parse_config_dir(PROGRAM_PATH + "/common/government_reforms");
