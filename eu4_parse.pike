@@ -840,7 +840,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 				if (effect == "picture") continue; //Would be cool to show the icon in the front end, but whatever
 				string desc = upper_case(effect);
 				if (effect == "province_trade_power_value") desc = "PROVINCE_TRADE_VALUE"; //Not sure why, but the localisation files write this one differently.
-				effects += ({sprintf("%s: %s", L10n[desc] || L10n["MODIFIER_" + desc] || effect, value)});
+				effects += ({sprintf("%s: %s", L10n[desc] || L10n["MODIFIER_" + desc] || effect || "(unknown)", (string)value)});
 			}
 			return ([
 				"name": L10n[mod->modifier],
