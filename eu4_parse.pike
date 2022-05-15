@@ -779,7 +779,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	//List truces, grouped by end date
 	mapping truces = ([]);
 	foreach (data->countries; string other; mapping c) {
-		//TODO: Truces view - sort by date, showing blocks of nations that all peaced out together
+		//Truces view - sort by date, showing blocks of nations that all peaced out together
 		//- Can't find actual truce dates, but anti-shenanigans truces seem to set a thing into
 		//active_relations[tag]->truce = yes, ->last_war = date when the action happened (truce is
 		//five years from then). If there's an actual war, ->last_warscore ranges from 0 to 100?
@@ -1005,13 +1005,13 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	write->decisions_missions = ({ });
 	array completed = country->completed_missions || ({ });
 	foreach (Array.arrayify(country->country_missions->?mission_slot), array slot) {
-		foreach (slot, string kwd) {
+		foreach (Array.arrayify(slot), string kwd) {
 			//Each of these is a mission chain, I think. They're indexed by slot
 			//which is 1-5 going across, and each mission has one or two parents
 			//that have to be completed. I think that, if there are multiple
 			//mission chains in a slot, they are laid out vertically. In any case,
 			//we don't really care about layout, just which missions there are.
-			mapping mission = country_missions[kwd];
+			mapping mission = Array.arrayify(country_missions[kwd]);
 			foreach (mission; string id; mixed info) {
 				if (has_value(completed, id)) continue; //Already done this mission, don't highlight it.
 				string title = L10n[id + "_title"];
