@@ -460,8 +460,10 @@ export function render(state) {
 		}
 		if (focus) input.focus();
 	}
-	if (state.parsing) replace_content("#now_parsing", "Parsing savefile... " + state.parsing + "%").classList.remove("hidden");
-	else replace_content("#now_parsing", "").classList.add("hidden");
+	if (typeof state.parsing === "number") {
+		if (state.parsing) replace_content("#now_parsing", "Parsing savefile... " + state.parsing + "%").classList.remove("hidden");
+		else replace_content("#now_parsing", "").classList.add("hidden");
+	}
 	if (state.menu) {
 		function lnk(dest) {return A({href: "/tag/" + encodeURIComponent(dest)}, dest);}
 		replace_content("#menu", [
