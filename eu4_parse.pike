@@ -927,10 +927,10 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			//This might be close enough?
 			"[agenda_country.GetAdjective]": "[agenda_country.GetUsableName]",
 			"[Root.GetAdjective]": "",
+			//These two aren't too hard, at least. Assuming they have proper localisations.
+			"[agenda_province.GetAreaName]": "[" + L10n[prov_area[write->agenda->province]] + "]",
+			"[Root.Culture.GetName]": "[" + L10n[country->primary_culture] + "]",
 		]));
-		//TODO: Actually dig up culture and area names
-		//agenda_province.GetAreaName
-		//Root.Culture.GetName
 		write->agenda->desc = desc;
 	}
 	else if (country->estate) {
