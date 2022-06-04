@@ -726,6 +726,15 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		if (!sizeof(c->owned_provinces)) return 0;
 		mapping capital = data->provinces["-" + c->capital];
 		string flag = c->tag;
+		if (c->colonial_parent) {
+			//Look up the parent country's flag. Then add a solid color to it, using
+			//the designated country color. We assume that this can't happen more than
+			//once (a colonial nation can't be overlord of another colonial nation).
+			mapping par = data->countries[flag = c->colonial_parent];
+			if (mapping cust = par->colors->custom_colors)
+				flag = (({"Custom", cust->symbol_index, cust->flag}) + cust->flag_colors) * "-";
+			flag += sprintf("-%{%02X%}", (array(int))c->colors->country_color);
+		}
 		if (mapping cust = c->colors->custom_colors) {
 			//Custom flags are defined by a symbol and four colours.
 			//These are available in the savefile as:
@@ -737,7 +746,6 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			//the same as can be seen in the nation designer.
 			flag = (({"Custom", cust->symbol_index, cust->flag}) + cust->flag_colors) * "-";
 		}
-		else if (c->colonial_parent) flag = sprintf("%s-%{%02X%}", c->colonial_parent, (array(int))c->colors->country_color);
 		return ([
 			"name": c->name || L10n[c->tag] || c->tag,
 			"tech": ({(int)c->technology->adm_tech, (int)c->technology->dip_tech, (int)c->technology->mil_tech}),
@@ -1605,12 +1613,13 @@ let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then
 </script><main></main></body></html>
 ", Protocols.HTTP.uri_decode(tag || "?!?")),
 	]);
-	if (sscanf(req->not_query, "/flags/%[A-Z_a-z]%[-0-9A-F].%s", string tag, string color, string ext) && tag != "" && ext == "png") {
+	if (sscanf(req->not_query, "/flags/%[A-Z_a-z0-9]%[-0-9A-F].%s", string tag, string color, string ext) && tag != "" && ext == "png") {
 		//Generate a country flag in PNG format
 		string etag; Image.Image img;
 		if (tag == "Custom") {
 			//Custom nation flags are defined by a symbol and four colours.
-			sscanf(color, "-%d-%d-%d-%d-%d", int symbol, int flag, int color1, int color2, int color3);
+			sscanf(color, "-%d-%d-%d-%d-%d%s", int symbol, int flag, int color1, int color2, int color3, color);
+			if (!color || sizeof(color) != 7 || color[0] != '-') color = "";
 			//If flag (the "Background" in the UI) is 0-33 (1-34 in the UI), it is a two-color
 			//flag defined in gfx/custom_flags/pattern.tga, which is a spritesheet of 128x128
 			//sections, ten per row, four rows. Replace red with color1, green with color2.
@@ -1626,7 +1635,7 @@ let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then
 			[mapping symbols, int symhash] = load_image(PROGRAM_PATH + "/gfx/interface/client_state_symbols_large.dds", 1);
 			//Note that if the definitions of the colors change but the spritesheets don't,
 			//we'll generate the exact same etag. Seems unlikely, and not that big a deal anyway.
-			etag = sprintf("W/\"%x-%x-%d-%d-%d-%d-%d\"", bghash, symhash, symbol, flag, color1, color2, color3);
+			etag = sprintf("W/\"%x-%x-%d-%d-%d-%d-%d%s\"", bghash, symhash, symbol, flag, color1, color2, color3, color);
 			if (has_value(req->request_headers["if-none-match"] || "", etag)) return (["error": 304]); //Already in cache
 			if (flag >= 34) flag -= 34; //Second sheet of patterns
 			int bgx = 128 * (flag % 10), bgy = 128 * (flag / 10);
@@ -1651,9 +1660,9 @@ let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then
 			//might not be byte-for-byte (since the conversion to PNG might change it).
 			etag = sprintf("W/\"%x%s\"", hash, color);
 			if (has_value(req->request_headers["if-none-match"] || "", etag)) return (["error": 304]); //Already in cache
-			if (sscanf(color, "-%2x%2x%2x", int r, int g, int b))
-				img = img->copy()->box(img->xsize() / 2, 0, img->xsize(), img->ysize(), r, g, b);
 		}
+		if (sscanf(color, "-%2x%2x%2x", int r, int g, int b))
+			img = img->copy()->box(img->xsize() / 2, 0, img->xsize(), img->ysize(), r, g, b);
 		//TODO: Mask flags off with shield_mask.tga or shield_fancy_mask.tga or small_shield_mask.tga
 		//I'm using 128x128 everywhere, but the fancy mask (the largest) is only 92x92. For inline
 		//flags in text, small_shield_mask is the perfect 24x24.
