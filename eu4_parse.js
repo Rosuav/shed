@@ -57,10 +57,10 @@ function COUNTRY(tag, nameoverride) {
 		IMG({className: "flag small", src: "/flags/" + c.flag + ".png", alt: "[flag of " + c.name + "]"}),
 		" ", nameoverride || c.name,
 		c.overlord && SPAN({title: "Is a " + c.subject_type + " of " + country_info[c.overlord].name}, "🙏"),
+		c.truce && SPAN({title: "Truce until " + c.truce}, " 🏳"),
 	]);
 }
 function update_hover_country() {
-	//TODO: Show if you're truced out, and if so, until when
 	const tag = hovertag, c = country_info[tag];
 	const me = country_info[countrytag] || {tech: [0,0,0]};
 	if (!c) {
@@ -94,6 +94,7 @@ function update_hover_country() {
 			c.subjects && LI("Subject nations: " + c.subjects),
 			c.alliances && LI("Allied with: " + c.alliances),
 			c.overlord && LI([B(c.subject_type), " of ", COUNTRY(c.overlord)]),
+			c.truce && LI([B("Truce"), " until " + c.truce + " 🏳"]),
 		]),
 	]).classList.remove("hidden");
 }
