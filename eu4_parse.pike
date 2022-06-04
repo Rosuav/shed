@@ -166,7 +166,10 @@ mapping parse_savefile(string data, string|void filename) {
 	if (cache->hash == hexhash) return cache->data;
 	mapping ret = parse_savefile_string(data, filename);
 	if (!ret) return 0; //Probably an Ironman save (binary format, can't be parsed by this system).
-	foreach (ret->countries; string tag; mapping c) c->tag = tag; //When looking at a country, it's often convenient to know its tag (reverse linkage).
+	foreach (ret->countries; string tag; mapping c) {
+		c->tag = tag; //When looking at a country, it's often convenient to know its tag (reverse linkage).
+		c->owned_provinces = Array.arrayify(c->owned_provinces); //Several things will crash if you don't have a provinces array
+	}
 	Stdio.write_file("eu4_parse.json", string_to_utf8(Standards.JSON.encode((["hash": hexhash, "data": ret]))));
 	return ret;
 }
@@ -244,7 +247,7 @@ void analyze_cot(mapping data, string name, string tag, function|mapping write) 
 		else developable += ({desc});
 	}
 	sort(maxlvl); sort(upgradeable); sort(developable);
-	int maxlevel3 = sizeof(country->merchants->envoy); //You can have as many lvl 3 CoTs as you have merchants.
+	int maxlevel3 = sizeof(Array.arrayify(country->merchants->?envoy)); //You can have as many lvl 3 CoTs as you have merchants.
 	int level3 = sizeof(maxlvl); //You might already have some.
 	int maxprio = 0;
 	string|mapping colorize(string color, array info, int prio) {
@@ -720,7 +723,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	}
 	//Gather basic country info in a unified format.
 	write->countries = map(data->countries) {mapping c = __ARGS__[0];
-		if (!c->owned_provinces) return 0;
+		if (!sizeof(c->owned_provinces)) return 0;
 		mapping capital = data->provinces["-" + c->capital];
 		string flag = c->tag;
 		if (mapping cust = c->colors->custom_colors) {
@@ -738,7 +741,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		return ([
 			"name": c->name || L10n[c->tag] || c->tag,
 			"tech": ({(int)c->technology->adm_tech, (int)c->technology->dip_tech, (int)c->technology->mil_tech}),
-			"province_count": sizeof(Array.arrayify(c->owned_provinces)),
+			"province_count": sizeof(c->owned_provinces),
 			"capital": c->capital, "capitalname": capital->name,
 			"hre": capital->hre, //If the country's capital is in the HRE, the country itself is part of the HRE.
 			"development": c->development,
