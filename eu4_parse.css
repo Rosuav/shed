@@ -75,7 +75,10 @@ color choice can be overridden based on its parent. */
 	padding: 0 0.5em;
 }
 
-.province,.country {white-space: nowrap;}
+.province, .country {
+	display: inline-block;
+	white-space: nowrap;
+}
 #upgradeables .province {margin-left: 1em;}
 
 #colonization_targets ul {margin: 0;}
