@@ -8,6 +8,8 @@ selection, but it does mean that the client must remain active in order to keep 
 synchronized. In practice, not a problem, since the client selects the group anyway.
 */
 //TODO: Background service to do the key sending. See example systemd script in my cfgsystemd.
+//TODO: On the CBs list, show whether we're truced out, and if so, till when
+//FIXME: Upgrades available isn't wrapping, see issues with flag addition
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
 constant PROGRAM_PATH = "../.steam/steam/steamapps/common/Europa Universalis IV"; //Append /map or /common etc to access useful data files
