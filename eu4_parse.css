@@ -78,6 +78,7 @@ color choice can be overridden based on its parent. */
 .province, .country {
 	display: inline-block;
 	white-space: nowrap;
+	text-indent: 0;
 }
 #upgradeables .province {margin-left: 1em;}
 
