@@ -444,6 +444,7 @@ export function render(state) {
 	if (state.vital_interest) replace_content("#vital_interest", [
 		H3([proventer("vital_interest"), "Vital Interest: " + state.vital_interest.length]),
 		UL(state.vital_interest.map(([id, name]) => LI(PROV(id, name, 1)))),
+		provleave(),
 	]);
 	if (state.search) {
 		const input = DOM("#searchterm") || INPUT({id: "searchterm", size: 30});
@@ -453,6 +454,7 @@ export function render(state) {
 			UL(state.search.results.map(info => LI(
 				(typeof info[0] === "number" ? PROV : COUNTRY)(info[0], [info[1], STRONG(info[2]), info[3]])
 			))),
+			provleave(),
 		]);
 		if (state.search.term !== input.value) {
 			//Update the input, but avoid fighting with the user
@@ -531,4 +533,5 @@ export function render(state) {
 		replace_content("#agenda", info);
 	}
 	else if (state.agenda) replace_content("#agenda", "");
+	if (curgroup.length) replace_content("#error", "INTERNAL ERROR: Residual groups " + curgroup.join("/")).classList.remove("hidden");
 }
