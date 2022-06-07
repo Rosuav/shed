@@ -6,6 +6,8 @@ NOTE: Province group selection inverts the normal rules and has the web client i
 This ensures that there can be no desynchronization between user view and province ID
 selection, but it does mean that the client must remain active in order to keep things
 synchronized. In practice, not a problem, since the client selects the group anyway.
+
+TODO: Indicate the currently-selected set, and the currently-selected province in that set.
 */
 //TODO: Background service to do the key sending. See example systemd script in my cfgsystemd.
 
