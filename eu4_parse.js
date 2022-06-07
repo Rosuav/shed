@@ -9,14 +9,15 @@ function table_head(headings) {
 }
 
 let curgroup = [], provgroups = { }, provelem = { }, pinned_provinces = { }, province_info = { };
+let selected_provgroup = "", selected_prov_cycle = [];
 function proventer(kwd) {
 	curgroup.push(kwd);
 	const g = curgroup.join("/");
 	provgroups[g] = [];
 	return provelem[g] = SPAN({
-		className: "provgroup size-" + curgroup.length,
+		className: "provgroup size-" + curgroup.length + (selected_provgroup === g ? " selected" : ""),
 		"data-group": g, title: "Select cycle group " + g,
-	}, "📜"); //TODO: If this is the selected cycle group, show it differently?
+	}, "📜");
 }
 function provleave() { //Can safely be put into a DOM array (will be ignored)
 	const g = curgroup.join("/");
@@ -29,15 +30,18 @@ function provleave() { //Can safely be put into a DOM array (will be ignored)
 	curgroup.pop();
 }
 function PROV(id, nameoverride, namelast) {
-	let g;
+	let g, current = "";
 	for (let kwd of curgroup) {
 		if (g) g += "/" + kwd; else g = kwd;
 		if (provgroups[g].indexOf(id) < 0) provgroups[g].push(id);
+		//TODO: If we've never asked for "next province", show nothing as selected.
+		//May require retaining a "last selected province" marker.
+		if (g === selected_provgroup && id === selected_prov_cycle[selected_prov_cycle.length - 1]) current = " selected";
 	}
 	const pin = pinned_provinces[id], info = province_info[id] || { };
 	const disc = info.discovered;
 	if (!nameoverride && nameoverride !== "") nameoverride = info?.name || "";
-	return SPAN({className: "province"}, [
+	return SPAN({className: "province" + current}, [
 		!namelast && nameoverride,
 		info.wet && "🌊",
 		SPAN({className: "goto-province provbtn", title: (disc ? "Go to #" : "Terra Incognita, cannot goto #") + id, "data-provid": id}, disc ? "🔭" : "🌐"),
@@ -430,6 +434,8 @@ export function render(state) {
 	replace_content("#error", "").classList.add("hidden");
 	if (state.province_info) province_info = state.province_info;
 	if (state.countries) country_info = state.countries;
+	selected_provgroup = state.cyclegroup || ""; //TODO: Allow the cycle group to be explicitly cleared, rather than assuming removal
+	selected_prov_cycle = state.cycleprovinces || [];
 	if (state.tag) {
 		const c = country_info[countrytag = state.tag];
 		DOM("#playerflag").src = "/flags/" + c.flag + ".png";
@@ -499,7 +505,7 @@ export function render(state) {
 	});
 	replace_content("#interesting_details", is_interesting);
 	if (state.cyclegroup) {
-		if (!state.cycleprovinces) ws_sync.send({cmd: "cycleprovinces", provinces: provgroups[state.cyclegroup] || []});
+		if (!state.cycleprovinces) ws_sync.send({cmd: "cycleprovinces", cyclegroup: state.cyclegroup, provinces: provgroups[state.cyclegroup] || []});
 		replace_content("#cyclegroup", ["Selected group: " + state.cyclegroup + " ", SPAN({className: "provgroup clear"}, "❎")]);
 	}
 	else replace_content("#cyclegroup", "");

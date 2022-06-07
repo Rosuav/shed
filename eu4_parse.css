@@ -94,12 +94,15 @@ color choice can be overridden based on its parent. */
 	display: inline-block;
 	font-weight: bold;
 	cursor: pointer;
+	border: 2px solid transparent;
 }
 .provgroup.empty {cursor: default;} /* Not "inherit" which would give an ibeam */
 .provgroup.clear {font-size: 60%;}
 .size-1: {font-size: 1.5em;}
 .size-2: {font-size: 1.175em;}
 .size-3: {font-size: 1em;}
+.provgroup.selected {border-color: blue;}
+.province.selected {border: 2px solid blue;}
 
 .indent {padding-left: 1em;}
 
