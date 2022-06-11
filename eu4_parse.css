@@ -103,6 +103,12 @@ color choice can be overridden based on its parent. */
 .size-3: {font-size: 1em;}
 .provgroup.selected {border-color: blue;}
 .province.selected {border: 2px solid blue;}
+.provnext {
+	cursor: pointer;
+	color: aliceblue;
+	background: #aaaaff;
+	font-size: 60%;
+}
 
 .indent {padding-left: 1em;}
 

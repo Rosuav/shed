@@ -1731,6 +1731,16 @@ void websocket_cmd_cycleprovinces(mapping conn, mapping data) {
 	persist_save(); update_group(conn->group);
 }
 
+void websocket_cmd_cyclenext(mapping conn, mapping data) {
+	mapping prefs = persist_path(conn->group);
+	string country = conn->group;
+	if (!arrayp(provincecycle[country])) return; //Can't use this for the default cycling of "interesting" provinces. Pick explicitly.
+	[int id, array rest] = Array.shift(provincecycle[country]);
+	provincecycle[country] = rest + ({id});
+	update_group(country);
+	indices(connections["province"])->provnotify(data->tag, (int)id);
+}
+
 void websocket_cmd_search(mapping conn, mapping data) {
 	mapping prefs = persist_path(conn->group);
 	prefs->search = stringp(data->term) ? lower_case(data->term) : "";

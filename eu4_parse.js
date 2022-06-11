@@ -120,6 +120,9 @@ on("click", ".pin-province", e => {
 on("click", ".provgroup", e => {
 	ws_sync.send({cmd: "cyclegroup", cyclegroup: e.match.dataset.group});
 });
+on("click", ".provnext", e => {
+	ws_sync.send({cmd: "cyclenext", tag: countrytag});
+});
 
 on("click", "#interesting_details li", e => {
 	const el = document.getElementById(e.match.dataset.id);
@@ -506,7 +509,11 @@ export function render(state) {
 	replace_content("#interesting_details", is_interesting);
 	if (state.cyclegroup) {
 		if (!state.cycleprovinces) ws_sync.send({cmd: "cycleprovinces", cyclegroup: state.cyclegroup, provinces: provgroups[state.cyclegroup] || []});
-		replace_content("#cyclegroup", ["Selected group: " + state.cyclegroup + " ", SPAN({className: "provgroup clear"}, "❎")]);
+		replace_content("#cyclegroup", [
+			"Selected group: " + state.cyclegroup + " ",
+			SPAN({className: "provnext"}, "⮞"), " ",
+			SPAN({className: "provgroup clear"}, "❎"),
+		]);
 	}
 	else replace_content("#cyclegroup", "");
 	if (state.notifications) replace_content("#notifications", state.notifications.map(n => LI({className: "interesting2"}, ["🔔 ", render_text(n)])));
