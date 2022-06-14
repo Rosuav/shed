@@ -30,6 +30,8 @@ class maparray {
 	object addkey(string key, mixed value) {
 		//HACK: Track country order even though the rest of the file isn't tracked that way
 		//If Pike had an order-retaining mapping, this would be unnecessary. Hmm.
+		//The main issue is that it MUST be cacheable. Maybe, instead of retaining map indices
+		//like this, retain an extra key with the iteration order?
 		if (key == "---" && !retain_map_indices) retain_map_indices = 2;
 		if (key == "countries" && retain_map_indices == 2) retain_map_indices = 0;
 		if (retain_map_indices && mappingp(value)) value |= (["_index": sizeof(keyed)]);
