@@ -2375,7 +2375,7 @@ if reconnect: sys.argv.remove("--reconnect")
 def client_connection():
 	while "get connection":
 		try: sock = socket.create_connection((sys.argv[1], 1444))
-		except ConnectionRefusedError if reconnect else (): pass
+		except (ConnectionRefusedError, socket.gaierror) if reconnect else (): pass
 		else: break
 		time.sleep(10)
 	print("Connected, listening for province focus messages")
