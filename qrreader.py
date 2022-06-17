@@ -22,7 +22,7 @@ def boundingbox(monitor):
 	return None # Or should it error out?
 
 @clize.run
-def main(*, interval=0.5, monitor="primary", ocr=0):
+def main(*, interval=0.5, monitor="primary", ocr=0, twitch=False):
 	"""Monitor the screen for QR codes and list them
 	
 	interval: Seconds between screen grabs. If 0, does one grab and then stops.
@@ -31,6 +31,8 @@ def main(*, interval=0.5, monitor="primary", ocr=0):
 	If "primary", captures the primary monitor. Otherwise, use an ID like "DP-3".
 
 	ocr: If nonzero, every Nth frame will be OCR'd.
+
+	twitch: Enable automatic posting of seen messages to Twitch (via StilleBot).
 	"""
 	if monitor == "all": bbox = None
 	else: bbox = boundingbox(monitor)
@@ -43,7 +45,7 @@ def main(*, interval=0.5, monitor="primary", ocr=0):
 			seen[msg] = 1
 			print(msg)
 			# If possible, poke a message through to StilleBot. Will fail if not on localhost.
-			requests_post("https://sikorsky.rosuav.com/admin", json={
+			if twitch: requests_post("https://sikorsky.rosuav.com/admin", json={
 				"cmd": "send_message",
 				"channel": "#rosuav",
 				"msg": label + " MrDestructoid brollC2 " + msg.replace("\n", " ") + " brollC2 MrDestructoid",
