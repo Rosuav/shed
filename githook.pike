@@ -59,20 +59,19 @@ int hook_prepare_commit_msg(array(string) argv)
 			//Hack for CJAPrivate repo
 			if (int use_hacks=(int)Process.run(({"git","config","--get","rosuav.log-search.use-hacks"}))->stdout)
 			{
-				//Thinkful invoices usually get simple additions of single lines.
-				if (has_prefix(fn,"Thinkful/Inv"))
+				//Invoices usually get simple additions of single lines.
+				if (has_prefix(fn, "Other/Inv"))
 				{
-					string comment;
 					foreach (Process.run(({"git","diff","-U0","--cached"}))->stdout/"\n",string line)
 					{
 						if (sscanf(line,"+| %*d\t| %s%*[\t]| %f\t| %f", string c, float hours, float dollars) == 5)
 						{
 							if (hours * use_hacks != dollars)
 								exit(1,"%O hours doesn't match %O dollars - maybe tweak the hook for flexibility?\n", hours, dollars);
-							comment=c;
 						}
 					}
-					if (comment) {Stdio.write_file(argv[1],comment+"\n"+msg); return 0;}
+					sscanf(Stdio.read_file(fn), "%*sClient: %s\n", string client);
+					if (client) {Stdio.write_file(argv[1], "Work with " + (client/" (")[0] + "\n" + msg); return 0;}
 				}
 			}
 			//To speed up the search on large repositories:
