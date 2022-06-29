@@ -180,7 +180,7 @@ def black_split(script, *, append=False, createonly=False):
 						"-ss", str(last_end + skipstart),
 						"-i", inputfile,
 						"-t", str(start - last_end - skipend),
-						"-c", "copy", output,
+						"-c", "copy", output, # Add "-copyinkf" to include frames before the first keyframe. May have other consequences.
 						"-y", "-loglevel", "quiet", "-stats",
 					], check=True)
 				last_end = end
