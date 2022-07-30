@@ -683,7 +683,7 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 		if (out->name == dest) fraction = threeplace(Array.arrayify(here->steer_power)[i]);
 	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is the true
 	//benefit of Transfer Trade Power rather than Collect from Trade.
-	//TODO: Check effect of Transfer Trade Power, vassal, trade company, colonial nation
+	//TODO: Check effect of Transfer Trade Power, trade company, colonial nation
 	//TODO: Check effect of embargoes
 	//TODO: Check effect of privateering - is it included in ship_power?
 	mapping ret = ([
@@ -698,7 +698,7 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 		"total_value": threeplace(here->local_value) + `+(@threeplace(Array.arrayify(here->incoming)->value[*])),
 		"retention": threeplace(here->retention), //Per-mille retention of trade value
 		//Recursively analyze but only so far as we have trade activity
-		"incoming": !us->has_capital && !us->has_trader ? ({ }) //Don't bother delving further
+		"incoming": !us->has_capital && !us->type ? ({ }) //Don't bother delving further
 			: analyze_trade_nodes(data, trade_nodes, tag, defn->incoming[*], node),
 	]);
 	if (us->type) {
