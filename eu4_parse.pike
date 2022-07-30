@@ -292,6 +292,7 @@ mapping idea_definitions, policy_definitions, reform_definitions, static_modifie
 mapping trade_goods, country_modifiers, age_definitions, tech_definitions, institutions;
 mapping cot_definitions, state_edicts, terrain_definitions, imperial_reforms;
 mapping cb_types, wargoal_types, estate_agendas, country_decisions, country_missions;
+mapping tradenode_definitions;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -669,6 +670,38 @@ int(0..1) passes_filter(mapping country, mapping|array filter, int|void any) {
 		}
 	}
 	return !any;
+}
+
+mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, string node, string|void dest) {
+	//Analyze one trade node and all those nodes that are upstream of it, until
+	//we find one that doesn't have a merchant at it. Recursive.
+	mapping here = trade_nodes[node];
+	mapping us = here[tag], defn = tradenode_definitions[node];
+	//Note that all trade power values here are sent to the client in fixed-place format.
+	int fraction = 1000;
+	foreach (Array.arrayify(defn->outgoing); int i; mapping out)
+		if (out->name == dest) fraction = threeplace(Array.arrayify(here->steer_power)[i]);
+	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is the true
+	//benefit of Transfer Trade Power rather than Collect from Trade.
+	//TODO: Ensure that trade is indeed being pulled in the direction of dest, otherwise give warning
+	//TODO: Check effect of Transfer Trade Power, vassal, trade company, colonial nation
+	//TODO: Check effect of embargoes
+	mapping ret = ([
+		"id": node,
+		"fraction": fraction, //x/1000 of this node's value is getting to us
+		"trader": us->has_trader && (us->type ? "transfer" : "collect"),
+		"policy": us->trading_policy,
+		"ships": (int)us->light_ship, "ship_power": threeplace(us->ship_power),
+		"provinces": threeplace(us->province_power),
+		"your_power": threeplace(us->val), "total_power": threeplace(here->total),
+		//What are us->already_sent, us->money, us->max_pow, us->max_demand?
+		"total_value": threeplace(here->local_value) + `+(@threeplace(Array.arrayify(here->incoming)->value[*])),
+		"retention": threeplace(here->retention), //Per-mille retention of trade value
+		//Recursively analyze but only so far as we have trade activity
+		"incoming": !us->has_capital && !us->has_trader ? ({ }) //Don't bother delving further
+			: analyze_trade_nodes(data, trade_nodes, tag, defn->incoming[*], node),
+	]);
+	return ret;
 }
 
 void analyze_obscurities(mapping data, string name, string tag, mapping write) {
@@ -1093,6 +1126,11 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			//"raw": prov,
 		])});
 	};
+
+	//Get some info about trade nodes
+	mapping trade_nodes = mkmapping(data->trade->node->definitions, data->trade->node);
+	mapping main_city = data->provinces["-" + country->trade_port]; //Assuming there will always be one
+	write->trade_nodes = analyze_trade_nodes(data, trade_nodes, tag, main_city->trade);
 }
 
 mapping(string:array) interesting_provinces = ([]);
@@ -2189,6 +2227,14 @@ int main(int argc, array(string) argv) {
 	//estate_agendas = parse_config_dir(PROGRAM_PATH + "/common/estate_agendas"); //Not currently in use
 	country_decisions = parse_config_dir(PROGRAM_PATH + "/decisions", "country_decisions");
 	country_missions = parse_config_dir(PROGRAM_PATH + "/missions");
+	tradenode_definitions = parse_config_dir(PROGRAM_PATH + "/common/tradenodes");
+	//Trade nodes have outgoing connections recorded, but it's more useful to us to
+	//invert that and record the incoming connections.
+	foreach (tradenode_definitions; string id; mapping info) {
+		info->incoming += ({ }); //Ensure arrays even for end nodes
+		foreach (info->outgoing = Array.arrayify(info->outgoing), mapping o)
+			tradenode_definitions[o->name]->incoming += ({id});
+	}
 
 	//Parse out localised province names and map from province ID to all its different names
 	province_localised_names = ([]);
