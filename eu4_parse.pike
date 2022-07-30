@@ -679,7 +679,7 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 	mapping us = here[tag], defn = tradenode_definitions[node];
 	//Note that all trade power values here are sent to the client in fixed-place format.
 	int fraction = 1000;
-	foreach (Array.arrayify(defn->outgoing); int i; mapping out)
+	foreach (defn->outgoing; int i; mapping out)
 		if (out->name == dest) fraction = threeplace(Array.arrayify(here->steer_power)[i]);
 	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is the true
 	//benefit of Transfer Trade Power rather than Collect from Trade.
@@ -689,7 +689,7 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 	//TODO: Check effect of privateering - is it included in ship_power?
 	mapping ret = ([
 		"id": node, "name": L10n[node], "province": defn->location,
-		"fraction": fraction, //x/1000 of this node's value is getting to us
+		"fraction": fraction, //x/1000 of this node's value is getting to this upstream
 		"trader": us->has_trader && (us->type ? "transferring" : "collecting"),
 		"policy": us->trading_policy,
 		"ships": (int)us->light_ship, "ship_power": threeplace(us->ship_power),
@@ -702,6 +702,10 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 		"incoming": !us->has_capital && !us->has_trader ? ({ }) //Don't bother delving further
 			: analyze_trade_nodes(data, trade_nodes, tag, defn->incoming[*], node),
 	]);
+	if (us->type) {
+		string pulling_to = defn->outgoing[(int)us->steer_power]->name;
+		if (pulling_to != dest) {ret->pulling_to = L10n[pulling_to]; ret->incoming = ({ });}
+	}
 	return ret;
 }
 

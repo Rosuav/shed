@@ -186,11 +186,13 @@ function render_trade_node(state, node) {
 				B(node.name),
 				node.trader ? " - " + node.trader : " - no merchant",
 				" - total " + node.total_value / 1000,
+				node.pulling_to && ` (pulling to ${node.pulling_to} instead)`,
 			]),
 			UL([
 				LI(["Located in ", PROV(node.province)]),
 				LI(`You have ${Math.round(node.your_power / node.total_power * 100)}% trade power.`),
 				node.ships && LI(`You have ${node.ships} ships protecting trade, giving ${(node.ship_power/1000).toFixed(3)} power.`),
+				node.pulling_to && LI(`You have a merchant transferring trade to ${node.pulling_to} - see details for that node instead`),
 			]),
 		]),
 		node.incoming.length && UL({class: "bulletless"}, node.incoming.map(n => LI(render_trade_node(state, n)))),
