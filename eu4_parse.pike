@@ -683,7 +683,6 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 		if (out->name == dest) fraction = threeplace(Array.arrayify(here->steer_power)[i]);
 	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is the true
 	//benefit of Transfer Trade Power rather than Collect from Trade.
-	//TODO: Ensure that trade is indeed being pulled in the direction of dest, otherwise give warning
 	//TODO: Check effect of Transfer Trade Power, vassal, trade company, colonial nation
 	//TODO: Check effect of embargoes
 	//TODO: Check effect of privateering - is it included in ship_power?
