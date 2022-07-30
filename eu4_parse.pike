@@ -686,13 +686,14 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 	//TODO: Ensure that trade is indeed being pulled in the direction of dest, otherwise give warning
 	//TODO: Check effect of Transfer Trade Power, vassal, trade company, colonial nation
 	//TODO: Check effect of embargoes
+	//TODO: Check effect of privateering - is it included in ship_power?
 	mapping ret = ([
-		"id": node,
+		"id": node, "name": L10n[node], "province": defn->location,
 		"fraction": fraction, //x/1000 of this node's value is getting to us
-		"trader": us->has_trader && (us->type ? "transfer" : "collect"),
+		"trader": us->has_trader && (us->type ? "transferring" : "collecting"),
 		"policy": us->trading_policy,
 		"ships": (int)us->light_ship, "ship_power": threeplace(us->ship_power),
-		"provinces": threeplace(us->province_power),
+		"prov_power": threeplace(us->province_power),
 		"your_power": threeplace(us->val), "total_power": threeplace(here->total),
 		//What are us->already_sent, us->money, us->max_pow, us->max_demand?
 		"total_value": threeplace(here->local_value) + `+(@threeplace(Array.arrayify(here->incoming)->value[*])),

@@ -177,6 +177,31 @@ section("cot", "Centers of Trade", state => {
 	return content;
 });
 
+//Recursively render a trade node and its upstreams
+function render_trade_node(state, node) {
+	return [
+		DETAILS([
+			SUMMARY([
+				node.fraction < 1000 && `${Math.floor(node.fraction / 10)}.${node.fraction % 10}% of `,
+				B(node.name),
+				node.trader ? " - " + node.trader : " - no merchant",
+				" - total " + node.total_value / 1000,
+			]),
+			UL([
+				LI(["Located in ", PROV(node.province)]),
+				LI(`You have ${Math.round(node.your_power / node.total_power * 100)}% trade power.`),
+				node.ships && LI(`You have ${node.ships} ships protecting trade, giving ${(node.ship_power/1000).toFixed(3)} power.`),
+			]),
+		]),
+		node.incoming.length && UL({class: "bulletless"}, node.incoming.map(n => LI(render_trade_node(state, n)))),
+	];
+}
+
+section("trade_nodes", "Trade nodes", state => [
+	SUMMARY("Trade nodes"),
+	render_trade_node(state, state.trade_nodes),
+]);
+
 section("monuments", "Monuments", state => [
 	SUMMARY(`Monuments [${state.monuments.length}]`),
 	TABLE({border: "1"}, [

@@ -42,6 +42,17 @@ table {
 }
 td {padding: 2px;}
 
+.bulletless {
+	list-style-type: none;
+}
+#trade_nodes details {
+	margin: 1em 1em;
+	padding: 0 1.5em;
+}
+#trade_nodes details summary {
+	margin-left: -1em;
+}
+
 /* Highlighting is always done with the same CSS classes, but the precise
 color choice can be overridden based on its parent. */
 .interesting3 {background: #bfd;}
