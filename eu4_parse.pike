@@ -695,7 +695,7 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 		"prov_power": threeplace(us->province_power),
 		"your_power": threeplace(us->val), "total_power": threeplace(here->total),
 		//What are us->already_sent, us->money, us->max_pow, us->max_demand?
-		"total_value": threeplace(here->local_value) + `+(@threeplace(Array.arrayify(here->incoming)->value[*])),
+		"total_value": threeplace(here->local_value) + `+(0, @threeplace(Array.arrayify(here->incoming)->value[*])),
 		"retention": threeplace(here->retention), //Per-mille retention of trade value
 		//Recursively analyze but only so far as we have trade activity
 		"incoming": !us->has_capital && !us->type ? ({ }) //Don't bother delving further
