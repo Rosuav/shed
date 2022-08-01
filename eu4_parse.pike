@@ -708,6 +708,62 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 	return ret;
 }
 
+/* To predict the value of Collect from Trade:
+- Sum the trade powers of all other nations: here->total - us->val ==> foreign_power
+- Calculate your collection trade power, ==> collection_power.
+  - Start with us->max_pow
+  - If no current merchant, add 2 (or 2000 if in threeplace)
+  - Multiply by us->max_demand
+  - If not currently collecting, divide by 2
+- Calculate collection_power/(collection_power + foreign_power) * total_value ==> collection_amount
+- Calculate collection_amount * (1 + 10% + trade_efficiency) to predict ducat income.
+
+To predict the value of Transfer Trade Power:
+- Sum the trade powers of all other nations: here->total - us->val ==> foreign_power
+- Calculate your steering trade power, ==> steer_power.
+  - Start with us->max_pow
+  - If no current merchant, add 2 (or 2000 if in threeplace)
+  - Multiply by us->max_demand
+  - If currently collecting, multiply by 2
+- Calculate steer_power/(steer_power + foreign_power) * total_value ==> steer_amount
+
+Need to show how many merchants (other than you) are transferring on this path.
+- For each country, if them->type == "1", and if them->steer_power == us->steer_power, add 1. Exclude self.
+- Show value from ({.05, .025, .016, .012, .01, .0})[count]. Infinite zeroes after the array. ==> steer_bonus_power
+- Note that this is not being increased by your trade steering bonus, which is affected by
+  naval tradition. The actual bonus would be a bit higher than this, usually. It's hard to
+  figure the exact bonus, though, since you may be inserted somewhere in the list (due to
+  tag order), and the steering bonuses of all nations past you will be recalculated. But
+  it'll be roughly this value.
+- From downstream, calculate the current merchant bonus
+  - Find the appropriate incoming[] entry
+    - They have a inc->from value - probably index into definitions
+  - inc->add / (inc->value - inc->add) ==> current_steer_bonus
+  - Or look at upstream's node and check its outgoing amount.
+- predicted_steer_bonus is current_steer_bonus if already transferring *to this node*.
+- Otherwise, add steer_bonus_power.
+
+Transfer Trade Power will increase the value of the downstream node by:
+- steer_amount * predicted_steer_bonus + inc->value*(predicted_steer_bonus - current_steer_bonus)
+
+The financial benefit of Transfer Trade Power is the increased value of the downstream node
+multiplied by the fraction that you collect. It should be possible to calculate this fraction
+recursively; your home node and anywhere you collect grant collection_amount/total_value
+(or collection_power/(collection_power + foreign_power)), and transfers multiply the downstream
+collection fraction by the fraction transferred downstream.
+
+SPECIAL CASE: If you are not collecting *anywhere* except your home node (with or without a home
+merchant), you receive a 10% trade power bonus in your home node for each transferring merchant.
+This isn't just those transferring directly to the home node - it's every merchant you have. This
+could be HUGE on a big nation!
+
+Trade Policy is a DLC feature (Cradle). Check if DLC disabled - is policy always null?
+- Might not matter, since the effect of trade policy is incorporated into max_demand and val
+
+us->prev == "Transfers from traders downstream". It's 20% of provincial trade power, as
+long as you have at least 10.
+*/
+
 void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	//Gather some more obscure or less-interesting data for the web interface only.
 	//It's not worth consuming visual space for these normally, but the client might
