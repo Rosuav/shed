@@ -184,9 +184,11 @@ function render_trade_node(state, node) {
 			SUMMARY([
 				node.fraction < 1000 && `${Math.floor(node.fraction / 10)}.${node.fraction % 10}% of `,
 				B(node.name),
+				node.has_capital && " (home node)",
 				node.trader ? " - " + node.trader : " - no merchant",
 				" - total " + node.total_value / 1000,
 				node.pulling_to && ` (pulling to ${node.pulling_to} instead)`,
+				" - collect ", SPAN({style: "color: #770"}, (node.collection_income/1000).toFixed(2) + " ducats"),
 			]),
 			UL([
 				LI(["Located in ", PROV(node.province)]),
@@ -201,7 +203,7 @@ function render_trade_node(state, node) {
 
 section("trade_nodes", "Trade nodes", state => [
 	SUMMARY("Trade nodes"),
-	render_trade_node(state, state.trade_nodes),
+	state.trade_nodes.map(tree => render_trade_node(state, tree)),
 ]);
 
 section("monuments", "Monuments", state => [

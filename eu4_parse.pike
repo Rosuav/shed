@@ -686,16 +686,34 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 	//TODO: Check effect of Transfer Trade Power, trade company, colonial nation
 	//TODO: Check effect of embargoes
 	//TODO: Check effect of privateering - is it included in ship_power?
+
+	int total_value = threeplace(here->local_value) + `+(0, @threeplace(Array.arrayify(here->incoming)->value[*]));
+
+	//Predict the value of collecting from trade here. This isn't the main purpose of this tool,
+	//as you can sort trade nodes by collection value in-game, but (a) it's a good confirmation,
+	//and (b) it gives a baseline from which to calculate the value of transferring trade power.
+	int foreign_power = threeplace(here->total) - threeplace(us->val);
+	int collection_power = threeplace(us->max_pow);
+	if (!us->has_trader) collection_power += 2000; //If you send a merchant here, it adds 2 trade power.
+	collection_power = collection_power * threeplace(us->max_demand) / 1000; //max_demand sums all your current bonuses and penalties
+	if (!us->has_trader || us->type) collection_power /= 2; //Collecting halves your trade power, but if you already are, that's factored into max_demand.
+	int collection_amount = total_value * collection_power / (collection_power + foreign_power);
+	//FIXME: Trade efficiency doesn't seem to factor in something, maybe tech??
+	int trade_efficiency = data->countries[tag]->all_country_modifiers->trade_efficiency;
+	int collection_income = collection_amount * (1100 + trade_efficiency) / 1000; //Collecting with a merchant gives a 10% efficiency bonus.
+
 	mapping ret = ([
 		"id": node, "name": L10n[node], "province": defn->location,
 		"fraction": fraction, //x/1000 of this node's value is getting to this upstream
+		"has_capital": us->has_capital,
 		"trader": us->has_trader && (us->type ? "transferring" : "collecting"),
 		"policy": us->trading_policy,
 		"ships": (int)us->light_ship, "ship_power": threeplace(us->ship_power),
 		"prov_power": threeplace(us->province_power),
 		"your_power": threeplace(us->val), "total_power": threeplace(here->total),
 		//What are us->already_sent, us->money, us->max_pow, us->max_demand?
-		"total_value": threeplace(here->local_value) + `+(0, @threeplace(Array.arrayify(here->incoming)->value[*])),
+		"total_value": total_value,
+		"collection_amount": collection_amount, "collection_income": collection_income,
 		"retention": threeplace(here->retention), //Per-mille retention of trade value
 		//Recursively analyze but only so far as we have trade activity
 		"incoming": !us->has_capital && !us->type ? ({ }) //Don't bother delving further
@@ -708,17 +726,7 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 	return ret;
 }
 
-/* To predict the value of Collect from Trade:
-- Sum the trade powers of all other nations: here->total - us->val ==> foreign_power
-- Calculate your collection trade power, ==> collection_power.
-  - Start with us->max_pow
-  - If no current merchant, add 2 (or 2000 if in threeplace)
-  - Multiply by us->max_demand
-  - If not currently collecting, divide by 2
-- Calculate collection_power/(collection_power + foreign_power) * total_value ==> collection_amount
-- Calculate collection_amount * (1 + 10% + trade_efficiency) to predict ducat income.
-
-To predict the value of Transfer Trade Power:
+/* To predict the value of Transfer Trade Power:
 - Sum the trade powers of all other nations: here->total - us->val ==> foreign_power
 - Calculate your steering trade power, ==> steer_power.
   - Start with us->max_pow
@@ -1188,9 +1196,17 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	};
 
 	//Get some info about trade nodes
-	mapping trade_nodes = mkmapping(data->trade->node->definitions, data->trade->node);
-	mapping main_city = data->provinces["-" + country->trade_port]; //Assuming there will always be one
-	write->trade_nodes = analyze_trade_nodes(data, trade_nodes, tag, main_city->trade);
+	array all_nodes = data->trade->node;
+	mapping trade_nodes = mkmapping(all_nodes->definitions, all_nodes);
+	string home_node = data->provinces["-" + country->trade_port]->trade; //Assuming there will always be one
+	//Enumerate nodes where you're collecting, except for your main city.
+	//(Actually we're listing *including* the home node, but putting that first.)
+	array(string) collecting = ({home_node});
+	foreach (all_nodes, mapping n) {
+		mapping us = n[tag];
+		if (!us->has_capital && us->has_trader && !us->type) collecting += ({n->definitions});
+	}
+	write->trade_nodes = analyze_trade_nodes(data, trade_nodes, tag, collecting[*]);
 }
 
 mapping(string:array) interesting_provinces = ([]);
