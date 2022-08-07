@@ -672,7 +672,7 @@ int(0..1) passes_filter(mapping country, mapping|array filter, int|void any) {
 	return !any;
 }
 
-mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, string node, string|void dest) {
+mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, string node, int received, string|void dest) {
 	//Analyze one trade node and all those nodes that are upstream of it, until
 	//we find one that doesn't have a merchant at it. Recursive.
 	mapping here = trade_nodes[node];
@@ -681,11 +681,43 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 	int fraction = 1000;
 	foreach (defn->outgoing; int i; mapping out)
 		if (out->name == dest) fraction = threeplace(Array.arrayify(here->steer_power)[i]);
-	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is the true
-	//benefit of Transfer Trade Power rather than Collect from Trade.
-	//TODO: Check effect of Transfer Trade Power, trade company, colonial nation
+	//"Received" is the fraction of downstream trade value from which you derive your income.
+	//If you are collecting in this node, this is 1000 on arrival, but we then multiply by
+	//our trade power here, since we derive income only from the portion we can claim.
+	//- Example: GBR in English Channel has 49% trade power, therefore the incoming received
+	//  (the parameter) is 1000, and the outgoing received (after these calculations) will
+	//  be 490. Increasing the value of the English Channel trade node by 10 ducats will add
+	//  4.9 ducats to GBR's income.
+
+	//If you are transferring to a node where you collect, we modify this fraction by the
+	//link's transfer rate. This rate consists of the proportion of this node's value that
+	//goes down that link, enhanced by the merchants pulling trade that way.
+	//- Example: North Sea retains 7.6% (transfers 92.4%) of trade value, and the steer_power
+	//  toward English Channel is 78.5% of total steering power, meaning that 72.5% of the
+	//  node's trade power moves towards English Channel. The "Incoming" table for the
+	//  English Channel says that North Sea has 15.297 ducats arriving, of which 2.098 were
+	//  added by the transfer, so the transfer rate is (15.297/(15.297-2.098)) or a 16% buff.
+	//  Therefore we take the received fraction from English Channel (490) and multiply it
+	//  by 92.4%, 78.5%, and 116%, for a final value to pass on of 411 or 41.1%. That means
+	//  that boosting the value of the North Sea node by 10 ducats will add 4.11 ducats to
+	//  your income.
+
+	//Transferring to a node where you transfer will continue this process recursively.
+
+	//TODO: Figure out *every* downstream from a node, not just the current ones. May require
+	//some sort of graph linearization, since nodes can have multiple incoming and outgoing,
+	//but I believe are required to be acyclic. The received pass-on value would then be the
+	//sum of the pass-down values for each outgoing, plus any collection value.
+
+	if (!dest) {
+		received = 1000;
+	}
+	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is the
+	//main benefit of Transfer Trade Power rather than Collect from Trade.
+	//TODO: Check effect of trade company, colonial nation
 	//TODO: Check effect of embargoes
 	//TODO: Check effect of privateering - is it included in ship_power?
+	//TODO: Transferred trade power needs to be added _after_ the calculated collection and steer powers
 
 	int total_value = threeplace(here->local_value) + `+(0, @threeplace(Array.arrayify(here->incoming)->value[*]));
 
@@ -702,6 +734,18 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 	int trade_efficiency = data->countries[tag]->all_country_modifiers->trade_efficiency;
 	int collection_income = collection_amount * (1100 + trade_efficiency) / 1000; //Collecting with a merchant gives a 10% efficiency bonus.
 
+	//Predict the value of transferring trade from here to the immediate upstream.
+	//Note that it's entirely possible to see a node more than once (if you're collecting
+	//from more than one node that's downstream of this one), which means that this will
+	//give different results in those cases. TODO: Figure out which is best *for the node*
+	//and put a highlight on that one only, and only if it's non-current. Or maybe, just
+	//put a highlight on everything where the estimate is better than the current?
+	int steer_power = collection_power * 2;
+	int steer_amount = total_value * steer_power / (steer_power + foreign_power);
+	//Note that the steer amount won't be double the total amount, although if you're a
+	//minor player in a valuable node, it will be within rounding error of that.
+
+
 	mapping ret = ([
 		"id": node, "name": L10n[node], "province": defn->location,
 		"fraction": fraction, //x/1000 of this node's value is getting to this upstream
@@ -711,13 +755,13 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 		"ships": (int)us->light_ship, "ship_power": threeplace(us->ship_power),
 		"prov_power": threeplace(us->province_power),
 		"your_power": threeplace(us->val), "total_power": threeplace(here->total),
-		//What are us->already_sent, us->money, us->max_pow, us->max_demand?
+		//What are us->already_sent, us->money?
 		"total_value": total_value,
 		"collection_amount": collection_amount, "collection_income": collection_income,
 		"retention": threeplace(here->retention), //Per-mille retention of trade value
 		//Recursively analyze but only so far as we have trade activity
 		"incoming": !us->has_capital && !us->type ? ({ }) //Don't bother delving further
-			: analyze_trade_nodes(data, trade_nodes, tag, defn->incoming[*], node),
+			: analyze_trade_nodes(data, trade_nodes, tag, defn->incoming[*], received, node),
 	]);
 	if (us->type) {
 		string pulling_to = defn->outgoing[(int)us->steer_power]->name;
@@ -726,15 +770,7 @@ mapping analyze_trade_nodes(mapping data, mapping trade_nodes, string tag, strin
 	return ret;
 }
 
-/* To predict the value of Transfer Trade Power:
-- Sum the trade powers of all other nations: here->total - us->val ==> foreign_power
-- Calculate your steering trade power, ==> steer_power.
-  - Start with us->max_pow
-  - If no current merchant, add 2 (or 2000 if in threeplace)
-  - Multiply by us->max_demand
-  - If currently collecting, multiply by 2
-- Calculate steer_power/(steer_power + foreign_power) * total_value ==> steer_amount
-
+/*
 Need to show how many merchants (other than you) are transferring on this path.
 - For each country, if them->type == "1", and if them->steer_power == us->steer_power, add 1. Exclude self.
 - Show value from ({.05, .025, .016, .012, .01, .0})[count]. Infinite zeroes after the array. ==> steer_bonus_power
@@ -1206,7 +1242,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		mapping us = n[tag];
 		if (!us->has_capital && us->has_trader && !us->type) collecting += ({n->definitions});
 	}
-	write->trade_nodes = analyze_trade_nodes(data, trade_nodes, tag, collecting[*]);
+	write->trade_nodes = analyze_trade_nodes(data, trade_nodes, tag, collecting[*], 1000);
 }
 
 mapping(string:array) interesting_provinces = ([]);
