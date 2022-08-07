@@ -292,7 +292,7 @@ mapping idea_definitions, policy_definitions, reform_definitions, static_modifie
 mapping trade_goods, country_modifiers, age_definitions, tech_definitions, institutions;
 mapping cot_definitions, state_edicts, terrain_definitions, imperial_reforms;
 mapping cb_types, wargoal_types, estate_agendas, country_decisions, country_missions;
-mapping tradenode_definitions;
+mapping tradenode_definitions; array tradenode_upstream_order;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -2347,6 +2347,44 @@ int main(int argc, array(string) argv) {
 		foreach (info->outgoing = Array.arrayify(info->outgoing), mapping o)
 			tradenode_definitions[o->name]->incoming += ({id});
 	}
+	//Build a parse order for trade nodes. Within this parse order, any node which sends
+	//trade to another node must be later within the order than that node; in other words,
+	//Valencia must come after Genoa, because Valencia sends trade to Genoa. This is kinda
+	//backwards, but we're using this for predictive purposes, so it's more useful to see
+	//the destination nodes first.
+	//First, enumerate all nodes, sorted by outgoing node count. Those with zero outgoing
+	//nodes (end nodes) will be first, and they have no dependencies.
+	//Take the first node from the list. If it has an outgoing node that we haven't seen,
+	//flag the other node as a dependency and move on; by sorting by outgoing node count,
+	//we minimize the number of times that this should happen.
+	//Move this node to the Done list. If it is the dependency of any other nodes, reprocess
+	//those nodes, potentially recursively.
+	//Iterate. Once the queue is empty, the entire map should have been sorted out, and the
+	//last node on the list should be one of the origin nodes (with no incomings). Other
+	//origin-only nodes may have been picked up earlier though, so don't rely on this.
+	array nodes = indices(tradenode_definitions);
+	sort(sizeof(values(tradenode_definitions)->outgoing[*]), nodes);
+	array node_order = ({ });
+	nextnode: while (sizeof(nodes)) {
+		[string cur, nodes] = Array.shift(nodes);
+		mapping info = tradenode_definitions[cur];
+		foreach (info->outgoing, mapping o) {
+			if (!has_value(node_order, o->name)) { //This is potentially O(n²) but there aren't all that many trade nodes.
+				//This node sends trade to a node we haven't processed yet.
+				//Delay this node until the other one has been processed.
+				tradenode_definitions[o->name]->depend += ({cur});
+				continue nextnode;
+			}
+		}
+		//(because Pike doesn't have for-else blocks, this is done with a continue)
+		//Okay, we didn't run into a node we haven't processed. Accept this one.
+		node_order += ({cur});
+		//If this is a dep of anything, reprocess them. They might depend on some
+		//other unprocessed nodes, although it's unlikely; if they do, they'll get
+		//plopped into another dep array.
+		if (array dep = m_delete(info, "depend")) nodes = dep + nodes;
+	}
+	tradenode_upstream_order = node_order;
 
 	//Parse out localised province names and map from province ID to all its different names
 	province_localised_names = ([]);
