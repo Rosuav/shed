@@ -739,7 +739,6 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//In foreign nodes, if you're not collecting, you receive nothing here.
 		if (us->has_trader && !us->type) received += our_trade_power * 1000 / threeplace(here->total);
 	}
-	here->received = received;
 	//Regardless of collection, you also can potentially gain revenue from any downstream
 	//nodes. This node enhances the nodes downstream of it according to the non-retained
 	//proportion of its value, sharing that value according to the steer_power fractions,
@@ -748,6 +747,26 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	//been assigned its there->received value, so we can calculate, for each downstream:
 	//  (1-retention) * steer_power[n] * there->received
 	//and then sum that value for each downstream. Add all of these onto here->received.
+	array outgoings = Array.arrayify(here->steer_power);
+	int tfr_fraction = 1000 - threeplace(here->retention); //What isn't retained is pulled forward
+	werror("NODE HERE %O\n", node);
+	foreach (defn->outgoing; int i; mapping o) {
+		int fraction = threeplace(outgoings[i]);
+		werror("OUTGOING: %O %d\n", o->name, fraction);
+		//Find the destination index. This is 1-based and corresponds to the
+		//order of the nodes in the definitions file.
+		mapping dest = trade_nodes[o->name];
+		string id = (string)(defn->_index + 1);
+		//Find the corresponding incoming entry in the destination node
+		foreach (Array.arrayify(dest->incoming), mapping inc) if (inc->from == id) {
+			//Assume that the current enhancement rate will continue.
+			int transfer = fraction;
+			int val = threeplace(inc->value);
+			if (val) transfer = transfer * val / (val - threeplace(inc->add));
+			received += transfer;
+		}
+	}
+	here->received = received;
 
 	//NEXT STEPS:
 	//1) Make the front end show a table, not a tree
@@ -2349,7 +2368,9 @@ int main(int argc, array(string) argv) {
 	//estate_agendas = parse_config_dir(PROGRAM_PATH + "/common/estate_agendas"); //Not currently in use
 	country_decisions = parse_config_dir(PROGRAM_PATH + "/decisions", "country_decisions");
 	country_missions = parse_config_dir(PROGRAM_PATH + "/missions");
+	retain_map_indices = 1;
 	tradenode_definitions = parse_config_dir(PROGRAM_PATH + "/common/tradenodes");
+	retain_map_indices = 0;
 	//Trade nodes have outgoing connections recorded, but it's more useful to us to
 	//invert that and record the incoming connections.
 	foreach (tradenode_definitions; string id; mapping info) {
@@ -2393,6 +2414,11 @@ int main(int argc, array(string) argv) {
 		//other unprocessed nodes, although it's unlikely; if they do, they'll get
 		//plopped into another dep array.
 		if (array dep = m_delete(info, "depend")) nodes = dep + nodes;
+		//For convenience, allow the definitions to be accessed by index too.
+		//Note that the index used in the "incoming" array is actually one-based
+		//and a string, not zero-based integers as we're using.
+		//Not currently needed but can be activated if it becomes useful.
+		//tradenode_definitions[(string)(info->_index + 1)] = info;
 	}
 	tradenode_upstream_order = node_order;
 
