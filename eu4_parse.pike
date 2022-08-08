@@ -698,6 +698,9 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	if (!us->has_trader) {
 		//If you send a merchant here, it adds 2 trade power, and with the
 		//default "Maximize Profit" trading policy, 5%.
+		//TODO: If Cradle of Civ isn't active, what happens? Most likely, no
+		//trade policy means no 5% bonus, meaning that having a merchant
+		//gives strictly less benefit.
 		potential_power += 2000;
 		power_modifiers += 50;
 	}
@@ -731,13 +734,7 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		advice_transfer = ""; amt_transfer = 0; //Can't steer away from home
 		if (!us->has_trader) {
 			//You collect automatically, but if you were to send a merchant here,
-			//you would add 2 Trade Power, and a 5% bonus for the trade policy.
-			//TODO: If Cradle of Civ isn't active, what happens? Most likely, no
-			//trade policy means no 5% bonus, meaning that having a merchant at
-			//your home node gives less benefit.
-			//Show a recommendation, giving the potential value of collecting.
-			//This should incorporate the 10% trade efficiency modifier for having a
-			//merchant (omitted if passively collecting), and give a number of ducats.
+			//you would gain trade power and efficiency.
 			amt_do_nothing = total_value * received / 1000;
 			//At your home node, there's no trade power penalty for collecting, so the
 			//potential to be collected is actually the same as the potential that you

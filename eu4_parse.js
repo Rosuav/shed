@@ -218,7 +218,7 @@ section("trade_nodes", "Trade nodes", state => [
 				TD(threeplace(node.received)),
 				TD([
 					node.has_capital && "Home ", //TODO: Emoji?
-					node.trader ? " - " + node.trader : " - no merchant",
+					node.trader && " - " + node.trader,
 					node.current_collection && [
 						" ",
 						money(node.current_collection),
