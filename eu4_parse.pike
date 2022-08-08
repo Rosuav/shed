@@ -684,12 +684,13 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	//Note that all trade power values here are sent to the client in fixed-place format.
 
 	int total_value = threeplace(here->local_value) + `+(0, @threeplace(Array.arrayify(here->incoming)->value[*]));
+	int our_trade_power = threeplace(us->val) + threeplace(us->t_in); //Our trade power includes all current modifiers, but not transfers
 
 	//Predict the value of collecting from trade here. This isn't the main purpose of this tool,
 	//as you can sort trade nodes by collection value in-game, but (a) it's a good confirmation,
 	//and (b) it gives a baseline from which to calculate the value of transferring trade power.
 	//Calculate your trade power, or what you would have if you had a merchant here.
-	int foreign_power = threeplace(here->total) - threeplace(us->val);
+	int foreign_power = threeplace(here->total) - our_trade_power;
 	int potential_power = threeplace(us->max_pow);
 	int power_modifiers = threeplace(us->max_demand); //max_demand sums all your current bonuses and penalties
 	if (!us->has_trader) {
@@ -701,7 +702,9 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	potential_power = potential_power * power_modifiers / 1000;
 	//Collecting outside of home node halves trade power, and is factored into max_demand. Undo that for predictive purposes.
 	if (!us->has_capital && us->has_trader && !us->type) potential_power *= 2;
+	potential_power += threeplace(us->t_in); //Anyone transferring trade power to us
 	int steer_amount = total_value * potential_power / (potential_power + foreign_power);
+	//TODO: Check the impact of Collecting outside of Home w/ transferred trade power. Does the transfer get halved too? (Probably.)
 	int collection_amount = total_value * potential_power / 2 / (potential_power / 2 + foreign_power);
 	//Note that the collection amount won't be half the steer amount, although if you're
 	//a minor player in a valuable node, it will be within rounding error of that.
@@ -720,7 +723,7 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	if (us->has_capital) {
 		//In your home node, you automatically collect trade, even if you don't have a merchant.
 		//Note that you cannot have a merchant steer trade away from your home node.
-		received += threeplace(us->val) * 1000 / threeplace(here->total);
+		received += our_trade_power * 1000 / threeplace(here->total);
 		if (!us->has_trader) {
 			//You collect automatically, but if you were to send a merchant here,
 			//you would add 2 Trade Power, and a 5% bonus for the trade policy.
@@ -734,8 +737,9 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		}
 	} else {
 		//In foreign nodes, if you're not collecting, you receive nothing here.
-		if (us->has_trader) received += threeplace(us->val) * 1000 / threeplace(here->total);
+		if (us->has_trader && !us->type) received += our_trade_power * 1000 / threeplace(here->total);
 	}
+	here->received = received;
 	//Regardless of collection, you also can potentially gain revenue from any downstream
 	//nodes. This node enhances the nodes downstream of it according to the non-retained
 	//proportion of its value, sharing that value according to the steer_power fractions,
@@ -760,32 +764,27 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 
 	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is the
 	//main benefit of Transfer Trade Power rather than Collect from Trade.
-	//TODO: Check effect of trade company, colonial nation
+	//TODO: Check effect of trade company, colonial nation, caravan power (and modifiers)
 	//TODO: Check effect of embargoes
 	//TODO: Check effect of privateering - is it included in ship_power?
 	//TODO: Transferred trade power needs to be added _after_ the calculated collection and steer powers
 
 	mapping ret = ([
 		"id": node, "name": L10n[node], "province": defn->location,
-		"fraction": fraction, //x/1000 of this node's value is getting to this upstream
+		"raw_us": us, "raw_defn": defn,
+		"raw_here_abbr": (mapping)filter((array)here) {return __ARGS__[0][0] != upper_case(__ARGS__[0][0]);},
 		"has_capital": us->has_capital,
 		"trader": us->has_trader && (us->type ? "transferring" : "collecting"),
 		"policy": us->trading_policy,
 		"ships": (int)us->light_ship, "ship_power": threeplace(us->ship_power),
 		"prov_power": threeplace(us->province_power),
-		"your_power": threeplace(us->val), "total_power": threeplace(here->total),
+		"your_power": our_trade_power, "total_power": threeplace(here->total),
 		//What are us->already_sent, us->money?
 		"total_value": total_value,
 		"collection_amount": collection_amount, "collection_income": collection_income,
 		"retention": threeplace(here->retention), //Per-mille retention of trade value
-		//Recursively analyze but only so far as we have trade activity
-		"incoming": !us->has_capital && !us->type ? ({ }) //Don't bother delving further
-			: analyze_trade_nodes(data, trade_nodes, tag, defn->incoming[*], received, node),
+		"received": received,
 	]);
-	if (us->type) {
-		string pulling_to = defn->outgoing[(int)us->steer_power]->name;
-		if (pulling_to != dest) {ret->pulling_to = L10n[pulling_to]; ret->incoming = ({ });}
-	}
 	return ret;
 }
 

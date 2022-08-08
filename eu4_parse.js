@@ -177,33 +177,33 @@ section("cot", "Centers of Trade", state => {
 	return content;
 });
 
-//Recursively render a trade node and its upstreams
-function render_trade_node(state, node) {
-	return [
-		DETAILS([
-			SUMMARY([
-				node.fraction < 1000 && `${Math.floor(node.fraction / 10)}.${node.fraction % 10}% of `,
-				B(node.name),
-				node.has_capital && " (home node)",
-				node.trader ? " - " + node.trader : " - no merchant",
-				" - total " + node.total_value / 1000,
-				node.pulling_to && ` (pulling to ${node.pulling_to} instead)`,
-				" - collect ", SPAN({style: "color: #770"}, (node.collection_income/1000).toFixed(2) + " ducats"),
-			]),
-			UL([
-				LI(["Located in ", PROV(node.province)]),
-				LI(`You have ${Math.round(node.your_power / node.total_power * 100)}% trade power.`),
-				node.ships && LI(`You have ${node.ships} ships protecting trade, giving ${(node.ship_power/1000).toFixed(3)} power.`),
-				node.pulling_to && LI(`You have a merchant transferring trade to ${node.pulling_to} - see details for that node instead`),
-			]),
-		]),
-		node.incoming.length && UL({class: "bulletless"}, node.incoming.map(n => LI(render_trade_node(state, n)))),
-	];
-}
-
 section("trade_nodes", "Trade nodes", state => [
 	SUMMARY("Trade nodes"),
-	state.trade_nodes.map(tree => render_trade_node(state, tree)),
+	TABLE({border: "1"}, [
+		TR([TH("Node name"), TH("Node value"), TH("Total power"), TH("Your profit"),
+			TH("Currently"), TH("Do nothing?"), TH("Transfer?"), TH("Collect?")]),
+		state.trade_nodes.sort((a, b) => (b.received - a.received)).map(node => {
+			console.log("Trade node", node);
+			return TR([
+				TD(B(node.name)), //TODO: Hide PROV(node.province) somewhere out of the way
+				TD((node.total_value / 1000).toFixed(2)),
+				TD((node.total_power / 1000).toFixed(2)),
+				TD((node.received / 1000).toFixed(2)),
+				TD([
+					node.has_capital && "Home ", //TODO: Emoji?
+					node.trader ? " - " + node.trader : " - no merchant",
+					node.current_revenue && [
+						SPAN({style: "color: #770"}, node.current_revenue.toFixed(2)),
+						" ",
+						node.current_revenue_action, //eg "to English Channel" or "collected"
+					],
+				]),
+				TD(node.advice_do_nothing || "unknown"),
+				TD(node.advice_transfer || "unknown"),
+				TD(node.advice_collect || "unknown"),
+			]);
+		}),
+	]),
 ]);
 
 section("monuments", "Monuments", state => [
