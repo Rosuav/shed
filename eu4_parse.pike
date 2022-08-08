@@ -721,20 +721,40 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	//a node at which you have the vast majority of the trade power.
 
 	int received = 0;
+	string advice_do_nothing, advice_transfer, advice_collect;
+	int amt_do_nothing, amt_transfer, amt_collect, amt_revenue;
 	if (us->has_capital) {
 		//In your home node, you automatically collect trade, even if you don't have a merchant.
 		//Note that you cannot have a merchant steer trade away from your home node.
 		received += our_trade_power * 1000 / threeplace(here->total);
+		advice_do_nothing = "Passive"; advice_collect = "Collect";
+		advice_transfer = ""; amt_transfer = 0; //Can't steer away from home
 		if (!us->has_trader) {
 			//You collect automatically, but if you were to send a merchant here,
 			//you would add 2 Trade Power, and a 5% bonus for the trade policy.
 			//TODO: If Cradle of Civ isn't active, what happens? Most likely, no
 			//trade policy means no 5% bonus, meaning that having a merchant at
 			//your home node gives less benefit.
-			//TODO: Show a recommendation, giving the potential value of collecting.
-			//This should incorporate the 10% trade efficiency modifier for having
-			//a merchant (which I think is omitted if you don't have a home trader
-			//active?? Check me), and give a number of ducats.
+			//Show a recommendation, giving the potential value of collecting.
+			//This should incorporate the 10% trade efficiency modifier for having a
+			//merchant (omitted if passively collecting), and give a number of ducats.
+			amt_do_nothing = total_value * received / 1000;
+			//At your home node, there's no trade power penalty for collecting, so the
+			//potential to be collected is actually the same as the potential that you
+			//would be able to steer, had it not been your home node.
+			amt_collect = steer_amount;
+			//It's useful to know how much you'd actually get, with trade efficiency bonus
+			amt_revenue = steer_amount * (1100 + trade_efficiency) / 1000;
+		} else {
+			//Perform the same predictive calculations as above, but *removing* the effect
+			//of a merchant's presence.
+			int policy_bonus = us->trading_policy == "maximize_profit" ? 50 : 0;
+			int passive_power = (threeplace(us->max_pow) - 2000) //Your base trade power goes down by 2
+				* (threeplace(us->max_demand) - policy_bonus) / 1000 //And your trade power modifier loses 5%
+				+ threeplace(us->t_in); //But transfers are unchanged.
+			amt_do_nothing = total_value * passive_power / (passive_power + foreign_power);
+			amt_collect = total_value * received / 1000;
+			amt_revenue = amt_collect * (1000 + trade_efficiency) / 1000; //No extra 10% efficiency
 		}
 	} else {
 		//In foreign nodes, if you're not collecting, you receive nothing here.
@@ -790,6 +810,11 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		"collection_amount": collection_amount, "collection_income": collection_income,
 		"retention": threeplace(here->retention), //Per-mille retention of trade value
 		"received": received,
+		"predict": ([
+			"advice_do_nothing": advice_do_nothing, "amt_do_nothing": amt_do_nothing,
+			"advice_transfer": advice_transfer, "amt_transfer": amt_transfer,
+			"advice_collect": advice_collect, "amt_collect": amt_collect, "amt_revenue": amt_revenue,
+		]),
 	]);
 	return ret;
 }

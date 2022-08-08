@@ -178,6 +178,7 @@ section("cot", "Centers of Trade", state => {
 });
 
 function threeplace(n) {return (n / 1000).toFixed(2);}
+function money(n) {return SPAN({style: "color: #770"}, threeplace(n));}
 
 section("trade_nodes", "Trade nodes", state => [
 	SUMMARY("Trade nodes"),
@@ -197,6 +198,13 @@ section("trade_nodes", "Trade nodes", state => [
 			"trade power bonus. It may be necessary to test this out in-game, as the prediction algorithm does not ",
 			"take this into account.",
 		]),
+		LI([
+			"Passive - Your home node will always collect from trade, even without a trader; you cannot transfer trade ",
+			"away from your home. Having a merchant collect at your home adds 2 trade power, permits a trade policy ",
+			"(which defaults to giving 5% more trade power), and does not have the usual 50% collection penalty; it is ",
+			"therefore always strictly better to collect at home than to not. However it is usually of marginal benefit, ",
+			"and your merchant can better serve your nation elsewhere.",
+		]),
 	])]),
 	TABLE({border: "1"}, [
 		TR([TH("Node name"), TH("Node value"), TH("Total power"), TH("Your share"),
@@ -213,12 +221,12 @@ section("trade_nodes", "Trade nodes", state => [
 					node.trader ? " - " + node.trader : " - no merchant",
 					node.current_collection && [
 						" ",
-						SPAN({style: "color: #770"}, threeplace(node.current_collection)),
+						money(node.current_collection),
 					],
 				]),
-				TD(node.advice_do_nothing || "unknown"),
-				TD(node.advice_transfer || "unknown"),
-				TD(node.advice_collect || "unknown"),
+				TD(node.predict.advice_do_nothing && [node.predict.advice_do_nothing, " ", money(node.predict.amt_do_nothing)]),
+				TD(node.predict.advice_transfer && [node.predict.advice_transfer, " ", money(node.predict.amt_transfer)]),
+				TD(node.predict.advice_collect && [money(node.predict.amt_collect), " giving ", money(node.predict.amt_revenue)]),
 			]);
 		}),
 	]),
