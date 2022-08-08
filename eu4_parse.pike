@@ -341,10 +341,12 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	mapping age = age_definitions[data->current_age]->abilities;
 	_incorporate(data, modifiers, age[Array.arrayify(country->active_age_ability)[*]][*]);
 	mapping tech = country->technology || ([]);
+	sscanf(data->date, "%d.%d.%d", int year, int mon, int day);
 	foreach ("adm dip mil" / " ", string cat) {
 		int level = (int)tech[cat + "_tech"];
 		_incorporate(data, modifiers, tech_definitions[cat]->technology[..level][*]);
-		//TODO: If tech_definitions[cat]->technology[level]->year > current year, _incorporate tech_definitions[cat]->ahead_of_time
+		if ((int)tech_definitions[cat]->technology[level]->year > year)
+			_incorporate(data, modifiers, tech_definitions[cat]->ahead_of_time);
 		//TODO: > or >= ?
 	}
 	if (array have = country->institutions) foreach (institutions; string id; mapping inst) {
@@ -708,7 +710,6 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	int collection_amount = total_value * potential_power / 2 / (potential_power / 2 + foreign_power);
 	//Note that the collection amount won't be half the steer amount, although if you're
 	//a minor player in a valuable node, it will be within rounding error of that.
-	//FIXME: Trade efficiency doesn't seem to factor in something, maybe tech??
 	int trade_efficiency = data->countries[tag]->all_country_modifiers->trade_efficiency;
 	int collection_income = collection_amount * (1100 + trade_efficiency) / 1000; //Collecting with a merchant gives a 10% efficiency bonus.
 
