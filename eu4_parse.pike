@@ -753,6 +753,7 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 			amt_collect = total_value * received / 1000;
 			amt_revenue = amt_collect * (1000 + trade_efficiency) / 1000; //No extra 10% efficiency
 		}
+		amt_do_nothing = amt_do_nothing * (1000 + trade_efficiency) / 1000; //Show the post-efficiency calculation here
 	} else {
 		//In foreign nodes, if you're not collecting, you receive nothing here.
 		if (us->has_trader && !us->type) received += our_trade_power * 1000 / threeplace(here->total);
