@@ -166,9 +166,10 @@ section("cot", "Centers of Trade", state => {
 		const cots = state.cot[kwd];
 		if (!cots.length) continue;
 		content.push(TABLE({id: kwd, border: "1"}, [
-			TR(TH({colSpan: 4}, [proventer(kwd), `${kwd[0].toUpperCase()}${kwd.slice(1)} CoTs:`])),
+			TR(TH({colSpan: 5}, [proventer(kwd), `${kwd[0].toUpperCase()}${kwd.slice(1)} CoTs:`])),
 			cots.map(cot => TR({className: "interesting" + cot.interesting}, [
-				TD(PROV(cot.id, cot.name)), TD("Lvl "+cot.level), TD("Dev "+cot.dev), TD(cot.noupgrade)
+				TD(PROV(cot.id, cot.name)), TD(cot.tradenode), TD("Lvl "+cot.level),
+				TD("Dev "+cot.dev), TD(cot.noupgrade)
 			])),
 		]));
 		provleave();
