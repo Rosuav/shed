@@ -767,25 +767,11 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	}
 	here->received = received;
 
-	//NEXT STEPS:
-	//1) Make the front end show a table, not a tree
-	//2) For each node, which will become a row, show:
-	//   - Node name (L10n)
-	//   - Current action, if any
-	//   - Mark if home node
-	//   - Current revenue, if any
-	//   - Predicted value from collecting
-	//   - Predicted value from transferring to X
-	//   - Predicted value from having no merchant here
-	//Note that the predictions are all on the assumption that only one change is made.
-	//Also, I'm not sure if I can properly factor in the home node bonus for all transfers.
-
 	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is the
 	//main benefit of Transfer Trade Power rather than Collect from Trade.
 	//TODO: Check effect of trade company, colonial nation, caravan power (and modifiers)
 	//TODO: Check effect of embargoes
 	//TODO: Check effect of privateering - is it included in ship_power?
-	//TODO: Transferred trade power needs to be added _after_ the calculated collection and steer powers
 
 	mapping ret = ([
 		"id": node, "name": L10n[node], "province": defn->location,
