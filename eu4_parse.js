@@ -177,6 +177,8 @@ section("cot", "Centers of Trade", state => {
 	return content;
 });
 
+function threeplace(n) {return (n / 1000).toFixed(2);}
+
 section("trade_nodes", "Trade nodes", state => [
 	SUMMARY("Trade nodes"),
 	DETAILS([SUMMARY("Explanatory notes"), UL([
@@ -203,16 +205,15 @@ section("trade_nodes", "Trade nodes", state => [
 			console.log("Trade node", node);
 			return TR([
 				TD(B(node.name)), //TODO: Hide PROV(node.province) somewhere out of the way
-				TD((node.total_value / 1000).toFixed(2)),
-				TD((node.total_power / 1000).toFixed(2)),
-				TD((node.received / 1000).toFixed(2)),
+				TD(threeplace(node.total_value)),
+				TD(threeplace(node.total_power)),
+				TD(threeplace(node.received)),
 				TD([
 					node.has_capital && "Home ", //TODO: Emoji?
 					node.trader ? " - " + node.trader : " - no merchant",
-					node.current_revenue && [
-						SPAN({style: "color: #770"}, node.current_revenue.toFixed(2)),
+					node.current_collection && [
 						" ",
-						node.current_revenue_action, //eg "to English Channel" or "collected"
+						SPAN({style: "color: #770"}, threeplace(node.current_collection)),
 					],
 				]),
 				TD(node.advice_do_nothing || "unknown"),

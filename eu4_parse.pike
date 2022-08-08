@@ -783,8 +783,9 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		"ships": (int)us->light_ship, "ship_power": threeplace(us->ship_power),
 		"prov_power": threeplace(us->province_power),
 		"your_power": our_trade_power, "total_power": threeplace(here->total),
-		//What are us->already_sent, us->money?
+		//What is us->already_sent?
 		"total_value": total_value,
+		"current_collection": threeplace(us->money),
 		"collection_amount": collection_amount, "collection_income": collection_income,
 		"retention": threeplace(here->retention), //Per-mille retention of trade value
 		"received": received,
