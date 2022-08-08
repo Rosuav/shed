@@ -179,8 +179,25 @@ section("cot", "Centers of Trade", state => {
 
 section("trade_nodes", "Trade nodes", state => [
 	SUMMARY("Trade nodes"),
+	DETAILS([SUMMARY("Explanatory notes"), UL([
+		LI([
+			"Your share - if the trade in this node is increased by 1 ducat/month, how much would you gain? Includes ",
+			"all downstream profit, but does not factor in trade efficiency bonuses, which apply to your entire empire.",
+		]),
+		LI([
+			"Transfer? - This column says what would be gained by the optimal Transfer Trade Power choice, and says the ",
+			"node to which you should be transferring (which is probably the same one the game will pick by default). ",
+			"It can be assumed that other transfer destinations are less profitable, and thus uninteresting.",
+		]),
+		LI([
+			"Collect? - This predicts how much you would gain by Collect From Trade in this node. Be aware that having ",
+			"ANY merchant collecting at any node away from your home will cause you to lose a significant home-node ",
+			"trade power bonus. It may be necessary to test this out in-game, as the prediction algorithm does not ",
+			"take this into account.",
+		]),
+	])]),
 	TABLE({border: "1"}, [
-		TR([TH("Node name"), TH("Node value"), TH("Total power"), TH("Your profit"),
+		TR([TH("Node name"), TH("Node value"), TH("Total power"), TH("Your share"),
 			TH("Currently"), TH("Do nothing?"), TH("Transfer?"), TH("Collect?")]),
 		state.trade_nodes.sort((a, b) => (b.received - a.received)).map(node => {
 			console.log("Trade node", node);

@@ -749,21 +749,20 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	//and then sum that value for each downstream. Add all of these onto here->received.
 	array outgoings = Array.arrayify(here->steer_power);
 	int tfr_fraction = 1000 - threeplace(here->retention); //What isn't retained is pulled forward
-	werror("NODE HERE %O\n", node);
 	foreach (defn->outgoing; int i; mapping o) {
 		int fraction = threeplace(outgoings[i]);
-		werror("OUTGOING: %O %d\n", o->name, fraction);
 		//Find the destination index. This is 1-based and corresponds to the
 		//order of the nodes in the definitions file.
 		mapping dest = trade_nodes[o->name];
 		string id = (string)(defn->_index + 1);
 		//Find the corresponding incoming entry in the destination node
 		foreach (Array.arrayify(dest->incoming), mapping inc) if (inc->from == id) {
-			//Assume that the current enhancement rate will continue.
-			int transfer = fraction;
+			//The amount sent out from here
+			int transfer = tfr_fraction * fraction / 1000;
+			//Assume that the current enhancement rate (if any) will continue.
 			int val = threeplace(inc->value);
 			if (val) transfer = transfer * val / (val - threeplace(inc->add));
-			received += transfer;
+			received += transfer * dest->received / 1000;
 		}
 	}
 	here->received = received;
