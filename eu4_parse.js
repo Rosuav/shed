@@ -264,13 +264,12 @@ section("favors", "Favors", state => {
 	}
 	const cooldowns = state.favors.cooldowns.map(cd => {
 		if (cd[1] === "---") ++free;
-		return TR({className: cd[1] === "---" ? "interesting1" : ""}, cd.slice(1).map(d => TD(d)));
+		return TR(cd.slice(1).map(d => TD(d)));
 	});
 	const countries = Object.entries(state.favors.owed).sort((a,b) => b[1][0] - a[1][0]).map(([c, f]) => {
 		++owed_total; if (f[0] >= 10) ++owed;
-		return TR({className: f[0] >= 10 ? "interesting1" : ""}, [TD(COUNTRY(c)), f.map((n,i) => TD(compare(n, i ? +state.favors.cooldowns[i-1][4] : n)))]);
+		return TR([TD(COUNTRY(c)), f.map((n,i) => TD(compare(n, i ? +state.favors.cooldowns[i-1][4] : n)))]);
 	});
-	max_interesting.favors = free && owed ? 1 : 0;
 	return [
 		SUMMARY(`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`),
 		P("NOTE: Yield estimates are often a bit wrong, but can serve as a guideline."),
