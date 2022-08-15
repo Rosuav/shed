@@ -16,6 +16,8 @@ async def sender(sock):
 async def main():
 	# FIXME: Get server from sys.argv
 	async with websockets.connect("ws://localhost:4444/") as sock:
+		# await sock.send('{"request-type": "GetVersion", "message-id": "ver"}')
+		# await sock.send('{"request-type": "GetAuthRequired", "message-id": "auth"}')
 		asyncio.create_task(sender(sock))
 		while True:
 			line = await sock.recv()
