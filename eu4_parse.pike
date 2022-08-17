@@ -794,7 +794,13 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	//main benefit of Transfer Trade Power rather than Collect from Trade.
 	//TODO: Check effect of trade company, colonial nation, caravan power (and modifiers)
 	//TODO: Check effect of embargoes
-	//TODO: Check effect of privateering - is it included in ship_power?
+	/* Privateering:
+	us->privateer_mission has our power, after all modifiers
+	us->privateer_money is the ducats/month gained in Spoils of War here
+	This is already factored into the node's total power, so every country's fraction is
+	effectively calculated correctly.
+	Spoils of War is not factored into this tool.
+	*/
 
 	mapping ret = ([
 		"id": node, "name": L10n[node], "province": defn->location,
