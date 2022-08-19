@@ -4,7 +4,9 @@
 #    <* src="..."> eg img, script, style
 #    Anything else?
 # 2. If ref is external (http:// or https:// and not gsarchive.net), record
-#    the domain name in case there's a different sort of error.
+#    the domain name in case there's a different sort of error. A separate
+#    pass to validate external links will be of value, but should be cached
+#    aggressively.
 # 3. If ref is unnecessarily-external (pointing to gsarchive.net), autofix
 #    to relative.
 # 4. If ref is internal and the file exists, queue the target for scanning,
