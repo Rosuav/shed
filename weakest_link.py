@@ -15,3 +15,25 @@
 #    a. <nothing here yet - cf "is it an elephant">
 #    b. Log the failure
 # 6. Progressively go through the log and add autofixers
+from bs4 import BeautifulSoup
+root = "/home/rosuav/gsarchive/live"
+
+scanned = { }
+awaiting = []
+def fix(url):
+	# Make the URL absolute
+	...
+	if fn in scanned: return
+	scanned[fn] = 1
+	awaiting.append(fn)
+
+def find_links(fn):
+	with open(fn, "rb") as f:
+		soup = BeautifulSoup(f.read(), "html.parser")
+	print("Got soup")
+
+fix("/")
+while awaiting:
+	fn = awaiting.pop()
+	print(fn, "...")
+	find_links(fn)
