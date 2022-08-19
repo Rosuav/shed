@@ -28,6 +28,8 @@ config = { }
 try:
 	with open("weakest_link.json") as f: config = json.load(f)
 except FileNotFoundError: pass
+for ensure in "redirects", "use_https", "known_links": # Match weakest_link_checker
+	if ensure not in config: config[ensure] = { }
 
 logfile = open("weakest_link.log", "w")
 def report(*msg):
@@ -56,8 +58,14 @@ def link(context, url, *, base="https://gsarchive.net/"):
 	match urlparse(uri):
 		case ParseResult(scheme="http", netloc="gsarchive.net"):
 			report("Non-encrypted link within site", context, url)
-		case ParseResult(scheme="http") as p:
+		case ParseResult(scheme="http") as p if p.netloc not in config["use_https"]:
 			report_once("http-" + p.netloc, "Non-encrypted link outside site", context, url)
+		case ParseResult(scheme="http") as p if config["use_https"][p.netloc]:
+			fix(url, uri._replace(scheme, "https").geturl(), context)
+		case ParseResult(scheme="https", netloc="www.gsarchive.net") as p:
+			# Links to www.gsarchive.net should definitely become relative
+			fix(url, p.path, context)
+			fn = p.path
 		case ParseResult(scheme="https", netloc="gsarchive.net") as p:
 			if url.startswith("https:"):
 				# The URL was stored absolute, which is inefficient and vulnerable to error
@@ -76,6 +84,7 @@ def link(context, url, *, base="https://gsarchive.net/"):
 	scanned[fn] = 1
 	if not os.path.exists(path_from_fn(fn)):
 		report("Internal link not found", context, url, fn)
+		return
 	base, dot, ext = fn.rpartition(".")
 	if not dot or ext in ("html", "htm"):
 		awaiting.append(fn)
