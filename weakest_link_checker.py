@@ -19,6 +19,8 @@ def handler(n):
 @handler("External link")
 @handler("Non-encrypted link outside site")
 def extlink(type, context, url, extra):
+	# Add rules here for known patterns
+	# TODO: http://www.cris.com/~oakapple/gasdisc/ --> http://www.gasdisc.oakapplepress.com/
 	if url in config["known_links"]: return
 	# Very very basic validation: if the server returns anything in the 200 range,
 	# it's fine. If anything in the 400 or 500 range, error.
