@@ -15,6 +15,7 @@
 #    a. <nothing here yet - cf "is it an elephant">
 #    b. Log the failure
 # 6. Progressively go through the log and add autofixers
+import json
 import os
 from urllib.parse import urlparse, urljoin, ParseResult
 from bs4 import BeautifulSoup
@@ -23,10 +24,14 @@ root = "/home/rosuav/gsarchive/live"
 scanned = { }
 awaiting = []
 logged = { }
+config = { }
+try:
+	with open("weakest_link.json") as f: config = json.load(f)
+except FileNotFoundError: pass
 
 logfile = open("weakest_link.log", "w")
 def report(*msg):
-	print(*msg, file=logfile)
+	print(json.dumps(msg), file=logfile)
 	print(*msg)
 
 def report_once(key, *msg):
@@ -35,7 +40,7 @@ def report_once(key, *msg):
 	report(*msg)
 
 def fix(oldurl, newurl, context):
-	report("In", context, "replace", oldurl, "with", newurl)
+	report("AUTOFIX", context, oldurl, newurl)
 
 def path_from_fn(fn):
 	path = root + fn
@@ -70,7 +75,7 @@ def link(context, url, *, base="https://gsarchive.net/"):
 	if fn in scanned: return
 	scanned[fn] = 1
 	if not os.path.exists(path_from_fn(fn)):
-		report("Internal link not found", context, url)
+		report("Internal link not found", context, url, fn)
 	base, dot, ext = fn.rpartition(".")
 	if not dot or ext in ("html", "htm"):
 		awaiting.append(fn)
