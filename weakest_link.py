@@ -15,6 +15,10 @@
 #    a. <nothing here yet - cf "is it an elephant">
 #    b. Log the failure
 # 6. Progressively go through the log and add autofixers
+# 7. Enumerate all files in the directory. If any file is not probed, list
+#    it. This will give a good indication of missing link detection (eg CSS
+#    references to images), and a list of potential destinations for broken
+#    links, which can be fuzzy-matched to suggest possible solutions.
 import json
 import os
 from urllib.parse import urlparse, urljoin, ParseResult
