@@ -15,6 +15,7 @@
 #    a. <nothing here yet - cf "is it an elephant">
 #    b. Log the failure
 # 6. Progressively go through the log and add autofixers
+import os
 from urllib.parse import urlparse, urljoin, ParseResult
 from bs4 import BeautifulSoup
 root = "/home/rosuav/gsarchive/live"
@@ -28,6 +29,13 @@ def report(*msg):
 
 def fix(oldurl, newurl, context):
 	report("In", context, "replace", oldurl, "with", newurl)
+
+def path_from_fn(fn):
+	path = root + fn
+	if path.endswith("/"):
+		# Directory names get handled by index files
+		path += "index.html" # Is this the only name available? If multiple, what priority order?
+	return path
 
 def link(context, url, *, base="https://gsarchive.net/"):
 	# Make the URL absolute
@@ -53,14 +61,15 @@ def link(context, url, *, base="https://gsarchive.net/"):
 	if not fn: return
 	if fn in scanned: return
 	scanned[fn] = 1
-	awaiting.append(fn)
+	if not os.path.exists(path_from_fn(fn)):
+		report("Internal link not found", context, url)
+	base, dot, ext = fn.rpartition(".")
+	if not dot or ext in ("html", "htm"):
+		awaiting.append(fn)
+	# Anything else we should be checking? Scan CSS files for references, maybe?
 
 def find_links(fn):
-	path = root + fn
-	if path.endswith("/"):
-		# Directory names get handled by index files
-		path += "index.html" # Is this the only name available? If multiple, what priority order?
-	with open(path, "rb") as f:
+	with open(path_from_fn(fn), "rb") as f:
 		soup = BeautifulSoup(f.read(), "html.parser")
 	print("Got soup")
 	for attr in "src", "href", "background":
