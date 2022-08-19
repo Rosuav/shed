@@ -2,7 +2,7 @@
 # 1. Starting with a given page, scan for all references
 #    <* href="..."> mainly <a> but also <link>
 #    <* src="..."> eg img, script, style
-#    Anything else?
+#    <* background="..."> for inline background image styles?
 # 2. If ref is external (http:// or https:// and not gsarchive.net), record
 #    the domain name in case there's a different sort of error. A separate
 #    pass to validate external links will be of value, but should be cached
@@ -31,7 +31,8 @@ def fix(oldurl, newurl, context):
 
 def link(context, url, *, base="https://gsarchive.net/"):
 	# Make the URL absolute
-	uri = urljoin(base, url)
+	print("Got link", context, url)
+	uri = urljoin(urljoin(base, context), url)
 	fn = None
 	match urlparse(uri):
 		case ParseResult(scheme="http", netloc="gsarchive.net"):
@@ -62,8 +63,11 @@ def find_links(fn):
 	with open(path, "rb") as f:
 		soup = BeautifulSoup(f.read(), "html.parser")
 	print("Got soup")
+	for attr in "src", "href", "background":
+		for elem in soup.find_all(attrs={attr: True}):
+			link(fn, elem.get(attr))
 
-link("", "/")
+link("/", "/")
 while awaiting:
 	fn = awaiting.pop()
 	print(fn, "...")
