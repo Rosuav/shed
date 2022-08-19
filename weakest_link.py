@@ -22,10 +22,17 @@ root = "/home/rosuav/gsarchive/live"
 
 scanned = { }
 awaiting = []
+logged = { }
 
+logfile = open("weakest_link.log", "w")
 def report(*msg):
-	# TODO: Log to file?
+	print(*msg, file=logfile)
 	print(*msg)
+
+def report_once(key, *msg):
+	if key in logged: return
+	logged[key] = 1
+	report(*msg)
 
 def fix(oldurl, newurl, context):
 	report("In", context, "replace", oldurl, "with", newurl)
@@ -39,21 +46,22 @@ def path_from_fn(fn):
 
 def link(context, url, *, base="https://gsarchive.net/"):
 	# Make the URL absolute
-	print("Got link", context, url)
 	uri = urljoin(urljoin(base, context), url)
 	fn = None
 	match urlparse(uri):
 		case ParseResult(scheme="http", netloc="gsarchive.net"):
 			report("Non-encrypted link within site", context, url)
-		case ParseResult(scheme="http"):
-			report("Non-encrypted link outside site", context, url)
+		case ParseResult(scheme="http") as p:
+			report_once("http-" + p.netloc, "Non-encrypted link outside site", context, url)
 		case ParseResult(scheme="https", netloc="gsarchive.net") as p:
 			if url.startswith("https:"):
 				# The URL was stored absolute, which is inefficient and vulnerable to error
-				fix(url, p.path)
+				fix(url, p.path, context)
 			fn = p.path
-		case ParseResult(scheme="https"):
-			report("External link", context, url)
+		case ParseResult(scheme="https") as p:
+			report_once("https-" + p.netloc, "External link", context, url)
+		case ParseResult(scheme="mailto") as p:
+			report_once("mailto-" + p.path, "Email link", context, url)
 		case ParseResult():
 			report("Non-HTTP link", context, url)
 		case _:
@@ -71,7 +79,6 @@ def link(context, url, *, base="https://gsarchive.net/"):
 def find_links(fn):
 	with open(path_from_fn(fn), "rb") as f:
 		soup = BeautifulSoup(f.read(), "html.parser")
-	print("Got soup")
 	for attr in "src", "href", "background":
 		for elem in soup.find_all(attrs={attr: True}):
 			link(fn, elem.get(attr))
