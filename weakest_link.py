@@ -58,10 +58,18 @@ def link(context, url, *, base="https://gsarchive.net/"):
 	match urlparse(uri):
 		case ParseResult(scheme="http", netloc="gsarchive.net"):
 			report("Non-encrypted link within site", context, url)
-		case ParseResult(scheme="http") as p if p.netloc not in config["use_https"]:
-			report_once("http-" + p.netloc, "Non-encrypted link outside site", context, url)
-		case ParseResult(scheme="http") as p if config["use_https"][p.netloc]:
-			fix(url, uri._replace(scheme, "https").geturl(), context)
+		case ParseResult(scheme="http") as p:
+			# Attempt to autoflip to HTTPS if possible (if we don't know, probe that);
+			# otherwise, it's an external link like any other.
+			match config["use_https"].get(p.netloc):
+				case None:
+					report_once("http-" + p.netloc, "Non-encrypted link outside site", context, url)
+				case True:
+					fix(url, p._replace(scheme="https").geturl(), context)
+				case False:
+					report_once("http-" + p.netloc, "External link", context, url)
+				case _:
+					report("BROKEN STATE", context, url)
 		case ParseResult(scheme="https", netloc="www.gsarchive.net") as p:
 			# Links to www.gsarchive.net should definitely become relative
 			fix(url, p.path, context)
