@@ -906,8 +906,10 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 				"name": L10n[cb->type] || cb->type,
 				"desc": L10n[cb->type + "_desc"] || cb->type + "_desc",
 			]);
-			mapping typeinfo = cb_types[cb->type];
-			mapping wargoal = wargoal_types[typeinfo->war_goal];
+			//These may be null (and thus empty mappings) if the war goal comes from a mod
+			//or other alteration, and thus cannot be found in the core data files.
+			mapping typeinfo = cb_types[cb->type] || ([]);
+			mapping wargoal = wargoal_types[typeinfo->war_goal] || ([]);
 			if (typeinfo->attacker_disabled_po) ty->restricted = "Some peace offers disabled";
 			else if (wargoal->allowed_provinces_are_eligible) ty->restricted = "Province selection is restricted";
 			foreach (({"badboy", "prestige", "peace_cost"}), string key) ty[key] = (array(float))({
