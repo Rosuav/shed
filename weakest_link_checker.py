@@ -65,6 +65,7 @@ try:
 			if not line: continue
 			type, context, url, *extra = json.loads(line)
 			if type in handlers: handlers[type](type, context, url, extra)
+except KeyboardInterrupt: pass # Halting should be safe any time
 finally:
 	# Always save the configs, even if we bomb with an error
 	with open("weakest_link.json", "w") as f:
