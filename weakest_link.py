@@ -95,6 +95,8 @@ def link(context, url, *, base="https://gsarchive.net/"):
 			report_once("https-" + p.netloc, "External link", context, url)
 		case ParseResult(scheme="mailto") as p:
 			report_once("mailto-" + p.path, "Email link", context, url)
+		case ParseResult(scheme="javascript") | ParseResult(scheme="JAVASCRIPT") as p:
+			pass # For now. Later, I want to rework a bunch of the JS links. At very least, "javascript:" should be lowercased.
 		case ParseResult(scheme="file") as p:
 			report("Local file link", context, url)
 		case ParseResult():
