@@ -1,5 +1,7 @@
 # Read the log created by weakest_link.py and enhance the configs
 import json
+import re
+import os
 import urllib.parse
 import requests
 config = { }
@@ -52,6 +54,30 @@ def extlink(type, context, url, extra):
 	if not r.ok:
 		print("** Broken external link **")
 		print(r)
+
+@handler("AUTOFIX")
+def autofix(type, context, url, extra):
+	# Some errors can be fixed automatically.
+	# Go through the file, find all references to 'url', replace with extra[0].
+	print("FIX", context, url, extra[0])
+	if context.endswith("/"): return
+	root = "/home/rosuav/gsarchive/live"
+	mangled = root + "/backups/" + context.replace("/", "_")
+	if not os.path.exists(mangled): os.rename(root + context, mangled)
+	from bs4 import BeautifulSoup
+	with open(mangled, "rb") as f:
+		soup = BeautifulSoup(f.read(), "html.parser")
+	for attr in "src", "href", "background":
+		for elem in soup.find_all(attrs={attr: url}):
+			elem[attr] = extra[0]
+	with open(root + context, "wb") as f:
+		# Note: Using the HTML5 formatter with HTML4 Transitional documents (as many
+		# of these files are) may cause oddities. Ultimately, we should just move to
+		# all HTML5 files anyway, at which point it won't matter; in the meantime,
+		# there may be some quirks with odd attributes. This is why we have backups.
+		# (Anyway, the files seem to use HTML5 style booleans already, so it's not
+		# going to be any worse.)
+		f.write(soup.encode(formatter="html5"))
 
 @handler("Internal link not found")
 def intlink(type, context, url, extra):
