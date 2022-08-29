@@ -21,7 +21,8 @@
 #    links, which can be fuzzy-matched to suggest possible solutions.
 import json
 import os
-from urllib.parse import urlparse, urljoin, ParseResult
+import re
+from urllib.parse import urlparse, urljoin, unquote, ParseResult
 from bs4 import BeautifulSoup
 root = "/home/rosuav/gsarchive/live"
 
@@ -57,7 +58,7 @@ def fix(oldurl, newurl, context):
 	report("AUTOFIX", context, oldurl, newurl)
 
 def path_from_fn(fn):
-	path = root + fn
+	path = root + unquote(fn)
 	if path.endswith("/"):
 		# Directory names get handled by index files
 		path += "index.html" # Is this the only name available? If multiple, what priority order?
@@ -96,7 +97,14 @@ def link(context, url, *, base="https://gsarchive.net/"):
 		case ParseResult(scheme="mailto") as p:
 			report_once("mailto-" + p.path, "Email link", context, url)
 		case ParseResult(scheme="javascript") | ParseResult(scheme="JAVASCRIPT") as p:
-			pass # For now. Later, I want to rework a bunch of the JS links. At very least, "javascript:" should be lowercased.
+			# Some JS links open files, which in a sense means they can be referenced.
+			# TODO: Convert these so their hrefs point to the pages, and then have onclicks to open the popup
+			# I don't feel like fetching up a full JavaScript lexer here, so I'm going to
+			# assume that the majority of these follow a strict format, and any that don't
+			# parse will get logged.
+			m = re.match(p.path, "openPopWin('([^']+)',")
+			if m: fn = m[1]
+			else: report("JavaScript link", context, url)
 		case ParseResult(scheme="file") as p:
 			report("Local file link", context, url)
 		case ParseResult():
