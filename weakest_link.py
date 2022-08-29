@@ -102,8 +102,8 @@ def link(context, url, *, base="https://gsarchive.net/"):
 			# I don't feel like fetching up a full JavaScript lexer here, so I'm going to
 			# assume that the majority of these follow a strict format, and any that don't
 			# parse will get logged.
-			m = re.match(p.path, "openPopWin('([^']+)',")
-			if m: fn = m[1]
+			m = re.match("openPop(Win|Img)\('([^']+)',", p.path)
+			if m: fn = m[2]
 			else: report("JavaScript link", context, url)
 		case ParseResult(scheme="file") as p:
 			report("Local file link", context, url)
