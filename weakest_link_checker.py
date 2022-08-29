@@ -11,6 +11,8 @@ except FileNotFoundError: pass
 for ensure in "redirects", "use_https", "known_links":
 	if ensure not in config: config[ensure] = { }
 
+root = "/home/rosuav/gsarchive/live"
+
 handlers = { }
 def handler(n):
 	def wrapper(f):
@@ -55,18 +57,22 @@ def extlink(type, context, url, extra):
 		print("** Broken external link **")
 		print(r)
 
+soup_catcher = { }
+
 @handler("AUTOFIX")
 def autofix(type, context, url, extra):
 	# Some errors can be fixed automatically.
 	# Go through the file, find all references to 'url', replace with extra[0].
 	print("FIX", context, url, extra[0])
 	if context.endswith("/"): return
-	root = "/home/rosuav/gsarchive/live"
 	mangled = root + "/backups/" + context.replace("/", "_")
 	if not os.path.exists(mangled): os.rename(root + context, mangled)
 	from bs4 import BeautifulSoup
-	with open(mangled, "rb") as f:
-		soup = BeautifulSoup(f.read(), "html.parser")
+	if mangled in soup_catcher:
+		soup = soup_catcher[mangled]
+	else:
+		with open(mangled, "rb") as f:
+			soup = soup_catcher[mangled] = BeautifulSoup(f.read(), "html.parser")
 	for attr in "src", "href", "background":
 		for elem in soup.find_all(attrs={attr: url}):
 			elem[attr] = extra[0]
@@ -83,7 +89,11 @@ def autofix(type, context, url, extra):
 def intlink(type, context, url, extra):
 	# Some broken internal links follow known patterns
 	# Add rules here that will turn these into autofixables
-	pass
+
+	if context == "/books/index.html":
+		# A bunch of falsely relative links are better handled from perf_grps.
+		fixed = "/html/perf_grps/websites/" + url.removeprefix("/books/")
+		if os.path.exists(root + fixed): autofix(type, context, url, [fixed])
 
 try:
 	with open("weakest_link.log") as log:
