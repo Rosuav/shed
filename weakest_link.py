@@ -136,8 +136,8 @@ while awaiting:
 	print("[%d%% scanned]" % (100 - len(unscanned) * 100 // unscanned_count), fn, "...")
 	find_links(fn)
 
-print(len(unscanned), "out of", unscanned_count, "still unscanned")
-
 # Any unscanned files get logged.
 for fn in sorted(unscanned):
 	report("Unscanned file", "/", fn)
+
+print(len(unscanned), "out of", unscanned_count, "still unscanned")
