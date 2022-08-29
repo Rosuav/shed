@@ -26,6 +26,7 @@ from bs4 import BeautifulSoup
 root = "/home/rosuav/gsarchive/live"
 
 scanned = { }
+unscanned = set()
 awaiting = []
 logged = { }
 config = { }
@@ -34,6 +35,13 @@ try:
 except FileNotFoundError: pass
 for ensure in "redirects", "use_https", "known_links": # Match weakest_link_checker
 	if ensure not in config: config[ensure] = { }
+try:
+	# Build this file on the server for performance
+	# find -type f|cut -c3-|grep -v '^backups/' >backups/all_files.txt
+	with open(root + "/backups/all_files.txt") as f:
+		unscanned = {"/" + line.strip() for line in f}
+except FileNotFoundError: pass
+unscanned_count = len(unscanned) # Progress is achieved by shrinking the set
 
 logfile = open("weakest_link.log", "w")
 def report(*msg):
@@ -99,6 +107,7 @@ def link(context, url, *, base="https://gsarchive.net/"):
 	if not fn: return
 	if fn in scanned: return
 	scanned[fn] = 1
+	unscanned.discard(fn)
 	if not os.path.exists(path_from_fn(fn)):
 		report("Internal link not found", context, url, fn)
 		return
@@ -117,5 +126,11 @@ def find_links(fn):
 link("/", "/")
 while awaiting:
 	fn = awaiting.pop()
-	print(fn, "...")
+	print("[%d%% scanned]" % (100 - len(unscanned) * 100 // unscanned_count), fn, "...")
 	find_links(fn)
+
+print(len(unscanned), "out of", unscanned_count, "still unscanned")
+
+# Any unscanned files get logged.
+for fn in sorted(unscanned):
+	report("Unscanned file", "/", fn)
