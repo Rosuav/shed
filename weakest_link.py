@@ -96,10 +96,7 @@ def link(context, url, *, base="https://gsarchive.net/"):
 		case ParseResult(scheme="mailto") as p:
 			report_once("mailto-" + p.path, "Email link", context, url)
 		case ParseResult(scheme="file") as p:
-			if p.path.startswith("/C:/Users/User/Desktop/G&S%20Archive/"):
-				fix(url, p.path.replace("/C:/Users/User/Desktop/G&S%20Archive", ""), context)
-			else:
-				report("Local file link", context, url)
+			report("Local file link", context, url)
 		case ParseResult():
 			report("Non-HTTP link", context, url)
 		case _:

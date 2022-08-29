@@ -95,6 +95,11 @@ def intlink(type, context, url, extra):
 		fixed = "/html/perf_grps/websites/" + url.removeprefix("/books/")
 		if os.path.exists(root + fixed): autofix(type, context, url, [fixed])
 
+@handler("Local file link")
+def locallink(type, context, url, extra):
+	for base in "file:///C|/Documents and Settings/Paul/Desktop", "file:///C:/Users/User/Desktop/G&S%20Archive":
+		if url.startswith(base):
+			autofix(type, context, url, [url.removeprefix(base)])
 try:
 	with open("weakest_link.log") as log:
 		for line in log:
