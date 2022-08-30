@@ -95,6 +95,15 @@ def intlink(type, context, url, extra):
 		fixed = "/html/perf_grps/websites/" + url.removeprefix("/books/")
 		if os.path.exists(root + fixed): autofix(type, context, url, [fixed])
 
+	if context.startswith("/AMT/") and url.endswith(".mid"):
+		# Quite a few of the /AMT pages have their MIDIs in midis/ but link to
+		# the same name as the base again eg papasdarling/ppd14.mid
+		path, slash, fn = url.rpartition("/")
+		if slash and slash not in path and path in context:
+			# Looks plausible. Let's see if the file exists.
+			fixed = "midi/" + fn
+			if os.path.exists(root + fixed): autofix(type, context, url, [fixed])
+
 @handler("Local file link")
 def locallink(type, context, url, extra):
 	for base in "file:///C|/Documents and Settings/Paul/Desktop", "file:///C:/Users/User/Desktop/G&S%20Archive":

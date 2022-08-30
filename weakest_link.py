@@ -43,6 +43,13 @@ try:
 		unscanned = {"/" + line.strip() for line in f}
 except FileNotFoundError: pass
 unscanned_count = len(unscanned) # Progress is achieved by shrinking the set
+# Links to these borked files are potentially a problem. Trace them.
+borked = {
+	"/html/perf_grps/websites/gb/index.html",
+	"/carte/index.html",
+	"/html/raywalker/faqs.html",
+	"/html/shop_files/faqs.html",
+}
 
 logfile = open("weakest_link.log", "w")
 def report(*msg):
@@ -85,6 +92,8 @@ def link(context, url, *, base="https://gsarchive.net/"):
 					report("BROKEN STATE", context, url)
 		case ParseResult(scheme="https", netloc="www.gsarchive.net") as p:
 			# Links to www.gsarchive.net should definitely become relative
+			# There are a handful of borked files that I need to back-trace.
+			if p.path in borked: report("Link to borked file", context, url)
 			fix(url, p.path, context)
 			fn = p.path
 		case ParseResult(scheme="https", netloc="gsarchive.net") as p:
@@ -102,8 +111,9 @@ def link(context, url, *, base="https://gsarchive.net/"):
 			# I don't feel like fetching up a full JavaScript lexer here, so I'm going to
 			# assume that the majority of these follow a strict format, and any that don't
 			# parse will get logged.
-			m = re.match("openPop(Win|Img)\('([^']+)',", p.path)
+			m = re.match("openPop(Win|Img)\\(['\"]([^'\"]+)['\"],", p.path)
 			if m: fn = urlparse(urljoin(urljoin(base, context), m[2])).path
+			elif p.path == ";": pass # TODO: Get rid of unnecessary empty JS links?
 			else: report("JavaScript link", context, url)
 		case ParseResult(scheme="file") as p:
 			report("Local file link", context, url)
@@ -133,7 +143,7 @@ def find_links(fn):
 link("/", "/")
 while awaiting:
 	fn = awaiting.pop()
-	print("[%d%% scanned]" % (100 - len(unscanned) * 100 // unscanned_count), fn, "...")
+	print("[%d%% scanned, %d queued]" % (100 - len(unscanned) * 100 // unscanned_count, len(awaiting)), fn, "...")
 	find_links(fn)
 
 # Any unscanned files get logged.
