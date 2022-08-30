@@ -71,7 +71,7 @@ def autofix(type, context, url, extra):
 	if mangled in soup_catcher:
 		soup = soup_catcher[mangled]
 	else:
-		with open(mangled, "rb") as f:
+		with open(root + context, "rb") as f:
 			soup = soup_catcher[mangled] = BeautifulSoup(f.read(), "html.parser")
 	for attr in "src", "href", "background":
 		for elem in soup.find_all(attrs={attr: url}):
@@ -89,24 +89,35 @@ def autofix(type, context, url, extra):
 def intlink(type, context, url, extra):
 	# Some broken internal links follow known patterns
 	# Add rules here that will turn these into autofixables
+	fixed = None
 
 	if context == "/books/index.html":
 		# A bunch of falsely relative links are better handled from perf_grps.
 		fixed = "/html/perf_grps/websites/" + url.removeprefix("/books/")
-		if os.path.exists(root + fixed): autofix(type, context, url, [fixed])
 
-	if context.startswith("/AMT/") and url.endswith(".mid"):
+	elif context.startswith("/AMT/") and url.endswith(".mid"):
 		# Quite a few of the /AMT pages have their MIDIs in midis/ but link to
 		# the same name as the base again eg papasdarling/ppd14.mid
 		path, slash, fn = url.rpartition("/")
 		if slash and slash not in path and path in context:
 			# Looks plausible. Let's see if the file exists.
 			fixed = "midi/" + fn
-			if os.path.exists(root + fixed): autofix(type, context, url, [fixed])
+
+	elif "\\" in url:
+		# Some URLs have been written with the wrong slash in them.
+		fixed = url.replace("\\", "/")
+
+	if not fixed: return # Sometimes a thing gets broke, can't be fixed.
+	# But if it can, and if the file exists (this only fixes internal links), go for it.
+	if os.path.exists(root + urllib.parse.urljoin(context, fixed)):
+		autofix(type, context, url, [fixed])
 
 @handler("Local file link")
 def locallink(type, context, url, extra):
-	for base in "file:///C|/Documents and Settings/Paul/Desktop", "file:///C:/Users/User/Desktop/G&S%20Archive":
+	for base in ("file:///C|/Documents and Settings/Paul/Desktop",
+			"file:///C:/Documents%20and%20Settings/Paul/Desktop/G&S%20Archive",
+			"file:///C:/Users/User/Desktop/Archive%20Working/Colins%20Site",
+			"file:///C:/Users/User/Desktop/G&S%20Archive"):
 		if url.startswith(base):
 			autofix(type, context, url, [url.removeprefix(base)])
 try:
