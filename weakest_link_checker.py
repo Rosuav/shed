@@ -66,13 +66,13 @@ def autofix(type, context, url, extra):
 	print("FIX", context, url, extra[0])
 	if context.endswith("/"): return
 	mangled = root + "/backups/" + context.replace("/", "_")
-	if not os.path.exists(mangled): os.rename(root + context, mangled)
 	from bs4 import BeautifulSoup
 	if mangled in soup_catcher:
 		soup = soup_catcher[mangled]
 	else:
 		with open(root + context, "rb") as f:
 			soup = soup_catcher[mangled] = BeautifulSoup(f.read(), "html.parser")
+		if not os.path.exists(mangled): os.rename(root + context, mangled)
 	for attr in "src", "href", "background":
 		for elem in soup.find_all(attrs={attr: url}):
 			elem[attr] = extra[0]
@@ -117,6 +117,7 @@ def locallink(type, context, url, extra):
 	for base in ("file:///C|/Documents and Settings/Paul/Desktop",
 			"file:///C:/Documents%20and%20Settings/Paul/Desktop/G&S%20Archive",
 			"file:///C:/Users/User/Desktop/Archive%20Working/Colins%20Site",
+			"file:///C:/Users/User/Desktop/Archive Working/Colins Site",
 			"file:///C:/Users/User/Desktop/G&S%20Archive"):
 		if url.startswith(base):
 			autofix(type, context, url, [url.removeprefix(base)])

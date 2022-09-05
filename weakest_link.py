@@ -76,8 +76,9 @@ def link(context, url, *, base="https://gsarchive.net/"):
 	uri = urljoin(urljoin(base, context), url)
 	fn = None
 	match urlparse(uri):
-		case ParseResult(scheme="http", netloc="gsarchive.net"):
-			report("Non-encrypted link within site", context, url)
+		case ParseResult(scheme="http", netloc="gsarchive.net") as p:
+			fix(url, p.path, context)
+			fn = p.path
 		case ParseResult(scheme="http") as p:
 			# Attempt to autoflip to HTTPS if possible (if we don't know, probe that);
 			# otherwise, it's an external link like any other.
@@ -87,13 +88,12 @@ def link(context, url, *, base="https://gsarchive.net/"):
 				case True:
 					fix(url, p._replace(scheme="https").geturl(), context)
 				case False:
-					report_once("http-" + p.netloc, "External link", context, url)
+					if p.netloc not in config["known_links"]:
+						report_once("http-" + p.netloc, "External link", context, url)
 				case _:
 					report("BROKEN STATE", context, url)
 		case ParseResult(scheme="https", netloc="www.gsarchive.net") as p:
 			# Links to www.gsarchive.net should definitely become relative
-			# There are a handful of borked files that I need to back-trace.
-			if p.path in borked: report("Link to borked file", context, url)
 			fix(url, p.path, context)
 			fn = p.path
 		case ParseResult(scheme="https", netloc="gsarchive.net") as p:
@@ -102,7 +102,8 @@ def link(context, url, *, base="https://gsarchive.net/"):
 				fix(url, p.path, context)
 			fn = p.path
 		case ParseResult(scheme="https") as p:
-			report_once("https-" + p.netloc, "External link", context, url)
+			if p.netloc not in config["known_links"]:
+				report_once("https-" + p.netloc, "External link", context, url)
 		case ParseResult(scheme="mailto") as p:
 			report_once("mailto-" + p.path, "Email link", context, url)
 		case ParseResult(scheme="javascript") | ParseResult(scheme="JAVASCRIPT") as p:
@@ -113,7 +114,9 @@ def link(context, url, *, base="https://gsarchive.net/"):
 			# parse will get logged.
 			m = re.match("openPop(Win|Img)\\(['\"]([^'\"]+)['\"],", p.path)
 			if m: fn = urlparse(urljoin(urljoin(base, context), m[2])).path
+			elif p.path == "popUp('sc3note.html')": fn = "/gilbert/plays/ruy_blas/sc3note.html" # Of course there's one that's different. Naturally.
 			elif p.path == ";": pass # TODO: Get rid of unnecessary empty JS links?
+			elif p.path == "window.close()": pass # TODO: Should these be done differently too?
 			else: report("JavaScript link", context, url)
 		case ParseResult(scheme="file") as p:
 			report("Local file link", context, url)
@@ -122,6 +125,8 @@ def link(context, url, *, base="https://gsarchive.net/"):
 		case _:
 			report("Unparseable link", context, url)
 	if not fn: return
+	# There are a handful of borked files that I need to back-trace.
+	if fn in borked: report("Link to borked file", context, url)
 	if fn in scanned: return
 	scanned[fn] = 1
 	unscanned.discard(fn)
@@ -138,6 +143,8 @@ def find_links(fn):
 		soup = BeautifulSoup(f.read(), "html.parser")
 	for attr in "src", "href", "background":
 		for elem in soup.find_all(attrs={attr: True}):
+			if elem.name == "a" and not elem.text and not list(elem.children):
+				report("Empty anchor", fn, elem.get(attr))
 			link(fn, elem.get(attr))
 
 link("/", "/")
