@@ -713,6 +713,7 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	if (!us->has_capital && us->has_trader && !us->type) potential_power *= 2;
 	potential_power += threeplace(us->t_in); //Anyone transferring trade power to us
 	int steer_amount = total_value * potential_power / (potential_power + foreign_power);
+	//FIXME: Trade Steering bonuses affect the trade power calculations. Which parts?
 	//TODO: Check the impact of Collecting outside of Home w/ transferred trade power. Does the transfer get halved too? (Probably.)
 	int collection_amount = total_value * potential_power / 2 / (potential_power / 2 + foreign_power);
 	//Note that the collection amount won't be half the steer amount, although if you're
