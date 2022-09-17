@@ -679,9 +679,9 @@ int(0..1) passes_filter(mapping country, mapping|array filter, int|void any) {
 }
 
 mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string node) {
-	//Analyze one trade node and estimate the yield from collecting from trade, or for
-	//transferring; if transferring, will show only the one best, and (if any and not
-	//the best) the current destination. Note that this function should only be called
+	//Analyze one trade node and estimate the yield from transferring trade. Assumes
+	//that the only place you collect is your home node and you transfer everything
+	//else in from all other nodes. Note that this function should only be called
 	//on a node when all of its outgoing nodes have already been processed; this is
 	//assured by the use of tradenode_upstream_order, which guarantees never to move
 	//downstream (but is otherwise order-independent).
