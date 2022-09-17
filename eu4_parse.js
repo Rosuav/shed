@@ -185,6 +185,17 @@ section("trade_nodes", "Trade nodes", state => [
 	SUMMARY("Trade nodes"),
 	DETAILS([SUMMARY("Explanatory notes"), UL([
 		LI([
+			"This tool assumes that you collect ONLY in your home trade node, and in all other nodes, transfer trade ",
+			"towards your home. It attempts to maximize the profit in such a situation, but does not take into account ",
+			"the impact on your neighbours; you may consider it beneficial to wrest trade value from your rivals, while ",
+			"avoiding impairing your allies and subjects, but that is outside the scope of this tool.",
+		]),
+		LI([
+			"During war, these stats may be inaccurate due to the inherent limitations of savefile reading. Besieged and ",
+			"occupied provinces have trade power penalties, making these estimates less accurate (both directions, if you ",
+			"occupy other nations' lands). Make peace before depending on these figures.",
+		]),
+		LI([
 			"Your share - if the trade in this node is increased by 1 ducat/month, how much would you gain? Includes ",
 			"all downstream profit, but does not factor in trade efficiency bonuses, which apply to your entire empire.",
 		]),
@@ -192,12 +203,6 @@ section("trade_nodes", "Trade nodes", state => [
 			"Transfer? - This column says what would be gained by the optimal Transfer Trade Power choice, and says the ",
 			"node to which you should be transferring (which is probably the same one the game will pick by default). ",
 			"It can be assumed that other transfer destinations are less profitable, and thus uninteresting.",
-		]),
-		LI([
-			"Collect? - This predicts how much you would gain by Collect From Trade in this node. Be aware that having ",
-			"ANY merchant collecting at any node away from your home will cause you to lose a significant home-node ",
-			"trade power bonus. It may be necessary to test this out in-game, as the prediction algorithm does not ",
-			"take this into account.",
 		]),
 		LI([
 			"Passive - Your home node will always collect from trade, even without a trader; you cannot transfer trade ",

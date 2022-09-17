@@ -689,35 +689,63 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	mapping us = here[tag], defn = tradenode_definitions[node];
 	//Note that all trade power values here are sent to the client in fixed-place format.
 
+	//Total trade value in the node, equivalent to what is shown in-game as "Incoming" and "Local"
+	//This is also the sum of "Outgoing" and "Retained" (called "Total" in some places). Note that
+	//the outgoing value will be increased by trade steering bonuses before it arrives, but the
+	//value we see in this node is before the increase.
 	int total_value = threeplace(here->local_value) + `+(0, @threeplace(Array.arrayify(here->incoming)->value[*]));
-	int our_trade_power = threeplace(us->val) + threeplace(us->t_in); //Our trade power includes all current modifiers, but not transfers
 
-	//Predict the value of collecting from trade here. This isn't the main purpose of this tool,
-	//as you can sort trade nodes by collection value in-game, but (a) it's a good confirmation,
-	//and (b) it gives a baseline from which to calculate the value of transferring trade power.
-	//Calculate your trade power, or what you would have if you had a merchant here.
-	int foreign_power = threeplace(here->total) - our_trade_power;
+	//From here on, we broadly replicate the calculations done in-game, but forked into
+	//"passive" and "active", with three possibilities:
+	//1) In your home node (where your main trading city is), you have the option to
+	//   collect, or not collect. "Passive" and "Active" are the effect of passively
+	//   collecting (which only happens in your home node) vs having a merchant there.
+	//2) If you are currently collecting from trade, "passive" is your current collection
+	//   and "active" is a placeholder with a marker to show that calculations are not
+	//   accurate here. This tool does not handle this case.
+	//3) Otherwise, "passive" is where the trade goes if you have no merchant, and "active"
+	//   is where it goes if you have one steering in the best possible direction. Note
+	//   that "best" can change across the course of the game, eg if you gain a lot of the
+	//   trade power in a particular downstream node.
+	//To assist with these calculations, we calculate, for every trade node, its "yield"
+	//value. This is the number of monthly ducats that you gain per trade value in the node
+	//(and can be above 1, esp if you have trade efficiency bonuses). Steering trade to a
+	//high-yield node benefits your balance sheet more than steering to a low-yield node.
+	//Note that the *true* comparison is always between passive and active, however, which
+	//can mean that trade value and trade power themselves do not tell you where it's worth
+	//transferring. For instance, Valencia has only one downstream, so the passive transfer
+	//can only go that direction; but Tunis has three. If you collect in Genoa, your trade
+	//power in Sevilla and Valencia will affect the impact a merchant in Tunis has, but the
+	//impact of a Valencia merchant is affected only by your trade power in Valencia itself.
+	//This sounds involved. It is (sorry Blanche), but it's right enough.
+
 	int potential_power = threeplace(us->max_pow);
 	int power_modifiers = threeplace(us->max_demand); //max_demand sums all your current bonuses and penalties
-	if (!us->has_trader) {
-		//If you send a merchant here, it adds 2 trade power, and with the
-		//default "Maximize Profit" trading policy, 5%.
-		//TODO: If Cradle of Civ isn't active, what happens? Most likely, no
-		//trade policy means no 5% bonus, meaning that having a merchant
-		//gives strictly less benefit.
-		potential_power += 2000;
-		power_modifiers += 50;
+	if (us->has_trader) {
+		//Remove the effects of the merchant so we get a baseline.
+		potential_power -= 2000; //FIXME: Also factor in placed_merchant_power
+		power_modifiers -= 50; //FIXME: What if you have a different policy?
+		//trade_efficiency -= 100; //FIXME: Collecting in home node gives 10% bonus
 	}
-	potential_power = potential_power * power_modifiers / 1000;
-	//Collecting outside of home node halves trade power, and is factored into max_demand. Undo that for predictive purposes.
-	if (!us->has_capital && us->has_trader && !us->type) potential_power *= 2;
-	potential_power += threeplace(us->t_in); //Anyone transferring trade power to us
+	//Your final trade power is the total trade power modified by all percentage effects,
+	//and then transferred-in trade power is added on afterwards (it isn't modified).
+	//TODO: Calculate the effect of transferred-OUT trade power.
+	int our_trade_power = potential_power * power_modifiers / 1000 + threeplace(us->t_in);
+
+	if (us->has_capital) {
+		//This node is where our main trade city is. (The attribute says "capital", but
+		//with the Wealth of Nations DLC, you can move your main trade city independently
+		//of your capital. We only care about trade here.) You can collect passively or
+		//have a merchant collecting, but you can never transfer trade away.
+		int active_power = (potential_power + 2000) * (power_modifiers + 50) / 1000 + threeplace(us->t_in);
+		//FIXME: Trade efficiency bonus
+	}
+	else if (us->has_trader && !us->type) {
+		//TODO: Report "collecting outside of home node"
+	}
+
+	int foreign_power = threeplace(here->total) - threeplace(us->val);
 	int steer_amount = total_value * potential_power / (potential_power + foreign_power);
-	//FIXME: Trade Steering bonuses affect the trade power calculations. Which parts?
-	//TODO: Check the impact of Collecting outside of Home w/ transferred trade power. Does the transfer get halved too? (Probably.)
-	int collection_amount = total_value * potential_power / 2 / (potential_power / 2 + foreign_power);
-	//Note that the collection amount won't be half the steer amount, although if you're
-	//a minor player in a valuable node, it will be within rounding error of that.
 	int trade_efficiency = data->countries[tag]->all_country_modifiers->trade_efficiency;
 	int collection_income = collection_amount * (1100 + trade_efficiency) / 1000; //Collecting with a merchant gives a 10% efficiency bonus.
 
