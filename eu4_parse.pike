@@ -310,6 +310,7 @@ mapping trade_goods, country_modifiers, age_definitions, tech_definitions, insti
 mapping cot_definitions, state_edicts, terrain_definitions, imperial_reforms;
 mapping cb_types, wargoal_types, estate_agendas, country_decisions, country_missions;
 mapping tradenode_definitions; array tradenode_upstream_order;
+mapping advisor_definitions;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -420,6 +421,23 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 			_incorporate(data, modifiers, String.capitalize(opinion) + " " + L10n[estate->type], estate_defn["country_modifier_" + opinion], mul, 4);
 			estate->estimated_milliinfluence = influence;
 		}
+	}
+	//To figure out what advisors you have hired, we first need to find all advisors.
+	//They're not listed in country details; they're listed in the provinces that they
+	//came from. So we first have to find all available advisors.
+	mapping advisors = ([]);
+	foreach (country->owned_provinces, string id) {
+		mapping prov = data->provinces["-" + id];
+		foreach (prov->history;; mixed infoset) foreach (Array.arrayify(infoset), mixed info) {
+			if (!mappingp(info)) continue; //Some info in history is just strings or booleans
+			if (info->advisor) advisors[info->advisor->id->id] = info->advisor;
+		}
+		if (prov->history->advisor) advisors[prov->history->advisor->id->id] = prov->history->advisor;
+	}
+	foreach (Array.arrayify(country->advisor), mapping adv) {
+		adv = advisors[adv->id]; if (!adv) continue;
+		mapping type = advisor_definitions[adv->type];
+		_incorporate(data, modifiers, L10N(adv->type) + " (" + adv->name + ")", type);
 	}
 	return country->all_country_modifiers = modifiers;
 }
@@ -2446,6 +2464,7 @@ int main(int argc, array(string) argv) {
 	//estate_agendas = parse_config_dir(PROGRAM_PATH + "/common/estate_agendas"); //Not currently in use
 	country_decisions = parse_config_dir(PROGRAM_PATH + "/decisions", "country_decisions");
 	country_missions = parse_config_dir(PROGRAM_PATH + "/missions");
+	advisor_definitions = parse_config_dir(PROGRAM_PATH + "/common/advisortypes");
 	retain_map_indices = 1;
 	tradenode_definitions = parse_config_dir(PROGRAM_PATH + "/common/tradenodes");
 	retain_map_indices = 0;
