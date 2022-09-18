@@ -311,7 +311,6 @@ array(mapping) enumerate_ideas(mapping idea_groups) {
 //Gather ALL a country's modifiers. Or, try to. Note that conditional modifiers aren't included.
 void _incorporate(mapping data, mapping modifiers, string source, mapping effect, int|void mul, int|void div) {
 	if (effect) foreach (effect; string id; mixed val) {
-		//if (id == "trade_efficiency") werror("TRADE EFF PART %O %O\n", source, effect);
 		if ((id == "modifier" || id == "modifiers") && mappingp(val)) _incorporate(data, modifiers, source, val, mul, div);
 		if (id == "conditional" && mappingp(val)) {
 			//Conditional attributes. We understand a very limited set of them here.
@@ -324,15 +323,17 @@ void _incorporate(mapping data, mapping modifiers, string source, mapping effect
 			if (ok) _incorporate(data, modifiers, source, val, mul, div);
 		}
 		if (id == "custom_attributes") _incorporate(data, modifiers, source, val, mul, div); //Government reforms have some special modifiers. It's easiest to count them as country modifiers.
+		int effect = 0;
 		if (stringp(val) && sscanf(val, "%[-]%d%*[.]%[0-9]%s", string sign, int whole, string frac, string blank) && blank == "")
-			modifiers[id] += (sign == "-" ? -1 : 1) * (whole * 1000 + (int)sprintf("%.03s", frac + "000")) * (mul||1) / (div||1);
-		if (intp(val) && val == 1) modifiers[id] = 1; //Boolean
+			modifiers[id] += effect = (sign == "-" ? -1 : 1) * (whole * 1000 + (int)sprintf("%.03s", frac + "000")) * (mul||1) / (div||1);
+		if (intp(val) && val == 1) modifiers[id] = effect = 1; //Boolean
+		if (effect) modifiers->_sources[id] += ({source + ": " + effect});
 	}
 }
 mapping estate_definitions = ([]), estate_privilege_definitions = ([]);
 mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	if (mapping cached = country->all_country_modifiers) return cached;
-	mapping modifiers = ([]);
+	mapping modifiers = (["_sources": ([])]);
 	//TODO: Add more things here as they get analyzed
 	foreach (enumerate_ideas(country->active_idea_groups), mapping idea) _incorporate(data, modifiers, "Ideas", idea);
 	foreach (Array.arrayify(country->active_policy), mapping policy)
@@ -410,7 +411,7 @@ mapping(string:int) all_province_modifiers(mapping data, int id) {
 	mapping prov = data->provinces["-" + id];
 	if (mapping cached = prov->all_province_modifiers) return cached;
 	mapping country = data->countries[prov->owner];
-	mapping modifiers = ([]);
+	mapping modifiers = (["_sources": ([])]);
 	if (prov->center_of_trade) {
 		string type = province_info[(string)id]->?has_port ? "coastal" : "inland";
 		mapping cot = cot_definitions[type + prov->center_of_trade];
