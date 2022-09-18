@@ -12,6 +12,6 @@ def search(node, term, path):
 		return
 	else: return
 	for k, v in items:
-		search(v, term, path + (k,))
+		search(v, term, path + (str(k),))
 
 search(data, sys.argv[1], ())
