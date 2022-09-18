@@ -9,6 +9,18 @@ synchronized. In practice, not a problem, since the client selects the group any
 */
 //TODO: Background service to do the key sending. See example systemd script in my cfgsystemd.
 
+/* TODO: Support mods.
+The save file includes data->mods_enabled_names which lists the descriptive names and file names.
+Simple fix: Preload on startup, cache the last-used-mod-list in eu4_parse.json, and if the save
+doesn't have the same set, die.
+Better fix: Isolate all the global state from the socket connections and, instead of dying, keep
+the sockets and reload all the definitions. Might also allow connections earlier, fwiw.
+
+May end up switching all definition loading to parse_config_dir even if there's normally only the
+one file, since it makes mod handling easier. Will need to handle a replace_path block in the mod
+definition, possibly also a dependencies block. See: https://eu4.paradoxwikis.com/Mod_structure
+*/
+
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
 constant PROGRAM_PATH = "../.steam/steam/steamapps/common/Europa Universalis IV"; //Append /map or /common etc to access useful data files
 
