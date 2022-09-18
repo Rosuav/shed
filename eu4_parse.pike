@@ -338,8 +338,9 @@ mapping estate_definitions = ([]), estate_privilege_definitions = ([]);
 mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	if (mapping cached = country->all_country_modifiers) return cached;
 	mapping modifiers = (["_sources": ([])]);
-	//TODO: Add more things here as they get analyzed
-	foreach (enumerate_ideas(country->active_idea_groups), mapping idea) _incorporate(data, modifiers, "Ideas", idea);
+	//Ideas are recorded by their groups and how many you've taken from that group.
+	array ideas = enumerate_ideas(country->active_idea_groups);
+	_incorporate(data, modifiers, ideas->desc[*], ideas[*]);
 	foreach (Array.arrayify(country->active_policy), mapping policy)
 		_incorporate(data, modifiers, "Policies", policy_definitions[policy->policy]);
 	foreach (Array.arrayify(country->government->reform_stack->reforms), string reform)
@@ -2363,10 +2364,18 @@ int main(int argc, array(string) argv) {
 		foreach (group; string id; mixed idea) {
 			if (!mappingp(idea)) continue;
 			int idx = m_delete(idea, "_index");
-			if (id == "start" || id == "bonus") {tidied[id] = idea; continue;}
-			if ((<"trigger", "free", "category", "ai_will_do">)[id]) continue;
-			basic_ideas += ({idea});
-			pos += ({idx});
+			switch (id) {
+				case "start": case "bonus":
+					idea->desc = grp + " (" + id + ")";
+					tidied[id] = idea;
+					break;
+				case "trigger": case "free": case "category": case "ai_will_do":
+					break; //Ignore these attributes, they're not actual ideas
+				default:
+					idea->desc = grp + ": " + id;
+					basic_ideas += ({idea});
+					pos += ({idx});
+			}
 		}
 		sort(pos, basic_ideas);
 		//tidied->category = group->category; //useful?
