@@ -9,16 +9,18 @@ synchronized. In practice, not a problem, since the client selects the group any
 */
 //TODO: Background service to do the key sending. See example systemd script in my cfgsystemd.
 
-/* TODO: Support mods.
-The save file includes data->mods_enabled_names which lists the descriptive names and file names.
-Simple fix: Preload on startup, cache the last-used-mod-list in eu4_parse.json, and if the save
-doesn't have the same set, die.
+/* TODO: Support mods better.
+Current: Preload on startup, cache the last-used-mod-list in eu4_parse.json, and if the save
+doesn't have the same set, warn. The localisation files will probably be wrong.
 Better fix: Isolate all the global state from the socket connections and, instead of dying, keep
 the sockets and reload all the definitions. Might also allow connections earlier, fwiw.
 
 May end up switching all definition loading to parse_config_dir even if there's normally only the
 one file, since it makes mod handling easier. Will need to handle a replace_path block in the mod
 definition, possibly also a dependencies block. See: https://eu4.paradoxwikis.com/Mod_structure
+
+It may be of value to have multiple L10n caches, since mod switching is costly at the moment.
+It may also be of value to have a way to recognize a change to a mod, to force a reload.
 */
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
@@ -188,13 +190,20 @@ mapping parse_savefile(string data, string|void filename) {
 	return ret;
 }
 
+string currently_loaded_mods = ""; array config_dirs = ({PROGRAM_PATH});
 //Parse a full directory of configs and merge them into one mapping
 //The specified directory name should not end with a slash.
 //If key is provided, will return only that key from each file.
 mapping parse_config_dir(string dir, string|void key) {
 	mapping ret = ([]);
-	foreach (({PROGRAM_PATH}), string base) foreach (sort(get_dir(base + dir)), string fn) {
-		mapping cur = low_parse_savefile(Stdio.read_file(base + dir + "/" + fn) + "\n") || ([]);
+	//A mod can add more files, or can replace entire files (but not parts of a file).
+	//Files are then processed in affabeck regardless of their paths (I think that's how the game does it).
+	mapping files = ([]);
+	foreach (config_dirs, string base)
+		foreach (sort(get_dir(base + dir) || ({ })), string fn)
+			files[fn] = base + dir + "/" + fn;
+	foreach (sort(indices(files)), string fn) {
+		mapping cur = low_parse_savefile(Stdio.read_file(files[fn]) + "\n") || ([]);
 		if (key) cur = cur[key] || ([]);
 		ret |= cur;
 	}
@@ -1837,8 +1846,8 @@ void done_processing_savefile(object pipe, string msg) {
 	mapping data = Standards.JSON.decode_utf8(Stdio.read_file("eu4_parse.json") || "{}")->data;
 	if (!data) {werror("Unable to parse save file (see above for errors, hopefully)\n"); return;}
 	write("\nCurrent date: %s\n", data->date);
-	foreach (data->players_countries / 2, [string name, string tag]) analyze(data, name, tag);
-	analyze_wars(data, (multiset)(data->players_countries / 2)[*][1]);
+	string mods = (data->mods_enabled_names||({}))->filename * ",";
+	if (mods != currently_loaded_mods) werror("\e[1;37;41m\n\nMODS INCONSISTENT, save file may not parse correctly! Restart parser to update mod selection\n\e[0m\n\n");
 	indices(connections[""])->inform(data);
 	provincecycle = ([]);
 	last_parsed_savefile = data;
@@ -2418,7 +2427,21 @@ int main(int argc, array(string) argv) {
 		return -1;
 	}
 
-	//Load up some info that is presumed to not change. If you're modding the game, this may break.
+	//Load up some info that is presumed to not change. If you're tweaking a game mod, this may break.
+	//In general, if you've made any change that could affect things, restart the parser to force it
+	//to reload. Currently, this also applies to changing which mods are active; that may change in the
+	//future, but editing the mods themselves will still require a restart.
+	//Note: Order of mods is not guaranteed here. The game does them in alphabetical order, but with
+	//handling of dependencies.
+	array mods_enabled = Standards.JSON.decode_utf8(Stdio.read_file("eu4_parse.json") || "{}")->data->?mods_enabled_names || ({ });
+	foreach (mods_enabled, mapping mod) {
+		mapping info = low_parse_savefile(Stdio.read_file(SAVE_PATH + "/../" + mod->filename));
+		string path = info->path; if (!path) continue;
+		if (!has_prefix(path, "/")) path = SAVE_PATH + "/../" + path;
+		config_dirs += ({path});
+	}
+	currently_loaded_mods = mods_enabled->filename * ",";
+
 	mapping gfx = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/interface/core.gfx"));
 	//There might be multiple bitmapfonts entries. Logically, I think they should just be merged? Not sure.
 	//It seems that only one of them has the textcolors block that we need.
@@ -2434,10 +2457,11 @@ int main(int argc, array(string) argv) {
 			icons[sprite->name] += ({sprite->texturefile});
 	}
 	catch {L10n = Standards.JSON.decode_utf8(Stdio.read_file(".eu4_localisation.json"));};
-	if (!mappingp(L10n)) {
-		L10n = ([]);
-		foreach (glob("*_l_english.yml", get_dir(PROGRAM_PATH + "/localisation")), string fn)
-			parse_localisation(Stdio.read_file(PROGRAM_PATH + "/localisation/" + fn));
+	if (!mappingp(L10n) || L10n->_mods_loaded != currently_loaded_mods) {
+		L10n = (["_mods_loaded": currently_loaded_mods]);
+		foreach (config_dirs, string dir)
+			foreach (glob("*_l_english.yml", get_dir(dir + "/localisation") || ({ })), string fn)
+				parse_localisation(Stdio.read_file(dir + "/localisation/" + fn));
 		Stdio.write_file(".eu4_localisation.json", Standards.JSON.encode(L10n, 1));
 	}
 	map_areas = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/area.txt"));
