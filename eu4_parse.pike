@@ -745,8 +745,10 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	}
 
 	int foreign_power = threeplace(here->total) - threeplace(us->val);
+	if (!foreign_power && !potential_power) foreign_power = 1; //Empty trade node. Most likely total_value is zero too.
 	int steer_amount = total_value * potential_power / (potential_power + foreign_power);
 	int trade_efficiency = data->countries[tag]->all_country_modifiers->trade_efficiency;
+	int collection_amount = 0;
 	int collection_income = collection_amount * (1100 + trade_efficiency) / 1000; //Collecting with a merchant gives a 10% efficiency bonus.
 
 	//Calculate this trade node's "received" value. This will be used for the predictions
