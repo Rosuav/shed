@@ -183,6 +183,7 @@ mapping parse_savefile(string data, string|void filename) {
 		c->tag = tag; //When looking at a country, it's often convenient to know its tag (reverse linkage).
 		c->owned_provinces = Array.arrayify(c->owned_provinces); //Several things will crash if you don't have a provinces array
 	}
+	foreach (ret->provinces; string id; mapping prov) prov->id = -(int)id;
 	Stdio.write_file("eu4_parse.json", string_to_utf8(Standards.JSON.encode((["hash": hexhash, "data": ret]))));
 	return ret;
 }
@@ -305,6 +306,55 @@ object calendar(string date) {
 	return Calendar.Gregorian.Day(year, mon, day);
 }
 
+//Pass the full data block, and for scopes, a sequence of country and/or province mappings.
+//Triggers are tested on scopes[-1], and PREV= will switch to scopes[-2].
+//What happens if you do "PREV = { PREV = { ... } }" ? Should we shorten the scopes array
+//or duplicate scopes[-2] to the end of it?
+int(1bit) trigger_matches(mapping data, array(mapping) scopes, string type, mixed value) {
+	mapping scope = scopes[-1];
+	switch (type) {
+		case "AND":
+			foreach (value; string t; mixed v)
+				//Does this need to do the array check same as OR= does?
+				if (!trigger_matches(data, scopes, t, v)) return 0;
+			return 1;
+		case "OR":
+			foreach (value; string t; mixed vv)
+				foreach (Array.arrayify(vv), mixed v) //Would it be more efficient to arrayp check rather than arrayifying?
+					if (trigger_matches(data, scopes, t, v)) return 1;
+			return 0;
+		case "NOT": return !trigger_matches(data, scopes, "OR", value);
+		//Okay, now for the actual triggers. Country scope.
+		case "has_reform": return has_value(scope->government->reform_stack->reforms, value);
+		case "any_owned_province":
+			foreach (scope->owned_provinces, string id) {
+				mapping prov = data->provinces["-" + id];
+				if (trigger_matches(data, scopes + ({prov}), "AND", value)) return 1;
+			}
+			return 0;
+		case "capital": //Check if your capital is a particular province
+			return (int)scope->capital == (int)value;
+		case "capital_scope": //Check other details about the capital, by switching scope
+			return trigger_matches(data, scopes + ({data->provinces["-" + scope->capital]}), "AND", value);
+		case "trade_income_percentage":
+			//Estimate trade income percentage based on last month's figures. I don't know
+			//whether the actual effect changes within the month, but this is likely to be
+			//close enough anyway. The income table runs ({tax, prod, trade, gold, ...}).
+			return threeplace(scope->ledger->lastmonthincometable[2]) * 1000 / threeplace(scope->ledger->lastmonthincome)
+				>= threeplace(value);
+		case "has_disaster": return 0; //TODO: Where are current disasters listed?
+		//Province scope.
+		case "development": {
+			int dev = (int)scope->base_tax + (int)scope->base_production + (int)scope->base_manpower;
+			return dev >= (int)value;
+		}
+		case "province_has_center_of_trade_of_level": return (int)scope->center_of_trade >= (int)value;
+		case "area": return prov_area[(string)scope->id] == value;
+		default: return 1; //Unknown trigger. Let it match, I guess - easier to spot? Maybe?
+	}
+	
+}
+
 mapping idea_definitions, policy_definitions, reform_definitions, static_modifiers;
 mapping trade_goods, country_modifiers, age_definitions, tech_definitions, institutions;
 mapping cot_definitions, state_edicts, terrain_definitions, imperial_reforms;
@@ -407,15 +457,22 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 			foreach (Array.arrayify(estate->granted_privileges), [string priv, string date])
 				influence["Privilege " + L10N(priv)] =
 					threeplace(estate_privilege_definitions[priv]->?influence) * 100;
-			influence["Country modifiers"] = modifiers[replace(estate->type, "estate_", "") + "_influence_modifier"] * 100;
 			foreach (Array.arrayify(estate->influence_modifier), mapping mod)
 				//It's possible to have the same modifier more than once (eg "Diet Summoned").
 				//Rather than show them all separately, collapse them into "Diet Summoned: 15%".
 				influence[L10N(mod->desc)] += threeplace(mod->value);
+			foreach (Array.arrayify(modifiers->_sources[replace(estate->type, "estate_", "") + "_influence_modifier"]), string mod) {
+				sscanf(reverse(mod), "%[0-9] :%s", string value, string desc);
+				influence[reverse(desc)] += (int)reverse(value) * 100; //Just in case they show up more than once
+			}
 			influence["Land share"] = threeplace(estate->territory) / 2; //Is this always the case? 42% land share gives 21% influence?
 			estate->influence_sources = influence;
+			//Attempt to parse the estate influence modifier blocks. This is imperfect and limited.
+			foreach (Array.arrayify(estate_defn->influence_modifier), mapping mod) {
+				if (!trigger_matches(data, ({country}), "AND", mod->trigger)) continue;
+				influence[L10N(mod->desc)] = threeplace(mod->influence);
+			}
 			int total_influence = estate->estimated_milliinfluence = `+(@values(influence));
-			//This is horribly incomplete. Needs a lot of expansion to truly be useful.
 			string opinion = "neutral";
 			if ((float)estate->loyalty >= 60.0) opinion = "happy";
 			else if ((float)estate->loyalty < 30.0) opinion = "angry";
@@ -2119,6 +2176,7 @@ mapping get_state(string group) {
 	mapping country = data->countries[tag];
 	if (!country) return (["error": "Country/player not found: " + group]);
 	mapping ret = (["tag": tag, "self": data->countries[tag], "highlight": ([]), "recent_peace_treaties": recent_peace_treaties]);
+	ret->capital_province = data->provinces["-" + data->countries[tag]->capital];
 	analyze(data, group, tag, ret, persist_path(group)->highlight_interesting);
 	multiset players = (multiset)(data->players_countries / 2)[*][1]; //Normally, show all wars involving players.
 	if (!players[tag]) players = (<tag>); //But if you switch to a non-player country, show that country's wars instead.
