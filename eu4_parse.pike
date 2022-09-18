@@ -831,30 +831,33 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	//impact of a Valencia merchant is affected only by your trade power in Valencia itself.
 	//This sounds involved. It is (sorry Blanche), but it's right enough.
 
+	mapping country_modifiers = all_country_modifiers(data, data->countries[tag]);
+	int trade_efficiency = 1000 + country_modifiers->trade_efficiency; //Default trade efficiency is 100%
+	int merchant_power = 2000 + country_modifiers->placed_merchant_power; //Default merchant trade power is 2.0. Both come from defines, but modifiers are more important than defines.
+
 	int potential_power = threeplace(us->max_pow);
 	int power_modifiers = threeplace(us->max_demand); //max_demand sums all your current bonuses and penalties
 	if (us->has_trader) {
 		//Remove the effects of the merchant so we get a baseline.
-		potential_power -= 2000; //FIXME: Also factor in placed_merchant_power
-		power_modifiers -= 50; //FIXME: What if you have a different policy?
+		potential_power -= merchant_power;
+		//Note that trading policy effects are hard-coded here since the only one that
+		//affects any of our calculations is the default.
+		if (us->trading_policy == "maximize_profit") power_modifiers -= 50;
 	}
 	//Your final trade power is the total trade power modified by all percentage effects,
 	//and then transferred-in trade power is added on afterwards (it isn't modified).
 	//TODO: Calculate the effect of transferred-OUT trade power.
 	int our_trade_power = potential_power * power_modifiers / 1000 + threeplace(us->t_in);
 
-	int trade_efficiency = data->countries[tag]->all_country_modifiers->trade_efficiency;
 	if (us->has_capital) {
 		//This node is where our main trade city is. (The attribute says "capital", but
 		//with the Wealth of Nations DLC, you can move your main trade city independently
 		//of your capital. We only care about trade here.) You can collect passively or
 		//have a merchant collecting, but you can never transfer trade away.
-		int active_power = (potential_power + 2000) * (power_modifiers + 50) / 1000 + threeplace(us->t_in);
-		werror("TRADE EFF %O from %O\n", trade_efficiency, data->countries[tag]->all_country_modifiers->_sources->trade_efficiency);
-		foreach (data->countries[tag]->estate, mapping estate)
-			werror("%s loyalty %O; influence %O from: %O\n",
-				L10N(estate->type), estate->loyalty,
-				estate->estimated_milliinfluence, estate->influence_sources);
+		int active_power = (potential_power + merchant_power) * (power_modifiers + 50) / 1000 + threeplace(us->t_in);
+		werror("TRADE EFF %O from %O\n", trade_efficiency, country_modifiers->_sources->trade_efficiency);
+		werror("MERCHANT POWER %O from %O\n", merchant_power, country_modifiers->_sources->placed_merchant_power);
+		werror("SHIP POWER %O from %O\n", country_modifiers->global_ship_trade_power, country_modifiers->_sources->global_ship_trade_power);
 		int collection_amount = 0;
 		int collection_income = collection_amount * (1100 + trade_efficiency) / 1000; //Collecting with a merchant gives a 10% efficiency bonus.
 	}
