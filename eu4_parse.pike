@@ -340,23 +340,22 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	mapping modifiers = (["_sources": ([])]);
 	//Ideas are recorded by their groups and how many you've taken from that group.
 	array ideas = enumerate_ideas(country->active_idea_groups);
-	_incorporate(data, modifiers, ideas->desc[*], ideas[*]);
-	foreach (Array.arrayify(country->active_policy), mapping policy)
-		_incorporate(data, modifiers, "Policies", policy_definitions[policy->policy]);
-	foreach (Array.arrayify(country->government->reform_stack->reforms), string reform)
-		_incorporate(data, modifiers, "Govt reforms", reform_definitions[reform]);
-	foreach (Array.arrayify(country->traded_bonus), string idx)
-		_incorporate(data, modifiers, "Trading bonus", trade_goods[(int)idx]);
+	_incorporate(data, modifiers, ideas->desc[*], ideas[*]); //TODO: TEST ME
+	_incorporate_all(data, modifiers, "Policy", policy_definitions, Array.arrayify(country->active_policy)->policy);
+	_incorporate_all(data, modifiers, "Reform", reform_definitions, country->government->reform_stack->reforms);
+	array tradebonus = trade_goods[((array(int))Array.arrayify(country->traded_bonus))[*]];
+	_incorporate(data, modifiers, ("Trading in " + tradebonus->id[*])[*], tradebonus[*]); //TODO: TEST ME
 	_incorporate_all(data, modifiers, "Modifier", country_modifiers, Array.arrayify(country->modifier)->modifier);
 	mapping age = age_definitions[data->current_age]->abilities;
-	_incorporate(data, modifiers, "Age ability", age[Array.arrayify(country->active_age_ability)[*]][*]);
+	_incorporate(data, modifiers, "Age ability", age[Array.arrayify(country->active_age_ability)[*]][*]); //TODO: Add description
 	mapping tech = country->technology || ([]);
 	sscanf(data->date, "%d.%d.%d", int year, int mon, int day);
 	foreach ("adm dip mil" / " ", string cat) {
 		int level = (int)tech[cat + "_tech"];
-		_incorporate(data, modifiers, "Tech", tech_definitions[cat]->technology[..level][*]);
+		string desc = String.capitalize(cat) + " tech";
+		_incorporate_all(data, modifiers, desc, tech_definitions[cat]->technology, enumerate(level));
 		if ((int)tech_definitions[cat]->technology[level]->year > year)
-			_incorporate(data, modifiers, "Ahead of time", tech_definitions[cat]->ahead_of_time);
+			_incorporate(data, modifiers, "Ahead of time in " + desc, tech_definitions[cat]->ahead_of_time);
 		//TODO: > or >= ?
 	}
 	if (array have = country->institutions) foreach (institutions; string id; mapping inst) {
@@ -380,8 +379,9 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 		foreach (country->estate, mapping estate) {
 			foreach (Array.arrayify(estate->granted_privileges), [string priv, string date]) {
 				mapping privilege = estate_privilege_definitions[priv]; if (!privilege) continue;
-				_incorporate(data, modifiers, "Estate priv", privilege->penalties);
-				_incorporate(data, modifiers, "Estate priv", privilege->benefits);
+				string desc = sprintf("%s: %s", L10n[estate->type] || estate->type, L10n[priv] || priv);
+				_incorporate(data, modifiers, desc, privilege->penalties);
+				_incorporate(data, modifiers, desc, privilege->benefits);
 			}
 		}
 		//Now calculate the influence and loyalty of each estate, and the resulting effects.
@@ -404,7 +404,7 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 			if (influence < 60000) mul = 3;
 			if (influence < 40000) mul = 2;
 			if (influence < 20000) mul = 1;
-			_incorporate(data, modifiers, "Estate", estate_defn["country_modifier_" + opinion], mul, 4);
+			_incorporate(data, modifiers, String.capitalize(opinion) + " " + L10n[estate->type], estate_defn["country_modifier_" + opinion], mul, 4);
 			estate->estimated_milliinfluence = influence;
 		}
 	}
