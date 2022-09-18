@@ -330,6 +330,10 @@ void _incorporate(mapping data, mapping modifiers, string source, mapping effect
 		if (effect) modifiers->_sources[id] += ({source + ": " + effect});
 	}
 }
+void _incorporate_all(mapping data, mapping modifiers, string source, mapping definitions, array keys, int|void mul, int|void div) {
+	foreach (Array.arrayify(keys), string key)
+		_incorporate(data, modifiers, sprintf("%s %O", source, L10n[key] || key), definitions[key], mul, div);
+}
 mapping estate_definitions = ([]), estate_privilege_definitions = ([]);
 mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	if (mapping cached = country->all_country_modifiers) return cached;
@@ -342,8 +346,7 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 		_incorporate(data, modifiers, "Govt reforms", reform_definitions[reform]);
 	foreach (Array.arrayify(country->traded_bonus), string idx)
 		_incorporate(data, modifiers, "Trading bonus", trade_goods[(int)idx]);
-	foreach (Array.arrayify(country->modifier), mapping mod)
-		_incorporate(data, modifiers, "Modifier", country_modifiers[mod->modifier]);
+	_incorporate_all(data, modifiers, "Modifier", country_modifiers, Array.arrayify(country->modifier)->modifier);
 	mapping age = age_definitions[data->current_age]->abilities;
 	_incorporate(data, modifiers, "Age ability", age[Array.arrayify(country->active_age_ability)[*]][*]);
 	mapping tech = country->technology || ([]);
