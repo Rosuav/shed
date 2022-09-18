@@ -193,8 +193,8 @@ mapping parse_savefile(string data, string|void filename) {
 //If key is provided, will return only that key from each file.
 mapping parse_config_dir(string dir, string|void key) {
 	mapping ret = ([]);
-	foreach (sort(get_dir(dir)), string fn) {
-		mapping cur = low_parse_savefile(Stdio.read_file(dir + "/" + fn) + "\n") || ([]);
+	foreach (({PROGRAM_PATH}), string base) foreach (sort(get_dir(base + dir)), string fn) {
+		mapping cur = low_parse_savefile(Stdio.read_file(base + dir + "/" + fn) + "\n") || ([]);
 		if (key) cur = cur[key] || ([]);
 		ret |= cur;
 	}
@@ -2469,7 +2469,7 @@ int main(int argc, array(string) argv) {
 		}
 	}
 	retain_map_indices = 1;
-	idea_definitions = parse_config_dir(PROGRAM_PATH + "/common/ideas");
+	idea_definitions = parse_config_dir("/common/ideas");
 	retain_map_indices = 0;
 	mapping cat_ideas = ([]);
 	foreach (idea_definitions; string grp; mapping group) {
@@ -2497,7 +2497,7 @@ int main(int argc, array(string) argv) {
 		idea_definitions[grp] = tidied;
 		if (group->category) cat_ideas[group->category] += ({grp});
 	}
-	policy_definitions = parse_config_dir(PROGRAM_PATH + "/common/policies");
+	policy_definitions = parse_config_dir("/common/policies");
 	/*mapping policies = ([]);
 	foreach (policy_definitions; string id; mapping info) {
 		array ideas = info->allow->?full_idea_group; if (!ideas) continue;
@@ -2518,39 +2518,39 @@ int main(int argc, array(string) argv) {
 		}
 	}
 	exit(0, "%O\n", counts);*/
-	estate_definitions = parse_config_dir(PROGRAM_PATH + "/common/estates");
+	estate_definitions = parse_config_dir("/common/estates");
 	estate_privilege_definitions = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/estate_privileges/00_privileges.txt"));
-	reform_definitions = parse_config_dir(PROGRAM_PATH + "/common/government_reforms");
+	reform_definitions = parse_config_dir("/common/government_reforms");
 	static_modifiers = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/static_modifiers/00_static_modifiers.txt"));
 	retain_map_indices = 1;
 	trade_goods = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/tradegoods/00_tradegoods.txt"));
-	institutions = parse_config_dir(PROGRAM_PATH + "/common/institutions");
+	institutions = parse_config_dir("/common/institutions");
 	retain_map_indices = 0;
 	foreach (trade_goods; string id; mapping info) {
 		trade_goods[info->_index + 1] = info;
 		info->id = id;
 	}
-	country_modifiers = parse_config_dir(PROGRAM_PATH + "/common/event_modifiers")
-		| parse_config_dir(PROGRAM_PATH + "/common/parliament_issues");
-	age_definitions = parse_config_dir(PROGRAM_PATH + "/common/ages");
+	country_modifiers = parse_config_dir("/common/event_modifiers")
+		| parse_config_dir("/common/parliament_issues");
+	age_definitions = parse_config_dir("/common/ages");
 	mapping cot_raw = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/centers_of_trade/00_centers_of_trade.txt"));
 	cot_definitions = ([]);
 	foreach (cot_raw; string id; mapping info) {
 		cot_definitions[info->type + info->level] = info;
 		info->id = id;
 	}
-	state_edicts = parse_config_dir(PROGRAM_PATH + "/common/state_edicts");
-	imperial_reforms = parse_config_dir(PROGRAM_PATH + "/common/imperial_reforms");
-	cb_types = parse_config_dir(PROGRAM_PATH + "/common/cb_types");
-	wargoal_types = parse_config_dir(PROGRAM_PATH + "/common/wargoal_types");
+	state_edicts = parse_config_dir("/common/state_edicts");
+	imperial_reforms = parse_config_dir("/common/imperial_reforms");
+	cb_types = parse_config_dir("/common/cb_types");
+	wargoal_types = parse_config_dir("/common/wargoal_types");
 	custom_country_colors = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/custom_country_colors/00_custom_country_colors.txt"));
-	//estate_agendas = parse_config_dir(PROGRAM_PATH + "/common/estate_agendas"); //Not currently in use
-	country_decisions = parse_config_dir(PROGRAM_PATH + "/decisions", "country_decisions");
-	country_missions = parse_config_dir(PROGRAM_PATH + "/missions");
-	advisor_definitions = parse_config_dir(PROGRAM_PATH + "/common/advisortypes");
-	religion_definitions = parse_config_dir(PROGRAM_PATH + "/common/religions");
+	//estate_agendas = parse_config_dir("/common/estate_agendas"); //Not currently in use
+	country_decisions = parse_config_dir("/decisions", "country_decisions");
+	country_missions = parse_config_dir("/missions");
+	advisor_definitions = parse_config_dir("/common/advisortypes");
+	religion_definitions = parse_config_dir("/common/religions");
 	retain_map_indices = 1;
-	tradenode_definitions = parse_config_dir(PROGRAM_PATH + "/common/tradenodes");
+	tradenode_definitions = parse_config_dir("/common/tradenodes");
 	retain_map_indices = 0;
 	//Trade nodes have outgoing connections recorded, but it's more useful to us to
 	//invert that and record the incoming connections.
