@@ -197,6 +197,7 @@ void parse_localisation(string data) {
 		if (key && val) L10n[key] = val;
 	}
 }
+string L10N(string key) {return L10n[key] || key;}
 
 string tabulate(array(string) headings, array(array(mixed)) data, string|void gutter, int|void summary) {
 	if (!gutter) gutter = " ";
@@ -419,27 +420,27 @@ mapping(string:int) all_province_modifiers(mapping data, int id) {
 	if (prov->center_of_trade) {
 		string type = province_info[(string)id]->?has_port ? "coastal" : "inland";
 		mapping cot = cot_definitions[type + prov->center_of_trade];
-		_incorporate(data, modifiers, "Prov modifier", cot->?province_modifiers);
+		_incorporate(data, modifiers, "Level " + prov->center_of_trade + " COT", cot->?province_modifiers);
 	}
 	if (int l3cot = country->area_has_level3[?prov_area[(string)id]]) {
 		string type = province_info[(string)l3cot]->?has_port ? "coastal3" : "inland3";
 		mapping cot = cot_definitions[type];
-		_incorporate(data, modifiers, "State modifier", cot->?state_modifiers);
+		_incorporate(data, modifiers, "L3 COT in area", cot->?state_modifiers);
 	}
 	foreach (prov->buildings || ([]); string b;)
 		_incorporate(data, modifiers, "Building", building_types[b]);
 	mapping area = data->map_area_data[prov_area[(string)id]]->?state;
 	foreach (Array.arrayify(area->?country_state), mapping state) if (state->country == prov->owner) {
 		if (state->prosperity == "100.000") _incorporate(data, modifiers, "Prosperity", static_modifiers->prosperity);
-		_incorporate(data, modifiers, "State edict", state_edicts[state->active_edict->?which]);
+		_incorporate(data, modifiers, "State edict - " + L10N(state->active_edict->?which), state_edicts[state->active_edict->?which]);
 	}
 	_incorporate(data, modifiers, "Terrain", terrain_definitions->categories[province_info[(string)id]->terrain]);
 	_incorporate(data, modifiers, "Climate", static_modifiers[province_info[(string)id]->climate]);
 	if (prov->hre) {
 		foreach (Array.arrayify(data->empire->passed_reform), string reform)
-			_incorporate(data, modifiers, "Govt reform", imperial_reforms[reform]->?province);
+			_incorporate(data, modifiers, "HRE province (" + L10N(reform) + ")", imperial_reforms[reform]->?province);
 	}
-	_incorporate(data, modifiers, "Trade good", trade_goods[prov->trade_goods]->?province);
+	_incorporate(data, modifiers, "Trade good: " + prov->trade_goods, trade_goods[prov->trade_goods]->?province);
 	return prov->all_province_modifiers = modifiers;
 }
 
