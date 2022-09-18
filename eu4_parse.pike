@@ -402,24 +402,28 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 		foreach (country->estate, mapping estate) {
 			mapping estate_defn = estate_definitions[estate->type];
 			if (!estate_defn) continue;
-			int influence = (int)estate_defn->base_influence * 1000;
+			mapping influence = (["Base": (int)estate_defn->base_influence * 1000]);
 			//There are some conditional modifiers. Sigh. This is seriously complicated. Why can't estate influence just be in the savefile?
 			foreach (Array.arrayify(estate->granted_privileges), [string priv, string date])
-				influence += threeplace(estate_privilege_definitions[priv]->?influence) * 100;
-			influence += modifiers[replace(estate->type, "estate_", "") + "_influence_modifier"] * 100;
+				influence["Privilege " + L10N(priv)] =
+					threeplace(estate_privilege_definitions[priv]->?influence) * 100;
+			influence["Country modifiers"] = modifiers[replace(estate->type, "estate_", "") + "_influence_modifier"] * 100;
 			foreach (Array.arrayify(estate->influence_modifier), mapping mod)
-				influence += threeplace(mod->value);
-			influence += threeplace(estate->territory) / 2; //Is this always the case? 42% land share gives 21% influence?
+				//It's possible to have the same modifier more than once (eg "Diet Summoned").
+				//Rather than show them all separately, collapse them into "Diet Summoned: 15%".
+				influence[L10N(mod->desc)] += threeplace(mod->value);
+			influence["Land share"] = threeplace(estate->territory) / 2; //Is this always the case? 42% land share gives 21% influence?
+			estate->influence_sources = influence;
+			int total_influence = estate->estimated_milliinfluence = `+(@values(influence));
 			//This is horribly incomplete. Needs a lot of expansion to truly be useful.
 			string opinion = "neutral";
 			if ((float)estate->loyalty >= 60.0) opinion = "happy";
 			else if ((float)estate->loyalty < 30.0) opinion = "angry";
 			int mul = 4;
-			if (influence < 60000) mul = 3;
-			if (influence < 40000) mul = 2;
-			if (influence < 20000) mul = 1;
+			if (total_influence < 60000) mul = 3;
+			if (total_influence < 40000) mul = 2;
+			if (total_influence < 20000) mul = 1;
 			_incorporate(data, modifiers, String.capitalize(opinion) + " " + L10n[estate->type], estate_defn["country_modifier_" + opinion], mul, 4);
-			estate->estimated_milliinfluence = influence;
 		}
 	}
 	//To figure out what advisors you have hired, we first need to find all advisors.
@@ -775,7 +779,11 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//of your capital. We only care about trade here.) You can collect passively or
 		//have a merchant collecting, but you can never transfer trade away.
 		int active_power = (potential_power + 2000) * (power_modifiers + 50) / 1000 + threeplace(us->t_in);
-		werror("TRADE EFF %O\n", data->countries[tag]->all_country_modifiers->_sources->trade_efficiency);
+		werror("TRADE EFF %O from %O\n", trade_efficiency, data->countries[tag]->all_country_modifiers->_sources->trade_efficiency);
+		foreach (data->countries[tag]->estate, mapping estate)
+			werror("%s loyalty %O; influence %O from: %O\n",
+				L10N(estate->type), estate->loyalty,
+				estate->estimated_milliinfluence, estate->influence_sources);
 		int collection_amount = 0;
 		int collection_income = collection_amount * (1100 + trade_efficiency) / 1000; //Collecting with a merchant gives a 10% efficiency bonus.
 	}
