@@ -727,20 +727,22 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//Remove the effects of the merchant so we get a baseline.
 		potential_power -= 2000; //FIXME: Also factor in placed_merchant_power
 		power_modifiers -= 50; //FIXME: What if you have a different policy?
-		//trade_efficiency -= 100; //FIXME: Collecting in home node gives 10% bonus
 	}
 	//Your final trade power is the total trade power modified by all percentage effects,
 	//and then transferred-in trade power is added on afterwards (it isn't modified).
 	//TODO: Calculate the effect of transferred-OUT trade power.
 	int our_trade_power = potential_power * power_modifiers / 1000 + threeplace(us->t_in);
 
+	int trade_efficiency = data->countries[tag]->all_country_modifiers->trade_efficiency;
 	if (us->has_capital) {
 		//This node is where our main trade city is. (The attribute says "capital", but
 		//with the Wealth of Nations DLC, you can move your main trade city independently
 		//of your capital. We only care about trade here.) You can collect passively or
 		//have a merchant collecting, but you can never transfer trade away.
 		int active_power = (potential_power + 2000) * (power_modifiers + 50) / 1000 + threeplace(us->t_in);
-		//FIXME: Trade efficiency bonus
+		werror("TRADE EFF %O\n", data->countries[tag]->all_country_modifiers->_sources->trade_efficiency);
+		int collection_amount = 0;
+		int collection_income = collection_amount * (1100 + trade_efficiency) / 1000; //Collecting with a merchant gives a 10% efficiency bonus.
 	}
 	else if (us->has_trader && !us->type) {
 		//TODO: Report "collecting outside of home node"
@@ -749,9 +751,6 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	int foreign_power = threeplace(here->total) - threeplace(us->val);
 	if (!foreign_power && !potential_power) foreign_power = 1; //Empty trade node. Most likely total_value is zero too.
 	int steer_amount = total_value * potential_power / (potential_power + foreign_power);
-	int trade_efficiency = data->countries[tag]->all_country_modifiers->trade_efficiency;
-	int collection_amount = 0;
-	int collection_income = collection_amount * (1100 + trade_efficiency) / 1000; //Collecting with a merchant gives a 10% efficiency bonus.
 
 	//Calculate this trade node's "received" value. This will be used for the predictions
 	//of this, and all upstream nodes that can (directly or indirectly) get trade value to
@@ -848,7 +847,6 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//What is us->already_sent?
 		"total_value": total_value,
 		"current_collection": threeplace(us->money),
-		"collection_amount": collection_amount, "collection_income": collection_income,
 		"retention": threeplace(here->retention), //Per-mille retention of trade value
 		"received": received,
 		"predict": ([
