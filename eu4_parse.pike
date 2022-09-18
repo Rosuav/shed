@@ -2447,7 +2447,7 @@ int main(int argc, array(string) argv) {
 	mapping climates = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/climate.txt"));
 	//Terrain and climate info are used below.
 	retain_map_indices = 1;
-	building_types = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/buildings/00_buildings.txt"));
+	building_types = parse_config_dir("/common/buildings");
 	retain_map_indices = 0;
 	building_id = allocate(sizeof(building_types));
 	foreach (building_types; string id; mapping info) {
@@ -2519,11 +2519,11 @@ int main(int argc, array(string) argv) {
 	}
 	exit(0, "%O\n", counts);*/
 	estate_definitions = parse_config_dir("/common/estates");
-	estate_privilege_definitions = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/estate_privileges/00_privileges.txt"));
+	estate_privilege_definitions = parse_config_dir("/common/estate_privileges");
 	reform_definitions = parse_config_dir("/common/government_reforms");
-	static_modifiers = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/static_modifiers/00_static_modifiers.txt"));
+	static_modifiers = parse_config_dir("/common/static_modifiers");
 	retain_map_indices = 1;
-	trade_goods = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/tradegoods/00_tradegoods.txt"));
+	trade_goods = parse_config_dir("/common/tradegoods");
 	institutions = parse_config_dir("/common/institutions");
 	retain_map_indices = 0;
 	foreach (trade_goods; string id; mapping info) {
@@ -2533,7 +2533,7 @@ int main(int argc, array(string) argv) {
 	country_modifiers = parse_config_dir("/common/event_modifiers")
 		| parse_config_dir("/common/parliament_issues");
 	age_definitions = parse_config_dir("/common/ages");
-	mapping cot_raw = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/centers_of_trade/00_centers_of_trade.txt"));
+	mapping cot_raw = parse_config_dir("/common/centers_of_trade");
 	cot_definitions = ([]);
 	foreach (cot_raw; string id; mapping info) {
 		cot_definitions[info->type + info->level] = info;
@@ -2543,7 +2543,7 @@ int main(int argc, array(string) argv) {
 	imperial_reforms = parse_config_dir("/common/imperial_reforms");
 	cb_types = parse_config_dir("/common/cb_types");
 	wargoal_types = parse_config_dir("/common/wargoal_types");
-	custom_country_colors = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/custom_country_colors/00_custom_country_colors.txt"));
+	custom_country_colors = parse_config_dir("/common/custom_country_colors");
 	//estate_agendas = parse_config_dir("/common/estate_agendas"); //Not currently in use
 	country_decisions = parse_config_dir("/decisions", "country_decisions");
 	country_missions = parse_config_dir("/missions");
