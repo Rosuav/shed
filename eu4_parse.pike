@@ -332,6 +332,7 @@ int(1bit) trigger_matches(mapping data, array(mapping) scopes, string type, mixe
 				if (trigger_matches(data, scopes + ({prov}), "AND", value)) return 1;
 			}
 			return 0;
+		case "tag": return scope->tag == value;
 		case "capital": //Check if your capital is a particular province
 			return (int)scope->capital == (int)value;
 		case "capital_scope": //Check other details about the capital, by switching scope
@@ -343,6 +344,17 @@ int(1bit) trigger_matches(mapping data, array(mapping) scopes, string type, mixe
 			return threeplace(scope->ledger->lastmonthincometable[2]) * 1000 / threeplace(scope->ledger->lastmonthincome)
 				>= threeplace(value);
 		case "has_disaster": return 0; //TODO: Where are current disasters listed?
+		case "religion_group":
+			//Calculated slightly backwards; instead of asking what religion group the
+			//country is in, and then seeing if that's equal to value, we look up the
+			//list of religions in the group specified, and ask if the country's is in
+			//that list.
+			return !undefinedp(religion_definitions[value][scope->religion]);
+		//case "dominant_religion": //TODO
+		case "technology_group": return scope->technology_group == value;
+		case "has_country_modifier": case "has_ruler_modifier":
+			//Hack: I'm counting ruler modifiers the same way as country modifiers.
+			return has_value(Array.arrayify(scope->modifier)->modifier, value);
 		//Province scope.
 		case "development": {
 			int dev = (int)scope->base_tax + (int)scope->base_production + (int)scope->base_manpower;
@@ -350,6 +362,8 @@ int(1bit) trigger_matches(mapping data, array(mapping) scopes, string type, mixe
 		}
 		case "province_has_center_of_trade_of_level": return (int)scope->center_of_trade >= (int)value;
 		case "area": return prov_area[(string)scope->id] == value;
+		//Possibly universal scope
+		case "has_global_flag": return !undefinedp(data->flags[value]);
 		default: return 1; //Unknown trigger. Let it match, I guess - easier to spot? Maybe?
 	}
 	
@@ -360,7 +374,7 @@ mapping trade_goods, country_modifiers, age_definitions, tech_definitions, insti
 mapping cot_definitions, state_edicts, terrain_definitions, imperial_reforms;
 mapping cb_types, wargoal_types, estate_agendas, country_decisions, country_missions;
 mapping tradenode_definitions; array tradenode_upstream_order;
-mapping advisor_definitions;
+mapping advisor_definitions, religion_definitions;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -2531,6 +2545,7 @@ int main(int argc, array(string) argv) {
 	country_decisions = parse_config_dir(PROGRAM_PATH + "/decisions", "country_decisions");
 	country_missions = parse_config_dir(PROGRAM_PATH + "/missions");
 	advisor_definitions = parse_config_dir(PROGRAM_PATH + "/common/advisortypes");
+	religion_definitions = parse_config_dir(PROGRAM_PATH + "/common/religions");
 	retain_map_indices = 1;
 	tradenode_definitions = parse_config_dir(PROGRAM_PATH + "/common/tradenodes");
 	retain_map_indices = 0;
