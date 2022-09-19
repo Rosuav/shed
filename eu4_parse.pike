@@ -857,7 +857,8 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	//Your final trade power is the total trade power modified by all percentage effects,
 	//and then transferred-in trade power is added on afterwards (it isn't modified).
 	//TODO: Calculate the effect of transferred-OUT trade power.
-	int our_trade_power = potential_power * power_modifiers / 1000 + threeplace(us->t_in);
+	int passive_power = potential_power * power_modifiers / 1000 + threeplace(us->t_in);
+	int active_power = (potential_power + merchant_power) * (power_modifiers + 50) / 1000 + threeplace(us->t_in);
 
 	int passive_income = 0, active_income = 0;
 	if (us->has_capital) {
@@ -865,25 +866,64 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//with the Wealth of Nations DLC, you can move your main trade city independently
 		//of your capital. We only care about trade here.) You can collect passively or
 		//have a merchant collecting, but you can never transfer trade away.
-		int active_power = (potential_power + merchant_power) * (power_modifiers + 50) / 1000 + threeplace(us->t_in);
 		//Predict passive income: our power / (our power + other power) * value * trade efficiency
 		//You would get this even without a merchant at home. Depending on your setup, it may
 		//be more profitable to collect passively, and transfer more in; but since there's a
 		//trade efficiency bonus for collecting with a merchant, this probably won't be the
 		//case until you have quite a lot of other efficiency bonuses, or you totally dominate
 		//your home node such that the 5% power bonus is meaningless.
-		int passive_collection = total_value * our_trade_power / (our_trade_power + foreign_power);
+		int passive_collection = total_value * passive_power / (passive_power + foreign_power);
 		passive_income = passive_collection * trade_efficiency / 1000;
 		werror("PASSIVELY collect %d, income %d\n", passive_collection, passive_income);
 		int active_collection = total_value * active_power / (active_power + foreign_power);
 		active_income = active_collection * (trade_efficiency + 100) / 1000;
 		werror("ACTIVELY collect %d, income %d\n", active_collection, active_income);
-		werror("Passive power %d, active power %d, foreign %d, total value %d\n", our_trade_power, active_power, foreign_power, total_value);
+		werror("Passive power %d, active power %d, foreign %d, total value %d\n", passive_power, active_power, foreign_power, total_value);
 		werror("TRADE EFF %O from %O\n", trade_efficiency, country_modifiers->_sources->trade_efficiency);
 		werror("MERCHANT POWER %O from %O\n", merchant_power, country_modifiers->_sources->placed_merchant_power);
 		werror("SHIP POWER %O from %O\n", country_modifiers->global_ship_trade_power, country_modifiers->_sources->global_ship_trade_power);
 	}
 	else if (us->has_trader && !us->type) passive_income = -1; //Collecting outside of home. Flag as unknowable.
+	else {
+		//You are transferring trade power. If active, you get to choose where to, and
+		//your trade power is stronger; but even if passive, you'll still transfer.
+		//To calculate the benefit of a merchant here, we first sum up trade power of
+		//all other countries in this node, according to what they're doing.
+		int foreign_tfr, foreign_coll;
+		array(int) tfr_dest = allocate(sizeof(here->steer_power||({})));
+		array(int) tfr_count = allocate(sizeof(here->steer_power||({})));
+		foreach (here->top_power || ({ }); int i; string t) {
+			if (t == tag) continue; //Ignore ourselves for the moment.
+			mapping them = here[t];
+			int power = threeplace(here->top_power_values[i]);
+			//If your home node is here, or you have a merchant collecting, your
+			//trade power is attempting to retain value here.
+			if (them->has_capital || (them->has_trader && !them->type)) foreign_coll += power;
+			else {
+				//Otherwise you're trying to move trade downstream, but without
+				//a merchant here, you are not affecting the precise direction.
+				//Note that this won't much matter if there's only one downstream.
+				//And if there are NO downstreams, the game won't let you put a
+				//trader here to steer trade, so we won't crash.
+				foreign_tfr += power;
+				if (them->has_trader) {
+					tfr_dest[(int)them->steer_power] += power;
+					tfr_count[(int)them->steer_power]++;
+				}
+			}
+			if (here->definitions == "champagne") werror("Champagne %s %O\n", L10N(t), power);
+		}
+		if (here->definitions == "champagne") werror("Transferring %d; collecting %d; retain %d\n", foreign_tfr, foreign_coll, 1000 * foreign_coll / (foreign_tfr + foreign_coll));
+		if (sizeof(tfr_dest) > 1) {
+			int foreign_steer = `+(0, @tfr_dest);
+			//There are some special cases. Normally, if nobody's steering trade, it gets
+			//split evenly among the destinations; but a destination is excluded if no
+			//country has trade power in both that node and this one. This is unlikely to
+			//make a material difference to the estimates, so I'm ignoring that rule.
+			if (here->definitions == "champagne") if (foreign_steer) werror("Steerage: %O\n", ((array(float))tfr_dest)[*] / foreign_steer);
+		}
+		//werror("%3d %s\n", sizeof(here->top_power), here->definitions);
+	}
 
 	//Calculate this trade node's "received" value. This will be used for the predictions
 	//of this, and all upstream nodes that can (directly or indirectly) get trade value to
@@ -944,7 +984,7 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		"policy": us->trading_policy,
 		"ships": (int)us->light_ship, "ship_power": threeplace(us->ship_power),
 		"prov_power": threeplace(us->province_power),
-		"your_power": our_trade_power, "total_power": threeplace(here->total),
+		"your_power": passive_power, "total_power": threeplace(here->total),
 		//What is us->already_sent?
 		"total_value": total_value,
 		"current_collection": threeplace(us->money),
