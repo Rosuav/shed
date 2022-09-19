@@ -232,7 +232,7 @@ section("trade_nodes", "Trade nodes", state => [
 					],
 				]),
 				TD(node.passive_income < 0 ? "Incalculable" : money(node.passive_income)),
-				TD(money(node.active_income)),
+				TD(node.passive_income < 0 ? "Incalculable" : money(node.active_income)),
 				TD(node.passive_income < 0 ? "Incalculable" : money(node.active_income - node.passive_income)),
 			]);
 		}),

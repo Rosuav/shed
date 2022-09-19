@@ -883,11 +883,7 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		werror("MERCHANT POWER %O from %O\n", merchant_power, country_modifiers->_sources->placed_merchant_power);
 		werror("SHIP POWER %O from %O\n", country_modifiers->global_ship_trade_power, country_modifiers->_sources->global_ship_trade_power);
 	}
-	else if (us->has_trader && !us->type) {
-		//Collecting outside of home. Flag the "Passive" column as unknowable,
-		//and put the current collection in "Active".
-		passive_income = -1; active_income = threeplace(us->money);
-	}
+	else if (us->has_trader && !us->type) passive_income = -1; //Collecting outside of home. Flag as unknowable.
 
 	//Calculate this trade node's "received" value. This will be used for the predictions
 	//of this, and all upstream nodes that can (directly or indirectly) get trade value to
