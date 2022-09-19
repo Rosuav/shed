@@ -879,6 +879,8 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	//  (1-retention) * steer_power[n] * there->received
 	//and then sum that value for each downstream. Add all of these onto here->received.
 	array outgoings = Array.arrayify(here->steer_power);
+	array downstream = allocate(sizeof(outgoings));
+	array downstream_boost = allocate(sizeof(outgoings));
 	int tfr_fraction = 1000 - threeplace(here->retention); //What isn't retained is pulled forward
 	foreach (defn->outgoing; int i; mapping o) {
 		int fraction = threeplace(outgoings[i]);
@@ -894,6 +896,8 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 			int val = threeplace(inc->value);
 			if (val) transfer = transfer * val / (val - threeplace(inc->add));
 			received += transfer * dest->received / 1000;
+			downstream[i] = dest->received; //Allow simulation of changes to this node
+			downstream_boost[i] = val ? 1000 * val / (val - threeplace(inc->add)) : 1000;
 		}
 	}
 	here->received = received;
@@ -912,24 +916,21 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//your home node such that the 5% power bonus is meaningless.
 		int passive_collection = total_value * passive_power / (passive_power + foreign_power);
 		passive_income = passive_collection * trade_efficiency / 1000;
-		werror("PASSIVELY collect %d, income %d\n", passive_collection, passive_income);
 		int active_collection = total_value * active_power / (active_power + foreign_power);
 		active_income = active_collection * (trade_efficiency + 100) / 1000;
-		werror("ACTIVELY collect %d, income %d\n", active_collection, active_income);
-		werror("Passive power %d, active power %d, foreign %d, total value %d\n", passive_power, active_power, foreign_power, total_value);
-		werror("TRADE EFF %O from %O\n", trade_efficiency, country_modifiers->_sources->trade_efficiency);
-		werror("MERCHANT POWER %O from %O\n", merchant_power, country_modifiers->_sources->placed_merchant_power);
-		werror("SHIP POWER %O from %O\n", country_modifiers->global_ship_trade_power, country_modifiers->_sources->global_ship_trade_power);
 	}
 	else if (us->has_trader && !us->type) passive_income = -1; //Collecting outside of home. Flag as unknowable.
-	else {
+	else if (here->steer_power) {
 		//You are transferring trade power. If active, you get to choose where to, and
 		//your trade power is stronger; but even if passive, you'll still transfer.
 		//To calculate the benefit of a merchant here, we first sum up trade power of
 		//all other countries in this node, according to what they're doing.
+		//(If there's no steer_power entry, that means there's no downstreams, so you
+		//can't steer trade. Leave the estimates at zero.)
+		if (!arrayp(here->steer_power)) here->steer_power = ({here->steer_power});
 		int foreign_tfr, foreign_coll;
-		array(int) tfr_dest = allocate(sizeof(here->steer_power||({})));
-		array(int) tfr_count = allocate(sizeof(here->steer_power||({})));
+		array(int) tfr_power = allocate(sizeof(here->steer_power));
+		array(int) tfr_count = allocate(sizeof(here->steer_power));
 		foreach (here->top_power || ({ }); int i; string t) {
 			if (t == tag) continue; //Ignore ourselves for the moment.
 			mapping them = here[t];
@@ -945,22 +946,27 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 				//trader here to steer trade, so we won't crash.
 				foreign_tfr += power;
 				if (them->has_trader) {
-					tfr_dest[(int)them->steer_power] += power;
+					tfr_power[(int)them->steer_power] += power;
 					tfr_count[(int)them->steer_power]++;
 				}
 			}
-			if (here->definitions == "champagne") werror("Champagne %s %O\n", L10N(t), power);
+			//if (here->definitions == "champagne") werror("Champagne %s %O\n", L10N(t), power);
 		}
-		if (here->definitions == "champagne") werror("Transferring %d; collecting %d; retain %d\n", foreign_tfr, foreign_coll, 1000 * foreign_coll / (foreign_tfr + foreign_coll));
-		if (sizeof(tfr_dest) > 1) {
-			int foreign_steer = `+(0, @tfr_dest);
-			//There are some special cases. Normally, if nobody's steering trade, it gets
-			//split evenly among the destinations; but a destination is excluded if no
-			//country has trade power in both that node and this one. This is unlikely to
-			//make a material difference to the estimates, so I'm ignoring that rule.
-			if (here->definitions == "champagne") if (foreign_steer) werror("Steerage: %O\n", ((array(float))tfr_dest)[*] / foreign_steer);
-		}
-		//werror("%3d %s\n", sizeof(here->top_power), here->definitions);
+		int foreign_steer = `+(0, @tfr_power);
+		//There are some special cases. Normally, if nobody's steering trade, it gets
+		//split evenly among the destinations; but a destination is excluded if no
+		//country has trade power in both that node and this one. This is unlikely to
+		//make a material difference to the estimates, so I'm ignoring that rule.
+		//Okay. So, we now know what other nations are doing. Now we can add our own entry.
+		//First, passive. This means that our passive trade power is added to the "pulling"
+		//trade power, but not to any "steering".
+		int outgoing = total_value && total_value * (foreign_tfr + passive_power) / (foreign_tfr + passive_power + foreign_coll);
+		werror("%s: %d (tfr%{ %d%})\n", here->definitions, outgoing, downstream_boost);
+		//If we split this outgoing value according to the ratios in tfr_power, increase
+		//them according to their current growths, and multiply them by the destinations'
+		//received values, we'll see how much passive income we would get.
+		if (!foreign_steer) {tfr_power[*]++; foreign_steer = sizeof(tfr_power);} //Avoid division by zero; if there's no pull anywhere, pretend there's one trade power each way.
+		
 	}
 
 	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is
