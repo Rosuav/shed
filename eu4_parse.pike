@@ -843,6 +843,7 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	mapping country_modifiers = all_country_modifiers(data, data->countries[tag]);
 	int trade_efficiency = 1000 + country_modifiers->trade_efficiency; //Default trade efficiency is 100%
 	int merchant_power = 2000 + country_modifiers->placed_merchant_power; //Default merchant trade power is 2.0. Both come from defines, but modifiers are more important than defines.
+	int foreign_power = threeplace(here->total) - threeplace(us->val); //We assume this won't change.
 
 	int potential_power = threeplace(us->max_pow);
 	int power_modifiers = threeplace(us->max_demand); //max_demand sums all your current bonuses and penalties
@@ -864,17 +865,27 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//of your capital. We only care about trade here.) You can collect passively or
 		//have a merchant collecting, but you can never transfer trade away.
 		int active_power = (potential_power + merchant_power) * (power_modifiers + 50) / 1000 + threeplace(us->t_in);
+		//Predict passive income: our power / (our power + other power) * value * trade efficiency
+		//You would get this even without a merchant at home. Depending on your setup, it may
+		//be more profitable to collect passively, and transfer more in; but since there's a
+		//trade efficiency bonus for collecting with a merchant, this probably won't be the
+		//case until you have quite a lot of other efficiency bonuses, or you totally dominate
+		//your home node such that the 5% power bonus is meaningless.
+		int passive_collection = total_value * our_trade_power / (our_trade_power + foreign_power);
+		int passive_income = passive_collection * trade_efficiency / 1000;
+		werror("PASSIVELY collect %d, income %d\n", passive_collection, passive_income);
+		int active_collection = total_value * active_power / (active_power + foreign_power);
+		int active_income = active_collection * (trade_efficiency + 100) / 1000;
+		werror("ACTIVELY collect %d, income %d\n", active_collection, active_income);
+		werror("Passive power %d, active power %d, foreign %d, total value %d\n", our_trade_power, active_power, foreign_power, total_value);
 		werror("TRADE EFF %O from %O\n", trade_efficiency, country_modifiers->_sources->trade_efficiency);
 		werror("MERCHANT POWER %O from %O\n", merchant_power, country_modifiers->_sources->placed_merchant_power);
 		werror("SHIP POWER %O from %O\n", country_modifiers->global_ship_trade_power, country_modifiers->_sources->global_ship_trade_power);
-		int collection_amount = 0;
-		int collection_income = collection_amount * (1100 + trade_efficiency) / 1000; //Collecting with a merchant gives a 10% efficiency bonus.
 	}
 	else if (us->has_trader && !us->type) {
 		//TODO: Report "collecting outside of home node"
 	}
 
-	int foreign_power = threeplace(here->total) - threeplace(us->val);
 	if (!foreign_power && !potential_power) foreign_power = 1; //Empty trade node. Most likely total_value is zero too.
 	int steer_amount = total_value * potential_power / (potential_power + foreign_power);
 
