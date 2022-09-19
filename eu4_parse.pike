@@ -859,6 +859,7 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	//TODO: Calculate the effect of transferred-OUT trade power.
 	int our_trade_power = potential_power * power_modifiers / 1000 + threeplace(us->t_in);
 
+	int passive_income = 0, active_income = 0;
 	if (us->has_capital) {
 		//This node is where our main trade city is. (The attribute says "capital", but
 		//with the Wealth of Nations DLC, you can move your main trade city independently
@@ -872,10 +873,10 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//case until you have quite a lot of other efficiency bonuses, or you totally dominate
 		//your home node such that the 5% power bonus is meaningless.
 		int passive_collection = total_value * our_trade_power / (our_trade_power + foreign_power);
-		int passive_income = passive_collection * trade_efficiency / 1000;
+		passive_income = passive_collection * trade_efficiency / 1000;
 		werror("PASSIVELY collect %d, income %d\n", passive_collection, passive_income);
 		int active_collection = total_value * active_power / (active_power + foreign_power);
-		int active_income = active_collection * (trade_efficiency + 100) / 1000;
+		active_income = active_collection * (trade_efficiency + 100) / 1000;
 		werror("ACTIVELY collect %d, income %d\n", active_collection, active_income);
 		werror("Passive power %d, active power %d, foreign %d, total value %d\n", our_trade_power, active_power, foreign_power, total_value);
 		werror("TRADE EFF %O from %O\n", trade_efficiency, country_modifiers->_sources->trade_efficiency);
@@ -883,7 +884,9 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		werror("SHIP POWER %O from %O\n", country_modifiers->global_ship_trade_power, country_modifiers->_sources->global_ship_trade_power);
 	}
 	else if (us->has_trader && !us->type) {
-		//TODO: Report "collecting outside of home node"
+		//Collecting outside of home. Flag the "Passive" column as unknowable,
+		//and put the current collection in "Active".
+		passive_income = -1; active_income = threeplace(us->money);
 	}
 
 	//Calculate this trade node's "received" value. This will be used for the predictions
@@ -951,11 +954,7 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		"current_collection": threeplace(us->money),
 		"retention": threeplace(here->retention), //Per-mille retention of trade value
 		"received": received,
-		"predict": ([
-			"advice_do_nothing": "", "amt_do_nothing": 0,
-			"advice_transfer": "", "amt_transfer": 0,
-			"advice_collect": "", "amt_collect": 0, "amt_revenue": 0,
-		]),
+		"passive_income": passive_income, "active_income": active_income,
 	]);
 	return ret;
 }

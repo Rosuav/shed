@@ -215,7 +215,7 @@ section("trade_nodes", "Trade nodes", state => [
 	])]),
 	TABLE({border: "1"}, [
 		TR([TH("Node name"), TH("Node value"), TH("Total power"), TH("Your share"),
-			TH("Currently"), TH("Do nothing?"), TH("Transfer?"), TH("Collect?")]),
+			TH("Currently"), TH("Passive"), TH("Active"), TH("Benefit")]),
 		state.trade_nodes.sort((a, b) => (b.received - a.received)).map(node => {
 			console.log("Trade node", node);
 			return TR([
@@ -231,9 +231,9 @@ section("trade_nodes", "Trade nodes", state => [
 						money(node.current_collection),
 					],
 				]),
-				TD(node.predict.advice_do_nothing && [node.predict.advice_do_nothing, " ", money(node.predict.amt_do_nothing)]),
-				TD(node.predict.advice_transfer && [node.predict.advice_transfer, " ", money(node.predict.amt_transfer)]),
-				TD(node.predict.advice_collect && [money(node.predict.amt_collect), " giving ", money(node.predict.amt_revenue)]),
+				TD(node.passive_income < 0 ? "Incalculable" : money(node.passive_income)),
+				TD(money(node.active_income)),
+				TD(node.passive_income < 0 ? "Incalculable" : money(node.active_income - node.passive_income)),
 			]);
 		}),
 	]),
