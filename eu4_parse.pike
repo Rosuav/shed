@@ -942,15 +942,13 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 				//Otherwise you're trying to move trade downstream, but without
 				//a merchant here, you are not affecting the precise direction.
 				//Note that this won't much matter if there's only one downstream.
-				//And if there are NO downstreams, the game won't let you put a
-				//trader here to steer trade, so we won't crash.
 				foreign_tfr += power;
 				if (them->has_trader) {
 					tfr_power[(int)them->steer_power] += power;
 					tfr_count[(int)them->steer_power]++;
 				}
 			}
-			//if (here->definitions == "champagne") werror("Champagne %s %O\n", L10N(t), power);
+			if (here->definitions == "champagne") werror("Champagne %s %O\n", L10N(t), power);
 		}
 		int foreign_steer = `+(0, @tfr_power);
 		//There are some special cases. Normally, if nobody's steering trade, it gets
@@ -961,12 +959,16 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//First, passive. This means that our passive trade power is added to the "pulling"
 		//trade power, but not to any "steering".
 		int outgoing = total_value && total_value * (foreign_tfr + passive_power) / (foreign_tfr + passive_power + foreign_coll);
-		werror("%s: %d (tfr%{ %d%})\n", here->definitions, outgoing, downstream_boost);
+		if (here->definitions == "champagne") werror("Total %d out %d (tfr%{ %d%})\n", total_value, outgoing, downstream);
 		//If we split this outgoing value according to the ratios in tfr_power, increase
 		//them according to their current growths, and multiply them by the destinations'
 		//received values, we'll see how much passive income we would get.
 		if (!foreign_steer) {tfr_power[*]++; foreign_steer = sizeof(tfr_power);} //Avoid division by zero; if there's no pull anywhere, pretend there's one trade power each way.
-		
+		passive_income = outgoing * `+(@(`*(downstream[*], downstream_boost[*], tfr_power[*]))) / foreign_steer / 1000000;
+		if (here->definitions == "champagne") werror("Outgoing:%{ %d%}\n", `*(tfr_power[*], outgoing)[*] / foreign_steer);
+		if (here->definitions == "champagne") werror("Boosted:%{ %d%}\n", `*(downstream_boost[*], tfr_power[*], outgoing)[*] / foreign_steer);
+		if (here->definitions == "champagne") werror("Our share:%{ %d%}\n", `*(downstream[*], downstream_boost[*], tfr_power[*], outgoing)[*] / (foreign_steer*1000000));
+		if (here->definitions == "champagne") werror("Total: %d\n", passive_income);
 	}
 
 	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is
