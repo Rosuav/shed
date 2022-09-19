@@ -860,6 +860,44 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	int passive_power = potential_power * power_modifiers / 1000 + threeplace(us->t_in);
 	int active_power = (potential_power + merchant_power) * (power_modifiers + 50) / 1000 + threeplace(us->t_in);
 
+	//Calculate this trade node's "received" value. This will be used for the predictions
+	//of this, and all upstream nodes that can (directly or indirectly) get trade value to
+	//this one. Broadly speaking, here->received is the number of ducats of income which
+	//you would receive if the trade value in this node were increased by 1000 ducats. Note
+	//that it is very possible for this value to exceed 1000 - trade efficiency is applied
+	//to this value - and even the base value can grow superlinearly when you transfer to a
+	//node you dominate at.
+
+	int received = us->money && threeplace(us->money) * 1000 / total_value;
+
+	//Regardless of collection, you also can potentially gain revenue from any downstream
+	//nodes. This node enhances the nodes downstream of it according to the non-retained
+	//proportion of its value, sharing that value according to the steer_power fractions,
+	//and enhanced by the ratio of incoming to outgoing for that link. Due to the way the
+	//nodes have been ordered, we are guaranteed that every downstream link has already
+	//been assigned its there->received value, so we can calculate, for each downstream:
+	//  (1-retention) * steer_power[n] * there->received
+	//and then sum that value for each downstream. Add all of these onto here->received.
+	array outgoings = Array.arrayify(here->steer_power);
+	int tfr_fraction = 1000 - threeplace(here->retention); //What isn't retained is pulled forward
+	foreach (defn->outgoing; int i; mapping o) {
+		int fraction = threeplace(outgoings[i]);
+		//Find the destination index. This is 1-based and corresponds to the
+		//order of the nodes in the definitions file.
+		mapping dest = trade_nodes[o->name];
+		string id = (string)(defn->_index + 1);
+		//Find the corresponding incoming entry in the destination node
+		foreach (Array.arrayify(dest->incoming), mapping inc) if (inc->from == id) {
+			//The amount sent out from here
+			int transfer = tfr_fraction * fraction / 1000;
+			//Assume that the current enhancement rate (if any) will continue.
+			int val = threeplace(inc->value);
+			if (val) transfer = transfer * val / (val - threeplace(inc->add));
+			received += transfer * dest->received / 1000;
+		}
+	}
+	here->received = received;
+
 	int passive_income = 0, active_income = 0;
 	if (us->has_capital) {
 		//This node is where our main trade city is. (The attribute says "capital", but
@@ -924,44 +962,6 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		}
 		//werror("%3d %s\n", sizeof(here->top_power), here->definitions);
 	}
-
-	//Calculate this trade node's "received" value. This will be used for the predictions
-	//of this, and all upstream nodes that can (directly or indirectly) get trade value to
-	//this one. Broadly speaking, here->received is the number of ducats of income which
-	//you would receive if the trade value in this node were increased by 1000 ducats. Note
-	//that it is very possible for this value to exceed 1000 - trade efficiency is applied
-	//to this value - and even the base value can grow superlinearly when you transfer to a
-	//node you dominate at.
-
-	int received = us->money && threeplace(us->money) * 1000 / total_value;
-
-	//Regardless of collection, you also can potentially gain revenue from any downstream
-	//nodes. This node enhances the nodes downstream of it according to the non-retained
-	//proportion of its value, sharing that value according to the steer_power fractions,
-	//and enhanced by the ratio of incoming to outgoing for that link. Due to the way the
-	//nodes have been ordered, we are guaranteed that every downstream link has already
-	//been assigned its there->received value, so we can calculate, for each downstream:
-	//  (1-retention) * steer_power[n] * there->received
-	//and then sum that value for each downstream. Add all of these onto here->received.
-	array outgoings = Array.arrayify(here->steer_power);
-	int tfr_fraction = 1000 - threeplace(here->retention); //What isn't retained is pulled forward
-	foreach (defn->outgoing; int i; mapping o) {
-		int fraction = threeplace(outgoings[i]);
-		//Find the destination index. This is 1-based and corresponds to the
-		//order of the nodes in the definitions file.
-		mapping dest = trade_nodes[o->name];
-		string id = (string)(defn->_index + 1);
-		//Find the corresponding incoming entry in the destination node
-		foreach (Array.arrayify(dest->incoming), mapping inc) if (inc->from == id) {
-			//The amount sent out from here
-			int transfer = tfr_fraction * fraction / 1000;
-			//Assume that the current enhancement rate (if any) will continue.
-			int val = threeplace(inc->value);
-			if (val) transfer = transfer * val / (val - threeplace(inc->add));
-			received += transfer * dest->received / 1000;
-		}
-	}
-	here->received = received;
 
 	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is
 	//one of the benefits of Transfer Trade Power over collecting in multiple nodes.
