@@ -197,7 +197,8 @@ section("trade_nodes", "Trade nodes", state => [
 		]),
 		LI([
 			"Your share - if the trade in this node is increased by 1 ducat/month, how much would you gain? Includes ",
-			"all downstream profit, but does not factor in trade efficiency bonuses, which apply to your entire empire.",
+			"all downstream profit, including trade efficiency bonuses. Based on current stats only; your share can and ",
+			"usually will increase when you send traders around.",
 		]),
 		LI([
 			"Transfer? - This column says what would be gained by the optimal Transfer Trade Power choice, and says the ",
@@ -208,8 +209,8 @@ section("trade_nodes", "Trade nodes", state => [
 			"Passive - Your home node will always collect from trade, even without a trader; you cannot transfer trade ",
 			"away from your home. Having a merchant collect at your home adds 2 trade power, permits a trade policy ",
 			"(which defaults to giving 5% more trade power), and does not have the usual 50% collection penalty; it is ",
-			"therefore always strictly better to collect at home than to not. However it is usually of marginal benefit, ",
-			"and your merchant can better serve your nation elsewhere.",
+			"therefore always strictly better to collect at home than to not, but it may be more valuable to have your ",
+			"merchant work elsewhere.",
 		]),
 	])]),
 	TABLE({border: "1"}, [

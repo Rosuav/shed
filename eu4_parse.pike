@@ -886,51 +886,16 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//TODO: Report "collecting outside of home node"
 	}
 
-	if (!foreign_power && !potential_power) foreign_power = 1; //Empty trade node. Most likely total_value is zero too.
-	int steer_amount = total_value * potential_power / (potential_power + foreign_power);
-
 	//Calculate this trade node's "received" value. This will be used for the predictions
 	//of this, and all upstream nodes that can (directly or indirectly) get trade value to
 	//this one. Broadly speaking, here->received is the number of ducats of income which
 	//you would receive if the trade value in this node were increased by 1000 ducats. Note
-	//that it is entirely possible for this value to exceed 1000, by transferring trade to
-	//a node at which you have the vast majority of the trade power.
+	//that it is very possible for this value to exceed 1000 - trade efficiency is applied
+	//to this value - and even the base value can grow superlinearly when you transfer to a
+	//node you dominate at.
 
-	int received = 0;
-	string advice_do_nothing, advice_transfer, advice_collect;
-	int amt_do_nothing, amt_transfer, amt_collect, amt_revenue;
-	if (us->has_capital) {
-		//In your home node, you automatically collect trade, even if you don't have a merchant.
-		//Note that you cannot have a merchant steer trade away from your home node.
-		received += our_trade_power * 1000 / threeplace(here->total);
-		advice_do_nothing = "Passive"; advice_collect = "Collect";
-		advice_transfer = ""; amt_transfer = 0; //Can't steer away from home
-		if (!us->has_trader) {
-			//You collect automatically, but if you were to send a merchant here,
-			//you would gain trade power and efficiency.
-			amt_do_nothing = total_value * received / 1000;
-			//At your home node, there's no trade power penalty for collecting, so the
-			//potential to be collected is actually the same as the potential that you
-			//would be able to steer, had it not been your home node.
-			amt_collect = steer_amount;
-			//It's useful to know how much you'd actually get, with trade efficiency bonus
-			amt_revenue = steer_amount * (1100 + trade_efficiency) / 1000;
-		} else {
-			//Perform the same predictive calculations as above, but *removing* the effect
-			//of a merchant's presence.
-			int policy_bonus = us->trading_policy == "maximize_profit" ? 50 : 0;
-			int passive_power = (threeplace(us->max_pow) - 2000) //Your base trade power goes down by 2
-				* (threeplace(us->max_demand) - policy_bonus) / 1000 //And your trade power modifier loses 5%
-				+ threeplace(us->t_in); //But transfers are unchanged.
-			amt_do_nothing = total_value * passive_power / (passive_power + foreign_power);
-			amt_collect = total_value * received / 1000;
-			amt_revenue = amt_collect * (1000 + trade_efficiency) / 1000; //No extra 10% efficiency
-		}
-		amt_do_nothing = amt_do_nothing * (1000 + trade_efficiency) / 1000; //Show the post-efficiency calculation here
-	} else {
-		//In foreign nodes, if you're not collecting, you receive nothing here.
-		if (us->has_trader && !us->type) received += our_trade_power * 1000 / threeplace(here->total);
-	}
+	int received = us->money && threeplace(us->money) * 1000 / total_value;
+
 	//Regardless of collection, you also can potentially gain revenue from any downstream
 	//nodes. This node enhances the nodes downstream of it according to the non-retained
 	//proportion of its value, sharing that value according to the steer_power fractions,
@@ -959,8 +924,8 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	}
 	here->received = received;
 
-	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is the
-	//main benefit of Transfer Trade Power rather than Collect from Trade.
+	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is
+	//one of the benefits of Transfer Trade Power over collecting in multiple nodes.
 	//TODO: Check effect of trade company, colonial nation, caravan power (and modifiers)
 	//TODO: Check effect of embargoes
 	/* Privateering:
@@ -987,9 +952,9 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		"retention": threeplace(here->retention), //Per-mille retention of trade value
 		"received": received,
 		"predict": ([
-			"advice_do_nothing": advice_do_nothing, "amt_do_nothing": amt_do_nothing,
-			"advice_transfer": advice_transfer, "amt_transfer": amt_transfer,
-			"advice_collect": advice_collect, "amt_collect": amt_collect, "amt_revenue": amt_revenue,
+			"advice_do_nothing": "", "amt_do_nothing": 0,
+			"advice_transfer": "", "amt_transfer": 0,
+			"advice_collect": "", "amt_collect": 0, "amt_revenue": 0,
 		]),
 	]);
 	return ret;
