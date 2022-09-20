@@ -203,7 +203,9 @@ section("trade_nodes", "Trade nodes", state => [
 			"occupy other nations' lands). Make peace before depending on these figures.",
 		]),
 		LI([
-			"Node value and total power should correspond with the respective values in F1, 5, the Trade tab.",
+			"Node value and total power should correspond with the respective values in F1, 5, the Trade tab. Each node ",
+			"is identified with the number of downstream nodes from it - 0 indicates an end node, 1 a transfer node, ",
+			"and 2 or more a decider node, where the direction of trade steering makes a difference.",
 		]),
 		LI([
 			"Your share - if the trade in this node is increased by 1 ducat/month, how much would you gain? Includes ",
@@ -236,11 +238,15 @@ section("trade_nodes", "Trade nodes", state => [
 	])]),
 	TABLE({border: "1"}, [
 		TR([TH("Node name"), TH("Node value"), TH("Total power"), TH("Your share"),
-			TH("Currently"), TH("Passive"), TH("Active"), TH("Benefit")]),
+			TH("Currently"), TH("Passive"), TH("Active"), TH("Benefit"),]),
 		state.trade_nodes.sort(tradenode_order).map(node => {
 			console.log("Trade node", node);
 			return TR([
-				TD(B(node.name)), //TODO: Hide PROV(node.province) somewhere out of the way
+				TD([
+					B(node.name),
+					" (" + node.downstreams + ")",
+					//TODO: Hide PROV(node.province) somewhere out of the way
+				]),
 				TD(threeplace(node.total_value)),
 				TD(threeplace(node.total_power)),
 				TD(threeplace(node.received)),

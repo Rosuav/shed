@@ -1026,6 +1026,7 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		"retention": threeplace(here->retention), //Per-mille retention of trade value
 		"received": received,
 		"passive_income": passive_income, "active_income": active_income,
+		"downstreams": sizeof(outgoings),
 	]);
 	return ret;
 }
