@@ -945,7 +945,9 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 				//Note that this won't much matter if there's only one downstream.
 				foreign_tfr += power;
 				if (them->has_trader) {
-					//FIXME: Modify every country's trade power by its trade steering bonus
+					//Modify every country's trade power by its trade steering bonus
+					int steering = all_country_modifiers(data, data->countries[t])->trade_steering;
+					if (steering) power = power * (1000 + steering) / 1000;
 					tfr_power[(int)them->steer_power] += power;
 					tfr_count[(int)them->steer_power]++;
 				}
@@ -982,16 +984,19 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		foreach (downstream; int d; int rcvd) if (rcvd > downstream[dest]) dest = d;
 		if (log) werror("Chosen dest: %d\n", dest);
 		outgoing = total_value * (foreign_tfr + active_power) / (foreign_tfr + active_power + foreign_coll);
-		tfr_power[dest] += active_power; total_steer += active_power;
+		int steering_power = active_power;
+		int steering_bonus = all_country_modifiers(data, data->countries[tag])->trade_steering;
+		if (steering_bonus) steering_power = steering_power * (1000 + steering_bonus) / 1000;
+		tfr_power[dest] += steering_power; total_steer += steering_power;
 		//Have a guess at how much the trade link would gain by the additional merchant.
-		//FIXME: Increase this value by your trade steering modifier.
 		//This won't be perfectly accurate, as we won't necessarily be added at the end
 		//(which means the trade steering bonuses may get applied separately), but it
 		//should be kinda closeish.
-		if (tfr_count[dest] < 5) tfr_count[dest] += ({.05, .025, .016, .012, .01})[tfr_count[dest]];
+		if (tfr_count[dest] < 5) downstream_boost[dest] += ({50, 25, 16, 12, 10})[tfr_count[dest]] * (1000 + steering_bonus) / 1000;
 		active_income = outgoing * `+(@(`*(downstream[*], downstream_boost[*], tfr_power[*]))) / total_steer / 1000000;
 		if (log) {
 			werror("Outgoing:%{ %d%}\n", `*(tfr_power[*], outgoing)[*] / total_steer);
+			werror("Boost:%{ %d%}\n", downstream_boost);
 			werror("Boosted:%{ %d%}\n", `*(downstream_boost[*], tfr_power[*], outgoing)[*] / total_steer);
 			werror("Our share:%{ %d%}\n", `*(downstream[*], downstream_boost[*], tfr_power[*], outgoing)[*] / (total_steer*1000000));
 			werror("Total: %d\n", active_income);
