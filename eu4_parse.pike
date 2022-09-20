@@ -486,7 +486,7 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 			foreach (Array.arrayify(estate->influence_modifier), mapping mod)
 				//It's possible to have the same modifier more than once (eg "Diet Summoned").
 				//Rather than show them all separately, collapse them into "Diet Summoned: 15%".
-				influence[L10N(mod->desc)] += threeplace(mod->value);
+				influence[L10N(mod->desc) || "(unknown modifier)"] += threeplace(mod->value);
 			foreach (Array.arrayify(modifiers->_sources[replace(estate->type, "estate_", "") + "_influence_modifier"]), string mod) {
 				sscanf(reverse(mod), "%[0-9] :%s", string value, string desc);
 				influence[reverse(desc)] += (int)reverse(value) * 100; //Just in case they show up more than once
