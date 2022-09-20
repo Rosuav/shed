@@ -492,7 +492,6 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 				influence[reverse(desc)] += (int)reverse(value) * 100; //Just in case they show up more than once
 			}
 			influence["Land share"] = threeplace(estate->territory) / 2; //Is this always the case? 42% land share gives 21% influence?
-			estate->influence_sources = influence;
 			//Attempt to parse the estate influence modifier blocks. This is imperfect and limited.
 			foreach (Array.arrayify(estate_defn->influence_modifier), mapping mod) {
 				if (!trigger_matches(data, ({country}), "AND", mod->trigger)) continue;
