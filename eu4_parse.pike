@@ -934,7 +934,7 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		array(int) tfr_count = allocate(sizeof(here->steer_power));
 		foreach (here->top_power || ({ }); int i; string t) {
 			if (t == tag) continue; //Ignore ourselves for the moment.
-			mapping them = here[t];
+			mapping them = here[t] || ([]);
 			int power = threeplace(here->top_power_values[i]);
 			//If your home node is here, or you have a merchant collecting, your
 			//trade power is attempting to retain value here.
