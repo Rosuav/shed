@@ -927,7 +927,6 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//all other countries in this node, according to what they're doing.
 		//(If there's no steer_power entry, that means there's no downstreams, so you
 		//can't steer trade. Leave the estimates at zero.)
-		int log = here->definitions == "champagne";
 		if (!arrayp(here->steer_power)) here->steer_power = ({here->steer_power});
 		int foreign_tfr, foreign_coll;
 		array(int) tfr_power = allocate(sizeof(here->steer_power));
@@ -952,7 +951,6 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 					tfr_count[(int)them->steer_power]++;
 				}
 			}
-			if (log) werror("%s %s %O\n", L10N(here->definitions), L10N(t), power);
 		}
 		int total_steer = `+(0, @tfr_power);
 		//There are some special cases. Normally, if nobody's steering trade, it gets
@@ -963,18 +961,11 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//First, passive. This means that our passive trade power is added to the "pulling"
 		//trade power, but not to any "steering".
 		int outgoing = total_value * (foreign_tfr + passive_power) / (foreign_tfr + passive_power + foreign_coll);
-		if (log) werror("Total %d out %d (tfr%{ %d%})\n", total_value, outgoing, downstream);
 		//If we split this outgoing value according to the ratios in tfr_power, increase
 		//them according to their current growths, and multiply them by the destinations'
 		//received values, we'll see how much passive income we would get.
 		if (!total_steer) {tfr_power[*]++; total_steer = sizeof(tfr_power);} //Avoid division by zero; if there's no pull anywhere, pretend there's one trade power each way.
 		passive_income = outgoing * `+(@(`*(downstream[*], downstream_boost[*], tfr_power[*]))) / total_steer / 1000000;
-		if (log) {
-			werror("Outgoing:%{ %d%}\n", `*(tfr_power[*], outgoing)[*] / total_steer);
-			werror("Boosted:%{ %d%}\n", `*(downstream_boost[*], tfr_power[*], outgoing)[*] / total_steer);
-			werror("Our share:%{ %d%}\n", `*(downstream[*], downstream_boost[*], tfr_power[*], outgoing)[*] / (total_steer*1000000));
-			werror("Total: %d\n", passive_income);
-		}
 		//Next, active. For every possible destination, calculate the benefit. Or, since
 		//it's almost always going to be the right choice, just pick the one with the
 		//highest Received value. For a different destination to be materially better, it
@@ -982,7 +973,6 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//which will be a bit chancy (that strong pull will probably take most of the value).
 		int dest = 0;
 		foreach (downstream; int d; int rcvd) if (rcvd > downstream[dest]) dest = d;
-		if (log) werror("Chosen dest: %d\n", dest);
 		outgoing = total_value * (foreign_tfr + active_power) / (foreign_tfr + active_power + foreign_coll);
 		int steering_power = active_power;
 		int steering_bonus = all_country_modifiers(data, data->countries[tag])->trade_steering;
@@ -994,13 +984,6 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//should be kinda closeish.
 		if (tfr_count[dest] < 5) downstream_boost[dest] += ({50, 25, 16, 12, 10})[tfr_count[dest]] * (1000 + steering_bonus) / 1000;
 		active_income = outgoing * `+(@(`*(downstream[*], downstream_boost[*], tfr_power[*]))) / total_steer / 1000000;
-		if (log) {
-			werror("Outgoing:%{ %d%}\n", `*(tfr_power[*], outgoing)[*] / total_steer);
-			werror("Boost:%{ %d%}\n", downstream_boost);
-			werror("Boosted:%{ %d%}\n", `*(downstream_boost[*], tfr_power[*], outgoing)[*] / total_steer);
-			werror("Our share:%{ %d%}\n", `*(downstream[*], downstream_boost[*], tfr_power[*], outgoing)[*] / (total_steer*1000000));
-			werror("Total: %d\n", active_income);
-		}
 	}
 
 	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is
