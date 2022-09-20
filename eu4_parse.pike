@@ -1385,12 +1385,13 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 						//the whiskey wasn't.
 						break;
 					}
+					case "religious_tolerance_state_edict": //Special age ability if you have the right govt reform
 					case "edict_religious_unity": {
 						//Necessary if province does not follow state religion
 						if (prov->religion != country->religion) unnecessary = 0;
 						break;
 					}
-					default: break; //All other edicts are presumed to be deliberate.
+					default: unnecessary = 0; break; //All other edicts are presumed to be deliberate.
 				}
 			}
 			if (unnecessary) write->notifications += ({({
