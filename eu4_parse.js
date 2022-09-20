@@ -29,6 +29,10 @@ function provleave() { //Can safely be put into a DOM array (will be ignored)
 	}
 	curgroup.pop();
 }
+function GOTOPROV(id) {
+	const info = province_info[id] || { }, disc = info.discovered;
+	return SPAN({className: "goto-province provbtn", title: (disc ? "Go to #" : "Terra Incognita, cannot goto #") + id, "data-provid": id}, disc ? "🔭" : "🌐")
+}
 function PROV(id, nameoverride, namelast) {
 	let g, current = "";
 	for (let kwd of curgroup) {
@@ -39,12 +43,11 @@ function PROV(id, nameoverride, namelast) {
 		if (g === selected_provgroup && id === selected_prov_cycle[selected_prov_cycle.length - 1]) current = " selected";
 	}
 	const pin = pinned_provinces[id], info = province_info[id] || { };
-	const disc = info.discovered;
 	if (!nameoverride && nameoverride !== "") nameoverride = info?.name || "";
 	return SPAN({className: "province" + current}, [
 		!namelast && nameoverride,
 		info.wet && "🌊",
-		SPAN({className: "goto-province provbtn", title: (disc ? "Go to #" : "Terra Incognita, cannot goto #") + id, "data-provid": id}, disc ? "🔭" : "🌐"),
+		GOTOPROV(id),
 		SPAN({className: "pin-province provbtn", title: (pin ? "Unpin #" : "Pin #") + id, "data-provid": id}, pin ? "⛳" : "📌"),
 		namelast && nameoverride,
 		info.owner && [" ", COUNTRY(info.owner, " ")], //No flag if unowned
@@ -244,8 +247,8 @@ section("trade_nodes", "Trade nodes", state => [
 			return TR([
 				TD([
 					B(node.name),
-					" (" + node.downstreams + ")",
-					//TODO: Hide PROV(node.province) somewhere out of the way
+					" (" + node.downstreams + ") ",
+					GOTOPROV(node.province, ""),
 				]),
 				TD(threeplace(node.total_value)),
 				TD(threeplace(node.total_power)),
