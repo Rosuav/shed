@@ -181,6 +181,13 @@ section("cot", "Centers of Trade", state => {
 function threeplace(n) {return (n / 1000).toFixed(2);}
 function money(n) {return SPAN({style: "color: #770"}, threeplace(n));}
 
+function tradenode_order(a, b) {
+	if (a.passive_income < 0) return -1; //Any "incalculable" entries get pushed to the start to get your attention.
+	if (b.passive_income < 0) return 1;
+	//Otherwise, sort by the improvement that a merchant gives.
+	return (b.active_income - b.passive_income) - (a.active_income - a.passive_income);
+}
+
 section("trade_nodes", "Trade nodes", state => [
 	SUMMARY("Trade nodes"),
 	DETAILS([SUMMARY("Explanatory notes"), UL([
@@ -216,7 +223,7 @@ section("trade_nodes", "Trade nodes", state => [
 	TABLE({border: "1"}, [
 		TR([TH("Node name"), TH("Node value"), TH("Total power"), TH("Your share"),
 			TH("Currently"), TH("Passive"), TH("Active"), TH("Benefit")]),
-		state.trade_nodes.sort((a, b) => (b.received - a.received)).map(node => {
+		state.trade_nodes.sort(tradenode_order).map(node => {
 			console.log("Trade node", node);
 			return TR([
 				TD(B(node.name)), //TODO: Hide PROV(node.province) somewhere out of the way
