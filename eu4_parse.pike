@@ -452,6 +452,9 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	//- Monuments. Might be hard, since they have restrictions. Can we see in the savefile if they're active?
 	//- Religious modifiers (icons, cults, aspects, etc)
 	//- Government type modifiers (eg march, vassal, colony)
+	//- Naval tradition (which affects trade steering and thus the trade recommendations)
+	//- Being a trade league leader (scaled by the number of members)
+	//- Stability
 
 	if (country->luck) _incorporate(data, modifiers, "Luck", static_modifiers->luck); //Lucky nations (AI-only) get bonuses.
 	if (int innov = threeplace(country->innovativeness)) _incorporate(data, modifiers, "Innovativeness", static_modifiers->innovativeness, innov, 100000);
