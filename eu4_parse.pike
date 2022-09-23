@@ -962,7 +962,7 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		//Okay. So, we now know what other nations are doing. Now we can add our own entry.
 		//First, passive. This means that our passive trade power is added to the "pulling"
 		//trade power, but not to any "steering".
-		int outgoing = total_value * (foreign_tfr + passive_power) / (foreign_tfr + passive_power + foreign_coll);
+		int outgoing = total_value * (foreign_tfr + passive_power) / ((foreign_tfr + passive_power + foreign_coll) || 1);
 		//If we split this outgoing value according to the ratios in tfr_power, increase
 		//them according to their current growths, and multiply them by the destinations'
 		//received values, we'll see how much passive income we would get.
