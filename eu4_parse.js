@@ -70,6 +70,8 @@ function COUNTRY(tag, nameoverride) {
 function update_hover_country(tag) {
 	const c = country_info[hovertag = tag];
 	const me = country_info[countrytag] || {tech: [0,0,0]};
+	document.querySelectorAll("#miltech .interesting2").forEach(el => el.classList.remove("interesting2"));
+	document.querySelectorAll("#miltech .hovercountry").forEach(el => replace_content(el, ""));
 	if (!c) {
 		replace_content("#hovercountry", "").classList.add("hidden");
 		return;
@@ -105,6 +107,9 @@ function update_hover_country(tag) {
 			c.truce && LI([B("Truce"), " until " + c.truce + " 🏳"]),
 		]),
 	]).classList.remove("hidden");
+	const sel = '#miltech [data-tech="' + c.tech[2] + '"]';
+	DOM(sel).classList.add("interesting2");
+	replace_content(sel + " .hovercountry", c.name);
 }
 //Once you point to a country, it will remain highlighted (even through savefile updates),
 //for a few seconds or indefinitely if you hover over the expanded info box.
@@ -499,6 +504,37 @@ section("cbs", "Casus belli", state => [
 		])),
 	]),
 ]);
+
+section("miltech", "Military technology", state => {
+	const mine = state.miltech.levels[state.miltech.current];
+	function value(tech, key) {
+		const myval = mine[key], curval = tech[key];
+		let className = "tech";
+		if (curval > myval) className += " above";
+		if (curval < myval) className += " below";
+		return SPAN({className}, ""+((curval-myval)/1000));
+	}
+	const hover = country_info[hovertag] || {tech: [-1,-1,-1]};
+	return [
+		SUMMARY(`Military technology (${state.miltech.current})`),
+		TABLE({border: true}, [
+			table_head(["Level", "Infantry", "Cavalry", "Artillery", "Morale", "Tactics", ""]),
+			state.miltech.levels.map((tech, i) => TR({
+				class: i === state.miltech.current ? "interesting1"
+				: i === hover.tech[2] ? "interesting2" : "",
+				"data-tech": i,
+			}, [
+				TD([""+i, i === state.miltech.current && " (you)"]),
+				TD([value(tech, "infantry_fire"), " / ", value(tech, "infantry_shock")]),
+				TD([value(tech, "cavalry_fire"), " / ", value(tech, "cavalry_shock")]),
+				TD([value(tech, "artillery_fire"), " / ", value(tech, "artillery_shock")]),
+				TD(value(tech, "land_morale")),
+				TD(value(tech, "military_tactics")),
+				TD({class: "hovercountry"}, i === hover.tech[2] && hover.name),
+			])),
+		]),
+	];
+});
 
 export function render(state) {
 	curgroup = []; provgroups = { };

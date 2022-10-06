@@ -1489,6 +1489,33 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	array all_nodes = data->trade->node;
 	mapping trade_nodes = mkmapping(all_nodes->definitions, all_nodes);
 	write->trade_nodes = analyze_trade_node(data, trade_nodes, tag, tradenode_upstream_order[*]);
+
+	//Get info about mil tech levels and which ones are important
+	write->tech_raw = tech_definitions->mil->technology;
+	int your_tech = (int)country->technology->mil_tech;
+	string your_group = country->technology_group;
+	mapping cumul = ([
+		//"infantry": 0, //Total pips. TODO: Split by tech group.
+		//"cavalry": 0, //Ditto
+		"artillery": 0, //Total pips. Does not depend on tech group (everyone shares the same units).
+		"infantry_fire": 0, "infantry_shock": 0,
+		"cavalry_fire": 0, "cavalry_shock": 0,
+		"artillery_fire": 0, "artillery_shock": 0,
+		"land_morale": 0,
+		"military_tactics": 500,
+		"maneuver_value": 0, //What's this do exactly? Does it add to your troops' maneuver? Does it multiply?
+	]);
+	array miltech = ({ });
+	foreach (tech_definitions->mil->technology; int lvl; mapping tech) {
+		foreach (cumul; string k; string cur)
+			cumul[k] = cur + threeplace(tech[k]);
+		miltech += ({cumul + ([])});
+	}
+	write->miltech = ([
+		"current": your_tech,
+		"group": your_group,
+		"levels": miltech,
+	]);
 }
 
 mapping(string:array) interesting_provinces = ([]);
