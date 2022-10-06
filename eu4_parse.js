@@ -508,7 +508,7 @@ section("cbs", "Casus belli", state => [
 section("miltech", "Military technology", state => {
 	const mine = state.miltech.levels[state.miltech.current];
 	function value(tech, key) {
-		const myval = mine[key], curval = tech[key];
+		const myval = mine[key] || 0, curval = tech[key] || 0;
 		let className = "tech";
 		if (curval > myval) className += " above";
 		if (curval < myval) className += " below";
@@ -518,7 +518,7 @@ section("miltech", "Military technology", state => {
 	return [
 		SUMMARY(`Military technology (${state.miltech.current})`),
 		TABLE({border: true}, [
-			table_head(["Level", "Infantry", "Cavalry", "Artillery", "Morale", "Tactics", ""]),
+			table_head(["Level", "Infantry", "Cavalry", "Artillery", "Morale", "Tactics", state.miltech.groupname, ""]),
 			state.miltech.levels.map((tech, i) => TR({
 				class: i === state.miltech.current ? "interesting1"
 				: i === hover.tech[2] ? "interesting2" : "",
@@ -530,6 +530,11 @@ section("miltech", "Military technology", state => {
 				TD([value(tech, "artillery_fire"), " / ", value(tech, "artillery_shock")]),
 				TD(value(tech, "land_morale")),
 				TD(value(tech, "military_tactics")),
+				TD([
+					value(tech, state.miltech.group + "_infantry"), " / ",
+					value(tech, state.miltech.group + "_cavalry"), " / ",
+					value(tech, "0_artillery"), //Arty doesn't go by groups
+				]),
 				TD({class: "hovercountry"}, i === hover.tech[2] && hover.name),
 			])),
 		]),

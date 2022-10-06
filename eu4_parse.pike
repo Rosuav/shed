@@ -1495,6 +1495,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	write->miltech = ([
 		"current": (int)country->technology->mil_tech,
 		"group": country->technology_group,
+		"groupname": L10N(country->technology_group),
 		"levels": military_tech_levels,
 	]);
 }
@@ -2696,7 +2697,7 @@ int main(int argc, array(string) argv) {
 			int pips = (int)unit->offensive_morale + (int)unit->defensive_morale
 				+ (int)unit->offensive_fire + (int)unit->defensive_fire
 				+ (int)unit->offensive_shock + (int)unit->defensive_shock;
-			techgroups[unit->unit_type + "_" + unit->type] = pips;
+			techgroups[unit->unit_type + "_" + unit->type] = pips * 1000; //Put everything in threeplace for consistency
 		}
 		military_tech_levels += ({cumul + techgroups});
 	}
