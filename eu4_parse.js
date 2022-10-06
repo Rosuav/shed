@@ -67,8 +67,8 @@ function COUNTRY(tag, nameoverride) {
 		c.truce && SPAN({title: "Truce until " + c.truce}, " 🏳"),
 	]);
 }
-function update_hover_country() {
-	const tag = hovertag, c = country_info[tag];
+function update_hover_country(tag) {
+	const c = country_info[hovertag = tag];
 	const me = country_info[countrytag] || {tech: [0,0,0]};
 	if (!c) {
 		replace_content("#hovercountry", "").classList.add("hidden");
@@ -106,11 +106,18 @@ function update_hover_country() {
 		]),
 	]).classList.remove("hidden");
 }
-//Note that there is no mouseout. Once you point to a country, it will remain highlighted (even through savefile updates).
-on("mouseover", ".country:not(#hovercountry .country)", e => {if (e.match.dataset.tag !== countrytag) {hovertag = e.match.dataset.tag; update_hover_country();}});
-on("click", "#hovercountry .country", e => {hovertag = e.match.dataset.tag; update_hover_country();});
-//The hovered country can only be removed with its little Close button.
-on("click", "#hovercountry .close", e => {hovertag = ""; update_hover_country();});
+//Once you point to a country, it will remain highlighted (even through savefile updates),
+//for a few seconds or indefinitely if you hover over the expanded info box.
+let hovertimeout = 0;
+on("mouseover", ".country:not(#hovercountry .country)", e => {
+	clearTimeout(hovertimeout);
+	if (e.match.dataset.tag !== countrytag) update_hover_country(e.match.dataset.tag);
+});
+on("click", "#hovercountry .country", e => update_hover_country(e.match.dataset.tag));
+//The hovered country can be removed with its little Close button.
+on("click", "#hovercountry .close", e => update_hover_country(""));
+on("mouseover", "#hovercountry", e => clearTimeout(hovertimeout));
+on("mouseout", ".country:not(#hovercountry .country)", e => hovertimeout = setTimeout(update_hover_country, 5000, ""));
 
 on("click", ".goto-province", e => {
 	ws_sync.send({cmd: "goto", tag: countrytag, province: e.match.dataset.provid});
@@ -590,7 +597,7 @@ export function render(state) {
 			b.name, //TODO: Keep this brief, but give extra info, maybe in hover text??
 		)),
 	]).value = (state.highlight && state.highlight.id) || "none";
-	update_hover_country();
+	update_hover_country(hovertag);
 	const is_interesting = [];
 	Object.entries(max_interesting).forEach(([id, lvl]) => {
 		const el = DOM("#" + id + " > summary");
