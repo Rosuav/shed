@@ -383,7 +383,8 @@ mapping trade_goods, country_modifiers, age_definitions, tech_definitions, insti
 mapping cot_definitions, state_edicts, terrain_definitions, imperial_reforms;
 mapping cb_types, wargoal_types, estate_agendas, country_decisions, country_missions;
 mapping tradenode_definitions; array tradenode_upstream_order;
-mapping advisor_definitions, religion_definitions;
+mapping advisor_definitions, religion_definitions, unit_definitions;
+array military_tech_levels;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -1491,30 +1492,10 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	write->trade_nodes = analyze_trade_node(data, trade_nodes, tag, tradenode_upstream_order[*]);
 
 	//Get info about mil tech levels and which ones are important
-	write->tech_raw = tech_definitions->mil->technology;
-	int your_tech = (int)country->technology->mil_tech;
-	string your_group = country->technology_group;
-	mapping cumul = ([
-		//"infantry": 0, //Total pips. TODO: Split by tech group.
-		//"cavalry": 0, //Ditto
-		"artillery": 0, //Total pips. Does not depend on tech group (everyone shares the same units).
-		"infantry_fire": 0, "infantry_shock": 0,
-		"cavalry_fire": 0, "cavalry_shock": 0,
-		"artillery_fire": 0, "artillery_shock": 0,
-		"land_morale": 0,
-		"military_tactics": 500,
-		"maneuver_value": 0, //What's this do exactly? Does it add to your troops' maneuver? Does it multiply?
-	]);
-	array miltech = ({ });
-	foreach (tech_definitions->mil->technology; int lvl; mapping tech) {
-		foreach (cumul; string k; string cur)
-			cumul[k] = cur + threeplace(tech[k]);
-		miltech += ({cumul + ([])});
-	}
 	write->miltech = ([
-		"current": your_tech,
-		"group": your_group,
-		"levels": miltech,
+		"current": (int)country->technology->mil_tech,
+		"group": country->technology_group,
+		"levels": military_tech_levels,
 	]);
 }
 
@@ -2691,6 +2672,34 @@ int main(int argc, array(string) argv) {
 		//tradenode_definitions[(string)(info->_index + 1)] = info;
 	}
 	tradenode_upstream_order = node_order;
+
+	//TODO: What if a mod changes units? How does that affect this?
+	unit_definitions = ([]);
+	foreach (get_dir(PROGRAM_PATH + "/common/units"), string fn) {
+		mapping data = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/common/units/" + fn));
+		unit_definitions[fn - ".txt"] = data;
+	}
+	mapping cumul = ([
+		"infantry_fire": 0, "infantry_shock": 0,
+		"cavalry_fire": 0, "cavalry_shock": 0,
+		"artillery_fire": 0, "artillery_shock": 0,
+		"land_morale": 0,
+		"military_tactics": 500,
+		"maneuver_value": 0, //What's this do exactly? Does it add to your troops' maneuver? Does it multiply?
+	]), techgroups = ([]);
+	military_tech_levels = ({ });
+	foreach (tech_definitions->mil->technology; int lvl; mapping tech) {
+		foreach (cumul; string k; string cur)
+			cumul[k] = cur + threeplace(tech[k]);
+		foreach (Array.arrayify(tech->enable), string un) {
+			mapping unit = unit_definitions[un];
+			int pips = (int)unit->offensive_morale + (int)unit->defensive_morale
+				+ (int)unit->offensive_fire + (int)unit->defensive_fire
+				+ (int)unit->offensive_shock + (int)unit->defensive_shock;
+			techgroups[unit->unit_type + "_" + unit->type] = pips;
+		}
+		military_tech_levels += ({cumul + techgroups});
+	}
 
 	//Parse out localised province names and map from province ID to all its different names
 	province_localised_names = ([]);
