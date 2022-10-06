@@ -1141,6 +1141,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 		return ([
 			"name": c->name || L10n[c->tag] || c->tag,
 			"tech": ({(int)c->technology->adm_tech, (int)c->technology->dip_tech, (int)c->technology->mil_tech}),
+			"technology_group": c->technology_group,
 			"province_count": sizeof(c->owned_provinces),
 			"capital": c->capital, "capitalname": capital->name,
 			"hre": capital->hre, //If the country's capital is in the HRE, the country itself is part of the HRE.

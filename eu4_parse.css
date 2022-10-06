@@ -178,5 +178,4 @@ color choice can be overridden based on its parent. */
 	margin: 0.4em 0;
 }
 
-#miltech .hovercountry {background: #eee; border-color: transparent;}
-#miltech th:last-child {border-color: transparent;}
+.hoverinactive .hovercountry {display: none;}
