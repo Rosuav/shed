@@ -1138,10 +1138,18 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 			//the same as can be seen in the nation designer.
 			flag = (({"Custom", cust->symbol_index, cust->flag}) + cust->flag_colors) * "-";
 		}
+		//HACK: I'm not currently processing tech groups fully, but for now,
+		//just quickly alias some of the tech groups' units together.
+		string unit_type = ([
+			"central_african": "sub_saharan",
+			"east_african": "sub_saharan",
+			"andean": "south_american",
+		])[c->technology_group] || c->technology_group;
 		return ([
 			"name": c->name || L10n[c->tag] || c->tag,
 			"tech": ({(int)c->technology->adm_tech, (int)c->technology->dip_tech, (int)c->technology->mil_tech}),
 			"technology_group": c->technology_group,
+			"unit_type": unit_type,
 			"province_count": sizeof(c->owned_provinces),
 			"capital": c->capital, "capitalname": capital->name,
 			"hre": capital->hre, //If the country's capital is in the HRE, the country itself is part of the HRE.
@@ -1496,6 +1504,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	write->miltech = ([
 		"current": (int)country->technology->mil_tech,
 		"group": country->technology_group,
+		"units": country->unit_type,
 		"groupname": L10N(country->technology_group),
 		"levels": military_tech_levels,
 	]);

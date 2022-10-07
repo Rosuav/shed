@@ -114,8 +114,8 @@ function update_hover_country(tag) {
 		const sel = '#miltech tr[data-tech="' + c.tech[2] + '"]';
 		if (!DOM(sel).classList.contains("interesting1")) DOM(sel).classList.add("interesting2");
 		document.querySelectorAll("#miltech td.hovercountry").forEach(el => replace_content(el, [
-			_saved_miltech(+el.dataset.tech, c.technology_group + "_infantry", "_infantry"), " / ",
-			_saved_miltech(+el.dataset.tech, c.technology_group + "_cavalry", "_cavalry"), " / ",
+			_saved_miltech(+el.dataset.tech, c.unit_type + "_infantry", "_infantry"), " / ",
+			_saved_miltech(+el.dataset.tech, c.unit_type + "_cavalry", "_cavalry"), " / ",
 			_saved_miltech(+el.dataset.tech, "0_artillery"),
 		]));
 	}
@@ -518,15 +518,14 @@ section("miltech", "Military technology", state => {
 	const mine = state.miltech.levels[state.miltech.current];
 	function value(tech, key, refkey) {
 		if (typeof tech === "number") tech = state.miltech.levels[tech];
-		const myval = mine[refkey ? state.miltech.group + refkey : key] || 0, curval = tech[key] || 0;
+		const myval = mine[refkey ? state.miltech.units + refkey : key] || 0, curval = tech[key] || 0;
 		let className = "tech";
 		if (curval > myval) className += " above";
 		if (curval < myval) className += " below";
 		return SPAN({className}, ""+((curval-myval)/1000));
 	}
 	_saved_miltech = value; //hacky hacky
-	let hovertag = "HAB";
-	const hover = country_info[hovertag] || {tech: [-1,-1,-1]};
+	const hover = country_info[hovertag || "SOM"] || {tech: [-1,-1,-1]};
 	console.log(hover);
 	const headings = table_head(["Level", "Infantry", "Cavalry", "Artillery", "Morale", "Tactics", state.miltech.groupname, hover.name || ""]);
 	//Hack: Put a CSS class on the last heading.
@@ -552,8 +551,8 @@ section("miltech", "Military technology", state => {
 					value(tech, "0_artillery"), //Arty doesn't go by groups
 				]),
 				TD({class: "hovercountry", "data-tech": i}, hover.name && [
-					value(tech, hover.technology_group + "_infantry", state.miltech.group + "_infantry"), " / ",
-					value(tech, hover.technology_group + "_cavalry", state.miltech.group + "_cavalry"), " / ",
+					value(tech, hover.unit_type + "_infantry", "_infantry"), " / ",
+					value(tech, hover.unit_type + "_cavalry", "_cavalry"), " / ",
 					value(tech, "0_artillery"),
 				]),
 			])),
