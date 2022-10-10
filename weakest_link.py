@@ -22,6 +22,7 @@
 import json
 import os
 import re
+import collections
 from urllib.parse import urlparse, urljoin, unquote, ParseResult
 from bs4 import BeautifulSoup
 root = "/home/rosuav/gsarchive/live"
@@ -50,6 +51,7 @@ borked = {
 	"/html/raywalker/faqs.html",
 	"/html/shop_files/faqs.html",
 }
+files_by_content = collections.defaultdict(list)
 
 logfile = open("weakest_link.log", "w")
 def report(*msg):
@@ -133,6 +135,13 @@ def link(context, url, *, base="https://gsarchive.net/"):
 	if not os.path.exists(path_from_fn(fn)):
 		report("Internal link not found", context, url, fn)
 		return
+	# Attempt to recognize duplicate files. Note that we could stat before
+	# opening, but that's probably extra round trips. Haven't tested though.
+	with open(path_from_fn(fn), "rb") as f:
+		size = f.seek(0, 2)
+		f.seek(0)
+		if size <= 1048576:
+			files_by_content[f.read()].append(fn)
 	base, dot, ext = fn.rpartition(".")
 	if not dot or ext in ("html", "htm"):
 		awaiting.append(fn)
@@ -155,6 +164,18 @@ while awaiting:
 
 # Any unscanned files get logged.
 for fn in sorted(unscanned):
+	# See if they're duplicates of files that ARE referenced.
+	with open(path_from_fn(fn), "rb") as f:
+		size = f.seek(0, 2)
+		f.seek(0)
+		if size <= 1048576:
+			files = files_by_content[f.read()]
+			if len(files) == 1:
+				report("Unscanned duplicate file", "/", fn, files[0])
+				continue
+			elif files:
+				report("Unscanned replicant file", "/", fn, len(files))
+				continue
 	report("Unscanned file", "/", fn)
 
 print(len(unscanned), "out of", unscanned_count, "still unscanned")
