@@ -165,17 +165,20 @@ while awaiting:
 # Any unscanned files get logged.
 for fn in sorted(unscanned):
 	# See if they're duplicates of files that ARE referenced.
-	with open(path_from_fn(fn), "rb") as f:
-		size = f.seek(0, 2)
-		f.seek(0)
-		if size <= 1048576:
-			files = files_by_content[f.read()]
-			if len(files) == 1:
-				report("Unscanned duplicate file", "/", fn, files[0])
-				continue
-			elif files:
-				report("Unscanned replicant file", "/", fn, len(files))
-				continue
+	try:
+		with open(path_from_fn(fn), "rb") as f:
+			size = f.seek(0, 2)
+			f.seek(0)
+			if size <= 1048576:
+				files = files_by_content[f.read()]
+				if len(files) == 1:
+					report("Unscanned duplicate file", "/", fn, files[0])
+					continue
+				elif files:
+					report("Unscanned replicant file", "/", fn, len(files))
+					continue
+	except FileNotFoundError:
+		continue # It's not an unscanned file if the file has been deleted
 	report("Unscanned file", "/", fn)
 
 print(len(unscanned), "out of", unscanned_count, "still unscanned")
