@@ -7,10 +7,11 @@
 # notice, thus allowing them to be replaced as needed. But for now, just
 # classify the files.
 # Fixes to be done:
-# * If copyright is "All Rights Reserved", simply remove that text altogether,
-#   and add a <footer> at the end of document.body.main or document.body, as
-#   per _layouts/default.html in the Markdown files. This will change it to
-#   copyright="CC-BY-SA 4.0".
+# * If copyright is "All Rights Reserved", simply remove that text. It is
+#   now copyright="None".
+# * If copyright is "None", add a <footer> at the end of document.body.main
+#   or document.body, as per _layouts/default.html in the Markdown files.
+#   It is now copyright="CC-BY-SA 4.0".
 import os
 import re
 import collections
@@ -30,13 +31,23 @@ def classify(fn):
 	for tag in soup.findAll(rel="license"):
 		if tag["href"] == "https://creativecommons.org/licenses/by-sa/4.0/":
 			return info | {"copyright": "CC-BY-SA 4.0"}
+		if tag["href"] == "http://creativecommons.org/licenses/by-sa/4.0/":
+			return info | {"copyright": "CC-BY-SA 4.0"} # Maybe fix protocol? Or not bother.
 		info.setdefault("links", []).append(tag["href"])
 	if "links" in info:
 		return info | {"copyright": "Unknown"}
 	for cr in soup.findAll(text=True):
-		# Look for a copyright marker, including a miswritten HTML entity
-		if m := re.search("Copyright.*Gilbert and Sullivan Archive.*All Rights Reserved", cr.text, re.IGNORECASE):
+		if m := re.search(r"""
+			Copyright.*
+			(
+				Gilbert\s*and\s*Sullivan\s*Archive
+				| Paul\s*Howarth
+				| Colin\s*Johnson
+			)
+			.*All\s*Rights\s*Reserved
+		""", cr.text, re.IGNORECASE | re.VERBOSE | re.DOTALL):
 			return info | {"copyright": "All Rights Reserved"}
+		# Look for any copyright marker, including a miswritten HTML entity
 		if "copyright" in cr.text or "©" in cr.text or "&copy" in cr.text:
 			info.setdefault("text", []).append(cr.text)
 	return info | {"copyright": "Unknown" if info.get("text") else "None"}
