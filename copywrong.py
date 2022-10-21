@@ -56,6 +56,11 @@ def classify(fn):
 		if "copyright" in cr.text or "©" in cr.text or "&copy" in cr.text:
 			# Maybe there's a full copyright notice in the parent's text,
 			# but it's split up by HTML tags.
+			if cr.parent("a", href="mailto:dstone4@cox.net") or cr.parent("a", href="mailto:dstone4@cox.rr.com"):
+				# The WhoWasWho pages have a different copyright marker.
+				# They probably should all get synchronized too, but maybe
+				# not to the same value.
+				return info | {"copyright": "David Stone"}
 			if m := copyright.search(cr.parent.text):
 				# Fixing this is going to be harder. But it's still an ARR
 				# copyright notice.
@@ -70,6 +75,7 @@ for fn in sys.argv[1:]:
 		sys.exit(0)
 
 stats = collections.Counter()
+known_types = ["All Rights Reserved", "None", "CC-BY-SA 4.0", "Public Domain", "David Stone"]
 with open("copywrong.log", "w") as log:
 	for root, dirs, files in os.walk(root):
 		for file in files:
@@ -79,8 +85,9 @@ with open("copywrong.log", "w") as log:
 			if not stats.total() % 1000: print(stats.total(), stats)
 			if info["copyright"] == "Unknown":
 				print(fn, info, file=log)
-			elif info["copyright"] not in ("All Rights Reserved", "None", "CC-BY-SA 4.0", "Public Domain"):
+			elif info["copyright"] not in known_types:
 				print(fn, info)
+				known_types.append(info["copyright"])
 print(stats.total(), stats)
 
 """ For manual testing:
