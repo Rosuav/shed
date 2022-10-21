@@ -20,6 +20,16 @@ from bs4 import BeautifulSoup, Comment, Tag
 # root = "/home/rosuav/gsarchive/live"
 root = "/home/rosuav/gsarchive/clone" # Faster and safer, not touching the original files
 
+copyright = re.compile(r"""
+	Copyright.*
+	(
+		Gilbert\s*and\s*Sullivan\s*Archive
+		| Paul\s*Howarth
+		| Colin\s*Johnson
+	)
+	.*All\s*Rights\s*Reserved
+""", re.IGNORECASE | re.VERBOSE | re.DOTALL)
+
 def classify(fn):
 	info = { }
 	with open(fn, "rb") as f: blob = f.read()
@@ -33,32 +43,43 @@ def classify(fn):
 			return info | {"copyright": "CC-BY-SA 4.0"}
 		if tag["href"] == "http://creativecommons.org/licenses/by-sa/4.0/":
 			return info | {"copyright": "CC-BY-SA 4.0"} # Maybe fix protocol? Or not bother.
+		if tag["href"] == "https://creativecommons.org/publicdomain/mark/1.0/":
+			return info | {"copyright": "Public Domain"} # Fix to BY-SA 4.0 in case of future edits?
 		info.setdefault("links", []).append(tag["href"])
 	if "links" in info:
 		return info | {"copyright": "Unknown"}
 	for cr in soup.findAll(text=True):
-		if m := re.search(r"""
-			Copyright.*
-			(
-				Gilbert\s*and\s*Sullivan\s*Archive
-				| Paul\s*Howarth
-				| Colin\s*Johnson
-			)
-			.*All\s*Rights\s*Reserved
-		""", cr.text, re.IGNORECASE | re.VERBOSE | re.DOTALL):
+		if m := copyright.search(cr.text):
 			return info | {"copyright": "All Rights Reserved"}
 		# Look for any copyright marker, including a miswritten HTML entity
 		if "copyright" in cr.text or "©" in cr.text or "&copy" in cr.text:
+			# Maybe there's a full copyright notice in the parent's text,
+			# but it's split up by HTML tags.
+			if m := copyright.search(cr.parent.text):
+				# Fixing this is going to be harder. But it's still an ARR
+				# copyright notice.
+				if "text" in info: del info["text"]
+				return info | {"copyright": "All Rights Reserved", "fix": "if possible"}
 			info.setdefault("text", []).append(cr.text)
 	return info | {"copyright": "Unknown" if info.get("text") else "None"}
 
 stats = collections.Counter()
-for root, dirs, files in os.walk(root):
-	for file in files:
-		fn = os.path.join(root, file)
-		info = classify(fn)
-		stats[info["copyright"]] += 1
-		if not stats.total() % 500: print(stats)
-		if info["copyright"] not in ("All Rights Reserved", "None", "CC-BY-SA 4.0"):
-			print(fn, info)
-print(stats)
+with open("copywrong.log", "w") as log:
+	for root, dirs, files in os.walk(root):
+		for file in files:
+			fn = os.path.join(root, file)
+			info = classify(fn)
+			stats[info["copyright"]] += 1
+			if not stats.total() % 1000: print(stats.total(), stats)
+			if info["copyright"] == "Unknown":
+				print(fn, info, file=log)
+			elif info["copyright"] not in ("All Rights Reserved", "None", "CC-BY-SA 4.0", "Public Domain"):
+				print(fn, info)
+print(stats.total(), stats)
+
+""" For manual testing:
+def get(fn):
+    global soup, cr
+    soup = BeautifulSoup(open(fn).read(), "html.parser")
+    cr = soup.find(text=lambda t: "Copyright" in t.text)
+"""
