@@ -14,6 +14,7 @@
 #   It is now copyright="CC-BY-SA 4.0".
 import os
 import re
+import sys
 import collections
 from bs4 import BeautifulSoup, Comment, Tag
 
@@ -62,6 +63,11 @@ def classify(fn):
 				return info | {"copyright": "All Rights Reserved", "fix": "if possible"}
 			info.setdefault("text", []).append(cr.text)
 	return info | {"copyright": "Unknown" if info.get("text") else "None"}
+
+for fn in sys.argv[1:]:
+	if os.path.exists(fn):
+		print(classify(fn))
+		sys.exit(0)
 
 stats = collections.Counter()
 with open("copywrong.log", "w") as log:
