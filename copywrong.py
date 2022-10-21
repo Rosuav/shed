@@ -22,13 +22,13 @@ from bs4 import BeautifulSoup, Comment, Tag
 root = "/home/rosuav/gsarchive/clone" # Faster and safer, not touching the original files
 
 copyright = re.compile(r"""
-	Copyright.*
+	(Copyright|©).*
 	(
-		Gilbert\s*and\s*Sullivan\s*Archive
+		Gilber[e]?t\s*(and|&)\s*Sulliv[ae]n\s*Arch[i]?ve
 		| Paul\s*Howarth
 		| Colin\s*Johnson
 	)
-	.*All\s*Rights\s*Reserved
+	.*(All\s*R[io]ghts\s*Reserved)?
 """, re.IGNORECASE | re.VERBOSE | re.DOTALL)
 
 def classify(fn):
@@ -49,6 +49,7 @@ def classify(fn):
 		info.setdefault("links", []).append(tag["href"])
 	if "links" in info:
 		return info | {"copyright": "Unknown"}
+	text = []
 	for cr in soup.findAll(text=True):
 		if m := copyright.search(cr.text):
 			return info | {"copyright": "All Rights Reserved"}
@@ -64,10 +65,10 @@ def classify(fn):
 			if m := copyright.search(cr.parent.text):
 				# Fixing this is going to be harder. But it's still an ARR
 				# copyright notice.
-				if "text" in info: del info["text"]
 				return info | {"copyright": "All Rights Reserved", "fix": "if possible"}
-			info.setdefault("text", []).append(cr.text)
-	return info | {"copyright": "Unknown" if info.get("text") else "None"}
+			text.append(cr.text)
+	if text: return info | {"copyright": "Unknown", "text": text}
+	return info | {"copyright": "None"}
 
 for fn in sys.argv[1:]:
 	if os.path.exists(fn):
