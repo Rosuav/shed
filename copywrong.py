@@ -57,10 +57,11 @@ def classify(fn):
 		if "copyright" in cr.text or "©" in cr.text or "&copy" in cr.text:
 			# Maybe there's a full copyright notice in the parent's text,
 			# but it's split up by HTML tags.
-			if cr.parent("a", href="mailto:dstone4@cox.net") or cr.parent("a", href="mailto:dstone4@cox.rr.com"):
+			if cr.parent("a", href="mailto:dstone4@cox.net"):
 				# The WhoWasWho pages have a different copyright marker.
 				# They probably should all get synchronized too, but maybe
-				# not to the same value.
+				# not to the same value. Would be nice to use the same
+				# format and CSS everywhere at least.
 				return info | {"copyright": "David Stone"}
 			if m := copyright.search(cr.parent.text):
 				# Fixing this is going to be harder. But it's still an ARR
