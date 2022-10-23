@@ -48,8 +48,6 @@ def classify(fn):
 			return info | {"copyright": "CC-BY-SA 4.0"}
 		if tag["href"] == "http://creativecommons.org/licenses/by-sa/4.0/":
 			return info | {"copyright": "CC-BY-SA 4.0"} # Maybe fix protocol? Or not bother.
-		if tag["href"] == "https://creativecommons.org/publicdomain/mark/1.0/":
-			return info | {"copyright": "Public Domain"} # Fix to BY-SA 4.0 in case of future edits?
 		info.setdefault("links", []).append(tag["href"])
 	if "links" in info:
 		return info | {"copyright": "Unknown"}
@@ -81,7 +79,7 @@ for fn in sys.argv[1:]:
 		sys.exit(0)
 
 stats = collections.Counter()
-known_types = ["All Rights Reserved", "None", "CC-BY-SA 4.0", "Public Domain", "David Stone", "Unknown"]
+known_types = ["All Rights Reserved", "None", "CC-BY-SA 4.0", "David Stone", "Unknown"]
 with open("copywrong.log", "w") as log:
 	for root, dirs, files in os.walk(root):
 		for file in files:
