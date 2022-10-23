@@ -82,6 +82,7 @@ stats = collections.Counter()
 known_types = ["All Rights Reserved", "None", "CC-BY-SA 4.0", "David Stone", "Unknown"]
 with open("copywrong.log", "w") as log:
 	for root, dirs, files in os.walk(root):
+		if "whowaswho" in dirs: dirs.remove("whowaswho")
 		for file in files:
 			fn = os.path.join(root, file)
 			info = classify(fn)
