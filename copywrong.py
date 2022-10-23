@@ -9,9 +9,13 @@
 # Fixes to be done:
 # * If copyright is "All Rights Reserved", simply remove that text. It is
 #   now copyright="None".
+# * If copyright is "Unknown", the page is talking ABOUT copyright, or is
+#   referring to the copyright status of ancillary material, so treat it as
+#   equivalent to None.
 # * If copyright is "None", add a <footer> at the end of document.body.main
 #   or document.body, as per _layouts/default.html in the Markdown files.
 #   It is now copyright="CC-BY-SA 4.0".
+# * Add a standard CSS file to every page modified.
 import os
 import re
 import sys
