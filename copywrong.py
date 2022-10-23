@@ -77,7 +77,7 @@ for fn in sys.argv[1:]:
 		sys.exit(0)
 
 stats = collections.Counter()
-known_types = ["All Rights Reserved", "None", "CC-BY-SA 4.0", "Public Domain", "David Stone"]
+known_types = ["All Rights Reserved", "None", "CC-BY-SA 4.0", "Public Domain", "David Stone", "Unknown"]
 with open("copywrong.log", "w") as log:
 	for root, dirs, files in os.walk(root):
 		for file in files:
