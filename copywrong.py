@@ -35,6 +35,32 @@ copyright = re.compile(r"""
 	.*(All\s*R[io]ghts\s*Reserved)?
 """, re.IGNORECASE | re.VERBOSE | re.DOTALL)
 
+just_a_date = re.compile(r"""^
+\s*(Page\s*)?(modified|created|u[p]?dated)?
+\s*(?P<day>[0-9]{1,2})			# Day
+\s*(?P<mon>[A-Z][a-z]+)\.?,?		# Month
+\s*(?P<year>[0-9]{,4})			# Year (optional, and may be two-digit)
+\s*\.?\s*				# Punctuation
+(All\s*Rights\s*Reserved\s*)?		# In case it wasn't caught by the other search
+$""", re.IGNORECASE | re.VERBOSE | re.DOTALL)
+
+midi_files = re.compile(r"^\s*MIDI\s*files\s*$", re.IGNORECASE)
+
+blank = re.compile("^\s*$")
+
+def classify_residue(cr, m, info):
+	par = cr.parent
+	cr.replace_with(cr.text[:m.start()], cr.text[m.end():])
+	text = par.text
+	# Figure out what else is in this blob.
+	if just_a_date.match(text):
+		# TODO: Reconstruct the content as "Page modified <day> <mon> <year>"
+		return "Date"
+	if midi_files.match(text): return "MIDI files"
+	if blank.match(text): return "Blank"
+	info["text"] = text
+	return "UNKNOWN"
+
 def classify(fn):
 	info = { }
 	with open(fn, "rb") as f: blob = f.read()
@@ -54,7 +80,7 @@ def classify(fn):
 	text = []
 	for cr in soup.findAll(text=True):
 		if m := copyright.search(cr.text):
-			return info | {"copyright": "All Rights Reserved"}
+			return info | {"copyright": "All Rights Reserved", "residue": classify_residue(cr, m, info)}
 		# Look for any copyright marker, including a miswritten HTML entity
 		if "copyright" in cr.text or "©" in cr.text or "&copy" in cr.text:
 			# Maybe there's a full copyright notice in the parent's text,
@@ -68,7 +94,8 @@ def classify(fn):
 			if m := copyright.search(cr.parent.text):
 				# Fixing this is going to be harder. But it's still an ARR
 				# copyright notice.
-				return info | {"copyright": "All Rights Reserved", "fix": "if possible"}
+				# "residue": classify_residue(cr.parent, m, info)
+				return info | {"copyright": "All Rights Reserved", "fix": "if possible", "residue": "check parent"}
 			text.append(cr.text)
 	if text: return info | {"copyright": "Unknown", "text": text}
 	return info | {"copyright": "None"}
@@ -79,6 +106,7 @@ for fn in sys.argv[1:]:
 		sys.exit(0)
 
 stats = collections.Counter()
+residues = collections.Counter()
 known_types = ["All Rights Reserved", "None", "CC-BY-SA 4.0", "David Stone", "Unknown"]
 with open("copywrong.log", "w") as log:
 	for root, dirs, files in os.walk(root):
@@ -88,16 +116,23 @@ with open("copywrong.log", "w") as log:
 			info = classify(fn)
 			stats[info["copyright"]] += 1
 			if not stats.total() % 1000: print(stats.total(), stats)
-			if info["copyright"] == "Unknown":
-				print(fn, info, file=log)
+			if info["copyright"] == "All Rights Reserved":
+				if info["residue"] == "UNKNOWN": print(fn, info, file=log)
+				residues[info["residue"]] += 1
 			elif info["copyright"] not in known_types:
 				print(fn, info)
 				known_types.append(info["copyright"])
 print(stats.total(), stats)
+print(residues.total(), residues)
 
 """ For manual testing:
 def get(fn):
     global soup, cr
     soup = BeautifulSoup(open(fn).read(), "html.parser")
     cr = soup.find(text=lambda t: "Copyright" in t.text)
+
+
+link = Tag(name="a", attrs={"rel": "license", "data-fixme": "please"})
+link.insert(0, m.group(0))
+cr.replace_with(cr.text[:m.start()], link, cr.text[m.end():])
 """
