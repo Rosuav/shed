@@ -73,7 +73,6 @@ def classify_residue(cr, m, info):
 		# where the year was omitted, but it'd be tough.
 		par.clear()
 		par.append("Page modified {day} {mon} {year}".format_map(m.groupdict()))
-		info["saveback"] = 1
 		return "Date"
 	if midi_files.match(text): return "MIDI files"
 	if blank.match(text): return "Blank"
@@ -101,7 +100,7 @@ def classify(fn):
 	for cr in soup.findAll(text=True):
 		if m := copyright.search(cr.text):
 			residue = classify_residue(cr, m, info)
-			if "saveback" in info:
+			if residue != "UNKNOWN":
 				# Page content has been fixed. Let's tidy this up.
 				write_back(fn, soup)
 				return info | {"copyright": "Corrected"}
