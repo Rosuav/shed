@@ -23,10 +23,13 @@ import collections
 from bs4 import BeautifulSoup, Comment, Tag
 
 # root = "/home/rosuav/gsarchive/live"
-root = "/home/rosuav/gsarchive/clone" # Faster and safer, not touching the original files
+# Faster and safer, not touching the original files
+# On the server: find -type f -name \*.htm* >backups/htmlfiles.txt
+# Locally: rsync -Pav gsarchiv:public_html/ --files-from live/backups/htmlfiles.txt clone/
+root = "/home/rosuav/gsarchive/clone"
 
 copyright = re.compile(r"""
-	(Copyright|©).*
+	(C?opyright|©).*
 	(
 		Gilber[e]?t\s*(and|&)\s*Sulliv[ae]n\s*Arch[i]?ve
 		| Paul\s*Howarth
@@ -36,11 +39,11 @@ copyright = re.compile(r"""
 """, re.IGNORECASE | re.VERBOSE | re.DOTALL)
 
 just_a_date = re.compile(r"""^
-\s*(Page\s*)?(modified|created|u[p]?dated)?
+\s*(Date\s*)?(Page\s*)?(modified|cr[ea]{2}ted|u[p]?dated)?
 \s*(?P<day>[0-9]{1,2})			# Day
-\s*(?P<mon>[A-Z][a-z]+)\.?,?		# Month
+\s*(?P<mon>[A-Z][a-z]+)\.?\s*,?		# Month
 \s*(?P<year>[0-9]{,4})			# Year (optional, and may be two-digit)
-\s*\.?\s*				# Punctuation
+\s*\.?,?\s*				# Punctuation
 (All\s*Rights\s*Reserved\s*)?		# In case it wasn't caught by the other search
 $""", re.IGNORECASE | re.VERBOSE | re.DOTALL)
 
