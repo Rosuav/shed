@@ -137,6 +137,7 @@ with open("copywrong.log", "w") as log:
 	for root, dirs, files in os.walk(root):
 		if "whowaswho" in dirs: dirs.remove("whowaswho")
 		for file in files:
+			if not file.endswith(".html") and not file.endswith(".htm"): continue
 			fn = os.path.join(root, file)
 			try: info = classify(fn)
 			except: print(fn); raise
