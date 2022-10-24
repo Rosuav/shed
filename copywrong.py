@@ -59,6 +59,7 @@ def write_back(fn, soup):
 	soup.body.append(BeautifulSoup(footer, "html.parser"))
 	if not soup.find("link", href="/styles/gsarchive.css"):
 		soup.head.append(BeautifulSoup('<link href="/styles/gsarchive.css" rel="stylesheet" type="text/css">', "html.parser"))
+	# TODO: Any <li> containing an <li> should become peers.
 	data = soup.encode(formatter="html5")
 	with open(fn, "wb") as f: f.write(data)
 
