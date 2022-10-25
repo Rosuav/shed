@@ -264,7 +264,6 @@ section("trade_nodes", "Trade nodes", state => [
 		TR([TH("Node name"), TH("Node value"), TH("Total power"), TH("Your share"),
 			TH("Currently"), TH("Passive"), TH("Active"), TH("Benefit"),]),
 		state.trade_nodes.sort(tradenode_order).map(node => {
-			console.log("Trade node", node);
 			return TR([
 				TD([
 					B(node.name),
@@ -526,7 +525,6 @@ section("miltech", "Military technology", state => {
 	}
 	_saved_miltech = value; //hacky hacky
 	const hover = country_info[hovertag || "SOM"] || {tech: [-1,-1,-1]};
-	console.log(hover);
 	const headings = table_head(["Level", "Infantry", "Cavalry", "Artillery", "Morale", "Tactics", state.miltech.groupname, hover.name || ""]);
 	//Hack: Put a CSS class on the last heading.
 	headings.children[headings.children.length - 1].attributes.className = "hovercountry";
