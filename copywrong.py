@@ -22,11 +22,11 @@ import sys
 import collections
 from bs4 import BeautifulSoup, Comment, Tag
 
-# root = "/home/rosuav/gsarchive/live"
+root = "/home/rosuav/gsarchive/live"
 # Faster and safer, not touching the original files
 # On the server: find -type f -name \*.htm* >backups/htmlfiles.txt
 # Locally: rsync -Pav gsarchiv:public_html/ --files-from live/backups/htmlfiles.txt clone/
-root = "/home/rosuav/gsarchive/clone"
+# root = "/home/rosuav/gsarchive/clone"
 
 copyright = re.compile(r"""
 	(C?opyright|©).*
@@ -136,6 +136,7 @@ known_types = ["All Rights Reserved", "None", "CC-BY-SA 4.0", "David Stone", "Un
 with open("copywrong.log", "w") as log:
 	for root, dirs, files in os.walk(root):
 		if "whowaswho" in dirs: dirs.remove("whowaswho")
+		if "backups" in dirs: dirs.remove("backups")
 		for file in files:
 			if not file.endswith(".html") and not file.endswith(".htm"): continue
 			fn = os.path.join(root, file)
