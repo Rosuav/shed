@@ -154,9 +154,8 @@ on("click", "#interesting_details li", e => {
 	el.scrollIntoView({block: "start", inline: "nearest"});
 });
 
-on("change", "#highlight_options", e => {
-	ws_sync.send({cmd: "highlight", building: e.match.value});
-});
+on("change", "#highlight_options", e => ws_sync.send({cmd: "highlight", building: e.match.value}));
+on("change", "#fleetpower", e => ws_sync.send({cmd: "fleetpower", power: e.match.value}));
 
 let search_allow_change = 0;
 on("input", "#searchterm", e => {
@@ -260,9 +259,10 @@ section("trade_nodes", "Trade nodes", state => [
 			"likely beneficial only to collect at an end node where you have considerable trade power.",
 		]),
 	])]),
+	P(LABEL(["Light ship fleet power: ", INPUT({id: "fleetpower", type: "number", value: "" + state.fleetpower / 1000})])),
 	TABLE({border: "1"}, [
 		TR([TH("Node name"), TH("Node value"), TH("Total power"), TH("Your share"),
-			TH("Currently"), TH("Passive"), TH("Active"), TH("Benefit"),]),
+			TH("Currently"), TH("Passive"), TH("Active"), TH("Benefit"), TH("Fleet")]),
 		state.trade_nodes.sort(tradenode_order).map(node => {
 			return TR([
 				TD([
@@ -284,6 +284,7 @@ section("trade_nodes", "Trade nodes", state => [
 				TD(node.passive_income < 0 ? "Incalculable" : money(node.passive_income)),
 				TD(node.passive_income < 0 ? "Incalculable" : money(node.active_income)),
 				TD(node.passive_income < 0 ? "Incalculable" : money(node.active_income - node.passive_income)),
+				TD(node.passive_income < 0 ? "Incalculable" : money(node.fleet_benefit)),
 			]);
 		}),
 	]),

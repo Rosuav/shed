@@ -802,7 +802,7 @@ int(0..1) passes_filter(mapping country, mapping|array filter, int|void any) {
 	return !any;
 }
 
-mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string node) {
+mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string node, mapping prefs) {
 	//Analyze one trade node and estimate the yield from transferring trade. Assumes
 	//that the only place you collect is your home node and you transfer everything
 	//else in from all other nodes. Note that this function should only be called
@@ -989,6 +989,22 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		active_income = outgoing * `+(@(`*(downstream[*], downstream_boost[*], tfr_power[*]))) / total_steer / 1000000;
 	}
 
+	//Calculate the benefit of additional fleet power in a naive way:
+	//Your fraction will increase from (us->val / here->total) to
+	//((us->val + fleetpower) / (here->total + fleetpower)), and your
+	//revenue is assumed to increase by that multiplied by your
+	//received value times the value in the node.
+	int fleet_benefit = 0;
+	int total_power = threeplace(here->total);
+	if (!defn->inland) { //... no sending trade fleets inland, it ruins the keels
+		int fleetpower = prefs->fleetpower; if (fleetpower < 1000) fleetpower = 1000;
+		int current_power = threeplace(us->val);
+		int current_value = total_value * received * current_power / total_power;
+		int buffed_value = total_value * received * (current_power + fleetpower) / (total_power + fleetpower);
+		fleet_benefit = (buffed_value - current_value) / 1000;
+		werror("%20s: %d * %d * (%d / %d)\n", L10n[node], total_value, received, current_power, total_power);
+	}
+
 	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is
 	//one of the benefits of Transfer Trade Power over collecting in multiple nodes.
 	//TODO: Check effect of trade company, colonial nation, caravan power (and modifiers)
@@ -1010,7 +1026,8 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		"policy": us->trading_policy,
 		"ships": (int)us->light_ship, "ship_power": threeplace(us->ship_power),
 		"prov_power": threeplace(us->province_power),
-		"your_power": passive_power, "total_power": threeplace(here->total),
+		"your_power": passive_power, "total_power": total_power,
+		"fleet_benefit": fleet_benefit,
 		//What is us->already_sent?
 		"total_value": total_value,
 		"current_collection": threeplace(us->money),
@@ -1060,7 +1077,7 @@ us->prev == "Transfers from traders downstream". It's 20% of provincial trade po
 long as you have at least 10.
 */
 
-void analyze_obscurities(mapping data, string name, string tag, mapping write) {
+void analyze_obscurities(mapping data, string name, string tag, mapping write, mapping prefs) {
 	//Gather some more obscure or less-interesting data for the web interface only.
 	//It's not worth consuming visual space for these normally, but the client might
 	//want to open this up and have a look.
@@ -1498,7 +1515,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 	//Get some info about trade nodes
 	array all_nodes = data->trade->node;
 	mapping trade_nodes = mkmapping(all_nodes->definitions, all_nodes);
-	write->trade_nodes = analyze_trade_node(data, trade_nodes, tag, tradenode_upstream_order[*]);
+	write->trade_nodes = analyze_trade_node(data, trade_nodes, tag, tradenode_upstream_order[*], prefs);
 
 	//Get info about mil tech levels and which ones are important
 	write->miltech = ([
@@ -1511,14 +1528,17 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write) {
 }
 
 mapping(string:array) interesting_provinces = ([]);
-void analyze(mapping data, string name, string tag, function|mapping|void write, string|void highlight) {
+void analyze(mapping data, string name, string tag, function|mapping|void write, mapping|void prefs) {
 	if (!write) write = Stdio.stdin->write;
 	interesting_province = ({ }); interest_priority = 0;
-	if (mappingp(write)) write->name = name + " (" + (data->countries[tag]->name || L10n[tag] || tag) + ")";
+	if (mappingp(write)) {
+		write->name = name + " (" + (data->countries[tag]->name || L10n[tag] || tag) + ")";
+		write->fleetpower = prefs->fleetpower || 1000;
+	}
 	else write("\e[1m== Player: %s (%s) ==\e[0m\n", name, tag);
 	({analyze_cot, analyze_leviathans, analyze_furnace, analyze_upgrades})(data, name, tag, write);
-	if (mappingp(write)) analyze_obscurities(data, name, tag, write);
-	if (highlight) analyze_findbuildings(data, name, tag, write, highlight);
+	if (mappingp(write)) analyze_obscurities(data, name, tag, write, prefs || ([]));
+	if (string highlight = prefs->highlight_interesting) analyze_findbuildings(data, name, tag, write, highlight);
 	//write("* %s * %s\n\n", tag, Standards.JSON.encode((array(int))interesting_province)); //If needed in a machine-readable format
 	interesting_provinces[tag] = interesting_province;
 }
@@ -1780,7 +1800,7 @@ class Connection(Stdio.File sock) {
 		//A savefile has been parsed. Notify this socket (if applicable).
 		if (!notify) return;
 		string tag = find_country(data, notify); if (!tag) return;
-		analyze(data, notify, tag, outgoing->sprintf, highlight);
+		analyze(data, notify, tag, outgoing->sprintf, (["highlight_interesting": highlight]));
 		analyze_wars(data, (<tag>), outgoing->sprintf);
 		sock->write(""); //Ditto
 	}
@@ -2121,6 +2141,12 @@ void websocket_cmd_highlight(mapping conn, mapping data) {
 	persist_save(); update_group(conn->group);
 }
 
+void websocket_cmd_fleetpower(mapping conn, mapping data) {
+	mapping prefs = persist_path(conn->group);
+	prefs->fleetpower = threeplace(data->power) || 1000;
+	persist_save(); update_group(conn->group);
+}
+
 void websocket_cmd_goto(mapping conn, mapping data) {
 	indices(connections["province"])->provnotify(data->tag, (int)data->province);
 }
@@ -2260,7 +2286,7 @@ mapping get_state(string group) {
 	if (!country) return (["error": "Country/player not found: " + group]);
 	mapping ret = (["tag": tag, "self": data->countries[tag], "highlight": ([]), "recent_peace_treaties": recent_peace_treaties]);
 	ret->capital_province = data->provinces["-" + data->countries[tag]->capital];
-	analyze(data, group, tag, ret, persist_path(group)->highlight_interesting);
+	analyze(data, group, tag, ret, persist_path(group));
 	multiset players = (multiset)(data->players_countries / 2)[*][1]; //Normally, show all wars involving players.
 	if (!players[tag]) players = (<tag>); //But if you switch to a non-player country, show that country's wars instead.
 	analyze_wars(data, players, ret);
