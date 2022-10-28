@@ -1002,7 +1002,6 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 		int current_value = total_value * received * current_power / total_power;
 		int buffed_value = total_value * received * (current_power + fleetpower) / (total_power + fleetpower);
 		fleet_benefit = (buffed_value - current_value) / 1000;
-		werror("%20s: %d * %d * (%d / %d)\n", L10n[node], total_value, received, current_power, total_power);
 	}
 
 	//Note: here->incoming[*]->add gives the bonus provided by traders pulling value, and is
