@@ -8,7 +8,7 @@ VERBOSE = False # Set to True for a full listing of every entry
 
 def analyze_counter(label, c, n):
 	scale = c.total() / n
-	print("%s (%d possibilities, avg %s):" % (label, n, scale))
+	print("%s (%d possibilities, avg %d):" % (label, n, int(scale)))
 	scale /= 100
 	first = True
 	for which, count in c.most_common():
@@ -27,7 +27,7 @@ def analyze_groups(pool, width, n):
 	analyze_counter("Groups of %d" % width, Counter("-".join(str(x) for x in z) for z in zip(*it)), n ** width)
 
 def analyze_diceroll(randbelow, max, limit):
-	pool = [randbelow(max) + 1 for _ in range(1048576)]
+	pool = [randbelow(max) + 1 for _ in range(65536 * max)]
 	analyze_counter("%d-sided dice" % max, Counter(pool), max)
 	for i in range(2, limit + 1):
 		analyze_groups(pool, i, max)
@@ -41,12 +41,12 @@ def analyze(label, randbelow):
 	# Random bits (labelled differently)
 	pool = ["HT"[randbelow(2)] for _ in range(1048576)]
 	analyze_counter("Coin flips", Counter(pool), 2)
-	for i in range(2, 5):
+	for i in range(2, 6):
 		analyze_groups(pool, i, 2)
 	
 	# Dice rolls
-	analyze_diceroll(randbelow, 6, 4)
-	analyze_diceroll(randbelow, 20, 3)
+	analyze_diceroll(randbelow, 6, 3)
+	analyze_diceroll(randbelow, 20, 2)
 	analyze_diceroll(randbelow, 100, 1)
 
 import random
