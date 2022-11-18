@@ -996,7 +996,7 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	//received value times the value in the node.
 	int fleet_benefit = 0;
 	int total_power = threeplace(here->total);
-	if (!defn->inland) { //... no sending trade fleets inland, it ruins the keels
+	if (total_power && !defn->inland) { //... no sending trade fleets inland, it ruins the keels
 		int fleetpower = prefs->fleetpower; if (fleetpower < 1000) fleetpower = 1000;
 		int current_power = threeplace(us->val);
 		int current_value = total_value * received * current_power / total_power;
@@ -1308,6 +1308,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 		int ok = 1;
 		foreach (country->estate, mapping estate) {
 			float threshold = estate->estimated_milliinfluence >= 100000 ? 70.0 : 50.0;
+			if (country->all_country_modifiers["seizing_land_no_rebels_from_" + estate->type]) threshold = 0.0;
 			if ((float)estate->loyalty < threshold) ok = 0;
 		}
 		//How much crownland do you have? Or rather: how much land do your estates have?
