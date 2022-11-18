@@ -1307,8 +1307,9 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 	if (country->estate && seizetime < calendar(data->date)) {
 		int ok = 1;
 		foreach (country->estate, mapping estate) {
-			float threshold = estate->estimated_milliinfluence >= 100000 ? 70.0 : 50.0;
-			if (country->all_country_modifiers["seizing_land_no_rebels_from_" + estate->type]) threshold = 0.0;
+			float threshold = estate->estimated_milliinfluence >= 100000 ? 70.0
+				: country->all_country_modifiers["seizing_land_no_rebels_from_" + estate->type] ? 0.0
+				: 50.0;
 			if ((float)estate->loyalty < threshold) ok = 0;
 		}
 		//How much crownland do you have? Or rather: how much land do your estates have?
