@@ -249,7 +249,7 @@ void interesting(string id, int|void prio) {
 	if (!has_value(interesting_province, id)) interesting_province += ({id}); //Retain order but avoid duplicates
 }
 
-mapping prov_area = ([]), map_areas = ([]);
+mapping prov_area = ([]), map_areas = ([]), prov_colonial_region = ([]);
 mapping province_info;
 mapping building_types; array building_id;
 mapping building_slots = ([]);
@@ -1361,6 +1361,11 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 			//These two aren't too hard, at least. Assuming they have proper localisations.
 			"[agenda_province.GetAreaName]": "[" + L10n[prov_area[write->agenda->province]] + "]",
 			"[Root.Culture.GetName]": "[" + L10n[country->primary_culture] + "]",
+			//We slightly cheat here and always just use the name from the localisation files.
+			//This ignores any tag-specific or culture-specific alternate naming - see the
+			//triggered name blocks in /common/colonial_regions/* - but it'll usually give a
+			//reasonably decent result.
+			"[agenda_province.GetColonialRegionName]": "[" + L10n[prov_colonial_region[write->agenda->province]] + "]",
 		]));
 		write->agenda->desc = desc;
 	}
@@ -2551,6 +2556,9 @@ int main(int argc, array(string) argv) {
 	map_areas = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/area.txt"));
 	foreach (map_areas; string areaname; array|maparray provinces)
 		foreach (provinces;; string id) prov_area[id] = areaname;
+	mapping colo_regions = parse_config_dir("/common/colonial_regions");
+	foreach (colo_regions; string regionname; mapping info)
+		foreach (info->provinces || ({ }), string prov) prov_colonial_region[prov] = regionname;
 	terrain_definitions = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/terrain.txt"));
 	mapping climates = low_parse_savefile(Stdio.read_file(PROGRAM_PATH + "/map/climate.txt"));
 	//Terrain and climate info are used below.
