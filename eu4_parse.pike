@@ -1586,7 +1586,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 	sort(-all_cultures->accepted[*], all_cultures);
 	write->cultures = ([
 		"accepted_cur": sizeof(accepted),
-		"accepted_max": "???", //TODO: Show number of accepted-culture slots
+		"accepted_max": 2 + all_country_modifiers(data, country)->num_accepted_cultures / 1000,
 		"cultures": all_cultures,
 	]);
 }
