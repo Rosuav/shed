@@ -1537,6 +1537,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 	string primary = country->primary_culture;
 	array accepted = Array.arrayify(country->accepted_culture);
 	int cultural_union = country->government_rank == "3"; //Empire rank, no penalty for brother cultures
+	int is_republic = all_country_modifiers(data, country)->republic ? 50 : 0;
 	array brother_cultures = ({ });
 	foreach (culture_definitions; string group; mapping info) if (info[primary]) brother_cultures = indices(info);
 	void affect(mapping culture, string cat, int amount, int autonomy, int impact) {
@@ -1545,7 +1546,11 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 		culture[cat + "_impact"] += amount * impact / 1000;
 		culture[cat + "_impact_auto"] += amount * (100000 - autonomy) * impact / 100000000;
 	}
-	//TODO: Republican cultural sufferance?
+	//The penalties for tax and manpower are the same; sailors have reduced penalties. (Note that sailors
+	//won't spawn from development on non-coastal provinces, and you can't normally build Impressment there,
+	//so generally you'll get nothing from inland provinces.) Republics reduce the penalty for foreign.
+	//Tax/manpower: accepted 0%, brother 15%, republic 23%, foreign 33%
+	//Sailors: accepted 0%, brother 10%, republic 15%, foreign 20%
 	foreach (country->owned_provinces, string id) {
 		mapping prov = data->provinces["-" + id];
 		mapping culture = cultures[prov->culture];
@@ -1564,7 +1569,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 		//Tax revenue is 1 ducat/year per base tax. There are, in theory, other sources of
 		//base revenue in a province, but they're unlikely so we'll ignore them here.
 		int impact = culture->status == "brother" ? 150 * !cultural_union
-			: culture->status == "foreign" ? 330 : 0;
+			: culture->status == "foreign" ? 330 - is_republic * 2 : 0;
 		affect(culture, "tax", tax / 12, autonomy, impact);
 		//Manpower is 250 per base tax, with a very real source of additional base manpower.
 		int mp = manpower * 250;
@@ -1575,7 +1580,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 		//different percentage impact for culture discrepancies.
 		int sailors = province_info[id]->?has_port && dev * 60;
 		impact = culture->status == "brother" ? 100 * !cultural_union
-			: culture->status == "foreign" ? 200 : 0;
+			: culture->status == "foreign" ? 200 - is_republic : 0;
 		if (prov->buildings->?impressment_offices)
 			sailors += has_value(building_types->impressment_offices->bonus_manufactory, prov->trade_goods) ? 500000 : 250000;
 		affect(culture, "sailors", sailors, autonomy, impact);

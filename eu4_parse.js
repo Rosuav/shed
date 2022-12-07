@@ -428,8 +428,7 @@ section("cultures", "Cultures", state => [
 			"here is the amount of monthly tax, max sailors, and max manpower gained/lost if you promote/demote ",
 			"this culture right now; the second is what you could reach if autonomy zeroes out. Hover over the cell ",
 			"to see the base values, from which these are calculated. Blue highlight indicates currently-accepted; ",
-			"green highlight is cultures with enough development to be accepted (assuming it is all in states). ",
-			"TODO: Republican cultural sufferance?",
+			"green highlight is cultures with enough development to be accepted (assuming it is all in states).",
 		]),
 	]),
 	TABLE({border: "1"}, [
