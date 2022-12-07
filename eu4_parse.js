@@ -1,7 +1,7 @@
 //Not to be confused with eu4_parse.json which is a cache
 import {lindt, replace_content, DOM} from "https://rosuav.github.io/choc/factory.js";
 const {A, ABBR, B, BR, DETAILS, DIV, FORM, H1, H3, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = lindt; //autoimport
-const {BLOCKQUOTE, H4} = lindt; //Currently autoimport doesn't recognize the section() decorator
+const {BLOCKQUOTE, H4, I} = lindt; //Currently autoimport doesn't recognize the section() decorator
 
 function table_head(headings) {
 	if (typeof headings === "string") headings = headings.split(" ");
@@ -202,6 +202,7 @@ section("cot", "Centers of Trade", state => {
 });
 
 function threeplace(n) {return (n / 1000).toFixed(2);}
+function intify(n) {return ""+Math.floor(n / 1000);}
 function money(n) {return SPAN({style: "color: #770"}, threeplace(n));}
 
 function tradenode_order(a, b) {
@@ -408,6 +409,47 @@ section("colonization_targets", "Colonization targets", state => [
 				prov.cot && LI("L" + prov.cot + " center of trade"),
 				prov.modifiers.map(mod => LI(ABBR({title: mod.effects.join("\n")}, mod.name))),
 			])),
+		])),
+	]),
+]);
+
+function describe_culture_impact(cul, which, fmt) {
+	return TD(
+		{title: "Base " + fmt(cul[which + "_auto"]) + " (" + fmt(cul[which + "_base"]) + ")"},
+		[fmt(cul[which + "_impact_auto"]), I(" (" + fmt(cul[which + "_impact"]) + ")")],
+	);
+}
+
+section("cultures", "Cultures", state => [
+	SUMMARY("Cultures (" + state.cultures.accepted_cur + "/" + state.cultures.accepted_max + " accepted)"),
+	DETAILS({style: "margin: 1em"}, [SUMMARY("Notes"),
+		P({style: "margin: 0 1em"}, [
+			"The impact of promoting or demoting a culture is affected by local autonomy. The first number shown ",
+			"here is the amount of monthly tax, max sailors, and max manpower gained/lost if you promote/demote ",
+			"this culture right now; the second is what you could reach if autonomy zeroes out. Hover over the cell ",
+			"to see the base values, from which these are calculated. Blue highlight indicates currently-accepted; ",
+			"green highlight is cultures with enough development to be accepted (assuming it is all in states). ",
+			"TODO: Republican cultural sufferance?",
+		]),
+	]),
+	TABLE({border: "1"}, [
+		table_head(["Culture", "Dev", "Status", "Tax", "Sailors", "Manpower"]),
+		state.cultures.cultures.map(cul => TR(
+			{style: "background-color: " + (cul.accepted ? "#eeeef7" : cul.total_dev < 20000 ? "#e0e0e0" : "#eef7ee")}, [
+			TD(cul.label),
+			TD(threeplace(cul.total_dev)),
+			TD({
+				style: "color: " + {
+					"primary": "#D4AF37",
+					"brother": cul.accepted ? "#C0C0C0" : "#CD7F32",
+					"foreign": cul.accepted ? "#C0C0C0" : "#7F0000",
+				}[cul.status],
+				title: cul.status === "primary" ? "Primary culture" :
+					(cul.accepted ? "Accepted " : "Non-accepted ") + cul.status,
+			}, "★"),
+			describe_culture_impact(cul, "tax", threeplace),
+			describe_culture_impact(cul, "sailors", intify),
+			describe_culture_impact(cul, "manpower", intify),
 		])),
 	]),
 ]);

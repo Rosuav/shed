@@ -1545,6 +1545,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 		culture[cat + "_impact"] += amount * impact / 1000;
 		culture[cat + "_impact_auto"] += amount * (100000 - autonomy) * impact / 100000000;
 	}
+	//TODO: Republican cultural sufferance?
 	foreach (country->owned_provinces, string id) {
 		mapping prov = data->provinces["-" + id];
 		mapping culture = cultures[prov->culture];
@@ -1553,37 +1554,40 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 			"status": prov->culture == primary ? "primary"
 				: has_value(brother_cultures, prov->culture) ? "brother"
 				: "foreign",
-			"accepted": has_value(accepted, prov->culture),
+			"accepted": prov->culture == primary ? 2 : has_value(accepted, prov->culture),
 		]);
 		culture->provcount++;
 		int tax = threeplace(prov->base_tax), manpower = threeplace(prov->base_manpower);
 		int dev = tax + threeplace(prov->base_production) + manpower;
+		culture->total_dev += dev;
 		int autonomy = threeplace(prov->local_autonomy);
 		//Tax revenue is 1 ducat/year per base tax. There are, in theory, other sources of
 		//base revenue in a province, but they're unlikely so we'll ignore them here.
-		int impact = culture->status == "brother" ? 150 * cultural_union
+		int impact = culture->status == "brother" ? 150 * !cultural_union
 			: culture->status == "foreign" ? 330 : 0;
 		affect(culture, "tax", tax / 12, autonomy, impact);
 		//Manpower is 250 per base tax, with a very real source of additional base manpower.
-		//Note, though, that manpower values are per man, not per thousand. So we divide.
-		int mp = manpower / 4;
+		int mp = manpower * 250;
 		if (prov->buildings->?soldier_households)
-			mp += has_value(building_types->soldier_households->bonus_manufactory, prov->trade_goods) ? 1500 : 750;
+			mp += has_value(building_types->soldier_households->bonus_manufactory, prov->trade_goods) ? 1500000 : 750000;
 		affect(culture, "manpower", mp, autonomy, impact);
 		//Sailors are 60 per base dev _of any kind_, with a manufactory. They also have
 		//different percentage impact for culture discrepancies.
-		int sailors = province_info[id]->?has_port && dev * 60 / 1000;
-		impact = culture->status == "brother" ? 100 * cultural_union
+		int sailors = province_info[id]->?has_port && dev * 60;
+		impact = culture->status == "brother" ? 100 * !cultural_union
 			: culture->status == "foreign" ? 200 : 0;
 		if (prov->buildings->?impressment_offices)
-			sailors += has_value(building_types->impressment_offices->bonus_manufactory, prov->trade_goods) ? 500 : 250;
+			sailors += has_value(building_types->impressment_offices->bonus_manufactory, prov->trade_goods) ? 500000 : 250000;
 		affect(culture, "sailors", sailors, autonomy, impact);
 	}
+	//List accepted cultures first, then non-accepted, in order of impact.
 	array all_cultures = values(cultures);
+	sort(-all_cultures->manpower_impact[*], all_cultures);
+	sort(-all_cultures->accepted[*], all_cultures);
 	write->cultures = ([
 		"accepted_cur": sizeof(accepted),
 		"accepted_max": "???", //TODO: Show number of accepted-culture slots
-		"cultures": sort(all_cultures, -all_cultures->manpower_impact[*]),
+		"cultures": all_cultures,
 	]);
 }
 
