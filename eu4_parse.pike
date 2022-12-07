@@ -121,7 +121,7 @@ mapping low_parse_savefile(string|Stdio.Buffer data, int|void verbose) {
 			if (array hex = digits[0] == "0" && data->sscanf("x%[0-9a-fA-F]")) return ({"string", "0x" + hex[0]}); //Or should this be converted to decimal?
 			return ({"string", digits[0]});
 		}
-		if (array|string word = data->sscanf("%[0-9a-zA-Z_'\x81-\xFE:]")) { //Include non-ASCII characters as letters
+		if (array|string word = data->sscanf("%[0-9a-zA-Z_'\x81-\xFF:]")) { //Include non-ASCII characters as letters
 			word = word[0];
 			//Unquoted tokens like institution_events.2 should be atoms, not atom-followed-by-number
 			if (array dotnumber = data->sscanf(".%[0-9]")) word += "." + dotnumber[0];
