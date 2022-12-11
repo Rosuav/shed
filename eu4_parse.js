@@ -8,6 +8,11 @@ function table_head(headings) {
 	return TR(headings.map(h => TH(h))); //TODO: Click to sort
 }
 
+function sortable(attrs, headings, rows) {
+	if (!rows) {rows = headings; headings = attrs; attrs = {};} //attrs is an optional first parameter
+	return TABLE(attrs, [table_head(headings), rows]);
+}
+
 let curgroup = [], provgroups = { }, provelem = { }, pinned_provinces = { }, province_info = { };
 let selected_provgroup = "", selected_prov_cycle = [];
 function proventer(kwd) {
@@ -261,9 +266,9 @@ section("trade_nodes", "Trade nodes", state => [
 		]),
 	])]),
 	P(LABEL(["Light ship fleet power: ", INPUT({id: "fleetpower", type: "number", value: "" + state.fleetpower / 1000})])),
-	TABLE({border: "1"}, [
-		TR([TH("Node name"), TH("Node value"), TH("Total power"), TH("Your share"),
-			TH("Currently"), TH("Passive"), TH("Active"), TH("Benefit"), TH("Fleet")]),
+	sortable({border: "1"},
+		["Node name", "Node value", "Total power", "Your share",
+			"Currently", "Passive", "Active", "Benefit", "Fleet"],
 		state.trade_nodes.sort(tradenode_order).map(node => {
 			return TR([
 				TD([
@@ -288,7 +293,7 @@ section("trade_nodes", "Trade nodes", state => [
 				TD(node.passive_income < 0 ? "Incalculable" : money(node.fleet_benefit)),
 			]);
 		}),
-	]),
+	),
 ]);
 
 section("monuments", "Monuments", state => [
