@@ -193,6 +193,7 @@ section("cot", "Centers of Trade", state => {
 	for (let kwd of ["upgradeable", "developable"]) {
 		const cots = state.cot[kwd];
 		if (!cots.length) continue;
+		//TODO: Make sortable() able to handle a pre-heading row that's part of the THEAD
 		content.push(TABLE({id: kwd, border: "1"}, [
 			TR(TH({colSpan: 5}, [proventer(kwd), `${kwd[0].toUpperCase()}${kwd.slice(1)} CoTs:`])),
 			cots.map(cot => TR({className: "interesting" + cot.interesting}, [
@@ -298,10 +299,10 @@ section("trade_nodes", "Trade nodes", state => [
 
 section("monuments", "Monuments", state => [
 	SUMMARY(`Monuments [${state.monuments.length}]`),
-	TABLE({border: "1"}, [
-		TR([TH([proventer("monuments"), "Province"]), TH("Tier"), TH("Project"), TH("Upgrading")]),
+	sortable({border: "1"},
+		[[proventer("monuments"), "Province"], "Tier", "Project", "Upgrading"],
 		state.monuments.map(m => TR([TD(PROV(m[1], m[3])), TD(m[2]), TD(m[4]), TD(m[5])])),
-	]),
+	),
 	provleave(),
 ]);
 
@@ -309,11 +310,11 @@ section("coal_provinces", "Coal provinces", state => {
 	max_interesting.coal_provinces = 0;
 	const content = [
 		SUMMARY(`Coal-producing provinces [${state.coal_provinces.length}]`),
-		TABLE({border: "1"}, [
-			TR([TH([proventer("coal_provinces"), "Province"]), TH("Manufactory"), TH("Dev"), TH("Buildings")]),
+		sortable({border: "1"},
+			[[proventer("coal_provinces"), "Province"], "Manufactory", "Dev", "Buildings"],
 			state.coal_provinces.map(m => TR({className: m.status ? "" : "interesting" + (max_interesting.coal_provinces = 1)},
 				[TD(PROV(m.id, m.name)), TD(m.status), TD(m.dev+""), TD(m.buildings + "/" + m.slots)])),
-		]),
+		),
 	];
 	provleave();
 	return content;
@@ -337,10 +338,10 @@ section("favors", "Favors", state => {
 		SUMMARY(`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`),
 		P("NOTE: Yield estimates are often a bit wrong, but can serve as a guideline."),
 		TABLE({border: "1"}, cooldowns),
-		TABLE({border: "1"}, [
-			table_head("Country Favors Ducats Manpower Sailors"),
+		sortable({border: "1"},
+			"Country Favors Ducats Manpower Sailors",
 			countries,
-		]),
+		),
 	];
 });
 
@@ -359,30 +360,30 @@ section("wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.length || "None
 	const atkdef = (war.atk ? "\u{1f5e1}\ufe0f" : "") + (war.def ? "\u{1f6e1}\ufe0f" : "");
 	return DETAILS({open: true}, [
 		SUMMARY(atkdef + " " + war.name),
-		TABLE({border: "1"}, [
-			table_head(["Country", "Infantry", "Cavalry", "Artillery",
+		sortable({border: "1"},
+			["Country", "Infantry", "Cavalry", "Artillery",
 				ABBR({title: "Merc infantry"}, "Inf $$"),
 				ABBR({title: "Merc cavalry"}, "Cav $$"),
 				ABBR({title: "Merc artillery"}, "Art $$"),
 				"Total", "Manpower", ABBR({title: "Army professionalism"}, "Prof"),
 				ABBR({title: "Army tradition"}, "Trad"),
-			]),
+			],
 			war.armies.map(army => TR({className: army[0].replace(",", "-")}, [TD(COUNTRY(army[1])), army.slice(2).map(x => TD(x ? ""+x : ""))])),
-		]),
-		TABLE({border: "1"}, [
-			table_head(["Country", "Heavy", "Light", "Galley", "Transport", "Total", "Sailors",
+		),
+		sortable({border: "1"},
+			["Country", "Heavy", "Light", "Galley", "Transport", "Total", "Sailors",
 				ABBR({title: "Navy tradition"}, "Trad"),
-			]),
+			],
 			war.navies.map(navy => TR({className: navy[0].replace(",", "-")}, [TD(COUNTRY(navy[1])), navy.slice(2).map(x => TD(x ? ""+x : ""))])),
-		]),
+		),
 	]);
 })]);
 
 section("badboy_hatred", "Badboy Haters", state => [
 	SUMMARY("Badboy Haters (" + state.badboy_hatred.length + ")"),
 	!(max_interesting.badboy_hatred = state.badboy_hatred.length ? 1 : 0) && "Nobody hates you enough to join a coalition.",
-	TABLE({border: "1"}, [
-		table_head(["Opinion", ABBR({title: "Aggressive Expansion"}, "Badboy"), "Country", "Notes"]),
+	sortable({border: "1"},
+		["Opinion", ABBR({title: "Aggressive Expansion"}, "Badboy"), "Country", "Notes"],
 		state.badboy_hatred.map(hater => {
 			const info = country_info[hater.tag];
 			const attr = { };
@@ -398,13 +399,13 @@ section("badboy_hatred", "Badboy Haters", state => [
 				]),
 			]);
 		}),
-	]),
+	),
 ]);
 
 section("colonization_targets", "Colonization targets", state => [
 	SUMMARY("Colonization targets (" + state.colonization_targets.length + ")"), //TODO: Count interesting ones too?
-	TABLE({border: "1"}, [
-		table_head(["Province", "Dev", "Geography", "Settler penalty", "Features"]),
+	sortable({border: "1"},
+		["Province", "Dev", "Geography", "Settler penalty", "Features"],
 		state.colonization_targets.map(prov => TR([
 			TD(PROV(prov.id, prov.name)),
 			TD(""+prov.dev),
@@ -415,7 +416,7 @@ section("colonization_targets", "Colonization targets", state => [
 				prov.modifiers.map(mod => LI(ABBR({title: mod.effects.join("\n")}, mod.name))),
 			])),
 		])),
-	]),
+	),
 ]);
 
 function describe_culture_impact(cul, which, fmt) {
@@ -436,8 +437,8 @@ section("cultures", "Cultures", state => [
 			"green highlight is cultures with enough development to be accepted (assuming it is all in states).",
 		]),
 	]),
-	TABLE({border: "1"}, [
-		table_head(["Culture", "Dev", "Status", "Tax", "Sailors", "Manpower"]),
+	sortable({border: "1"},
+		["Culture", "Dev", "Status", "Tax", "Sailors", "Manpower"],
 		state.cultures.cultures.map(cul => TR(
 			{style: "background-color: " + (cul.accepted ? "#eeeef7" : cul.total_dev < 20000 ? "#e0e0e0" : "#eef7ee")}, [
 			TD(cul.label),
@@ -455,7 +456,7 @@ section("cultures", "Cultures", state => [
 			describe_culture_impact(cul, "sailors", intify),
 			describe_culture_impact(cul, "manpower", intify),
 		])),
-	]),
+	),
 ]);
 
 section("highlight", "Building expansions", state => state.highlight.id ? [
@@ -466,15 +467,15 @@ section("highlight", "Building expansions", state => state.highlight.id ? [
 		+ "province development in a way that enables a specific building; once the slot "
 		+ "is opened up, the province will disappear from here and appear in the in-game "
 		+ "macro-builder list for that building."]),
-	TABLE({border: true}, [
-		table_head("Province Buildings Devel MP-cost"),
+	sortable({border: true},
+		"Province Buildings Devel MP-cost",
 		state.highlight.provinces.map(prov => TR([
 			TD(PROV(prov.id, prov.name)),
 			TD(`${prov.buildings}/${prov.maxbuildings}`),
 			TD(""+prov.dev),
 			TD(""+prov.cost[3]),
 		])),
-	]),
+	),
 	provleave(),
 ] : [
 	SUMMARY("Building expansions"),
@@ -492,8 +493,8 @@ section("upgradeables", "Upgrades available", state => [ //Assumes that we get n
 	]))),
 	provleave(),
 	P(state.navy_upgrades.length + " fleets(s) have outdated ships."),
-	TABLE({border: true}, [
-		table_head(["Fleet", "Heavy ships", "Light ships", "Galleys", "Transports"]),
+	sortable({border: true},
+		["Fleet", "Heavy ships", "Light ships", "Galleys", "Transports"],
 		state.navy_upgrades.map(f => TR([
 			TD(f.name),
 			upgrade(...f.heavy_ship),
@@ -501,15 +502,15 @@ section("upgradeables", "Upgrades available", state => [ //Assumes that we get n
 			upgrade(...f.galley),
 			upgrade(...f.transport),
 		])),
-	]),
+	),
 ]);
 
 section("flagships", "Flagships of the World", state => [
 	SUMMARY("Flagships of the World (" + state.flagships.length + ")"),
-	TABLE({border: true}, [
-		table_head(["Country", "Fleet", "Vessel", "Modifications", "Built by"]),
+	sortable({border: true},
+		["Country", "Fleet", "Vessel", "Modifications", "Built by"],
 		state.flagships.map(f => TR([TD(COUNTRY(f[0])), TD(f[1]), TD(f[2] + ' "' + f[3] + '"'), TD(f[4].join(", ")), TD(f[5])])),
-	]),
+	),
 ]);
 
 //Render an array of text segments as DOM elements
