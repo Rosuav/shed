@@ -1594,6 +1594,14 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 		"accepted_max": 2 + all_country_modifiers(data, country)->num_accepted_cultures / 1000,
 		"cultures": all_cultures,
 	]);
+
+	//TODO: List all current rebellions and whether the provinces are covered by troops
+	//Iterate over data->rebel_faction[]
+	//Filter to country=YOUR_TAG
+	//Look at possible_provinces
+	//Iterate over self->army[] ?
+	//For each one, if army->mission->hunt_rebel->areas[], those areas are covered
+	//If any possible_province is not in a hunt_rebel area, try to figure out unrest. That's the hardest part.
 }
 
 mapping(string:array) interesting_provinces = ([]);
