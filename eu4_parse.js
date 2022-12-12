@@ -3,14 +3,11 @@ import {lindt, replace_content, DOM} from "https://rosuav.github.io/choc/factory
 const {A, ABBR, B, BR, DETAILS, DIV, FORM, H1, H3, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = lindt; //autoimport
 const {BLOCKQUOTE, H4, I} = lindt; //Currently autoimport doesn't recognize the section() decorator
 
-function table_head(headings) {
-	if (typeof headings === "string") headings = headings.split(" ");
-	return TR(headings.map(h => TH(h))); //TODO: Click to sort
-}
-
 function sortable(attrs, headings, rows) {
 	if (!rows) {rows = headings; headings = attrs; attrs = {};} //attrs is an optional first parameter
-	return TABLE(attrs, [table_head(headings), rows]);
+	if (typeof headings === "string") headings = headings.split(" ");
+	headings = TR(headings.map(h => TH(h))); //TODO: Click to sort
+	return TABLE(attrs, [headings, rows]);
 }
 
 let curgroup = [], provgroups = { }, provelem = { }, pinned_provinces = { }, province_info = { };
@@ -573,7 +570,7 @@ section("miltech", "Military technology", state => {
 	}
 	_saved_miltech = value; //hacky hacky
 	const hover = country_info[hovertag || "SOM"] || {tech: [-1,-1,-1]};
-	const headings = table_head(["Level", "Infantry", "Cavalry", "Artillery", "Morale", "Tactics", state.miltech.groupname, hover.name || ""]);
+	const headings = TR(["Level", "Infantry", "Cavalry", "Artillery", "Morale", "Tactics", state.miltech.groupname, hover.name || ""].map(h => TH(h)));
 	//Hack: Put a CSS class on the last heading.
 	headings.children[headings.children.length - 1].attributes.className = "hovercountry";
 	return [
