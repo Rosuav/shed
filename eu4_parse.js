@@ -3,10 +3,33 @@ import {lindt, replace_content, DOM} from "https://rosuav.github.io/choc/factory
 const {A, ABBR, B, BR, DETAILS, DIV, FORM, H1, H3, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = lindt; //autoimport
 const {BLOCKQUOTE, H4, I} = lindt; //Currently autoimport doesn't recognize the section() decorator
 
+function cmp(a, b) {return a < b ? -1 : a > b ? 1 : 0;}
+function cell_compare_recursive(a, b, is_numeric) {
+	if (typeof a === "string" || typeof a === "number") { //Assumes that b is the same type
+		if (is_numeric) return cmp(+b, +a); //Reverse numeric sorts by default
+		return cmp(a, b);
+	}
+	let ret = cmp(a.attributes["data-sortkey"], b.attributes["data-sortkey"]);
+	for (let i = 0; i < a.children.length && i < b.children.length && !ret; ++i)
+		ret = cell_compare_recursive(a.children[i], b.children[i], is_numeric);
+	return ret;
+}
+function cell_compare(sortcol, direction, is_numeric) { //direction s/be 1 or -1 for reverse sort
+	return (a, b) => cell_compare_recursive(a.children[sortcol], b.children[sortcol], is_numeric) * direction;
+}
+
+//To be functional, a sortable MUST have an ID. It may have other attrs.
+const sort_selections = { };
+function numeric_sort_header(h) {return typeof h === "string" && h[0] === '#';}
 function sortable(attrs, headings, rows) {
-	if (!rows) {rows = headings; headings = attrs; attrs = {};} //attrs is an optional first parameter
+	if (!attrs || !attrs.id) console.error("BAD SORTABLE, NEED ID", attrs, headings, rows);
 	if (typeof headings === "string") headings = headings.split(" ");
-	headings = TR(headings.map(h => TH(h))); //TODO: Click to sort
+	const sortcol = sort_selections[attrs.id];
+	const is_numeric = numeric_sort_header(headings[sortcol]);
+	headings = TR(headings.map(h => TH({class: "sorthead"}, numeric_sort_header(h) ? h.slice(1) : h)));
+	rows.forEach((r, i) => r.key = r.key || "row-" + i);
+	console.log(attrs.id, sortcol, is_numeric);
+	if (sortcol !== undefined) rows.sort(cell_compare(sortcol, 1, is_numeric));
 	return TABLE(attrs, [headings, rows]);
 }
 
@@ -264,9 +287,9 @@ section("trade_nodes", "Trade nodes", state => [
 		]),
 	])]),
 	P(LABEL(["Light ship fleet power: ", INPUT({id: "fleetpower", type: "number", value: "" + state.fleetpower / 1000})])),
-	sortable({border: "1"},
-		["Node name", "Node value", "Total power", "Your share",
-			"Currently", "Passive", "Active", "Benefit", "Fleet"],
+	sortable({id: "tradenodes", border: "1"},
+		["Node name", "#Node value", "#Total power", "#Your share",
+			"Currently", "#Passive", "#Active", "#Benefit", "#Fleet"],
 		state.trade_nodes.sort(tradenode_order).map(node => {
 			return TR([
 				TD([
@@ -296,7 +319,7 @@ section("trade_nodes", "Trade nodes", state => [
 
 section("monuments", "Monuments", state => [
 	SUMMARY(`Monuments [${state.monuments.length}]`),
-	sortable({border: "1"},
+	sortable({id: "monumentlist", border: "1"},
 		[[proventer("monuments"), "Province"], "Tier", "Project", "Upgrading"],
 		state.monuments.map(m => TR([TD(PROV(m[1], m[3])), TD(m[2]), TD(m[4]), TD(m[5])])),
 	),
@@ -307,10 +330,11 @@ section("coal_provinces", "Coal provinces", state => {
 	max_interesting.coal_provinces = 0;
 	const content = [
 		SUMMARY(`Coal-producing provinces [${state.coal_provinces.length}]`),
-		sortable({border: "1"},
+		sortable({id: "coalprovs", border: "1"},
 			[[proventer("coal_provinces"), "Province"], "Manufactory", "Dev", "Buildings"],
 			state.coal_provinces.map(m => TR({className: m.status ? "" : "interesting" + (max_interesting.coal_provinces = 1)},
-				[TD(PROV(m.id, m.name)), TD(m.status), TD(m.dev+""), TD(m.buildings + "/" + m.slots)])),
+				//TODO: set the sort key to a sortable date if it's a date, else the status
+				[TD(PROV(m.id, m.name)), TD({"data-sortkey": m.status}, m.status), TD(m.dev+""), TD(m.buildings + "/" + m.slots)])),
 		),
 	];
 	provleave();
@@ -335,7 +359,7 @@ section("favors", "Favors", state => {
 		SUMMARY(`Favors [${free}/3 available, ${owed}/${owed_total} owe ten]`),
 		P("NOTE: Yield estimates are often a bit wrong, but can serve as a guideline."),
 		TABLE({border: "1"}, cooldowns),
-		sortable({border: "1"},
+		sortable({id: "favor_effects", border: "1"},
 			"Country Favors Ducats Manpower Sailors",
 			countries,
 		),
@@ -357,7 +381,7 @@ section("wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.length || "None
 	const atkdef = (war.atk ? "\u{1f5e1}\ufe0f" : "") + (war.def ? "\u{1f6e1}\ufe0f" : "");
 	return DETAILS({open: true}, [
 		SUMMARY(atkdef + " " + war.name),
-		sortable({border: "1"},
+		sortable({id: "army" + id, border: "1"},
 			["Country", "Infantry", "Cavalry", "Artillery",
 				ABBR({title: "Merc infantry"}, "Inf $$"),
 				ABBR({title: "Merc cavalry"}, "Cav $$"),
@@ -367,7 +391,7 @@ section("wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.length || "None
 			],
 			war.armies.map(army => TR({className: army[0].replace(",", "-")}, [TD(COUNTRY(army[1])), army.slice(2).map(x => TD(x ? ""+x : ""))])),
 		),
-		sortable({border: "1"},
+		sortable({id: "navy" + id, border: "1"},
 			["Country", "Heavy", "Light", "Galley", "Transport", "Total", "Sailors",
 				ABBR({title: "Navy tradition"}, "Trad"),
 			],
@@ -379,7 +403,7 @@ section("wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.length || "None
 section("badboy_hatred", "Badboy Haters", state => [
 	SUMMARY("Badboy Haters (" + state.badboy_hatred.length + ")"),
 	!(max_interesting.badboy_hatred = state.badboy_hatred.length ? 1 : 0) && "Nobody hates you enough to join a coalition.",
-	sortable({border: "1"},
+	sortable({id: "badboyhaters", border: "1"},
 		["Opinion", ABBR({title: "Aggressive Expansion"}, "Badboy"), "Country", "Notes"],
 		state.badboy_hatred.map(hater => {
 			const info = country_info[hater.tag];
@@ -401,7 +425,7 @@ section("badboy_hatred", "Badboy Haters", state => [
 
 section("colonization_targets", "Colonization targets", state => [
 	SUMMARY("Colonization targets (" + state.colonization_targets.length + ")"), //TODO: Count interesting ones too?
-	sortable({border: "1"},
+	sortable({id: "colo_targets", border: "1"},
 		["Province", "Dev", "Geography", "Settler penalty", "Features"],
 		state.colonization_targets.map(prov => TR([
 			TD(PROV(prov.id, prov.name)),
@@ -434,7 +458,7 @@ section("cultures", "Cultures", state => [
 			"green highlight is cultures with enough development to be accepted (assuming it is all in states).",
 		]),
 	]),
-	sortable({border: "1"},
+	sortable({id: "culture_impact", border: "1"},
 		["Culture", "Dev", "Status", "Tax", "Sailors", "Manpower"],
 		state.cultures.cultures.map(cul => TR(
 			{style: "background-color: " + (cul.accepted ? "#eeeef7" : cul.total_dev < 20000 ? "#e0e0e0" : "#eef7ee")}, [
@@ -464,7 +488,7 @@ section("highlight", "Building expansions", state => state.highlight.id ? [
 		+ "province development in a way that enables a specific building; once the slot "
 		+ "is opened up, the province will disappear from here and appear in the in-game "
 		+ "macro-builder list for that building."]),
-	sortable({border: true},
+	sortable({id: "building_highlight", border: true},
 		"Province Buildings Devel MP-cost",
 		state.highlight.provinces.map(prov => TR([
 			TD(PROV(prov.id, prov.name)),
@@ -490,7 +514,7 @@ section("upgradeables", "Upgrades available", state => [ //Assumes that we get n
 	]))),
 	provleave(),
 	P(state.navy_upgrades.length + " fleets(s) have outdated ships."),
-	sortable({border: true},
+	sortable({id: "navy_upgrades", border: true},
 		["Fleet", "Heavy ships", "Light ships", "Galleys", "Transports"],
 		state.navy_upgrades.map(f => TR([
 			TD(f.name),
@@ -504,7 +528,7 @@ section("upgradeables", "Upgrades available", state => [ //Assumes that we get n
 
 section("flagships", "Flagships of the World", state => [
 	SUMMARY("Flagships of the World (" + state.flagships.length + ")"),
-	sortable({border: true},
+	sortable({id: "flagship_list", border: true},
 		["Country", "Fleet", "Vessel", "Modifications", "Built by"],
 		state.flagships.map(f => TR([TD(COUNTRY(f[0])), TD(f[1]), TD(f[2] + ' "' + f[3] + '"'), TD(f[4].join(", ")), TD(f[5])])),
 	),

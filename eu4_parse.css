@@ -179,3 +179,7 @@ color choice can be overridden based on its parent. */
 }
 
 .hoverinactive .hovercountry {display: none;}
+
+.sorthead {
+	cursor: pointer;
+}
