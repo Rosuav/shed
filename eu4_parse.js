@@ -19,14 +19,14 @@ function cell_compare(sortcol, direction, is_numeric) { //direction s/be 1 or -1
 }
 
 //To be functional, a sortable MUST have an ID. It may have other attrs.
-const sort_selections = { };
+const sort_selections = { }; //TODO: Allow reversed sort
 function numeric_sort_header(h) {return typeof h === "string" && h[0] === '#';}
 function sortable(attrs, headings, rows) {
 	if (!attrs || !attrs.id) console.error("BAD SORTABLE, NEED ID", attrs, headings, rows);
 	if (typeof headings === "string") headings = headings.split(" ");
 	const sortcol = sort_selections[attrs.id];
 	const is_numeric = numeric_sort_header(headings[sortcol]);
-	headings = TR(headings.map(h => TH({class: "sorthead"}, numeric_sort_header(h) ? h.slice(1) : h)));
+	headings = TR(headings.map((h, i) => TH({class: "sorthead", "data-idx": i}, numeric_sort_header(h) ? h.slice(1) : h)));
 	rows.forEach((r, i) => r.key = r.key || "row-" + i);
 	console.log(attrs.id, sortcol, is_numeric);
 	if (sortcol !== undefined) rows.sort(cell_compare(sortcol, 1, is_numeric));
@@ -627,6 +627,7 @@ section("miltech", "Military technology", state => {
 	];
 });
 
+let sectiondata = { };
 export function render(state) {
 	curgroup = []; provgroups = { };
 	//Set up one-time structure. Every subsequent render will update within that.
@@ -715,7 +716,7 @@ export function render(state) {
 		return;
 	}
 	if (state.name) replace_content("#player", state.name);
-	sections.forEach(s => state[s.id] && replace_content("#" + s.id, s.render(state)));
+	sections.forEach(s => {if (state[s.id]) {replace_content("#" + s.id, s.render(state)); sectiondata[s.id] = state[s.id];}});
 	if (state.buildings_available) replace_content("#highlight_options", [
 		OPTION({value: "none"}, "None"),
 		OPTGROUP({label: "Need more of a building? Choose one to highlight places that could be expanded to build it."}), //hack
@@ -773,3 +774,11 @@ export function render(state) {
 	else if (state.agenda) replace_content("#agenda", "");
 	if (curgroup.length) replace_content("#error", "INTERNAL ERROR: Residual groups " + curgroup.join("/")).classList.remove("hidden");
 }
+
+on("click", ".sorthead", e => {
+	sort_selections[e.match.closest("table").id] = e.match.dataset.idx;
+	//TODO: What if there's another DETAILS between the section and this?
+	const sec = e.match.closest("details");
+	if (!sec.id) return;
+	sections.forEach(s => s.id === sec.id && replace_content(sec, s.render(sectiondata)));
+});
