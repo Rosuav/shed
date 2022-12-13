@@ -1602,6 +1602,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 	//Iterate over self->army[] ?
 	//For each one, if army->mission->hunt_rebel->areas[], those areas are covered
 	//If any possible_province is not in a hunt_rebel area, try to figure out unrest. That's the hardest part.
+	//Or, if not practical to show unrest, filter to those whose progress is at least 30%.
 }
 
 mapping(string:array) interesting_provinces = ([]);
