@@ -5,6 +5,9 @@ const {BLOCKQUOTE, H4, I} = lindt; //Currently autoimport doesn't recognize the 
 
 function cmp(a, b) {return a < b ? -1 : a > b ? 1 : 0;}
 function cell_compare_recursive(a, b, is_numeric) {
+	if (!a && !b) return 0; //All types of "empty" count equally
+	else if (!a) return -1;
+	else if (!b) return 1;
 	if (typeof a === "string" || typeof a === "number") { //Assumes that b is the same type
 		if (is_numeric) return cmp(+b, +a); //Reverse numeric sorts by default
 		return cmp(a, b);
