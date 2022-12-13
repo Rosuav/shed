@@ -1595,14 +1595,31 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 		"cultures": all_cultures,
 	]);
 
-	//TODO: List all current rebellions and whether the provinces are covered by troops
-	//Iterate over data->rebel_faction[]
-	//Filter to country=YOUR_TAG
-	//Look at possible_provinces
-	//Iterate over self->army[] ?
-	//For each one, if army->mission->hunt_rebel->areas[], those areas are covered
-	//If any possible_province is not in a hunt_rebel area, try to figure out unrest. That's the hardest part.
-	//Or, if not practical to show unrest, filter to those whose progress is at least 30%.
+	//List all current rebellions and whether the provinces are covered by troops
+	mapping coverage = ([]);
+	foreach (Array.arrayify(country->army), mapping army) {
+		//TODO: Calculate the actual effective unrest bonus. The base value is 0.25
+		//per regiment, then multiply that by five if hunting rebels, but split the
+		//effect across the provinces. For now, we just mark it as "done".
+		int effect = 1;
+		coverage[army->location] += effect;
+		mapping hunt_rebel = army->mission->?hunt_rebel;
+		if (!hunt_rebel) continue; //Not hunting rebels (maybe on another mission, or no mission at all).
+		foreach (hunt_rebel->areas, string a)
+			foreach (map_areas[a];; string id) coverage[id] += effect;
+	}
+	foreach (Array.arrayify(data->rebel_faction), mapping faction) if (faction->country == tag) {
+		//A bit of a cheat here. I would like to check whether any province has positive
+		//unrest, but that's really hard to calculate. So instead, we just show every
+		//rebel faction with at least 30% progress.
+		//NOTE: faction->province is a single province ID. Not sure what it is.
+		//NOTE: faction->active is a thing. Maybe says if rebels have spawned??
+		//What happens with rebels that spawn without unrest (eg pretenders)? Don't crash.
+		//What if rebels cross the border? (Probably not in this list, since ->country != tag)
+		if ((int)faction->progress < 30) continue; //Could be null, otherwise is eg "10.000" for 10% progress
+		foreach (faction->possible_provinces, string prov)
+			if (!coverage[prov]) werror("[%s] %s (%d%%) - %s\n", prov, faction->name, (int)faction->progress, faction->province);
+	}
 }
 
 mapping(string:array) interesting_provinces = ([]);
