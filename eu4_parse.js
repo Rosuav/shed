@@ -28,7 +28,6 @@ function sortable(attrs, headings, rows) {
 	const is_numeric = numeric_sort_header(headings[sortcol]);
 	headings = TR(headings.map((h, i) => TH({class: "sorthead", "data-idx": i}, numeric_sort_header(h) ? h.slice(1) : h)));
 	rows.forEach((r, i) => r.key = r.key || "row-" + i);
-	console.log(attrs.id, sortcol, is_numeric);
 	if (sortcol !== undefined) rows.sort(cell_compare(sortcol, 1, is_numeric));
 	return TABLE(attrs, [headings, rows]);
 }
@@ -627,8 +626,9 @@ section("miltech", "Military technology", state => {
 	];
 });
 
-let sectiondata = { };
+const mergedstate = { }; //Ever-updated mapping of the last-seen state. May have illogical combinations in it.
 export function render(state) {
+	Object.assign(mergedstate, state);
 	curgroup = []; provgroups = { };
 	//Set up one-time structure. Every subsequent render will update within that.
 	if (!DOM("#error")) replace_content("main", [
@@ -716,7 +716,7 @@ export function render(state) {
 		return;
 	}
 	if (state.name) replace_content("#player", state.name);
-	sections.forEach(s => {if (state[s.id]) {replace_content("#" + s.id, s.render(state)); sectiondata[s.id] = state[s.id];}});
+	sections.forEach(s => state[s.id] && replace_content("#" + s.id, s.render(state)));
 	if (state.buildings_available) replace_content("#highlight_options", [
 		OPTION({value: "none"}, "None"),
 		OPTGROUP({label: "Need more of a building? Choose one to highlight places that could be expanded to build it."}), //hack
@@ -780,5 +780,5 @@ on("click", ".sorthead", e => {
 	//TODO: What if there's another DETAILS between the section and this?
 	const sec = e.match.closest("details");
 	if (!sec.id) return;
-	sections.forEach(s => s.id === sec.id && replace_content(sec, s.render(sectiondata)));
+	sections.forEach(s => s.id === sec.id && replace_content(sec, s.render(mergedstate)));
 });
