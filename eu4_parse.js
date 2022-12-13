@@ -27,11 +27,13 @@ function numeric_sort_header(h) {return typeof h === "string" && h[0] === '#';}
 function sortable(attrs, headings, rows) {
 	if (!attrs || !attrs.id) console.error("BAD SORTABLE, NEED ID", attrs, headings, rows);
 	if (typeof headings === "string") headings = headings.split(" ");
-	const sortcol = sort_selections[attrs.id];
+	let sortcol = sort_selections[attrs.id];
+	const reverse = sortcol && sortcol[0] === '-'; //Note that this is done with strings; "-0" means "column zero but reversed".
+	if (reverse) sortcol = sortcol.slice(1);
 	const is_numeric = numeric_sort_header(headings[sortcol]);
 	headings = TR(headings.map((h, i) => TH({class: "sorthead", "data-idx": i}, numeric_sort_header(h) ? h.slice(1) : h)));
 	rows.forEach((r, i) => r.key = r.key || "row-" + i);
-	if (sortcol !== undefined) rows.sort(cell_compare(sortcol, 1, is_numeric));
+	if (sortcol !== undefined) rows.sort(cell_compare(sortcol, reverse ? -1 : 1, is_numeric));
 	return TABLE(attrs, [headings, rows]);
 }
 
@@ -779,7 +781,9 @@ export function render(state) {
 }
 
 on("click", ".sorthead", e => {
-	sort_selections[e.match.closest("table").id] = e.match.dataset.idx;
+	const id = e.match.closest("table").id, idx = e.match.dataset.idx;
+	if (sort_selections[id] === idx) sort_selections[id] = "-" + idx; //Note that "-0" is distinct from "0", as they're stored as strings
+	else sort_selections[id] = idx;
 	//TODO: What if there's another DETAILS between the section and this?
 	const sec = e.match.closest("details");
 	if (!sec.id) return;
