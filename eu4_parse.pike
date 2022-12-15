@@ -1608,6 +1608,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 		foreach (hunt_rebel->areas, string a)
 			foreach (map_areas[a];; string id) coverage[id] += effect;
 	}
+	write->unguarded_rebels = ({ });
 	foreach (Array.arrayify(data->rebel_faction), mapping faction) if (faction->country == tag) {
 		//A bit of a cheat here. I would like to check whether any province has positive
 		//unrest, but that's really hard to calculate. So instead, we just show every
@@ -1618,7 +1619,12 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 		//What if rebels cross the border? (Probably not in this list, since ->country != tag)
 		if ((int)faction->progress < 30) continue; //Could be null, otherwise is eg "10.000" for 10% progress
 		foreach (faction->possible_provinces, string prov)
-			if (!coverage[prov]) werror("[%s] %s (%d%%) - %s\n", prov, faction->name, (int)faction->progress, faction->province);
+			if (!coverage[prov]) write->unguarded_rebels += ({([
+				"province": prov,
+				"name": faction->name,
+				"progress": (int)faction->progress,
+				"home_province": faction->province, //Probably irrelevant
+			])});
 	}
 }
 
