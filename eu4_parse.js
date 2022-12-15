@@ -404,28 +404,34 @@ section("wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.length || "None
 	]);
 })]);
 
-section("badboy_hatred", "Badboy Haters", state => [
-	SUMMARY("Badboy Haters (" + state.badboy_hatred.length + ")"),
-	!(max_interesting.badboy_hatred = state.badboy_hatred.length ? 1 : 0) && "Nobody hates you enough to join a coalition.",
-	sortable({id: "badboyhaters", border: "1"},
-		["Opinion", ABBR({title: "Aggressive Expansion"}, "Badboy"), "Country", "Notes"],
-		state.badboy_hatred.map(hater => {
-			const info = country_info[hater.tag];
-			const attr = { };
-			if (hater.in_coalition) {attr.className = "interesting2"; max_interesting.badboy_hatred = 2;}
-			return TR([
-				TD({className: info.opinion_theirs < 0 ? "interesting1" : ""}, info.opinion_theirs),
-				TD({className: hater.badboy >= 50000 ? "interesting1" : ""}, Math.floor(hater.badboy / 1000) + ""),
-				TD(attr, COUNTRY(hater.tag)),
-				TD(attr, [
-					info.overlord && SPAN({title: "Is a " + info.subject_type + " of " + country_info[info.overlord].name}, "🙏"),
-					info.truce && SPAN({title: "Truce until " + info.truce}, "🏳"),
-					hater.in_coalition && SPAN({title: "In coalition against you!"}, "😠"),
-				]),
-			]);
-		}),
-	),
-]);
+section("badboy_hatred", "Badboy Haters", state => {
+	let hater_count = 0, have_coalition = 0;
+	const haters = state.badboy_hatred.map(hater => {
+		const info = country_info[hater.tag];
+		const attr = { };
+		if (hater.in_coalition) {attr.className = "interesting2"; have_coalition = 1;}
+		if (!info.overlord && !info.truce) ++hater_count;
+		return TR([
+			TD({class: info.opinion_theirs < 0 ? "interesting1" : ""}, info.opinion_theirs),
+			TD({class: hater.badboy >= 50000 ? "interesting1" : ""}, Math.floor(hater.badboy / 1000) + ""),
+			TD(attr, COUNTRY(hater.tag)),
+			TD(attr, [
+				info.overlord && SPAN({title: "Is a " + info.subject_type + " of " + country_info[info.overlord].name}, "🙏"),
+				info.truce && SPAN({title: "Truce until " + info.truce}, "🏳"),
+				hater.in_coalition && SPAN({title: "In coalition against you!"}, "😠"),
+			]),
+		]);
+	});
+	max_interesting.badboy_hatred = have_coalition ? 2 : hater_count ? 1 : 0;
+	return [
+		SUMMARY("Badboy Haters (" + hater_count + ")"),
+		!hater_count && "Nobody is in a position to join a coalition against you.",
+		sortable({id: "badboyhaters", border: "1"},
+			["Opinion", ABBR({title: "Aggressive Expansion"}, "Badboy"), "Country", "Notes"],
+			haters,
+		),
+	];
+});
 
 section("colonization_targets", "Colonization targets", state => [
 	SUMMARY("Colonization targets (" + state.colonization_targets.length + ")"), //TODO: Count interesting ones too?
