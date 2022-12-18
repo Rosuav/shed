@@ -194,8 +194,8 @@ string currently_loaded_mods = ""; array config_dirs = ({PROGRAM_PATH});
 //Parse a full directory of configs and merge them into one mapping
 //The specified directory name should not end with a slash.
 //If key is provided, will return only that key from each file.
-mapping parse_config_dir(string dir, string|void key) {
-	mapping ret = ([]);
+array gather_config_dir(string dir, string|void key) {
+	array ret = ({([])}); //Ensure that we at least have an empty mapping even if no config files
 	//A mod can add more files, or can replace entire files (but not parts of a file).
 	//Files are then processed in affabeck regardless of their paths (I think that's how the game does it).
 	mapping files = ([]);
@@ -205,10 +205,11 @@ mapping parse_config_dir(string dir, string|void key) {
 	foreach (sort(indices(files)), string fn) {
 		mapping cur = low_parse_savefile(Stdio.read_file(files[fn]) + "\n") || ([]);
 		if (key) cur = cur[key] || ([]);
-		ret |= cur;
+		ret += ({cur});
 	}
 	return ret;
 }
+mapping parse_config_dir(string dir, string|void key) {return `|(@gather_config_dir(dir, key));}
 
 mapping(string:string) L10n, province_localised_names;
 void parse_localisation(string data) {
@@ -382,9 +383,9 @@ mapping idea_definitions, policy_definitions, reform_definitions, static_modifie
 mapping trade_goods, country_modifiers, age_definitions, tech_definitions, institutions;
 mapping cot_definitions, state_edicts, terrain_definitions, imperial_reforms;
 mapping cb_types, wargoal_types, estate_agendas, country_decisions, country_missions;
-mapping tradenode_definitions; array tradenode_upstream_order;
+mapping tradenode_definitions;
 mapping advisor_definitions, religion_definitions, unit_definitions, culture_definitions;
-array military_tech_levels;
+array military_tech_levels, tradenode_upstream_order, custom_ideas;
 //List all ideas (including national) that are active
 array(mapping) enumerate_ideas(mapping idea_groups) {
 	array ret = ({ });
@@ -2742,11 +2743,33 @@ int main(int argc, array(string) argv) {
 	retain_map_indices = 1;
 	trade_goods = parse_config_dir("/common/tradegoods");
 	institutions = parse_config_dir("/common/institutions");
+	array custom_nation_ideas = gather_config_dir("/common/custom_ideas");
 	retain_map_indices = 0;
 	foreach (trade_goods; string id; mapping info) {
 		trade_goods[info->_index + 1] = info;
 		info->id = id;
 	}
+
+	//Skim over the custom ideas and collect them in order
+	//The idea group keys aren't particularly meaningful, but might be of interest; they
+	//mostly tell you when something got added (eg leviathan_idea_mil_modifiers).
+	foreach (custom_nation_ideas, mapping ideafile) {
+		array idea_groups = values(ideafile); sort(idea_groups->_index, idea_groups);
+		foreach (idea_groups, mapping grp) {
+			string cat = grp->category;
+			grp = filter(grp, mappingp); //Some of the entries aren't actual ideas
+			array ids = indices(grp), details = values(grp);
+			sort(details->_index, ids, details);
+			foreach (details; int i; mapping idea) {
+				m_delete(idea, "_index");
+				//idea->_index = custom_ideas && sizeof(custom_ideas); //useful for debugging
+				idea->category = cat;
+				idea->id = ids[i];
+				custom_ideas += ({idea});
+			}
+		}
+	}
+
 	country_modifiers = parse_config_dir("/common/event_modifiers")
 		| parse_config_dir("/common/parliament_issues");
 	age_definitions = parse_config_dir("/common/ages");
