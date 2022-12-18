@@ -433,6 +433,23 @@ section("badboy_hatred", "Badboy Haters", state => {
 	];
 });
 
+section("unguarded_rebels", "Unguarded rebels", state => {
+	let max = "";
+	const factions = state.unguarded_rebels.map(faction => TR([
+		TD(faction.name),
+		TD({class: faction.progress >= 80 ? max = "interesting2" : "interesting1"}, faction.progress + "%"),
+		TD(UL({style: "margin: 0"}, faction.provinces.map(p => LI(PROV(p))))),
+	]));
+	max_interesting.unguarded_rebels = max ? 2 : state.unguarded_rebels.length ? 1 : 0;
+	return [
+		SUMMARY("Unguarded rebels (" + state.unguarded_rebels.length + ")"),
+		sortable({id: "rebel_factions", border: "1"},
+			["Faction", "Progress", "Provinces"],
+			factions,
+		),
+	];
+});
+
 section("colonization_targets", "Colonization targets", state => [
 	SUMMARY("Colonization targets (" + state.colonization_targets.length + ")"), //TODO: Count interesting ones too?
 	sortable({id: "colo_targets", border: "1"},

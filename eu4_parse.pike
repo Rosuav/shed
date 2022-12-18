@@ -1648,13 +1648,15 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 		//What happens with rebels that spawn without unrest (eg pretenders)? Don't crash.
 		//What if rebels cross the border? (Probably not in this list, since ->country != tag)
 		if ((int)faction->progress < 30) continue; //Could be null, otherwise is eg "10.000" for 10% progress
+		array uncovered = ({ });
 		foreach (faction->possible_provinces, string prov)
-			if (!coverage[prov]) write->unguarded_rebels += ({([
-				"province": prov,
-				"name": faction->name,
-				"progress": (int)faction->progress,
-				"home_province": faction->province, //Probably irrelevant
-			])});
+			if (!coverage[prov]) uncovered += ({prov});
+		if (sizeof(uncovered)) write->unguarded_rebels += ({([
+			"provinces": uncovered,
+			"name": faction->name,
+			"progress": (int)faction->progress,
+			"home_province": faction->province, //Probably irrelevant
+		])});
 	}
 }
 
