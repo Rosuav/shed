@@ -430,12 +430,35 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	//Ideas are recorded by their groups and how many you've taken from that group.
 	array ideas = enumerate_ideas(country->active_idea_groups);
 	_incorporate(data, modifiers, ideas->desc[*], ideas[*]); //TODO: TEST ME
-	//TODO: Custom nation ideas are not in an idea group as standard ideas are; instead
+	//NOTE: Custom nation ideas are not in an idea group as standard ideas are; instead
 	//you get a set of ten, identified by index, in country->custom_national_ideas, and
 	//it doesn't say which ones you have. I think the last three are the traditions and
 	//ambition and the first seven are the ideas themselves, but we'll have to count up
 	//the regular ideas and see how many to apply. It's possible that that would be out
 	//of sync, but it's unlikely. TODO: Test what happens if you remove an idea group.
+	if (array ideaids = country->custom_national_ideas) {
+		//First, figure out how many ideas you have. We assume that, if you have
+		//custom ideas, you don't also have a country idea set; which means that the
+		//ideas listed are exclusively ones from idea sets. On the assumption that
+		//you get one national idea for every three currently-held unlockable ideas
+		//(which may not be true if an idea set is removed), sum them and calculate.
+		int idea_count = `+(@(array(int))filter(values(country->active_idea_groups), stringp));
+		if (idea_count < 21)
+			//You don't have all the ideas. What you have is the first N ideas,
+			//plus the eighth and ninth, which are your national traditions.
+			ideaids = ideaids[..idea_count / 3 - 1] + ideaids[7..8];
+		//But if you have at least 21 other ideas, then you have all ten: the seven
+		//ideas, the two traditions, and the ambition.
+
+		//So! Let's figure out what those ideas actually are. They're identified by
+		//index, which is the same as array indices in custom_ideas[], and level,
+		//which is a simple multiplier on the effect. Conveniently, we already have
+		//a way to multiply the effects of things!
+		foreach (ideaids, mapping idea) {
+			mapping defn = custom_ideas[(int)idea->index];
+			_incorporate(data, modifiers, "Custom idea - " + L10N(defn->id), defn, (int)idea->level, 1);
+		}
+	}
 	_incorporate_all(data, modifiers, "Policy", policy_definitions, Array.arrayify(country->active_policy)->policy);
 	_incorporate_all(data, modifiers, "Reform", reform_definitions, country->government->reform_stack->reforms);
 	array tradebonus = trade_goods[((array(int))Array.arrayify(country->traded_bonus))[*]];
