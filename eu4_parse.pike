@@ -429,6 +429,12 @@ mapping(string:int) all_country_modifiers(mapping data, mapping country) {
 	//Ideas are recorded by their groups and how many you've taken from that group.
 	array ideas = enumerate_ideas(country->active_idea_groups);
 	_incorporate(data, modifiers, ideas->desc[*], ideas[*]); //TODO: TEST ME
+	//TODO: Custom nation ideas are not in an idea group as standard ideas are; instead
+	//you get a set of ten, identified by index, in country->custom_national_ideas, and
+	//it doesn't say which ones you have. I think the last three are the traditions and
+	//ambition and the first seven are the ideas themselves, but we'll have to count up
+	//the regular ideas and see how many to apply. It's possible that that would be out
+	//of sync, but it's unlikely. TODO: Test what happens if you remove an idea group.
 	_incorporate_all(data, modifiers, "Policy", policy_definitions, Array.arrayify(country->active_policy)->policy);
 	_incorporate_all(data, modifiers, "Reform", reform_definitions, country->government->reform_stack->reforms);
 	array tradebonus = trade_goods[((array(int))Array.arrayify(country->traded_bonus))[*]];
