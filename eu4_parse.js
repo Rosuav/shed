@@ -454,12 +454,12 @@ section("colonization_targets", "Colonization targets", state => [
 	SUMMARY("Colonization targets (" + state.colonization_targets.length + ")"), //TODO: Count interesting ones too?
 	sortable({id: "colo_targets", border: "1"},
 		["Province", "Dev", "Geography", "Settler penalty", "Features"],
-		state.colonization_targets.map(prov => TR([
+		state.colonization_targets.map((prov,i) => TR([
 			TD(PROV(prov.id, prov.name)),
 			TD(""+prov.dev),
 			TD(prov.climate + " " + prov.terrain + (prov.has_port ? " port" : "")),
 			TD(""+prov.settler_penalty),
-			TD(UL([
+			TD({"data-sortkey": prov.modifiers.length * 10000 + prov.cot * 1000 - prov.settler_penalty * 10 - i}, UL([
 				prov.cot && LI("L" + prov.cot + " center of trade"),
 				prov.modifiers.map(mod => LI(ABBR({title: mod.effects.join("\n")}, mod.name))),
 			])),
