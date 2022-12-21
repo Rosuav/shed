@@ -201,3 +201,9 @@ dialog > section > header > h3 {
 }
 
 #customnationmain h4 {margin: 0.5em 0;}
+#customnationmain ul {margin: 0 0 0.25em 0;}
+.editidea {
+	width: 1.75em;
+	height: 1.75em;
+	padding: 0;
+}

@@ -2812,8 +2812,10 @@ int main(int argc, array(string) argv) {
 				//broken in the display. I'm not too worried.
 				idea->effects = indices(idea) - ({"default", "max_level"}) - filter(indices(idea), has_prefix, "level_cost_");
 				idea->effectname = "(no effect)"; //Alternatively, make this a mapping for all of them
-				foreach (idea->effects, string eff)
+				foreach (idea->effects, string eff) {
 					idea->effectname = L10n["MODIFIER_" + upper_case(eff)] || L10n[upper_case(eff)] || eff;
+					idea->effectvalue = stringp(idea[eff]) ? threeplace(idea[eff]) : idea[eff];
+				}
 				//idea->_index = custom_ideas && sizeof(custom_ideas); //useful for debugging
 				idea->category = cat;
 				idea->id = ids[i];

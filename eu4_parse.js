@@ -849,8 +849,12 @@ export function sockmsg_customnations(msg) {
 	DOM("#customnationsdlg").showModal();
 }
 
-function IDEA(idea) { //no, not IKEA
-	return ["(todo)", BR()];
+function IDEA(idea, slot) { //no, not IKEA
+	const info = custom_ideas[idea.index];
+	return LI([
+		info.effectname, " ", threeplace(info.effectvalue * idea.level), " ",
+		BUTTON({class: "editidea", "data-slot": slot}, "✍"),
+	]);
 }
 
 on("click", "#customnationmain a", e => {
@@ -869,10 +873,10 @@ on("click", "#customnationmain a", e => {
 		//TODO: Text inputs to let you edit the name and adjective
 		H4("Ideas"),
 		"Traditions:", BR(),
-		IDEA(nat.idea[7]), IDEA(nat.idea[8]),
+		UL([IDEA(nat.idea[7], 7), IDEA(nat.idea[8], 8)]),
 		"Ideas:", BR(),
-		nat.idea.slice(0, 7).map(IDEA),
+		UL(nat.idea.slice(0, 7).map(IDEA)),
 		"Ambition:", BR(),
-		IDEA(nat.idea[9]),
+		UL(IDEA(nat.idea[9], 9)),
 	]);
 });
