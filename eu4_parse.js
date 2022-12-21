@@ -32,7 +32,7 @@ function cell_compare(sortcol, direction, is_numeric) { //direction s/be 1 or -1
 }
 
 //To be functional, a sortable MUST have an ID. It may have other attrs.
-const sort_selections = { }; //TODO: Allow reversed sort
+const sort_selections = { };
 function numeric_sort_header(h) {return typeof h === "string" && h[0] === '#';}
 function sortable(attrs, headings, rows) {
 	if (!attrs || !attrs.id) console.error("BAD SORTABLE, NEED ID", attrs, headings, rows);
