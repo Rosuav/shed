@@ -183,3 +183,19 @@ color choice can be overridden based on its parent. */
 .sorthead {
 	cursor: pointer;
 }
+
+dialog > section {
+	display: flex;
+	flex-direction: column;
+}
+dialog > section > header {
+	display: flex;
+	justify-content: space-between;
+}
+dialog > section > header > h3 {
+	margin: 0.5em 0;
+}
+.dialog_cancel {
+	position: relative;
+	right: -8px; top: -8px;
+}

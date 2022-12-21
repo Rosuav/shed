@@ -1,7 +1,17 @@
 //Not to be confused with eu4_parse.json which is a cache
-import {lindt, replace_content, DOM} from "https://rosuav.github.io/choc/factory.js";
-const {A, ABBR, B, BR, DETAILS, DIV, FORM, H1, H3, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = lindt; //autoimport
+import {lindt, replace_content, DOM, fix_dialogs} from "https://rosuav.github.io/choc/factory.js";
+const {A, ABBR, B, BR, BUTTON, DIALOG, DETAILS, DIV, FORM, HEADER, H1, H3, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SECTION, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = lindt; //autoimport
 const {BLOCKQUOTE, H4, I} = lindt; //Currently autoimport doesn't recognize the section() decorator
+
+document.body.appendChild(replace_content(null, DIALOG({id: "customnationsdlg"}, SECTION([
+	HEADER([H3("Custom nations"), DIV(BUTTON({type: "button", class: "dialog_cancel"}, "x"))]),
+	DIV([
+		P("Placeholder for a list of files and stuff"),
+		P([BUTTON({class: "dialog_close"}, "Close")]),
+	]),
+]))));
+on("click", "#customnations", e => DOM("#customnationsdlg").showModal());
+fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "formless"});
 
 function cmp(a, b) {return a < b ? -1 : a > b ? 1 : 0;}
 function cell_compare_recursive(a, b, is_numeric) {
@@ -680,6 +690,7 @@ export function render(state) {
 			DIV({id: "now_parsing", className: "hidden"}),
 			DIV({id: "hovercountry", className: "hidden"}),
 		]),
+		BUTTON({id: "customnations"}, "Custom nations"),
 		//Always have DETAILS/SUMMARY nodes for every expandable, such that,
 		//whenever content is updated, they remain in their open/closed state.
 	]);
