@@ -2802,9 +2802,23 @@ int main(int argc, array(string) argv) {
 			sort(details->_index, ids, details);
 			foreach (details; int i; mapping idea) {
 				m_delete(idea, "_index");
+				m_delete(idea, "enabled"); //Conditions under which this is available (generally a DLC that has to be active)
+				m_delete(idea, "chance"); //I think this is for random generation of nations??
+				//The mapping contains a handful of administrative entries, plus the
+				//actual effects. So if we remove the known administrative keys, we
+				//should be able to then use the rest as effects. There'll usually be
+				//precisely one; as of version 1.34, only two custom ideas have more
+				//(can_recruit_hussars and has_carolean), and they both are a bit
+				//broken in the display. I'm not too worried.
+				idea->effects = indices(idea) - ({"default", "max_level"}) - filter(indices(idea), has_prefix, "level_cost_");
+				idea->effectname = "(no effect)"; //Alternatively, make this a mapping for all of them
+				foreach (idea->effects, string eff)
+					idea->effectname = L10n["MODIFIER_" + upper_case(eff)] || L10n[upper_case(eff)] || eff;
 				//idea->_index = custom_ideas && sizeof(custom_ideas); //useful for debugging
 				idea->category = cat;
 				idea->id = ids[i];
+				idea->name = L10N(idea->id);
+				idea->desc = L10N(idea->id + "_desc");
 				custom_ideas += ({idea});
 			}
 		}
