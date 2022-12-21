@@ -207,3 +207,9 @@ dialog > section > header > h3 {
 	height: 1.75em;
 	padding: 0;
 }
+
+.filters {
+	display: flex;
+	list-style-type: none;
+	padding: 0;
+}

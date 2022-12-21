@@ -10,6 +10,10 @@ document.body.appendChild(replace_content(null, DIALOG({id: "customnationsdlg"},
 		P([BUTTON({class: "dialog_close"}, "Close")]),
 	]),
 ]))));
+document.body.appendChild(replace_content(null, DIALOG({id: "customideadlg"}, SECTION([
+	HEADER([H3("Pick custom idea"), DIV(BUTTON({type: "button", class: "dialog_cancel"}, "x"))]),
+	DIV({id: "customideamain"}),
+]))));
 fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "formless"});
 
 function cmp(a, b) {return a < b ? -1 : a > b ? 1 : 0;}
@@ -825,6 +829,18 @@ on("click", ".sorthead", e => {
 
 let custom_nations = { }, custom_ideas = [], custom_filename = null;
 
+//Never have identify() return "*" - that's used for the "all" option.
+const idea_filters = {
+	cat: {
+		lbl: "Category",
+		identify(idea) {return idea.category;},
+	},
+	free: {
+		lbl: "Free option?",
+		identify(idea) {return +idea.level_cost_1 > 0 ? "No free option" : "Free option";},
+	},
+};
+
 function nation_flag(colors) {
 	return colors && IMG({class: "flag small",
 		src: `/flags/Custom-${colors.symbol_index}-${colors.flag}-`
@@ -837,6 +853,24 @@ on("click", "#customnations", e => ws_sync.send({cmd: "listcustoms"}));
 export function sockmsg_customnations(msg) {
 	custom_nations = msg.nations; custom_ideas = msg.custom_ideas;
 	custom_filename = null;
+	//Skim over the custom ideas and identify them to each filter
+	Object.values(idea_filters).forEach(fil => fil.opts = { });
+	custom_ideas.forEach(idea => {
+		idea.filters = { };
+		Object.entries(idea_filters).forEach(([id, fil]) => {
+			const opt = fil.identify(idea);
+			fil.opts[opt] = 1;
+			idea.filters[id] = opt;
+		});
+	});
+	replace_content("#ideafilterstyles", Object.entries(idea_filters).map(([id, fil]) => {
+		fil.opts = Object.keys(fil.opts).sort();
+		//For every option, filter out every other option.
+		return fil.opts.map(keep => fil.opts.map(check => check !== keep &&
+			`[data-filter${id}="${keep}"] [data-filteropt${id}="${check}"] {display: none;}\n`));
+	}));
+	//Okay. So now, for every filter, we have a (sorted) list of the possible options it yields;
+	//and for every idea, we have the options it fits into.
 	replace_content("#customnationmain", [
 		"Available custom nations:",
 		UL(Object.entries(custom_nations).map(([fn, nat]) => LI([
@@ -868,12 +902,13 @@ on("click", "#customnationmain a", e => {
 	replace_content("#customnationmain", [
 		"Custom nation: " + custom_filename + " ",
 		nation_flag(nat.country_colors), BR(),
-		"Flag: ",
+		nat.country_colors && ["Flag: ",
 			BUTTON({class: "editflag", "data-which": "symbol_index"}, "Emblem " + (+nat.country_colors.symbol_index + 1)),
 			BUTTON({class: "editflag", "data-which": "flag"}, "BG " + (+nat.country_colors.flag + 1)),
 			BUTTON({class: "editflag", "data-which": "0"}, "Color " + (+nat.country_colors.flag_colors[0] + 1)),
 			BUTTON({class: "editflag", "data-which": "1"}, "Color " + (+nat.country_colors.flag_colors[1] + 1)),
 			BUTTON({class: "editflag", "data-which": "2"}, "Color " + (+nat.country_colors.flag_colors[2] + 1)),
+		],
 		//TODO: Text inputs to let you edit the name and adjective
 		H4("Ideas"),
 		"Traditions:", BR(),
@@ -884,3 +919,32 @@ on("click", "#customnationmain a", e => {
 		UL(IDEA(nat.idea[9], 9)),
 	]);
 });
+
+function update_filter_classes() {
+	const main = DOM("#customideamain");
+	document.querySelectorAll(".filters select").forEach(sel =>
+		main.dataset["filter" + sel.dataset.filter] = sel.value
+	);
+}
+
+on("click", ".editidea", e => {
+	replace_content("#customideamain", [
+		UL({class: "filters"}, Object.entries(idea_filters).map(([id, fil]) => LI(
+			SELECT({"data-filter": id}, [
+				OPTION({value: "*"}, fil.lbl),
+				fil.opts.map(opt => OPTION(opt)),
+			]),
+		))),
+		UL({id: "ideaoptions"}, custom_ideas.map(idea => {
+			const filters = { };
+			Object.entries(idea.filters).forEach(([id, val]) => filters["data-filteropt" + id] = val);
+			return LI(filters, idea.effectname);
+		})),
+	]);
+	const cat = "ADM"; //TODO: Default to the category of the current idea
+	document.querySelectorAll(".filters select").forEach(sel => sel.value = sel.dataset.filter === "cat" ? cat : "*");
+	update_filter_classes();
+	DOM("#customideadlg").showModal();
+});
+
+on("change", ".filters select", update_filter_classes);

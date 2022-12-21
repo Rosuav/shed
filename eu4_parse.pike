@@ -2176,7 +2176,7 @@ mapping respond(Protocols.HTTP.Server.Request req) {
 	if (req->not_query == "/" || sscanf(req->not_query, "/tag/%s", string tag)) return ([
 		"type": "text/html",
 		"data": sprintf(#"<!DOCTYPE HTML><html lang=en>
-<head><title>EU4 Savefile Analysis</title><link rel=stylesheet href=\"/eu4_parse.css\"></head>
+<head><title>EU4 Savefile Analysis</title><link rel=stylesheet href=\"/eu4_parse.css\"><style id=ideafilterstyles></style></head>
 <body><script>
 let ws_code = new URL(\"/eu4_parse.js\", location.href), ws_type = \"eu4\", ws_group = \"%s\";
 let ws_sync = null; import('https://sikorsky.rosuav.com/static/ws_sync.js').then(m => ws_sync = m);
