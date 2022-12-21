@@ -867,9 +867,13 @@ on("click", "#customnationmain a", e => {
 	//not too concerned about the possibility!!
 	replace_content("#customnationmain", [
 		"Custom nation: " + custom_filename + " ",
-		//TODO: Edit buttons that pop up a selector with all the flags that are
-		//the same as this one in all attributes but the one being edited
-		nation_flag(nat.country_colors),
+		nation_flag(nat.country_colors), BR(),
+		"Flag: ",
+			BUTTON({class: "editflag", "data-which": "symbol_index"}, "Emblem " + (+nat.country_colors.symbol_index + 1)),
+			BUTTON({class: "editflag", "data-which": "flag"}, "BG " + (+nat.country_colors.flag + 1)),
+			BUTTON({class: "editflag", "data-which": "0"}, "Color " + (+nat.country_colors.flag_colors[0] + 1)),
+			BUTTON({class: "editflag", "data-which": "1"}, "Color " + (+nat.country_colors.flag_colors[1] + 1)),
+			BUTTON({class: "editflag", "data-which": "2"}, "Color " + (+nat.country_colors.flag_colors[2] + 1)),
 		//TODO: Text inputs to let you edit the name and adjective
 		H4("Ideas"),
 		"Traditions:", BR(),
