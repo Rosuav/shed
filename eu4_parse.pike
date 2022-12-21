@@ -2323,6 +2323,21 @@ void websocket_cmd_search(mapping conn, mapping data) {
 	persist_save(); update_group(conn->group);
 }
 
+void websocket_cmd_listcustoms(mapping conn, mapping data) {
+	string customdir = SAVE_PATH + "/../custom nations";
+	mapping nations = ([]);
+	foreach (sort(get_dir(customdir)), string fn)
+		nations[fn] = low_parse_savefile(Stdio.read_file(customdir + "/" + fn));
+	send_update(({conn->sock}), (["cmd": "customnations", "nations": nations, "custom_ideas": custom_ideas]));
+}
+//TODO: Have a way to edit a custom nation and save it back. Will need:
+// * A way to write back an EU4 text file (the opposite of low_parse_savefile)
+// * Some kind of permissions system?? There's currently no logins at all. Use IP address??
+// * At very least, some attempt to prevent accidental damage. Adding a custom field to the
+//   nation file causes it to fail to load, so it would have to be a comment.
+// * Allow "save-as", but only if there are fewer than X files stored, to prevent massive
+//   blowouts (since there's minimal permission checking).
+
 void ws_msg(Protocols.WebSocket.Frame frm, mapping conn)
 {
 	mixed data;

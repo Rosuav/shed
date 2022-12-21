@@ -6,11 +6,10 @@ const {BLOCKQUOTE, H4, I} = lindt; //Currently autoimport doesn't recognize the 
 document.body.appendChild(replace_content(null, DIALOG({id: "customnationsdlg"}, SECTION([
 	HEADER([H3("Custom nations"), DIV(BUTTON({type: "button", class: "dialog_cancel"}, "x"))]),
 	DIV([
-		P("Placeholder for a list of files and stuff"),
+		DIV({id: "customnationmain"}),
 		P([BUTTON({class: "dialog_close"}, "Close")]),
 	]),
 ]))));
-on("click", "#customnations", e => DOM("#customnationsdlg").showModal());
 fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "formless"});
 
 function cmp(a, b) {return a < b ? -1 : a > b ? 1 : 0;}
@@ -822,4 +821,58 @@ on("click", ".sorthead", e => {
 	const sec = e.match.closest("details");
 	if (!sec.id) return;
 	sections.forEach(s => s.id === sec.id && replace_content(sec, s.render(mergedstate)));
+});
+
+let custom_nations = { }, custom_ideas = [], custom_filename = null;
+
+function nation_flag(colors) {
+	return colors && IMG({class: "flag small",
+		src: `/flags/Custom-${colors.symbol_index}-${colors.flag}-`
+			+ colors.flag_colors.join("-") + ".png",
+		alt: "[flag of custom nation]",
+	});
+}
+
+on("click", "#customnations", e => ws_sync.send({cmd: "listcustoms"}));
+export function sockmsg_customnations(msg) {
+	custom_nations = msg.nations; custom_ideas = msg.custom_ideas;
+	custom_filename = null;
+	replace_content("#customnationmain", [
+		"Available custom nations:",
+		UL(Object.entries(custom_nations).map(([fn, nat]) => LI([
+			A({href: "#" + fn}, fn), " - ",
+			nation_flag(nat.country_colors),
+			" ", nat.name || "Unnamed",
+			" (the ", nat.adjective || "Unnamed", "s) ",
+		]))),
+	]);
+	DOM("#customnationsdlg").showModal();
+}
+
+function IDEA(idea) { //no, not IKEA
+	return ["(todo)", BR()];
+}
+
+on("click", "#customnationmain a", e => {
+	e.preventDefault();
+	custom_filename = new URL(e.match.href).hash.slice(1);
+	const nat = custom_nations[custom_filename];
+	//Note that we assume here that there'll be precisely ten ideas
+	//(the seven regular ideas, two traditions, and one ambition).
+	//The game crashes if you try to load a file with fewer, so I'm
+	//not too concerned about the possibility!!
+	replace_content("#customnationmain", [
+		"Custom nation: " + custom_filename + " ",
+		//TODO: Edit buttons that pop up a selector with all the flags that are
+		//the same as this one in all attributes but the one being edited
+		nation_flag(nat.country_colors),
+		//TODO: Text inputs to let you edit the name and adjective
+		H4("Ideas"),
+		"Traditions:", BR(),
+		IDEA(nat.idea[7]), IDEA(nat.idea[8]),
+		"Ideas:", BR(),
+		nat.idea.slice(0, 7).map(IDEA),
+		"Ambition:", BR(),
+		IDEA(nat.idea[9]),
+	]);
 });
