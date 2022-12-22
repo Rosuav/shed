@@ -938,7 +938,7 @@ on("click", ".editidea", e => {
 		UL({id: "ideaoptions"}, custom_ideas.map(idea => {
 			const filters = { };
 			Object.entries(idea.filters).forEach(([id, val]) => filters["data-filteropt" + id] = val);
-			return LI(filters, idea.effectname);
+			return LI(filters, ABBR({title: idea.id}, idea.effectname));
 		})),
 	]);
 	const cat = "ADM"; //TODO: Default to the category of the current idea

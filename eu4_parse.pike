@@ -679,6 +679,7 @@ int count_building_slots(mapping data, string id) {
 	if (prov->buildings->?university) ++slots; //A university effectively doesn't consume a slot.
 	if (data->countries[prov->owner]->?area_has_level3[?prov_area[id]]) ++slots; //A level 3 CoT in the state adds a building slot
 	//TODO: Modifiers, incl event flags (see all_country_modifiers maybe?)
+	//Notably global_allowed_num_of_buildings
 	int dev = (int)prov->base_tax + (int)prov->base_production + (int)prov->base_manpower;
 	return slots + dev / 10;
 }
@@ -2813,7 +2814,23 @@ int main(int argc, array(string) argv) {
 				idea->effects = indices(idea) - ({"default", "max_level"}) - filter(indices(idea), has_prefix, "level_cost_");
 				idea->effectname = "(no effect)"; //Alternatively, make this a mapping for all of them
 				foreach (idea->effects, string eff) {
-					idea->effectname = L10n["MODIFIER_" + upper_case(eff)] || L10n[upper_case(eff)] || eff;
+					string ueff = upper_case(eff);
+					//The localisation keys for effects like this are a bit of a mess. For
+					//instance, the "+1 missionaries" ability is localised as YEARLY_MISSIONARIES
+					//but most things are MODIFIER_THING_BEING_MODIFIED - except a couple, which
+					//are THING_BEING_MODIFIED_MOD. And some are even less obvious, such as:
+					//idea_claim_colonies -> MODIFIER_CLAIM_COLONIES
+					//cb_on_religious_enemies -> MAY_ATTACK_RELIGIOUS_ENEMIES
+					//state_governing_cost -> MODIFIER_STATES_GOVERNING_COST (with the 's')
+					//leader_naval_manuever -> NAVAL_LEADER_MANEUVER (one's misspelled)
+					//My guess is that there's a list somewhere, probably inside the binary (as
+					//it's not in the edit files anywhere), that just lists the keys. So for the
+					//worst outliers, I'm not even bothering to try; instead, we just take the
+					//L10n string for the idea itself. This will make the strings look different
+					//from the in-game ones occasionally, but it's too hard to fix the edge cases.
+					idea->effectname = L10n["YEARLY_" + ueff] || L10n["MODIFIER_" + ueff]
+						|| L10n[eff] || L10n[ueff] || L10n[ueff + "_MOD"]
+						|| sprintf("%s (%s)", L10n[ids[i]], eff);
 					idea->effectvalue = stringp(idea[eff]) ? threeplace(idea[eff]) : idea[eff];
 				}
 				//idea->_index = custom_ideas && sizeof(custom_ideas); //useful for debugging
