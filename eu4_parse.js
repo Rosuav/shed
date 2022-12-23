@@ -846,6 +846,7 @@ const idea_filters = {
 	maxcost: {
 		lbl: "Max cost",
 		identify(idea) {return +idea["level_cost_" + idea.max_level];},
+		sortorder(a, b) {return a - b;}
 	},
 };
 
@@ -872,7 +873,7 @@ export function sockmsg_customnations(msg) {
 		});
 	});
 	replace_content("#ideafilterstyles", Object.entries(idea_filters).map(([id, fil]) => {
-		fil.opts = Object.keys(fil.opts).sort();
+		fil.opts = Object.keys(fil.opts).sort(fil.sortorder);
 		//For every option, filter out every other option.
 		return fil.opts.map(keep => fil.opts.map(check => check !== keep &&
 			`[data-filter${id}="${keep}"] [data-filteropt${id}="${check}"] {display: none;}\n`));
