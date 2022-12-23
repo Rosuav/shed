@@ -897,6 +897,10 @@ function IDEA(idea, slot) { //no, not IKEA
 on("click", "#customnationmain a", e => {
 	e.preventDefault();
 	custom_filename = new URL(e.match.href).hash.slice(1);
+	update_nation_details();
+});
+
+function update_nation_details() {
 	const nat = custom_nations[custom_filename];
 	//Note that we assume here that there'll be precisely ten ideas
 	//(the seven regular ideas, two traditions, and one ambition).
@@ -921,7 +925,7 @@ on("click", "#customnationmain a", e => {
 		"Ambition:", BR(),
 		UL(IDEA(nat.idea[9], 9)),
 	]);
-});
+}
 
 function update_filter_classes() {
 	const main = DOM("#customideamain");
@@ -972,6 +976,15 @@ on("click", ".editflag", e => {
 	basis[which] = orig;
 	replace_content("#customflagmain", items);
 	DOM("#customflagdlg").showModal();
+});
+
+on("click", ".pickflag", e => {
+	const nat = custom_nations[custom_filename];
+	const which = e.match.dataset.which;
+	const basis = which.length === 1 ? nat.country_colors.flag_colors : nat.country_colors;
+	basis[which] = e.match.dataset.idx;
+	DOM("#customflagdlg").close();
+	update_nation_details();
 });
 
 on("change", ".filters select", update_filter_classes);
