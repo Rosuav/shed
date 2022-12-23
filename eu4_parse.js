@@ -26,15 +26,16 @@ function cell_compare_recursive(a, b, is_numeric) {
 	else if (!a) return -1;
 	else if (!b) return 1;
 	if (typeof a === "string" || typeof a === "number") { //Assumes that b is the same type
-		if (is_numeric) return cmp(+b, +a); //Reverse numeric sorts by default
+		if (is_numeric) return cmp(+a, +b);
 		return cmp(a, b);
 	}
-	let ret = cmp(a.attributes["data-sortkey"], b.attributes["data-sortkey"]);
+	let ret = cmp(a.attributes["data-sortkey"], b.attributes["data-sortkey"], is_numeric);
 	for (let i = 0; i < a.children.length && i < b.children.length && !ret; ++i)
 		ret = cell_compare_recursive(a.children[i], b.children[i], is_numeric);
 	return ret;
 }
 function cell_compare(sortcol, direction, is_numeric) { //direction s/be 1 or -1 for reverse sort
+	if (is_numeric) direction = -direction; //Reverse numeric sorts by default
 	return (a, b) => cell_compare_recursive(a.children[sortcol], b.children[sortcol], is_numeric) * direction;
 }
 
