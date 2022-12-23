@@ -843,6 +843,10 @@ const idea_filters = {
 		lbl: "Free option?",
 		identify(idea) {return +idea.level_cost_1 > 0 ? "No free option" : "Free option";},
 	},
+	maxcost: {
+		lbl: "Max cost",
+		identify(idea) {return +idea["level_cost_" + idea.max_level];},
+	},
 };
 
 function nation_flag(colors, cls="small") {
