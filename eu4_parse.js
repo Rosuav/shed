@@ -934,7 +934,7 @@ on("click", ".editidea", e => {
 				fil.opts.map(opt => OPTION(opt)),
 			]),
 		))),
-		sortable({id: "ideaoptions"}, "Effect Power Cost", custom_ideas.map(idea => {
+		sortable({id: "ideaoptions"}, "Effect Power #Cost", custom_ideas.map(idea => {
 			const filters = { };
 			Object.entries(idea.filters).forEach(([id, val]) => filters["data-filteropt" + id] = val);
 			let costs = idea.level_cost_1;
@@ -942,7 +942,7 @@ on("click", ".editidea", e => {
 			return TR(filters, [
 				TD(ABBR({title: idea.id}, idea.effectname)),
 				TD(threeplace(idea.effectvalue)),
-				TD(costs),
+				TD({"data-sortkey": idea["level_cost_" + idea.max_level]}, costs), //Sorting by cost sorts by max cost
 			]);
 		})),
 	]);
