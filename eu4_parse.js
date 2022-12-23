@@ -14,6 +14,10 @@ document.body.appendChild(replace_content(null, DIALOG({id: "customideadlg"}, SE
 	HEADER([H3("Pick custom idea"), DIV(BUTTON({type: "button", class: "dialog_cancel"}, "x"))]),
 	DIV({id: "customideamain"}),
 ]))));
+document.body.appendChild(replace_content(null, DIALOG({id: "customflagdlg"}, SECTION([
+	HEADER([H3("Modify flag"), DIV(BUTTON({type: "button", class: "dialog_cancel"}, "x"))]),
+	DIV({id: "customflagmain"}),
+]))));
 fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "formless"});
 
 function cmp(a, b) {return a < b ? -1 : a > b ? 1 : 0;}
@@ -840,8 +844,8 @@ const idea_filters = {
 	},
 };
 
-function nation_flag(colors) {
-	return colors && IMG({class: "flag small",
+function nation_flag(colors, cls="small") {
+	return colors && IMG({class: "flag " + cls,
 		src: `/flags/Custom-${colors.symbol_index}-${colors.flag}-`
 			+ colors.flag_colors.join("-") + ".png",
 		alt: "[flag of custom nation]",
@@ -902,11 +906,11 @@ on("click", "#customnationmain a", e => {
 		"Custom nation: " + custom_filename + " ",
 		nation_flag(nat.country_colors), BR(),
 		nat.country_colors && ["Flag: ",
-			BUTTON({class: "editflag", "data-which": "symbol_index"}, "Emblem " + (+nat.country_colors.symbol_index + 1)),
-			BUTTON({class: "editflag", "data-which": "flag"}, "BG " + (+nat.country_colors.flag + 1)),
-			BUTTON({class: "editflag", "data-which": "0"}, "Color " + (+nat.country_colors.flag_colors[0] + 1)),
-			BUTTON({class: "editflag", "data-which": "1"}, "Color " + (+nat.country_colors.flag_colors[1] + 1)),
-			BUTTON({class: "editflag", "data-which": "2"}, "Color " + (+nat.country_colors.flag_colors[2] + 1)),
+			BUTTON({class: "editflag", "data-which": "symbol_index", "data-max": 120}, "Emblem " + (+nat.country_colors.symbol_index + 1)),
+			BUTTON({class: "editflag", "data-which": "flag", "data-max": 54}, "BG " + (+nat.country_colors.flag + 1)),
+			BUTTON({class: "editflag", "data-which": "0", "data-max": 17}, "Color " + (+nat.country_colors.flag_colors[0] + 1)),
+			BUTTON({class: "editflag", "data-which": "1", "data-max": 17}, "Color " + (+nat.country_colors.flag_colors[1] + 1)),
+			BUTTON({class: "editflag", "data-which": "2", "data-max": 17}, "Color " + (+nat.country_colors.flag_colors[2] + 1)),
 		],
 		//TODO: Text inputs to let you edit the name and adjective
 		H4("Ideas"),
@@ -952,6 +956,22 @@ on("click", ".editidea", e => {
 	document.querySelectorAll(".filters select").forEach(sel => sel.value = sel.dataset.filter === "cat" ? cat : "*");
 	update_filter_classes();
 	DOM("#customideadlg").showModal();
+});
+
+on("click", ".editflag", e => {
+	const nat = custom_nations[custom_filename];
+	const which = e.match.dataset.which;
+	const basis = which.length === 1 ? nat.country_colors.flag_colors : nat.country_colors;
+	const orig = basis[which];
+	const items = [];
+	const max = +e.match.dataset.max;
+	for (let i = 0; i < max; ++i) {
+		basis[which] = ""+i;
+		items.push(BUTTON({class: "pickflag", "data-which": which, "data-idx": i}, nation_flag(nat.country_colors, "large")));
+	}
+	basis[which] = orig;
+	replace_content("#customflagmain", items);
+	DOM("#customflagdlg").showModal();
 });
 
 on("change", ".filters select", update_filter_classes);
