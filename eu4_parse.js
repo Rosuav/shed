@@ -941,6 +941,8 @@ on("click", ".editidea", e => {
 			for (let i = 2; i <= +idea.max_level; ++i) costs += "/" + idea["level_cost_" + i];
 			return TR(filters, [
 				TD(ABBR({title: idea.id}, idea.effectname)),
+				//TODO: Figure out which ones should show as percentage and which as
+				//straight numbers, and possibly which ones are booleans
 				TD(threeplace(idea.effectvalue)),
 				TD({"data-sortkey": idea["level_cost_" + idea.max_level]}, costs), //Sorting by cost sorts by max cost
 			]);
