@@ -935,10 +935,16 @@ on("click", ".editidea", e => {
 				fil.opts.map(opt => OPTION(opt)),
 			]),
 		))),
-		UL({id: "ideaoptions"}, custom_ideas.map(idea => {
+		sortable({id: "ideaoptions"}, "Effect Power Cost", custom_ideas.map(idea => {
 			const filters = { };
 			Object.entries(idea.filters).forEach(([id, val]) => filters["data-filteropt" + id] = val);
-			return LI(filters, ABBR({title: idea.id}, idea.effectname));
+			let costs = idea.level_cost_1;
+			for (let i = 2; i <= +idea.max_level; ++i) costs += "/" + idea["level_cost_" + i];
+			return TR(filters, [
+				TD(ABBR({title: idea.id}, idea.effectname)),
+				TD(threeplace(idea.effectvalue)),
+				TD(costs),
+			]);
 		})),
 	]);
 	const cat = "ADM"; //TODO: Default to the category of the current idea

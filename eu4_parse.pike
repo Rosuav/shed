@@ -2838,7 +2838,16 @@ int main(int argc, array(string) argv) {
 				idea->id = ids[i];
 				idea->name = L10N(idea->id);
 				idea->desc = L10N(idea->id + "_desc");
-				custom_ideas += ({idea});
+				custom_ideas += ({([
+					"max_level": 4, //These defaults come from defines.lua
+					"level_cost_1": "0",
+					"level_cost_2": "5",
+					"level_cost_3": "15",
+					"level_cost_4": "30",
+					//Defaults for levels 5-10 also exist, but currently, no ideas specify a max_level
+					//higher than 4 without also specifying every single cost. If this ends up needed,
+					//consider reducing the noise by providing default costs only up to the max_level.
+				]) | idea});
 			}
 		}
 	}
