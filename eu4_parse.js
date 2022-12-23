@@ -47,7 +47,9 @@ function sortable(attrs, headings, rows) {
 	headings = TR(headings.map((h, i) => TH({class: "sorthead", "data-idx": i}, numeric_sort_header(h) ? h.slice(1) : h)));
 	rows.forEach((r, i) => r.key = r.key || "row-" + i);
 	if (sortcol !== undefined) rows.sort(cell_compare(sortcol, reverse ? -1 : 1, is_numeric));
-	return TABLE(attrs, [headings, rows]);
+	const tb = DOM("#" + attrs.id);
+	if (tb) return replace_content(tb, [headings, rows]); //TODO: Handle any changes of attributes
+	return replace_content(null, TABLE(attrs, [headings, rows]));
 }
 
 let curgroup = [], provgroups = { }, provelem = { }, pinned_provinces = { }, province_info = { };
