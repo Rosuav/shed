@@ -213,3 +213,10 @@ dialog > section > header > h3 {
 	list-style-type: none;
 	padding: 0;
 }
+
+thead {
+	position: sticky;
+	top: 0;
+	background: #eee;
+}
+#ideaoptions thead {background: aliceblue;}

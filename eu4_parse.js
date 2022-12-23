@@ -1,6 +1,6 @@
 //Not to be confused with eu4_parse.json which is a cache
 import {lindt, replace_content, DOM, fix_dialogs} from "https://rosuav.github.io/choc/factory.js";
-const {A, ABBR, B, BR, BUTTON, DIALOG, DETAILS, DIV, FORM, HEADER, H1, H3, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SECTION, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, TR, UL} = lindt; //autoimport
+const {A, ABBR, B, BR, BUTTON, DIALOG, DETAILS, DIV, FORM, HEADER, H1, H3, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SECTION, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, THEAD, TR, UL} = lindt; //autoimport
 const {BLOCKQUOTE, H4, I} = lindt; //Currently autoimport doesn't recognize the section() decorator
 
 document.body.appendChild(replace_content(null, DIALOG({id: "customnationsdlg"}, SECTION([
@@ -48,7 +48,7 @@ function sortable(attrs, headings, rows) {
 	const reverse = sortcol && sortcol[0] === '-'; //Note that this is done with strings; "-0" means "column zero but reversed".
 	if (reverse) sortcol = sortcol.slice(1);
 	const is_numeric = numeric_sort_header(headings[sortcol]);
-	const headrow = TR(headings.map((h, i) => TH({class: "sorthead", "data-idx": i}, numeric_sort_header(h) ? h.slice(1) : h)));
+	const headrow = THEAD(TR(headings.map((h, i) => TH({class: "sorthead", "data-idx": i}, numeric_sort_header(h) ? h.slice(1) : h))));
 	rows.forEach((r, i) => r.key = r.key || "row-" + i);
 	if (sortcol !== undefined) rows.sort(cell_compare(sortcol, reverse ? -1 : 1, is_numeric));
 	const tb = DOM("#" + attrs.id);
@@ -648,7 +648,7 @@ section("miltech", "Military technology", state => {
 	return [
 		SUMMARY(`Military technology (${state.miltech.current})`),
 		TABLE({border: true, class: hover.name ? "" : "hoverinactive"}, [
-			headings,
+			THEAD(headings),
 			state.miltech.levels.map((tech, i) => TR({
 				class: i === state.miltech.current ? "interesting1"
 				: i === hover.tech[2] ? "interesting2" : "",
