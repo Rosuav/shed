@@ -895,6 +895,7 @@ export function sockmsg_customnations(msg) {
 function IDEA(idea, slot) { //no, not IKEA
 	const info = custom_ideas[idea.index];
 	return LI([
+		SPAN({class: "ideacost"}, info["level_cost_" + idea.level]), " ",
 		info.effectname, " ", threeplace(info.effectvalue * idea.level), " ",
 		BUTTON({class: "editidea", "data-slot": slot}, "✍"),
 	]);
