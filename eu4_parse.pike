@@ -2436,7 +2436,7 @@ mapping get_state(string group) {
 	mapping ret = (["tag": tag, "self": data->countries[tag], "highlight": ([]), "recent_peace_treaties": recent_peace_treaties]);
 	ret->capital_province = data->provinces["-" + data->countries[tag]->capital];
 	analyze(data, group, tag, ret, persist_path(group));
-	multiset players = (multiset)(data->players_countries / 2)[*][1]; //Normally, show all wars involving players.
+	multiset players = (multiset)((data->players_countries || ({ })) / 2)[*][1]; //Normally, show all wars involving players.
 	if (!players[tag]) players = (<tag>); //But if you switch to a non-player country, show that country's wars instead.
 	analyze_wars(data, players, ret);
 	analyze_flagships(data, ret);
