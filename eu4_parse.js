@@ -830,7 +830,7 @@ on("click", ".sorthead", e => {
 	sortable(...tb._sortable_config);
 });
 
-let custom_nations = { }, custom_ideas = [], custom_filename = null;
+let custom_nations = { }, custom_ideas = [], custom_filename = null, selected_idea = -1;
 
 //Never have identify() return "*" - that's used for the "all" option.
 const idea_filters = {
@@ -935,6 +935,11 @@ function update_filter_classes() {
 }
 
 on("click", ".editidea", e => {
+	selected_idea = e.match.dataset.slot;
+	const nat = custom_nations[custom_filename];
+	const inuse = { };
+	nat.idea.forEach(idea => inuse[idea.index] = 1);
+	inuse[nat.idea[selected_idea].index] = 2;
 	replace_content("#customideamain", [
 		UL({class: "filters"}, Object.entries(idea_filters).map(([id, fil]) => LI(
 			SELECT({"data-filter": id}, [
@@ -942,11 +947,12 @@ on("click", ".editidea", e => {
 				fil.opts.map(opt => OPTION(opt)),
 			]),
 		))),
-		sortable({id: "ideaoptions"}, "Effect Power #Cost", custom_ideas.map(idea => {
+		sortable({id: "ideaoptions"}, "Effect Power #Cost", custom_ideas.map((idea, idx) => {
 			const filters = { };
 			Object.entries(idea.filters).forEach(([id, val]) => filters["data-filteropt" + id] = val);
 			let costs = idea.level_cost_1;
 			for (let i = 2; i <= +idea.max_level; ++i) costs += "/" + idea["level_cost_" + i];
+			if (inuse[idx]) filters["class"] = "interesting" + inuse[idx];
 			return TR(filters, [
 				TD(ABBR({title: idea.id}, idea.effectname)),
 				//TODO: Figure out which ones should show as percentage and which as
@@ -956,10 +962,11 @@ on("click", ".editidea", e => {
 			]);
 		})),
 	]);
-	const cat = "ADM"; //TODO: Default to the category of the current idea
+	const cat = custom_ideas[nat.idea[selected_idea].index].category;
 	document.querySelectorAll(".filters select").forEach(sel => sel.value = sel.dataset.filter === "cat" ? cat : "*");
 	update_filter_classes();
 	DOM("#customideadlg").showModal();
+	DOM("#customideadlg tr.interesting2").scrollIntoView();
 });
 
 on("click", ".editflag", e => {
