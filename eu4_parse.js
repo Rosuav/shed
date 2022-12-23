@@ -44,12 +44,14 @@ function sortable(attrs, headings, rows) {
 	const reverse = sortcol && sortcol[0] === '-'; //Note that this is done with strings; "-0" means "column zero but reversed".
 	if (reverse) sortcol = sortcol.slice(1);
 	const is_numeric = numeric_sort_header(headings[sortcol]);
-	headings = TR(headings.map((h, i) => TH({class: "sorthead", "data-idx": i}, numeric_sort_header(h) ? h.slice(1) : h)));
+	const headrow = TR(headings.map((h, i) => TH({class: "sorthead", "data-idx": i}, numeric_sort_header(h) ? h.slice(1) : h)));
 	rows.forEach((r, i) => r.key = r.key || "row-" + i);
 	if (sortcol !== undefined) rows.sort(cell_compare(sortcol, reverse ? -1 : 1, is_numeric));
 	const tb = DOM("#" + attrs.id);
-	if (tb) return replace_content(tb, [headings, rows]); //TODO: Handle any changes of attributes
-	return replace_content(null, TABLE(attrs, [headings, rows]));
+	const ret = tb ? replace_content(tb, [headrow, rows]) //TODO: Handle any changes of attributes
+		: replace_content(null, TABLE(attrs, [headrow, rows]));
+	ret._sortable_config = [attrs, headings, rows];
+	return ret;
 }
 
 let curgroup = [], provgroups = { }, provelem = { }, pinned_provinces = { }, province_info = { };
@@ -669,9 +671,7 @@ section("miltech", "Military technology", state => {
 	];
 });
 
-const mergedstate = { }; //Ever-updated mapping of the last-seen state. May have illogical combinations in it.
 export function render(state) {
-	Object.assign(mergedstate, state);
 	curgroup = []; provgroups = { };
 	//Set up one-time structure. Every subsequent render will update within that.
 	if (!DOM("#error")) replace_content("main", [
@@ -820,13 +820,10 @@ export function render(state) {
 }
 
 on("click", ".sorthead", e => {
-	const id = e.match.closest("table").id, idx = e.match.dataset.idx;
+	const tb = e.match.closest("table"), id = tb.id, idx = e.match.dataset.idx;
 	if (sort_selections[id] === idx) sort_selections[id] = "-" + idx; //Note that "-0" is distinct from "0", as they're stored as strings
 	else sort_selections[id] = idx;
-	//TODO: What if there's another DETAILS between the section and this?
-	const sec = e.match.closest("details");
-	if (!sec.id) return;
-	sections.forEach(s => s.id === sec.id && replace_content(sec, s.render(mergedstate)));
+	sortable(...tb._sortable_config);
 });
 
 let custom_nations = { }, custom_ideas = [], custom_filename = null;
