@@ -235,10 +235,11 @@ string tabulate(array(string) headings, array(array(mixed)) data, string|void gu
 
 int threeplace(string value) {
 	//EU4 uses three-place fixed-point for a lot of things. Return the number as an integer,
-	//ie "3.142" is returned as 3142.
+	//ie "3.142" is returned as 3142. Can handle "-0.1" and "-.1", although to my knowledge,
+	//the EU4 files never contain the latter.
 	if (!value) return 0;
-	sscanf(value, "%d.%s", int whole, string frac);
-	return whole * 1000 + (int)sprintf("%.03s", frac + "000");
+	sscanf(value, "%[-]%[0-9].%[0-9]", string neg, string whole, string frac);
+	return (neg == "-" ? -1 : 1) * ((int)whole * 1000 + (int)sprintf("%.03s", frac + "000"));
 }
 
 int interest_priority = 0;
