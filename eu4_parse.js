@@ -832,6 +832,7 @@ on("click", ".sorthead", e => {
 });
 
 let custom_nations = { }, custom_ideas = [], custom_filename = null, selected_idea = -1;
+let effect_display_mode = { };
 
 //Never have identify() return "*" - that's used for the "all" option.
 const idea_filters = {
@@ -861,7 +862,7 @@ function nation_flag(colors, cls="small") {
 on("click", "#customnations", e => ws_sync.send({cmd: "listcustoms"}));
 export function sockmsg_customnations(msg) {
 	custom_nations = msg.nations; custom_ideas = msg.custom_ideas;
-	custom_filename = null;
+	custom_filename = null; effect_display_mode = msg.effect_display_mode;
 	//Skim over the custom ideas and identify them to each filter
 	Object.values(idea_filters).forEach(fil => fil.opts = { });
 	custom_ideas.forEach(idea => {
@@ -941,6 +942,14 @@ function update_filter_classes() {
 	);
 }
 
+function effectvalue(effect, value) {
+	switch (effect_display_mode[effect]) {
+		case "percent": return (value / 10) + "%";
+		case "boolean": return "Yes"; //The idea always enables, never disables, so it'll never be set to "No"
+		default: return threeplace(value);
+	}
+}
+
 on("click", ".editidea", e => {
 	selected_idea = e.match.dataset.slot;
 	const nat = custom_nations[custom_filename];
@@ -962,9 +971,12 @@ on("click", ".editidea", e => {
 			if (inuse[idx]) filters["class"] = "interesting" + inuse[idx];
 			return TR(filters, [
 				TD(ABBR({title: idea.id}, idea.effectname)),
-				//TODO: Figure out which ones should show as percentage and which as
-				//straight numbers, and possibly which ones are booleans
-				TD(threeplace(idea.effectvalue)),
+				TD({"data-sortkey": idea.effectvalue}, [
+					effectvalue(idea.effects[0], idea.effectvalue),
+					" ",
+					BUTTON({class: "seteffectmode", "data-effect": idea.effects[0]},
+						{"percent": "Y", "boolean": "n"}[effect_display_mode[idea.effects[0]]] || "%"),
+				]),
 				TD({"data-sortkey": idea["level_cost_" + idea.max_level]}, costs), //Sorting by cost sorts by max cost
 			]);
 		})),
@@ -974,6 +986,12 @@ on("click", ".editidea", e => {
 	update_filter_classes();
 	DOM("#customideadlg").showModal();
 	DOM("#customideadlg tr.interesting2").scrollIntoView();
+});
+
+on("click", ".seteffectmode", e => {
+	const mode = {"percent": "boolean", "boolean": "threeplace"}[effect_display_mode[e.match.dataset.effect]] || "percent";
+	ws_sync.send({cmd: "set_effect_mode", effect: e.match.dataset.effect, mode});
+	//TODO: Update the display (just rerender exactly as-is)
 });
 
 on("click", ".editflag", e => {

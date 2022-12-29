@@ -2249,6 +2249,7 @@ void http_handler(Protocols.HTTP.Server.Request req) {req->response_and_finish(r
 
 //Persisted prefs, keyed by country tag or player name. They apply to all connections for that user (to prevent inexplicable loss of config on dc).
 mapping(string:mapping(string:mixed)) tag_preferences = ([]);
+mapping(string:string) effect_display_mode = ([]); //If an effect is not listed, display it as a number (threeplace)
 //tag_preferences->Rosuav ==> prefs for Rosuav, regardless of country
 //tag_preferences->CAS ==> prefs for Castille, regardless of player
 //...->highlight_interesting == building ID highlighted for further construction
@@ -2267,7 +2268,10 @@ mapping persist_path(string ... parts)
 	}
 	return ret;
 }
-void persist_save() {Stdio.write_file(".eu4_preferences.json", Standards.JSON.encode((["tag_preferences": tag_preferences]), 7));}
+void persist_save() {Stdio.write_file(".eu4_preferences.json", Standards.JSON.encode(([
+	"tag_preferences": tag_preferences,
+	"effect_display_mode": effect_display_mode,
+]), 7));}
 
 void websocket_cmd_highlight(mapping conn, mapping data) {
 	mapping prefs = persist_path(conn->group);
@@ -2325,12 +2329,25 @@ void websocket_cmd_search(mapping conn, mapping data) {
 	persist_save(); update_group(conn->group);
 }
 
+void websocket_cmd_set_effect_mode(mapping conn, mapping data) {
+	if (!stringp(data->effect)) return;
+	if (!has_value("threeplace percent boolean" / " ", data->mode)) return;
+	effect_display_mode[data->effect] = data->mode;
+	persist_save();
+	//Note that currently-connected clients do not get updated.
+}
+
 void websocket_cmd_listcustoms(mapping conn, mapping data) {
 	string customdir = SAVE_PATH + "/../custom nations";
 	mapping nations = ([]);
 	foreach (sort(get_dir(customdir)), string fn)
 		nations[fn] = low_parse_savefile(Stdio.read_file(customdir + "/" + fn));
-	send_update(({conn->sock}), (["cmd": "customnations", "nations": nations, "custom_ideas": custom_ideas]));
+	send_update(({conn->sock}), ([
+		"cmd": "customnations",
+		"nations": nations,
+		"custom_ideas": custom_ideas,
+		"effect_display_mode": effect_display_mode,
+	]));
 }
 //TODO: Have a way to edit a custom nation and save it back. Will need:
 // * A way to write back an EU4 text file (the opposite of low_parse_savefile)
@@ -3066,6 +3083,7 @@ log = \"PROV-TERRAIN-END\"
 	mapping cfg = ([]);
 	catch {cfg = Standards.JSON.decode(Stdio.read_file(".eu4_preferences.json"));};
 	if (mappingp(cfg) && cfg->tag_preferences) tag_preferences = cfg->tag_preferences;
+	if (mappingp(cfg) && cfg->effect_display_mode) effect_display_mode = cfg->effect_display_mode;
 
 	object proc = Process.spawn_pike(({argv[0], "--parse"}), (["fds": ({parser_pipe->pipe(Stdio.PROP_NONBLOCK|Stdio.PROP_BIDIRECTIONAL|Stdio.PROP_IPC)})]));
 	parser_pipe->set_nonblocking(done_processing_savefile, 0, parser_pipe->close);
