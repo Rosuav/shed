@@ -994,7 +994,7 @@ function build_idea_list(filters) {
 				fil.opts.map(opt => OPTION(opt)),
 			]),
 		))),
-		sortable({id: "ideaoptions"}, "Effect Power #Cost", custom_ideas.map((idea, idx) => {
+		sortable({id: "ideaoptions"}, "Cat Effect Power #Cost", custom_ideas.map((idea, idx) => {
 			const filters = { };
 			Object.entries(idea.filters).forEach(([id, val]) => filters["data-filteropt" + id] = val);
 			let costs = "", powers = [];
@@ -1006,6 +1006,7 @@ function build_idea_list(filters) {
 			}
 			if (inuse[idx]) filters["class"] = "interesting" + inuse[idx];
 			return TR(filters, [
+				TD(idea.category),
 				TD(ABBR({title: idea.id}, idea.effectname)),
 				TD({"data-sortkey": idea.effectvalue, class: "powers"}, [
 					powers, " ",
