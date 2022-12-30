@@ -849,6 +849,13 @@ const idea_filters = {
 		identify(idea) {return +idea["level_cost_" + idea.max_level];},
 		sortorder(a, b) {return a - b;}
 	},
+	type: {
+		lbl: "Type",
+		identify(idea) {return "Other (TODO)";}
+		//Options: Ducats, Manpower, Mana, Time, Nation (prestige, legit, etc), Diplomacy?, Army, Navy, Other
+		//May need to be a multiselect. For instance, autonomy change modifier will benefit
+		//both ducats and manpower.
+	}
 };
 
 function nation_flag(colors, cls="small") {
