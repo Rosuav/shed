@@ -906,15 +906,17 @@ function effectvalue(idea, value) {
 
 //Traditions and early ideas cost more. Traditions are late in the array.
 const slotcosts = [100, 80, 60, 40, 20, 0, 0, 100, 100, 0];
+let idea_imbalance_penalty = 0;
 function IDEA(idea, slot) { //no, not IKEA
 	const info = custom_ideas[idea.index];
 	const cost_base = info["level_cost_" + idea.level]|0;
 	const cost_pos = cost_base * slotcosts[slot] / 100;
+	const cost_imbal = Math.trunc(cost_base * idea_imbalance_penalty / 10) / 10; //Penalty is rounded towards zero, to one decimal place
 	let title = "Cost: " + cost_base + " base";
-	if (cost_pos) title += " + " + cost_pos + " early"
-	//TODO: Calculate a penalty for skewed idea selections
+	if (cost_pos) title += " + " + cost_pos + " early";
+	if (cost_imbal) title += " + " + cost_imbal + " imbalanced";
 	return LI([
-		SPAN({class: "ideacost", title}, cost_base + cost_pos + ""), " ",
+		SPAN({class: "ideacost", title}, cost_base + cost_pos + cost_imbal + ""), " ",
 		info.effectname, " ", effectvalue(info, info.effectvalue * idea.level), " ",
 		BUTTON({class: "editidea", "data-slot": slot}, "✍"),
 	]);
@@ -932,6 +934,21 @@ function update_nation_details() {
 	//(the seven regular ideas, two traditions, and one ambition).
 	//The game crashes if you try to load a file with fewer, so I'm
 	//not too concerned about the possibility!!
+
+	//Ideas get a cost penalty if you have too many of the same type.
+	//(Note that this is a percentage, and WILL magnify negative costs
+	//as well as positive. So go ahead, abuse the system, and make a
+	//nation with horrifically-bad admin ideas!)
+	let levels = {ADM: 0, DIP: 0, MIL: 0};
+	nat.idea.forEach(idea => {
+		const info = custom_ideas[idea.index];
+		levels[info.category] += Math.floor(10 * idea.level / info.max_level);
+	});
+	console.log(levels);
+	const tot = levels.ADM + levels.DIP + levels.MIL;
+	const max = Math.max(levels.ADM, levels.DIP, levels.MIL);
+	//Note that the penalty is quantized to half a percent. Not sure why that exact cutoff.
+	idea_imbalance_penalty = Math.max(Math.floor(max / tot * 1000 - 500) / 2, 0);
 	replace_content("#customnationmain", [
 		"Custom nation: " + custom_filename + " ",
 		nation_flag(nat.country_colors), BR(),
@@ -950,6 +967,11 @@ function update_nation_details() {
 		UL(nat.idea.slice(0, 7).map(IDEA)),
 		"Ambition:", BR(),
 		UL(IDEA(nat.idea[9], 9)),
+		"Categories: ",
+			SPAN({title: levels.ADM + " levels"}, Math.floor(levels.ADM * 100 / tot) + "% ADM"), " ",
+			SPAN({title: levels.DIP + " levels"}, Math.floor(levels.DIP * 100 / tot) + "% DIP"), " ",
+			SPAN({title: levels.MIL + " levels"}, Math.floor(levels.MIL * 100 / tot) + "% MIL"), " => ",
+			B(idea_imbalance_penalty + "% penalty"),
 	]);
 }
 
