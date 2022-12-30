@@ -950,8 +950,7 @@ function effectvalue(effect, value) {
 	}
 }
 
-on("click", ".editidea", e => {
-	selected_idea = e.match.dataset.slot;
+function build_idea_list() {
 	const nat = custom_nations[custom_filename];
 	const inuse = { };
 	nat.idea.forEach(idea => inuse[idea.index] = 1);
@@ -981,17 +980,25 @@ on("click", ".editidea", e => {
 			]);
 		})),
 	]);
+	update_filter_classes();
+}
+
+on("click", ".editidea", e => {
+	selected_idea = e.match.dataset.slot;
+	const nat = custom_nations[custom_filename];
 	const cat = custom_ideas[nat.idea[selected_idea].index].category;
 	document.querySelectorAll(".filters select").forEach(sel => sel.value = sel.dataset.filter === "cat" ? cat : "*");
-	update_filter_classes();
+	build_idea_list();
 	DOM("#customideadlg").showModal();
 	DOM("#customideadlg tr.interesting2").scrollIntoView();
 });
 
 on("click", ".seteffectmode", e => {
-	const mode = {"percent": "boolean", "boolean": "threeplace"}[effect_display_mode[e.match.dataset.effect]] || "percent";
-	ws_sync.send({cmd: "set_effect_mode", effect: e.match.dataset.effect, mode});
-	//TODO: Update the display (just rerender exactly as-is)
+	const effect = e.match.dataset.effect;
+	const mode = {"percent": "boolean", "boolean": "threeplace"}[effect_display_mode[effect]] || "percent";
+	ws_sync.send({cmd: "set_effect_mode", effect, mode});
+	effect_display_mode[effect] = mode;
+	build_idea_list();
 });
 
 on("click", ".editflag", e => {

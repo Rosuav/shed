@@ -230,5 +230,5 @@ thead {
 .seteffectmode {
 	padding: 0;
 	/* Enable the buttons when needed, eg after an update that added new ideas */
-	/* display: none; */
+	display: none;
 }
