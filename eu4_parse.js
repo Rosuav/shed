@@ -942,9 +942,10 @@ function update_filter_classes() {
 	);
 }
 
-function effectvalue(effect, value) {
-	switch (effect_display_mode[effect]) {
+function effectvalue(mode, value) {
+	switch (mode) {
 		case "percent": return (value / 10) + "%";
+		case "integer": return (value / 1000) + "";
 		case "boolean": return "Yes"; //The idea always enables, never disables, so it'll never be set to "No"
 		default: return threeplace(value);
 	}
@@ -965,18 +966,24 @@ function build_idea_list() {
 		sortable({id: "ideaoptions"}, "Effect Power #Cost", custom_ideas.map((idea, idx) => {
 			const filters = { };
 			Object.entries(idea.filters).forEach(([id, val]) => filters["data-filteropt" + id] = val);
-			let costs = idea.level_cost_1;
-			for (let i = 2; i <= +idea.max_level; ++i) costs += "/" + idea["level_cost_" + i];
+			let costs = "", powers = [];
+			let mode = effect_display_mode[idea.effects[0]];
+			if ((!mode || mode === "threeplace") && !(idea.effectvalue % 1000)) mode = "integer";
+			for (let i = 1; i <= +idea.max_level; ++i) {
+				costs += "/" + idea["level_cost_" + i];
+				//TODO: If inuse[idx], highlight the level that's in use
+				powers.push(BUTTON({class: "selectidea", "data-ideaidx": idx, "data-level": i},
+					effectvalue(mode, idea.effectvalue * i)));
+			}
 			if (inuse[idx]) filters["class"] = "interesting" + inuse[idx];
 			return TR(filters, [
 				TD(ABBR({title: idea.id}, idea.effectname)),
-				TD({"data-sortkey": idea.effectvalue}, [
-					effectvalue(idea.effects[0], idea.effectvalue),
-					" ",
+				TD({"data-sortkey": idea.effectvalue, class: "powers"}, [
+					powers, " ",
 					BUTTON({class: "seteffectmode", "data-effect": idea.effects[0]},
 						{"percent": "Y", "boolean": "#"}[effect_display_mode[idea.effects[0]]] || "%"),
 				]),
-				TD({"data-sortkey": idea["level_cost_" + idea.max_level]}, costs), //Sorting by cost sorts by max cost
+				TD({"data-sortkey": idea["level_cost_" + idea.max_level]}, costs.slice(1)), //Sorting by cost sorts by max cost
 			]);
 		})),
 	]);
@@ -999,6 +1006,14 @@ on("click", ".seteffectmode", e => {
 	ws_sync.send({cmd: "set_effect_mode", effect, mode});
 	effect_display_mode[effect] = mode;
 	build_idea_list();
+});
+
+on("click", ".selectidea", e => {
+	const d = e.match.dataset;
+	const nat = custom_nations[custom_filename];
+	nat.idea[selected_idea] = {index: d.ideaidx, level: d.level, name: "", desc: ""};
+	DOM("#customideadlg").close();
+	update_nation_details();
 });
 
 on("click", ".editflag", e => {

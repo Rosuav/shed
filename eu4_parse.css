@@ -232,3 +232,10 @@ thead {
 	/* Enable the buttons when needed, eg after an update that added new ideas */
 	display: none;
 }
+
+.powers {
+	display: flex;
+	flex-wrap: wrap;
+	max-width: 15em; /* Seems to be enough to fit five out of ten of the biggest ones */
+	gap: 0.25em;
+}
