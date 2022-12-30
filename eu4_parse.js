@@ -982,7 +982,7 @@ function update_filter_classes() {
 	);
 }
 
-function build_idea_list() {
+function build_idea_list(filters) {
 	const nat = custom_nations[custom_filename];
 	const inuse = { };
 	nat.idea.forEach(idea => inuse[idea.index] = 1);
@@ -1016,15 +1016,14 @@ function build_idea_list() {
 			]);
 		})),
 	]);
+	if (filters) document.querySelectorAll(".filters select").forEach(sel => sel.value = filters[sel.dataset.filter] || "*");
 	update_filter_classes();
 }
 
 on("click", ".editidea", e => {
 	selected_idea = e.match.dataset.slot;
 	const nat = custom_nations[custom_filename];
-	const cat = custom_ideas[nat.idea[selected_idea].index].category;
-	document.querySelectorAll(".filters select").forEach(sel => sel.value = sel.dataset.filter === "cat" ? cat : "*");
-	build_idea_list();
+	build_idea_list({cat: custom_ideas[nat.idea[selected_idea].index].category});
 	DOM("#customideadlg").showModal();
 	DOM("#customideadlg tr.interesting2").scrollIntoView();
 });
