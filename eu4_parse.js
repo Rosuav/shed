@@ -893,11 +893,22 @@ export function sockmsg_customnations(msg) {
 	DOM("#customnationsdlg").showModal();
 }
 
+function effectvalue(idea, value) {
+	let mode = effect_display_mode[idea.effects[0]];
+	if ((!mode || mode === "threeplace") && !(idea.effectvalue % 1000)) mode = "integer";
+	switch (mode) {
+		case "percent": return (value / 10) + "%";
+		case "integer": return (value / 1000) + "";
+		case "boolean": return "Yes"; //The idea always enables, never disables, so it'll never be set to "No"
+		default: return threeplace(value);
+	}
+}
+
 function IDEA(idea, slot) { //no, not IKEA
 	const info = custom_ideas[idea.index];
 	return LI([
 		SPAN({class: "ideacost"}, info["level_cost_" + idea.level]), " ",
-		info.effectname, " ", threeplace(info.effectvalue * idea.level), " ",
+		info.effectname, " ", effectvalue(info, info.effectvalue * idea.level), " ",
 		BUTTON({class: "editidea", "data-slot": slot}, "✍"),
 	]);
 }
@@ -942,15 +953,6 @@ function update_filter_classes() {
 	);
 }
 
-function effectvalue(mode, value) {
-	switch (mode) {
-		case "percent": return (value / 10) + "%";
-		case "integer": return (value / 1000) + "";
-		case "boolean": return "Yes"; //The idea always enables, never disables, so it'll never be set to "No"
-		default: return threeplace(value);
-	}
-}
-
 function build_idea_list() {
 	const nat = custom_nations[custom_filename];
 	const inuse = { };
@@ -967,13 +969,11 @@ function build_idea_list() {
 			const filters = { };
 			Object.entries(idea.filters).forEach(([id, val]) => filters["data-filteropt" + id] = val);
 			let costs = "", powers = [];
-			let mode = effect_display_mode[idea.effects[0]];
-			if ((!mode || mode === "threeplace") && !(idea.effectvalue % 1000)) mode = "integer";
 			for (let i = 1; i <= +idea.max_level; ++i) {
 				costs += "/" + idea["level_cost_" + i];
 				//TODO: If inuse[idx], highlight the level that's in use
 				powers.push(BUTTON({class: "selectidea", "data-ideaidx": idx, "data-level": i},
-					effectvalue(mode, idea.effectvalue * i)));
+					effectvalue(idea, idea.effectvalue * i)));
 			}
 			if (inuse[idx]) filters["class"] = "interesting" + inuse[idx];
 			return TR(filters, [
