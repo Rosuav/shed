@@ -975,7 +975,7 @@ on("click", ".editidea", e => {
 					effectvalue(idea.effects[0], idea.effectvalue),
 					" ",
 					BUTTON({class: "seteffectmode", "data-effect": idea.effects[0]},
-						{"percent": "Y", "boolean": "n"}[effect_display_mode[idea.effects[0]]] || "%"),
+						{"percent": "Y", "boolean": "#"}[effect_display_mode[idea.effects[0]]] || "%"),
 				]),
 				TD({"data-sortkey": idea["level_cost_" + idea.max_level]}, costs), //Sorting by cost sorts by max cost
 			]);
