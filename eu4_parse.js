@@ -904,10 +904,17 @@ function effectvalue(idea, value) {
 	}
 }
 
+//Traditions and early ideas cost more. Traditions are late in the array.
+const slotcosts = [100, 80, 60, 40, 20, 0, 0, 100, 100, 0];
 function IDEA(idea, slot) { //no, not IKEA
 	const info = custom_ideas[idea.index];
+	const cost_base = info["level_cost_" + idea.level]|0;
+	const cost_pos = cost_base * slotcosts[slot] / 100;
+	let title = "Cost: " + cost_base + " base";
+	if (cost_pos) title += " + " + cost_pos + " early"
+	//TODO: Calculate a penalty for skewed idea selections
 	return LI([
-		SPAN({class: "ideacost"}, info["level_cost_" + idea.level]), " ",
+		SPAN({class: "ideacost", title}, cost_base + cost_pos + ""), " ",
 		info.effectname, " ", effectvalue(info, info.effectvalue * idea.level), " ",
 		BUTTON({class: "editidea", "data-slot": slot}, "✍"),
 	]);
