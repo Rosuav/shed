@@ -1226,13 +1226,15 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 	//List countries that could potentially join a coalition
 	write->badboy_hatred = ({ });
 	foreach (data->countries;; mapping risk) {
-		int ae = 0;
-		foreach (Array.arrayify(risk->active_relations[tag]->?opinion), mapping opine)
+		int ae = 0, impr = 0;
+		foreach (Array.arrayify(risk->active_relations[tag]->?opinion), mapping opine) {
 			if (opine->modifier == "aggressive_expansion") ae = -threeplace(opine->current_opinion);
+			if (opine->modifier == "improved_relation") impr = threeplace(opine->current_opinion);
+		}
 		if (ae < 50000 && risk->coalition_target != tag) continue;
 		write->badboy_hatred += ({([
 			"tag": risk->tag,
-			"badboy": ae,
+			"badboy": ae, "improved": impr,
 			"in_coalition": risk->coalition_target == tag,
 		])});
 	}

@@ -436,6 +436,7 @@ section("badboy_hatred", "Badboy Haters", state => {
 		return TR([
 			TD({class: info.opinion_theirs < 0 ? "interesting1" : ""}, info.opinion_theirs),
 			TD({class: hater.badboy >= 50000 ? "interesting1" : ""}, Math.floor(hater.badboy / 1000) + ""),
+			TD(Math.floor(hater.improved / 1000) + ""),
 			TD(attr, COUNTRY(hater.tag)),
 			TD(attr, [
 				info.overlord && SPAN({title: "Is a " + info.subject_type + " of " + country_info[info.overlord].name}, "🙏"),
@@ -449,7 +450,7 @@ section("badboy_hatred", "Badboy Haters", state => {
 		SUMMARY("Badboy Haters (" + hater_count + ")"),
 		!hater_count && "Nobody is in a position to join a coalition against you.",
 		sortable({id: "badboyhaters", border: "1"},
-			["Opinion", ABBR({title: "Aggressive Expansion"}, "Badboy"), "Country", "Notes"],
+			["Opinion", ABBR({title: "Aggressive Expansion"}, "Badboy"), "Improv", "Country", "Notes"],
 			haters,
 		),
 	];
