@@ -125,6 +125,9 @@ mapping low_parse_savefile(string|Stdio.Buffer data, int|void verbose) {
 			word = word[0];
 			//Unquoted tokens like institution_events.2 should be atoms, not atom-followed-by-number
 			if (array dotnumber = data->sscanf(".%[0-9]")) word += "." + dotnumber[0];
+			//Hyphenated mapping keys like maidan-e_naqsh-e_jahan should also be atoms.
+			while (array hyphenated = data->sscanf("-%[0-9a-zA-Z_'\x81-\xFF:]"))
+				word += "-" + hyphenated[0];
 			if ((<"yes", "no">)[word]) return ({"boolean", word == "yes"});
 			//Hack: this one element seems to omit the equals sign for some reason.
 			if (word == "map_area_data") ungetch = "=";
@@ -384,7 +387,7 @@ mapping idea_definitions, policy_definitions, reform_definitions, static_modifie
 mapping trade_goods, country_modifiers, age_definitions, tech_definitions, institutions;
 mapping cot_definitions, state_edicts, terrain_definitions, imperial_reforms;
 mapping cb_types, wargoal_types, estate_agendas, country_decisions, country_missions;
-mapping tradenode_definitions;
+mapping tradenode_definitions, great_projects;
 mapping advisor_definitions, religion_definitions, unit_definitions, culture_definitions;
 array military_tech_levels, tradenode_upstream_order, custom_ideas;
 //List all ideas (including national) that are active
@@ -626,6 +629,15 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 		mapping con = prov->great_project_construction || ([]);
 		foreach (prov->great_projects, string project) {
 			mapping proj = data->great_projects[project] || (["development_tier": "0"]); //Weirdly, I have once seen a project that's just missing from the file.
+			mapping defn = great_projects[project];
+			//TODO: Parse out defn->can_use_modifiers_trigger and determine:
+			//1) Religion-locked (list religions and/or groups that are acceptable)
+			//   "province_is_or_accepts_religion_group", "province_is_buddhist_or_accepts_buddhism", "province_is_buddhist_or_accepts_buddhism_or_is_dharmic"
+			//2) Culture-locked (ditto) "culture[_group]" + "province_is_or_accepts_culture = yes"
+			//3) Religion-or-Culture locked (an OR= of the above two)
+			//4) No requirements
+			//5) custom_trigger_tooltip - use the tooltip as-is
+			//6) Other. Show the definition for debugging. (Celestial Empire possibly?)
 			projects += ({({
 				(int)id - (int)proj->development_tier * 10000,
 				({"", id, "Lvl " + proj->development_tier, prov->name, L10n[project] || "#" + project,
@@ -635,7 +647,7 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 						threeplace(con->progress) / 10, con->date),
 				}),
 			})});
-			//write("Project: %O\n", proj);
+			//werror("Project: %O\n", proj);
 		}
 		//if (con) write("Construction: %O\n", con);
 	}
@@ -2927,6 +2939,7 @@ int main(int argc, array(string) argv) {
 	advisor_definitions = parse_config_dir("/common/advisortypes");
 	culture_definitions = parse_config_dir("/common/cultures");
 	religion_definitions = parse_config_dir("/common/religions");
+	great_projects = parse_config_dir("/common/great_projects");
 	retain_map_indices = 1;
 	tradenode_definitions = parse_config_dir("/common/tradenodes");
 	retain_map_indices = 0;
