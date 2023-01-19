@@ -1692,6 +1692,7 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 			"tag": stag,
 			"type": dep->subject_type ? L10N(dep->subject_type + "_title") : "(unknown)",
 			"improved": impr,
+			"liberty_desire": subj->cached_liberty_desire, //How accurate is this?
 			"start_date": dep->start_date, "integration_date": integration_date,
 			"can_integrate": can_integrate,
 		])});
