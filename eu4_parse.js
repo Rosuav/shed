@@ -473,6 +473,20 @@ section("unguarded_rebels", "Unguarded rebels", state => {
 	];
 });
 
+section("subjects", "Subject nations", state => [
+	SUMMARY("Subject nations (" + state.subjects.length + ")"),
+	sortable({id: "subject_nations", border: "1"},
+		["Country", "Type", "Opinion", "Improved", "Since", "Integrate?"],
+		state.subjects.map(subj => TR([
+			TD(COUNTRY(subj.tag)),
+			TD(subj.type),
+			TD(country_info[subj.tag].opinion_theirs),
+			TD(Math.floor(subj.improved / 1000) + ""),
+			TD(subj.start_date),
+			TD({class: subj.can_integrate ? "interesting1" : ""}, subj.integration_date),
+		])),
+	),
+]);
 section("colonization_targets", "Colonization targets", state => [
 	SUMMARY("Colonization targets (" + state.colonization_targets.length + ")"), //TODO: Count interesting ones too?
 	sortable({id: "colo_targets", border: "1"},

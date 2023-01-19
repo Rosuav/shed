@@ -1662,6 +1662,40 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 			"home_province": faction->province, //Probably irrelevant
 		])});
 	}
+
+	write->subjects = ({ });
+	mapping subjects = ([]);
+	foreach (Array.arrayify(data->diplomacy->dependency), mapping dep)
+		subjects[dep->first + dep->second] = dep; //Is it ever possible to be subjugated in two ways at once?
+	//Years to integrate/annex. If not present, integration not possible.
+	constant integration = ([
+		"personal_union": 50,
+		"vassal": 10, "daimyo_vassal": 10, "client_vassal": 10, //Assuming all these have the same ten-year delay?
+	]);
+	foreach (Array.arrayify(country->subjects), string|mapping stag) {
+		mapping subj = data->countries[stag];
+		mapping dep = subjects[tag + stag] || ([]);
+		int impr = 0;
+		foreach (Array.arrayify(subj->active_relations[tag]->?opinion), mapping opine)
+			if (opine->modifier == "improved_relation") impr = threeplace(opine->current_opinion);
+		int integ = integration[dep->subject_type];
+		string integration_date = "n/a";
+		int can_integrate = 0;
+		if (integ) {
+			sscanf(dep->start_date, "%d.%d.%d", int y, int m, int d);
+			integration_date = sprintf("%d.%d.%d", y + integ, m, d);
+			sscanf(data->date, "%d.%d.%d", int yy, int mm, int dd);
+			if (sprintf("%4d.%02d.%02d", y + integ, m, d) <= sprintf("%4d.%02d.%02d", yy, mm, dd))
+				can_integrate = 1;
+		}
+		write->subjects += ({([
+			"tag": stag,
+			"type": dep->subject_type ? L10N(dep->subject_type + "_title") : "(unknown)",
+			"improved": impr,
+			"start_date": dep->start_date, "integration_date": integration_date,
+			"can_integrate": can_integrate,
+		])});
+	}
 }
 
 mapping(string:array) interesting_provinces = ([]);
