@@ -621,11 +621,22 @@ array(float) estimate_per_month(mapping data, mapping country) {
 
 string describe_requirements(mapping req, mapping prov) {
 	array ret = ({ });
+	//TODO: Start by grabbing the province religion and culture, and seeing whether they
+	//are accepted. (For now, "accepted" religion means "is the state religion", but in
+	//a future update, it may be worth supporting syncretic etc.) If not accepted, zero
+	//out the religion/culture.
 	foreach (req; string type; mixed need) switch (type) {
 		case "province_is_or_accepts_religion_group":
-			//TODO: Check if the province religion is in the Christian group, and
-			//is the state religion. Don't worry about syncretic etc for now.
-			ret += ({"Religion: Any " + L10N(need->religion_group)});
+			//TODO: Check if the province religion is in the appropriate group.
+			ret += ({"Religion: *Any " + L10N(need->religion_group)});
+			break;
+		case "province_is_or_accepts_religion":
+			//TODO. A simple equality check.
+			ret += ({"Religion: *" + L10N(need->religion)});
+			break;
+		case "province_is_buddhist_or_accepts_buddhism":
+			//TODO as above
+			ret += ({"Religion: *Any Buddhist"});
 			break;
 		default: ret += ({"*Unknown"});
 	}
@@ -671,7 +682,7 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 					"upgrading": con->great_projects != project ? 0 : con->type == "2" ? "moving" : "upgrading",
 					"progress": threeplace(con->progress), "completion": con->date, //Meaningful only if upgrading is nonzero
 					"requirements": requirements,
-					"req_raw": requirements != "Unknown" ? "" : sprintf("%O", req),
+					"req_raw": !has_value(requirements, "Unknown") ? "" : sprintf("%O", req),
 				]),
 			})});
 			//werror("Project: %O\n", proj);
