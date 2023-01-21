@@ -639,13 +639,21 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 			//5) custom_trigger_tooltip - use the tooltip as-is
 			//6) Other. Show the definition for debugging. (Celestial Empire possibly?)
 			projects += ({({
+				//Sort key
 				(int)id - (int)proj->development_tier * 10000,
+				//Legacy: preformatted table data
 				({"", id, "Lvl " + proj->development_tier, prov->name, L10n[project] || "#" + project,
 					con->great_projects != project ? "" : //If you're upgrading a different great project in this province, leave this one blank (you can't upgrade two at once)
 					sprintf("%s%d%%, due %s",
 						con->type == "2" ? "Moving: " : "", //Upgrades are con->type "1", moving to capital is type "2"
 						threeplace(con->progress) / 10, con->date),
-				}),
+				}), ([
+				//Data for the front end JS to render
+					"province": id, "tier": proj->development_tier,
+					"name": L10N(project),
+					"upgrading": con->great_projects != project ? 0 : con->type == "2" ? "moving" : "upgrading",
+					"progress": threeplace(con->progress), "completion": con->date, //Meaningful only if upgrading is nonzero
+				]),
 			})});
 			//werror("Project: %O\n", proj);
 		}
@@ -665,7 +673,7 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 		cooldowns += ({({"", days, date, String.capitalize(tradefor), cur})}); //TODO: Don't include the initial empty string here, add it for tabulate() only
 	}
 	if (mappingp(write)) {
-		write->monuments = projects[*][-1];
+		write->monuments = projects[*][2];
 		//Favors are all rendered on the front end.
 		mapping owed = ([]);
 		foreach (data->countries; string other; mapping c) {
@@ -675,7 +683,7 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 		write->favors = (["cooldowns": cooldowns, "owed": owed]);
 		return;
 	}
-	if (sizeof(projects)) write("%s\n", string_to_utf8(tabulate(({""}) + "ID Tier Province Project Upgrading" / " ", projects[*][-1], "  ", 0)));
+	if (sizeof(projects)) write("%s\n", string_to_utf8(tabulate(({""}) + "ID Tier Province Project Upgrading" / " ", projects[*][1], "  ", 0)));
 	write("\nFavors:\n");
 	foreach (data->countries; string other; mapping c) {
 		int favors = threeplace(c->active_relations[tag]->?favors);

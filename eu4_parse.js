@@ -347,7 +347,16 @@ section("monuments", "Monuments", state => [
 	SUMMARY(`Monuments [${state.monuments.length}]`),
 	sortable({id: "monumentlist", border: "1"},
 		[[proventer("monuments"), "Province"], "Tier", "Project", "Upgrading"],
-		state.monuments.map(m => TR([TD(PROV(m[1], m[3])), TD(m[2]), TD(m[4]), TD(m[5])])),
+		state.monuments.map(m => TR([
+			TD(PROV(m.province)),
+			TD("Lvl " + m.tier),
+			TD(m.name),
+			TD(m.upgrading && [
+				m.upgrading === "moving" && "Moving: ",
+				Math.floor(m.progress / 10) + "%, due ",
+				m.completion,
+			]),
+		])),
 	),
 	provleave(),
 ]);
