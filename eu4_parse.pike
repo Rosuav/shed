@@ -625,6 +625,15 @@ string describe_requirements(mapping req, mapping prov) {
 	//are accepted. (For now, "accepted" religion means "is the state religion", but in
 	//a future update, it may be worth supporting syncretic etc.) If not accepted, zero
 	//out the religion/culture.
+	//TODO: Provide three different levels of recognition
+	//1) Achieved. All good, all normal. If this applies to everything in an AND, it
+	//   applies to the entire AND; if it applies to anything in an OR, ditto.
+	//2) Not achieved, could be. Culture non-acceptance, or demands the state religion
+	//   but province religion is different. These should be highlighted in the front
+	//   end, as they are goals for the player.
+	//3) Unviable. Some things you can't practically do. Demanding a different religion
+	//   or a government reform fits into this; it's theoretically possible to flip,
+	//   but most likely you can't.
 	foreach (req; string type; mixed need) switch (type) {
 		case "province_is_or_accepts_religion_group":
 			//TODO: Check if the province religion is in the appropriate group.
@@ -638,6 +647,20 @@ string describe_requirements(mapping req, mapping prov) {
 			//TODO as above
 			ret += ({"Religion: *Any Buddhist"});
 			break;
+		case "province_is_buddhist_or_accepts_buddhism_or_is_dharmic":
+			//TODO as above
+			ret += ({"Religion: *Any Buddhist or Dharmic"});
+			break;
+		case "culture_group":
+			//TODO: Check the province culture
+			ret += ({"Culture: *Any " + L10N(need)});
+			break;
+		case "culture":
+			//TODO: Check the province culture
+			ret += ({"Culture: *" + L10N(need)});
+			break;
+		case "province_is_or_accepts_culture": break; //Always goes with culture/culture_group and is assumed to be a requirement
+		case "custom_trigger_tooltip": ret += ({L10n[need->tooltip]}); break;
 		default: ret += ({"*Unknown"});
 	}
 	return ret * " + ";
