@@ -661,6 +661,7 @@ string describe_requirements(mapping req, mapping prov) {
 			break;
 		case "province_is_or_accepts_culture": break; //Always goes with culture/culture_group and is assumed to be a requirement
 		case "custom_trigger_tooltip": ret += ({L10n[need->tooltip]}); break;
+		case "owner": if (need->has_reform) {ret += ({"Government is *" + L10N(need->has_reform)}); break;} //else unknown
 		default: ret += ({"*Unknown"});
 	}
 	return ret * " + ";
