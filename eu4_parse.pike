@@ -619,6 +619,19 @@ array(float) estimate_per_month(mapping data, mapping country) {
 	return ({gold, max(manpower, 100.0), max(sailors, sailors > 0.0 ? 5.0 : 0.0)}); //There's minimum manpower/sailor recovery
 }
 
+string describe_requirements(mapping req, mapping prov) {
+	array ret = ({ });
+	foreach (req; string type; mixed need) switch (type) {
+		case "province_is_or_accepts_religion_group":
+			//TODO: Check if the province religion is in the Christian group, and
+			//is the state religion. Don't worry about syncretic etc for now.
+			ret += ({"Religion: Any " + L10N(need->religion_group)});
+			break;
+		default: ret += ({"*Unknown"});
+	}
+	return ret * " + ";
+}
+
 void analyze_leviathans(mapping data, string name, string tag, function|mapping write) {
 	if (!has_value(data->dlc_enabled, "Leviathan")) return;
 	mapping country = data->countries[tag];
@@ -638,6 +651,10 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 			//4) No requirements
 			//5) custom_trigger_tooltip - use the tooltip as-is
 			//6) Other. Show the definition for debugging. (Celestial Empire possibly?)
+			string requirements = "*Unknown";
+			mapping req = defn->can_use_modifiers_trigger;
+			if (!sizeof(req)) requirements = "None"; //Easy!
+			else requirements = describe_requirements(req, prov); //Everything else is recursive.
 			projects += ({({
 				//Sort key
 				(int)id - (int)proj->development_tier * 10000,
@@ -653,6 +670,8 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 					"name": L10N(project),
 					"upgrading": con->great_projects != project ? 0 : con->type == "2" ? "moving" : "upgrading",
 					"progress": threeplace(con->progress), "completion": con->date, //Meaningful only if upgrading is nonzero
+					"requirements": requirements,
+					"req_raw": requirements != "Unknown" ? "" : sprintf("%O", req),
 				]),
 			})});
 			//werror("Project: %O\n", proj);

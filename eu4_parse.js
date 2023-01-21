@@ -1,7 +1,7 @@
 //Not to be confused with eu4_parse.json which is a cache
 import {lindt, replace_content, DOM, fix_dialogs} from "https://rosuav.github.io/choc/factory.js";
 const {A, ABBR, B, BR, BUTTON, DIALOG, DETAILS, DIV, FORM, HEADER, H1, H3, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SECTION, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, THEAD, TR, UL} = lindt; //autoimport
-const {BLOCKQUOTE, H4, I} = lindt; //Currently autoimport doesn't recognize the section() decorator
+const {BLOCKQUOTE, H4, I, PRE} = lindt; //Currently autoimport doesn't recognize the section() decorator
 
 document.body.appendChild(replace_content(null, DIALOG({id: "customnationsdlg"}, SECTION([
 	HEADER([H3("Custom nations"), DIV(BUTTON({type: "button", class: "dialog_cancel"}, "x"))]),
@@ -346,7 +346,7 @@ section("trade_nodes", "Trade nodes", state => [
 section("monuments", "Monuments", state => [
 	SUMMARY(`Monuments [${state.monuments.length}]`),
 	sortable({id: "monumentlist", border: "1"},
-		[[proventer("monuments"), "Province"], "Tier", "Project", "Upgrading"],
+		[[proventer("monuments"), "Province"], "Tier", "Project", "Upgrading", "Requires", "Req-raw"],
 		state.monuments.map(m => TR([
 			TD(PROV(m.province)),
 			TD("Lvl " + m.tier),
@@ -356,6 +356,8 @@ section("monuments", "Monuments", state => [
 				Math.floor(m.progress / 10) + "%, due ",
 				m.completion,
 			]),
+			TD(m.requirements), //TODO: Highlight if not achieved
+			TD({"data-sortkey": m.req_raw.length}, PRE(m.req_raw)),
 		])),
 	),
 	provleave(),
