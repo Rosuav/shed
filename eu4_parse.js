@@ -356,8 +356,10 @@ section("monuments", "Monuments", state => [
 				Math.floor(m.progress / 10) + "%, due ",
 				m.completion,
 			]),
-			TD({style: "background: " + ["unset", "#ded", "#ddf", "#ccc"][m.req_achieved]},
-				m.requirements),
+			TD({
+				style: "background: " + ["unset", "#ded", "#ddf", "#ccc"][m.req_achieved],
+				"data-sortkey": m.req_achieved + m.requirements,
+			}, m.requirements),
 		])),
 	),
 	provleave(),
