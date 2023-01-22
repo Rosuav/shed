@@ -346,7 +346,7 @@ section("trade_nodes", "Trade nodes", state => [
 section("monuments", "Monuments", state => [
 	SUMMARY(`Monuments [${state.monuments.length}]`),
 	sortable({id: "monumentlist", border: "1"},
-		[[proventer("monuments"), "Province"], "Tier", "Project", "Upgrading", "Requires", "Req-raw"],
+		[[proventer("monuments"), "Province"], "Tier", "Project", "Upgrading", "Requires"],
 		state.monuments.map(m => TR([
 			TD(PROV(m.province)),
 			TD("Lvl " + m.tier),
@@ -356,8 +356,8 @@ section("monuments", "Monuments", state => [
 				Math.floor(m.progress / 10) + "%, due ",
 				m.completion,
 			]),
-			TD(m.requirements), //TODO: Highlight if not achieved
-			TD({"data-sortkey": m.req_raw.length}, PRE(m.req_raw)),
+			TD({style: "background: " + ["unset", "#ded", "#ddf", "#ccc"][m.req_achieved]},
+				m.requirements),
 		])),
 	),
 	provleave(),

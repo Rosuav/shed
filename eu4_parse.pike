@@ -619,7 +619,7 @@ array(float) estimate_per_month(mapping data, mapping country) {
 	return ({gold, max(manpower, 100.0), max(sailors, sailors > 0.0 ? 5.0 : 0.0)}); //There's minimum manpower/sailor recovery
 }
 
-string describe_requirements(mapping req, mapping prov, mapping country, int|void any) {
+array(string|int) describe_requirements(mapping req, mapping prov, mapping country, int|void any) {
 	array ret = ({ });
 	//TODO: Start by grabbing the province religion and culture, and seeing whether they
 	//are accepted. (For now, "accepted" religion means "is the state religion", but in
@@ -634,6 +634,7 @@ string describe_requirements(mapping req, mapping prov, mapping country, int|voi
 	//3) Unviable. Some things you can't practically do. Demanding a different religion
 	//   or a government reform fits into this; it's theoretically possible to flip,
 	//   but most likely you can't.
+	//In "OR" mode, pick min; in "AND" mode, pick max.
 
 	string culture = prov->culture, religion = prov->religion;
 	if (religion != country->religion) religion = "n/a";
@@ -647,36 +648,40 @@ string describe_requirements(mapping req, mapping prov, mapping country, int|voi
 		if (string grp = m_delete(req, "religion_group"))
 			req->province_is_or_accepts_religion_group = (["religion_group": Array.arrayify(grp)[*]]);
 	}
-	foreach (req; string type; mixed need) {
-		need = Array.arrayify(need);
+	foreach (sort(indices(req)), string type) {
+		array need = Array.arrayify(req[type]);
 		switch (type) {
 			case "province_is_or_accepts_religion_group": {
 				//If multiple, it's gonna be "OR" mode, otherwise it could never be true
-				int have = `+(@religion_definitions[need->religion_group[*]])[religion];
-				if (have) ret += ({L10N(religion)}); //eg if it says "Christian or Muslim" and you're Catholic, it will just say "Catholic"
-				else ret += ({"Religion: *Any " + L10N(need->religion_group[*]) * "/"});
+				mapping accepted = `+(@religion_definitions[need->religion_group[*]]);
+				//If it says "Christian or Muslim" and you're Catholic, it will just say "Catholic"
+				if (accepted[religion]) ret += ({({L10N(religion), 1})});
+				//If it says "Christian" and you're Catholic but the province is Protestant, it will say "Christian" but type 2
+				else if (accepted[country->religion]) ret += ({({L10N(need->religion_group[*]) * " / ", 2})});
+				//Otherwise, it's unviable.
+				else ret += ({({L10N(need->religion_group[*]) * " / ", 3})});
 				break;
 			}
 			case "province_is_buddhist_or_accepts_buddhism":
 				need = (["religion": ({"buddhism", "vajrayana", "mahayana"})]);
 				//Fall through
 			case "province_is_or_accepts_religion": {
-				int have = has_value(need->religion, religion);
-				if (have) ret += ({L10N(religion)});
-				else ret += ({"Religion: *" + L10N(need->religion[*]) * "/"});
+				if (has_value(need->religion, religion)) ret += ({({L10N(religion), 1})});
+				else if (has_value(need->religion, country->religion)) ret += ({({L10N(need->religion[*]) * " / ", 2})});
+				else ret += ({({L10N(need->religion[*]) * " / ", 3})});
 				break;
 			}
 			case "province_is_buddhist_or_accepts_buddhism_or_is_dharmic":
-				//TODO as above
-				ret += ({"Religion: *Any Buddhist or Dharmic"});
+				//TODO: Handle as above
+				ret += ({({"Buddhist/Dharmic", 3})});
 				break;
 			case "culture_group":
 				//TODO: Check the province culture
-				ret += ({"Culture: *Any " + L10N(need[*]) * "/"});
+				ret += ({({L10N(need[*]) * " / ", 3})});
 				break;
 			case "culture":
 				//TODO: Check the province culture
-				ret += ({"Culture: *" + L10N(need[*]) * "/"});
+				ret += ({({L10N(need[*]) * " / ", 3})});
 				break;
 			case "province_is_or_accepts_culture": break; //Always goes with culture/culture_group and is assumed to be a requirement
 			case "custom_trigger_tooltip": switch (need[0]->tooltip) {
@@ -695,7 +700,7 @@ string describe_requirements(mapping req, mapping prov, mapping country, int|voi
 					]), prov, country, 1)});
 					break;
 				//Otherwise, render the tooltip itself.
-				default: ret += ({L10n[need[0]->tooltip]});
+				default: ret += ({({L10n[need[0]->tooltip], 3})});
 			}
 			break;
 			case "OR": ret += describe_requirements(need[*], prov, country, 1); break;
@@ -706,12 +711,12 @@ string describe_requirements(mapping req, mapping prov, mapping country, int|voi
 				//some conditions, so we'll just ignore the limit and carry on.
 				ret += describe_requirements((need[*] - (<"limit">))[*], prov, country, any);
 				break;
-			case "owner": if (need[0]->has_reform) {ret += ({"Government is *" + L10N(need[0]->has_reform)}); break;} //else unknown
-			default: ret += ({"*Unknown"});
+			case "owner": if (need[0]->has_reform) {ret += ({({L10N(need[0]->has_reform), 3})}); break;} //else unknown
+			default: ret += ({({"Unknown", 3})});
 		}
 	}
-	if (any) return ret * " / ";
-	return ret * " + ";
+	if (any) return ({ret[*][0] * " / ", min(@ret[*][1])});
+	return ({ret[*][0] * " + ", max(@ret[*][1])});
 }
 
 void analyze_leviathans(mapping data, string name, string tag, function|mapping write) {
@@ -733,10 +738,10 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 			//4) No requirements
 			//5) custom_trigger_tooltip - use the tooltip as-is
 			//6) Other. Show the definition for debugging. (Celestial Empire possibly?)
-			string requirements = "*Unknown";
+			string requirements = "None"; int req_achieved = 1;
 			mapping req = defn->can_use_modifiers_trigger;
-			if (!sizeof(req)) requirements = "None"; //Easy!
-			else requirements = describe_requirements(req, prov, country); //Everything else is recursive.
+			if (sizeof(req))
+				[requirements, req_achieved] = describe_requirements(req, prov, country);
 			projects += ({({
 				//Sort key
 				(int)id - (int)proj->development_tier * 10000,
@@ -752,8 +757,7 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 					"name": L10N(project),
 					"upgrading": con->great_projects != project ? 0 : con->type == "2" ? "moving" : "upgrading",
 					"progress": threeplace(con->progress), "completion": con->date, //Meaningful only if upgrading is nonzero
-					"requirements": requirements,
-					"req_raw": !has_value(requirements, "Unknown") ? "" : sprintf("%O", req),
+					"requirements": requirements, "req_achieved": req_achieved,
 				]),
 			})});
 			//werror("Project: %O\n", proj);
