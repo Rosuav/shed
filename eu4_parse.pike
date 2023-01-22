@@ -619,7 +619,7 @@ array(float) estimate_per_month(mapping data, mapping country) {
 	return ({gold, max(manpower, 100.0), max(sailors, sailors > 0.0 ? 5.0 : 0.0)}); //There's minimum manpower/sailor recovery
 }
 
-string describe_requirements(mapping req, mapping prov) {
+string describe_requirements(mapping req, mapping prov, mapping country, int|void any) {
 	array ret = ({ });
 	//TODO: Start by grabbing the province religion and culture, and seeing whether they
 	//are accepted. (For now, "accepted" religion means "is the state religion", but in
@@ -634,36 +634,76 @@ string describe_requirements(mapping req, mapping prov) {
 	//3) Unviable. Some things you can't practically do. Demanding a different religion
 	//   or a government reform fits into this; it's theoretically possible to flip,
 	//   but most likely you can't.
-	foreach (req; string type; mixed need) switch (type) {
-		case "province_is_or_accepts_religion_group":
-			//TODO: Check if the province religion is in the appropriate group.
-			ret += ({"Religion: *Any " + L10N(need->religion_group)});
-			break;
-		case "province_is_or_accepts_religion":
-			//TODO. A simple equality check.
-			ret += ({"Religion: *" + L10N(need->religion)});
-			break;
-		case "province_is_buddhist_or_accepts_buddhism":
-			//TODO as above
-			ret += ({"Religion: *Any Buddhist"});
-			break;
-		case "province_is_buddhist_or_accepts_buddhism_or_is_dharmic":
-			//TODO as above
-			ret += ({"Religion: *Any Buddhist or Dharmic"});
-			break;
-		case "culture_group":
-			//TODO: Check the province culture
-			ret += ({"Culture: *Any " + L10N(need)});
-			break;
-		case "culture":
-			//TODO: Check the province culture
-			ret += ({"Culture: *" + L10N(need)});
-			break;
-		case "province_is_or_accepts_culture": break; //Always goes with culture/culture_group and is assumed to be a requirement
-		case "custom_trigger_tooltip": ret += ({L10n[need->tooltip]}); break;
-		case "owner": if (need->has_reform) {ret += ({"Government is *" + L10N(need->has_reform)}); break;} //else unknown
-		default: ret += ({"*Unknown"});
+
+	//Some two-part checks can also be described in one part. Fold them together.
+	if (m_delete(req, "has_owner_religion")) {
+		if (string rel = m_delete(req, "religion"))
+			req->province_is_or_accepts_religion = (["religion": Array.arrayify(rel)[*]]);
+		if (string grp = m_delete(req, "religion_group"))
+			req->province_is_or_accepts_religion_group = (["religion_group": Array.arrayify(grp)[*]]);
 	}
+	foreach (req; string type; mixed need) {
+		need = Array.arrayify(need);
+		switch (type) {
+			case "province_is_or_accepts_religion_group":
+				//TODO: Check if the province religion is in the appropriate group.
+				//If multiple, it's gonna be "OR" mode, otherwise it could never be true
+				ret += ({"Religion: *Any " + L10N(need->religion_group[*]) * "/"});
+				break;
+			case "province_is_or_accepts_religion": case "religion":
+				//TODO. A simple equality check.
+				werror("%O\nnow %O\n", req, need);
+				ret += ({"Religion: *" + L10N(need->religion[*]) * "/"});
+				break;
+			case "province_is_buddhist_or_accepts_buddhism":
+				//TODO as above
+				ret += ({"Religion: *Any Buddhist"});
+				break;
+			case "province_is_buddhist_or_accepts_buddhism_or_is_dharmic":
+				//TODO as above
+				ret += ({"Religion: *Any Buddhist or Dharmic"});
+				break;
+			case "culture_group":
+				//TODO: Check the province culture
+				ret += ({"Culture: *Any " + L10N(need[*]) * "/"});
+				break;
+			case "culture":
+				//TODO: Check the province culture
+				ret += ({"Culture: *" + L10N(need[*]) * "/"});
+				break;
+			case "province_is_or_accepts_culture": break; //Always goes with culture/culture_group and is assumed to be a requirement
+			case "custom_trigger_tooltip": switch (need[0]->tooltip) {
+				//Hack: For the known ones, render them in a simplified way
+				case "hagia_sophia_tt":
+					ret += ({describe_requirements(([
+						"has_owner_religion": 1,
+						"religion": ({"orthodox", "coptic", "catholic"}),
+						"religion_group": "muslim",
+					]), prov, country, 1)});
+					break;
+				case "mount_fuji_tt":
+					ret += ({describe_requirements(([
+						"has_owner_religion": 1,
+						"religion": ({"shinto", "mahayana"}),
+					]), prov, country, 1)});
+					break;
+				//Otherwise, render the tooltip itself.
+				default: ret += ({L10n[need[0]->tooltip]});
+			}
+			break;
+			case "OR": ret += describe_requirements(need[*], prov, country, 1); break;
+			case "AND": ret += describe_requirements(need[*], prov, country); break;
+			case "if":
+				//There may be other conditions happening. As of v1.34, the only use of 'if'
+				//is a simple check that allows a country to ignore the requirements under
+				//some conditions, so we'll just ignore the limit and carry on.
+				ret += describe_requirements((need[*] - (<"limit">))[*], prov, country, any);
+				break;
+			case "owner": if (need[0]->has_reform) {ret += ({"Government is *" + L10N(need[0]->has_reform)}); break;} //else unknown
+			default: ret += ({"*Unknown"});
+		}
+	}
+	if (any) return ret * " / ";
 	return ret * " + ";
 }
 
@@ -689,7 +729,7 @@ void analyze_leviathans(mapping data, string name, string tag, function|mapping 
 			string requirements = "*Unknown";
 			mapping req = defn->can_use_modifiers_trigger;
 			if (!sizeof(req)) requirements = "None"; //Easy!
-			else requirements = describe_requirements(req, prov); //Everything else is recursive.
+			else requirements = describe_requirements(req, prov, country); //Everything else is recursive.
 			projects += ({({
 				//Sort key
 				(int)id - (int)proj->development_tier * 10000,
