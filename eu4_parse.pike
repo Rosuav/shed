@@ -621,10 +621,12 @@ array(float) estimate_per_month(mapping data, mapping country) {
 
 array(string|int) describe_requirements(mapping req, mapping prov, mapping country, int|void any) {
 	array ret = ({ });
-	string culture = prov->culture, religion = prov->religion;
+	string religion = prov->religion;
 	if (religion != country->religion) religion = "n/a";
-	if (culture != country->primary_culture && !has_value(Array.arrayify(country->accepted_culture), culture))
-		culture = "n/a";
+	array accepted_cultures = ({country->primary_culture}) + Array.arrayify(country->accepted_culture);
+	if (country->government_rank == "3") //Empire rank, all in culture group are accepted
+		foreach (culture_definitions; string group; mapping info)
+			if (info[country->primary_culture]) accepted_cultures += indices(info);
 
 	//Some two-part checks can also be described in one part. Fold them together.
 	if (m_delete(req, "has_owner_religion")) {
@@ -664,12 +666,16 @@ array(string|int) describe_requirements(mapping req, mapping prov, mapping count
 				]), prov, country, 1)});
 				break;
 			case "culture_group":
-				//TODO: Check the province culture
-				ret += ({({L10N(need[*]) * " / ", 3})});
+				if (has_value(`+(@indices(culture_definitions[need[*]][*])), prov->culture)
+						&& has_value(accepted_cultures, prov->culture))
+					ret += ({({L10N(prov->culture), 1})});
+				else ret += ({({L10N(need[*]) * " / ", 2})});
 				break;
 			case "culture":
-				//TODO: Check the province culture
-				ret += ({({L10N(need[*]) * " / ", 3})});
+				if (has_value(need[*], prov->culture)
+						&& has_value(accepted_cultures, prov->culture))
+					ret += ({({L10N(prov->culture), 1})});
+				else ret += ({({L10N(need[*]) * " / ", 2})});
 				break;
 			case "province_is_or_accepts_culture": break; //Always goes with culture/culture_group and is assumed to be a requirement
 			case "custom_trigger_tooltip": switch (need[0]->tooltip) {
