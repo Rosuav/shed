@@ -635,6 +635,11 @@ string describe_requirements(mapping req, mapping prov, mapping country, int|voi
 	//   or a government reform fits into this; it's theoretically possible to flip,
 	//   but most likely you can't.
 
+	string culture = prov->culture, religion = prov->religion;
+	if (religion != country->religion) religion = "n/a";
+	if (culture != country->primary_culture && !has_value(Array.arrayify(country->accepted_culture), culture))
+		culture = "n/a";
+
 	//Some two-part checks can also be described in one part. Fold them together.
 	if (m_delete(req, "has_owner_religion")) {
 		if (string rel = m_delete(req, "religion"))
@@ -645,20 +650,22 @@ string describe_requirements(mapping req, mapping prov, mapping country, int|voi
 	foreach (req; string type; mixed need) {
 		need = Array.arrayify(need);
 		switch (type) {
-			case "province_is_or_accepts_religion_group":
-				//TODO: Check if the province religion is in the appropriate group.
+			case "province_is_or_accepts_religion_group": {
 				//If multiple, it's gonna be "OR" mode, otherwise it could never be true
-				ret += ({"Religion: *Any " + L10N(need->religion_group[*]) * "/"});
+				int have = `+(@religion_definitions[need->religion_group[*]])[religion];
+				if (have) ret += ({L10N(religion)}); //eg if it says "Christian or Muslim" and you're Catholic, it will just say "Catholic"
+				else ret += ({"Religion: *Any " + L10N(need->religion_group[*]) * "/"});
 				break;
-			case "province_is_or_accepts_religion": case "religion":
-				//TODO. A simple equality check.
-				werror("%O\nnow %O\n", req, need);
-				ret += ({"Religion: *" + L10N(need->religion[*]) * "/"});
-				break;
+			}
 			case "province_is_buddhist_or_accepts_buddhism":
-				//TODO as above
-				ret += ({"Religion: *Any Buddhist"});
+				need = (["religion": ({"buddhism", "vajrayana", "mahayana"})]);
+				//Fall through
+			case "province_is_or_accepts_religion": {
+				int have = has_value(need->religion, religion);
+				if (have) ret += ({L10N(religion)});
+				else ret += ({"Religion: *" + L10N(need->religion[*]) * "/"});
 				break;
+			}
 			case "province_is_buddhist_or_accepts_buddhism_or_is_dharmic":
 				//TODO as above
 				ret += ({"Religion: *Any Buddhist or Dharmic"});
