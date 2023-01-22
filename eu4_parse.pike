@@ -621,21 +621,6 @@ array(float) estimate_per_month(mapping data, mapping country) {
 
 array(string|int) describe_requirements(mapping req, mapping prov, mapping country, int|void any) {
 	array ret = ({ });
-	//TODO: Start by grabbing the province religion and culture, and seeing whether they
-	//are accepted. (For now, "accepted" religion means "is the state religion", but in
-	//a future update, it may be worth supporting syncretic etc.) If not accepted, zero
-	//out the religion/culture.
-	//TODO: Provide three different levels of recognition
-	//1) Achieved. All good, all normal. If this applies to everything in an AND, it
-	//   applies to the entire AND; if it applies to anything in an OR, ditto.
-	//2) Not achieved, could be. Culture non-acceptance, or demands the state religion
-	//   but province religion is different. These should be highlighted in the front
-	//   end, as they are goals for the player.
-	//3) Unviable. Some things you can't practically do. Demanding a different religion
-	//   or a government reform fits into this; it's theoretically possible to flip,
-	//   but most likely you can't.
-	//In "OR" mode, pick min; in "AND" mode, pick max.
-
 	string culture = prov->culture, religion = prov->religion;
 	if (religion != country->religion) religion = "n/a";
 	if (culture != country->primary_culture && !has_value(Array.arrayify(country->accepted_culture), culture))
