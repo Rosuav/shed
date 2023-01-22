@@ -657,8 +657,11 @@ array(string|int) describe_requirements(mapping req, mapping prov, mapping count
 				break;
 			}
 			case "province_is_buddhist_or_accepts_buddhism_or_is_dharmic":
-				//TODO: Handle as above
-				ret += ({({"Buddhist/Dharmic", 3})});
+				ret += ({describe_requirements(([
+					"has_owner_religion": 1,
+					"religion": ({"buddhism", "vajrayana", "mahayana"}),
+					"religion_group": "dharmic",
+				]), prov, country, 1)});
 				break;
 			case "culture_group":
 				//TODO: Check the province culture
