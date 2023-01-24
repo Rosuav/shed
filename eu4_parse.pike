@@ -2506,6 +2506,50 @@ void websocket_cmd_listcustoms(mapping conn, mapping data) {
 	]));
 }
 
+constant custnat_keys = "name adjective country_colors index graphical_culture technology_group religion "
+			"government government_reform government_rank idea culture monarch heir queen" / " ";
+mapping custnat_handlers = ([
+	"country_colors": lambda(mapping col) {
+		return sprintf(#"{
+	flag=%s
+	color=%s
+	symbol_index=%s
+	flag_colors={
+		%{%s %}
+	}
+}", col->flag, col->color, col->symbol_index, col->flag_colors);
+	},
+	"idea": lambda(array idea) {
+		return "{" + sprintf(#"
+	{
+		level=%s
+		index=%s
+		name=%q
+		desc=%q
+	}", idea->level[*], idea->index[*], idea->name[*], idea->desc[*]) * "" + "\n}";
+	},
+	"monarch": lambda(mapping mon) {
+		return sprintf(#"{
+	admin=%s
+	diplomacy=%s
+	military=%s
+	age=%s
+	religion=%s
+	culture=%q
+	female=%s
+	name=%q
+	dynasty=%q
+	is_null=%s
+	personality={
+%{		%q
+%}	}
+}", mon->admin, mon->diplomacy, mon->military, mon->age, mon->religion, mon->culture || "",
+		mon->female ? "yes" : "no", mon->name || "", mon->dynasty || "", mon->is_null ? "yes" : "no",
+		mon->personality);
+	},
+	"heir": "monarch", "queen": "monarch",
+]);
+
 string save_custom_nation(mapping data) {
 	//In order to save a custom nation:
 	//1) The nation definition file must already exist
@@ -2519,7 +2563,24 @@ string save_custom_nation(mapping data) {
 	if (!has_value(get_dir(customdir), fn)) return "File not found";
 	sscanf(Stdio.read_file(customdir + "/" + fn), "# Editable: %s\n", string pwd);
 	if (!pwd || pwd != data->password) return "Permission denied";
-	return "Saved."; //Lies, lies, lies, we don't REALLY have any save implementation
+	//Okay. Let's build up a file. We'll look for keys in a specific order, to make
+	//the file more consistent (no point randomly reordering stuff).
+	string output = sprintf("# Editable: %s\n", pwd);
+	foreach (custnat_keys, string key) {
+		mapping val = data->data[key];
+		if (stringp(val) || intp(val)) {
+			//Strings that look like numbers get output without quotes
+			if ((string)(int)val == val) output += sprintf("%s=%d\n", key, (int)val);
+			else output += sprintf("%s=%q\n", key, val);
+		}
+		else if (arrayp(val) || mappingp(val)) {
+			function|string f = custnat_handlers[key];
+			if (stringp(f)) f = custnat_handlers[f]; //Alias one to another
+			if (f) output += sprintf("%s=%s\n", key, f(val));
+		}
+	}
+	Stdio.write_file(customdir + "/" + fn, output);
+	return "Saved.";
 }
 
 void websocket_cmd_savecustom(mapping conn, mapping data) {
@@ -2529,13 +2590,6 @@ void websocket_cmd_savecustom(mapping conn, mapping data) {
 		"result": ret,
 	]));
 }
-//TODO: Have a way to edit a custom nation and save it back. Will need:
-// * A way to write back an EU4 text file (the opposite of low_parse_savefile)
-// * Some kind of permissions system?? There's currently no logins at all. Use IP address??
-// * At very least, some attempt to prevent accidental damage. Adding a custom field to the
-//   nation file causes it to fail to load, so it would have to be a comment.
-// * Allow "save-as", but only if there are fewer than X files stored, to prevent massive
-//   blowouts (since there's minimal permission checking).
 
 void ws_msg(Protocols.WebSocket.Frame frm, mapping conn)
 {
