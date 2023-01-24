@@ -997,6 +997,7 @@ function update_nation_details() {
 	total_idea_cost = 0;
 	replace_content("#customnationmain", [
 		"Custom nation: " + custom_filename + " ",
+		//TODO: Add map colour browser
 		nation_flag(nat.country_colors), BR(),
 		nat.country_colors && ["Flag: ",
 			BUTTON({class: "editflag", "data-which": "symbol_index", "data-max": 120}, "Emblem " + (+nat.country_colors.symbol_index + 1)),
