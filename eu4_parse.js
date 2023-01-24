@@ -950,7 +950,7 @@ function effectvalue(idea, value) {
 
 //Traditions and early ideas cost more. Traditions are late in the array.
 const slotcosts = [100, 80, 60, 40, 20, 0, 0, 100, 100, 0];
-let idea_imbalance_penalty = 0;
+let idea_imbalance_penalty = 0, total_idea_cost = 0;
 function IDEA(idea, slot) { //no, not IKEA
 	const info = custom_ideas[idea.index];
 	const cost_base = info["level_cost_" + idea.level]|0;
@@ -959,6 +959,7 @@ function IDEA(idea, slot) { //no, not IKEA
 	let title = "Cost: " + cost_base + " base";
 	if (cost_pos) title += " + " + cost_pos + " early";
 	if (cost_imbal) title += " + " + cost_imbal + " imbalanced";
+	total_idea_cost += cost_base + cost_pos + cost_imbal;
 	return LI([
 		SPAN({class: "ideacost", title}, cost_base + cost_pos + cost_imbal + ""), " ",
 		info.effectname, " ", effectvalue(info, info.effectvalue * idea.level), " ",
@@ -993,6 +994,7 @@ function update_nation_details() {
 	const max = Math.max(levels.ADM, levels.DIP, levels.MIL);
 	//Note that the penalty is quantized to half a percent. Not sure why that exact cutoff.
 	idea_imbalance_penalty = Math.max(Math.floor(max / tot * 1000 - 500) / 2, 0);
+	total_idea_cost = 0;
 	replace_content("#customnationmain", [
 		"Custom nation: " + custom_filename + " ",
 		nation_flag(nat.country_colors), BR(),
@@ -1004,7 +1006,7 @@ function update_nation_details() {
 			BUTTON({class: "editflag", "data-which": "2", "data-max": 17}, "Color " + (+nat.country_colors.flag_colors[2] + 1)),
 		],
 		//TODO: Text inputs to let you edit the name and adjective
-		H4("Ideas"),
+		H4(["Ideas ", SPAN({id: "total_idea_cost"})]),
 		"Traditions:", BR(),
 		UL([IDEA(nat.idea[7], 7), IDEA(nat.idea[8], 8)]),
 		"Ideas:", BR(),
@@ -1017,6 +1019,7 @@ function update_nation_details() {
 			SPAN({title: levels.MIL + " levels"}, Math.floor(levels.MIL * 100 / tot) + "% MIL"), " => ",
 			B(idea_imbalance_penalty + "% penalty"),
 	]);
+	set_content("#total_idea_cost", " - " + total_idea_cost + " points");
 	DOM("#custompwd").hidden = false;
 }
 
