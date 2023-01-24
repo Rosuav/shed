@@ -7,7 +7,14 @@ document.body.appendChild(replace_content(null, DIALOG({id: "customnationsdlg"},
 	HEADER([H3("Custom nations"), DIV(BUTTON({type: "button", class: "dialog_cancel"}, "x"))]),
 	DIV([
 		DIV({id: "customnationmain"}),
-		P([BUTTON({class: "dialog_close"}, "Close")]),
+		P([
+			BUTTON({class: "dialog_close"}, "Close"),
+			SPAN({id: "custompwd", hidden: ""}, [
+				" Enter password to save: ",
+				INPUT({type: "password", autocomplete: "off", id: "savecustom_password"}),
+				BUTTON({id: "savecustom"}, "Save"),
+			]),
+		]),
 	]),
 ]))));
 document.body.appendChild(replace_content(null, DIALOG({id: "customideadlg"}, SECTION([
@@ -926,6 +933,7 @@ export function sockmsg_customnations(msg) {
 			" (the ", nat.adjective || "Unnamed", "s) ",
 		]))),
 	]);
+	DOM("#custompwd").hidden = true;
 	DOM("#customnationsdlg").showModal();
 }
 
@@ -1009,6 +1017,7 @@ function update_nation_details() {
 			SPAN({title: levels.MIL + " levels"}, Math.floor(levels.MIL * 100 / tot) + "% MIL"), " => ",
 			B(idea_imbalance_penalty + "% penalty"),
 	]);
+	DOM("#custompwd").hidden = false;
 }
 
 function update_filter_classes() {
@@ -1107,3 +1116,14 @@ on("click", ".pickflag", e => {
 });
 
 on("change", ".filters select", update_filter_classes);
+
+on("click", "#savecustom", e => {
+	ws_sync.send({
+		cmd: "savecustom", "filename": custom_filename,
+		password: DOM("#savecustom_password").value,
+		data: custom_nations[custom_filename],
+	});
+});
+export function sockmsg_savecustom(msg) {
+	console.log("RESULT FROM SAVING:", msg); //TODO: Put this in the DOM somewhere
+}

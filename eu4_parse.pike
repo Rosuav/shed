@@ -2505,6 +2505,30 @@ void websocket_cmd_listcustoms(mapping conn, mapping data) {
 		"effect_display_mode": effect_display_mode,
 	]));
 }
+
+string save_custom_nation(mapping data) {
+	//In order to save a custom nation:
+	//1) The nation definition file must already exist
+	//2) It must begin with a manually-added comment line starting "# Editable: "
+	//3) The save request must include the rest of the line, which is a sort of password
+	//4) All attributes to be saved must be included.
+	//It's up to you to make sure the file actually is loadable. The easiest way is to
+	//make minor, specific changes to an existing custom nation.
+	string customdir = SAVE_PATH + "/../custom nations";
+	string fn = data->filename; if (!fn) return "Need a file name";
+	if (!has_value(get_dir(customdir), fn)) return "File not found";
+	sscanf(Stdio.read_file(customdir + "/" + fn), "# Editable: %s\n", string pwd);
+	if (!pwd || pwd != data->password) return "Permission denied";
+	return "Saved."; //Lies, lies, lies, we don't REALLY have any save implementation
+}
+
+void websocket_cmd_savecustom(mapping conn, mapping data) {
+	string ret = save_custom_nation(data);
+	send_update(({conn->sock}), ([
+		"cmd": "savecustom",
+		"result": ret,
+	]));
+}
 //TODO: Have a way to edit a custom nation and save it back. Will need:
 // * A way to write back an EU4 text file (the opposite of low_parse_savefile)
 // * Some kind of permissions system?? There's currently no logins at all. Use IP address??
