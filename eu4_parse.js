@@ -867,7 +867,8 @@ on("click", ".sorthead", e => {
 	sortable(...tb._sortable_config);
 });
 
-let custom_nations = { }, custom_ideas = [], custom_filename = null, selected_idea = -1;
+let custom_nations = { }, custom_ideas = [], map_colors = [];
+let custom_filename = null, selected_idea = -1;
 let effect_display_mode = { };
 
 //Never have identify() return "*" - that's used for the "all" option.
@@ -905,7 +906,8 @@ function nation_flag(colors, cls="small") {
 on("click", "#customnations", e => ws_sync.send({cmd: "listcustoms"}));
 export function sockmsg_customnations(msg) {
 	custom_nations = msg.nations; custom_ideas = msg.custom_ideas;
-	custom_filename = null; effect_display_mode = msg.effect_display_mode;
+	map_colors = msg.map_colors; effect_display_mode = msg.effect_display_mode;
+	custom_filename = null;
 	//Skim over the custom ideas and identify them to each filter
 	Object.values(idea_filters).forEach(fil => fil.opts = { });
 	custom_ideas.forEach(idea => {
@@ -997,7 +999,6 @@ function update_nation_details() {
 	total_idea_cost = 0;
 	replace_content("#customnationmain", [
 		"Custom nation: " + custom_filename + " ",
-		//TODO: Add map colour browser
 		nation_flag(nat.country_colors), BR(),
 		nat.country_colors && ["Flag: ",
 			BUTTON({class: "editflag", "data-which": "symbol_index", "data-max": 120}, "Emblem " + (+nat.country_colors.symbol_index + 1)),
@@ -1005,6 +1006,8 @@ function update_nation_details() {
 			BUTTON({class: "editflag", "data-which": "0", "data-max": 17}, "Color " + (+nat.country_colors.flag_colors[0] + 1)),
 			BUTTON({class: "editflag", "data-which": "1", "data-max": 17}, "Color " + (+nat.country_colors.flag_colors[1] + 1)),
 			BUTTON({class: "editflag", "data-which": "2", "data-max": 17}, "Color " + (+nat.country_colors.flag_colors[2] + 1)),
+			BR(), "Map color: ",
+			BUTTON({class: "editflag", "data-which": "color", "data-max": 100}, "Color " + (+nat.country_colors.color + 1)),
 		],
 		//TODO: Text inputs to let you edit the name and adjective
 		H4(["Ideas ", SPAN({id: "total_idea_cost"})]),
@@ -1103,7 +1106,12 @@ on("click", ".editflag", e => {
 	const max = +e.match.dataset.max;
 	for (let i = 0; i < max; ++i) {
 		basis[which] = ""+i;
-		items.push(BUTTON({class: "pickflag", "data-which": which, "data-idx": i}, nation_flag(nat.country_colors, "large")));
+		items.push(BUTTON({
+				class: "pickflag " + which, "data-which": which, "data-idx": i,
+				"style": which === "color" ? "background-color: rgb(" + map_colors[i].join(", ") + ")" : "", //Color swatch view
+			},
+			which !== "color" && nation_flag(nat.country_colors, "large") //Flag view
+		));
 	}
 	basis[which] = orig;
 	replace_content("#customflagmain", items);

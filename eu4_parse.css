@@ -239,3 +239,8 @@ thead {
 	max-width: 15em; /* Seems to be enough to fit five out of ten of the biggest ones */
 	gap: 0.25em;
 }
+
+.pickflag.color {
+	width: 128px;
+	height: 128px;
+}

@@ -2503,6 +2503,7 @@ void websocket_cmd_listcustoms(mapping conn, mapping data) {
 		"nations": nations,
 		"custom_ideas": custom_ideas,
 		"effect_display_mode": effect_display_mode,
+		"map_colors": custom_country_colors->color,
 	]));
 }
 
