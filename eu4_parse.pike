@@ -355,6 +355,7 @@ int(1bit) trigger_matches(mapping data, array(mapping) scopes, string type, mixe
 			//Estimate trade income percentage based on last month's figures. I don't know
 			//whether the actual effect changes within the month, but this is likely to be
 			//close enough anyway. The income table runs ({tax, prod, trade, gold, ...}).
+			if (!scope->ledger->lastmonthincometable) return 0; //No idea why, but sometimes this is null. I guess we don't have data??
 			return threeplace(scope->ledger->lastmonthincometable[2]) * 1000 / threeplace(scope->ledger->lastmonthincome)
 				>= threeplace(value);
 		case "has_disaster": return 0; //TODO: Where are current disasters listed?
