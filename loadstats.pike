@@ -14,9 +14,9 @@ int main() {
 	while (1) {
 		sleep(0.25);
 		mapping proc = Process.run(({"nvidia-settings", "-t",
-			"-q:0/VideoEncoderUtilization",
-			"-q:0/VideoDecoderUtilization",
-			"-q:0/GPUUtilization",
+			"-q=:0/VideoEncoderUtilization",
+			"-q=:0/VideoDecoderUtilization",
+			"-q=:0/GPUUtilization",
 		}));
 		sscanf(proc->stdout, "%d\n%d\ngraphics=%d, memory=%d", int enc, int dec, int gpu, int vram);
 		[int tot, int idle] = cputime();
@@ -27,10 +27,10 @@ int main() {
 			spinner[spinnerpos++ % sizeof(spinner)]
 		);
 		werror("%s   \r", msg);
-		Protocols.HTTP.post_url("https://sikorsky.rosuav.com/admin", Standards.JSON.encode(([
+		/*Protocols.HTTP.post_url("https://sikorsky.rosuav.com/admin", Standards.JSON.encode(([
 			"cmd": "send_message",
 			"channel": "#rosuav",
 			"msg": (["dest": "/set", "target": "loadstats", "message": msg]),
-		])), (["Content-Type": "application/json"]));
+		])), (["Content-Type": "application/json"]));*/
 	}
 }
