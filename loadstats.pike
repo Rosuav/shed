@@ -21,7 +21,7 @@ int main() {
 		sscanf(proc->stdout, "%d\n%d\ngraphics=%d, memory=%d", int enc, int dec, int gpu, int vram);
 		[int tot, int idle] = cputime();
 		if (tot == lasttot) --lasttot; //Prevent division by zero
-		string msg = sprintf("CPU %d%% GPU %d%% VRAM %d%% Enc %d%%:%d%% %c",
+		string msg = sprintf("CPU %2d%% GPU %2d%% VRAM %2d%% Enc %d%%:%d%% %c",
 			100 - 100 * (idle - lastidle) / (tot - lasttot),
 			gpu, vram, enc, dec,
 			spinner[spinnerpos++ % sizeof(spinner)]
@@ -32,5 +32,6 @@ int main() {
 			"channel": "#rosuav",
 			"msg": (["dest": "/set", "target": "loadstats", "message": msg]),
 		])), (["Content-Type": "application/json"]));*/
+		lasttot = tot; lastidle = idle;
 	}
 }
