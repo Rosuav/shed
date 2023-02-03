@@ -3,7 +3,7 @@
 
 # Invoke OBS Studio, then tidy up its config files
 # This will make the configs far more git-friendly.
-alias obs='/usr/bin/obs; python3 ~/shed/obs_tidy.py'
+alias obs='LD_LIBRARY_PATH=/home/rosuav/.ffmpeg/lib /usr/bin/obs; python3 ~/shed/obs_tidy.py'
 
 # Add this to the end of a command to pop up the terminal window
 # eg: "make; present" to build, then pop up.
