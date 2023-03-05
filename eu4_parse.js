@@ -349,7 +349,8 @@ section("trade_nodes", "Trade nodes", state => [
 				TD(node.passive_income < 0 ? "Incalculable" : money(node.passive_income)),
 				TD(node.passive_income < 0 ? "Incalculable" : money(node.active_income)),
 				TD(node.passive_income < 0 ? "Incalculable" : money(node.active_income - node.passive_income)),
-				TD(node.passive_income < 0 ? "Incalculable" : money(node.fleet_benefit)),
+				TD(node.passive_income < 0 ? "Incalculable" :
+					node.fleet_benefit < 0 ? "" : money(node.fleet_benefit)),
 			]);
 		}),
 	),

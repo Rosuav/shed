@@ -1146,7 +1146,7 @@ mapping analyze_trade_node(mapping data, mapping trade_nodes, string tag, string
 	//((us->val + fleetpower) / (here->total + fleetpower)), and your
 	//revenue is assumed to increase by that multiplied by your
 	//received value times the value in the node.
-	int fleet_benefit = 0;
+	int fleet_benefit = -1;
 	int total_power = threeplace(here->total);
 	if (total_power && !defn->inland) { //... no sending trade fleets inland, it ruins the keels
 		int fleetpower = prefs->fleetpower; if (fleetpower < 1000) fleetpower = 1000;
