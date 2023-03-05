@@ -1817,6 +1817,23 @@ void analyze_obscurities(mapping data, string name, string tag, mapping write, m
 			"can_integrate": can_integrate,
 		])});
 	}
+
+	write->golden_eras = ({ });
+	array sortkeys = ({ });
+	sscanf(data->date, "%d.%d.%d", int nowy, int nowm, int nowd);
+	int now = nowy * 10000 + nowm * 100 + nowd;
+	foreach (data->countries;; mapping c) if (c->golden_era_date) {
+		sscanf(c->golden_era_date, "%d.%d.%d", int y, int m, int d);
+		//TODO: See what happens when a golden era is extended
+		int sortkey = (y + 50) * 10000 + m * 100 + d; sortkeys += ({sortkey});
+		write->golden_eras += ({([
+			"tag": c->tag,
+			"startdate": c->golden_era_date,
+			"enddate": sprintf("%d.%d.%d", y + 50, m, d),
+			"active": sortkey >= now,
+		])});
+	}
+	sort(sortkeys, write->golden_eras);
 }
 
 mapping(string:array) interesting_provinces = ([]);

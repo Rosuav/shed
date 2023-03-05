@@ -117,7 +117,7 @@ let countrytag = "", hovertag = ""; //The country we're focusing on (usually a p
 let country_info = { };
 function COUNTRY(tag, nameoverride) {
 	if (tag === "") return "";
-	const c = country_info[tag] || {name: tag};
+	const c = country_info[tag] || {name: tag, flag: tag};
 	return SPAN({className: "country", "data-tag": tag}, [
 		IMG({className: "flag small", src: "/flags/" + c.flag + ".png", alt: "[flag of " + c.name + "]"}),
 		" ", nameoverride || c.name,
@@ -631,6 +631,18 @@ section("flagships", "Flagships of the World", state => [
 	sortable({id: "flagship_list", border: true},
 		["Country", "Fleet", "Vessel", "Modifications", "Built by"],
 		state.flagships.map(f => TR([TD(COUNTRY(f[0])), TD(f[1]), TD(f[2] + ' "' + f[3] + '"'), TD(f[4].join(", ")), TD(f[5])])),
+	),
+]);
+
+section("golden_eras", "Golden Eras", state => [
+	SUMMARY("Golden Eras (" + state.golden_eras.reduce((a,b) => a + b.active, 0) + ")"),
+	sortable({id: "golden_era_list", border: true},
+		["Country", "Start", "End"],
+		state.golden_eras.map(c => TR({class: c.active ? "interesting1" : ""}, [
+			TD(COUNTRY(c.tag, c.countryname)),
+			TD(c.startdate),
+			TD(c.enddate),
+		])),
 	),
 ]);
 
