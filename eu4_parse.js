@@ -324,11 +324,16 @@ section("trade_nodes", "Trade nodes", state => [
 		["Node name", "#Node value", "#Total power", "#Your share",
 			"Currently", "#Passive", "#Active", "#Benefit", "#Fleet"],
 		state.trade_nodes.sort(tradenode_order).map(node => {
-			return TR([
+			return TR({class: "hh-reset " + node.id}, [
 				TD([
-					B(node.name),
-					" (" + node.downstreams + ") ",
-					GOTOPROV(node.province, ""),
+					B(node.name), " ",
+					ABBR({
+						class: "hoverhighlight",
+						"data-selector": node.downstreams.map(ds => "." + ds).join(","),
+						title: !node.downstreams.length ? "End node, no downstreams"
+							: "Downstreams: " + node.downstreams, //TODO: Show this more nicely
+					}, "(" + node.downstreams.length + ")"),
+					" ", GOTOPROV(node.province, ""),
 				]),
 				TD(threeplace(node.total_value)),
 				TD(threeplace(node.total_power)),
@@ -349,6 +354,15 @@ section("trade_nodes", "Trade nodes", state => [
 		}),
 	),
 ]);
+
+function clearhh(par) {par.querySelectorAll(".hh-reset").forEach(el => el.classList.remove("interesting2"));}
+on("mouseover", ".hoverhighlight", e => {
+	const parent = DOM("#tradenodes"); //If this is to be reused, parameterize this somehow.
+	clearhh(parent);
+	parent.querySelectorAll(e.match.dataset.selector).forEach(el => el.classList.add("interesting2"));
+});
+
+on("mouseout", ".hoverhighlight", e => clearhh(DOM("#tradenodes")));
 
 section("monuments", "Monuments", state => [
 	SUMMARY(`Monuments [${state.monuments.length}]`),
