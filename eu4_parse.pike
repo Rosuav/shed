@@ -2657,7 +2657,10 @@ void send_update(array(object) socks, mapping state) {
 		if (sock && sock->state == 1) sock->send_text(resp);
 }
 
-void update_group(string tag) {send_update(websocket_groups[tag], get_state(tag) | (["parsing": parsing && (parsing - 1) * 100 / PARSE_PROGRESS_FRACTION]));}
+void update_group(string tag) {
+	array socks = websocket_groups[tag];
+	if (socks && sizeof(socks)) send_update(websocket_groups[tag], get_state(tag) | (["parsing": parsing && (parsing - 1) * 100 / PARSE_PROGRESS_FRACTION]));
+}
 void send_updates_all() {foreach (websocket_groups; string tag;) update_group(tag);}
 
 /* Peace treaty analysis
