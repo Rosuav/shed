@@ -24,7 +24,9 @@ int main(int argc, array(string) argv)
 	if (ltrs == "") exit(1, "Need some letters.\n");
 	int hidden = sscanf(ltrs, "%s?", ltrs);
 	sscanf(ltrs, "%s%d", ltrs, int minlength); if (!minlength) minlength = 4;
-	array(string) words = Stdio.read_file("/usr/share/dict/words") / "\n";
+	string fn = "/usr/share/dict/words";
+	if (has_value(ltrs, "+")) {fn = "/usr/share/dict/american-english-insane"; ltrs = replace(ltrs, "+", "");}
+	array(string) words = Stdio.read_file(fn) / "\n";
 	array(string) matches = listwords(words, ltrs, minlength);
 	foreach (matches, string w)
 		write("%d %s\n", sizeof(w), w);
