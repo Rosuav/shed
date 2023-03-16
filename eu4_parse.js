@@ -427,39 +427,42 @@ section("favors", "Favors", state => {
 	];
 });
 
-section("wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.current.length || "None")), state.wars.current.map(war => {
-	//For each war, create or update its own individual DETAILS/SUMMARY. This allows
-	//individual wars to be collapsed as uninteresting without disrupting others.
-	let id = "warinfo-" + war.name.toLowerCase().replace(/[^a-z]/g, " ").replace(/ +/g, "-");
-	//It's possible that a war involving "conquest of X" might collide with another war
-	//involving "conquest of Y" if the ASCII alphabetics in the province names are identical.
-	//While unlikely, this would be quite annoying, so we add in the province ID when a
-	//conquest CB is used. TODO: Check this for other CBs eg occupy/retain capital.
-	if (war.cb) id += "-" + war.cb.type + "-" + (war.cb.province||"no-province");
-	//NOTE: The atk and def counts refer to all players. Even if you aren't interested in
-	//wars involving other players but not yourself, they'll still have their "sword" or
-	//"shield" indicator given based on any player involvement.
-	const atkdef = (war.atk ? "\u{1f5e1}\ufe0f" : "") + (war.def ? "\u{1f6e1}\ufe0f" : "");
-	return DETAILS({open: true}, [
-		SUMMARY(atkdef + " " + war.name),
-		sortable({id: "army" + id, border: "1"},
-			["Country", "Infantry", "Cavalry", "Artillery",
-				ABBR({title: "Merc infantry"}, "Inf $$"),
-				ABBR({title: "Merc cavalry"}, "Cav $$"),
-				ABBR({title: "Merc artillery"}, "Art $$"),
-				"Total", "Manpower", ABBR({title: "Army professionalism"}, "Prof"),
-				ABBR({title: "Army tradition"}, "Trad"),
-			],
-			war.armies.map(army => TR({className: army[0].replace(",", "-")}, [TD(COUNTRY(army[1])), army.slice(2).map(x => TD(x ? ""+x : ""))])),
-		),
-		sortable({id: "navy" + id, border: "1"},
-			["Country", "Heavy", "Light", "Galley", "Transport", "Total", "Sailors",
-				ABBR({title: "Navy tradition"}, "Trad"),
-			],
-			war.navies.map(navy => TR({className: navy[0].replace(",", "-")}, [TD(COUNTRY(navy[1])), navy.slice(2).map(x => TD(x ? ""+x : ""))])),
-		),
-	]);
-})]);
+section("wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.current.length || "None")), [
+	PRE(JSON.stringify(state.wars.pending, null, 4)),
+	state.wars.current.map(war => {
+		//For each war, create or update its own individual DETAILS/SUMMARY. This allows
+		//individual wars to be collapsed as uninteresting without disrupting others.
+		let id = "warinfo-" + war.name.toLowerCase().replace(/[^a-z]/g, " ").replace(/ +/g, "-");
+		//It's possible that a war involving "conquest of X" might collide with another war
+		//involving "conquest of Y" if the ASCII alphabetics in the province names are identical.
+		//While unlikely, this would be quite annoying, so we add in the province ID when a
+		//conquest CB is used. TODO: Check this for other CBs eg occupy/retain capital.
+		if (war.cb) id += "-" + war.cb.type + "-" + (war.cb.province||"no-province");
+		//NOTE: The atk and def counts refer to all players. Even if you aren't interested in
+		//wars involving other players but not yourself, they'll still have their "sword" or
+		//"shield" indicator given based on any player involvement.
+		const atkdef = (war.atk ? "\u{1f5e1}\ufe0f" : "") + (war.def ? "\u{1f6e1}\ufe0f" : "");
+		return DETAILS({open: true}, [
+			SUMMARY(atkdef + " " + war.name),
+			sortable({id: "army" + id, border: "1"},
+				["Country", "Infantry", "Cavalry", "Artillery",
+					ABBR({title: "Merc infantry"}, "Inf $$"),
+					ABBR({title: "Merc cavalry"}, "Cav $$"),
+					ABBR({title: "Merc artillery"}, "Art $$"),
+					"Total", "Manpower", ABBR({title: "Army professionalism"}, "Prof"),
+					ABBR({title: "Army tradition"}, "Trad"),
+				],
+				war.armies.map(army => TR({className: army[0].replace(",", "-")}, [TD(COUNTRY(army[1])), army.slice(2).map(x => TD(x ? ""+x : ""))])),
+			),
+			sortable({id: "navy" + id, border: "1"},
+				["Country", "Heavy", "Light", "Galley", "Transport", "Total", "Sailors",
+					ABBR({title: "Navy tradition"}, "Trad"),
+				],
+				war.navies.map(navy => TR({className: navy[0].replace(",", "-")}, [TD(COUNTRY(navy[1])), navy.slice(2).map(x => TD(x ? ""+x : ""))])),
+			),
+		]);
+	}),
+]]);
 
 section("badboy_hatred", "Badboy Haters", state => {
 	let hater_count = 0, have_coalition = 0;
