@@ -427,7 +427,7 @@ section("favors", "Favors", state => {
 	];
 });
 
-section("wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.length || "None")), state.wars.map(war => {
+section("wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.current.length || "None")), state.wars.current.map(war => {
 	//For each war, create or update its own individual DETAILS/SUMMARY. This allows
 	//individual wars to be collapsed as uninteresting without disrupting others.
 	let id = "warinfo-" + war.name.toLowerCase().replace(/[^a-z]/g, " ").replace(/ +/g, "-");

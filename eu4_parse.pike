@@ -1970,7 +1970,7 @@ mapping ship_types = transform(
 
 void analyze_wars(mapping data, multiset(string) tags, function|mapping|void write) {
 	if (!write) write = Stdio.stdin->write;
-	if (mappingp(write)) write->wars = ({ });
+	if (mappingp(write)) write->wars = (["current": ({ }), "rumoured": ({ })]); //TODO: Fetch the rumours from elsewhere (from the log)
 	foreach (values(data->active_war || ({ })), mapping war) {
 		if (!mappingp(war)) continue; //Dunno what's with these, there seem to be some strings in there.
 		//To keep displaying the war after all players separate-peace out, use
@@ -1987,7 +1987,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|mapping|void wri
 		summary->cb = war->superiority || war->take_province || war->blockade_ports || (["casus_belli": "(none)"]);
 		//TODO: See if there are any other war goals
 		//NOTE: In a no-CB war, there is no war goal, so there'll be no attribute to locate.
-		if (mappingp(write)) write->wars += ({summary});
+		if (mappingp(write)) write->wars->current += ({summary});
 		else write("\n\e[1;31m== War: %s - %s ==\e[0m\n", war->action, string_to_utf8(war->name));
 		//war->action is the date it started?? Maybe the last date when a call to arms is valid?
 		//war->called - it's all just numbers, no country tags. No idea.
