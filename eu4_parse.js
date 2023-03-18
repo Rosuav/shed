@@ -328,7 +328,7 @@ section("trade_nodes", "Trade nodes", state => [
 				TD([
 					B(node.name), " ",
 					ABBR({
-						class: "hoverhighlight",
+						class: node.downstreams.length ? "hoverhighlight" : "",
 						"data-selector": node.downstreams.map(ds => "." + ds).join(","),
 						title: !node.downstreams.length ? "End node, no downstreams"
 							: "Downstreams: " + node.downstreams, //TODO: Show this more nicely
