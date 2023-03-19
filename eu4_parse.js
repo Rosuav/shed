@@ -427,8 +427,24 @@ section("favors", "Favors", state => {
 	];
 });
 
+function find_country(name) {
+	for (let [t, c] of Object.entries(country_info))
+		if (c.name === name) return COUNTRY(t);
+	return name; //Not found? Return the name itself as flat text (eg if the country has changed name, or formed something else)
+}
+function war_rumours(pending) {
+	return sortable({id: "warrumours", border: "1"},
+		"Atk Def Rumoured Declared",
+		pending.map(r => TR([
+			TD(find_country(r.atk)),
+			TD(find_country(r.def)),
+			TD(r.rumoured),
+			TD(r.declared ? [r.declared, " - ", r.war] : ""),
+		])),
+	);
+}
 section("wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.current.length || "None")), [
-	PRE(JSON.stringify(state.wars.pending, null, 4)),
+	DIV({id: "war_rumours"}, war_rumours(state.wars.rumoured)),
 	state.wars.current.map(war => {
 		//For each war, create or update its own individual DETAILS/SUMMARY. This allows
 		//individual wars to be collapsed as uninteresting without disrupting others.
@@ -888,6 +904,7 @@ export function render(state) {
 	}
 	else if (state.agenda) replace_content("#agenda", "");
 	if (curgroup.length) replace_content("#error", "INTERNAL ERROR: Residual groups " + curgroup.join("/")).classList.remove("hidden");
+	if (state.war_rumours) replace_content("#war_rumours", war_rumours(state.war_rumours));
 }
 
 on("click", ".sorthead", e => {
