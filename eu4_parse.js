@@ -346,11 +346,12 @@ section("trade_nodes", "Trade nodes", state => [
 						money(node.current_collection),
 					],
 				]),
-				TD(node.passive_income < 0 ? "Incalculable" : money(node.passive_income)),
-				TD(node.passive_income < 0 ? "Incalculable" : money(node.active_income)),
-				TD(node.passive_income < 0 ? "Incalculable" : money(node.active_income - node.passive_income)),
-				TD(node.passive_income < 0 ? "Incalculable" :
-					node.fleet_benefit < 0 ? "" : money(node.fleet_benefit)),
+				...(node.passive_income < 0 ? [1,2,3,4].map(() => TD({"data-sortkey": -1}, "Incalculable")) : [
+					TD({"data-sortkey": node.passive_income}, money(node.passive_income)),
+					TD({"data-sortkey": node.active_income}, money(node.active_income)),
+					TD({"data-sortkey": node.active_income - node.passive_income}, money(node.active_income - node.passive_income)),
+					TD({"data-sortkey": node.fleet_benefit}, node.fleet_benefit < 0 ? "" : money(node.fleet_benefit)),
+				]),
 			]);
 		}),
 	),

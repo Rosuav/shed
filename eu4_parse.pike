@@ -2009,7 +2009,7 @@ void analyze_wars(mapping data, multiset(string) tags, function|mapping|void wri
 			mapping partic = (["tag": p->tag]);
 			summary->participants += ({partic});
 			mapping country = data->countries[p->tag];
-			int a = has_value(war->attackers, p->tag), d = has_value(war->defenders, p->tag);
+			int a = has_value(war->attackers || ({ }), p->tag), d = has_value(war->defenders || ({ }), p->tag);
 			if (!a && !d) continue; //War participant has subsequently peaced out
 			partic->attacker = a; partic->defender = d; partic->player = tags[p->tag];
 			string side = sprintf("\e[48;2;%d;%d;%dm%s  ",
