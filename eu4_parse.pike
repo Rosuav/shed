@@ -2918,6 +2918,11 @@ void watch_game_log(object inot) {
 					sendme->war_rumours = war_rumours;
 				}
 			}
+			if (sscanf(line, "%d %s %d - %s has gone bankrupt%s",
+					int day, string mon, int year, string country, string dot) && dot == ".") {
+				//TODO: Record bankruptcies and when they'll expire (five years later)
+				werror("\e[1;33mBANKRUPT:\e[0m %s (%d %s %d)\n", country, day, mon, year);
+			}
 			if (sizeof(sendme) > 1) {
 				string msg = Standards.JSON.encode(sendme);
 				foreach (websocket_groups;; array socks)
