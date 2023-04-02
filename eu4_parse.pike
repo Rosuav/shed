@@ -909,7 +909,7 @@ void analyze_findbuildings(mapping data, string name, string tag, function|mappi
 			//Duplicate of the above
 			++buildings;
 			string upg = building_id[(int)prov->building_construction->building];
-			while (string was = building_types[upg]->make_obsolete) {
+			while (string was = building_types[upg]->?make_obsolete) {
 				if (bldg[was]) {--buildings; break;}
 				upg = was;
 			}
