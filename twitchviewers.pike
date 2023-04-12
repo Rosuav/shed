@@ -38,6 +38,7 @@ void drag(object self,object ev)
 
 int main(int argc, array(string) argv)
 {
+	exit(1, "This script needs to be updated to request an OAuth token with moderator:read:chatters scope.\n");
 	if (argc<2) exit(1, "USAGE: pike %s username [delay]\nWill display the current viewers for username's channel\nUpdates every delay seconds - default 10.\n");
 	string username = argv[1];
 	if (argc>2) delay = (int)argv[2] || 10;
