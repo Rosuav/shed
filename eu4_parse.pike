@@ -114,8 +114,14 @@ mapping low_parse_savefile(string|Stdio.Buffer data, int|void verbose) {
 		while (data->sscanf( "#%*s\n%*[ \t\r\n]")); //Strip comments
 		if (!sizeof(data)) return "";
 		if (array str = data->sscanf("\"%[^\"]\"")) {
-			//How are embedded quotes and/or backslashes handled?
-			return ({"string", str[0]});
+			//Fairly naive handling of backslashes and quotes. It might be better to do this more properly.
+			string lit = str[0];
+			while (lit != "" && lit[-1] == '\\') {
+				str = data->sscanf("%[^\"]\"");
+				if (!str) break; //Should possibly be a parse error?
+				lit += "\"" + str[0];
+			}
+			return ({"string", replace(lit, "\\\\", "\\")});
 		}
 		if (array digits = data->sscanf("%[-0-9.]")) {
 			if (array hex = digits[0] == "0" && data->sscanf("x%[0-9a-fA-F]")) return ({"string", "0x" + hex[0]}); //Or should this be converted to decimal?
@@ -205,8 +211,11 @@ array gather_config_dir(string dir, string|void key) {
 	foreach (config_dirs, string base)
 		foreach (sort(get_dir(base + dir) || ({ })), string fn)
 			files[fn] = base + dir + "/" + fn;
-	foreach (sort(indices(files)), string fn) {
-		mapping cur = low_parse_savefile(Stdio.read_file(files[fn]) + "\n") || ([]);
+	array filenames = indices(files); sort(lower_case(filenames[*]), filenames); //Sort case insensitively? I think this is how it's to be done?
+	foreach (filenames, string fn) {
+		string data = Stdio.read_file(files[fn]) + "\n";
+		if (fn == "DOM_Spain_Missions.txt") data += "}\n"; //HACK: As of 20230419, this file is missing a final close brace.
+		mapping cur = low_parse_savefile(data) || ([]);
 		if (key) cur = cur[key] || ([]);
 		ret += ({cur});
 	}
