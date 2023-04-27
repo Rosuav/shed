@@ -15,6 +15,7 @@ until wmctrl -xr $1 -e 0,1920,0,1920,1080; do
 done
 # For some reason, the window doesn't move the first time it's visible in the list.
 # So we wait a bit, and try again.
-sleep 5
-echo Doing it again!
-wmctrl -xr $1 -e 0,1920,0,1920,1080
+# CJA 20230427: Or not. Maybe five seconds isn't enough??
+# sleep 5
+# echo Doing it again!
+# wmctrl -xr $1 -e 0,1920,0,1920,1080
