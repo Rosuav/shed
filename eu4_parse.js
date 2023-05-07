@@ -3,6 +3,11 @@ import {lindt, replace_content, DOM, fix_dialogs} from "https://rosuav.github.io
 const {A, ABBR, B, BR, BUTTON, DIALOG, DETAILS, DIV, FORM, HEADER, H1, H3, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SECTION, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, THEAD, TR, UL} = lindt; //autoimport
 const {BLOCKQUOTE, H4, I, PRE} = lindt; //Currently autoimport doesn't recognize the section() decorator
 
+/* TODO maybe?
+ * Sidebar with menu? Click item to expand and scrollIntoView
+ * What about a popup with icons of some sort? Click any icon to close popup, expand and scrollIntoView the corresponding details.
+ */
+
 document.body.appendChild(replace_content(null, DIALOG({id: "customnationsdlg"}, SECTION([
 	HEADER([H3("Custom nations"), DIV(BUTTON({type: "button", class: "dialog_cancel"}, "x"))]),
 	DIV([
