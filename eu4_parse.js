@@ -1208,8 +1208,14 @@ on("click", "#togglesidebar", e => {
 on("click", "#sidebar ul a, a.tiledviewtile", e => {
 	//NOTE: This does not preventDefault; after this executes, the normal
 	//handling should jump us to the relevant section.
-	DOM(new URL(e.match.href).hash).open = true; //Ensure the target section is expanded
+	const sec = DOM(new URL(e.match.href).hash);
+	if (!sec) return;
+	sec.open = true; //Ensure the target section is expanded
+	sec.classList.add("jumphighlight");
+	setTimeout(() => sec.classList.remove("jumphighlight"), 250);
 	DOM("#tiledviewdlg").close(); //Not applicable to sidebar but won't hurt
+	//Open question: Should this also collapse other sections? It might make sense to
+	//collapse some or all, to further focus on this one.
 });
 
 function TILE(id, color, lbl, icon) { //todo: impl color
