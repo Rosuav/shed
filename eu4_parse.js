@@ -3,10 +3,6 @@ import {lindt, replace_content, DOM, fix_dialogs} from "https://rosuav.github.io
 const {A, ABBR, B, BR, BUTTON, DETAILS, DIALOG, DIV, FORM, H1, H3, H4, HEADER, IMG, INPUT, LABEL, LI, NAV, OPTGROUP, OPTION, P, SECTION, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, THEAD, TR, UL} = lindt; //autoimport
 const {BLOCKQUOTE, I, PRE} = lindt; //Currently autoimport doesn't recognize the section() decorator
 
-/* TODO maybe?
- * What about a popup with icons of some sort? Click any icon to close popup, expand and scrollIntoView the corresponding details.
- */
-
 document.body.appendChild(replace_content(null, DIALOG({id: "customnationsdlg"}, SECTION([
 	HEADER([H3("Custom nations"), DIV(BUTTON({type: "button", class: "dialog_cancel"}, "x"))]),
 	DIV([
@@ -28,6 +24,10 @@ document.body.appendChild(replace_content(null, DIALOG({id: "customideadlg"}, SE
 document.body.appendChild(replace_content(null, DIALOG({id: "customflagdlg"}, SECTION([
 	HEADER([H3("Modify flag"), DIV(BUTTON({type: "button", class: "dialog_cancel"}, "x"))]),
 	DIV({id: "customflagmain"}),
+]))));
+document.body.appendChild(replace_content(null, DIALOG({id: "tiledviewdlg"}, SECTION([
+	HEADER([H3("Jump to section"), DIV(BUTTON({type: "button", class: "dialog_cancel"}, "x"))]),
+	DIV({id: "tiledviewmain"}),
 ]))));
 fix_dialogs({close_selector: ".dialog_cancel,.dialog_close", click_outside: "formless"});
 
@@ -772,7 +772,7 @@ export function render(state) {
 		)),
 		NAV({id: "sidebar", class: "vis"}, [
 			UL(sections.map(s => s.nav && A({href: "#" + s.id}, LI(s.nav)))),
-			A({href: "", id: "tiledview", title: "Tiled view"}, "🌐"),
+			A({href: "", id: "tiledview", title: "Jump to section (Alt+J)", accesskey: "j"}, "🌐"), //"Alt+J" might be wrong on other browsers though
 		]),
 		DIV({id: "error", className: "hidden"}),
 		DIV({id: "menu", className: "hidden"}),
@@ -1205,8 +1205,47 @@ on("click", "#togglesidebar", e => {
 	e.match.parentElement.classList.toggle("sbvis");
 });
 
-on("click", "#sidebar a", e => {
+on("click", "#sidebar ul a, a.tiledviewtile", e => {
 	//NOTE: This does not preventDefault; after this executes, the normal
 	//handling should jump us to the relevant section.
 	DOM(new URL(e.match.href).hash).open = true; //Ensure the target section is expanded
+	DOM("#tiledviewdlg").close(); //Not applicable to sidebar but won't hurt
 });
+
+function TILE(id, color, lbl, icon) { //todo: impl color
+	const attrs = {class: "tiledviewtile", "href": "#" + id};
+	const parts = lbl.split("~");
+	if (parts.length === 2) { //The label has a mnemonic in it
+		lbl = [
+			parts[0],
+			SPAN({style: "text-decoration: underline"}, parts[1][0]),
+			parts[1].slice(1),
+		];
+		attrs.accesskey = parts[1][0].toLowerCase();
+	}
+	return A(attrs, [
+		DIV({class: "icon"}, icon),
+		DIV({class: "label"}, lbl),
+	]);
+}
+
+on("click", "#tiledview", e => {
+	e.preventDefault();
+	const dlg = DOM("#tiledviewdlg");
+	if (dlg.open) {dlg.close(); return;} //Alt-J is a toggle
+	replace_content("#tiledviewmain", [
+		TILE("cot", "", "Ctrs of Trade", "💰"),
+		TILE("trade_nodes", "", "Trade ~nodes", "💱"),
+		TILE("monuments", "", "~Monuments", "🗼"),
+		TILE("badboy_hatred", "", "Badboy", "🤯"),
+		TILE("unguarded_rebels", "", "~Rebels", "🔥"),
+		TILE("subjects", "", "~Subjects", "🧎"),
+		TILE("colonization_targets", "", "Colonies", "🌎"),
+		TILE("truces", "", "~Truces", "🏳"),
+		TILE("cbs", "", "Casus Belli", "🔪"),
+	]);
+	dlg.showModal();
+});
+
+//Prevent spurious activations of jump-to-section hotkeys
+DOM("#tiledviewdlg").onclose = e => replace_content("#tiledviewmain", "");
