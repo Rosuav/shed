@@ -1206,11 +1206,11 @@ on("click", "#togglesidebar", e => {
 });
 
 on("click", "#sidebar ul a, a.tiledviewtile", e => {
-	//NOTE: This does not preventDefault; after this executes, the normal
-	//handling should jump us to the relevant section.
+	e.preventDefault();
 	const sec = DOM(new URL(e.match.href).hash);
 	if (!sec) return;
 	sec.open = true; //Ensure the target section is expanded
+	sec.scrollIntoView();
 	sec.classList.add("jumphighlight");
 	setTimeout(() => sec.classList.remove("jumphighlight"), 250);
 	DOM("#tiledviewdlg").close(); //Not applicable to sidebar but won't hurt
