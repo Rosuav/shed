@@ -1,3 +1,5 @@
+* {box-sizing: border-box;}
+
 main {
 	max-width: 1200px;
 	margin: auto;
@@ -243,4 +245,82 @@ thead {
 .pickflag.color {
 	width: 128px;
 	height: 128px;
+}
+
+nav#sidebar {
+	display: none;
+}
+
+nav#topbar {
+	position: absolute;
+	left: 0;
+	height: 40px;
+}
+
+#togglesidebar {
+	/* Make the button look like a hamburger menu */
+	border: 0;
+	font-size: 0;
+	padding: 0;
+	height: 32px; width: 32px;
+	margin-right: 8px;
+	background: linear-gradient(transparent 0%, transparent 14%,
+		#bbb 14%, #bbb 28%, transparent 28%, transparent 42%,
+		#bbb 42%, #bbb 56%, transparent 56%, transparent 70%,
+		#bbb 70%, #bbb 84%, transparent 84%);
+}
+
+nav#sidebar ul {
+	padding-left: 8px;
+	margin: 0;
+	overflow: clip auto;
+	position: absolute;
+	top: 0px; bottom: 100px; /* Leave room for the avatar below */
+	font-size: smaller;
+}
+#tiledview {
+	display: block;
+	position: absolute;
+	left: 0; bottom: 0px;
+	font-size: 80px;
+	text-decoration: none;
+}
+
+nav#sidebar.vis {
+	display: block;
+	position: fixed;
+	left: 0px;
+	width: 100px;
+	top: 48px; bottom: 0;
+	background-color: #a0f0c0;
+}
+#togglesidebarbox {
+	display: block;
+	position: fixed;
+	left: 0; top: 0;
+	width: 100px; height: 48px;
+	padding: 8px;
+}
+#togglesidebarbox.sbvis {
+	background-color: #a0f0c0;
+}
+
+/* Firefox doesn't currently support the :has selector (it's supported in Ff 103 with a
+flag, but as of 20230414, not vanilla in any version), so instead of the simpler directive
+body:has(nav#sidebar) nav#topbar {padding-left: 100px;}
+we use two directives, one to create the padding unconditionally, and one to remove it if
+we don't want it. This means that Firefox, until it grows support for the :has selector,
+will waste 100px of space when there's no sidebar. */
+body nav#topbar {padding-left: 100px;}
+body:not(:has(nav#sidebar.vis)) nav#topbar {
+	padding-left: 0;
+}
+
+@media screen and (width >= 600px) {
+	/* On wide enough screens, consume space for the entire body, not just the nav topbar */
+	body nav#topbar {padding-left: 0;}
+	body {padding-left: 100px;}
+	body:not(:has(nav#sidebar.vis)) {
+		padding-left: 0;
+	}
 }

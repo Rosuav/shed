@@ -1,10 +1,9 @@
 //Not to be confused with eu4_parse.json which is a cache
 import {lindt, replace_content, DOM, fix_dialogs} from "https://rosuav.github.io/choc/factory.js";
-const {A, ABBR, B, BR, BUTTON, DIALOG, DETAILS, DIV, FORM, HEADER, H1, H3, IMG, INPUT, LABEL, LI, OPTGROUP, OPTION, P, SECTION, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, THEAD, TR, UL} = lindt; //autoimport
-const {BLOCKQUOTE, H4, I, PRE} = lindt; //Currently autoimport doesn't recognize the section() decorator
+const {A, ABBR, B, BR, BUTTON, DETAILS, DIALOG, DIV, FORM, H1, H3, H4, HEADER, IMG, INPUT, LABEL, LI, NAV, OPTGROUP, OPTION, P, SECTION, SELECT, SPAN, STRONG, SUMMARY, TABLE, TD, TH, THEAD, TR, UL} = lindt; //autoimport
+const {BLOCKQUOTE, I, PRE} = lindt; //Currently autoimport doesn't recognize the section() decorator
 
 /* TODO maybe?
- * Sidebar with menu? Click item to expand and scrollIntoView
  * What about a popup with icons of some sort? Click any icon to close popup, expand and scrollIntoView the corresponding details.
  */
 
@@ -234,9 +233,9 @@ function upgrade(upg, tot) {
 }
 
 const sections = [];
-function section(id, lbl, render) {sections.push({id, lbl, render});}
+function section(id, nav, lbl, render) {sections.push({id, nav, lbl, render});}
 
-section("decisions_missions", "Decisions and Missions", state => [
+section("decisions_missions", "", "Decisions and Missions", state => [
 	SUMMARY(`Decisions and Missions [${state.decisions_missions.length}]`),
 	state.decisions_missions.map(mission => [
 		H3([proventer(mission.id), mission.name]),
@@ -245,7 +244,7 @@ section("decisions_missions", "Decisions and Missions", state => [
 	]),
 ]);
 
-section("cot", "Centers of Trade", state => {
+section("cot", "CoTs", "Centers of Trade", state => {
 	max_interesting.cot = state.cot.maxinteresting;
 	const content = [SUMMARY(`Centers of Trade (${state.cot.level3}/${state.cot.max} max level)`), proventer("cot")];
 	for (let kwd of ["upgradeable", "developable"]) {
@@ -276,7 +275,7 @@ function tradenode_order(a, b) {
 	return (b.active_income - b.passive_income) - (a.active_income - a.passive_income);
 }
 
-section("trade_nodes", "Trade nodes", state => [
+section("trade_nodes", "Trade nodes", "Trade nodes", state => [
 	SUMMARY("Trade nodes"),
 	DETAILS([SUMMARY("Explanatory notes"), UL([
 		LI([
@@ -371,7 +370,7 @@ on("mouseover", ".hoverhighlight", e => {
 
 on("mouseout", ".hoverhighlight", e => clearhh(DOM("#tradenodes")));
 
-section("monuments", "Monuments", state => [
+section("monuments", "Monuments", "Monuments", state => [
 	SUMMARY(`Monuments [${state.monuments.length}]`),
 	sortable({id: "monumentlist", border: "1"},
 		[[proventer("monuments"), "Province"], "Tier", "Project", "Upgrading", "Requires"],
@@ -393,7 +392,7 @@ section("monuments", "Monuments", state => [
 	provleave(),
 ]);
 
-section("coal_provinces", "Coal provinces", state => {
+section("coal_provinces", "Coal", "Coal provinces", state => {
 	max_interesting.coal_provinces = 0;
 	const content = [
 		SUMMARY(`Coal-producing provinces [${state.coal_provinces.length}]`),
@@ -408,7 +407,7 @@ section("coal_provinces", "Coal provinces", state => {
 	return content;
 });
 
-section("favors", "Favors", state => {
+section("favors", "", "Favors", state => {
 	let free = 0, owed = 0, owed_total = 0;
 	function compare(val, base) {
 		if (val <= base) return val.toFixed(3);
@@ -449,7 +448,7 @@ function war_rumours(pending) {
 		])),
 	);
 }
-section("wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.current.length || "None")), [
+section("wars", "Wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.current.length || "None")), [
 	DIV({id: "war_rumours"}, war_rumours(state.wars.rumoured)),
 	state.wars.current.map(war => {
 		//For each war, create or update its own individual DETAILS/SUMMARY. This allows
@@ -486,7 +485,7 @@ section("wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.current.length 
 	}),
 ]]);
 
-section("badboy_hatred", "Badboy Haters", state => {
+section("badboy_hatred", "Badboy", "Badboy Haters", state => {
 	let hater_count = 0, have_coalition = 0;
 	const haters = state.badboy_hatred.map(hater => {
 		const info = country_info[hater.tag];
@@ -516,7 +515,7 @@ section("badboy_hatred", "Badboy Haters", state => {
 	];
 });
 
-section("unguarded_rebels", "Unguarded rebels", state => {
+section("unguarded_rebels", "Rebels", "Unguarded rebels", state => {
 	let max = "";
 	const factions = state.unguarded_rebels.map(faction => TR([
 		TD(faction.name),
@@ -533,7 +532,7 @@ section("unguarded_rebels", "Unguarded rebels", state => {
 	];
 });
 
-section("subjects", "Subject nations", state => [
+section("subjects", "Subjects", "Subject nations", state => [
 	SUMMARY("Subject nations (" + state.subjects.length + ")"),
 	sortable({id: "subject_nations", border: "1"},
 		["Country", "Type", "Liberty", "Opinion", "Improved", "Since", "Integrate?"],
@@ -548,7 +547,7 @@ section("subjects", "Subject nations", state => [
 		])),
 	),
 ]);
-section("colonization_targets", "Colonization targets", state => [
+section("colonization_targets", "Colonies", "Colonization targets", state => [
 	SUMMARY("Colonization targets (" + state.colonization_targets.length + ")"), //TODO: Count interesting ones too?
 	sortable({id: "colo_targets", border: "1"},
 		["Province", "Dev", "Geography", "Settler penalty", "Features"],
@@ -572,7 +571,7 @@ function describe_culture_impact(cul, which, fmt) {
 	);
 }
 
-section("cultures", "Cultures", state => [
+section("cultures", "Cultures", "Cultures", state => [
 	SUMMARY("Cultures (" + state.cultures.accepted_cur + "/" + state.cultures.accepted_max + " accepted)"),
 	DETAILS({style: "margin: 1em"}, [SUMMARY("Notes"),
 		P({style: "margin: 0 1em"}, [
@@ -605,7 +604,7 @@ section("cultures", "Cultures", state => [
 	),
 ]);
 
-section("highlight", "Building expansions", state => state.highlight.id ? [
+section("highlight", "Buildings", "Building expansions", state => state.highlight.id ? [
 	SUMMARY("Building expansions: " + state.highlight.name),
 	P([proventer("expansions"), "If developed, these places could support a new " + state.highlight.name + ". "
 		+ "They do not currently contain one, there is no building that could be upgraded "
@@ -629,7 +628,7 @@ section("highlight", "Building expansions", state => state.highlight.id ? [
 	" the top right options."),
 ]);
 
-section("upgradeables", "Upgrades available", state => [ //Assumes that we get navy_upgrades with upgradeables
+section("upgradeables", "Upgrades", "Upgrades available", state => [ //Assumes that we get navy_upgrades with upgradeables
 	SUMMARY("Upgrades available: " + state.upgradeables.length + " building type(s), " + state.navy_upgrades.length + " fleet(s)"),
 	P([proventer("upgradeables"), state.upgradeables.length + " building type(s) available for upgrade."]),
 	UL(state.upgradeables.map(upg => LI([
@@ -651,7 +650,7 @@ section("upgradeables", "Upgrades available", state => [ //Assumes that we get n
 	),
 ]);
 
-section("flagships", "Flagships of the World", state => [
+section("flagships", "Flagships", "Flagships of the World", state => [
 	SUMMARY("Flagships of the World (" + state.flagships.length + ")"),
 	sortable({id: "flagship_list", border: true},
 		["Country", "Fleet", "Vessel", "Modifications", "Built by"],
@@ -659,7 +658,7 @@ section("flagships", "Flagships of the World", state => [
 	),
 ]);
 
-section("golden_eras", "Golden Eras", state => [
+section("golden_eras", "Golden Eras", "Golden Eras", state => [
 	SUMMARY("Golden Eras (" + state.golden_eras.reduce((a,b) => a + b.active, 0) + ")"),
 	sortable({id: "golden_era_list", border: true},
 		["Country", "Start", "End"],
@@ -683,12 +682,12 @@ function render_text(txt) {
 	return render_text({abbr: "<ERROR>", title: "Unknown text format: " + Object.keys(txt)});
 }
 //Note that this can and will be updated independently of the rest of the save file.
-section("recent_peace_treaties", "Recent peace treaties", state => [
+section("recent_peace_treaties", "Peaces", "Recent peace treaties", state => [
 	SUMMARY(`Recent peace treaties: ${state.recent_peace_treaties.length}`),
 	UL(state.recent_peace_treaties.map(t => LI(render_text(t)))),
 ]);
 
-section("truces", "Truces", state => [
+section("truces", "Truces", "Truces", state => [
 	SUMMARY("Truces: " + state.truces.map(t => t.length - 1).reduce((a,b) => a+b, 0) + " countries, " + state.truces.length + " blocks"),
 	state.truces.map(t => [
 		H3(t[0]),
@@ -696,7 +695,7 @@ section("truces", "Truces", state => [
 	]),
 ]);
 
-section("cbs", "Casus belli", state => [
+section("cbs", "CBs", "Casus belli", state => [
 	SUMMARY(`Casus belli: ${state.cbs.from.tags.length} potential victims, ${state.cbs.against.tags.length} potential aggressors`),
 	//NOTE: The order here (from, against) has to match the order in the badboy/prestige/peace_cost arrays (attacker, defender)
 	[["from", "CBs you have on others"], ["against", "CBs others have against you"]].map(([grp, lbl], scoreidx) => [
@@ -719,7 +718,7 @@ section("cbs", "Casus belli", state => [
 	]),
 ]);
 
-section("miltech", "Military technology", state => {
+section("miltech", "Mil tech", "Military technology", state => {
 	const mine = state.miltech.levels[state.miltech.current];
 	function value(tech, key, refkey) {
 		if (typeof tech === "number") tech = state.miltech.levels[tech];
@@ -768,6 +767,13 @@ export function render(state) {
 	curgroup = []; provgroups = { };
 	//Set up one-time structure. Every subsequent render will update within that.
 	if (!DOM("#error")) replace_content("main", [
+		NAV({id: "topbar"}, SPAN({id: "togglesidebarbox", class: "sbvis"},
+			BUTTON({type: "button", id: "togglesidebar", title: "Show/hide sidebar"}, "Show/hide sidebar"),
+		)),
+		NAV({id: "sidebar", class: "vis"}, [
+			UL(sections.map(s => s.nav && A({href: "#" + s.id}, LI(s.nav)))),
+			A({href: "", id: "tiledview", title: "Tiled view"}, "🌐"),
+		]),
 		DIV({id: "error", className: "hidden"}),
 		DIV({id: "menu", className: "hidden"}),
 		IMG({className: "flag large", id: "playerflag", alt: "[flag of player's nation]"}),
@@ -1192,3 +1198,15 @@ on("click", "#savecustom", e => {
 export function sockmsg_savecustom(msg) {
 	console.log("RESULT FROM SAVING:", msg); //TODO: Put this in the DOM somewhere
 }
+
+on("click", "#togglesidebar", e => {
+	const sidebar = DOM("nav#sidebar");
+	if (sidebar) sidebar.classList.toggle("vis");
+	e.match.parentElement.classList.toggle("sbvis");
+});
+
+on("click", "#sidebar a", e => {
+	//NOTE: This does not preventDefault; after this executes, the normal
+	//handling should jump us to the relevant section.
+	DOM(new URL(e.match.href).hash).open = true; //Ensure the target section is expanded
+});
