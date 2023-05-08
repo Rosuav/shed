@@ -485,7 +485,7 @@ section("wars", "Wars", "Wars", state => [SUMMARY("Wars: " + (state.wars.current
 	}),
 ]]);
 
-section("badboy_hatred", "Badboy", "Badboy Haters", state => {
+section("badboy_hatred", "Badboy", "Aggressive Expansion (Badboy)", state => {
 	let hater_count = 0, have_coalition = 0;
 	const haters = state.badboy_hatred.map(hater => {
 		const info = country_info[hater.tag];
@@ -771,7 +771,11 @@ export function render(state) {
 			BUTTON({type: "button", id: "togglesidebar", title: "Show/hide sidebar"}, "Show/hide sidebar"),
 		)),
 		NAV({id: "sidebar", class: "vis"}, [
-			UL(sections.map(s => s.nav && A({href: "#" + s.id}, LI(s.nav)))),
+			UL([
+				sections.map(s => s.nav && A({href: "#" + s.id}, LI(s.nav))),
+				LI(""),
+				LI(A({id: "collapseall", href: "#"}, "Collapse all")),
+			]),
 			A({href: "", id: "tiledview", title: "Jump to section (Alt+J)", accesskey: "j"}, "🌐"), //"Alt+J" might be wrong on other browsers though
 		]),
 		DIV({id: "error", className: "hidden"}),
@@ -1207,7 +1211,8 @@ on("click", "#togglesidebar", e => {
 
 on("click", "#sidebar ul a, a.tiledviewtile", e => {
 	e.preventDefault();
-	const sec = DOM(new URL(e.match.href).hash);
+	const hash = new URL(e.match.href).hash;
+	const sec = hash && DOM(hash);
 	if (!sec) return;
 	sec.open = true; //Ensure the target section is expanded
 	sec.scrollIntoView();
@@ -1251,6 +1256,11 @@ on("click", "#tiledview", e => {
 		TILE("cbs", "", "Casus Belli", "🔪"),
 	]);
 	dlg.showModal();
+});
+
+on("click", "#collapseall", e => {
+	e.preventDefault();
+	document.querySelectorAll("details").forEach(el => el.open = false);
 });
 
 //Prevent spurious activations of jump-to-section hotkeys
