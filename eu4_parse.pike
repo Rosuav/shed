@@ -21,6 +21,9 @@ definition, possibly also a dependencies block. See: https://eu4.paradoxwikis.co
 
 It may be of value to have multiple L10n caches, since mod switching is costly at the moment.
 It may also be of value to have a way to recognize a change to a mod, to force a reload.
+
+If there are any issues remaining - notably, if anything crashes - report it on the client. Once
+that and the above are all done, the server can become purely a service, no console needed.
 */
 
 constant SAVE_PATH = "../.local/share/Paradox Interactive/Europa Universalis IV/save games";
@@ -3195,7 +3198,8 @@ int main(int argc, array(string) argv) {
 	custom_country_colors = parse_config_dir("/common/custom_country_colors");
 	//estate_agendas = parse_config_dir("/common/estate_agendas"); //Not currently in use
 	country_decisions = parse_config_dir("/decisions", "country_decisions");
-	country_missions = parse_config_dir("/missions");
+	country_missions = ([]);
+	//country_missions = parse_config_dir("/missions"); //FIXME: Broken in 1.35.3 (lingering maparray)
 	advisor_definitions = parse_config_dir("/common/advisortypes");
 	culture_definitions = parse_config_dir("/common/cultures");
 	religion_definitions = parse_config_dir("/common/religions");
