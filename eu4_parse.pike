@@ -1,6 +1,6 @@
 #define POLYGLOT "This script can be run as Python or Pike code and is a minimal client for the EU4 parser. \
 """
-//The bulk of this code is replicated directly from the main EU4 parser, which can also do this.
+//The bulk of this code was moved directly from the main EU4 parser as part of the migration.
 class ClientConnection(Stdio.File sock) {
 	Stdio.Buffer incoming = Stdio.Buffer(), outgoing = Stdio.Buffer();
 	inherit Concurrent.Promise;
