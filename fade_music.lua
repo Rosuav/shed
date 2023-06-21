@@ -265,12 +265,27 @@ function activate()
 	-- Okay, headers parsed. We really should look at those and see if the connection
 	-- succeeded, but whatevs.
 
+	local orig_vol = nil
+	local delaymsg = json.encode({op = 8, d = {requestId = "delay", requests = {{
+		requestType = "Sleep",
+		requestData = {sleepMillis = 150} -- Speed of fade, ms per Ctrl-Down on the volume.
+	}}}})
+	-- Encode the length, and set the high bit to say we're masking.
+	if #delaymsg > 125 then
+		size = string.char(254, #delaymsg / 256, #delaymsg % 256)
+	else
+		size = string.char(#delaymsg + 128)
+	end
+	-- Client messages have to be masked. But we cheat and use an all-zeroes mask.
+	-- That shouldn't be acceptable... it really shouldn't...
+	delaymsg =  "\x81" .. size .. "\0\0\0\0" .. delaymsg
 	-- Wait for a scene transition message. Note that, per VLC rules, we have to call
 	-- vlc.keep_alive() every ten seconds or we will be killed. Be sure to subscribe
 	-- to some sort of event that happens at least that frequently; for me, that's
 	-- covered by an image slideshow that rotates every eight seconds (it's not even
 	-- visible on scene but it's there!), but otherwise, consider subscribing to a
-	-- heartbeat of some sort.
+	-- heartbeat of some sort. Or use the same "batch with just a Sleep" trick as for
+	-- the fade.
 	while true do
 		-- Read one websocket frame
 		local header = read(2)
@@ -294,20 +309,33 @@ function activate()
 			vlc.msg.dbg(auth)
 			local authmsg = {op = 1, d = {rpcVersion = 1, authentication = auth}}
 			authmsg = json.encode(authmsg)
-			-- Encode the length, and set the high bit to say we're masking.
+			-- TODO: Deduplicate
 			if #authmsg > 125 then
 				size = string.char(254, #authmsg / 256, #authmsg % 256)
 			else
 				size = string.char(#authmsg + 128)
 			end
-			-- Client messages have to be masked. But we cheat and use an all-zeroes mask.
-			-- That shouldn't be acceptable... it really shouldn't...
 			vlc.net.send(sock, "\x81" .. size .. "\0\0\0\0" .. authmsg)
 		end
 		if msg.op == 5 and msg.d.eventType == "CurrentProgramSceneChanged" then
 			vlc.msg.dbg("*** Scene change! Done! ***")
-			break
+			-- Time to fade and pause the music.
+			-- This is weird and stupid, but I'm actually using OBS to give me a timer.
+			orig_vol = vlc.volume.get()
+			if orig_vol == 0 then break end -- No fade needed
+			vlc.volume.down()
+			vlc.net.send(sock, delaymsg)
 		end
+		if msg.op == 9 and msg.d.requestId == "delay" then
+			vlc.msg.dbg("Delays, delays")
+			if vlc.volume.get() == 0 then break end -- Done fading (note that we delay after reaching 0 before pausing)
+			vlc.volume.down()
+			vlc.net.send(sock, delaymsg)
+		end
+	end
+	if orig_vol ~= nil then
+		vlc.playlist.pause()
+		vlc.volume.set(orig_vol)
 	end
 	vlc.net.close(sock)
 	vlc.deactivate()
