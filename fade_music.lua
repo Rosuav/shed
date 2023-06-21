@@ -7,7 +7,9 @@ HOST = "192.168.0.19"
 PORT = 4455
 PASSWORD = "correct-horse-battery-staple"
 sock = nil
+local pollfds = {}
 buf = ""
+json = require("dkjson")
 
 function descriptor()
 	return { 
@@ -233,26 +235,54 @@ function sha256_base64(msg)
 	return b64
 end
 
+function read(n)
+	while #buf < n do
+		vlc.net.poll(pollfds)
+		local chunk = vlc.net.recv(sock, 2048)
+		if chunk == "" then break end
+		buf = buf .. chunk
+		vlc.keep_alive()
+	end
+	local ret = string.sub(buf, 0, n)
+	buf = string.sub(buf, n + 1)
+	return ret
+end
+
 function activate()
 	vlc.msg.dbg("[FadeMusic] Activated - pwd: " .. sha256_base64(PASSWORD))
 	sock = vlc.net.connect_tcp(HOST, PORT)
 	vlc.msg.dbg("[FadeMusic] Sock is " .. sock)
 	vlc.net.send(sock, "GET / HTTP/1.1\r\nHost: OBS\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: asdf\r\nSec-WebSocket-Version: 13\r\n\r\n")
-	local pollfds = {}
 	pollfds[sock] = vlc.net.POLLIN
-	vlc.net.poll(pollfds)
-	local chunk = vlc.net.recv(sock, 2048)
-	while chunk do
-		vlc.keep_alive()
-		local pos = string.find(chunk, "\r\n\r\n")
-		if pos then
-			chunk = string.sub(chunk, pos)
-			break
-		end
+	while not string.find(buf, "\r\n\r\n") do
 		vlc.net.poll(pollfds)
-		chunk = vlc.net.recv(sock, 2048)
+		local chunk = vlc.net.recv(sock, 2048)
+		if chunk == "" then break end
+		buf = buf .. chunk
+		vlc.keep_alive()
 	end
-	vlc.msg.dbg(chunk)
+	buf = string.sub(buf, string.find(buf, "\r\n\r\n") + 4)
+	-- Okay, headers parsed. We really should look at those and see if the connection
+	-- succeeded, but whatevs.
+	while true do
+		-- Read one websocket frame
+		local header = read(2)
+		-- Assume that it's a text frame (for now)
+		-- string.byte(header) & 0x8F should equal 0x81
+		local size = string.byte(header, 2)
+		-- if size >= 128: raise ValueError("Masked frame from server")
+		if size == 126 then
+			local sz = read(2)
+			size = string.byte(sz, 1) * 256 + string.byte(sz, 2)
+		end
+		-- elif size == 127: raise ValueError("64-bit length not supported")
+		vlc.msg.dbg("[FadeMusic] Length " .. size)
+		local frame = read(size)
+		vlc.msg.dbg("[FadeMusic] Frame " .. frame)
+		local msg = json.decode(frame)
+		vlc.msg.dbg("[FadeMusic] Msg " .. msg.op)
+		break
+	end
 	vlc.net.close(sock)
 	vlc.deactivate()
 end
