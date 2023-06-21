@@ -251,7 +251,6 @@ end
 function activate()
 	vlc.msg.dbg("[FadeMusic] Activated")
 	sock = vlc.net.connect_tcp(HOST, PORT)
-	vlc.msg.dbg("[FadeMusic] Sock is " .. sock)
 	vlc.net.send(sock, "GET / HTTP/1.1\r\nHost: OBS\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: asdf\r\nSec-WebSocket-Version: 13\r\n\r\n")
 	pollfds[sock] = vlc.net.POLLIN
 	while not string.find(buf, "\r\n\r\n") do
@@ -298,15 +297,11 @@ function activate()
 			size = string.byte(sz, 1) * 256 + string.byte(sz, 2)
 		end
 		-- elif size == 127: raise ValueError("64-bit length not supported")
-		vlc.msg.dbg("[FadeMusic] Length " .. size)
 		local frame = read(size)
-		vlc.msg.dbg("[FadeMusic] Frame " .. frame)
 		local msg = json.decode(frame)
-		vlc.msg.dbg("[FadeMusic] Msg " .. msg.op)
 		if msg.op == 0 then
 			local secret = sha256_base64(PASSWORD .. msg.d.authentication.salt)
 			local auth = sha256_base64(secret .. msg.d.authentication.challenge)
-			vlc.msg.dbg(auth)
 			local authmsg = {op = 1, d = {rpcVersion = 1, authentication = auth}}
 			authmsg = json.encode(authmsg)
 			-- TODO: Deduplicate
@@ -318,7 +313,6 @@ function activate()
 			vlc.net.send(sock, "\x81" .. size .. "\0\0\0\0" .. authmsg)
 		end
 		if msg.op == 5 and msg.d.eventType == "CurrentProgramSceneChanged" then
-			vlc.msg.dbg("*** Scene change! Done! ***")
 			-- Time to fade and pause the music.
 			-- This is weird and stupid, but I'm actually using OBS to give me a timer.
 			orig_vol = vlc.volume.get()
@@ -327,7 +321,10 @@ function activate()
 			vlc.net.send(sock, delaymsg)
 		end
 		if msg.op == 9 and msg.d.requestId == "delay" then
-			vlc.msg.dbg("Delays, delays")
+			-- Something to consider: After fading to zero volume, mute the output,
+			-- wait one more tick, restore the volume, then wait out the buffer, and
+			-- only THEN pause the music. Currently the buffer has the last bit of
+			-- fade in it, and after unpausing, it oddly jumps up in volume.
 			if vlc.volume.get() == 0 then break end -- Done fading (note that we delay after reaching 0 before pausing)
 			vlc.volume.down()
 			vlc.net.send(sock, delaymsg)
