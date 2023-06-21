@@ -249,7 +249,7 @@ function read(n)
 end
 
 function activate()
-	vlc.msg.dbg("[FadeMusic] Activated - pwd: " .. sha256_base64(PASSWORD))
+	vlc.msg.dbg("[FadeMusic] Activated")
 	sock = vlc.net.connect_tcp(HOST, PORT)
 	vlc.msg.dbg("[FadeMusic] Sock is " .. sock)
 	vlc.net.send(sock, "GET / HTTP/1.1\r\nHost: OBS\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: asdf\r\nSec-WebSocket-Version: 13\r\n\r\n")
@@ -264,6 +264,13 @@ function activate()
 	buf = string.sub(buf, string.find(buf, "\r\n\r\n") + 4)
 	-- Okay, headers parsed. We really should look at those and see if the connection
 	-- succeeded, but whatevs.
+
+	-- Wait for a scene transition message. Note that, per VLC rules, we have to call
+	-- vlc.keep_alive() every ten seconds or we will be killed. Be sure to subscribe
+	-- to some sort of event that happens at least that frequently; for me, that's
+	-- covered by an image slideshow that rotates every eight seconds (it's not even
+	-- visible on scene but it's there!), but otherwise, consider subscribing to a
+	-- heartbeat of some sort.
 	while true do
 		-- Read one websocket frame
 		local header = read(2)
@@ -281,7 +288,26 @@ function activate()
 		vlc.msg.dbg("[FadeMusic] Frame " .. frame)
 		local msg = json.decode(frame)
 		vlc.msg.dbg("[FadeMusic] Msg " .. msg.op)
-		break
+		if msg.op == 0 then
+			local secret = sha256_base64(PASSWORD .. msg.d.authentication.salt)
+			local auth = sha256_base64(secret .. msg.d.authentication.challenge)
+			vlc.msg.dbg(auth)
+			local authmsg = {op = 1, d = {rpcVersion = 1, authentication = auth}}
+			authmsg = json.encode(authmsg)
+			-- Encode the length, and set the high bit to say we're masking.
+			if #authmsg > 125 then
+				size = string.char(254, #authmsg / 256, #authmsg % 256)
+			else
+				size = string.char(#authmsg + 128)
+			end
+			-- Client messages have to be masked. But we cheat and use an all-zeroes mask.
+			-- That shouldn't be acceptable... it really shouldn't...
+			vlc.net.send(sock, "\x81" .. size .. "\0\0\0\0" .. authmsg)
+		end
+		if msg.op == 5 and msg.d.eventType == "CurrentProgramSceneChanged" then
+			vlc.msg.dbg("*** Scene change! Done! ***")
+			break
+		end
 	end
 	vlc.net.close(sock)
 	vlc.deactivate()
