@@ -252,6 +252,7 @@ function activate()
 	vlc.msg.dbg("[FadeMusic] Activated")
 	sock = vlc.net.connect_tcp(HOST, PORT)
 	vlc.net.send(sock, "GET / HTTP/1.1\r\nHost: OBS\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Key: asdf\r\nSec-WebSocket-Version: 13\r\n\r\n")
+	buf = ""
 	pollfds[sock] = vlc.net.POLLIN
 	while not string.find(buf, "\r\n\r\n") do
 		vlc.net.poll(pollfds)
