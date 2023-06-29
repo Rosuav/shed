@@ -33,7 +33,7 @@ void load_users()
 		//For now, we only count mods (and the broadcaster), and only check that on
 		//script start; this may therefore be inaccurate.
 		string mods = "", viewers = "";
-		sort(data->data->user_name, data->data);
+		sort(lower_case(data->data->user_name[*]), data->data);
 		foreach (data->data, mapping user) {
 			if (moderators[user->user_id]) mods += "\n" + user->user_name;
 			else viewers += "\n" + user->user_name;
