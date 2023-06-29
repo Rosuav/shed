@@ -89,7 +89,7 @@ int main(int argc, array(string) argv)
 			"Client-ID": ircsettings->clientid,
 			"Authorization": "Bearer " + oauth_token,
 		]),
-	))->data;
+	) || "{\"data\":[]}")->data;
 	foreach (mods, mapping mod) moderators[mod->user_id] = 1;
 	GTK2.setup_gtk();
 	object win = GTK2.Window((["resizable": 0, "title": "Viewers on " + username + "'s stream", "decorated": 0]))
