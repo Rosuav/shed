@@ -16,7 +16,7 @@ int main(int argc, array(string) argv)
 		}
 		string newname;
 		if (mixed ex = catch {newname = sprintf(to, @match);}) {
-			write("%-*s | <%s>\n", maxlen, fn, (describe_error(ex) / "\n")[0]);
+			write("%-*s | \e[1;31m<%s>\e[0m\n", maxlen, fn, (describe_error(ex) / "\n")[0]);
 			continue;
 		}
 		if (args->n) write("%-*s | %s\n", maxlen, fn, newname);
