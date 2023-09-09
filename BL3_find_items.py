@@ -2,6 +2,7 @@
 # See https://github.com/FromDarkHell/BL3SaveEditor for a lot of great info.
 import argparse
 from BL1_find_items import FunctionArg, Consumable
+import Protobufs.OakSave_pb2 as pb2 # protoc -I=../BL3SaveEditor/BL3Tools ../BL3SaveEditor/BL3Tools/Protobufs/*.proto --python_out=.
 
 class SaveFileFormatError(Exception): pass
 
@@ -39,7 +40,7 @@ def parse_savefile(fn):
 	remaining = data.int()
 	if remaining != len(data): raise SaveFileFormatError("Remaining length incorrect (got %d, expecting %d)" % remaining, len(data))
 	raw = bogodecrypt(data.peek())
-	print(raw[:256])
+	char = pb2.Character(); char.ParseFromString(raw)
 
 def main(args=None):
 	parser = argparse.ArgumentParser(description="Borderlands 3 save file reader")
