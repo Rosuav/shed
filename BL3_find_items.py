@@ -96,7 +96,7 @@ class Item:
 		crc = (crc >> 16) ^ (crc & 65535)
 		if crc != crc16: raise SaveFileFormatError("Checksum mismatch")
 		data = ConsumableLE.from_bits(data[7:])
-		self.mark = data.get(8); assert self.mark == "10000000"
+		self.mark = data.int(8); assert self.mark == 128
 		self.dbver = data.int(7); assert self.dbver <= Database.maxver
 		def get_category(cat):
 			return Database.serial[cat]["assets"][data.int(Database.bits_for_category[cat]) - 1]
@@ -117,7 +117,38 @@ class Item:
 		return self
 
 	def serial(self):
-		... # TODO: Reconstruct the serial number
+		# Inverse of from_serial()
+		db_preload()
+		# We need to store everything big-endian. Collect up a series of bits.
+		def binbe(n, w): return format(n, "0%db" % w)[::-1]
+		def put_category(cat, val):
+			return binbe(Database.serial[cat]["assets"].index(val) + 1, Database.bits_for_category[cat])
+		bits = [
+			binbe(self.mark, 8),
+			binbe(self.dbver, 7),
+			put_category("InventoryBalanceData", self.balance),
+			put_category("InventoryData", self.invdata),
+			put_category("ManufacturerData", self.manufac),
+			binbe(self.level, 7)
+		]
+		invkey = Database.balance_to_inv_key.get(self.balance) or Database.balance_to_inv_key.get(self.balance.lower())
+		if invkey:
+			bits.append(binbe(len(self.parts), 6))
+			for part in self.parts: bits.append(put_category(invkey, part))
+			bits.append(binbe(len(self.generic_parts), 4))
+			for part in self.generic_parts: bits.append(put_category("InventoryGenericPartData", part))
+			bits.append(binbe(len(self.additional), 8))
+			for n in self.additional: bits.append(binbe(n, 8))
+			bits.append("0000")
+			if self.version == 4: bits.append(binbe(self.reroll_count, 8))
+		bits = "".join(bits)
+		residue = 8 - len(bits) % 8
+		if residue != 8: bits += "0" * residue
+		data = int(bits[::-1], 2).to_bytes(len(bits)//8, "little")
+		data = bytes([self.version]) + self.seed.to_bytes(4, "big") + b"\xFF\xFF" + data
+		crc = binascii.crc32(data)
+		crc = (crc >> 16) ^ (crc & 65535)
+		return data[:5] + bogocrypt(self.seed, crc.to_bytes(2, "big") + data[7:], "encrypt")
 
 	def __str__(self):
 		name = self.balance.split(".")[-1] # Fallback: Use the balance ID.
@@ -155,7 +186,13 @@ def parse_savefile(fn):
 	# char.sdu_list -- all the SDU upgrades you've purchased
 	# Money?? Not sure how that's stored. I actually expected that to be one of the easy verifications.
 	for item in char.inventory_items:
-		print(Item.from_serial(item.item_serial_number))
+		obj = Item.from_serial(item.item_serial_number)
+		if obj.serial() == item.item_serial_number:
+			print(obj, "-- ok")
+		else:
+			import base64
+			print(base64.b64encode(item.item_serial_number).decode())
+			print(base64.b64encode(obj.serial()).decode())
 
 def main(args=None):
 	parser = argparse.ArgumentParser(description="Borderlands 3 save file reader")
