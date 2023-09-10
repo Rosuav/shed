@@ -161,6 +161,11 @@ class Item:
 		elif title: name = title
 		return "<Item: %s lvl %d>" % (name, self.level)
 
+def encode_int(n):
+	return n.to_bytes(4, "little")
+def encode_str(s):
+	return encode_int(len(s) + 1) + s.encode("ascii") + b"\0"
+
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
 	if data.get(4) != b"GVAS": raise SaveFileFormatError("Invalid magic number - corrupt file?")
@@ -193,6 +198,23 @@ def parse_savefile(fn):
 			import base64
 			print(base64.b64encode(item.item_serial_number).decode())
 			print(base64.b64encode(obj.serial()).decode())
+	# raw = char.SerializeToString()[-64:] # This does not fully round-trip. Hmm.
+	data = [
+		b"GVAS",
+		header,
+		encode_str(buildid),
+		encode_int(fmtver),
+		encode_int(len(fmt)),
+	]
+	for k, v in fmt.items(): # Perfect bit-for-bit round-tripping depends on iteration order. I don't think it really matters though.
+		data.append(k)
+		data.append(encode_int(v))
+	data.append(encode_str(savetype))
+	data.append(encode_int(len(raw)))
+	data.append(bogoencrypt(raw))
+	data = b"".join(data)
+	with open(fn, "rb") as f: origdata = f.read()
+	if data == origdata: print("SUCCESS")
 
 def main(args=None):
 	parser = argparse.ArgumentParser(description="Borderlands 3 save file reader")
