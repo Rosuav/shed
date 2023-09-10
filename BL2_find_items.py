@@ -23,6 +23,7 @@ from dataclasses import dataclass # ImportError? Upgrade to Python 3.7 or pip in
 from pprint import pprint
 import lzo # ImportError? pip install python-lzo
 from BL1_find_items import FunctionArg, Consumable
+from BL3_find_items import bogocrypt, ConsumableLE
 
 # python-lzo 1.12 on Python 3.8 causes a DeprecationWarning regarding arg parsing with integers.
 import warnings; warnings.filterwarnings("ignore")
@@ -663,31 +664,6 @@ def get_balance_info(is_weapon, balance):
 					ret["parts"][part] = opts
 		elif k != "base": ret[k] = v # Don't copy in the base once it's rendered
 	return ret
-
-class ConsumableLE(Consumable):
-	"""Little-endian bitwise consumable"""
-	def get(self, num):
-		return super().get(num)[::-1]
-	@classmethod
-	def from_bits(cls, data):
-		"""Create a bitfield consumable from packed eight-bit data"""
-		return cls(''.join(format(x, "08b")[::-1] for x in data))
-
-def bogocrypt(seed, data, direction="decrypt"):
-	if not seed: return data
-	split = (seed % 32) % len(data)
-	if direction == "encrypt": # Encrypting splits first
-		data = data[split:] + data[:split]
-	if seed > 1<<31: seed |= 31<<32 # Emulate an arithmetic right shift
-	xor = seed >> 5
-	data = list(data)
-	for i, x in enumerate(data):
-		# ??? No idea. Got this straight from Gibbed.
-		xor = (xor * 0x10A860C1) % 0xFFFFFFFB
-		data[i] = x ^ (xor & 255)
-	data = bytes(data)
-	if direction == "encrypt": return data
-	return data[-split:] + data[:-split] # Decrypting splits last
 
 @dataclass
 class Asset:

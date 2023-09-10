@@ -1,6 +1,7 @@
 # Parallel to BL1 and BL2 savefile readers. The name's a bit orphanned now.
 # See https://github.com/FromDarkHell/BL3SaveEditor for a lot of great info.
 import argparse
+import binascii
 from BL1_find_items import FunctionArg, Consumable
 import Protobufs.OakSave_pb2 as pb2 # protoc -I=../BL3SaveEditor/BL3Tools ../BL3SaveEditor/BL3Tools/Protobufs/*.proto --python_out=.
 
@@ -28,6 +29,42 @@ def bogodecrypt(data):
 		data[i] = b ^ (_BOGOCRYPT_PFX[i] if i < 32 else data[i-32]) ^ _BOGOCRYPT_XOR[i % 32]
 	return bytes(data)
 
+def bogocrypt(seed, data, direction="decrypt"):
+	if not seed: return data
+	split = (seed % 32) % len(data)
+	if direction == "encrypt": # Encrypting splits first
+		data = data[split:] + data[:split]
+	if seed > 1<<31: seed |= 31<<32 # Emulate an arithmetic right shift
+	xor = seed >> 5
+	data = list(data)
+	for i, x in enumerate(data):
+		# ??? No idea. Got this straight from Gibbed.
+		xor = (xor * 0x10A860C1) % 0xFFFFFFFB
+		data[i] = x ^ (xor & 255)
+	data = bytes(data)
+	if direction == "encrypt": return data
+	return data[-split:] + data[:-split] # Decrypting splits last
+
+class ConsumableLE(Consumable):
+	"""Little-endian bitwise consumable"""
+	def get(self, num):
+		return super().get(num)[::-1]
+	@classmethod
+	def from_bits(cls, data):
+		"""Create a bitfield consumable from packed eight-bit data"""
+		return cls(''.join(format(x, "08b")[::-1] for x in data))
+
+def parse_item_serial(data):
+	if data[0] not in (3, 4): raise SaveFileFormatError("Bad serial number on item: %r" % serial)
+	seed = int.from_bytes(data[1:5], "big")
+	data = data[:5] + bogocrypt(seed, data[5:], "decrypt")
+	crc16 = int.from_bytes(data[5:7], "big")
+	data = data[:5] + b"\xFF\xFF" + data[7:]
+	crc = binascii.crc32(data)
+	crc = (crc >> 16) ^ (crc & 65535)
+	if crc != crc16: raise SaveFileFormatError("Checksum mismatch")
+	print(data)
+
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
 	if data.get(4) != b"GVAS": raise SaveFileFormatError("Invalid magic number - corrupt file?")
@@ -41,6 +78,18 @@ def parse_savefile(fn):
 	if remaining != len(data): raise SaveFileFormatError("Remaining length incorrect (got %d, expecting %d)" % remaining, len(data))
 	raw = bogodecrypt(data.peek())
 	char = pb2.Character(); char.ParseFromString(raw)
+	# Interesting things:
+	# char.resource_pools -- ammo
+	# char.experience_points -- total XP? I don't think character level is stored.
+	# char.inventory_items -- all inventory and equipment. Might not include banked items, which seem to be on your profile??
+	# char.equipped_inventory_list -- indices into char.inventory_items
+	# char.mission_playthroughs_data -- all missions, completed and not completed
+	# for missions in char.mission_playthroughs_data:
+	#  for mission in missions.mission_list:
+	#   if mission.status == 1: is an active mission
+	# char.sdu_list -- all the SDU upgrades you've purchased
+	for item in char.inventory_items:
+		print(parse_item_serial(item.item_serial_number))
 
 def main(args=None):
 	parser = argparse.ArgumentParser(description="Borderlands 3 save file reader")
