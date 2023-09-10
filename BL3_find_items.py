@@ -198,7 +198,7 @@ def parse_savefile(fn):
 			import base64
 			print(base64.b64encode(item.item_serial_number).decode())
 			print(base64.b64encode(obj.serial()).decode())
-	# raw = char.SerializeToString()[-64:] # This does not fully round-trip. Hmm.
+	# raw = char.SerializeToString() # This does not fully round-trip. Hmm.
 	data = [
 		b"GVAS",
 		header,
