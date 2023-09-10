@@ -64,9 +64,8 @@ class Database:
 def db_preload():
 	if Database.loaded: return
 	import pathlib, json
-	path = pathlib.Path(__file__).parent.parent / "BL3SaveEditor/BL3Tools/GameData/Items"
-	print(path)
-	with open(path / "SerialDB/Inventory Serial Number Database.json", encoding="utf-8-sig") as f:
+	path = pathlib.Path(__file__).parent.parent / "BL3SaveEditor/BL3Tools/GameData/Items/Mappings"
+	with open(path / "../SerialDB/Inventory Serial Number Database.json", encoding="utf-8-sig") as f:
 		Database.serial = json.load(f)
 	Database.bits_for_category = {}
 	for id, info in Database.serial.items():
@@ -77,28 +76,44 @@ def db_preload():
 		# To be properly correct, bits_for_category should be doing a lookup based on the version.
 		# I can't be bothered, and am assuming that the files are the latest version.
 		info["assets"] # bomb early if it's missing
+	with open(path / "balance_to_inv_key.json", encoding="utf-8-sig") as f:
+		Database.balance_to_inv_key = json.load(f)
 	Database.loaded = True
 
-def parse_item_serial(data):
-	db_preload()
-	if data[0] not in (3, 4): raise SaveFileFormatError("Bad serial number on item: %r" % serial)
-	seed = int.from_bytes(data[1:5], "big")
-	data = data[:5] + bogocrypt(seed, data[5:], "decrypt")
-	crc16 = int.from_bytes(data[5:7], "big")
-	data = data[:5] + b"\xFF\xFF" + data[7:]
-	crc = binascii.crc32(data)
-	crc = (crc >> 16) ^ (crc & 65535)
-	if crc != crc16: raise SaveFileFormatError("Checksum mismatch")
-	data = ConsumableLE.from_bits(data[7:])
-	mark = data.get(8); assert mark == "10000000"
-	ver = data.int(7); assert ver <= Database.maxver
-	def get_category(cat):
-		return Database.serial[cat]["assets"][data.int(Database.bits_for_category[cat]) - 1]
-	balance = get_category("InventoryBalanceData")
-	invdata = get_category("InventoryData")
-	manufac = get_category("ManufacturerData")
-	level = data.int(7)
-	return level
+class Item:
+	@classmethod
+	def from_serial(cls, data):
+		db_preload()
+		self = cls()
+		self.version = data[0]
+		if self.version not in (3, 4): raise SaveFileFormatError("Bad serial number on item: %r" % data)
+		self.seed = int.from_bytes(data[1:5], "big")
+		data = data[:5] + bogocrypt(self.seed, data[5:], "decrypt")
+		crc16 = int.from_bytes(data[5:7], "big")
+		data = data[:5] + b"\xFF\xFF" + data[7:]
+		crc = binascii.crc32(data)
+		crc = (crc >> 16) ^ (crc & 65535)
+		if crc != crc16: raise SaveFileFormatError("Checksum mismatch")
+		data = ConsumableLE.from_bits(data[7:])
+		self.mark = data.get(8); assert self.mark == "10000000"
+		self.ver = data.int(7); assert self.ver <= Database.maxver
+		def get_category(cat):
+			return Database.serial[cat]["assets"][data.int(Database.bits_for_category[cat]) - 1]
+		self.balance = get_category("InventoryBalanceData")
+		self.invdata = get_category("InventoryData")
+		self.manufac = get_category("ManufacturerData")
+		self.level = data.int(7)
+		invkey = Database.balance_to_inv_key.get(self.balance) or Database.balance_to_inv_key.get(self.balance.lower())
+		if invkey:
+			self.parts = [get_category(invkey) for _ in range(data.int(6))]
+			self.generic_parts = [get_category("InventoryGenericPartData") for _ in range(data.int(4))]
+			self.additional = [data.int(8) for _ in range(data.int(8))]
+			zero = data.int(4); assert zero == 0
+			if self.version == 4: self.reroll_count = data.int(8)
+		# We're done parsing. The remaining bits should all be zero, and just enough to fill out a byte.
+		if len(data) >= 8: raise SaveFileFormatError("Too much data left over!! %r" % data.peek())
+		if data.peek() != "0" * len(data): raise SaveFileFormatError("Non-zero data left! %r" % data.peek())
+		return self
 
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
@@ -125,7 +140,7 @@ def parse_savefile(fn):
 	# char.sdu_list -- all the SDU upgrades you've purchased
 	# Money?? Not sure how that's stored. I actually expected that to be one of the easy verifications.
 	for item in char.inventory_items:
-		print(parse_item_serial(item.item_serial_number))
+		print(Item.from_serial(item.item_serial_number))
 
 def main(args=None):
 	parser = argparse.ArgumentParser(description="Borderlands 3 save file reader")
