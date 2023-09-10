@@ -166,7 +166,7 @@ def encode_int(n):
 def encode_str(s):
 	return encode_int(len(s) + 1) + s.encode("ascii") + b"\0"
 
-def parse_savefile(fn):
+def parse_savefile(fn, save=False):
 	with open(fn, "rb") as f: data = Consumable(f.read())
 	if data.get(4) != b"GVAS": raise SaveFileFormatError("Invalid magic number - corrupt file?")
 	header = data.get(18) # Version numbers, various. Probably irrelevant.
@@ -198,7 +198,7 @@ def parse_savefile(fn):
 			import base64
 			print(base64.b64encode(item.item_serial_number).decode())
 			print(base64.b64encode(obj.serial()).decode())
-	# raw = char.SerializeToString() # This does not fully round-trip. Hmm.
+	raw = char.SerializeToString() # This does not fully round-trip. Hmm.
 	data = [
 		b"GVAS",
 		header,
@@ -215,13 +215,17 @@ def parse_savefile(fn):
 	data = b"".join(data)
 	with open(fn, "rb") as f: origdata = f.read()
 	if data == origdata: print("SUCCESS")
+	if save:
+		with open(fn, "wb") as f: f.write(data)
+		print("Saved.")
 
 def main(args=None):
 	parser = argparse.ArgumentParser(description="Borderlands 3 save file reader")
 	parser.add_argument("-f", "--file", help="Specify the file to parse")
+	parser.add_argument("--save", action="store_true", help="Write the file back")
 	# TODO: Know the standard directory and go looking there
 	args = parser.parse_args(args)
 	print(args)
-	if args.file: parse_savefile(args.file)
+	if args.file: parse_savefile(args.file, save=args.save)
 
 if __name__ == "__main__": main()
