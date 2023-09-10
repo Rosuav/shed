@@ -56,7 +56,31 @@ class ConsumableLE(Consumable):
 		"""Create a bitfield consumable from packed eight-bit data"""
 		return cls(''.join(format(x, "08b")[::-1] for x in data))
 
+class Database:
+	# Namespace away all of these things that get loaded from JSON
+	loaded = False
+	maxver = 0
+
+def db_preload():
+	if Database.loaded: return
+	import pathlib, json
+	path = pathlib.Path(__file__).parent.parent / "BL3SaveEditor/BL3Tools/GameData/Items"
+	print(path)
+	with open(path / "SerialDB/Inventory Serial Number Database.json", encoding="utf-8-sig") as f:
+		Database.serial = json.load(f)
+	Database.bits_for_category = {}
+	for id, info in Database.serial.items():
+		# Each info mapping has "versions" and "assets", and nothing else
+		for ver in info["versions"]:
+			Database.maxver = max(ver["version"], Database.maxver)
+		Database.bits_for_category[id] = ver["bits"] # assumes there's at least one version, and that the last is the one we'll use
+		# To be properly correct, bits_for_category should be doing a lookup based on the version.
+		# I can't be bothered, and am assuming that the files are the latest version.
+		info["assets"] # bomb early if it's missing
+	Database.loaded = True
+
 def parse_item_serial(data):
+	db_preload()
 	if data[0] not in (3, 4): raise SaveFileFormatError("Bad serial number on item: %r" % serial)
 	seed = int.from_bytes(data[1:5], "big")
 	data = data[:5] + bogocrypt(seed, data[5:], "decrypt")
@@ -67,13 +91,12 @@ def parse_item_serial(data):
 	if crc != crc16: raise SaveFileFormatError("Checksum mismatch")
 	data = ConsumableLE.from_bits(data[7:])
 	mark = data.get(8); assert mark == "10000000"
-	ver = data.int(7); #assert ver <= max_version # what max ver?
-	width = 11 # Hard-coded for now, but it might change based on the version
-	# balance = data.get(width)
-	# invdata = data.get(width)
-	# manufacturer = data.get(width)
-	# To make the level line up, I think we need to consume exactly 29 bits in the above three.
-	data.get(29) # hack
+	ver = data.int(7); assert ver <= Database.maxver
+	def get_category(cat):
+		return Database.serial[cat]["assets"][data.int(Database.bits_for_category[cat]) - 1]
+	balance = get_category("InventoryBalanceData")
+	invdata = get_category("InventoryData")
+	manufac = get_category("ManufacturerData")
 	level = data.int(7)
 	return level
 
