@@ -76,8 +76,9 @@ def db_preload():
 		# To be properly correct, bits_for_category should be doing a lookup based on the version.
 		# I can't be bothered, and am assuming that the files are the latest version.
 		info["assets"] # bomb early if it's missing
-	with open(path / "balance_to_inv_key.json", encoding="utf-8-sig") as f:
-		Database.balance_to_inv_key = json.load(f)
+	for fn in "balance_to_inv_key", "part_name_mapping", "prefix_name_mapping":
+		with open(path / (fn + ".json"), encoding="utf-8-sig") as f:
+			setattr(Database, fn, json.load(f))
 	Database.loaded = True
 
 class Item:
@@ -96,7 +97,7 @@ class Item:
 		if crc != crc16: raise SaveFileFormatError("Checksum mismatch")
 		data = ConsumableLE.from_bits(data[7:])
 		self.mark = data.get(8); assert self.mark == "10000000"
-		self.ver = data.int(7); assert self.ver <= Database.maxver
+		self.dbver = data.int(7); assert self.dbver <= Database.maxver
 		def get_category(cat):
 			return Database.serial[cat]["assets"][data.int(Database.bits_for_category[cat]) - 1]
 		self.balance = get_category("InventoryBalanceData")
@@ -114,6 +115,20 @@ class Item:
 		if len(data) >= 8: raise SaveFileFormatError("Too much data left over!! %r" % data.peek())
 		if data.peek() != "0" * len(data): raise SaveFileFormatError("Non-zero data left! %r" % data.peek())
 		return self
+
+	def serial(self):
+		... # TODO: Reconstruct the serial number
+
+	def __str__(self):
+		name = self.balance.split(".")[-1] # Fallback: Use the balance ID.
+		title = Database.part_name_mapping.get(self.balance, "")
+		pfx = Database.prefix_name_mapping.get(self.balance, "")
+		for part in self.parts:
+			title = Database.part_name_mapping.get(part, title)
+			pfx = Database.prefix_name_mapping.get(part, pfx)
+		if pfx and title: name = pfx + " " + title
+		elif title: name = title
+		return "<Item: %s lvl %d>" % (name, self.level)
 
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
