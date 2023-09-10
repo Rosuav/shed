@@ -49,6 +49,8 @@ class ConsumableLE(Consumable):
 	"""Little-endian bitwise consumable"""
 	def get(self, num):
 		return super().get(num)[::-1]
+	def int(self, size):
+		return int(self.get(size), 2)
 	@classmethod
 	def from_bits(cls, data):
 		"""Create a bitfield consumable from packed eight-bit data"""
@@ -63,7 +65,17 @@ def parse_item_serial(data):
 	crc = binascii.crc32(data)
 	crc = (crc >> 16) ^ (crc & 65535)
 	if crc != crc16: raise SaveFileFormatError("Checksum mismatch")
-	print(data)
+	data = ConsumableLE.from_bits(data[7:])
+	mark = data.get(8); assert mark == "10000000"
+	ver = data.int(7); #assert ver <= max_version # what max ver?
+	width = 11 # Hard-coded for now, but it might change based on the version
+	# balance = data.get(width)
+	# invdata = data.get(width)
+	# manufacturer = data.get(width)
+	# To make the level line up, I think we need to consume exactly 29 bits in the above three.
+	data.get(29) # hack
+	level = data.int(7)
+	return level
 
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
@@ -88,6 +100,7 @@ def parse_savefile(fn):
 	#  for mission in missions.mission_list:
 	#   if mission.status == 1: is an active mission
 	# char.sdu_list -- all the SDU upgrades you've purchased
+	# Money?? Not sure how that's stored. I actually expected that to be one of the easy verifications.
 	for item in char.inventory_items:
 		print(parse_item_serial(item.item_serial_number))
 
