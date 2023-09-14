@@ -166,7 +166,7 @@ def encode_int(n):
 def encode_str(s):
 	return encode_int(len(s) + 1) + s.encode("ascii") + b"\0"
 
-def parse_savefile(fn, save=False):
+def parse_savefile(fn, args):
 	with open(fn, "rb") as f: data = Consumable(f.read())
 	if data.get(4) != b"GVAS": raise SaveFileFormatError("Invalid magic number - corrupt file?")
 	header = data.get(18) # Version numbers, various. Probably irrelevant.
@@ -215,7 +215,7 @@ def parse_savefile(fn, save=False):
 	data = b"".join(data)
 	with open(fn, "rb") as f: origdata = f.read()
 	if data == origdata: print("SUCCESS")
-	if save:
+	if args.save:
 		with open(fn, "wb") as f: f.write(data)
 		print("Saved.")
 
@@ -226,6 +226,6 @@ def main(args=None):
 	# TODO: Know the standard directory and go looking there
 	args = parser.parse_args(args)
 	print(args)
-	if args.file: parse_savefile(args.file, save=args.save)
+	if args.file: parse_savefile(args.file, args)
 
 if __name__ == "__main__": main()
