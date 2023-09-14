@@ -305,6 +305,13 @@ def parse_savefile(fn, args):
 	#   if mission.status == 1: is an active mission
 	# char.sdu_list -- all the SDU upgrades you've purchased
 	# Money?? Not sure how that's stored. I actually expected that to be one of the easy verifications.
+
+	# Your level isn't actually stored anywhere, only your XP.
+	# This calculation might be wrong if you're precisely at a level,
+	# due to rounding errors, but you'd have to basically be +/- 1 XP
+	# from the level threshold - highly unlikely.
+	level = int(((char.experience_points + 60) / 60) ** (1/2.8))
+	print(char.preferred_character_name, "lvl", level)
 	for item in char.inventory_items:
 		obj = Item.from_serial(item.item_serial_number)
 		if args.library:
