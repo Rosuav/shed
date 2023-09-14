@@ -217,6 +217,7 @@ library = {
 	"BAAAADLV+tD7nin/P5fKD+cQgMI3U5uCRwcI26Q4KEeWJiTJjds": "Cold Shoulder",
 	"BAAAADJOXHfN639/L5fKD4Ec4E7F5Y76nDp5EJYBM3z6sglwzfh8Tg": "Null Pointer",
 	"BAAAADJWkwCN7wXBf5/KD4EcgELI5xtoeoQ00jSjmPVuu+XTSqx4lcY": "Brashi's Dedication",
+	"BAAAADIN8lHXGGv/P5fKD4EuoMLEZBw8ohvzu/ZZvmP2NEVqtJb/": "Abundant ASMD", # Underwhelming due to slow projectile speed
 	# Weapons: Shotgun
 	"BAAAADLSpIL9Gin/P5dWDoAcvLRE20zfXSdp4Njld+bM3W10": "Redundant Face-puncher",
 	"BAAAADKBvJL/Gin//5vID2y1APybnRqfTwyP4nTz4S9ahg": "T.K's Wave",
@@ -243,6 +244,9 @@ library = {
 	"BAAAADJS88ZXGijeP5fKD4GcmcHE5eUVnDo/ERUCO0TMYKmiruhMwg": "Oozing Roisen's Thorns",
 	"BAAAADLgpYL9Gin/P5fSjIEcTy5EW02nHSVp4EUm+2d92GP7": "The Leech",
 	"BAAAADIPv4L9Gin/P5fqjIEcbilE2xBlHiZpmEUoNLeEvWNx": "The Killing Word",
+	"BAAAADKBvJL/Gin/v5HOD7uuAHxTtxqfTxo4JbbwQQJMig": "Dead Chamber",
+	"BAAAADJKMgb8nin/P5fKD0s8gMKNDZuC6t4I2KRAKi/xN3Zg0Xc": "Extreme Hangin' Chadd", # Always incendiary. Never needs ammo.
+	"BAAAADLNpIL9Gin/P5dSPoEcVulE212lHSVp4EO9uHSoLXt9": "Storming Infinity", # Never needs ammo
 	# Weapons: Heavy
 	"BAAAADLXlJb/Gin/P7+pD4FdYUJ6PjN9PF8Q9UGCGp/887A": "Scourge",
 	"BAAAADLBtJL/GmmbL5fKDJqcvjbsJDv/BrSAHBSjfGZV": "Oozing Gettleburger",
