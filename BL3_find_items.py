@@ -63,6 +63,11 @@ class Database:
 	# Namespace away all of these things that get loaded from JSON
 	loaded = False
 	maxver = 0
+	def inv_key_for_balance(bal):
+		# If the balance has a deduplication marker, strip that.
+		bal = bal.split("#")[0]
+		# The lookup may need to be done on the lowercased version.
+		return Database.balance_to_inv_key.get(bal) or Database.balance_to_inv_key.get(bal.lower())
 
 def db_preload():
 	if Database.loaded: return
@@ -77,7 +82,17 @@ def db_preload():
 		Database.bits_for_category[id] = ver["bits"] # assumes there's at least one version, and that the last is the one we'll use
 		# To be properly correct, bits_for_category should be doing a lookup based on the version.
 		# I can't be bothered, and am assuming that the files are the latest version.
-		info["assets"] # bomb early if it's missing
+
+		# Sometimes there are duplicate entries in the asset list.
+		# I don't know what the deal is, but I mainly just want things to round-trip
+		# correctly, so let's deduplicate. Nothing ever has a hash, so we use that.
+		dedup = {}
+		for i, pth in enumerate(info["assets"]):
+			if pth in dedup:
+				dedup[pth] += 1
+				info["assets"][i] = pth + "#" + str(dedup[pth])
+			else: dedup[pth] = 1
+		
 	for fn in "balance_to_inv_key", "part_name_mapping", "prefix_name_mapping":
 		with open(path / (fn + ".json"), encoding="utf-8-sig") as f:
 			setattr(Database, fn, json.load(f))
@@ -106,7 +121,7 @@ class Item:
 		self.invdata = get_category("InventoryData")
 		self.manufac = get_category("ManufacturerData")
 		self.level = data.int(7)
-		invkey = Database.balance_to_inv_key.get(self.balance) or Database.balance_to_inv_key.get(self.balance.lower())
+		invkey = Database.inv_key_for_balance(self.balance)
 		if invkey:
 			self.parts = [get_category(invkey) for _ in range(data.int(6))]
 			self.generic_parts = [get_category("InventoryGenericPartData") for _ in range(data.int(4))]
@@ -133,7 +148,7 @@ class Item:
 			put_category("ManufacturerData", self.manufac),
 			binbe(self.level, 7)
 		]
-		invkey = Database.balance_to_inv_key.get(self.balance) or Database.balance_to_inv_key.get(self.balance.lower())
+		invkey = Database.inv_key_for_balance(self.balance)
 		if invkey:
 			bits.append(binbe(len(self.parts), 6))
 			for part in self.parts: bits.append(put_category(invkey, part))
