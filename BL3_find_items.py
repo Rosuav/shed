@@ -5,6 +5,7 @@ import base64
 import binascii
 import json
 import pathlib
+import random
 from BL1_find_items import FunctionArg, Consumable
 import Protobufs.OakSave_pb2 # protoc -I=../BL3SaveEditor/BL3Tools ../BL3SaveEditor/BL3Tools/Protobufs/*.proto --python_out=.
 import Protobufs.OakProfile_pb2
@@ -325,6 +326,22 @@ def parse_savefile(fn, args):
 		else:
 			print(base64.b64encode(item.item_serial_number).decode())
 			print(base64.b64encode(obj.serial()).decode())
+	for serial in args.give.split(","):
+		if not serial: continue
+		serial, *changes = serial.split(":")
+		obj = Item.from_serial(unarmor_serial(serial))
+		if obj.seed == 50: obj.seed = random.randrange(1<<31) # Generate new seeds for library items
+		obj.level = level
+		for change in changes:
+			if not change: pass
+			if change[0].lower() == "l": obj.level = int(change[1:]) or level
+		print("GIVE:", obj)
+		item = Protobufs.OakSave_pb2.OakInventoryItemSaveGameData()
+		item.item_serial_number = obj.serial()
+		item.pickup_order_index = 0
+		item.flags = 3 # starred?
+		item.weapon_skin_path = ""
+		char.inventory_items.append(item)
 	raw = char.SerializeToString() # This does not fully round-trip. Hmm.
 	data = [
 		b"GVAS",
@@ -354,6 +371,7 @@ def main(args=None):
 	parser.add_argument("--steam-user", help="Steam user ID, or all or auto", default="auto")
 	parser.add_argument("--files", help="File name pattern", default="*.sav")
 	parser.add_argument("--library", action="store_true", help="List library IDs for all items")
+	parser.add_argument("--give", default="", help="Add items to your inventory")
 	# TODO: Know the standard directory and go looking there
 	args = parser.parse_args(args)
 	print(args)
