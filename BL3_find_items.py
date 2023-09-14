@@ -6,30 +6,53 @@ import binascii
 import json
 import pathlib
 from BL1_find_items import FunctionArg, Consumable
-import Protobufs.OakSave_pb2 as pb2 # protoc -I=../BL3SaveEditor/BL3Tools ../BL3SaveEditor/BL3Tools/Protobufs/*.proto --python_out=.
+import Protobufs.OakSave_pb2 # protoc -I=../BL3SaveEditor/BL3Tools ../BL3SaveEditor/BL3Tools/Protobufs/*.proto --python_out=.
+import Protobufs.OakProfile_pb2
 
 class SaveFileFormatError(Exception): pass
 
 # Taken straight from the SaveBogoCrypt data block from gibbed, see above URL
-_BOGOCRYPT_PFX = (0x71, 0x34, 0x36, 0xB3, 0x56, 0x63, 0x25, 0x5F,
+_BOGOCRYPT_PFX = {
+	"OakSaveGame": (
+		0x71, 0x34, 0x36, 0xB3, 0x56, 0x63, 0x25, 0x5F,
 		0xEA, 0xE2, 0x83, 0x73, 0xF4, 0x98, 0xB8, 0x18,
 		0x2E, 0xE5, 0x42, 0x2E, 0x50, 0xA2, 0x0F, 0x49,
-		0x87, 0x24, 0xE6, 0x65, 0x9A, 0xF0, 0x7C, 0xD7)
-_BOGOCRYPT_XOR = (0x7C, 0x07, 0x69, 0x83, 0x31, 0x7E, 0x0C, 0x82,
+		0x87, 0x24, 0xE6, 0x65, 0x9A, 0xF0, 0x7C, 0xD7,
+	),
+	"BP_DefaultOakProfile_C": (
+		0xD8, 0x04, 0xB9, 0x08, 0x5C, 0x4E, 0x2B, 0xC0,
+		0x61, 0x9F, 0x7C, 0x8D, 0x5D, 0x34, 0x00, 0x56,
+		0xE7, 0x7B, 0x4E, 0xC0, 0xA4, 0xD6, 0xA7, 0x01,
+		0x14, 0x15, 0xA9, 0x93, 0x1F, 0x27, 0x2C, 0x8F,
+	),
+}
+_BOGOCRYPT_XOR = {
+	"OakSaveGame": (
+		0x7C, 0x07, 0x69, 0x83, 0x31, 0x7E, 0x0C, 0x82,
 		0x5F, 0x2E, 0x36, 0x7F, 0x76, 0xB4, 0xA2, 0x71,
 		0x38, 0x2B, 0x6E, 0x87, 0x39, 0x05, 0x02, 0xC6,
-		0xCD, 0xD8, 0xB1, 0xCC, 0xA1, 0x33, 0xF9, 0xB6)
+		0xCD, 0xD8, 0xB1, 0xCC, 0xA1, 0x33, 0xF9, 0xB6,
+	),
+	"BP_DefaultOakProfile_C": (
+		0xE8, 0xDC, 0x3A, 0x66, 0xF7, 0xEF, 0x85, 0xE0,
+		0xBD, 0x4A, 0xA9, 0x73, 0x57, 0x99, 0x30, 0x8C,
+		0x94, 0x63, 0x59, 0xA8, 0xC9, 0xAE, 0xD9, 0x58,
+		0x7D, 0x51, 0xB0, 0x1E, 0xBE, 0xD0, 0x77, 0x43,
+	),
+}
 
-def bogoencrypt(data):
+def bogoencrypt(data, savetype):
 	data = list(data)
+	PFX, XOR = _BOGOCRYPT_PFX[savetype], _BOGOCRYPT_XOR[savetype]
 	for i, b in enumerate(data):
-		data[i] = b ^ (_BOGOCRYPT_PFX[i] if i < 32 else data[i-32]) ^ _BOGOCRYPT_XOR[i % 32]
+		data[i] = b ^ (PFX[i] if i < 32 else data[i-32]) ^ XOR[i % 32]
 	return bytes(data)
 
-def bogodecrypt(data):
+def bogodecrypt(data, savetype):
 	data = list(data)
+	PFX, XOR = _BOGOCRYPT_PFX[savetype], _BOGOCRYPT_XOR[savetype]
 	for i, b in reversed(list(enumerate(data))):
-		data[i] = b ^ (_BOGOCRYPT_PFX[i] if i < 32 else data[i-32]) ^ _BOGOCRYPT_XOR[i % 32]
+		data[i] = b ^ (PFX[i] if i < 32 else data[i-32]) ^ XOR[i % 32]
 	return bytes(data)
 
 def bogocrypt(seed, data, direction="decrypt"):
@@ -191,31 +214,60 @@ library = {
 	# Weapons: Sniper
 	"BAAAADJWH6YmuyneP5fKD4GcmcHE5Y+pnDp7EJYBO3x7MmNgPagIew": "Woodblocker",
 	"BAAAADLV+tD7nin/P5fKD+cQgMI3U5uCRwcI26Q4KEeWJiTJjds": "Cold Shoulder",
+	"BAAAADJOXHfN639/L5fKD4Ec4E7F5Y76nDp5EJYBM3z6sglwzfh8Tg": "Null Pointer",
+	"BAAAADJWkwCN7wXBf5/KD4EcgELI5xtoeoQ00jSjmPVuu+XTSqx4lcY": "Brashi's Dedication",
 	# Weapons: Shotgun
 	"BAAAADLSpIL9Gin/P5dWDoAcvLRE20zfXSdp4Njld+bM3W10": "Redundant Face-puncher",
+	"BAAAADKBvJL/Gin//5vID2y1APybnRqfTwyP4nTz4S9ahg": "T.K's Wave",
+	"BAAAADLTuoL9Gin/P5dGPoEcm5xEW9rcXSdp4MflNVa02RPz": "The Butcher",
+	"BAAAADKOuYL9Gin/P5dqDoAcsvhEW808XSVp/lIjOcA8hGfX": "Projectile Recursion",
 	# Weapons: SMG
 	"BAAAADKMVpX3Gyn/P5fKwQEcgO4tZSXnzkUrkd8FLK+TXHV0/A": "Cloud Kill",
 	"BAAAADKP9ZT3Gyn/P5fK3wEcgPiLZSV8zEUrkd+KK29St0wy/Q": "Eviscerating Cutsman",
 	"BAAAADLflJb/Gin/P7epD4Gfw0L6KYH9P18QdBBMOJ/8gQ4": "Predatory Lending",
 	"BAAAADLesYL9Gin/P5duDoAcXS1EW/ssnSRp5urmHBKO0Rd6": "Sleeping Giant",
 	"BAAAADKBvJL/Gin/T5HOD5EOAHx9PZqdTx4aPbtiqPdEng": "Ten Gallon",
+	"BAAAADKLuYL9Gin/P5daPoEclSdE24tmnSVp4MflOxBENWdJ": "The Boo",
+	"BAAAADLScZX3Gyn/P5fKw5kcgGkTZSVjhkUpkc0s8OlEBY1u9A": "Redistributor",
 	# Weapons: AR
 	"BAAAADIWpoL9Gin/P5daPoEcRpREW+StHSVp8vB28o81qTfB": "Ogre",
 	"BAAAADKBvJL/Gin/f5HOD+l5APwr7RqfTx6jbdZQGeJChQ": "Lead Sprinkler",
+	"BAAAADKBvJL/Gin/v5HODwOAAPw77BqfTx4iYLXTeDZIgA": "Cuttin' Hand Of Glory",
 	# Weapons: Pistol
 	"BAAAADLNk5T3Gyn/P5fKxwEcgJtaZSWeTQUpkbOtsGJSrWF8cg": "Maggie",
 	"BAAAADLIu4L9Gin/P5dSDoAcKR5EW3A2XiVp4Fj/edaFPXX3": "Starkiller",
 	"BAAAADJFtJL/Gin/9LfKD6MpAPySppqcR4Kxg++Gs694sg": "Omniloader",
+	"BAAAADLblJb/Gin/P7+pD4EoKUL6E5P+PV8Qdc5haZf4+z4": "Superball",
+	"BAAAADJFtJL/Gin/XJvKD3hPAHww3ZqeR54NiJXGKFw4sQ": "Peacemonger",
+	"BAAAADJS88ZXGijeP5fKD4GcmcHE5eUVnDo/ERUCO0TMYKmiruhMwg": "Oozing Roisen's Thorns",
+	"BAAAADLgpYL9Gin/P5fSjIEcTy5EW02nHSVp4EUm+2d92GP7": "The Leech",
+	"BAAAADIPv4L9Gin/P5fqjIEcbilE2xBlHiZpmEUoNLeEvWNx": "The Killing Word",
 	# Weapons: Heavy
 	"BAAAADLXlJb/Gin/P7+pD4FdYUJ6PjN9PF8Q9UGCGp/887A": "Scourge",
-	# Class mods: Operative
-	"BAAAADJ8sGmvKin/Pwwwjz/Ks4HivvHmcqQl77NXFw": "Executor", # TF2 Sniper reference
+	"BAAAADLBtJL/GmmbL5fKDJqcvjbsJDv/BrSAHBSjfGZV": "Oozing Gettleburger",
+	"BAAAADILuIL9Gin/P5daPoEcBMREWxSNHSVp4MdltDVmwEnJ": "Nuclear Jericho",
 	# Grenade mods
 	"BAAAADLBQtp/JDJuf7T5AQWmhMZ45Ru8": "Nagata",
 	"BAAAADLBtFnCmpesrJfrNJEozjzA4Rm9HA": "Whispering Ice",
+	"BAAAADLBtGctmpcCrhfoNIkqBBjAo8e8HA": "Cloning Hex",
+	"BAAAADLBtIfFmhflrlfqNIcuBHbA4a28HA": "Surge",
+	"BAAAADLBtEmlmpclrZfrNJEGBDDA4e28HA": "Diamond Butt Bomb",
+	"BAAAADLBtHocmpckrVfqNIcGBDjA4ee8HA": "Ultraball",
+	"BAAAADL2DxLBBri/HLzEPwXeRMLE5Rs": "Storm Front",
+	"BAAAADLBtMx4mpfirhfrNIsuzhLA4de8HA": "Fungus Among Us",
+	"BAAAADLBtGawmhckrRfrNIsGBDbI6eO8HA": "Cheddar Shredder",
 	# Shields
 	"BAAAADLBtLfpmhfO59fpNJNyuo/91mu8HA": "Absorbing", # Health Extremophile Shield?
 	"BAAAADLBtOL4mhcnrRfrNIsoziz62+u8HA": "Generator", # Power Siphon??
+	"BAAAADKtNCzQwancHI+whw4dgMLEcw": "Golden Touch",
+	"BAAAADIHahLBKvI/HLzsWwNdBcPE5Rs": "Overflowing Moxxi's Embrace",
+	"BAAAADLBmTt/pH8lv7T5F/tsg4S45Ru8": "Mr Caffeine",
+	"BAAAADLBtNyRmhfM5FfpNKdCBpWTspa9HA": "Back Ham",
+	"BAAAADLBtJL2D6nBUU2KLMIO7rCJqFbxaAU": "Mendel's Multivitamin Shield",
+	# Class mods: Operative
+	"BAAAADJ8sGmvKin/Pwwwjz/Ks4HivvHmcqQl77NXFw": "Executor", # TF2 Sniper reference
+	"BAAAADJ92CB2NSn/Pxk9jz+ssIHivvHOcqTBLjS2Fw": "Cold Warrior",
+	"BAAAADLPiZ5zWSn/P3YXjz+ssIHivvHucqT+8lPx+w": "Infiltrator",
 }
 
 def parse_savefile(fn, args):
@@ -229,8 +281,19 @@ def parse_savefile(fn, args):
 	savetype = data.str()
 	remaining = data.int()
 	if remaining != len(data): raise SaveFileFormatError("Remaining length incorrect (got %d, expecting %d)" % remaining, len(data))
-	raw = bogodecrypt(data.peek())
-	char = pb2.Character(); char.ParseFromString(raw)
+	raw = bogodecrypt(data.peek(), savetype)
+	char = Protobufs.OakSave_pb2.Character() if savetype == "OakSaveGame" else Protobufs.OakProfile_pb2.Profile()
+	char.ParseFromString(raw)
+	if savetype == "BP_DefaultOakProfile_C":
+		# There's not a lot interesting in the profile, so it's really just the banked items.
+		# (Most of what's in the profile is your game settings and stuff.)
+		for item in char.bank_inventory_list:
+			obj = Item.from_serial(item)
+			obj.seed = obj.level = 50
+			ser = armor_serial(obj.serial())
+			if ser in library: continue
+			print('\t"%s": "%s",' % (ser, obj.get_title()))
+		return
 	# Interesting things:
 	# char.resource_pools -- ammo
 	# char.experience_points -- total XP? I don't think character level is stored.
@@ -246,7 +309,9 @@ def parse_savefile(fn, args):
 		obj = Item.from_serial(item.item_serial_number)
 		if args.library:
 			obj.seed = obj.level = 50
-			print('\t"%s": "%s",' % (armor_serial(obj.serial()), obj.get_title()))
+			ser = armor_serial(obj.serial())
+			if ser in library: continue
+			print('\t"%s": "%s",' % (ser, obj.get_title()))
 			continue
 		if obj.serial() == item.item_serial_number:
 			print(obj, "-- ok")
@@ -266,7 +331,7 @@ def parse_savefile(fn, args):
 		data.append(encode_int(v))
 	data.append(encode_str(savetype))
 	data.append(encode_int(len(raw)))
-	data.append(bogoencrypt(raw))
+	data.append(bogoencrypt(raw, savetype))
 	data = b"".join(data)
 	with open(fn, "rb") as f: origdata = f.read()
 	if data == origdata: print("SUCCESS")
@@ -308,8 +373,8 @@ def main(args=None):
 		for fn in names:
 			for save in fn.iterdir():
 				if not save.match(args.files): continue
-				# Special case: the profile is not a save file.
-				if save.name == "profile.sav": continue
+				# Special case: the profile is not a save file. Parse it only if getting a library dump.
+				if save.name == "profile.sav" and not args.library: continue
 				parse_savefile(save, args)
 
 if __name__ == "__main__": main()
