@@ -1,7 +1,10 @@
 # Parallel to BL1 and BL2 savefile readers. The name's a bit orphanned now.
 # See https://github.com/FromDarkHell/BL3SaveEditor for a lot of great info.
 import argparse
+import base64
 import binascii
+import json
+import pathlib
 from BL1_find_items import FunctionArg, Consumable
 import Protobufs.OakSave_pb2 as pb2 # protoc -I=../BL3SaveEditor/BL3Tools ../BL3SaveEditor/BL3Tools/Protobufs/*.proto --python_out=.
 
@@ -63,7 +66,6 @@ class Database:
 
 def db_preload():
 	if Database.loaded: return
-	import pathlib, json
 	path = pathlib.Path(__file__).parent.parent / "BL3SaveEditor/BL3Tools/GameData/Items/Mappings"
 	with open(path / "../SerialDB/Inventory Serial Number Database.json", encoding="utf-8-sig") as f:
 		Database.serial = json.load(f)
@@ -195,7 +197,6 @@ def parse_savefile(fn, args):
 		if obj.serial() == item.item_serial_number:
 			print(obj, "-- ok")
 		else:
-			import base64
 			print(base64.b64encode(item.item_serial_number).decode())
 			print(base64.b64encode(obj.serial()).decode())
 	raw = char.SerializeToString() # This does not fully round-trip. Hmm.
@@ -221,11 +222,39 @@ def parse_savefile(fn, args):
 
 def main(args=None):
 	parser = argparse.ArgumentParser(description="Borderlands 3 save file reader")
-	parser.add_argument("-f", "--file", help="Specify the file to parse")
+	parser.add_argument("-f", "--file", help="Specify an exact file name")
 	parser.add_argument("--save", action="store_true", help="Write the file back")
+	parser.add_argument("--steam-dir", help="Path to Steam library", default="~/.steam/steam")
+	parser.add_argument("--steam-user", help="Steam user ID, or all or auto", default="auto")
+	parser.add_argument("--files", help="File name pattern", default="*.sav")
 	# TODO: Know the standard directory and go looking there
 	args = parser.parse_args(args)
 	print(args)
 	if args.file: parse_savefile(args.file, args)
+	else:
+		path = pathlib.Path(args.steam_dir).expanduser()
+		# TODO: If we're on an actual Windows or Wine installation, locate the saves dir
+		# suitable for that, as opposed to this, which is for Proton
+		docu = path / "steamapps/compatdata/397540/pfx/drive_c/users/steamuser/Documents"
+		savedir = docu / "My Games/Borderlands 3/Saved/SaveGames" # This part shouldn't change.
+		if args.steam_user in ("auto", "all"):
+			# Steam IDs are all digits. Anything else, ignore.
+			names = [fn for fn in savedir.iterdir() if fn.name.isnumeric()]
+			if args.steam_user == "auto" and len(names) > 1:
+				print("Multiple Steam users have data here. Please select:")
+				for fn in names:
+					print("--steam-user", fn.name)
+				return 0
+		else:
+			names = [savedir / args.steam_user]
+			if not names[0].is_dir():
+				print("Steam user not found")
+				return 1
+		for fn in names:
+			for save in fn.iterdir():
+				if not save.match(args.files): continue
+				# Special case: the profile is not a save file.
+				if save.name == "profile.sav": continue
+				parse_savefile(save, args)
 
 if __name__ == "__main__": main()
