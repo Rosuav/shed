@@ -48,6 +48,9 @@ def bogocrypt(seed, data, direction="decrypt"):
 	if direction == "encrypt": return data
 	return data[-split:] + data[:-split] # Decrypting splits last
 
+def armor_serial(serial): return base64.b64encode(serial).decode("ascii").strip("=")
+def unarmor_serial(id): return base64.b64decode(id.strip("{}").encode("ascii") + b"====")
+
 class ConsumableLE(Consumable):
 	"""Little-endian bitwise consumable"""
 	def get(self, num):
@@ -167,21 +170,53 @@ class Item:
 		crc = (crc >> 16) ^ (crc & 65535)
 		return data[:5] + bogocrypt(self.seed, crc.to_bytes(2, "big") + data[7:], "encrypt")
 
-	def __str__(self):
-		name = self.balance.split(".")[-1] # Fallback: Use the balance ID.
-		title = Database.part_name_mapping.get(self.balance, "")
-		pfx = Database.prefix_name_mapping.get(self.balance, "")
+	def get_title(self):
+		title = Database.part_name_mapping.get(self.balance.split("#")[0], "")
+		pfx = Database.prefix_name_mapping.get(self.balance.split("#")[0], "")
 		for part in self.parts:
-			title = Database.part_name_mapping.get(part, title)
-			pfx = Database.prefix_name_mapping.get(part, pfx)
-		if pfx and title: name = pfx + " " + title
-		elif title: name = title
-		return "<Item: %s lvl %d>" % (name, self.level)
+			title = Database.part_name_mapping.get(part.split("#")[0], title)
+			pfx = Database.prefix_name_mapping.get(part.split("#")[0], pfx)
+		if pfx and title: return pfx + " " + title
+		return title or self.balance.split(".")[-1] # Fallback: Use the balance ID.
+
+	def __str__(self):
+		return "<Item: %s lvl %d>" % (self.get_title(), self.level)
 
 def encode_int(n):
 	return n.to_bytes(4, "little")
 def encode_str(s):
 	return encode_int(len(s) + 1) + s.encode("ascii") + b"\0"
+
+library = {
+	# Weapons: Sniper
+	"BAAAADJWH6YmuyneP5fKD4GcmcHE5Y+pnDp7EJYBO3x7MmNgPagIew": "Woodblocker",
+	"BAAAADLV+tD7nin/P5fKD+cQgMI3U5uCRwcI26Q4KEeWJiTJjds": "Cold Shoulder",
+	# Weapons: Shotgun
+	"BAAAADLSpIL9Gin/P5dWDoAcvLRE20zfXSdp4Njld+bM3W10": "Redundant Face-puncher",
+	# Weapons: SMG
+	"BAAAADKMVpX3Gyn/P5fKwQEcgO4tZSXnzkUrkd8FLK+TXHV0/A": "Cloud Kill",
+	"BAAAADKP9ZT3Gyn/P5fK3wEcgPiLZSV8zEUrkd+KK29St0wy/Q": "Eviscerating Cutsman",
+	"BAAAADLflJb/Gin/P7epD4Gfw0L6KYH9P18QdBBMOJ/8gQ4": "Predatory Lending",
+	"BAAAADLesYL9Gin/P5duDoAcXS1EW/ssnSRp5urmHBKO0Rd6": "Sleeping Giant",
+	"BAAAADKBvJL/Gin/T5HOD5EOAHx9PZqdTx4aPbtiqPdEng": "Ten Gallon",
+	# Weapons: AR
+	"BAAAADIWpoL9Gin/P5daPoEcRpREW+StHSVp8vB28o81qTfB": "Ogre",
+	"BAAAADKBvJL/Gin/f5HOD+l5APwr7RqfTx6jbdZQGeJChQ": "Lead Sprinkler",
+	# Weapons: Pistol
+	"BAAAADLNk5T3Gyn/P5fKxwEcgJtaZSWeTQUpkbOtsGJSrWF8cg": "Maggie",
+	"BAAAADLIu4L9Gin/P5dSDoAcKR5EW3A2XiVp4Fj/edaFPXX3": "Starkiller",
+	"BAAAADJFtJL/Gin/9LfKD6MpAPySppqcR4Kxg++Gs694sg": "Omniloader",
+	# Weapons: Heavy
+	"BAAAADLXlJb/Gin/P7+pD4FdYUJ6PjN9PF8Q9UGCGp/887A": "Scourge",
+	# Class mods: Operative
+	"BAAAADJ8sGmvKin/Pwwwjz/Ks4HivvHmcqQl77NXFw": "Executor", # TF2 Sniper reference
+	# Grenade mods
+	"BAAAADLBQtp/JDJuf7T5AQWmhMZ45Ru8": "Nagata",
+	"BAAAADLBtFnCmpesrJfrNJEozjzA4Rm9HA": "Whispering Ice",
+	# Shields
+	"BAAAADLBtLfpmhfO59fpNJNyuo/91mu8HA": "Absorbing", # Health Extremophile Shield?
+	"BAAAADLBtOL4mhcnrRfrNIsoziz62+u8HA": "Generator", # Power Siphon??
+}
 
 def parse_savefile(fn, args):
 	with open(fn, "rb") as f: data = Consumable(f.read())
@@ -209,6 +244,10 @@ def parse_savefile(fn, args):
 	# Money?? Not sure how that's stored. I actually expected that to be one of the easy verifications.
 	for item in char.inventory_items:
 		obj = Item.from_serial(item.item_serial_number)
+		if args.library:
+			obj.seed = obj.level = 50
+			print('\t"%s": "%s",' % (armor_serial(obj.serial()), obj.get_title()))
+			continue
 		if obj.serial() == item.item_serial_number:
 			print(obj, "-- ok")
 		else:
@@ -242,6 +281,7 @@ def main(args=None):
 	parser.add_argument("--steam-dir", help="Path to Steam library", default="~/.steam/steam")
 	parser.add_argument("--steam-user", help="Steam user ID, or all or auto", default="auto")
 	parser.add_argument("--files", help="File name pattern", default="*.sav")
+	parser.add_argument("--library", action="store_true", help="List library IDs for all items")
 	# TODO: Know the standard directory and go looking there
 	args = parser.parse_args(args)
 	print(args)
