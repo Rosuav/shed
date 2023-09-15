@@ -263,7 +263,7 @@ library = {
 	"BAAAADL2DxLBBri/HLzEPwXeRMLE5Rs": "Storm Front",
 	"BAAAADLBtMx4mpfirhfrNIsuzhLA4de8HA": "Fungus Among Us",
 	"BAAAADLBtGawmhckrRfrNIsGBDbI6eO8HA": "Cheddar Shredder",
-	"BAAAADLBtHMDmhfgrpfrNJEGBBTA4cO8HA": "Red Queen", # from diamond key
+	"BAAAADLBtHMDmhfgrpfrNJEGBBTA4cO8HA": "Red Queen", # from diamond key. Underwhelming, sadly.
 	# Shields
 	"BAAAADLBtLfpmhfO59fpNJNyuo/91mu8HA": "Absorbing", # Health Extremophile Shield?
 	"BAAAADLBtOL4mhcnrRfrNIsoziz62+u8HA": "Generator", # Power Siphon??
@@ -273,6 +273,9 @@ library = {
 	"BAAAADLBtNyRmhfM5FfpNKdCBpWTspa9HA": "Back Ham",
 	"BAAAADLBtJL2D6nBUU2KLMIO7rCJqFbxaAU": "Mendel's Multivitamin Shield",
 	"BAAAADIlyBJBrfG/HLzYiz1QqsPE5Rs": "The Transformer", # from diamond key
+	"BAAAADLBJKJ/pBknf7T5Het+5fGo5Ru8": "Inertia", # One of these
+	"BAAAADLBtAYImpfgr9fpNI8GzubG4Xm8HA": "Large", # is a tortoise shield
+	"BAAAADLBtHPAmpcc5xfpNJmaZJybogG9HA": "Spike", # Impaler shield??
 	# Class mods: Operative
 	"BAAAADJ8sGmvKin/Pwwwjz/Ks4HivvHmcqQl77NXFw": "Executor", # TF2 Sniper reference
 	"BAAAADJ92CB2NSn/Pxk9jz+ssIHivvHOcqTBLjS2Fw": "Cold Warrior",
@@ -368,6 +371,7 @@ def parse_savefile(fn, args):
 	with open(fn, "rb") as f: origdata = f.read()
 	if data == origdata: print("SUCCESS")
 	if args.save:
+		with open("/tmp/BL3backup.sav", "wb") as f: f.write(origdata)
 		with open(fn, "wb") as f: f.write(data)
 		print("Saved.")
 
