@@ -218,6 +218,7 @@ library = {
 	"BAAAADJOXHfN639/L5fKD4Ec4E7F5Y76nDp5EJYBM3z6sglwzfh8Tg": "Null Pointer",
 	"BAAAADJWkwCN7wXBf5/KD4EcgELI5xtoeoQ00jSjmPVuu+XTSqx4lcY": "Brashi's Dedication",
 	"BAAAADIN8lHXGGv/P5fKD4EuoMLEZBw8ohvzu/ZZvmP2NEVqtJb/": "Abundant ASMD", # Underwhelming due to slow projectile speed
+	"BAAAADISnUZdHijeP5fKD4FcmcHE5W7mnDriCdYBO3x7sgnxjZDIxA": "Skullmasher", # from diamond key
 	# Weapons: Shotgun
 	"BAAAADLSpIL9Gin/P5dWDoAcvLRE20zfXSdp4Njld+bM3W10": "Redundant Face-puncher",
 	"BAAAADKBvJL/Gin//5vID2y1APybnRqfTwyP4nTz4S9ahg": "T.K's Wave",
@@ -226,6 +227,7 @@ library = {
 	# Weapons: SMG
 	"BAAAADKMVpX3Gyn/P5fKwQEcgO4tZSXnzkUrkd8FLK+TXHV0/A": "Cloud Kill",
 	"BAAAADKP9ZT3Gyn/P5fK3wEcgPiLZSV8zEUrkd+KK29St0wy/Q": "Eviscerating Cutsman",
+	"BAAAADLYlJb/Gin/P7/JDYGz0UL6Jcv9PV8C3E8qLO8xjSg": "Eviscerating Cutsman", # from diamond key
 	"BAAAADLflJb/Gin/P7epD4Gfw0L6KYH9P18QdBBMOJ/8gQ4": "Predatory Lending",
 	"BAAAADLesYL9Gin/P5duDoAcXS1EW/ssnSRp5urmHBKO0Rd6": "Sleeping Giant",
 	"BAAAADKBvJL/Gin/T5HOD5EOAHx9PZqdTx4aPbtiqPdEng": "Ten Gallon",
@@ -261,6 +263,7 @@ library = {
 	"BAAAADL2DxLBBri/HLzEPwXeRMLE5Rs": "Storm Front",
 	"BAAAADLBtMx4mpfirhfrNIsuzhLA4de8HA": "Fungus Among Us",
 	"BAAAADLBtGawmhckrRfrNIsGBDbI6eO8HA": "Cheddar Shredder",
+	"BAAAADLBtHMDmhfgrpfrNJEGBBTA4cO8HA": "Red Queen", # from diamond key
 	# Shields
 	"BAAAADLBtLfpmhfO59fpNJNyuo/91mu8HA": "Absorbing", # Health Extremophile Shield?
 	"BAAAADLBtOL4mhcnrRfrNIsoziz62+u8HA": "Generator", # Power Siphon??
@@ -269,6 +272,7 @@ library = {
 	"BAAAADLBmTt/pH8lv7T5F/tsg4S45Ru8": "Mr Caffeine",
 	"BAAAADLBtNyRmhfM5FfpNKdCBpWTspa9HA": "Back Ham",
 	"BAAAADLBtJL2D6nBUU2KLMIO7rCJqFbxaAU": "Mendel's Multivitamin Shield",
+	"BAAAADIlyBJBrfG/HLzYiz1QqsPE5Rs": "The Transformer", # from diamond key
 	# Class mods: Operative
 	"BAAAADJ8sGmvKin/Pwwwjz/Ks4HivvHmcqQl77NXFw": "Executor", # TF2 Sniper reference
 	"BAAAADJ92CB2NSn/Pxk9jz+ssIHivvHOcqTBLjS2Fw": "Cold Warrior",
