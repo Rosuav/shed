@@ -222,14 +222,15 @@ library = {
 	# Weapons: Shotgun
 	"BAAAADLSpIL9Gin/P5dWDoAcvLRE20zfXSdp4Njld+bM3W10": "Redundant Face-puncher",
 	"BAAAADKBvJL/Gin//5vID2y1APybnRqfTwyP4nTz4S9ahg": "T.K's Wave",
+	"BAAAADKBvJL/Gin/j5vID1SwAPybnRqfTwyMYvXA2S9Ehg": "T.K's Wave",
 	"BAAAADLTuoL9Gin/P5dGPoEcm5xEW9rcXSdp4MflNVa02RPz": "The Butcher",
 	"BAAAADKOuYL9Gin/P5dqDoAcsvhEW808XSVp/lIjOcA8hGfX": "Projectile Recursion",
 	# Weapons: SMG
 	"BAAAADKMVpX3Gyn/P5fKwQEcgO4tZSXnzkUrkd8FLK+TXHV0/A": "Cloud Kill",
 	"BAAAADKP9ZT3Gyn/P5fK3wEcgPiLZSV8zEUrkd+KK29St0wy/Q": "Eviscerating Cutsman",
 	"BAAAADLYlJb/Gin/P7/JDYGz0UL6Jcv9PV8C3E8qLO8xjSg": "Eviscerating Cutsman", # from diamond key
-	"BAAAADLflJb/Gin/P7epD4Gfw0L6KYH9P18QdBBMOJ/8gQ4": "Predatory Lending",
-	"BAAAADLesYL9Gin/P5duDoAcXS1EW/ssnSRp5urmHBKO0Rd6": "Sleeping Giant",
+	"BAAAADLflJb/Gin/P7epD4Gfw0L6KYH9P18QdBBMOJ/8gQ4": "Bankrolled Predatory Lending", # Ammo is money, so you have a VAST reserve
+	"BAAAADLesYL9Gin/P5duDoAcXS1EW/ssnSRp5urmHBKO0Rd6": "Sleeping Giant", # Excellent ROF, can give magazine-long bonuses
 	"BAAAADKBvJL/Gin/T5HOD5EOAHx9PZqdTx4aPbtiqPdEng": "Ten Gallon",
 	"BAAAADKLuYL9Gin/P5daPoEclSdE24tmnSVp4MflOxBENWdJ": "The Boo",
 	"BAAAADLScZX3Gyn/P5fKw5kcgGkTZSVjhkUpkc0s8OlEBY1u9A": "Redistributor",
@@ -264,6 +265,8 @@ library = {
 	"BAAAADLBtMx4mpfirhfrNIsuzhLA4de8HA": "Fungus Among Us",
 	"BAAAADLBtGawmhckrRfrNIsGBDbI6eO8HA": "Cheddar Shredder",
 	"BAAAADLBtHMDmhfgrpfrNJEGBBTA4cO8HA": "Red Queen", # from diamond key. Underwhelming, sadly.
+	"BAAAADLBtLfwmhcVrxfrNIsGBGzA4au8HA": "Widowmaker", # Tediore variant
+	"BAAAADLBlDN/JH9tP7b5H7FOXsYk5Ru8": "NOG Potion #9", # Convert NOGs to fight for you
 	# Shields
 	"BAAAADLBtLfpmhfO59fpNJNyuo/91mu8HA": "Absorbing", # Health Extremophile Shield?
 	"BAAAADLBtOL4mhcnrRfrNIsoziz62+u8HA": "Generator", # Power Siphon??
