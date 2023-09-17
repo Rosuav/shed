@@ -230,6 +230,7 @@ library = {
 	"BAAAADKBvJL/Gin/j5vID1SwAPybnRqfTwyMYvXA2S9Ehg": "T.K's Wave",
 	"BAAAADLTuoL9Gin/P5dGPoEcm5xEW9rcXSdp4MflNVa02RPz": "The Butcher",
 	"BAAAADKOuYL9Gin/P5dqDoAcsvhEW808XSVp/lIjOcA8hGfX": "Projectile Recursion",
+	"BAAAADLRtJL/Gil/s5bKcdGcviC85Dj3FLkXOBQg4h70": "Hellwalker",
 	# Weapons: SMG
 	"BAAAADKMVpX3Gyn/P5fKwQEcgO4tZSXnzkUrkd8FLK+TXHV0/A": "Cloud Kill",
 	"BAAAADKP9ZT3Gyn/P5fK3wEcgPiLZSV8zEUrkd+KK29St0wy/Q": "Eviscerating Cutsman",
@@ -255,6 +256,8 @@ library = {
 	"BAAAADKBvJL/Gin/v5HOD7uuAHxTtxqfTxo4JbbwQQJMig": "Dead Chamber",
 	"BAAAADJKMgb8nin/P5fKD0s8gMKNDZuC6t4I2KRAKi/xN3Zg0Xc": "Extreme Hangin' Chadd", # Always incendiary. Never needs ammo.
 	"BAAAADLNpIL9Gin/P5dSPoEcVulE212lHSVp4EO9uHSoLXt9": "Storming Infinity", # Never needs ammo
+	"BAAAADKBvJL/Gin/T5HOD7uQAHwatRqfT2CF8nOXIB40mg": "The Companion", # You can't take the sky from me...
+	"BAAAADLclJb/Gin/P6fJDYFfl0L6jkm9P19u9V8Gn044mQ0": "The Duc",
 	# Weapons: Heavy
 	"BAAAADLXlJb/Gin/P7+pD4FdYUJ6PjN9PF8Q9UGCGp/887A": "Scourge",
 	"BAAAADLBtJL/GmmbL5fKDJqcvjbsJDv/BrSAHBSjfGZV": "Oozing Gettleburger",
@@ -286,8 +289,12 @@ library = {
 	"BAAAADLBtHPAmpcc5xfpNJmaZJybogG9HA": "Spike", # Impaler shield??
 	# Class mods: Operative
 	"BAAAADJ8sGmvKin/Pwwwjz/Ks4HivvHmcqQl77NXFw": "Executor", # TF2 Sniper reference
+	"BAAAADIAQmiPNSn/PxT/jz+ssIHivvHmciTD1rx0iA": "Executor",
+	"BAAAADLOsWmPNSn/P0LIjz+ssIHivvHmciTBnmPXew": "Executor",
 	"BAAAADJ92CB2NSn/Pxk9jz+ssIHivvHOcqTBLjS2Fw": "Cold Warrior",
 	"BAAAADLPiZ5zWSn/P3YXjz+ssIHivvHucqT+8lPx+w": "Infiltrator",
+	# Class mods: Gunner
+	"BAAAADJ0YsjUNyn/P7SOjz8E4ILivstesQ7zJmwUFQ": "Bloodletter",
 }
 
 def parse_savefile(fn, args):
