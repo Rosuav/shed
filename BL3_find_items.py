@@ -288,9 +288,10 @@ library = {
 	"BAAAADLBtAYImpfgr9fpNI8GzubG4Xm8HA": "Large", # is a tortoise shield
 	"BAAAADLBtHPAmpcc5xfpNJmaZJybogG9HA": "Spike", # Impaler shield??
 	# Class mods: Operative
-	"BAAAADJ8sGmvKin/Pwwwjz/Ks4HivvHmcqQl77NXFw": "Executor", # TF2 Sniper reference
+	"BAAAADJ8sGmvKin/Pwwwjz/Ks4HivvHmcqQl77NXFw": "Executor", # Has a different Balance from the below ones
 	"BAAAADIAQmiPNSn/PxT/jz+ssIHivvHmciTD1rx0iA": "Executor",
 	"BAAAADLOsWmPNSn/P0LIjz+ssIHivvHmciTBnmPXew": "Executor",
+	"BAAAADLOsWkPWSn/P+3hjz+ssIHivvHmciTBlrPXew": "Executor", # Hybridized from the above two
 	"BAAAADJ92CB2NSn/Pxk9jz+ssIHivvHOcqTBLjS2Fw": "Cold Warrior",
 	"BAAAADLPiZ5zWSn/P3YXjz+ssIHivvHucqT+8lPx+w": "Infiltrator",
 	# Class mods: Gunner
