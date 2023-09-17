@@ -42,6 +42,11 @@ _BOGOCRYPT_XOR = {
 	),
 }
 
+DISPLAY_ORDER = {k:i for i,k in enumerate([
+	"Weapon1", "Weapon2", "Weapon3", "Weapon4",
+	"Shield", "GrenadeMod", "ClassMod", "Artifact",
+])}
+
 def bogoencrypt(data, savetype):
 	data = list(data)
 	PFX, XOR = _BOGOCRYPT_PFX[savetype], _BOGOCRYPT_XOR[savetype]
@@ -327,7 +332,12 @@ def parse_savefile(fn, args):
 	# from the level threshold - highly unlikely.
 	level = int(((char.experience_points + 60) / 60) ** (1/2.8))
 	print(char.preferred_character_name, "lvl", level)
-	for item in char.inventory_items:
+	slot = { }
+	for eq in char.equipped_inventory_list:
+		slot[eq.inventory_list_index] = eq.slot_data_path.split(".")[-1].removeprefix("BPInvSlot_")
+	equipment = [None] * len(DISPLAY_ORDER)
+	inventory = []
+	for i, item in enumerate(char.inventory_items):
 		obj = Item.from_serial(item.item_serial_number)
 		if args.library:
 			obj.seed = obj.level = 50
@@ -335,11 +345,13 @@ def parse_savefile(fn, args):
 			if ser in library: continue
 			print('\t"%s": "%s",' % (ser, obj.get_title()))
 			continue
-		if obj.serial() == item.item_serial_number:
-			print(obj, "-- ok")
-		else:
-			print(base64.b64encode(item.item_serial_number).decode())
-			print(base64.b64encode(obj.serial()).decode())
+		eq = slot.get(i)
+		desc = "Lvl %d %s" % (obj.level, obj.get_title())
+		if eq: equipment[DISPLAY_ORDER[eq]] = eq + ": " + desc
+		else: inventory.append(desc)
+	for obj in equipment:
+		if obj: print(obj)
+	for obj in inventory: print(obj)
 	for serial in args.give.split(","):
 		if not serial: continue
 		serial, *changes = serial.split(":")
