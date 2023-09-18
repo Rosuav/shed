@@ -230,7 +230,9 @@ library = {
 	"BAAAADKBvJL/Gin/j5vID1SwAPybnRqfTwyMYvXA2S9Ehg": "T.K's Wave",
 	"BAAAADLTuoL9Gin/P5dGPoEcm5xEW9rcXSdp4MflNVa02RPz": "The Butcher",
 	"BAAAADKOuYL9Gin/P5dqDoAcsvhEW808XSVp/lIjOcA8hGfX": "Projectile Recursion",
+	"BAAAADKPuYL9Gin/P5dqDoAcbLhEW808XSVp/tRgOdA8hGNX": "Projectile Recursion",
 	"BAAAADLRtJL/Gil/s5bKcdGcviC85Dj3FLkXOBQg4h70": "Hellwalker",
+	"BAAAADKNpIL9Gin/P5dePoEcORZE2+bFHSdp8hXjEeIczXXC": "Iron-Willed Fingerbiter",
 	# Weapons: SMG
 	"BAAAADKMVpX3Gyn/P5fKwQEcgO4tZSXnzkUrkd8FLK+TXHV0/A": "Cloud Kill",
 	"BAAAADKP9ZT3Gyn/P5fK3wEcgPiLZSV8zEUrkd+KK29St0wy/Q": "Eviscerating Cutsman",
@@ -243,7 +245,9 @@ library = {
 	# Weapons: AR
 	"BAAAADIWpoL9Gin/P5daPoEcRpREW+StHSVp8vB28o81qTfB": "Ogre",
 	"BAAAADKBvJL/Gin/f5HOD+l5APwr7RqfTx6jbdZQGeJChQ": "Lead Sprinkler",
+	"BAAAADKBvJL/Gin/X5HODyKtAPwr7RqfTx6ibTZTMRpMhQ": "Lead Sprinkler",
 	"BAAAADKBvJL/Gin/v5HODwOAAPw77BqfTx4iYLXTeDZIgA": "Cuttin' Hand Of Glory",
+	"BAAAADLnlJb/Gin/P7+pD4GlW0J6Cgu9PV8CXcPIMEtskJ0": "Sickle",
 	# Weapons: Pistol
 	"BAAAADLNk5T3Gyn/P5fKxwEcgJtaZSWeTQUpkbOtsGJSrWF8cg": "Maggie",
 	"BAAAADLIu4L9Gin/P5dSDoAcKR5EW3A2XiVp4Fj/edaFPXX3": "Starkiller",
@@ -258,6 +262,7 @@ library = {
 	"BAAAADLNpIL9Gin/P5dSPoEcVulE212lHSVp4EO9uHSoLXt9": "Storming Infinity", # Never needs ammo
 	"BAAAADKBvJL/Gin/T5HOD7uQAHwatRqfT2CF8nOXIB40mg": "The Companion", # You can't take the sky from me...
 	"BAAAADLclJb/Gin/P6fJDYFfl0L6jkm9P19u9V8Gn044mQ0": "The Duc",
+	"BAAAADKNHZT3Gyn/P5fKxZkcgNcjZSW/xgYokbWwcuJizFVSeg": "Melty Cheep Pestilence",
 	# Weapons: Heavy
 	"BAAAADLXlJb/Gin/P7+pD4FdYUJ6PjN9PF8Q9UGCGp/887A": "Scourge",
 	"BAAAADLBtJL/GmmbL5fKDJqcvjbsJDv/BrSAHBSjfGZV": "Oozing Gettleburger",
@@ -275,6 +280,7 @@ library = {
 	"BAAAADLBtHMDmhfgrpfrNJEGBBTA4cO8HA": "Red Queen", # from diamond key. Underwhelming, sadly.
 	"BAAAADLBtLfwmhcVrxfrNIsGBGzA4au8HA": "Widowmaker", # Tediore variant
 	"BAAAADLBlDN/JH9tP7b5H7FOXsYk5Ru8": "NOG Potion #9", # Convert NOGs to fight for you
+	"BAAAADKLbRLBjpNOHrzAFbn4asLE5Rs": "ECHO-2",
 	# Shields
 	"BAAAADLBtLfpmhfO59fpNJNyuo/91mu8HA": "Absorbing", # Health Extremophile Shield?
 	"BAAAADLBtOL4mhcnrRfrNIsoziz62+u8HA": "Generator", # Power Siphon??
@@ -294,6 +300,7 @@ library = {
 	"BAAAADLOsWkPWSn/P+3hjz+ssIHivvHmciTBlrPXew": "Executor", # Hybridized from the above two
 	"BAAAADJ92CB2NSn/Pxk9jz+ssIHivvHOcqTBLjS2Fw": "Cold Warrior",
 	"BAAAADLPiZ5zWSn/P3YXjz+ssIHivvHucqT+8lPx+w": "Infiltrator",
+	"BAAAADLPt3HPKin/P/itjz+ssIHivvHuciQM/TMXiA": "Infiltrator",
 	# Class mods: Gunner
 	"BAAAADJ0YsjUNyn/P7SOjz8E4ILivstesQ7zJmwUFQ": "Bloodletter",
 }
