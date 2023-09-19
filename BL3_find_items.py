@@ -242,12 +242,15 @@ library = {
 	"BAAAADKBvJL/Gin/T5HOD5EOAHx9PZqdTx4aPbtiqPdEng": "Ten Gallon",
 	"BAAAADKLuYL9Gin/P5daPoEclSdE24tmnSVp4MflOxBENWdJ": "The Boo",
 	"BAAAADLScZX3Gyn/P5fKw5kcgGkTZSVjhkUpkc0s8OlEBY1u9A": "Redistributor",
+	"BAAAADLdlJb/Gin/P7epD4HyG0J6KoL9P18QzdTgyozwgws": "XZ41",
+	"BAAAADLdlJb/Gin/P6epD4HUYEJ6KoL9P18QzdQgy4z0gws": "XZ41",
 	# Weapons: AR
 	"BAAAADIWpoL9Gin/P5daPoEcRpREW+StHSVp8vB28o81qTfB": "Ogre",
 	"BAAAADKBvJL/Gin/f5HOD+l5APwr7RqfTx6jbdZQGeJChQ": "Lead Sprinkler",
 	"BAAAADKBvJL/Gin/X5HODyKtAPwr7RqfTx6ibTZTMRpMhQ": "Lead Sprinkler",
 	"BAAAADKBvJL/Gin/v5HODwOAAPw77BqfTx4iYLXTeDZIgA": "Cuttin' Hand Of Glory",
 	"BAAAADLnlJb/Gin/P7+pD4GlW0J6Cgu9PV8CXcPIMEtskJ0": "Sickle",
+	"BAAAADIXUJT3Gyn/P5fK3QEcgEcgZSVjHIUqkc0yf6WyPV0USw": "Venomous Barrage",
 	# Weapons: Pistol
 	"BAAAADLNk5T3Gyn/P5fKxwEcgJtaZSWeTQUpkbOtsGJSrWF8cg": "Maggie",
 	"BAAAADLIu4L9Gin/P5dSDoAcKR5EW3A2XiVp4Fj/edaFPXX3": "Starkiller",
@@ -263,6 +266,7 @@ library = {
 	"BAAAADKBvJL/Gin/T5HOD7uQAHwatRqfT2CF8nOXIB40mg": "The Companion", # You can't take the sky from me...
 	"BAAAADLclJb/Gin/P6fJDYFfl0L6jkm9P19u9V8Gn044mQ0": "The Duc",
 	"BAAAADKNHZT3Gyn/P5fKxZkcgNcjZSW/xgYokbWwcuJizFVSeg": "Melty Cheep Pestilence",
+	"BAAAADLAlZL/Gin/v47JD4H5mEL66Fo9PGeMrV0aS42yJ68": "Venomous Hornet",
 	# Weapons: Heavy
 	"BAAAADLXlJb/Gin/P7+pD4FdYUJ6PjN9PF8Q9UGCGp/887A": "Scourge",
 	"BAAAADLBtJL/GmmbL5fKDJqcvjbsJDv/BrSAHBSjfGZV": "Oozing Gettleburger",
@@ -293,6 +297,7 @@ library = {
 	"BAAAADLBJKJ/pBknf7T5Het+5fGo5Ru8": "Inertia", # One of these
 	"BAAAADLBtAYImpfgr9fpNI8GzubG4Xm8HA": "Large", # is a tortoise shield
 	"BAAAADLBtHPAmpcc5xfpNJmaZJybogG9HA": "Spike", # Impaler shield??
+	"BAAAADLBtHwJmpf05hfpNJmasJWRrim9HA": "Quick Charge", # Faraday Big Boom Blaster?
 	# Class mods: Operative
 	"BAAAADJ8sGmvKin/Pwwwjz/Ks4HivvHmcqQl77NXFw": "Executor", # Has a different Balance from the below ones
 	"BAAAADIAQmiPNSn/PxT/jz+ssIHivvHmciTD1rx0iA": "Executor",
