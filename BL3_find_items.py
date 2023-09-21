@@ -267,6 +267,7 @@ library = {
 	"BAAAADLclJb/Gin/P6fJDYFfl0L6jkm9P19u9V8Gn044mQ0": "The Duc",
 	"BAAAADKNHZT3Gyn/P5fKxZkcgNcjZSW/xgYokbWwcuJizFVSeg": "Melty Cheep Pestilence",
 	"BAAAADLAlZL/Gin/v47JD4H5mEL66Fo9PGeMrV0aS42yJ68": "Venomous Hornet",
+	"BAAAADLLspX3Gyn/P5fKyQEcgOW/ZaWqlkYrkc2sY+TFR6UIyw": "Expert Hellshock", # Dropped at lvl 72!!
 	# Weapons: Heavy
 	"BAAAADLXlJb/Gin/P7+pD4FdYUJ6PjN9PF8Q9UGCGp/887A": "Scourge",
 	"BAAAADLBtJL/GmmbL5fKDJqcvjbsJDv/BrSAHBSjfGZV": "Oozing Gettleburger",
@@ -298,6 +299,9 @@ library = {
 	"BAAAADLBtAYImpfgr9fpNI8GzubG4Xm8HA": "Large", # is a tortoise shield
 	"BAAAADLBtHPAmpcc5xfpNJmaZJybogG9HA": "Spike", # Impaler shield??
 	"BAAAADLBtHwJmpf05hfpNJmasJWRrim9HA": "Quick Charge", # Faraday Big Boom Blaster?
+	"BAAAADLBtIcjmhcl5VfpNKee/o2Lrpu9HA": "Deluxe Badass Combustor",
+	"BAAAADLQcxJBFPA/HLzsjbVVtsPE5Rs": "Frozen Heart",
+	"BAAAADJRHQdmMijeP5fKD4FcmcHE5cK1nDpp+VYCO3x6fQ75jdhsxQ": "Venomous Kaos",
 	# Class mods: Operative
 	"BAAAADJ8sGmvKin/Pwwwjz/Ks4HivvHmcqQl77NXFw": "Executor", # Has a different Balance from the below ones
 	"BAAAADIAQmiPNSn/PxT/jz+ssIHivvHmciTD1rx0iA": "Executor",
@@ -308,6 +312,12 @@ library = {
 	"BAAAADLPt3HPKin/P/itjz+ssIHivvHuciQM/TMXiA": "Infiltrator",
 	# Class mods: Gunner
 	"BAAAADJ0YsjUNyn/P7SOjz8E4ILivstesQ7zJmwUFQ": "Bloodletter",
+	# Eridian Artifacts
+	"BAAAADJBioanWgvkbbMoC4EcgMor": "Grenadier Shock Stone",
+	"BAAAADKMTxLBD3G/HbycLzvNRMXE5Rs": "Loaded Radiation Stone",
+	"BAAAADJBioanWgvkbZ9iDYEcgFcU": "Quickdraw Electric Slide",
+	"BAAAADJBioanWgvkbbcwDIEcgDoR": "Ravaging Radiation Stone",
+	"BAAAADKRtBLBD3G/HbycAyuI5cXE5Rs": "Hasty Atom Balm",
 }
 
 def parse_savefile(fn, args):
