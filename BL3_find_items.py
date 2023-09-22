@@ -286,6 +286,7 @@ library = {
 	"BAAAADLBtLfwmhcVrxfrNIsGBGzA4au8HA": "Widowmaker", # Tediore variant
 	"BAAAADLBlDN/JH9tP7b5H7FOXsYk5Ru8": "NOG Potion #9", # Convert NOGs to fight for you
 	"BAAAADKLbRLBjpNOHrzAFbn4asLE5Rs": "ECHO-2",
+	"BAAAADLBtBFLmhfQrFfqNIcq0szB4Qu9HA": "Porcelain Pipe Bomb",
 	# Shields
 	"BAAAADLBtLfpmhfO59fpNJNyuo/91mu8HA": "Absorbing", # Health Extremophile Shield?
 	"BAAAADLBtOL4mhcnrRfrNIsoziz62+u8HA": "Generator", # Power Siphon??
@@ -318,6 +319,7 @@ library = {
 	"BAAAADJBioanWgvkbZ9iDYEcgFcU": "Quickdraw Electric Slide",
 	"BAAAADJBioanWgvkbbcwDIEcgDoR": "Ravaging Radiation Stone",
 	"BAAAADKRtBLBD3G/HbycAyuI5cXE5Rs": "Hasty Atom Balm",
+	"BAAAADLIlRLBD3G/Hbycx0AYJsrE5Rs": "Spicy Radiodead",
 }
 
 def parse_savefile(fn, args):
