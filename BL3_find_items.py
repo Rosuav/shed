@@ -224,6 +224,7 @@ library = {
 	"BAAAADJWkwCN7wXBf5/KD4EcgELI5xtoeoQ00jSjmPVuu+XTSqx4lcY": "Brashi's Dedication",
 	"BAAAADIN8lHXGGv/P5fKD4EuoMLEZBw8ohvzu/ZZvmP2NEVqtJb/": "Abundant ASMD", # Underwhelming due to slow projectile speed
 	"BAAAADISnUZdHijeP5fKD4FcmcHE5W7mnDriCdYBO3x7sgnxjZDIxA": "Skullmasher", # from diamond key
+	"BAAAADIZ/8TsGGv/P5fKDwEuhsLEvWw8Il0J+PZZonazluWwsbBu": "Lyuda", # Dropped at lvl 72!!
 	# Weapons: Shotgun
 	"BAAAADLSpIL9Gin/P5dWDoAcvLRE20zfXSdp4Njld+bM3W10": "Redundant Face-puncher",
 	"BAAAADKBvJL/Gin//5vID2y1APybnRqfTwyP4nTz4S9ahg": "T.K's Wave",
@@ -268,6 +269,8 @@ library = {
 	"BAAAADKNHZT3Gyn/P5fKxZkcgNcjZSW/xgYokbWwcuJizFVSeg": "Melty Cheep Pestilence",
 	"BAAAADLAlZL/Gin/v47JD4H5mEL66Fo9PGeMrV0aS42yJ68": "Venomous Hornet",
 	"BAAAADLLspX3Gyn/P5fKyQEcgOW/ZaWqlkYrkc2sY+TFR6UIyw": "Expert Hellshock", # Dropped at lvl 72!!
+	"BAAAADKR9ZX3Gyn/P5fKxZkcgG/PZaWR9sYqkfWarUMD9SVocw": "Girth Blaster Elite", # From the toy box
+	"BAAAADKBvJL/Gin/X1HKD0DnAHylb1mdTx6E5jXiSeo6jw": "Hyper-Hydrator", # From the toy box
 	# Weapons: Heavy
 	"BAAAADLXlJb/Gin/P7+pD4FdYUJ6PjN9PF8Q9UGCGp/887A": "Scourge",
 	"BAAAADLBtJL/GmmbL5fKDJqcvjbsJDv/BrSAHBSjfGZV": "Oozing Gettleburger",
