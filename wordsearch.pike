@@ -1,3 +1,6 @@
+constant score = "02210313074020029000033739";
+mapping ltrscore = mkmapping(enumerate('z' - 'a' + 1, 1, 'a'), (array(int))(score / 1));
+
 mapping counter(string ltrs)
 {
 	mapping ret = ([]);
@@ -29,7 +32,7 @@ int main(int argc, array(string) argv)
 	array(string) words = Stdio.read_file(fn) / "\n";
 	array(string) matches = listwords(words, ltrs, minlength);
 	foreach (matches, string w)
-		write("%d %s\n", sizeof(w), w);
+		write("%d %s\n", sizeof(w) + `+(@ltrscore[((array)w)[*]]), w);
 	if (!sizeof(words) || !hidden) return 0;
 	int best = sizeof(matches[-1]) + 1;
 	for (int ltr = 'a'; ltr <= 'z'; ++ltr) {
