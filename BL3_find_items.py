@@ -225,6 +225,8 @@ library = {
 	"BAAAADIN8lHXGGv/P5fKD4EuoMLEZBw8ohvzu/ZZvmP2NEVqtJb/": "Abundant ASMD", # Underwhelming due to slow projectile speed
 	"BAAAADISnUZdHijeP5fKD4FcmcHE5W7mnDriCdYBO3x7sgnxjZDIxA": "Skullmasher", # from diamond key
 	"BAAAADIZ/8TsGGv/P5fKDwEuhsLEvWw8Il0J+PZZonazluWwsbBu": "Lyuda", # Dropped at lvl 72!!
+	"BAAAADLUlJb/Gin/P6/JDYErEUJ6PPH9P18QR1Rj22d1+pI": "THE TWO TIME", # Hitscan weapon - no scope though
+	"BAAAADJSPZZUwineP5fKD4EcmdLE5biCnDrcCtYBO3z6sqkmrZhsRA": "Monocle",
 	# Weapons: Shotgun
 	"BAAAADLSpIL9Gin/P5dWDoAcvLRE20zfXSdp4Njld+bM3W10": "Redundant Face-puncher",
 	"BAAAADKBvJL/Gin//5vID2y1APybnRqfTwyP4nTz4S9ahg": "T.K's Wave",
@@ -247,11 +249,19 @@ library = {
 	"BAAAADLdlJb/Gin/P6epD4HUYEJ6KoL9P18QzdQgy4z0gws": "XZ41",
 	# Weapons: AR
 	"BAAAADIWpoL9Gin/P5daPoEcRpREW+StHSVp8vB28o81qTfB": "Ogre",
+	"BAAAADIZpoL9Gin/P5dSPoEcYKlEW+StHSVp8v728Y8VrTdB": "Ogre",
 	"BAAAADKBvJL/Gin/f5HOD+l5APwr7RqfTx6jbdZQGeJChQ": "Lead Sprinkler",
 	"BAAAADKBvJL/Gin/X5HODyKtAPwr7RqfTx6ibTZTMRpMhQ": "Lead Sprinkler",
 	"BAAAADKBvJL/Gin/v5HODwOAAPw77BqfTx4iYLXTeDZIgA": "Cuttin' Hand Of Glory",
 	"BAAAADLnlJb/Gin/P7+pD4GlW0J6Cgu9PV8CXcPIMEtskJ0": "Sickle",
 	"BAAAADIXUJT3Gyn/P5fK3QEcgEcgZSVjHIUqkc0yf6WyPV0USw": "Venomous Barrage",
+	"BAAAADKddnJnso1/L5fKD4EcgM/M5SM2nDqf6NYDM27cYQSqHHQ4Yw": "Lucian's Call",
+	"BAAAADLK0ZT3Gyn/P5fKx5kcgKntZSWY5QQokbWscGVW3h0YcA": "Hawt Sawbar",
+	"BAAAADJRPKD8nin/P5fKD+QQgMIgr5uCOP0K2KRANq43c0XA1+M": "Hawt Sawbar",
+	"BAAAADLBtJL/GunnPJfKIaecvgfU5Dr/FMVrGAe6sGdV": "The Dictator",
+	"BAAAADKBvJL/Gin/f1HKD8q4APx6HRueTxg7MlR3Wjpcmw": "Hawt Pain is Power", # Can set YOU on fire
+	"BAAAADJKuIL9Gin/P5daPoEcMvtEWzuF3yRp4Nhl1Md03GN1": "Try-Bolt",
+	"BAAAADKP9Jr/Gin/P9cMD4FyykJ6E+s8Pm8Q/a1u2WbDnt8": "Carrier",
 	# Weapons: Pistol
 	"BAAAADLNk5T3Gyn/P5fKxwEcgJtaZSWeTQUpkbOtsGJSrWF8cg": "Maggie",
 	"BAAAADLIu4L9Gin/P5dSDoAcKR5EW3A2XiVp4Fj/edaFPXX3": "Starkiller",
@@ -271,10 +281,13 @@ library = {
 	"BAAAADLLspX3Gyn/P5fKyQEcgOW/ZaWqlkYrkc2sY+TFR6UIyw": "Expert Hellshock", # Dropped at lvl 72!!
 	"BAAAADKR9ZX3Gyn/P5fKxZkcgG/PZaWR9sYqkfWarUMD9SVocw": "Girth Blaster Elite", # From the toy box
 	"BAAAADKBvJL/Gin/X1HKD0DnAHylb1mdTx6E5jXiSeo6jw": "Hyper-Hydrator", # From the toy box
+	"BAAAADKBvJL/Gin/f1HKD3/KAHx6/RqdTx6EZplx4t8Ujg": "Magnificent",
+	"BAAAADJOPOJGG2v/P5fKDwEuhsLEGXk8IgrjOPdZyPdh8H8jNcxu": "Burning Breeder",
 	# Weapons: Heavy
 	"BAAAADLXlJb/Gin/P7+pD4FdYUJ6PjN9PF8Q9UGCGp/887A": "Scourge",
 	"BAAAADLBtJL/GmmbL5fKDJqcvjbsJDv/BrSAHBSjfGZV": "Oozing Gettleburger",
 	"BAAAADILuIL9Gin/P5daPoEcBMREWxSNHSVp4MdltDVmwEnJ": "Nuclear Jericho",
+	"BAAAADISUaEmG2v/P5fKD4F6kMLEO148olEp+/VZ0tLytl8L3cLr": "Hawt Hot Drop",
 	# Grenade mods
 	"BAAAADLBQtp/JDJuf7T5AQWmhMZ45Ru8": "Nagata",
 	"BAAAADLBtFnCmpesrJfrNJEozjzA4Rm9HA": "Whispering Ice",
@@ -290,6 +303,7 @@ library = {
 	"BAAAADLBlDN/JH9tP7b5H7FOXsYk5Ru8": "NOG Potion #9", # Convert NOGs to fight for you
 	"BAAAADKLbRLBjpNOHrzAFbn4asLE5Rs": "ECHO-2",
 	"BAAAADLBtBFLmhfQrFfqNIcq0szB4Qu9HA": "Porcelain Pipe Bomb",
+	"BAAAADLBtHLWmhcnrRfoNIkyziz64eu8HA": "Generator",
 	# Shields
 	"BAAAADLBtLfpmhfO59fpNJNyuo/91mu8HA": "Absorbing", # Health Extremophile Shield?
 	"BAAAADLBtOL4mhcnrRfrNIsoziz62+u8HA": "Generator", # Power Siphon??
@@ -306,6 +320,9 @@ library = {
 	"BAAAADLBtIcjmhcl5VfpNKee/o2Lrpu9HA": "Deluxe Badass Combustor",
 	"BAAAADLQcxJBFPA/HLzsjbVVtsPE5Rs": "Frozen Heart",
 	"BAAAADJRHQdmMijeP5fKD4FcmcHE5cK1nDpp+VYCO3x6fQ75jdhsxQ": "Venomous Kaos",
+	"BAAAADLBtGjempfM5NfpNJOYCpmfqou9HA": "Brawler Ward",
+	"BAAAADLBtH4gmpf05hfpNJmasP2XrCm9HA": "Shield Shredder Big Boom Blaster",
+	"BAAAADLBtDnwmhcK59fpNJOYkpOFogO9HA": "Kneel and Heal Front Loader", # Legendary turtle shield, of a sort
 	# Class mods: Operative
 	"BAAAADJ8sGmvKin/Pwwwjz/Ks4HivvHmcqQl77NXFw": "Executor", # Has a different Balance from the below ones
 	"BAAAADIAQmiPNSn/PxT/jz+ssIHivvHmciTD1rx0iA": "Executor",
@@ -314,8 +331,11 @@ library = {
 	"BAAAADJ92CB2NSn/Pxk9jz+ssIHivvHOcqTBLjS2Fw": "Cold Warrior",
 	"BAAAADLPiZ5zWSn/P3YXjz+ssIHivvHucqT+8lPx+w": "Infiltrator",
 	"BAAAADLPt3HPKin/P/itjz+ssIHivvHuciQM/TMXiA": "Infiltrator",
+	"BAAAADJ6gEavWSn/P0Aljz+ssIHivvHWcqQOn9PXFg": "Shockerator",
+	"BAAAADLQ8XaUXin/P5V1jz+ssIHivvHeciTaMkSxFw": "Techspert",
 	# Class mods: Gunner
 	"BAAAADJ0YsjUNyn/P7SOjz8E4ILivstesQ7zJmwUFQ": "Bloodletter",
+	"BAAAADKZUgj0DCn/P4h6jz8E4ILivstWsQ4k5VQR8A": "Mind Sweeper",
 	# Eridian Artifacts
 	"BAAAADJBioanWgvkbbMoC4EcgMor": "Grenadier Shock Stone",
 	"BAAAADKMTxLBD3G/HbycLzvNRMXE5Rs": "Loaded Radiation Stone",
@@ -323,6 +343,8 @@ library = {
 	"BAAAADJBioanWgvkbbcwDIEcgDoR": "Ravaging Radiation Stone",
 	"BAAAADKRtBLBD3G/HbycAyuI5cXE5Rs": "Hasty Atom Balm",
 	"BAAAADLIlRLBD3G/Hbycx0AYJsrE5Rs": "Spicy Radiodead",
+	"BAAAADKgoBLBD3G/HbycGxmOZNHE5Rs": "Insulated Flesh Melter",
+	"BAAAADLBH2F/JHOkf7X5VwkGNUYN9Ru8": "Road Warrior",
 }
 
 def parse_savefile(fn, args):
