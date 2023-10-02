@@ -247,6 +247,7 @@ library = {
 	"BAAAADLScZX3Gyn/P5fKw5kcgGkTZSVjhkUpkc0s8OlEBY1u9A": "Redistributor",
 	"BAAAADLdlJb/Gin/P7epD4HyG0J6KoL9P18QzdTgyozwgws": "XZ41",
 	"BAAAADLdlJb/Gin/P6epD4HUYEJ6KoL9P18QzdQgy4z0gws": "XZ41",
+	"BAAAADJM/ZX3Gyn/P5fKx5kcgPm2ZSUl1l8pkc0tv0JTDbFsTA": "Handsome Jackhammer",
 	# Weapons: AR
 	"BAAAADIWpoL9Gin/P5daPoEcRpREW+StHSVp8vB28o81qTfB": "Ogre",
 	"BAAAADIZpoL9Gin/P5dSPoEcYKlEW+StHSVp8v728Y8VrTdB": "Ogre",
@@ -293,6 +294,7 @@ library = {
 	"BAAAADLBQtp/JDJuf7T5AQWmhMZ45Ru8": "Nagata",
 	"BAAAADLBtFnCmpesrJfrNJEozjzA4Rm9HA": "Whispering Ice",
 	"BAAAADLBtGctmpcCrhfoNIkqBBjAo8e8HA": "Cloning Hex",
+	"BAAAADLBtEV3mpcCrhfoNIksBBjA/ce8HA": "MIRV Hex",
 	"BAAAADLBtIfFmhflrlfqNIcuBHbA4a28HA": "Surge",
 	"BAAAADLBtEmlmpclrZfrNJEGBDDA4e28HA": "Diamond Butt Bomb",
 	"BAAAADLBtHocmpckrVfqNIcGBDjA4ee8HA": "Ultraball",
@@ -330,6 +332,7 @@ library = {
 	"BAAAADLOsWmPNSn/P0LIjz+ssIHivvHmciTBnmPXew": "Executor",
 	"BAAAADLOsWkPWSn/P+3hjz+ssIHivvHmciTBlrPXew": "Executor", # Hybridized from the above two
 	"BAAAADJ92CB2NSn/Pxk9jz+ssIHivvHOcqTBLjS2Fw": "Cold Warrior",
+	"BAAAADJ/RiB2NSn/P43fjz+ssIHivvHOcqSNH2QRlw": "Cold Warrior",
 	"BAAAADLPiZ5zWSn/P3YXjz+ssIHivvHucqT+8lPx+w": "Infiltrator",
 	"BAAAADLPt3HPKin/P/itjz+ssIHivvHuciQM/TMXiA": "Infiltrator",
 	"BAAAADJ6gEavWSn/P0Aljz+ssIHivvHWcqQOn9PXFg": "Shockerator",
@@ -340,6 +343,8 @@ library = {
 	"BAAAADKZUgj0DCn/P4h6jz8E4ILivstWsQ4k5VQR8A": "Mind Sweeper",
 	# Class mods: Siren
 	"BAAAADLX7U6dESn/P4o2jz+voIHivvdu8iQR00y2sw": "Dragon",
+	# Class mods: Beastmaster
+	"BAAAADJxar7sNin/PyI0jz+xqIHivq3G8ZvAJEyW9A": "DE4DEYE",
 	# Eridian Artifacts
 	"BAAAADJBioanWgvkbbMoC4EcgMor": "Grenadier Shock Stone",
 	"BAAAADKMTxLBD3G/HbycLzvNRMXE5Rs": "Loaded Radiation Stone",
