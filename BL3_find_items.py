@@ -262,6 +262,7 @@ library = {
 	"BAAAADKBvJL/Gin/f1HKD8q4APx6HRueTxg7MlR3Wjpcmw": "Hawt Pain is Power", # Can set YOU on fire
 	"BAAAADJKuIL9Gin/P5daPoEcMvtEWzuF3yRp4Nhl1Md03GN1": "Try-Bolt",
 	"BAAAADKP9Jr/Gin/P9cMD4FyykJ6E+s8Pm8Q/a1u2WbDnt8": "Carrier",
+	"BAAAADKZX5X3Gyn/P5fKx5kcgMSWZSUEDAUrkd+Lq8wz9DUs/A": "Storming Shredifier",
 	# Weapons: Pistol
 	"BAAAADLNk5T3Gyn/P5fKxwEcgJtaZSWeTQUpkbOtsGJSrWF8cg": "Maggie",
 	"BAAAADLIu4L9Gin/P5dSDoAcKR5EW3A2XiVp4Fj/edaFPXX3": "Starkiller",
@@ -335,7 +336,10 @@ library = {
 	"BAAAADLQ8XaUXin/P5V1jz+ssIHivvHeciTaMkSxFw": "Techspert",
 	# Class mods: Gunner
 	"BAAAADJ0YsjUNyn/P7SOjz8E4ILivstesQ7zJmwUFQ": "Bloodletter",
+	"BAAAADJ1YsiUNyn/P7sXjz8E4ILivstesQ46PWNRFQ": "Bloodletter",
 	"BAAAADKZUgj0DCn/P4h6jz8E4ILivstWsQ4k5VQR8A": "Mind Sweeper",
+	# Class mods: Siren
+	"BAAAADLX7U6dESn/P4o2jz+voIHivvdu8iQR00y2sw": "Dragon",
 	# Eridian Artifacts
 	"BAAAADJBioanWgvkbbMoC4EcgMor": "Grenadier Shock Stone",
 	"BAAAADKMTxLBD3G/HbycLzvNRMXE5Rs": "Loaded Radiation Stone",
@@ -396,10 +400,12 @@ def parse_savefile(fn, args):
 	inventory = []
 	for i, item in enumerate(char.inventory_items):
 		obj = Item.from_serial(item.item_serial_number)
+		# Flags seems to be a bitfield, 1 = "seen"?, 2 = starred, 4 = trashed?
 		if args.library:
 			obj.seed = obj.level = 50
 			ser = armor_serial(obj.serial())
 			if ser in library: continue
+			if item.flags & 4: continue # Marked as Trash (I think)
 			print('\t"%s": "%s",' % (ser, obj.get_title()))
 			continue
 		eq = slot.get(i)
