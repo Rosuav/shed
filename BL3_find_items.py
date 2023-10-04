@@ -264,6 +264,10 @@ library = {
 	"BAAAADJKuIL9Gin/P5daPoEcMvtEWzuF3yRp4Nhl1Md03GN1": "Try-Bolt",
 	"BAAAADKP9Jr/Gin/P9cMD4FyykJ6E+s8Pm8Q/a1u2WbDnt8": "Carrier",
 	"BAAAADKZX5X3Gyn/P5fKx5kcgMSWZSUEDAUrkd+Lq8wz9DUs/A": "Storming Shredifier",
+	"BAAAADLBtJL/GinmPJfKjtScvgfU5Dr/FMXrGAe6sGdV": "The Dictator", # Horizontal bullet spread
+	"BAAAADJYeHJ32nWwf5/KD4EcgKLC4RtXYYQ0dcUjmfV8Ejma9ObFee4": "Engulfing Faisor",
+	"BAAAADLelJb/Gin/P4/JDYFUiEJ6wRo9PF8Q6ohG61TZ6bU": "Tamed Star Helix",
+	"BAAAADJRHQdmMijeP5fKD4FcmcHE5cK1nDpp+VYCO3x6fQ75jdhsxQ": "Venomous Kaos",
 	# Weapons: Pistol
 	"BAAAADLNk5T3Gyn/P5fKxwEcgJtaZSWeTQUpkbOtsGJSrWF8cg": "Maggie",
 	"BAAAADLIu4L9Gin/P5dSDoAcKR5EW3A2XiVp4Fj/edaFPXX3": "Starkiller",
@@ -307,6 +311,10 @@ library = {
 	"BAAAADKLbRLBjpNOHrzAFbn4asLE5Rs": "ECHO-2",
 	"BAAAADLBtBFLmhfQrFfqNIcq0szB4Qu9HA": "Porcelain Pipe Bomb",
 	"BAAAADLBtHLWmhcnrRfoNIkyziz64eu8HA": "Generator",
+	"BAAAADLBtL0tmpcXrxfrNIsGBGLA4bm8HA": "Fastball",
+	"BAAAADLBtG9xmpfjrhfrNIsuBATAo9O8HA": "Cloning Hunter-Seeker",
+	"BAAAADLBcat/pDJuv7b5BbGYPsYE5Ru8": "Quasar",
+	"BAAAADLBtIpsmhesrBfrNIsG0tbB4Re9HA": "Chocolate Thunder",
 	# Shields
 	"BAAAADLBtLfpmhfO59fpNJNyuo/91mu8HA": "Absorbing", # Health Extremophile Shield?
 	"BAAAADLBtOL4mhcnrRfrNIsoziz62+u8HA": "Generator", # Power Siphon??
@@ -322,7 +330,6 @@ library = {
 	"BAAAADLBtHwJmpf05hfpNJmasJWRrim9HA": "Quick Charge", # Faraday Big Boom Blaster?
 	"BAAAADLBtIcjmhcl5VfpNKee/o2Lrpu9HA": "Deluxe Badass Combustor",
 	"BAAAADLQcxJBFPA/HLzsjbVVtsPE5Rs": "Frozen Heart",
-	"BAAAADJRHQdmMijeP5fKD4FcmcHE5cK1nDpp+VYCO3x6fQ75jdhsxQ": "Venomous Kaos",
 	"BAAAADLBtGjempfM5NfpNJOYCpmfqou9HA": "Brawler Ward",
 	"BAAAADLBtH4gmpf05hfpNJmasP2XrCm9HA": "Shield Shredder Big Boom Blaster",
 	"BAAAADLBtDnwmhcK59fpNJOYkpOFogO9HA": "Kneel and Heal Front Loader", # Legendary turtle shield, of a sort
@@ -343,6 +350,7 @@ library = {
 	"BAAAADKZUgj0DCn/P4h6jz8E4ILivstWsQ4k5VQR8A": "Mind Sweeper",
 	# Class mods: Siren
 	"BAAAADLX7U6dESn/P4o2jz+voIHivvdu8iQR00y2sw": "Dragon",
+	"BAAAADIH/PbzXyn/P7gkjz+voIHivvdm8iQKI4y3/A": "Flurrying Solitary Breaker",
 	# Class mods: Beastmaster
 	"BAAAADJxar7sNin/PyI0jz+xqIHivq3G8ZvAJEyW9A": "DE4DEYE",
 	# Eridian Artifacts
