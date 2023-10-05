@@ -227,6 +227,7 @@ library = {
 	"BAAAADIZ/8TsGGv/P5fKDwEuhsLEvWw8Il0J+PZZonazluWwsbBu": "Lyuda", # Dropped at lvl 72!!
 	"BAAAADLUlJb/Gin/P6/JDYErEUJ6PPH9P18QR1Rj22d1+pI": "THE TWO TIME", # Hitscan weapon - no scope though
 	"BAAAADJSPZZUwineP5fKD4EcmdLE5biCnDrcCtYBO3z6sqkmrZhsRA": "Monocle",
+	"BAAAADIXEZX3Gyn/P5fKwwEcgJpoZSXr7gUpkc0scOVTlUV0zQ": "The Hunt(er)",
 	# Weapons: Shotgun
 	"BAAAADLSpIL9Gin/P5dWDoAcvLRE20zfXSdp4Njld+bM3W10": "Redundant Face-puncher",
 	"BAAAADKBvJL/Gin//5vID2y1APybnRqfTwyP4nTz4S9ahg": "T.K's Wave",
@@ -236,6 +237,7 @@ library = {
 	"BAAAADKPuYL9Gin/P5dqDoAcbLhEW808XSVp/tRgOdA8hGNX": "Projectile Recursion",
 	"BAAAADLRtJL/Gil/s5bKcdGcviC85Dj3FLkXOBQg4h70": "Hellwalker",
 	"BAAAADKNpIL9Gin/P5dePoEcORZE2+bFHSdp8hXjEeIczXXC": "Iron-Willed Fingerbiter",
+	"BAAAADLBtJL/mhrfP5dBGgGiOKoFxSCmtMgv34Uj+mY": "Flakker",
 	# Weapons: SMG
 	"BAAAADKMVpX3Gyn/P5fKwQEcgO4tZSXnzkUrkd8FLK+TXHV0/A": "Cloud Kill",
 	"BAAAADKP9ZT3Gyn/P5fK3wEcgPiLZSV8zEUrkd+KK29St0wy/Q": "Eviscerating Cutsman",
@@ -289,6 +291,9 @@ library = {
 	"BAAAADKBvJL/Gin/X1HKD0DnAHylb1mdTx6E5jXiSeo6jw": "Hyper-Hydrator", # From the toy box
 	"BAAAADKBvJL/Gin/f1HKD3/KAHx6/RqdTx6EZplx4t8Ujg": "Magnificent",
 	"BAAAADJOPOJGG2v/P5fKDwEuhsLEGXk8IgrjOPdZyPdh8H8jNcxu": "Burning Breeder",
+	"BAAAADINEpX3Gyn/P5fKw5kcgNkcZSUrTgUpkckQ8OJDpXlqTQ": "Amazing Grace", # Go for crits
+	"BAAAADKR8lb9nin/P5fKD+QQgMJ3eJsCydwI2KRAKm8RwG0o5eI": "Kemik Linoge",
+	"BAAAADLRtJL/Gik/s5bK09+cPoeV5Dj3ArYCnoHTxA70": "The Flood", # Basically a SMG
 	# Weapons: Heavy
 	"BAAAADLXlJb/Gin/P7+pD4FdYUJ6PjN9PF8Q9UGCGp/887A": "Scourge",
 	"BAAAADLBtJL/GmmbL5fKDJqcvjbsJDv/BrSAHBSjfGZV": "Oozing Gettleburger",
@@ -333,16 +338,23 @@ library = {
 	"BAAAADLBtGjempfM5NfpNJOYCpmfqou9HA": "Brawler Ward",
 	"BAAAADLBtH4gmpf05hfpNJmasP2XrCm9HA": "Shield Shredder Big Boom Blaster",
 	"BAAAADLBtDnwmhcK59fpNJOYkpOFogO9HA": "Kneel and Heal Front Loader", # Legendary turtle shield, of a sort
+	"BAAAADLBtJUmmpcK5xfpNJmalP2fqgW9HA": "Deliverance Red Suit", # Legendary Amp+Roid with constant nova; low shield capac
+	"BAAAADLBTQp/JGgkf7T5HeuOg46o5Ru8": "Loop of 4N631",
 	# Class mods: Operative
 	"BAAAADJ8sGmvKin/Pwwwjz/Ks4HivvHmcqQl77NXFw": "Executor", # Has a different Balance from the below ones
 	"BAAAADIAQmiPNSn/PxT/jz+ssIHivvHmciTD1rx0iA": "Executor",
 	"BAAAADLOsWmPNSn/P0LIjz+ssIHivvHmciTBnmPXew": "Executor",
 	"BAAAADLOsWkPWSn/P+3hjz+ssIHivvHmciTBlrPXew": "Executor", # Hybridized from the above two
+	"BAAAADLOi24PWSn/P8C9jz+ssIHivvHmciQKwWRXFw": "Executor",
+	"BAAAADJ8im6vKin/P0C3jz+ssIHivvHmcqTBOktRFw": "Executor",
+	"BAAAADLOi04UWSn/P/Lqjz+ssIHivvHmcqTyFnx0CA": "Executor",
+	"BAAAADLOi26vKin/P5/0jz+ssIHivvHmciQD+UvUew": "Executor",
 	"BAAAADJ92CB2NSn/Pxk9jz+ssIHivvHOcqTBLjS2Fw": "Cold Warrior",
 	"BAAAADJ/RiB2NSn/P43fjz+ssIHivvHOcqSNH2QRlw": "Cold Warrior",
 	"BAAAADLPiZ5zWSn/P3YXjz+ssIHivvHucqT+8lPx+w": "Infiltrator",
 	"BAAAADLPt3HPKin/P/itjz+ssIHivvHuciQM/TMXiA": "Infiltrator",
 	"BAAAADJ6gEavWSn/P0Aljz+ssIHivvHWcqQOn9PXFg": "Shockerator",
+	"BAAAADJ6gC4UNCn/PybJjz+ssIHivvHWcqQl23zWFg": "Shockerator",
 	"BAAAADLQ8XaUXin/P5V1jz+ssIHivvHeciTaMkSxFw": "Techspert",
 	# Class mods: Gunner
 	"BAAAADJ0YsjUNyn/P7SOjz8E4ILivstesQ7zJmwUFQ": "Bloodletter",
@@ -353,6 +365,8 @@ library = {
 	"BAAAADIH/PbzXyn/P7gkjz+voIHivvdm8iQKI4y3/A": "Flurrying Solitary Breaker",
 	# Class mods: Beastmaster
 	"BAAAADJxar7sNin/PyI0jz+xqIHivq3G8ZvAJEyW9A": "DE4DEYE",
+	# Unknown - class mod?
+	"BAAAADJ4UhD6DCn/P9oUjz8E4ILivstWsQ4TydxXFg": "Mind Sweeper",
 	# Eridian Artifacts
 	"BAAAADJBioanWgvkbbMoC4EcgMor": "Grenadier Shock Stone",
 	"BAAAADKMTxLBD3G/HbycLzvNRMXE5Rs": "Loaded Radiation Stone",
