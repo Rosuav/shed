@@ -57,31 +57,33 @@ if app == "--complete":
 
 if mode == "sink":
 	# List all available sinks and know which one is the default
-	info = subprocess.run(["pacmd", "list-sinks"], check=True, stdout=subprocess.PIPE, encoding="utf-8").stdout
+	info = subprocess.run(["pactl", "list", "sinks"], check=True, stdout=subprocess.PIPE, encoding="utf-8").stdout
 	options = []; optdesc = {}
 	idx = None
 	for line in info.split("\n"):
-		if idx is not None and line.startswith("\tname: "):
+		if idx is not None and line.startswith("\tName: "):
 			optdesc[idx] += " - " + descriptions.get(line[8:-1], line[8:-1])
-		m = re.match(r' *(\*?) index: ([0-9]+)\w*$', line)
+		m = re.match(r'Sink #([0-9]+)$', line)
 		if not m: continue
-		idx = m.group(2)
+		idx = m.group(1)
 		options.append(int(idx))
-		if m.group(1): optdesc[idx] = idx + " (default)"
-		else: optdesc[idx] = idx + " (nondefault)"
+		# How do we recognize the default sink now?
+		#if m.group(1): optdesc[idx] = idx + " (default)"
+		#else: optdesc[idx] = idx + " (nondefault)"
+		optdesc[idx] = idx
 else:
 	# For muting, the options are just "yes" and "no"
 	options = [0, 1]
 
-info = subprocess.run(["pacmd", "list-sink-inputs"], check=True, stdout=subprocess.PIPE, encoding="utf-8").stdout
+info = subprocess.run(["pactl", "list", "sink-inputs"], check=True, stdout=subprocess.PIPE, encoding="utf-8").stdout
 ignore = False
 program_names = {}
 for line in info.split("\n"):
 	if line.startswith("\t") and not ignore:
 		# Continuation line. If it starts with "\t\t", it's a nested continuation.
-		if line.startswith("\tmuted: "):
-			muted = line == "\tmuted: yes"
-		m = re.match('\tsink: ([0-9]+) ', line)
+		if line.startswith("\tMute: "):
+			muted = line == "\tMute: yes"
+		m = re.match('\tSink: ([0-9]+)', line)
 		if m: sink = int(m.group(1))
 		m = re.match('\t\tapplication.(name|icon_name|process.binary|process.id) = "(.*)"$', line)
 		if not m: continue
@@ -106,16 +108,16 @@ for line in info.split("\n"):
 				new = str(options[target])
 			else: new = status
 			if mode == "mute":
-				subprocess.run(["pacmd", "set-sink-input-mute", index, new], check=True)
+				subprocess.run(["pactl", "set-sink-input-mute", index, new], check=True)
 				if not muted: print("Muted.")
 				else: print("Unmuted.")
 			else:
-				message = subprocess.run(["pacmd", "move-sink-input", index, new],
+				message = subprocess.run(["pactl", "move-sink-input", index, new],
 					check=True, capture_output=True, encoding="UTF-8").stdout.strip()
 				if message: print(message) # It will print to stdout but doesn't return failure.
 				else: print("Sent to sink", optdesc[new])
 	else:
-		if "index:" in line:
-			index = line.split("index:")[1]
+		if "Sink Input #" in line:
+			index = line.split("Sink Input #")[1]
 			muted = sink = None
 			ignore = False
