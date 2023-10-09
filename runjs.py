@@ -53,12 +53,13 @@ async def process_request(path, headers):
 	"""Handle the basic HTTP requests needed to bootstrap everything"""
 	if path == "/":
 		print("Serving page.")
-		scripts = [f'<script id=runjs_{js.basename.replace(".", "_")} src="/{js.basename}?{js.hash}" type=module></script>'
-			for js in runjs.values()]
+		# Note that in older Pythons, "\n".join() isn't allowed inside an f-string
+		scripts = "\n".join(f'<script id=runjs_{js.basename.replace(".", "_")} src="/{js.basename}?{js.hash}" type=module></script>'
+			for js in runjs.values())
 		return (http.HTTPStatus.OK, {"Content-Type": "text/html"}, f"""<!doctype html>
 			<html><head><title>RunJS</title>
 				<script src="/runjs.js" type=module></script>
-				{"\n".join(scripts)}
+				{scripts}
 			</head><body></body></html>""".encode())
 	if path == "/runjs.js":
 		return (http.HTTPStatus.OK, {"Content-Type": "text/javascript"}, b"""
