@@ -18,7 +18,7 @@ class HashLoader(watchdog.events.FileSystemEventHandler):
 		self.filename = fn
 		self.basename = os.path.basename(fn)
 		self.fetch()
-		observer.schedule(self, fn)
+		observer.schedule(self, fn, recursive=True) # Recursive seems necessary to get results on a Mac?!?
 	def fetch(self):
 		with open(self.filename, "rb") as f:
 			self.content = f.read()
