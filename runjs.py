@@ -96,7 +96,7 @@ def main():
 	# Start an observer for every file we're using
 	observer = watchdog.observers.Observer()
 	global runjs
-	runjs = {fn: HashLoader(fn, observer) for fn in args.files}
+	runjs = {os.path.basename(fn): HashLoader(fn, observer) for fn in args.files}
 	observer.start()
 	try: asyncio.run(amain(args))
 	finally:
