@@ -5,6 +5,7 @@
 # will be signalled to reload it.
 import websockets # ImportError? pip install websockets
 import watchdog.events, watchdog.observers # ImportError? pip install watchdog
+import argparse
 import asyncio
 import collections
 import hashlib
@@ -52,47 +53,54 @@ async def process_request(path, headers):
 	"""Handle the basic HTTP requests needed to bootstrap everything"""
 	if path == "/":
 		print("Serving page.")
+		scripts = [f'<script id=runjs_{js.basename.replace(".", "_")} src="/{js.basename}?{js.hash}" type=module></script>'
+			for js in runjs.values()]
 		return (http.HTTPStatus.OK, {"Content-Type": "text/html"}, f"""<!doctype html>
 			<html><head><title>RunJS</title>
 				<script src="/runjs.js" type=module></script>
-				<script id=runme src="/{runjs.basename}?{runjs.hash}" type=module></script>
+				{"\n".join(scripts)}
 			</head><body></body></html>""".encode())
-	if path.startswith("/" + runjs.basename + "?"): # Ignore any querystring
-		return (http.HTTPStatus.OK, {"Content-Type": "text/javascript"}, runjs.content)
 	if path == "/runjs.js":
 		return (http.HTTPStatus.OK, {"Content-Type": "text/javascript"}, b"""
 			function connect() {
 				let socket = new WebSocket("ws://" + window.location.host + "/ws");
 				socket.onclose = () => setTimeout(connect, 2500);
 				socket.onmessage = (ev) => {
-					document.getElementById("runme").remove();
+					const id = "runjs_" + ev.data.split("?")[0].replace(".", "_");
+					document.getElementById(id).remove();
 					const script = document.createElement("script");
 					script.type = "module";
 					script.src = ev.data;
+					script.id = id;
 					document.head.append(script);
 				};
 			}
 			connect();
 		""")
+	path = path.split("?")[0].removeprefix("/") # Ignore any querystring
+	if path in runjs:
+		return (http.HTTPStatus.OK, {"Content-Type": "text/javascript"}, runjs[path].content)
 
-async def main():
+async def amain(args):
 	global loop; loop = asyncio.get_running_loop()
-	port = 8000
-	if (sys.argv[2] == "--port"):
-		port = int(sys.argv[3])
-	async with websockets.serve(connection, "localhost", port, process_request=process_request):
-		print("Ready and listening on port %s. Press Ctrl-C (maybe twice) to halt." % port)
+	async with websockets.serve(connection, "localhost", args.port, process_request=process_request):
+		print("Ready and listening on port %s. Press Ctrl-C (maybe twice) to halt." % args.port)
 		await asyncio.Future()
 
-if len(sys.argv) < 2:
-	print("USAGE: python3 %s filename.js [--port 8001]" % sys.argv[0])
-	sys.exit(1)
+def main():
+	parser = argparse.ArgumentParser(description="RunJS - hot reload in browser")
+	parser.add_argument("-p", "--port", help="Specify the port to run on", type=int, default=8000)
+	parser.add_argument("files", nargs="+", help="JavaScript file to make available")
+	args = parser.parse_args()
+	# Start an observer for every file we're using
+	observer = watchdog.observers.Observer()
+	global runjs
+	runjs = {fn: HashLoader(fn, observer) for fn in args.files}
+	observer.start()
+	try: asyncio.run(amain(args))
+	finally:
+		observer.stop()
+		observer.join()
 
-observer = watchdog.observers.Observer()
-runjs = HashLoader(sys.argv[1], observer)
-observer.start()
-
-try: asyncio.run(main())
-finally:
-	observer.stop()
-	observer.join()
+if __name__ == "__main__":
+	main()
