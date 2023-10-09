@@ -77,12 +77,15 @@ async def process_request(path, headers):
 
 async def main():
 	global loop; loop = asyncio.get_running_loop()
-	async with websockets.serve(connection, "localhost", 8000, process_request=process_request):
-		print("Ready and listening. Press Ctrl-C (maybe twice) to halt.")
+	port = 8000
+	if (sys.argv[2] == "--port"):
+		port = int(sys.argv[3])
+	async with websockets.serve(connection, "localhost", port, process_request=process_request):
+		print("Ready and listening on port %s. Press Ctrl-C (maybe twice) to halt." % port)
 		await asyncio.Future()
 
 if len(sys.argv) < 2:
-	print("USAGE: python3 %s filename.js" % sys.argv[0])
+	print("USAGE: python3 %s filename.js [--port 8001]" % sys.argv[0])
 	sys.exit(1)
 
 observer = watchdog.observers.Observer()
