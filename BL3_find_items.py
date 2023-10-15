@@ -224,10 +224,14 @@ library = {
 	"BAAAADJWkwCN7wXBf5/KD4EcgELI5xtoeoQ00jSjmPVuu+XTSqx4lcY": "Brashi's Dedication",
 	"BAAAADIN8lHXGGv/P5fKD4EuoMLEZBw8ohvzu/ZZvmP2NEVqtJb/": "Abundant ASMD", # Underwhelming due to slow projectile speed
 	"BAAAADISnUZdHijeP5fKD4FcmcHE5W7mnDriCdYBO3x7sgnxjZDIxA": "Skullmasher", # from diamond key
+	"BAAAADLU/8TsGGv/P5fKD4EuhsLE1XQ8Il0J+PZZomn8luW4ibDs": "Lyuda",
 	"BAAAADIZ/8TsGGv/P5fKDwEuhsLEvWw8Il0J+PZZonazluWwsbBu": "Lyuda", # Dropped at lvl 72!!
 	"BAAAADLUlJb/Gin/P6/JDYErEUJ6PPH9P18QR1Rj22d1+pI": "THE TWO TIME", # Hitscan weapon - no scope though
 	"BAAAADJSPZZUwineP5fKD4EcmdLE5biCnDrcCtYBO3z6sqkmrZhsRA": "Monocle",
+	"BAAAADJSPZZMwineP5fKD4EcmtLE5dt0nDrcCtYBO3x7sqkmrZhsRA": "Monocle",
 	"BAAAADIXEZX3Gyn/P5fKwwEcgJpoZSXr7gUpkc0scOVTlUV0zQ": "The Hunt(er)",
+	"BAAAADIXEZX3Gyn/P5fKxQEcgC2wZaXr7gUpkc2sv6LT1UV0TA": "The Hunt(ed)",
+	"BAAAADKOM5X3Gyn/P5fKxwEcgL0jZSUY5EUrkdGmOgeDNeF+8Q": "Storm",
 	# Weapons: Shotgun
 	"BAAAADLSpIL9Gin/P5dWDoAcvLRE20zfXSdp4Njld+bM3W10": "Redundant Face-puncher",
 	"BAAAADKBvJL/Gin//5vID2y1APybnRqfTwyP4nTz4S9ahg": "T.K's Wave",
@@ -238,6 +242,8 @@ library = {
 	"BAAAADLRtJL/Gil/s5bKcdGcviC85Dj3FLkXOBQg4h70": "Hellwalker",
 	"BAAAADKNpIL9Gin/P5dePoEcORZE2+bFHSdp8hXjEeIczXXC": "Iron-Willed Fingerbiter",
 	"BAAAADLBtJL/mhrfP5dBGgGiOKoFxSCmtMgv34Uj+mY": "Flakker",
+	"BAAAADLRtJL/Gil/s5bKmgKcPuClpDj3BoqXXyQzGR70": "Conference Call",
+	"BAAAADKLuYL9Gin/P5dqDoAcQHBE23E2nSVp4EcldRaE6WV1": "Supercharged Polybius",
 	# Weapons: SMG
 	"BAAAADKMVpX3Gyn/P5fKwQEcgO4tZSXnzkUrkd8FLK+TXHV0/A": "Cloud Kill",
 	"BAAAADKP9ZT3Gyn/P5fK3wEcgPiLZSV8zEUrkd+KK29St0wy/Q": "Eviscerating Cutsman",
@@ -250,6 +256,15 @@ library = {
 	"BAAAADLdlJb/Gin/P7epD4HyG0J6KoL9P18QzdTgyozwgws": "XZ41",
 	"BAAAADLdlJb/Gin/P6epD4HUYEJ6KoL9P18QzdQgy4z0gws": "XZ41",
 	"BAAAADJM/ZX3Gyn/P5fKx5kcgPm2ZSUl1l8pkc0tv0JTDbFsTA": "Handsome Jackhammer",
+	"BAAAADJN83etTCneP5fKD4FcmdLE5c+qnDpSaVYCO3rkfc7IrbwE+Q": "Arctic Night Hawkin",
+	"BAAAADLRciGNMwR/L5fKD4EcoM/M5T0TnDpSaVYCM3rlssnIrbgC8A": "Arctic Night Hawkin",
+	"BAAAADLdlJb/Gin/P7fJD4HTqkJ6BcE9PV8Q9B8hH3bhh74": "Firesale Long Musket",
+	"BAAAADLFl5r3Gyn/P5fK3QEcgNATZSXVzkUrkd8FrJanBH1y9w": "Devoted",
+	"BAAAADKTMJT3Gyn/P5fKxZkcgCdhZSWshUUpkc2yf+pUDbFs9w": "Defrauding Crossroad",
+	"BAAAADJVspv3Gyn/P5fK3wEcgM9ZZaWJz0Urkd+Eq4w8n3R0fA": "The Emperor's Condiment",
+	"BAAAADJVspv3Gyn/P5fKwQEcgKVyZaWJz0Urkd+KK488n3R0fA": "The Emperor's Condiment",
+	"BAAAADLBtJL/2jDvP5dA+AGieptFxFgmuzkwsawjmWY": "Bangarang",
+	"BAAAADJDpYL9Gin/P5daDoAc8HBEW+9uXSVp8nBAsOLl8X/L": "E-Gone",
 	# Weapons: AR
 	"BAAAADIWpoL9Gin/P5daPoEcRpREW+StHSVp8vB28o81qTfB": "Ogre",
 	"BAAAADIZpoL9Gin/P5dSPoEcYKlEW+StHSVp8v728Y8VrTdB": "Ogre",
@@ -261,26 +276,39 @@ library = {
 	"BAAAADKddnJnso1/L5fKD4EcgM/M5SM2nDqf6NYDM27cYQSqHHQ4Yw": "Lucian's Call",
 	"BAAAADLK0ZT3Gyn/P5fKx5kcgKntZSWY5QQokbWscGVW3h0YcA": "Hawt Sawbar",
 	"BAAAADJRPKD8nin/P5fKD+QQgMIgr5uCOP0K2KRANq43c0XA1+M": "Hawt Sawbar",
+	"BAAAADLKnNZmG2v/P5fKDwEuhsLEl448IiDz+vVZ2ui8tg8z2bjV": "Hawt Sawbar",
 	"BAAAADLBtJL/GunnPJfKIaecvgfU5Dr/FMVrGAe6sGdV": "The Dictator",
 	"BAAAADKBvJL/Gin/f1HKD8q4APx6HRueTxg7MlR3Wjpcmw": "Hawt Pain is Power", # Can set YOU on fire
 	"BAAAADJKuIL9Gin/P5daPoEcMvtEWzuF3yRp4Nhl1Md03GN1": "Try-Bolt",
 	"BAAAADKP9Jr/Gin/P9cMD4FyykJ6E+s8Pm8Q/a1u2WbDnt8": "Carrier",
 	"BAAAADKZX5X3Gyn/P5fKx5kcgMSWZSUEDAUrkd+Lq8wz9DUs/A": "Storming Shredifier",
+	"BAAAADLJ2Gf8nin/P5fKD+QQgMKmE5uCpBQL26QqkbLd4oRh40o": "Engulfing Shredifier",
 	"BAAAADLBtJL/GinmPJfKjtScvgfU5Dr/FMXrGAe6sGdV": "The Dictator", # Horizontal bullet spread
 	"BAAAADJYeHJ32nWwf5/KD4EcgKLC4RtXYYQ0dcUjmfV8Ejma9ObFee4": "Engulfing Faisor",
+	"BAAAADIYdYN+o7d/L5fKD4EcgM/M5eW/nDqF6NYDM27Toed553no0w": "Nuclear Faisor",
 	"BAAAADLelJb/Gin/P4/JDYFUiEJ6wRo9PF8Q6ohG61TZ6bU": "Tamed Star Helix",
 	"BAAAADJRHQdmMijeP5fKD4FcmcHE5cK1nDpp+VYCO3x6fQ75jdhsxQ": "Venomous Kaos",
+	"BAAAADIIEZX3Gyn/P5fKxZkcgGykZaXfJ8cqkc0yf+VTvVgASQ": "Burning Alchemist",
+	"BAAAADKBvJL/Gin/X1HKD6VqAHwb5ZqcTx6yexNhcssUjw": "Warlord",
+	"BAAAADLYlJb/Gin/P7fJDYEMbkL6FBO9P18QXQ/Dycf0/zE": "Loaded Gatling Gun",
+	"BAAAADKBvJL/Gin/b1HKD30SAPx6HRueTxg7MnR3YgJcmw": "Hawt Embrace the Pain",
+	"BAAAADLAlZL/Gin/v47JD4HbmUL6xek8PmcQEqby+ateH2Y": "Rebel Yell",
 	# Weapons: Pistol
 	"BAAAADLNk5T3Gyn/P5fKxwEcgJtaZSWeTQUpkbOtsGJSrWF8cg": "Maggie",
+	"BAAAADLNk5T3Gyn/P5fKxQEcgFp0ZSWeTQUpkcmQsGJCpWF8cg": "Maggie",
 	"BAAAADLIu4L9Gin/P5dSDoAcKR5EW3A2XiVp4Fj/edaFPXX3": "Starkiller",
+	"BAAAADLIu4L9Gin/P5duDoAc1PpEW3A2XiVp4Fj/edaFPXX3": "Starkiller",
 	"BAAAADJFtJL/Gin/9LfKD6MpAPySppqcR4Kxg++Gs694sg": "Omniloader",
 	"BAAAADLblJb/Gin/P7+pD4EoKUL6E5P+PV8Qdc5haZf4+z4": "Superball",
 	"BAAAADJFtJL/Gin/XJvKD3hPAHww3ZqeR54NiJXGKFw4sQ": "Peacemonger",
 	"BAAAADJS88ZXGijeP5fKD4GcmcHE5eUVnDo/ERUCO0TMYKmiruhMwg": "Oozing Roisen's Thorns",
+	"BAAAADKS88ZXGijeP5fKD4FcmcHE5YWWnDo/ERUCOxZlP0mlrvxGwg": "Oozing Roisen's Thorns",
 	"BAAAADLgpYL9Gin/P5fSjIEcTy5EW02nHSVp4EUm+2d92GP7": "The Leech",
 	"BAAAADIPv4L9Gin/P5fqjIEcbilE2xBlHiZpmEUoNLeEvWNx": "The Killing Word",
 	"BAAAADKBvJL/Gin/v5HOD7uuAHxTtxqfTxo4JbbwQQJMig": "Dead Chamber",
 	"BAAAADJKMgb8nin/P5fKD0s8gMKNDZuC6t4I2KRAKi/xN3Zg0Xc": "Extreme Hangin' Chadd", # Always incendiary. Never needs ammo.
+	"BAAAADJKMgb8nin/P5fKD0s8gMJUrJuC6t4I2KRAKmwRN3Zg0Xc": "Extreme Hangin' Chadd",
+	"BAAAADJKMgb8nin/P5fKD0o8gMJfHZuC6t4I2KQGiSwRN0580Xc": "Extreme Hangin' Chadd",
 	"BAAAADLNpIL9Gin/P5dSPoEcVulE212lHSVp4EO9uHSoLXt9": "Storming Infinity", # Never needs ammo
 	"BAAAADKBvJL/Gin/T5HOD7uQAHwatRqfT2CF8nOXIB40mg": "The Companion", # You can't take the sky from me...
 	"BAAAADLclJb/Gin/P6fJDYFfl0L6jkm9P19u9V8Gn044mQ0": "The Duc",
@@ -294,11 +322,20 @@ library = {
 	"BAAAADINEpX3Gyn/P5fKw5kcgNkcZSUrTgUpkckQ8OJDpXlqTQ": "Amazing Grace", # Go for crits
 	"BAAAADKR8lb9nin/P5fKD+QQgMJ3eJsCydwI2KRAKm8RwG0o5eI": "Kemik Linoge",
 	"BAAAADLRtJL/Gik/s5bK09+cPoeV5Dj3ArYCnoHTxA70": "The Flood", # Basically a SMG
+	"BAAAADKh9Jr/Gin/P8cMD4GGG0L66Fo9PG+MrV2EdSJOBIk": "Venomous Hornet",
+	"BAAAADLRXbD8nin/P5fKD+UQgMLFw5uCwuzI2qQAAK/+p3581eo": "Burning Occultist",
+	"BAAAADLBtJL/Gqn5O5eHIwEiVIJFxVA6qS1Sa2t4+G4": "Shocking AAA",
+	"BAAAADLDtJL/GilnPpbKxQycPjidZDrvBuNjdTnwGnFk": "Poison Bangarang",
+	"BAAAADLLspX3Gyn/P5fKwQEcgAG9ZaWqlkYrkc2towWlRKUIyw": "Hellshock",
+	"BAAAADJPHOL8nin/P5fKD+UQgMJqjpuCEu3I2qRSKfMQ516I1VI": "Breeder",
+	"BAAAADKBvJL/Gin/f1HKDyGNAPwUbFmdTx4Eof0W0v9cgA": "Thunderball Fists",
 	# Weapons: Heavy
 	"BAAAADLXlJb/Gin/P7+pD4FdYUJ6PjN9PF8Q9UGCGp/887A": "Scourge",
 	"BAAAADLBtJL/GmmbL5fKDJqcvjbsJDv/BrSAHBSjfGZV": "Oozing Gettleburger",
 	"BAAAADILuIL9Gin/P5daPoEcBMREWxSNHSVp4MdltDVmwEnJ": "Nuclear Jericho",
 	"BAAAADISUaEmG2v/P5fKD4F6kMLEO148olEp+/VZ0tLytl8L3cLr": "Hawt Hot Drop",
+	"BAAAADLBtJIrjqlBb9/LJ4oewsLE5Ru8HAQ": "Eridian Fabricator", # The Gun Gun, consumes eridium to create weapons
+	"BAAAADLYlJb/Gin/P7epD4FDYkL66jJ9PF8QyBWCGm/t+7E": "Tunguska",
 	# Grenade mods
 	"BAAAADLBQtp/JDJuf7T5AQWmhMZ45Ru8": "Nagata",
 	"BAAAADLBtFnCmpesrJfrNJEozjzA4Rm9HA": "Whispering Ice",
@@ -353,6 +390,7 @@ library = {
 	"BAAAADJ/RiB2NSn/P43fjz+ssIHivvHOcqSNH2QRlw": "Cold Warrior",
 	"BAAAADLPiZ5zWSn/P3YXjz+ssIHivvHucqT+8lPx+w": "Infiltrator",
 	"BAAAADLPt3HPKin/P/itjz+ssIHivvHuciQM/TMXiA": "Infiltrator",
+	"BAAAADLPt2HPKin/P8m+jz+ssIHivvHucqTA+EO3+w": "Infiltrator",
 	"BAAAADJ6gEavWSn/P0Aljz+ssIHivvHWcqQOn9PXFg": "Shockerator",
 	"BAAAADJ6gC4UNCn/PybJjz+ssIHivvHWcqQl23zWFg": "Shockerator",
 	"BAAAADLQ8XaUXin/P5V1jz+ssIHivvHeciTaMkSxFw": "Techspert",
@@ -363,8 +401,12 @@ library = {
 	# Class mods: Siren
 	"BAAAADLX7U6dESn/P4o2jz+voIHivvdu8iQR00y2sw": "Dragon",
 	"BAAAADIH/PbzXyn/P7gkjz+voIHivvdm8iQKI4y3/A": "Flurrying Solitary Breaker",
+	"BAAAADLZ1cazKyn/P9Bljz/Fo4Hivvd28iTELnw2/g": "Elementalist",
 	# Class mods: Beastmaster
 	"BAAAADJxar7sNin/PyI0jz+xqIHivq3G8ZvAJEyW9A": "DE4DEYE",
+	"BAAAADJxbPbMNin/P0NMjz+xqIHivq3W8ZvG4NuUdQ": "Cosmic Stalker",
+	"BAAAADLye/YsVin/P7mHjz/Mq4Hivq3O8ZskD6zXdA": "Bounty Hunter",
+	"BAAAADJvaP5XOyn/P+JIj7/Oq4Hivq3e8RsP1XTx9Q": "Friend-Bot",
 	# Unknown - class mod?
 	"BAAAADJ4UhD6DCn/P9oUjz8E4ILivstWsQ4TydxXFg": "Mind Sweeper",
 	# Eridian Artifacts
@@ -376,6 +418,14 @@ library = {
 	"BAAAADLIlRLBD3G/Hbycx0AYJsrE5Rs": "Spicy Radiodead",
 	"BAAAADKgoBLBD3G/HbycGxmOZNHE5Rs": "Insulated Flesh Melter",
 	"BAAAADLBH2F/JHOkf7X5VwkGNUYN9Ru8": "Road Warrior",
+	"BAAAADLBK7d/JOWkf7X5V2GN46uM9hu8": "Radiodead Otto Idol",
+
+	# Unconfirmed weapon types
+	"BAAAADLQUZD8nin/P5fKD+cQgMLCm5uCPD3J2qQ4qKGf1W0s310": "Itchy Laser-Sploder", # AR, I think?
+	"BAAAADLRtJL/Gilfs5bKnB2cPvSvJDv3BgpXPBUz+RT0": "Oozing The Lob",
+	"BAAAADKP9Jr/Gin/P9cMD4EKEEJ6E+s8Pm8QMq5u2W7D/t8": "Carrier",
+	"BAAAADLPv4L9Gin/P5daDoAc6rdEW7jsHSdpnthrnNMU+RNJ": "Wagon Wheel",
+	"BAAAADKBvJL/Gin/D1HKD0OlAPwLfFqfTx4EshpQQg48gw": "Bitch",
 }
 
 def parse_savefile(fn, args):
