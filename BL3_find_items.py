@@ -412,14 +412,24 @@ def parse_savefile(fn, args):
 	#  for mission in missions.mission_list:
 	#   if mission.status == 1: is an active mission
 	# char.sdu_list -- all the SDU upgrades you've purchased
-	# Money?? Not sure how that's stored. I actually expected that to be one of the easy verifications.
 
 	# Your level isn't actually stored anywhere, only your XP.
 	# This calculation might be wrong if you're precisely at a level,
 	# due to rounding errors, but you'd have to basically be +/- 1 XP
 	# from the level threshold - highly unlikely.
 	level = int(((char.experience_points + 60) / 60) ** (1/2.8))
-	print(char.preferred_character_name, "lvl", level)
+
+	# Money and Eridium are stored in what has to be a deliberately-obscured way, but
+	# not very well encrypted. In char.inventory_category_list is an array of entries
+	# which are identified by a "hash", and then a quantity. By inspecting my own save,
+	# I deduce that money is the one with base_category_definition_hash 618814354, and
+	# eridium has hash 3679636065. There's also one with hash 1413395216 which I think
+	# I have none of on this save.
+	money = eridium = "(unknown)" # Or should they default to zero?
+	for inv in char.inventory_category_list:
+		if inv.base_category_definition_hash == 618814354: money = inv.quantity
+		if inv.base_category_definition_hash == 3679636065: eridium = inv.quantity
+	print(char.preferred_character_name, "lvl", level, "cash", money, "eridium", eridium)
 	slot = { }
 	for eq in char.equipped_inventory_list:
 		slot[eq.inventory_list_index] = eq.slot_data_path.split(".")[-1].removeprefix("BPInvSlot_")
