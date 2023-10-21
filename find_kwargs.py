@@ -18,11 +18,12 @@ class ParamFinder(ast.NodeVisitor):
 for root, dirs, files in os.walk("."):
 	for fn in files:
 		if fn.endswith(".py"):
-			with open(os.path.join(root, fn), "rb") as f:
+			fn = os.path.join(root, fn)
+			with open(fn, "rb") as f:
 				data = f.read()
 			try:
 				node = ast.parse(data)
 			except Exception as e:
-				print("Unable to parse", os.path.join(root, fn), file=sys.stderr)
+				print("Unable to parse", fn, file=sys.stderr)
 				print(e, file=sys.stderr)
 			ParamFinder().visit(node)
