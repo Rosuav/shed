@@ -244,6 +244,7 @@ library = {
 	"BAAAADLBtJL/mhrfP5dBGgGiOKoFxSCmtMgv34Uj+mY": "Flakker",
 	"BAAAADLRtJL/Gil/s5bKmgKcPuClpDj3BoqXXyQzGR70": "Conference Call",
 	"BAAAADKLuYL9Gin/P5dqDoAcQHBE23E2nSVp4EcldRaE6WV1": "Supercharged Polybius",
+	"BAAAADLT+rYjCiv/P5fKDxEtgMIKkJsC3WRL2bQ4qKEZ9e0k01A": "The Butcher",
 	# Weapons: SMG
 	"BAAAADKMVpX3Gyn/P5fKwQEcgO4tZSXnzkUrkd8FLK+TXHV0/A": "Cloud Kill",
 	"BAAAADKP9ZT3Gyn/P5fK3wEcgPiLZSV8zEUrkd+KK29St0wy/Q": "Eviscerating Cutsman",
@@ -265,6 +266,7 @@ library = {
 	"BAAAADJVspv3Gyn/P5fKwQEcgKVyZaWJz0Urkd+KK488n3R0fA": "The Emperor's Condiment",
 	"BAAAADLBtJL/2jDvP5dA+AGieptFxFgmuzkwsawjmWY": "Bangarang",
 	"BAAAADJDpYL9Gin/P5daDoAc8HBEW+9uXSVp8nBAsOLl8X/L": "E-Gone",
+	"BAAAADKO/NFlGuryHpfKD4EcQNvU5RtXfoS0okxjm+Vuu+Wz2tRA98M": "Hostile L0V3M4CH1N3",
 	# Weapons: AR
 	"BAAAADIWpoL9Gin/P5daPoEcRpREW+StHSVp8vB28o81qTfB": "Ogre",
 	"BAAAADIZpoL9Gin/P5dSPoEcYKlEW+StHSVp8v728Y8VrTdB": "Ogre",
@@ -329,6 +331,9 @@ library = {
 	"BAAAADLLspX3Gyn/P5fKwQEcgAG9ZaWqlkYrkc2towWlRKUIyw": "Hellshock",
 	"BAAAADJPHOL8nin/P5fKD+UQgMJqjpuCEu3I2qRSKfMQ516I1VI": "Breeder",
 	"BAAAADKBvJL/Gin/f1HKDyGNAPwUbFmdTx4Eof0W0v9cgA": "Thunderball Fists",
+	"BAAAADLDuIL9Gin/P5dSPoEcuVtE28NU3iRp2G/3PJSmIRHy": "Devastator ",
+	"BAAAADLPv4L9Gin/P5daDoAc6rdEW7jsHSdpnthrnNMU+RNJ": "Wagon Wheel",
+	"BAAAADKBvJL/Gin/D1HKD4/9AHx6/RqdTx6eZllB2ttejg": "Pestilent Magnificent",
 	# Weapons: Heavy
 	"BAAAADLXlJb/Gin/P7+pD4FdYUJ6PjN9PF8Q9UGCGp/887A": "Scourge",
 	"BAAAADLBtJL/GmmbL5fKDJqcvjbsJDv/BrSAHBSjfGZV": "Oozing Gettleburger",
@@ -356,6 +361,7 @@ library = {
 	"BAAAADLBtL0tmpcXrxfrNIsGBGLA4bm8HA": "Fastball",
 	"BAAAADLBtG9xmpfjrhfrNIsuBATAo9O8HA": "Cloning Hunter-Seeker",
 	"BAAAADLBcat/pDJuv7b5BbGYPsYE5Ru8": "Quasar",
+	"BAAAADLBAoh/pDJuf7T5AbGYPtYE5Ru8": "Sticky Quasar",
 	"BAAAADLBtIpsmhesrBfrNIsG0tbB4Re9HA": "Chocolate Thunder",
 	# Shields
 	"BAAAADLBtLfpmhfO59fpNJNyuo/91mu8HA": "Absorbing", # Health Extremophile Shield?
@@ -377,6 +383,7 @@ library = {
 	"BAAAADLBtDnwmhcK59fpNJOYkpOFogO9HA": "Kneel and Heal Front Loader", # Legendary turtle shield, of a sort
 	"BAAAADLBtJUmmpcK5xfpNJmalP2fqgW9HA": "Deliverance Red Suit", # Legendary Amp+Roid with constant nova; low shield capac
 	"BAAAADLBTQp/JGgkf7T5HeuOg46o5Ru8": "Loop of 4N631",
+	"BAAAADKOeBLB/fF/HLzSiXNQlsPE5Rs": "Black Hole",
 	# Class mods: Operative
 	"BAAAADJ8sGmvKin/Pwwwjz/Ks4HivvHmcqQl77NXFw": "Executor", # Has a different Balance from the below ones
 	"BAAAADIAQmiPNSn/PxT/jz+ssIHivvHmciTD1rx0iA": "Executor",
@@ -419,12 +426,12 @@ library = {
 	"BAAAADKgoBLBD3G/HbycGxmOZNHE5Rs": "Insulated Flesh Melter",
 	"BAAAADLBH2F/JHOkf7X5VwkGNUYN9Ru8": "Road Warrior",
 	"BAAAADLBK7d/JOWkf7X5V2GN46uM9hu8": "Radiodead Otto Idol",
+	"BAAAADLB9ll/pDynf7X5V8VmA6tN9Ru8": "Spicy Spark Plug",
 
 	# Unconfirmed weapon types
 	"BAAAADLQUZD8nin/P5fKD+cQgMLCm5uCPD3J2qQ4qKGf1W0s310": "Itchy Laser-Sploder", # AR, I think?
 	"BAAAADLRtJL/Gilfs5bKnB2cPvSvJDv3BgpXPBUz+RT0": "Oozing The Lob",
 	"BAAAADKP9Jr/Gin/P9cMD4EKEEJ6E+s8Pm8QMq5u2W7D/t8": "Carrier",
-	"BAAAADLPv4L9Gin/P5daDoAc6rdEW7jsHSdpnthrnNMU+RNJ": "Wagon Wheel",
 	"BAAAADKBvJL/Gin/D1HKD0OlAPwLfFqfTx4EshpQQg48gw": "Bitch",
 }
 
