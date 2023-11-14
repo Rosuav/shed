@@ -10,7 +10,7 @@ if p.returncode:
 	sys.exit(p.returncode)
 expectations = {
 	27015: "srcds_linux:TF2",
-	27016: "srcds_linux:CSGO",
+	# 27016: "srcds_linux:CSGO", # Temporarily down
 }
 allowable = {27016: ["eu4"]}
 error = 0
@@ -68,4 +68,20 @@ for line in p.stdout.split("\n"):
 for port, expected in expectations.items():
 	error = 1
 	print(port, "\x1b[1;31mNOT RUNNING: " + expected + "\x1b[0m")
+
+# Technically unrelated but worth checking, Steam can consume a lot of shared memory.
+p = subprocess.run(["df", "/dev/shm"], capture_output=True, encoding="utf-8")
+lines = p.stdout.split("\n")
+if len(lines) < 2:
+	print("\x1b[1;31mShMem Unable to determine\x1b[0m")
+	error = 1
+else:
+	fs, size, used, avail, percent, mount = lines[1].split()
+	p = int(percent.replace("%", ""))
+	if p > 90: color = "\x1b[1;31m"
+	elif p > 50: color = "\x1b[1;33m"
+	elif p > 15: color = "\x1b[1m"
+	else: color = "\x1b[1;32m"
+	print("ShMem %s%s\x1b[0m" % (color, percent))
+
 sys.exit(error)
