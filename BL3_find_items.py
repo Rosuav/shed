@@ -232,6 +232,7 @@ library = {
 	"BAAAADIXEZX3Gyn/P5fKwwEcgJpoZSXr7gUpkc0scOVTlUV0zQ": "The Hunt(er)",
 	"BAAAADIXEZX3Gyn/P5fKxQEcgC2wZaXr7gUpkc2sv6LT1UV0TA": "The Hunt(ed)",
 	"BAAAADKOM5X3Gyn/P5fKxwEcgL0jZSUY5EUrkdGmOgeDNeF+8Q": "Storm",
+	"BAAAADIQkbScdCH+P5fKD4GIwcLEtjQ8onH6+/RJovbzluyIoc5v": "Muckamuck",
 	# Weapons: Shotgun
 	"BAAAADLSpIL9Gin/P5dWDoAcvLRE20zfXSdp4Njld+bM3W10": "Redundant Face-puncher",
 	"BAAAADKBvJL/Gin//5vID2y1APybnRqfTwyP4nTz4S9ahg": "T.K's Wave",
@@ -432,7 +433,13 @@ library = {
 	"BAAAADLQUZD8nin/P5fKD+cQgMLCm5uCPD3J2qQ4qKGf1W0s310": "Itchy Laser-Sploder", # AR, I think?
 	"BAAAADLRtJL/Gilfs5bKnB2cPvSvJDv3BgpXPBUz+RT0": "Oozing The Lob",
 	"BAAAADKP9Jr/Gin/P9cMD4EKEEJ6E+s8Pm8QMq5u2W7D/t8": "Carrier",
+	"BAAAADKP9Jr/Gin/P8cMD4FKUkJ6E+s8Pm8QEqZu2W7B/t8": "Carrier",
 	"BAAAADKBvJL/Gin/D1HKD0OlAPwLfFqfTx4EshpQQg48gw": "Bitch",
+	"BAAAADJFlpr3Gyn/P5fKwQEcgP6LZSXVzkUrkd+Kq9aHBH1w8Q": "Devoted",
+	"BAAAADLBtO1pmpca59fpNJOYbpqFrDu9HA": "Overflowing", # Shield?
+	"BAAAADJR9Zr/Gin/P9fMC4EA1UJ6Ind9PFeCP1KgKdcE9es": "Triple-Penetrating Critical Thug",
+	"BAAAADLBtI0WmpcOq5frNJEGBIjB4Zm8HA": "Mesmer", # Nade?
+	"BAAAADLddnJv2n0tf9fCD4EcgMJE4x+8WjOKxEIwuUfnvYWExP6yoRSv": "Pestilent Double-Bezoomy",
 }
 
 def parse_savefile(fn, args):
