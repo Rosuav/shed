@@ -246,6 +246,7 @@ library = {
 	"BAAAADLRtJL/Gil/s5bKmgKcPuClpDj3BoqXXyQzGR70": "Conference Call",
 	"BAAAADKLuYL9Gin/P5dqDoAcQHBE23E2nSVp4EcldRaE6WV1": "Supercharged Polybius",
 	"BAAAADLT+rYjCiv/P5fKDxEtgMIKkJsC3WRL2bQ4qKEZ9e0k01A": "The Butcher",
+	"BAAAADJR9Zr/Gin/P9fMC4EA1UJ6Ind9PFeCP1KgKdcE9es": "Triple-Penetrating Critical Thug", # From diamond key, says it requires Director's Cut
 	# Weapons: SMG
 	"BAAAADKMVpX3Gyn/P5fKwQEcgO4tZSXnzkUrkd8FLK+TXHV0/A": "Cloud Kill",
 	"BAAAADKP9ZT3Gyn/P5fK3wEcgPiLZSV8zEUrkd+KK29St0wy/Q": "Eviscerating Cutsman",
@@ -284,6 +285,8 @@ library = {
 	"BAAAADKBvJL/Gin/f1HKD8q4APx6HRueTxg7MlR3Wjpcmw": "Hawt Pain is Power", # Can set YOU on fire
 	"BAAAADJKuIL9Gin/P5daPoEcMvtEWzuF3yRp4Nhl1Md03GN1": "Try-Bolt",
 	"BAAAADKP9Jr/Gin/P9cMD4FyykJ6E+s8Pm8Q/a1u2WbDnt8": "Carrier",
+	"BAAAADKP9Jr/Gin/P9cMD4EKEEJ6E+s8Pm8QMq5u2W7D/t8": "Carrier",
+	"BAAAADKP9Jr/Gin/P8cMD4FKUkJ6E+s8Pm8QEqZu2W7B/t8": "Carrier",
 	"BAAAADKZX5X3Gyn/P5fKx5kcgMSWZSUEDAUrkd+Lq8wz9DUs/A": "Storming Shredifier",
 	"BAAAADLJ2Gf8nin/P5fKD+QQgMKmE5uCpBQL26QqkbLd4oRh40o": "Engulfing Shredifier",
 	"BAAAADLBtJL/GinmPJfKjtScvgfU5Dr/FMXrGAe6sGdV": "The Dictator", # Horizontal bullet spread
@@ -296,6 +299,7 @@ library = {
 	"BAAAADLYlJb/Gin/P7fJDYEMbkL6FBO9P18QXQ/Dycf0/zE": "Loaded Gatling Gun",
 	"BAAAADKBvJL/Gin/b1HKD30SAPx6HRueTxg7MnR3YgJcmw": "Hawt Embrace the Pain",
 	"BAAAADLAlZL/Gin/v47JD4HbmUL6xek8PmcQEqby+ateH2Y": "Rebel Yell",
+	"BAAAADLQUZD8nin/P5fKD+cQgMLCm5uCPD3J2qQ4qKGf1W0s310": "Itchy Laser-Sploder", # AR, I think?
 	# Weapons: Pistol
 	"BAAAADLNk5T3Gyn/P5fKxwEcgJtaZSWeTQUpkbOtsGJSrWF8cg": "Maggie",
 	"BAAAADLNk5T3Gyn/P5fKxQEcgFp0ZSWeTQUpkcmQsGJCpWF8cg": "Maggie",
@@ -364,6 +368,7 @@ library = {
 	"BAAAADLBcat/pDJuv7b5BbGYPsYE5Ru8": "Quasar",
 	"BAAAADLBAoh/pDJuf7T5AbGYPtYE5Ru8": "Sticky Quasar",
 	"BAAAADLBtIpsmhesrBfrNIsG0tbB4Re9HA": "Chocolate Thunder",
+	"BAAAADLBtI0WmpcOq5frNJEGBIjB4Zm8HA": "Mesmer",
 	# Shields
 	"BAAAADLBtLfpmhfO59fpNJNyuo/91mu8HA": "Absorbing", # Health Extremophile Shield?
 	"BAAAADLBtOL4mhcnrRfrNIsoziz62+u8HA": "Generator", # Power Siphon??
@@ -430,15 +435,10 @@ library = {
 	"BAAAADLB9ll/pDynf7X5V8VmA6tN9Ru8": "Spicy Spark Plug",
 
 	# Unconfirmed weapon types
-	"BAAAADLQUZD8nin/P5fKD+cQgMLCm5uCPD3J2qQ4qKGf1W0s310": "Itchy Laser-Sploder", # AR, I think?
 	"BAAAADLRtJL/Gilfs5bKnB2cPvSvJDv3BgpXPBUz+RT0": "Oozing The Lob",
-	"BAAAADKP9Jr/Gin/P9cMD4EKEEJ6E+s8Pm8QMq5u2W7D/t8": "Carrier",
-	"BAAAADKP9Jr/Gin/P8cMD4FKUkJ6E+s8Pm8QEqZu2W7B/t8": "Carrier",
 	"BAAAADKBvJL/Gin/D1HKD0OlAPwLfFqfTx4EshpQQg48gw": "Bitch",
 	"BAAAADJFlpr3Gyn/P5fKwQEcgP6LZSXVzkUrkd+Kq9aHBH1w8Q": "Devoted",
-	"BAAAADLBtO1pmpca59fpNJOYbpqFrDu9HA": "Overflowing", # Shield?
-	"BAAAADJR9Zr/Gin/P9fMC4EA1UJ6Ind9PFeCP1KgKdcE9es": "Triple-Penetrating Critical Thug",
-	"BAAAADLBtI0WmpcOq5frNJEGBIjB4Zm8HA": "Mesmer", # Nade?
+	"BAAAADLBtO1pmpca59fpNJOYbpqFrDu9HA": "Overflowing", # Shield? Maybe a Re-Charger?
 	"BAAAADLddnJv2n0tf9fCD4EcgMJE4x+8WjOKxEIwuUfnvYWExP6yoRSv": "Pestilent Double-Bezoomy",
 }
 
