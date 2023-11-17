@@ -82,6 +82,6 @@ else:
 	elif p > 50: color = "\x1b[1;33m"
 	elif p > 15: color = "\x1b[1m"
 	else: color = "\x1b[1;32m"
-	print("ShMem %s%s\x1b[0m" % (color, percent))
+	print("ShMem %s%s (%d files)\x1b[0m" % (color, percent, len(os.listdir("/dev/shm"))))
 
 sys.exit(error)
