@@ -70,6 +70,14 @@ for port, expected in expectations.items():
 	print(port, "\x1b[1;31mNOT RUNNING: " + expected + "\x1b[0m")
 
 # Technically unrelated but worth checking, Steam can consume a lot of shared memory.
+# Hypothesis: My weird issues with Chrome and other things have been caused by SHM leakage in Steam (or steamwebhelper).
+# * The issues tend to be solved by a reboot
+# * They are NOT solved by shutting down any single process
+# * CPU, GPU, RAM, VRAM, etc, are never under threat.
+# * There is a progressive and rather nasty slowdown of all manner of things
+# * Steam creates a bunch of /dev/shm/u1000-Shm_???????? with a hex ID.
+# * Shutting down Steam does NOT remove them all.
+# * When I noticed issues one night, df showed that /dev/shm was nearly full. Most of that was those u1000-Shm files.
 p = subprocess.run(["df", "/dev/shm"], capture_output=True, encoding="utf-8")
 lines = p.stdout.split("\n")
 if len(lines) < 2:
