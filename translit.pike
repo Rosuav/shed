@@ -437,11 +437,11 @@ void translit_window(string lang, string|void initialtext, string|void srtfile, 
 	function latin_to,to_latin;
 	if (lang!="Latin")
 	{
-		roman->signal_connect("changed",update,({other,latin_to=this["Latin_to_"+lang]}));
-		other->signal_connect("changed",update,({roman,to_latin=this[lang+"_to_Latin"]}));
+		roman->signal_connect("changed",(function)update,({other,latin_to=this["Latin_to_"+lang]}));
+		other->signal_connect("changed",(function)update,({roman,to_latin=this[lang+"_to_Latin"]}));
 		if (initialtext) other->set_text(initialtext);
 	}
-	else roman->signal_connect("changed",update,({0,diacriticals}));
+	else roman->signal_connect("changed",(function)update,({0,diacriticals}));
 	if (function comp=this[lang+"_completion"])
 	{
 		GTK2.ListStore ls=GTK2.ListStore(({"string","string"}));
