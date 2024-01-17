@@ -28,6 +28,16 @@ class ParamFinder(ast.NodeVisitor):
 		stats["KwCount"] += len(node.keywords)
 		stats["MaxMatch"] = max(stats["MaxMatch"], matches)
 		stats["MaxKwargs"] = max(stats["MaxKwargs"], len(node.keywords))
+	def visit_FunctionDef(self, node):
+		stats["FunctionDefs"] += 1
+		a = node.args
+		stats["Params"] += (
+			len(a.args) + len(a.kwonlyargs) + len(a.posonlyargs)
+			+ bool(a.vararg) + bool(a.kwarg) # These are arg objects if there's a *a and/or a **kw, and None if not.
+		)
+		stats["ParamsKwPos"] += len(a.args)
+		stats["ParamsKwOnly"] += len(a.kwonlyargs)
+		stats["ParamsPosOnly"] += len(a.posonlyargs)
 
 for root, dirs, files in os.walk("."):
 	for fn in files:
@@ -54,3 +64,9 @@ if stats["Calls"]:
 		print("Maximum num of 'x=x':", stats["MaxMatch"])
 		print("Total keyword params:", stats["KwCount"], "%.2f" % (stats["KwCount"] / stats["Calls"]), "per call")
 		print("Num params where x=x:", stats["MatchCount"], "%.2f%%" % (stats["MatchCount"] / stats["KwCount"] * 100.0))
+	if stats["FunctionDefs"]:
+		print("Total function defns:", stats["FunctionDefs"])
+		if not stats["Params"]: stats["Params"] = 1 # so that 0 out of 0 is 0%
+		print("Function params: pos:", stats["ParamsPosOnly"], "%.2f%%" % (stats["ParamsPosOnly"] / stats["Params"] * 100.0))
+		print("Function params: kwd:", stats["ParamsKwOnly"], "%.2f%%" % (stats["ParamsKwOnly"] / stats["Params"] * 100.0))
+		print("Function params: any:", stats["ParamsKwPos"], "%.2f%%" % (stats["ParamsKwPos"] / stats["Params"] * 100.0))
