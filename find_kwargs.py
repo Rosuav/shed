@@ -28,6 +28,7 @@ class ParamFinder(ast.NodeVisitor):
 		stats["KwCount"] += len(node.keywords)
 		stats["MaxMatch"] = max(stats["MaxMatch"], matches)
 		stats["MaxKwargs"] = max(stats["MaxKwargs"], len(node.keywords))
+		self.generic_visit(node)
 	def visit_FunctionDef(self, node):
 		stats["FunctionDefs"] += 1
 		a = node.args
@@ -38,6 +39,7 @@ class ParamFinder(ast.NodeVisitor):
 		stats["ParamsKwPos"] += len(a.args)
 		stats["ParamsKwOnly"] += len(a.kwonlyargs)
 		stats["ParamsPosOnly"] += len(a.posonlyargs)
+		self.generic_visit(node)
 
 for root, dirs, files in os.walk("."):
 	for fn in files:
