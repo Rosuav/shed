@@ -7,8 +7,14 @@ from collections import defaultdict
 fn = "(unknown)" # global because I'm lazy
 stats = defaultdict(int)
 
+# When collecting stats on parameter type (pos, kw, either), ignore functions
+# with fewer than this many parameters. (Should this be a command line arg?)
+MIN_PARAM_COUNT = 0
+
 class ParamFinder(ast.NodeVisitor):
 	def visit_Call(self, node):
+		if len(node.args) + len(node.keywords) < MIN_PARAM_COUNT:
+			return self.generic_visit(node)
 		matches = 0
 		for arg in node.keywords:
 			if (isinstance(arg.value, ast.Name) and
@@ -30,15 +36,18 @@ class ParamFinder(ast.NodeVisitor):
 		stats["MaxKwargs"] = max(stats["MaxKwargs"], len(node.keywords))
 		self.generic_visit(node)
 	def visit_FunctionDef(self, node):
-		stats["FunctionDefs"] += 1
 		a = node.args
-		stats["Params"] += (
+		params = (
 			len(a.args) + len(a.kwonlyargs) + len(a.posonlyargs)
+			# Should *a, **kw count as more parameters or not?
 			+ bool(a.vararg) + bool(a.kwarg) # These are arg objects if there's a *a and/or a **kw, and None if not.
 		)
-		stats["ParamsKwPos"] += len(a.args)
-		stats["ParamsKwOnly"] += len(a.kwonlyargs)
-		stats["ParamsPosOnly"] += len(a.posonlyargs)
+		if params >= MIN_PARAM_COUNT:
+			stats["FunctionDefs"] += 1
+			stats["Params"] += params
+			stats["ParamsKwPos"] += len(a.args)
+			stats["ParamsKwOnly"] += len(a.kwonlyargs) + bool(a.kwarg)
+			stats["ParamsPosOnly"] += len(a.posonlyargs) + bool(a.vararg)
 		self.generic_visit(node)
 
 for root, dirs, files in os.walk("."):
@@ -57,6 +66,7 @@ for root, dirs, files in os.walk("."):
 
 print()
 if stats["Calls"]:
+	if MIN_PARAM_COUNT: print("Statistics for functions with at least %d parameters." % MIN_PARAM_COUNT)
 	print("Total function calls:", stats["Calls"])
 	print("Calls with any kwarg:", stats["Kwargs"], "%.2f%%" % (stats["Kwargs"] / stats["Calls"] * 100.0))
 	print("Maximum kwargs count:", stats["MaxKwargs"])
