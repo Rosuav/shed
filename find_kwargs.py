@@ -14,7 +14,7 @@ class ParamFinder(ast.NodeVisitor):
 			if (isinstance(arg.value, ast.Name) and
 				# arg.value.ctx is Load # can't imagine how it would be otherwise
 				arg.value.id == arg.arg):
-					print("%s:%d:%d: %s(%s=%s)" % (
+					if "-q" not in sys.argv: print("%s:%d:%d: %s(%s=%s)" % (
 						fn, node.lineno, node.col_offset,
 						ast.unparse(node.func), arg.arg, arg.arg
 					))
@@ -33,6 +33,7 @@ for root, dirs, files in os.walk("."):
 	for fn in files:
 		if fn.endswith(".py"):
 			fn = os.path.join(root, fn)
+			if "--no-test" in sys.argv and "test" in fn: continue
 			with open(fn, "rb") as f:
 				data = f.read()
 			try:
