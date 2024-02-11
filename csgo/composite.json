@@ -47,7 +47,8 @@
 		"spectarget": "76561197960265730",
 		"position": "271.68, 1443.93, -0.03",
 		"forward": "0.12, 0.99, 0.09",
-		"clan": "unfrag||Rosbot||Walmart NM||Dejieatskfc||Mrs.Taglieri||ESL CS||IM BAD! \u27a3||Nzerowi||.fulltilt||M A K \u0130 N E||SALAMALYKUM"
+		"clan": "unfrag||Rosbot||Walmart NM||Dejieatskfc||Mrs.Taglieri||ESL CS||IM BAD! \u27a3||Nzerowi||.fulltilt||M A K \u0130 N E||SALAMALYKUM",
+		"xpoverload": 1
 	},
 	"map": {
 		"mode": "competitive||gungameprogressive||deathmatch||casual||cooperative||survival||coopmission||skirmish||gungametrbomb",
