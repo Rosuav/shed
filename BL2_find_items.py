@@ -1327,7 +1327,7 @@ if args.file:
 		try: print(parse_savefile(args.file))
 		except SaveFileFormatError as e: print(e.args[0])
 		sys.exit(0)
-dir = args.dir or os.path.join(dir, args.player or os.listdir(dir)[0]) # If this bombs, you might not have any saves
+dir = args.dir or os.path.join(dir, args.player or sorted(os.listdir(dir))[0]) # If this bombs, you might not have any saves
 file = (args.file or "").replace(".sav", "")
 for fn in sorted(os.listdir(dir)):
 	if not fn.endswith(".sav"): continue
