@@ -545,6 +545,8 @@ library = {
 		"igAAADKIsoD8Pgu3wZeYD+1YQksgXUy5ne6K/9QBK0NVJG0ybLBI": "Heated Subdivided Splitter", # V
 		"igAAADKIsoD8Pgu3zZeYDxVYAksgRBy5ne6K/9QBK0NVLG0SbFBI": "Catalyzing Lancer Railgun", # V
 		"igAAADIIsgD7Pgu35ZeYDz1fokggSRW5ne6K/9QBK0NVJG0ibHBI": "Niveous Zero Beam", # V
+		"igAAADLIsoD7PtYAPmdiL3hfAkkg/NG8n24LxtEBK8dUJG3Cb5BI": "Alternating Vandergraffen",
+		"igAAADKIsoD8PtYAPmd6L1BZEkkgcgS8nO4KxtcBK1NUPG3ib3BI": "Firestarta",
 		# SMGs
 		"igAAADKWt7z+RgtH6Zf0DQUYaMo0lK25XAiN/9wBK8eUj+0FbB9K": "%Cu+ie^_^ki||er",
 		"igAAADLWsDzyRgpHP2eeDf3YpcY0Et25WOiI/8QBK1OVl+1F6eRL": "Incorporated Cheat Code", # V
