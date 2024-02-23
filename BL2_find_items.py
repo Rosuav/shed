@@ -393,8 +393,8 @@ parser.add_argument("-f", "--file", help="Process only one save file")
 parser.add_argument("--dir", help="Specify the savefile directory explicitly (ignores --proton/--native and --player)")
 parser.add_argument("--library", help="Add an item ID to the library")
 parser.add_argument("--compare", nargs=2, help="Compare two library items (or potential library items)")
+parser.add_argument("--cd", help="Print out the directory to save files, based on other options", action="store_true")
 args = parser.parse_args()
-print(args)
 
 GAME = args.game
 
@@ -1329,6 +1329,9 @@ if args.file:
 		except SaveFileFormatError as e: print(e.args[0])
 		sys.exit(0)
 dir = args.dir or os.path.join(dir, args.player or sorted(os.listdir(dir))[0]) # If this bombs, you might not have any saves
+if args.cd:
+	print(dir)
+	sys.exit(0)
 file = (args.file or "").replace(".sav", "")
 for fn in sorted(os.listdir(dir)):
 	if not fn.endswith(".sav"): continue
