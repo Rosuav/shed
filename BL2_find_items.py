@@ -566,6 +566,8 @@ library = {
 		"CgAAADKHslTznCI5wCjTCaHagAGPLBu9DQRSO+cQoWZ3tKtRa/0": "Bonus Package",
 		"CgAAADKHslTz3NaAONHRCZ4agQFt1Bu+DQZS2+cQ4Wb3tatRK/A": "Quasar", # V
 		"CgAAADLHoFT53Dx5OFHXCZFagQExsRu8CABSG+cQIWY3vKtRa/0": "Explosive Kiss of Death", # V
+		"CqEzNA7LswseiQITzKdx+ROZACnogyewqB+Gu/ISr/C2sJiy7FA": "Snowball", # V
+		
 		# Shields
 		"CgAAADIJS20A5dYAwGjeh5HU1grlMBugC5qCGecQ4WF8sKVTJcQ": "Majestic Incendiary Spike Shield", # V
 		"CgAAADIjS20A5dYAwKjI7X6jgSDCqB6+HQESyucQIWF8sKVTJfU": "Shield of Ages",
