@@ -198,7 +198,7 @@ def get_piece_options(obj):
 			# Is it possible to have a base but no parts?
 			break
 		
-		pieces = [p or parts.get(part) for p, part in zip(pieces, obj.partnames)]
+		pieces = [p for p, part in zip(pieces, obj.partnames)]
 		checkme = allbal[checkme].get("base")
 	return [p1 or [p2] for p1, p2 in zip(pieces, obj.pieces)] # Any still unfound, just leave the current piece (or None) in them
 
@@ -366,7 +366,7 @@ def tweak(savefile, baseid):
 					obj.pieces[obj.partnames.index(selectme[0])] = selectme[1] if selectme[1] != "None" else None
 				else:
 					setattr(obj, selectme[0], selectme[1] if selectme[1] != "None" else None)
-			elif key == "KEY_ENTER": # Keypad enter to take the item
+			elif key == "KEY_ENTER" or key == "+": # Keypad enter/plus to take the item
 				obj.seed = random.randrange(1<<31)
 				savefile.add_inventory(obj)
 			elif key == "KEY_IC": filter = repr(stdscr.getkey()) # Debug - hit Insert then a key to see its name
@@ -547,6 +547,7 @@ library = {
 		"igAAADIIsgD7Pgu35ZeYDz1fokggSRW5ne6K/9QBK0NVJG0ibHBI": "Niveous Zero Beam", # V
 		"igAAADLIsoD7PtYAPmdiL3hfAkkg/NG8n24LxtEBK8dUJG3Cb5BI": "Alternating Vandergraffen",
 		"igAAADKIsoD8PtYAPmd6L1BZEkkgcgS8nO4KxtcBK1NUPG3ib3BI": "Firestarta",
+		"igAAADLIsoD7Pgu3P2fKDW1fksA0z4+5nW6L/9QBK0NVLG1y70RI": "Stimulating Longest Yard",
 		# SMGs
 		"igAAADKWt7z+RgtH6Zf0DQUYaMo0lK25XAiN/9wBK8eUj+0FbB9K": "%Cu+ie^_^ki||er",
 		"igAAADLWsDzyRgpHP2eeDf3YpcY0Et25WOiI/8QBK1OVl+1F6eRL": "Incorporated Cheat Code", # V
@@ -562,8 +563,20 @@ library = {
 		"igAAADIPtCIA5Qs/P2fSz7AftsMjt7i8nWiKxMcBK6t0vi0W7VNI": "Tl'kope Razorback", # V
 		"igAAADIZsaLxeg0/P2fmzyicw8Mja3u8mKiKxNMBK0N1/q3z7VNK": "The Machine", # V
 		"igAAADIZtCLweg8/15dYDm0flscoKae5n6iO/9QBK2N11i2G7XhK": "Auditing Sniper Rifle", # V
+		"igAAADLZsqLveg8/P2eKDmofhskoPgu8nwiIu9UBK3907i226RhB": "Auditing Fremington's Edge", # V
+		"igAAADIZsSLweg0/P2eaDgof9sMj1hi8nyiLxNUBK2N17i2G7bNI": "Venture Invader",
+		"igAAADIZsaLvego/P2eaDtof9sMjQ568nyiLxNUBK2N17i2G7bNI": "Longitudinal Invader",
+		"igAAADIZtKLvei0/NRfPz4gfhsMj10W8mAiKxNMBK2d0vi1W7bNI": "Bolshy Longnail",
+		"igAAADIZtCIA5Qo/A2eeDuIfBsMjyoq8nQiLxMcBK7N05i227XNK": "Siah-siah Skullmasher", # Luneshine - 3% shields on kill
+		"igAAADJZsSLxeg0/BWeGDgIf5sMjUjG8nMiKxNcBK6N07i2W7bNK": "Night Pitchfork", # Luneshine - grenade damage
+		"igAAADKZsiLxego/P2eSDuofFsMj43m8nuiKxNkBK4t0vi2m7ZNK": "Dandy Magma",
+		"igAAADJZsSLxegs/MWeSDrofFsMjmsy8nuiKxNkBK4t0vi2m7bNK": "Sublime Magma", # Luneshine - crit damage
+		"igAAADLZsiLxego/M2eaDtof9sMjrsC8nyiLxNUBK2N1/i2G7ZNK": "Longitudinal Invader", # Luneshine - chance to ignore shields
+		"igAAADKZsqLxeiw/P2f6DoofBsYoss28mMiKu9MBK2d0/i2G7XhK": "Bolshy Pooshka",
+
 		# Grenades
 		"CgAAADKHslTznCI5wCjTCaHagAGPLBu9DQRSO+cQoWZ3tKtRa/0": "Bonus Package",
+		"CgAAADIHp1T5nCI5wCjTCaHagAGJEhu9DQRSO+cQoWZ3tKtRa/0": "Longbow Bonus Package",
 		"CgAAADKHslTz3NaAONHRCZ4agQFt1Bu+DQZS2+cQ4Wb3tatRK/A": "Quasar", # V
 		"CgAAADLHoFT53Dx5OFHXCZFagQExsRu8CABSG+cQIWY3vKtRa/0": "Explosive Kiss of Death", # V
 		"CqEzNA7LswseiQITzKdx+ROZACnogyewqB+Gu/ISr/C2sJiy7FA": "Snowball", # V
@@ -603,6 +616,26 @@ library = {
 		"igAAADLIsoD8PtYAwGgdLRBYQksgRv28ne4JxtUBK5dULG0ybNBI": "Catalyzing Subdivided Splitter",
 		"igAAADKIsoD8Pgu3wZeYD+1YQksgXUy5ne6K/9QBK0NVJG0ybLBI": "Heated Subdivided Splitter",
 		"igAAADISS+3rVgZnP2fuDa0e6MY0XmG53Q+J/9wBKy8U5+8U6YRI": "Party Popper",
+		"igAAADISS23qVhpnP2deDyXZ5MA0Bu++28+K+9QBK1cUv+0U7yRM": "Win-Win T4s-R",
+		"igAAADJZsaLvego/45dEDu0flssomQ25nsiO/9gBK4t0/i227XhK": "Dandy Rakehell",
+		"igAAADLIoQD8Pny3P2eSLqhaAk4gUfa8ng4JxtkBKydVPG9yaJBC": "Thorny Ol' Rosie",
+		"igAAADKWsDzyRjdHP2fiL4VcFUI0lZq5XEgK/NwBK/+Ul+0lbaRL": "Reddy Fast Talker",
+		"igAAADISS+3pVhtnA2fqzuvZpE8t0DC83m8JutEBK7cV7++UbH1M": "Jam Packed Biggun",
+		"igAAADIRpLL3WtYAwGjFL4Xb5EI00zi5XDQK/NwBK8N0Ryx0bWRJ": "Tangy Boss Nova",
+		"igAAADLXtz4A5Q1PP2eCDa2Yxcs0Vpe5HCiN/8YBK7O0p61l5MRL": "Doc's Flayer",
+		"igAAADKWsLzxRjdHwWiRD83ZxcM0w+2+WJSK+9ABKyOVh+0F7ORL": "Sparkling Boxxy Gunn",
+		"igAAADKTvjbzUipvP2fOT1CeRMIh0fe8ng+KxtEBKxc0p6xU7TFJ": "Ultraprecise Volt Thrower",
+		"igAAADISS+3qVgRnP2dub9gZFkEhksO83E8Ix9cBK38U/++kb5FI": "Shock Gwen's Other Head",
+		"CgAAADIJS20A5dYAwOjlx34j0QorbBurC2aC+ecQoWF8s6V/5ds": "Sunshine",
+		"CgAAADIJS20A5dYAwCjDx37jnwoTIBu9CwCC+ecQoWG8sGVRpfI": "Haymaker",
+		"igAAADKIsgAA5dYAPmfmDU0dKME00g+5no6I/9gBK6dULG3S7qRI": "MINAC's Atonement",
+		"igAAADJRpbL2mjB/fZfgDx0cWMM0W4i+3W6K+9wBK8N0py+U7ORJ": "Bloody Wiggly Cry Baby",
+		"igAAADKIsoD8PtYAPmfiDRUd2ME0d0S5nk6I/9gBK6dULG1S7sRI": "Tannis' Laser of Enlightenment",
+		"CgAAADLHoFT53NZAOJHL7n7jgCO3KB69HAcaCucQYZnLtYxR6/E": "Data Scrubber",
+		"igAAADIXtIryQtYAwGjZj1gcI8Mi6b28HAiLx8cBK2f0vC1z7dJJ": "Boomacorn",
+		"igAAADJ+tj4A5TZPP2eGj+hctcAihVu8HyiLx9sBK1O1v6117BK3": "Lumpy Jack-o'-Cannon",
+		"igAAADLXtz7yQjZPwWjND93fhcI0fVS+XRSK+9ABK5u0r6117cRJ": "Toasty Party Line",
+
 	},
 }
 
