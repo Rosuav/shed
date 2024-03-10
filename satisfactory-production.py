@@ -9,6 +9,8 @@ import itertools
 consumers = defaultdict(list)
 producers = defaultdict(list)
 
+OMNI_REFINING = False # Set to True when using the Skyblock mod, False when not.
+
 class Counter(Counter):
 	try:
 		Counter() <= Counter() # Fully supported on Python 3.10+
@@ -165,8 +167,15 @@ class Manufacturer(Building): ...
 class Particle_Accelerator(Building): ...
 class Smelter(Building): ...
 class Foundry(Building): ...
-class Omni_Refinery(Unavailable): ... # With the Space Block mod
+class Omni_Refinery(Building if OMNI_REFINING else Unavailable): ...
 class Power(Building): ... # Not guaranteed workable
+
+if OMNI_REFINING:
+	# With Space Block mod, derive everything all the way back to Omni.
+	def make_ingredient(*args): pass
+else:
+	# Otherwise, simplify recipe displays by assuming the factory already has the basics in production.
+	make_ingredient = auto_producer
 
 # class Recipe_Name(BuildingThatMakesIt):
 #   Ingredient1: Qty
@@ -228,6 +237,11 @@ class Bauxite(Omni_Refinery):
 	Omni_Refined: 80
 	time: 2
 	Bauxite: 10
+
+class Uranium(Omni_Refinery):
+	Omni_Refined: 1000 # FIXME: Get the actual figure
+	time: 2
+	Uranium: 10
 
 # Ingots
 class Iron_Ingot(Smelter):
@@ -330,7 +344,7 @@ class Compacted_Steel_Ingot(Foundry):
 	time: 16
 	Steel_Ingot: 10
 # Coke Steel Ingot is down below with petroleum
-auto_producer("Steel_Ingot")
+make_ingredient("Steel_Ingot")
 
 class Iron_Rod(Constructor):
 	Iron_Ingot: 1
@@ -596,7 +610,7 @@ class Caterium_Computer(Manufacturer):
 
 # Petroleum products are sufficiently complicated that it's worth calculating
 # them first, and then treating them as fundamentals for everything else.
-auto_producer("Plastic", "Rubber", "Petroleum_Coke", "Fuel", "Circuit_Board", "Computer")
+make_ingredient("Plastic", "Rubber", "Petroleum_Coke", "Fuel", "Circuit_Board", "Computer")
 
 class Rubber_Concrete(Unavailable):
 	Limestone: 10
@@ -610,7 +624,7 @@ class Adhered_Iron_Plate(Assembler):
 	Rubber: 1
 	time: 16
 	Reinforced_Iron_Plate: 1
-auto_producer("Concrete", "Reinforced_Iron_Plate")
+make_ingredient("Concrete", "Reinforced_Iron_Plate")
 
 class Modular_Frame(Assembler):
 	Reinforced_Iron_Plate: 3
@@ -698,7 +712,7 @@ class Quickwire_Stator(Assembler):
 	Quickwire: 15
 	time: 15
 	Stator: 2
-auto_producer("Rotor", "Stator")
+make_ingredient("Rotor", "Stator")
 
 class Motor(Assembler):
 	Rotor: 2
@@ -784,7 +798,27 @@ class Alclad_Casing(Assembler):
 	Alum_Casing: 15
 
 # As with petroleum, simplify future recipes by making these fundamental.
-auto_producer("Alum_Ingot", "Alum_Casing", "Alclad_Sheet", "Silica")
+make_ingredient("Alum_Ingot", "Alum_Casing", "Alclad_Sheet", "Silica")
+
+class AI_Limiter(Assembler):
+	Copper_Sheet: 5
+	Quickwire: 20
+	time: 12
+	AI_Limiter: 1
+
+class HS_Connector(Manufacturer):
+	Quickwire: 56
+	Cable: 10
+	Circuit_Board: 1
+	time: 16
+	HS_Connector: 1
+
+class Silicon_HS_Connector(Manufacturer):
+	Quickwire: 60
+	Silica: 25
+	Circuit_Board: 2
+	time: 40
+	HS_Connector: 2
 
 class Heat_Sink(Assembler):
 	Alclad_Sheet: 5
@@ -877,7 +911,7 @@ class Supercomputer(Manufacturer): # TODO: Verify that the recipe hasn't changed
 	time: 32
 	Supercomputer: 1
 
-auto_producer("Cooling_System", "Heavy_Modular_Frame", "Radio_Control_Unit", "Iron_Plate")
+make_ingredient("Cooling_System", "Heavy_Modular_Frame", "Radio_Control_Unit", "Iron_Plate")
 class OC_Supercomputer(Assembler):
 	Radio_Control_Unit: 3
 	Cooling_System: 3
@@ -989,7 +1023,7 @@ class Thermal_Propulsion_Rocket(Manufacturer):
 	Thermal_Propulsion_Rocket: 2
 
 # Nuclear power
-auto_producer("Heat_Sink", "Pressure_Conversion_Cube", "Control_Rod", "Quickwire")
+make_ingredient("Heat_Sink", "Pressure_Conversion_Cube", "Control_Rod", "Quickwire")
 
 class Encased_Uranium_Cell(Blender):
 	Uranium: 10
@@ -1105,6 +1139,12 @@ class Solid_Biofuel(Constructor):
 	Biomass: 8
 	time: 4
 	Solid_Biofuel: 4
+
+class Liquid_Biofuel(Refinery):
+	Solid_Biofuel: 6
+	Water: 3
+	time: 4
+	Liquid_Biofuel: 4
 
 _simple_fuels = {
 	"Flower_Petals": 100,
