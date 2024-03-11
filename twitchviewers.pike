@@ -11,8 +11,8 @@ Requires moderator authentication.
 */
 int delay = 10;
 GTK2.Label info;
-string broadcaster_id, moderator_id, oauth_token;
-mapping ircsettings;
+string broadcaster_id, moderator_id;
+string clientid, oauth_token;
 multiset(string) moderators = (<>);
 
 void load_users()
@@ -24,7 +24,7 @@ void load_users()
 			"https://api.twitch.tv/helix/chat/chatters",
 			(["broadcaster_id": broadcaster_id, "moderator_id": moderator_id]),
 			([
-				"Client-ID": ircsettings->clientid,
+				"Client-ID": clientid,
 				"Authorization": "Bearer " + oauth_token,
 			]),
 		));
@@ -69,13 +69,15 @@ int main(int argc, array(string) argv)
 	};
 	//TODO: Allow a separate moderator login, and then use bcaster_token
 	//Note that querying mods requires broadcaster auth so maybe better to require that instead?
-	ircsettings = Standards.JSON.decode_utf8(Stdio.read_file("../stillebot/twitchbot_config.json"))->ircsettings;
-	sscanf(ircsettings->pass, "oauth:%s", oauth_token);
+	clientid = Standards.JSON.decode_utf8(Stdio.read_file("../CJAPrivate/twitchbot_config.json"))->clientid;
+	oauth_token = Standards.JSON.decode_utf8(
+		Process.run(({"psql", "stillebot", "-tc", "select credentials from stillebot.settings"}))->stdout
+	)->token;
 	array users = Standards.JSON.decode_utf8(Protocols.HTTP.get_url_data(
 		"https://api.twitch.tv/helix/users",
 		(["login": username]),
 		([
-			"Client-ID": ircsettings->clientid,
+			"Client-ID": clientid,
 			"Authorization": "Bearer " + oauth_token,
 		]),
 	))->data;
@@ -86,7 +88,7 @@ int main(int argc, array(string) argv)
 		"https://api.twitch.tv/helix/moderation/moderators",
 		(["broadcaster_id": broadcaster_id]),
 		([
-			"Client-ID": ircsettings->clientid,
+			"Client-ID": clientid,
 			"Authorization": "Bearer " + oauth_token,
 		]),
 	) || "{\"data\":[]}")->data;
