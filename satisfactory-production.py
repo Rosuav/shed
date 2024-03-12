@@ -239,9 +239,14 @@ class Bauxite(Omni_Refinery):
 	Bauxite: 10
 
 class Uranium(Omni_Refinery):
-	Omni_Refined: 1000 # FIXME: Get the actual figure
-	time: 2
+	Omni_Refined: 250
+	time: 20
 	Uranium: 10
+
+class Nitrogen(Omni_Refinery):
+	Omni_Refined: 250
+	time: 6
+	Nitrogen: 10
 
 # Ingots
 class Iron_Ingot(Smelter):
