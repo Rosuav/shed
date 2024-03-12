@@ -301,6 +301,17 @@ class Cheap_Silica(Assembler):
 	Silica: 7
 # Note that Alumina Solution is technically a way of getting silica. But it isn't, really.
 
+class Quartz_Crystal(Constructor):
+	Raw_Quartz: 5
+	time: 8
+	Quartz_Crystal: 3
+
+class Pure_Quartz_Crystal(Refinery):
+	Raw_Quartz: 9
+	Water: 5
+	time: 8
+	Quartz_Crystal: 7
+
 class Concrete(Constructor):
 	Limestone: 3
 	time: 4
@@ -407,6 +418,12 @@ class Fused_Wire(Assembler):
 	Caterium_Ingot: 1
 	time: 20
 	Wire: 30
+
+class Cable(Constructor):
+	Wire: 2
+	time: 2
+	Cable: 1
+# TBH the alternates all suck so I haven't bothered entering them
 
 class Quickwire(Constructor):
 	Caterium_Ingot: 1
@@ -562,6 +579,26 @@ class Turbo_Blend_Fuel(Blender):
 	Petroleum_Coke: 3
 	time: 8
 	Turbofuel: 6
+
+class AI_Limiter(Assembler):
+	Copper_Sheet: 5
+	Quickwire: 20
+	time: 12
+	AI_Limiter: 1
+
+class Crystal_Oscillator(Manufacturer):
+	Quartz_Crystal: 36
+	Cable: 28
+	Reinforced_Iron_Plate: 5
+	time: 120
+	Crystal_Oscillator: 2
+
+class Insulated_Crystal_Oscillator(Manufacturer):
+	Quartz_Crystal: 10
+	Rubber: 7
+	AI_Limiter: 1
+	time: 32
+	Crystal_Oscillator: 1
 
 class Circuit_Board(Assembler):
 	Copper_Sheet: 2
@@ -800,12 +837,6 @@ class Alclad_Casing(Assembler):
 # As with petroleum, simplify future recipes by making these fundamental.
 make_ingredient("Alum_Ingot", "Alum_Casing", "Alclad_Sheet", "Silica")
 
-class AI_Limiter(Assembler):
-	Copper_Sheet: 5
-	Quickwire: 20
-	time: 12
-	AI_Limiter: 1
-
 class HS_Connector(Manufacturer):
 	Quickwire: 56
 	Cable: 10
@@ -850,7 +881,7 @@ class Radio_Control_System(Manufacturer):
 class Radio_Connection_Unit(Manufacturer):
 	Heat_Sink: 4
 	HS_Connector: 2
-	Quartz: 12
+	Quartz_Crystal: 12
 	time: 16
 	Radio_Control_Unit: 1
 
