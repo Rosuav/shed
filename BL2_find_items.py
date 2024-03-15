@@ -559,6 +559,13 @@ library = {
 		"igAAADJTvrb0UitvwWitDz2e9MM0zHi+XxSL+9IBK2s1v6zU7ARJ": "Berrigan", # V
 		"igAAADLTv7b0Ui9vyZeQDs2fRMEtgma5nq+M/9ABK7s0p6wU7x1J": "Rocket Speed Launcher", # V
 		"igAAADLTvzbzUihvP2fOT8CYRMIhAVi8ng+KxtEBKxc0p6xU7fFK": "Sparkling Volt Thrower", # V
+		"igAAADKTv7b0UihvP2fyzoteRcYtaPa8ny+LxdsBK4M0v6wE7z1J": "Verm dee boom", # a basic blue for grinding with
+		"igAAADLTv7b0UiFvP2eKTgufVMIhlWK8nE+Kxt0BK080T60U7VFJ": "Heap'd Badaboom",
+		"igAAADKTv7bzUitvP2fuTxiehMMhQIe8nM+Kxt0BK080p6zU7VFJ": "Deep Pokket Thingy",
+		"igAAADITvrb0Ui1vP2fmT2ueRMEtkiK8nA+Kxd0BK080r6wU711J": "Clever Launcher",
+		"igAAADKTv7b0Ui9vP2cWbtufZMYtcj68mE+KxdMBK2s1T60E791K": "Paritisan RPG",
+		"igAAADJTvrb0UiFvL2eaziOfdMIhIs68n4+KxtsBK2M1v6wk7RFJ": "derp Nukem",
+		"igAAADKTv7b0UipvP2dqa2OelMMhLLy8mK+KxtMBK2s1p6z07fFK": "Victorious Mongol",
 		# Snipers
 		"igAAADIPtCIA5Qs/P2fSz7AftsMjt7i8nWiKxMcBK6t0vi0W7VNI": "Tl'kope Razorback", # V
 		"igAAADIZsaLxeg0/P2fmzyicw8Mja3u8mKiKxNMBK0N1/q3z7VNK": "The Machine", # V
@@ -570,7 +577,7 @@ library = {
 		"igAAADIZtCIA5Qo/A2eeDuIfBsMjyoq8nQiLxMcBK7N05i227XNK": "Siah-siah Skullmasher", # Luneshine - 3% shields on kill
 		"igAAADJZsSLxeg0/BWeGDgIf5sMjUjG8nMiKxNcBK6N07i2W7bNK": "Night Pitchfork", # Luneshine - grenade damage
 		"igAAADKZsiLxego/P2eSDuofFsMj43m8nuiKxNkBK4t0vi2m7ZNK": "Dandy Magma",
-		"igAAADJZsSLxegs/MWeSDrofFsMjmsy8nuiKxNkBK4t0vi2m7bNK": "Sublime Magma", # Luneshine - crit damage
+		"igAAADIZsSLxeiw/MWeSDoIfFsMjGYK8nuiKxNkBK4t05i2m7ZNK": "Monstrous Magma", # Luneshine - crit damage
 		"igAAADLZsiLxego/M2eaDtof9sMjrsC8nyiLxNUBK2N1/i2G7ZNK": "Longitudinal Invader", # Luneshine - chance to ignore shields
 		"igAAADKZsqLxeiw/P2f6DoofBsYoss28mMiKu9MBK2d0/i2G7XhK": "Bolshy Pooshka",
 
@@ -580,7 +587,8 @@ library = {
 		"CgAAADKHslTz3NaAONHRCZ4agQFt1Bu+DQZS2+cQ4Wb3tatRK/A": "Quasar", # V
 		"CgAAADLHoFT53Dx5OFHXCZFagQExsRu8CABSG+cQIWY3vKtRa/0": "Explosive Kiss of Death", # V
 		"CqEzNA7LswseiQITzKdx+ROZACnogyewqB+Gu/ISr/C2sJiy7FA": "Snowball", # V
-		
+		"CgAAADIHp5Tt3NaAOJHXyX4juARJ3RuzCFp6m+cQYZkLjatRK/E": "Snowball", # V
+
 		# Shields
 		"CgAAADIJS20A5dYAwGjeh5HU1grlMBugC5qCGecQ4WF8sKVTJcQ": "Majestic Incendiary Spike Shield", # V
 		"CgAAADIjS20A5dYAwKjI7X6jgSDCqB6+HQESyucQIWF8sKVTJfU": "Shield of Ages",
@@ -594,8 +602,11 @@ library = {
 		"CgAAADIJS20A5dYAwKjtx35jsQokxBuuC1yCuecQoWH8saVRJdU": "The Sham", # Synth
 		"CgAAADIJS20A5dYAwKjqx34jxAr3+Bu3C06CGecQIWF8sCVSZdA": "Supernova", # Synth
 		"CgAAADIjS20A5dYAwOjI7X4jgSDAXB69HQcSyucQoW58sCVSJfQ": "Rerouter", # Synth
+
 		# Oz Kits
 		"CgAAADI+S20ApSB4OlA1MJNbkwVxmhunClJy2+cQ4WezStKvEgs": "Voltaic Support Relay",
+		"CgAAADI+S20AZS74OlA18H7jjAWpDhu7CmJym+cQ4WazStKvEgs": "Tranquility Oz Kit",
+
 		# Gladiator
 		"CgAAADI+S20A5dYAwCjYD5VdgALTFhuoEziKuecQYXW0pG1ALQs": "Celestial Gladiator Title.Title_ClassMod",
 		"CgAAADI+S20A5dYAwOjYj5BdgALHthutEz6KmeYQoWu0pG1ALQs": "Eternal Protector Title.Title_ClassMod",
@@ -613,11 +624,10 @@ library = {
 		"CgAAADI+S20A5dYAwKjYT4tegALZ1R29HAkCyucQYXW0pG1ALQs": "Eridian Vanquisher Class Mod", # Synth
 
 		# Uncategorized
-		"igAAADLIsoD8PtYAwGgdLRBYQksgRv28ne4JxtUBK5dULG0ybNBI": "Catalyzing Subdivided Splitter",
-		"igAAADKIsoD8Pgu3wZeYD+1YQksgXUy5ne6K/9QBK0NVJG0ybLBI": "Heated Subdivided Splitter",
+		"igAAADKIsoD8Pgu3wZeYD+1YQksgXUy5ne6K/9QBK0NVJG0ybLBI": "Heated Subdivided Splitter", # Error code O4L4M0A0
 		"igAAADISS+3rVgZnP2fuDa0e6MY0XmG53Q+J/9wBKy8U5+8U6YRI": "Party Popper",
 		"igAAADISS23qVhpnP2deDyXZ5MA0Bu++28+K+9QBK1cUv+0U7yRM": "Win-Win T4s-R",
-		"igAAADJZsaLvego/45dEDu0flssomQ25nsiO/9gBK4t0/i227XhK": "Dandy Rakehell",
+		"igAAADJZsaLvego/45dEDu0flssomQ25nsiO/9gBK4t0/i227XhK": "Dandy Rakehell", # Error code O2L1M0A4
 		"igAAADLIoQD8Pny3P2eSLqhaAk4gUfa8ng4JxtkBKydVPG9yaJBC": "Thorny Ol' Rosie",
 		"igAAADKWsDzyRjdHP2fiL4VcFUI0lZq5XEgK/NwBK/+Ul+0lbaRL": "Reddy Fast Talker",
 		"igAAADISS+3pVhtnA2fqzuvZpE8t0DC83m8JutEBK7cV7++UbH1M": "Jam Packed Biggun",
