@@ -69,7 +69,7 @@ int main(int argc, array(string) argv)
 	};
 	//TODO: Allow a separate moderator login, and then use bcaster_token
 	//Note that querying mods requires broadcaster auth so maybe better to require that instead?
-	clientid = Standards.JSON.decode_utf8(Stdio.read_file("../CJAPrivate/twitchbot_config.json"))->clientid;
+	clientid = Standards.JSON.decode_utf8(Stdio.read_file("../stillebot/instance-config.json"))->clientid;
 	oauth_token = Standards.JSON.decode_utf8(
 		Process.run(({"psql", "stillebot", "-tc", "select credentials from stillebot.settings"}))->stdout
 	)->token;
