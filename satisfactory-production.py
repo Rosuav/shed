@@ -5,11 +5,12 @@
 from collections import defaultdict, Counter
 from fractions import Fraction
 import itertools
+import sys
 
 consumers = defaultdict(list)
 producers = defaultdict(list)
 
-OMNI_REFINING = False # Set to True when using the Skyblock mod, False when not.
+OMNI_REFINING = "--omni" in sys.argv # Set to True when using the Skyblock mod, False when not. Needs to be set early.
 
 class Counter(Counter):
 	try:
@@ -1061,6 +1062,21 @@ class Thermal_Propulsion_Rocket(Manufacturer):
 # Nuclear power
 make_ingredient("Heat_Sink", "Pressure_Conversion_Cube", "Control_Rod", "Quickwire")
 
+class Beacon(Manufacturer):
+	Iron_Plate: 3
+	Iron_Rod: 1
+	Wire: 15
+	Cable: 2
+	time: 8
+	Beacon: 1
+
+class Crystal_Beacon(Manufacturer):
+	Steel_Beam: 4
+	Steel_Pipe: 16
+	Crystal_Oscillator: 1
+	time: 120
+	Beacon: 20
+
 class Encased_Uranium_Cell(Blender):
 	Uranium: 10
 	Concrete: 3
@@ -1226,7 +1242,6 @@ for item, recipes in producers.items():
 		print("WARNING: %s has %d recipes" % (item, len(recipes)))
 
 if __name__ == "__main__":
-	import sys
 	if len(sys.argv) < 2:
 		print("\nERROR: Must specify one or more target items")
 		sys.exit(0)
@@ -1239,6 +1254,7 @@ if __name__ == "__main__":
 		if item == "MJ": return num(n / 60) + " MW"
 		return "%s/min %s" % (num(n), item.replace("_", " "))
 	for target in sys.argv[1:]:
+		if target == "--omni": continue
 		target, sep, goal = target.partition("=")
 		goal = Fraction(goal) if sep else 60
 		target, _, source = target.partition("/")
