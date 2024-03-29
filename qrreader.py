@@ -38,6 +38,7 @@ def main(*, interval=0.5, monitor="primary", ocr=0, twitch=False):
 	else: bbox = boundingbox(monitor)
 	seen = { }
 	ocr_count = 0
+	hex_reset = None
 	if ocr:
 		import pytesseract # ImportError? pip install pytesseract, and install the underlying app
 	def got_message(msg, label):
@@ -63,8 +64,8 @@ def main(*, interval=0.5, monitor="primary", ocr=0, twitch=False):
 			# Scan the text for hex strings - a minimum of three bytes. Interior nonsense
 			# is permitted, but we strip it out before decoding.
 			found_hex = ""
-			for txt in re.findall("[A-F0-9 !@#$%^&*/_]{6,}", text.replace("\n", " ")):
-				hex = re.sub("[^A-F0-9]+", "", txt)
+			for txt in re.findall("[A-Fa-f0-9 !@#$%^&*/_]{6,}", text.replace("\n", " ")):
+				hex = re.sub("[^A-Fa-f0-9]+", "", txt)
 				if len(hex) < 6: continue # Not enough hex digits.
 				# Since we're expecting ASCII representations of text, the first
 				# digits will frequently be 4, 5, 6, or 7. The second digits will
@@ -88,6 +89,11 @@ def main(*, interval=0.5, monitor="primary", ocr=0, twitch=False):
 				letters = sum('A' <= x <= 'Z' or 'a' <= x <= 'z' for x in text)
 				if letters < 5: continue # Require five alphabetics to claim it as a word
 				found_hex += " " + text
+			# The occasional unprintable is okay, but if there are more unprintable than textual,
+			# it's probably not interesting.
+			unprintables = sum(ord(x) < 32 for x in found_hex)
+			textuals = sum(x in "qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM0123456789, .;" for x in found_hex)
+			if unprintables > textuals: found_hex = ""
 			if found_hex:
 				# Send a signal through to StilleBot to update a variable
 				requests_post("https://sikorsky.rosuav.com/admin", json={
@@ -95,5 +101,13 @@ def main(*, interval=0.5, monitor="primary", ocr=0, twitch=False):
 					"channel": "#rosuav",
 					"msg": {"dest": "/set", "target": "hextext", "message": found_hex.replace("\n", " ")},
 				})
+				hex_reset = time.time() + 20
+		if hex_reset is not None and time.time() > hex_reset:
+			hex_reset = None
+			requests_post("https://sikorsky.rosuav.com/admin", json={
+				"cmd": "send_message",
+				"channel": "#rosuav",
+				"msg": {"dest": "/set", "target": "hextext", "message": ""},
+			})
 		if interval <= 0: break
 		time.sleep(interval)
