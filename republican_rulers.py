@@ -4,6 +4,12 @@
 # Does not take bonus stats into account. Does not factor in the extra death chance if he's also a general.
 # Definitely doesn't consider random deaths by event.
 # The output is "as if" the stats were all that value - a 3.00 average is like having a 3/3/3 monarch for life.
+# Starting age is random, and while it does make a notable difference, it's only really at the most extreme
+# (35yo and 55yo on four-year terms) that you'd feel it (3/3/3 vs 4/4/5). Since most starting ages are between
+# 40 and 50, the likely difference is half that. But if you can see their stats, do consider the younger candidate.
+# Starting with a basis of 4-year terms, the "Frequent Elections" government reform is effectively giving you +1
+# in a random skill; on the flip side, having 8-year terms pushes your monarch skills down from 3/3/3 to 2/2/3
+# or from 4/4/5 to 3/3/4.
 RESULTS = """
 
 Term |   35 |   36 |   37 |   38 |   39 |   40 |   41 |   42 |   43 |   44 |   45 |   46 |   47 |   48 |   49 |   50 |   51 |   52 |   53 |   54 |   55
