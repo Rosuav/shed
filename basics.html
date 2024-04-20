@@ -1,0 +1,48 @@
+<!DOCTYPE HTML>
+<html>
+<head><title>Basics</title>
+<style>
+body, input, button {font-size: 48px;}
+</style>
+</head>
+<body>
+<main></main>
+<script type=module>
+import {lindt, replace_content, DOM} from "https://rosuav.github.io/choc/factory.js";
+const {BUTTON, INPUT, TABLE, TD, TH, TR} = lindt;
+const lbls = ["Idl", "Reg", "Str", "Par", "Pier", "Ult"];
+const {values = [0, 0, 0, 0, 0, 0], nexts = [0, 0, 0, 0, 0, 0]} = JSON.parse(localStorage.getItem("state"));
+function render() {
+	replace_content("main", TABLE([
+		TR([TH(""), TH("Now"), TH("Next"), TH("Sum")]),
+		lbls.map((lbl, i) => TR([
+			TH(lbl),
+			TD(INPUT({class: "now", "data-idx": i, type: "number", value: ""+values[i]})),
+			TD(INPUT({class: "next", "data-idx": i, type: "number", value: ""+nexts[i]})),
+			TD("" + (values[i] + (values[i+1] || 0))),
+		])),
+		TR([TD(), TD("Migrate"), TD(BUTTON({id: "migrate"}, "<==")), TD()]),
+	]));
+	localStorage.setItem("state", JSON.stringify({values, nexts}));
+}
+on("change", ".now", e => {
+	const val = +e.match.value;
+	values[e.match.dataset.idx] = val;
+	nexts[e.match.dataset.idx] = Math.floor(val * 0.9);
+	render();
+});
+on("change", ".next", e => {
+	nexts[e.match.dataset.idx] = +e.match.value;
+	render();
+});
+on("click", "#migrate", e => {
+	for (let i = 0; i < lbls.length; ++i) {
+		values[i] = nexts[i];
+		nexts[i] = Math.floor(values[i] * 0.9);
+	}
+	render();
+});
+render();
+</script>
+</body>
+</html>
