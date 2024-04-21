@@ -21,7 +21,7 @@ function render() {
 			TD(INPUT({class: "next", "data-idx": i, type: "number", value: ""+nexts[i]})),
 			TD("" + (values[i] + (values[i+1] || 0))),
 		])),
-		TR([TD(), TD("Migrate"), TD(BUTTON({id: "migrate"}, "<==")), TD()]),
+		TR([TD(), TD("Migrate"), TD(BUTTON({id: "migrate"}, "<==")), TD("" + values.reduce((a,b)=>a+b))]),
 	]));
 	localStorage.setItem("state", JSON.stringify({values, nexts}));
 }
