@@ -28,7 +28,7 @@ function render() {
 on("change", ".now", e => {
 	const val = +e.match.value;
 	values[e.match.dataset.idx] = val;
-	nexts[e.match.dataset.idx] = Math.floor(val * 0.9);
+	nexts[e.match.dataset.idx] = Math.max(Math.floor(val * 0.9), 1);
 	render();
 });
 on("change", ".next", e => {
@@ -38,7 +38,7 @@ on("change", ".next", e => {
 on("click", "#migrate", e => {
 	for (let i = 0; i < lbls.length; ++i) {
 		values[i] = nexts[i];
-		nexts[i] = Math.floor(values[i] * 0.9);
+		nexts[i] = Math.max(Math.floor(values[i] * 0.9), 1);
 	}
 	render();
 });
