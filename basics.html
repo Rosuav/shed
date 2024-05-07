@@ -11,7 +11,7 @@ body, input, button {font-size: 48px;}
 import {lindt, replace_content, DOM} from "https://rosuav.github.io/choc/factory.js";
 const {BUTTON, INPUT, TABLE, TD, TH, TR} = lindt;
 const lbls = ["Idl", "Reg", "Str", "Par", "Pier", "Ult"];
-const {values = [2500, 15000, 30000, 0, 0, 0], nexts = [0, 0, 0, 0, 0, 0]} = JSON.parse(localStorage.getItem("state")) || {};
+const {values = [2500, 15000, 30000, 50000, 0, 0], nexts = [0, 0, 0, 0, 0, 0]} = JSON.parse(localStorage.getItem("state")) || {};
 function render() {
 	replace_content("main", TABLE([
 		TR([TH(""), TH("Now"), TH("Next"), TH("Sum")]),
