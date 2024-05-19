@@ -110,4 +110,5 @@ def main(*, interval=0.5, monitor="primary", ocr=0, twitch=False):
 				"msg": {"dest": "/set", "target": "hextext", "message": ""},
 			})
 		if interval <= 0: break
-		time.sleep(interval)
+		try: time.sleep(interval)
+		except KeyboardInterrupt: break # You can Ctrl-C anywhere, but if you do it during the sleep, it's a normal exit
