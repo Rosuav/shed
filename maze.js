@@ -103,9 +103,12 @@ on("submit", "#generate", e => {e.preventDefault(); generate(1);});
 on("click", "#watch", e => {e.preventDefault(); generate(0);});
 generate(1);
 
-on("click", ".grid div", e => {
+let lastmark = null;
+on("mousedown", ".grid div", e => mark(+e.match.dataset.r, +e.match.dataset.c));
+on("mouseover", ".grid div", e => lastmark && mark(+e.match.dataset.r, +e.match.dataset.c));
+document.onmouseup = e => lastmark = null; //Note, not using pointer capture since I want mouseovers. So if you drag outside the window, it may lose the next click.
+function mark(r, c) {
 	if (interval) return; //Wait till we're done building it!
-	const r = +e.match.dataset.r, c = +e.match.dataset.c;
 	//Clicking a cell can have one of two (or three-ish) effects.
 	//1. If that cell has three walls around it, fill it in, and mark a pseudo-wall at its one opening.
 	//2. Alternatively, if that cell is adjacent to (and without a wall) the path, extend the path.
@@ -113,10 +116,6 @@ on("click", ".grid div", e => {
 	//TODO: Also have a maze building option, where you start with a complete grid, and can remove
 	//walls by clicking to move to an adjacent cell. (When done, save the grid, and then generate
 	//the rest of the maze.)
-	//TODO: Do this on mouse down, and if you mouse move to another eligible square *of the same
-	//type*, also fill that in. Note that you MAY move to another square that's eligible for a
-	//different reason (from one dead end to another, even across a wall), but not from dead to
-	//path or from add-to-path to remove-from-path (which would result in massive flicker).
 	const cls = rendered_maze[r][c].split(" ");
 	let missing, path;
 	["a", "b", "l", "r"].forEach(dir => {
@@ -128,14 +127,21 @@ on("click", ".grid div", e => {
 	});
 	if (missing && missing !== "many") {
 		//1. Three walls? Fill it in.
+		if (lastmark !== null && lastmark !== "dead") return; lastmark = "dead";
 		rendered_maze[r][c] += " dead w" + missing;
 		const [dr, dc, back] = adjacent(r, c, missing);
 		rendered_maze[dr][dc] += " w" + back;
 	} else if (path && path !== "many") {
 		//2. Next to the path?
-		if (!cls.includes("path")) rendered_maze[r][c] += " path";
+		if (!cls.includes("path")) {
+			if (lastmark !== null && lastmark !== "addpath") return; lastmark = "addpath";
+			rendered_maze[r][c] += " path";
+		}
 		//2a. Or, at the end of the path, and on it?
-		else rendered_maze[r][c] = cls.filter(c => c !== "path").join(" ");
+		else {
+			if (lastmark !== null && lastmark !== "rempath") return; lastmark = "rempath";
+			rendered_maze[r][c] = cls.filter(c => c !== "path").join(" ");
+		}
 	}
 	render(rendered_maze);
-});
+}
