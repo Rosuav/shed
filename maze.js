@@ -128,7 +128,7 @@ function mark(r, c) {
 	if (missing && missing !== "many") {
 		//1. Three walls? Fill it in.
 		if (lastmark !== null && lastmark !== "dead") return; lastmark = "dead";
-		rendered_maze[r][c] += " dead w" + missing;
+		rendered_maze[r][c] = cls.filter(c => c !== "path").join(" ") + " dead w" + missing;
 		const [dr, dc, back] = adjacent(r, c, missing);
 		rendered_maze[dr][dc] += " w" + back;
 	} else if (path && path !== "many") {
