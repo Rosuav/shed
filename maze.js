@@ -107,7 +107,22 @@ let drawing = null;
 on("click", "#draw", e => {
 	e.preventDefault();
 	clearInterval(interval); interval = 0;
-	if (drawing) return improve_maze(rendered_maze, drawing, 1);
+	if (drawing) {
+		//Generate a rendering token.
+		const bitlength = 32 - Math.clz32(Math.max(rendered_maze.length, rendered_maze[0].length));
+		const factor = 1n << BigInt(bitlength);
+		const arr = [rendered_maze.length, rendered_maze[0].length];
+		drawing.forEach(d => arr.push(d[0], d[1]));
+		console.log(arr);
+		let token = 0n;
+		arr.forEach(n => token = (token * factor) + BigInt(n));
+		console.log(bitlength, token);
+		improve_maze(rendered_maze, drawing, 1);
+		//TODO: If the last cell of drawing was on the bottom row, make it the exit.
+		//TODO: Render the token in base 64 and show it to the user (or at least the console)
+		drawing = null;
+		return;
+	}
 	const maze = initialize(DOM("#rows").value, DOM("#cols").value);
 	victory = false;
 	render(maze);
