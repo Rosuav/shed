@@ -18,4 +18,7 @@ label {margin-right: 0.75em;}
 .grid div.wr {border-right-color: black;}
 /* The path to the exit (or, what the user THINKS is the path) */
 .grid div.path {background: #66339988;}
+/* The target location (where the exit is) */
 .grid div.exit {background: #ffaa0088;}
+/* A dead end, marked by the user. */
+.grid div.dead {background: #8888;}

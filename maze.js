@@ -1,7 +1,9 @@
 import {lindt, replace_content, DOM} from "https://rosuav.github.io/choc/factory.js";
 const {DIV} = lindt; //autoimport
 
+let rendered_maze;
 function render(grid, posr, posc) {
+	rendered_maze = grid;
 	const size = Math.max(Math.min(window.innerHeight / grid.length, window.innerWidth / grid[0].length, 100), 10);
 	replace_content("#display", DIV(
 		{class: "grid", "style":
@@ -9,7 +11,8 @@ function render(grid, posr, posc) {
 			grid-template-columns: repeat(${grid[0].length}, ${size}px);`
 		},
 		grid.map((row, r) =>
-			row.map((cell, c) => DIV({class: cell === "???" ? "wa wl wr wb" : cell},
+			row.map((cell, c) => DIV(
+				{class: cell === "???" ? "wa wl wr wb" : cell, "data-r": r, "data-c": c},
 				posr === r && posc === c ? "*" : ""
 			))
 		)
@@ -21,6 +24,15 @@ function initialize(rows, cols) {
 	for (let r = 0; r < rows; ++r)
 		grid.push(Array(+cols).fill("???"));
 	return grid;
+}
+
+function adjacent(r, c, dir) {
+	switch (dir) {
+		case "a": return [r-1, c, "b"];
+		case "b": return [r+1, c, "a"];
+		case "l": return [r, c-1, "r"];
+		case "r": return [r, c+1, "l"];
+	}
 }
 
 let interval, start = +new Date;
@@ -60,13 +72,7 @@ function improve_maze(maze, walk, fast) {
 			}
 		} else {
 			const m = moves[Math.floor(Math.random() * moves.length)];
-			let dr = r, dc = c, back;
-			switch (m) {
-				case "a": dr--; back = "b"; break;
-				case "b": dr++; back = "a"; break;
-				case "l": dc--; back = "r"; break;
-				case "r": dc++; back = "l"; break;
-			}
+			const [dr, dc, back] = adjacent(r, c, m);
 			//In this cell, remove the wall in the direction (above, below, left, right) we're going.
 			maze[r][c] = maze[r][c].split(" ").filter(w => w !== "w" + m).join(" ");
 			//And in the destination, remove the wall in the opposite direction. Note that the
@@ -96,3 +102,40 @@ function generate(fast) {
 on("submit", "#generate", e => {e.preventDefault(); generate(1);});
 on("click", "#watch", e => {e.preventDefault(); generate(0);});
 generate(1);
+
+on("click", ".grid div", e => {
+	if (interval) return; //Wait till we're done building it!
+	const r = +e.match.dataset.r, c = +e.match.dataset.c;
+	//Clicking a cell can have one of two (or three-ish) effects.
+	//1. If that cell has three walls around it, fill it in, and mark a pseudo-wall at its one opening.
+	//2. Alternatively, if that cell is adjacent to (and without a wall) the path, extend the path.
+	//2a. Or if it's part of the path and has only one adjacent path section, un-path it.
+	//TODO: Also have a maze building option, where you start with a complete grid, and can remove
+	//walls by clicking to move to an adjacent cell. (When done, save the grid, and then generate
+	//the rest of the maze.)
+	//TODO: Do this on mouse down, and if you mouse move to another eligible square *of the same
+	//type*, also fill that in. Note that you MAY move to another square that's eligible for a
+	//different reason (from one dead end to another, even across a wall), but not from dead to
+	//path or from add-to-path to remove-from-path (which would result in massive flicker).
+	const cls = rendered_maze[r][c].split(" ");
+	let missing, path;
+	["a", "b", "l", "r"].forEach(dir => {
+		if (cls.includes("w" + dir)) return;
+		missing = missing ? "many" : dir;
+		const [dr, dc, back] = adjacent(r, c, dir);
+		const other = (rendered_maze[dr]?.[dc] || "").split(" ");
+		if (other.includes("path")) path = path ? "many" : dir;
+	});
+	if (missing && missing !== "many") {
+		//1. Three walls? Fill it in.
+		rendered_maze[r][c] += " dead w" + missing;
+		const [dr, dc, back] = adjacent(r, c, missing);
+		rendered_maze[dr][dc] += " w" + back;
+	} else if (path && path !== "many") {
+		//2. Next to the path?
+		if (!cls.includes("path")) rendered_maze[r][c] += " path";
+		//2a. Or, at the end of the path, and on it?
+		else rendered_maze[r][c] = cls.filter(c => c !== "path").join(" ");
+	}
+	render(rendered_maze);
+});
