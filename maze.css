@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend&display=swap');
+
+* {box-sizing: border-box;}
+
+body, button { /* not sure why buttons don't get this by inheritance */
+	font-family: 'Lexend', sans-serif;
+	line-height: 1.3;
+}
+
+.grid {display: grid;}
+.grid div {border: 1px solid transparent;}
+/* Wall locations */
+.grid div.wa {border-top-color: black;}
+.grid div.wl {border-left-color: black;}
+.grid div.wb {border-bottom-color: black;}
+.grid div.wr {border-right-color: black;}
