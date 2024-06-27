@@ -103,6 +103,16 @@ function generate(fast) {
 }
 on("submit", "#generate", e => {e.preventDefault(); generate(1);});
 on("click", "#watch", e => {e.preventDefault(); generate(0);});
+let drawing = null;
+on("click", "#draw", e => {
+	e.preventDefault();
+	clearInterval(interval); interval = 0;
+	if (drawing) return improve_maze(rendered_maze, drawing, 1);
+	const maze = initialize(DOM("#rows").value, DOM("#cols").value);
+	victory = false;
+	render(maze);
+	drawing = [];
+});
 generate(1);
 
 let lastmark = null;
@@ -115,10 +125,53 @@ function mark(r, c) {
 	//1. If that cell has three walls around it, fill it in, and mark a pseudo-wall at its one opening.
 	//2. Alternatively, if that cell is adjacent to (and without a wall) the path, extend the path.
 	//2a. Or if it's part of the path and has only one adjacent path section, un-path it.
-	//TODO: Also have a maze building option, where you start with a complete grid, and can remove
-	//walls by clicking to move to an adjacent cell. (When done, save the grid, and then generate
-	//the rest of the maze.)
+	//3. Maze building ("drawing") mode: design the path. You may extend the path or retract it.
+	if (drawing) {
+		if (!drawing.length) {
+			if (r) {console.warn("Start on the top row!"); return;}
+			drawing.push([r, c]);
+			rendered_maze[r][c] = "wl wr wb path";
+			lastmark = "addpath";
+			render(rendered_maze, r, c);
+			return;
+		}
+		const dr = drawing[drawing.length - 1][0], dc = drawing[drawing.length - 1][1];
+		if (dr === r && dc === c && drawing.length > 1) {
+			//Unmark last spot
+			if (lastmark !== null && lastmark !== "rempath") return; lastmark = "rempath";
+			//There should be only one gap in this cell. Move that way, and close it.
+			const cls = rendered_maze[r][c].split(" ");
+			rendered_maze[r][c] = "???";
+			drawing.pop();
+			["a", "b", "l", "r"].forEach(dir => {
+				if (cls.includes("w" + dir)) return;
+				const [dr, dc, back] = adjacent(r, c, dir);
+				rendered_maze[dr][dc] = "w" + back + " " + rendered_maze[dr][dc];
+				render(rendered_maze, drawing[drawing.length - 1][0], drawing[drawing.length - 1][1]);
+			});
+			return;
+		}
+		//Expand the path. Current cell has to be untouched.
+		if (rendered_maze[r][c] !== "???") return;
+		if (lastmark !== null && lastmark !== "addpath") return; lastmark = "addpath";
+		let dir, back;
+		if (dr === r && Math.abs(dc - c) === 1) {
+			//Left/right expansion
+			dir = c > dc ? "r" : "l";
+			back = c > dc ? "l" : "r";
+		} else if (dc === c && Math.abs(dr - r) === 1) {
+			//Up/down expansion
+			dir = r > dr ? "b" : "a";
+			back = r > dr ? "a" : "b";
+		} else return;
+		rendered_maze[r][c] = "wa wb wl wr path".replace("w" + back + " ", "");
+		rendered_maze[dr][dc] = rendered_maze[dr][dc].replace("w" + dir + " ", "");
+		drawing.push([r, c]);
+		render(rendered_maze, r, c);
+		return;
+	}
 	const cls = rendered_maze[r][c].split(" ");
+	if (drawing && cls[0] === "???") {cls.pop(); cls.push("wa", "wb", "wl", "wr");}
 	let missing, path;
 	["a", "b", "l", "r"].forEach(dir => {
 		if (cls.includes("w" + dir)) return;
@@ -127,7 +180,7 @@ function mark(r, c) {
 		const other = (rendered_maze[dr]?.[dc] || "").split(" ");
 		if (other.includes("path")) path = path ? "many" : dir;
 	});
-	if (missing && missing !== "many") {
+	if (!drawing && missing && missing !== "many") {
 		//1. Three walls? Fill it in.
 		if (lastmark !== null && lastmark !== "dead") return; lastmark = "dead";
 		rendered_maze[r][c] = cls.filter(c => c !== "path").join(" ") + " dead w" + missing;
@@ -138,6 +191,13 @@ function mark(r, c) {
 		if (!cls.includes("path")) {
 			if (victory) return; //After claiming victory, don't mark any new paths.
 			if (lastmark !== null && lastmark !== "addpath") return; lastmark = "addpath";
+			if (drawing) {
+				//3. Draw the path.
+				//Remove the wall between here and the path
+				rendered_maze[r][c] = cls.filter(c => c !== "w" + path).join(" ");
+				const [dr, dc, back] = adjacent(r, c, path);
+				rendered_maze[dr][dc] = rendered_maze[dr][dc].split(" ").filter(c => c !== "w" + back).join(" ");
+			}
 			rendered_maze[r][c] += " path";
 			if (cls.includes("exit")) {
 				//The path has reached the exit! GG!
@@ -149,6 +209,12 @@ function mark(r, c) {
 			if (cls.includes("exit")) return; //Don't unpathmark the exit square.
 			if (lastmark !== null && lastmark !== "rempath") return; lastmark = "rempath";
 			rendered_maze[r][c] = cls.filter(c => c !== "path").join(" ");
+			if (drawing) {
+				//Reinstate walls between these cells.
+				rendered_maze[r][c] += " w" + path;
+				const [dr, dc, back] = adjacent(r, c, path);
+				rendered_maze[dr][dc] += " w" + back;
+			}
 		}
 	}
 	render(rendered_maze);
