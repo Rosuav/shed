@@ -13,7 +13,12 @@
 <p>Back in the dim dark history of the 20th century, I had a really old BASIC program that generated mazes. I never
 understood the algorithm it used, and the code was pretty opaque, but it did generate beautiful mazes. This is my
 tribute to that old program, an attempt to carry its inspiration into the modern day - and a web browser.</p>
-<!-- TODO: Size selection -->
+<p><form id=generate>
+	<label>Rows: <input type=number id=rows value=25></label>
+	<label>Cols: <input type=number id=cols value=25></label>
+	<button>Generate</button>
+	<button id=watch type=button>Generate and watch</button>
+</form></p>
 <div id=display></div>
 </main>
 </body>
