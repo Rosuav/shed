@@ -2,11 +2,12 @@ import {lindt, replace_content, DOM} from "https://rosuav.github.io/choc/factory
 const {DIV} = lindt; //autoimport
 
 let rendered_maze;
+let victory = false;
 function render(grid, posr, posc) {
 	rendered_maze = grid;
 	const size = Math.max(Math.min(window.innerHeight / grid.length, window.innerWidth / grid[0].length, 100), 10);
 	replace_content("#display", DIV(
-		{class: "grid", "style":
+		{class: "grid" + (victory ? " victory" : ""), "style":
 			`grid-template-rows: repeat(${grid.length}, ${size}px);
 			grid-template-columns: repeat(${grid[0].length}, ${size}px);`
 		},
@@ -89,6 +90,7 @@ function improve_maze(maze, walk, fast) {
 function generate(fast) {
 	clearInterval(interval); //Cancel any currently-running generation
 	const maze = initialize(DOM("#rows").value, DOM("#cols").value);
+	victory = false;
 	if (fast) return improve_maze(maze, [], 1);
 	render(maze);
 	//Attempt to generate the maze in 20 seconds, regardless of size.
@@ -134,11 +136,17 @@ function mark(r, c) {
 	} else if (path && path !== "many") {
 		//2. Next to the path?
 		if (!cls.includes("path")) {
+			if (victory) return; //After claiming victory, don't mark any new paths.
 			if (lastmark !== null && lastmark !== "addpath") return; lastmark = "addpath";
 			rendered_maze[r][c] += " path";
+			if (cls.includes("exit")) {
+				//The path has reached the exit! GG!
+				victory = true;
+			}
 		}
 		//2a. Or, at the end of the path, and on it?
 		else {
+			if (cls.includes("exit")) return; //Don't unpathmark the exit square.
 			if (lastmark !== null && lastmark !== "rempath") return; lastmark = "rempath";
 			rendered_maze[r][c] = cls.filter(c => c !== "path").join(" ");
 		}

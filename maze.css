@@ -22,3 +22,10 @@ label {margin-right: 0.75em;}
 .grid div.exit {background: #ffaa0088;}
 /* A dead end, marked by the user. */
 .grid div.dead {background: #8888;}
+
+/* When the path has reached the exit, you've won! */
+.grid.victory div.path {animation: pulse 4s infinite;}
+@keyframes pulse {
+	0%, 100% {background-color: #66339988;}
+	50% {background-color: #ffaa0088;}
+}
