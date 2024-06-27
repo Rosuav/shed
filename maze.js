@@ -38,6 +38,8 @@ function adjacent(r, c, dir) {
 
 let interval, start = +new Date;
 function improve_maze(maze, walk, fast) {
+	let preferred_exit = -1;
+	if (fast && walk.length > 1 && walk[walk.length - 1][0] === maze.length - 1) preferred_exit = walk[walk.length - 1][1];
 	do { //In fast mode, keep going till the maze is fully generated, THEN render.
 		if (!walk.length) {
 			//Initialize our random walk with a cell at the top of the grid,
@@ -63,7 +65,7 @@ function improve_maze(maze, walk, fast) {
 			walk.pop();
 			if (!walk.length) {
 				//We've walked all the way back to the start, all is done! Pick an exit and mark it.
-				const exit = Math.floor(Math.random() * maze[0].length);
+				const exit = preferred_exit === -1 ? Math.floor(Math.random() * maze[0].length) : preferred_exit;
 				maze[maze.length - 1][exit] = maze[maze.length - 1][exit].split(" ").filter(w => w !== "wb").join(" ") + " exit";
 				clearInterval(interval); interval = 0;
 				//Mark the entrance as part of the path.
@@ -162,7 +164,6 @@ on("click", "#draw", e => {
 		console.log(url.toString());
 		start = +new Date;
 		improve_maze(rendered_maze, drawing, 1);
-		//TODO: If the last cell of drawing was on the bottom row, make it the exit.
 		drawing = null;
 		return;
 	}
@@ -212,7 +213,6 @@ function decode_token(token) {
 	}
 	start = +new Date;
 	improve_maze(maze, drawing, 1);
-	//TODO: If the last cell of drawing was on the bottom row, make it the exit.
 }
 if (location.hash.length > 3) decode_token(location.hash.slice(1));
 else generate(1);
