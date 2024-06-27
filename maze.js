@@ -49,10 +49,12 @@ function improve_maze(maze, walk, fast) {
 		if (!moves.length) {
 			walk.pop();
 			if (!walk.length) {
-				//We've walked all the way back to the start, all is done! Pick an exit.
+				//We've walked all the way back to the start, all is done! Pick an exit and mark it.
 				const exit = Math.floor(Math.random() * maze[0].length);
-				maze[maze.length - 1][exit] = maze[maze.length - 1][exit].split(" ").filter(w => w !== "wb").join(" ");
+				maze[maze.length - 1][exit] = maze[maze.length - 1][exit].split(" ").filter(w => w !== "wb").join(" ") + " exit";
 				clearInterval(interval); interval = 0;
+				//Mark the entrance as part of the path.
+				maze[r][c] += " path";
 				console.log("Finished after ", +new Date - start);
 				break;
 			}

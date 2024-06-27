@@ -16,3 +16,6 @@ label {margin-right: 0.75em;}
 .grid div.wl {border-left-color: black;}
 .grid div.wb {border-bottom-color: black;}
 .grid div.wr {border-right-color: black;}
+/* The path to the exit (or, what the user THINKS is the path) */
+.grid div.path {background: #66339988;}
+.grid div.exit {background: #ffaa0088;}
