@@ -322,6 +322,18 @@ function mark(r, c) {
 				rendered_maze[dr][dc] += " w" + back;
 			}
 		}
-	}
+	} else return "nope"; //No need to rerender
 	render(rendered_maze);
 }
+
+function solve() {
+	if (lastmark) return;
+	lastmark = "dead";
+	let repeat = 0;
+	for (let r = 0; r < rendered_maze.length; ++r)
+		for (let c = 0; c < rendered_maze[0].length; ++c)
+			if (mark(r, c) !== "nope") repeat = 1;
+	lastmark = null;
+	if (repeat) setTimeout(solve, 1000);
+}
+window.solve = solve;
