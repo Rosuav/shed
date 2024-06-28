@@ -216,7 +216,10 @@ function decode_token(token) {
 }
 if (location.hash.length > 3) decode_token(location.hash.slice(1));
 else generate(1);
-window.draw = () => DOM("#draw").hidden = false;
+window.draw = (url) => {
+	DOM("#draw").hidden = false;
+	if (url) document.body.appendChild(choc.STYLE(".grid {background: url(" + url + "); background-size: contain; background-repeat: no-repeat;"));
+};
 
 let lastmark = null;
 on("mousedown", ".grid div", e => mark(+e.match.dataset.r, +e.match.dataset.c));
