@@ -337,3 +337,19 @@ function solve() {
 	if (repeat) setTimeout(solve, 1000);
 }
 window.solve = solve;
+
+document.onkeydown = e => {
+	if (interval) return;
+	let dr = 0, dc = 0;
+	switch (e.code) {
+		case "ArrowUp": dr = -1; break;
+		case "ArrowDown": dr = 1; break;
+		case "ArrowLeft": dc = -1; break;
+		case "ArrowRight": dc = 1; break;
+		default: return;
+	}
+	//If there's a wall that way, do nothing. Should we show error?
+	//Flash the wall red maybe?
+	//TODO: Track the path-end location. Should we thus block mouse clicks that
+	//are adjacent to the middle of the path? Currently the path just branches.
+};
