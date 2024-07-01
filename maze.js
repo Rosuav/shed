@@ -142,65 +142,65 @@ on("submit", "#generate", e => {e.preventDefault(); generate(1);});
 on("click", "#watch", e => {e.preventDefault(); generate(0);});
 
 let drawing = null;
+function complete_drawing() {
+	//Generate a rendering token. This is a mess, would be a lot easier in other languages, but
+	//it's more important for the token to be compact than for it to be parsed quickly.
+	const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"; //Base64-ish alphabet
+
+	//For small mazes (up to 64x64), we can store the dimensions and entry column in one 64-bit
+	//value each. For larger mazes, we need two or even three such tokens. Four is the utter limit.
+	const n = Math.max(rendered_maze.length, rendered_maze[0].length);
+	const width = n <= 64 ? 1 : n <= 4096 ? 2 : n <= 262144 ? 3 : 4;
+	//Note that we store the dimensions minus one, allowing a 64x64 maze to be stored in one byte
+	//per value. However, it's not worth compacting further than that; we could pack three 4-bit
+	//values into two tokens, allowing a 16x16 maze to be stored in one less byte. Big whoop.
+	const arr = [rendered_maze.length - 1, rendered_maze[0].length - 1, drawing[0][1]];
+	let token = "";
+	arr.forEach(n => {
+		for (let i = 1; i < width; ++i) {
+			token += alphabet[n & 63];
+			n >>= 6;
+		}
+		token += alphabet[n];
+	});
+	let lastrow = 0, lastcol = drawing[0][1];
+	function direction(n) {
+		const [r1, c1] = drawing[n - 1];
+		const [r2, c2] = drawing[n];
+		if (r2 > r1) return "00";
+		if (r2 < r1) return "01";
+		if (c2 > c1) return "10";
+		if (c2 < c1) return "11";
+	}
+	//The bulk of the token consists of three directions per byte value. First, render the loose
+	//0-2 at the start. (We've already rendered the first entry by storing the actual column.)
+	const loose = (drawing.length - 1) % 3;
+	if (loose) {
+		let bits = "";
+		for (let i = 1; i < loose + 1; ++i) bits += direction(i);
+		token += alphabet[Number("0b" + bits)];
+	}
+	//Now the rest of it, which will be a multiple of three.
+	for (let i = loose + 1; i < drawing.length; i += 3) {
+		let bits = "";
+		for (let j = i; j < i + 3; ++j) bits += direction(j);
+		token += alphabet[Number("0b" + bits)];
+	}
+	//Right. That's all the directions (packed three to a byte). There are two last nuggets that
+	//you'll need to decode that: the bit length for the initial three values, and the number of
+	//directions in the first byte. We've capped the bit length at 4 and there can only be 0-2 in
+	//the first byte, so we actually have a bunch of spare bits here if they're needed.
+	token = alphabet[width * 4 + loose] + token;
+	const url = new URL(location); url.hash = token;
+	console.log(url.toString());
+	start = +new Date;
+	improve_maze(rendered_maze, [drawing], 1);
+	drawing = null;
+}
 on("click", "#draw", e => {
 	e.preventDefault();
 	clearInterval(interval); interval = 0;
-	if (drawing && drawing.length) {
-		//Generate a rendering token. This is a mess, would be a lot easier in other languages, but
-		//it's more important for the token to be compact than for it to be parsed quickly.
-		const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"; //Base64-ish alphabet
-
-		//For small mazes (up to 64x64), we can store the dimensions and entry column in one 64-bit
-		//value each. For larger mazes, we need two or even three such tokens. Four is the utter limit.
-		const n = Math.max(rendered_maze.length, rendered_maze[0].length);
-		const width = n <= 64 ? 1 : n <= 4096 ? 2 : n <= 262144 ? 3 : 4;
-		//Note that we store the dimensions minus one, allowing a 64x64 maze to be stored in one byte
-		//per value. However, it's not worth compacting further than that; we could pack three 4-bit
-		//values into two tokens, allowing a 16x16 maze to be stored in one less byte. Big whoop.
-		const arr = [rendered_maze.length - 1, rendered_maze[0].length - 1, drawing[0][1]];
-		let token = "";
-		arr.forEach(n => {
-			for (let i = 1; i < width; ++i) {
-				token += alphabet[n & 63];
-				n >>= 6;
-			}
-			token += alphabet[n];
-		});
-		let lastrow = 0, lastcol = drawing[0][1];
-		function direction(n) {
-			const [r1, c1] = drawing[n - 1];
-			const [r2, c2] = drawing[n];
-			if (r2 > r1) return "00";
-			if (r2 < r1) return "01";
-			if (c2 > c1) return "10";
-			if (c2 < c1) return "11";
-		}
-		//The bulk of the token consists of three directions per byte value. First, render the loose
-		//0-2 at the start. (We've already rendered the first entry by storing the actual column.)
-		const loose = (drawing.length - 1) % 3;
-		if (loose) {
-			let bits = "";
-			for (let i = 1; i < loose + 1; ++i) bits += direction(i);
-			token += alphabet[Number("0b" + bits)];
-		}
-		//Now the rest of it, which will be a multiple of three.
-		for (let i = loose + 1; i < drawing.length; i += 3) {
-			let bits = "";
-			for (let j = i; j < i + 3; ++j) bits += direction(j);
-			token += alphabet[Number("0b" + bits)];
-		}
-		//Right. That's all the directions (packed three to a byte). There are two last nuggets that
-		//you'll need to decode that: the bit length for the initial three values, and the number of
-		//directions in the first byte. We've capped the bit length at 4 and there can only be 0-2 in
-		//the first byte, so we actually have a bunch of spare bits here if they're needed.
-		token = alphabet[width * 4 + loose] + token;
-		const url = new URL(location); url.hash = token;
-		console.log(url.toString());
-		start = +new Date;
-		improve_maze(rendered_maze, [drawing], 1);
-		drawing = null;
-		return;
-	}
+	if (drawing && drawing.length) {complete_drawing(); return;}
 	const maze = initialize(DOM("#rows").value, DOM("#cols").value);
 	victory = false;
 	render(maze);
