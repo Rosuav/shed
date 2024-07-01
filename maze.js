@@ -37,17 +37,23 @@ function adjacent(r, c, dir) {
 }
 
 let interval, start = +new Date;
-function improve_maze(maze, walk, fast) {
+function improve_maze(maze, walks, fast) {
 	let preferred_exit = -1;
-	if (fast && walk.length > 1 && walk[walk.length - 1][0] === maze.length - 1) preferred_exit = walk[walk.length - 1][1];
-	if (!walk.length) {
+	if (!walks.length) {
 		//Initialize our random walk with a cell at the top of the grid,
 		//and make that the entrance.
 		const entry = Math.floor(Math.random() * maze[0].length);
-		walk.push([0, entry]);
+		walks.push([[0, entry]]);
 		maze[0][entry] = "wl wr wb";
 	}
+	if (fast && walks[0].length > 1) {
+		//If a predefined path has been given which gets us to the last row,
+		//use the end of that path as the exit.
+		const [r, c] = walks[0][walks[0].length - 1];
+		if (r === maze.length - 1) preferred_exit = c;
+	}
 	do { //In fast mode, keep going till the maze is fully generated, THEN render.
+		const walk = walks[walks.length - 1];
 		const [r, c] = walk[walk.length - 1]; //Alright, now where were we?
 		//And where can we go from there? Note that we assume that array[-1] and array[length]
 		//are indexable and undefined (and make use of optional chaining for the rows). Thus
@@ -62,9 +68,33 @@ function improve_maze(maze, walk, fast) {
 		//Okay, these are our valid moves. If there aren't any, back up one cell. Otherwise,
 		//pick one at random and go that way, knocking down the corresponding wall.
 		if (!moves.length) {
+			//Pure backtracking is certainly an option. However, another option is to branch off.
+			//This involves searching the entire current path, so it is more expensive; thus it is
+			//done with probability decreasing as the path lengthens.
+			/*if (Math.random() * walk.length < 0.5)*/ {
+				//Note that we only search the current walk, not previous ones.
+				const starts = [];
+				for (let pos of walk) {
+					const [r, c] = pos;
+					if (maze[r-1]?.[c] === "???"
+						|| maze[r+1]?.[c] === "???"
+						|| maze[r][c-1] === "???"
+						|| maze[r][c+1] === "???")
+							starts.push([r, c]);
+				}
+				if (starts.length) { //If not, fall back on backtracking. Chances are we're done anyway.
+					const pos = starts[Math.floor(Math.random() * starts.length)];
+					walks.push([pos]);
+					continue;
+				}
+			}
 			walk.pop();
 			if (!walk.length) {
-				//We've walked all the way back to the start, all is done! Pick an exit and mark it.
+				//We've walked all the way back to the current branch point. Back to the end of the previous
+				//branch, or the original path.
+				walks.pop();
+				if (walks.length) continue;
+				//If we've walked all the way back to the start, all is done! Pick an exit and mark it.
 				const exit = preferred_exit === -1 ? Math.floor(Math.random() * maze[0].length) : preferred_exit;
 				maze[maze.length - 1][exit] = maze[maze.length - 1][exit].split(" ").filter(w => w !== "wb").join(" ") + " exit";
 				clearInterval(interval); interval = 0;
@@ -85,7 +115,8 @@ function improve_maze(maze, walk, fast) {
 			walk.push([dr, dc]);
 		}
 	} while (fast);
-	const w = walk[walk.length - 1];
+	const walk = walks[walks.length - 1];
+	const w = walk && walk[walk.length - 1];
 	render(maze, w && w[0], w && w[1]);
 }
 
@@ -163,7 +194,7 @@ on("click", "#draw", e => {
 		const url = new URL(location); url.hash = token;
 		console.log(url.toString());
 		start = +new Date;
-		improve_maze(rendered_maze, drawing, 1);
+		improve_maze(rendered_maze, [drawing], 1);
 		drawing = null;
 		return;
 	}
@@ -213,7 +244,7 @@ function decode_token(token, debug) {
 		maze[dr][dc] = maze[dr][dc].replace("w" + dir + " ", "");
 	}
 	start = +new Date;
-	improve_maze(maze, drawing, 1);
+	improve_maze(maze, [drawing], 1);
 }
 if (location.hash.length > 3) decode_token(location.hash.slice(1));
 else generate(1);
