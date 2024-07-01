@@ -3,6 +3,7 @@ const {DIV} = lindt; //autoimport
 
 let rendered_maze;
 let victory = false;
+let pathendr = -1, pathendc = -1;
 function render(grid, posr, posc) {
 	rendered_maze = grid;
 	const size = Math.floor(Math.max(Math.min(window.innerHeight / grid.length, window.innerWidth / grid[0].length, 100), 12));
@@ -324,6 +325,7 @@ function mark(r, c) {
 		if (lastmark !== null && lastmark !== "dead") return; lastmark = "dead";
 		rendered_maze[r][c] = cls.filter(c => c !== "path").join(" ") + " dead w" + missing;
 		const [dr, dc, back] = adjacent(r, c, missing);
+		if (cls.includes("path")) {pathendr = dr; pathendc = dc;}
 		rendered_maze[dr][dc] += " w" + back;
 	} else if (path && path !== "many") {
 		//2. Next to the path?
@@ -338,6 +340,7 @@ function mark(r, c) {
 				rendered_maze[dr][dc] = rendered_maze[dr][dc].split(" ").filter(c => c !== "w" + back).join(" ");
 			}
 			rendered_maze[r][c] += " path";
+			pathendr = r; pathendc = c;
 			if (cls.includes("exit")) {
 				//The path has reached the exit! GG!
 				victory = true;
@@ -348,15 +351,17 @@ function mark(r, c) {
 			if (cls.includes("exit")) return; //Don't unpathmark the exit square.
 			if (lastmark !== null && lastmark !== "rempath") return; lastmark = "rempath";
 			rendered_maze[r][c] = cls.filter(c => c !== "path").join(" ");
+			const [dr, dc, back] = adjacent(r, c, path);
 			if (drawing) {
 				//Reinstate walls between these cells.
 				rendered_maze[r][c] += " w" + path;
-				const [dr, dc, back] = adjacent(r, c, path);
 				rendered_maze[dr][dc] += " w" + back;
+			} else {
+				pathendr = dr; pathendc = dc;
 			}
 		}
 	} else return "nope"; //No need to rerender
-	render(rendered_maze);
+	render(rendered_maze, pathendr, pathendc);
 }
 
 function solve() {
