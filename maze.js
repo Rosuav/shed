@@ -188,7 +188,7 @@ function decode_token(token) {
 	let tok = 1;
 	for (let i = 0; i < 3; ++i) {
 		let bits = "";
-		for (let i = 0; i < width; ++i) bits += decode[token[tok++]];
+		for (let i = 0; i < width; ++i) bits = decode[token[tok++]] + bits;
 		arr.push(Number("0b" + bits));
 	}
 	const maze = initialize(arr[0] + 1, arr[1] + 1);
