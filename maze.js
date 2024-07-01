@@ -278,6 +278,10 @@ function mark(r, c) {
 			return;
 		}
 		const dr = drawing[drawing.length - 1][0], dc = drawing[drawing.length - 1][1];
+		if (drawing.length > 2 && drawing[drawing.length - 2][0] === r && drawing[drawing.length - 2][1] === c) {
+			//Quirky but useful: click BEHIND the head to retract the head by one square.
+			r = dr; c = dc;
+		}
 		if (dr === r && dc === c && drawing.length > 1) {
 			//Unmark last spot
 			if (lastmark !== null && lastmark !== "rempath") return; lastmark = "rempath";
