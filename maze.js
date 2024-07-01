@@ -173,9 +173,10 @@ on("click", "#draw", e => {
 	drawing = [];
 });
 
-function decode_token(token) {
+function decode_token(token, debug) {
 	//Inverse of the above token generation.
 	if (token.length < 3) return;
+	debug = debug ? "path " : "";
 	const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-";
 	const decode = {};
 	for (let i = 0; i < alphabet.length; ++i) decode[alphabet[i]] = ("000000" + i.toString(2)).slice(-6);
@@ -192,7 +193,7 @@ function decode_token(token) {
 		arr.push(Number("0b" + bits));
 	}
 	const maze = initialize(arr[0] + 1, arr[1] + 1);
-	maze[0][arr[2]] = "wl wr wb ";
+	maze[0][arr[2]] = "wl wr wb " + debug;
 	victory = false;
 	const drawing = [[0, arr[2]]];
 	let bits = loose ? decode[token[tok++]].slice(loose * -2) : "";
@@ -208,7 +209,7 @@ function decode_token(token) {
 			case "11": c--; dir = "l"; back = "r"; break;
 		}
 		drawing.push([r, c]);
-		maze[r][c] = "wa wb wl wr ".replace("w" + back + " ", "");
+		maze[r][c] = ("wa wb wl wr " + debug).replace("w" + back + " ", "");
 		maze[dr][dc] = maze[dr][dc].replace("w" + dir + " ", "");
 	}
 	start = +new Date;
@@ -220,7 +221,7 @@ window.draw = (url) => {
 	DOM("#draw").hidden = false;
 	if (url) document.body.appendChild(choc.STYLE(".grid {background: url(" + url + "); background-size: contain; background-repeat: no-repeat;"));
 };
-window.load = decode_token;
+window.load = tok => decode_token(tok, 1);
 
 let lastmark = null;
 on("mousedown", ".grid div", e => mark(+e.match.dataset.r, +e.match.dataset.c));
