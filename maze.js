@@ -380,16 +380,21 @@ function solve() {
 window.solve = solve;
 
 document.onkeydown = e => {
-	if (interval) return;
 	const dir = {
 		ArrowUp: "a",
 		ArrowDown: "b",
 		ArrowLeft: "l",
 		ArrowRight: "r",
 	}[e.code];
-	const pathend = rendered_maze[pathendr]?.[pathendc];
-	if (!pathend || !dir) return;
+	if (!dir) return;
 	e.preventDefault();
+	if (drawing && drawing.length) {
+		mark(...adjacent(...drawing[drawing.length - 1], dir));
+		lastmark = null; //Not dragging so there's no "last mark mode" to apply.
+		return;
+	}
+	const pathend = rendered_maze[pathendr]?.[pathendc];
+	if (!pathend || interval) return;
 	if (pathend.split(" ").includes("w" + dir)) {
 		//If there's a wall that way, do nothing. Should we show error?
 		//Flash the wall red maybe?
