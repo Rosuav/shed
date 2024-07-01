@@ -71,7 +71,7 @@ function improve_maze(maze, walks, fast) {
 			//Pure backtracking is certainly an option. However, another option is to branch off.
 			//This involves searching the entire current path, so it is more expensive; thus it is
 			//done with probability decreasing as the path lengthens.
-			/*if (Math.random() * walk.length < 0.5)*/ {
+			/*if (Math.random() * walk.length < 0.5)*/ { //Hack: For now, ALWAYS do this search
 				//Note that we only search the current walk, not previous ones.
 				const starts = [];
 				for (let pos of walk) {
