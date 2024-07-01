@@ -343,10 +343,7 @@ function mark(r, c) {
 			} else if (dr !== pathendr || dc !== pathendc) return "not adjacent";
 			rendered_maze[r][c] += " path";
 			pathendr = r; pathendc = c;
-			if (cls.includes("exit")) {
-				//The path has reached the exit! GG!
-				victory = true;
-			}
+			if (cls.includes("exit")) victory = true; //The path has reached the exit! GG!
 		}
 		//2a. Or, at the end of the path, and on it?
 		else {
@@ -380,16 +377,30 @@ window.solve = solve;
 
 document.onkeydown = e => {
 	if (interval) return;
-	let dr = 0, dc = 0;
-	switch (e.code) {
-		case "ArrowUp": dr = -1; break;
-		case "ArrowDown": dr = 1; break;
-		case "ArrowLeft": dc = -1; break;
-		case "ArrowRight": dc = 1; break;
-		default: return;
+	const dir = {
+		ArrowUp: "a",
+		ArrowDown: "b",
+		ArrowLeft: "l",
+		ArrowRight: "r",
+	}[e.code];
+	const pathend = rendered_maze[pathendr]?.[pathendc];
+	if (!pathend || !dir) return;
+	e.preventDefault();
+	if (pathend.split(" ").includes("w" + dir)) {
+		//If there's a wall that way, do nothing. Should we show error?
+		//Flash the wall red maybe?
+		return;
 	}
-	//If there's a wall that way, do nothing. Should we show error?
-	//Flash the wall red maybe?
-	//TODO: Track the path-end location. Should we thus block mouse clicks that
-	//are adjacent to the middle of the path? Currently the path just branches.
+	const [dr, dc, back] = adjacent(pathendr, pathendc, dir);
+	const dest = rendered_maze[dr][dc];
+	if (dest.split(" ").includes("path")) {
+		//Backtracking. Remove the path marker from here.
+		rendered_maze[pathendr][pathendc] = pathend.split(" ").filter(w => w !== "path").join(" ");
+	} else {
+		//Advancing. Have we solved it?
+		rendered_maze[dr][dc] += " path";
+		if (rendered_maze[dr][dc].split(" ").includes("exit")) victory = true;
+	}
+	pathendr = dr; pathendc = dc;
+	render(rendered_maze, dr, dc);
 };
