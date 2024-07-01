@@ -333,14 +333,14 @@ function mark(r, c) {
 		//2. Next to the path?
 		if (!cls.includes("path")) {
 			if (victory) return; //After claiming victory, don't mark any new paths.
+			const [dr, dc, back] = adjacent(r, c, path);
 			if (lastmark !== null && lastmark !== "addpath") return; lastmark = "addpath";
 			if (drawing) {
 				//3. Draw the path.
 				//Remove the wall between here and the path
 				rendered_maze[r][c] = cls.filter(c => c !== "w" + path).join(" ");
-				const [dr, dc, back] = adjacent(r, c, path);
 				rendered_maze[dr][dc] = rendered_maze[dr][dc].split(" ").filter(c => c !== "w" + back).join(" ");
-			}
+			} else if (dr !== pathendr || dc !== pathendc) return "not adjacent";
 			rendered_maze[r][c] += " path";
 			pathendr = r; pathendc = c;
 			if (cls.includes("exit")) {
