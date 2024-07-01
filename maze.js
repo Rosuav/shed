@@ -301,7 +301,7 @@ function mark(r, c, altmode) {
 			return;
 		}
 		//Expand the path. Current cell has to be untouched... or part of the opposite path.
-		if (rendered_maze[r][c].includes(altmode ? "path" : "exit")) {
+		if ((rendered_maze[r]?.[c] || "???").includes(altmode ? "path" : "exit")) {
 			//LIGHTNING BOLT!
 			//The path descending and the path ascending have met.
 			//Chop the ascending path off at the point where they meet, and turn the
@@ -309,7 +309,6 @@ function mark(r, c, altmode) {
 			const otherpath = altmode ? drawing : drawtail;
 			const end = otherpath.findIndex(([dr, dc]) => dr === r && dc === c);
 			if (end === -1) return; //Shouldn't happen
-			console.log(end, otherpath.length);
 			otherpath.length = end + 1; //Truncate the other path at the point of intersection
 			//Open the path from here to there.
 			let dir, back;
@@ -330,7 +329,7 @@ function mark(r, c, altmode) {
 			lastmark = null;
 			return;
 		}
-		if (rendered_maze[r][c] !== "???") return;
+		if (rendered_maze[r]?.[c] !== "???") return;
 		if (lastmark !== null && lastmark !== "add" + attr) return; lastmark = "add" + attr;
 		let dir, back;
 		if (dr === r && Math.abs(dc - c) === 1) {
@@ -412,16 +411,24 @@ function solve() {
 window.solve = solve;
 
 document.onkeydown = e => {
-	const dir = {
+	const altmode = {
+		KeyW: "a",
+		KeyS: "b",
+		KeyA: "l",
+		KeyD: "r",
+	}[e.code];
+	const dir = altmode || ({
 		ArrowUp: "a",
 		ArrowDown: "b",
 		ArrowLeft: "l",
 		ArrowRight: "r",
-	}[e.code];
+	}[e.code]);
 	if (!dir) return;
 	e.preventDefault();
-	if (drawing && drawing.length) {
-		mark(...adjacent(...drawing[drawing.length - 1], dir));
+	const drawpath = altmode ? drawtail : drawing;
+	if (drawpath && drawpath.length) {
+		const adj = adjacent(...drawpath[drawpath.length - 1], dir);
+		mark(adj[0], adj[1], !!altmode);
 		lastmark = null; //Not dragging so there's no "last mark mode" to apply.
 		return;
 	}
