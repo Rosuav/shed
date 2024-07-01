@@ -101,8 +101,10 @@ function improve_maze(maze, walks, fast) {
 				clearInterval(interval); interval = 0;
 				//Mark the entrance as part of the path.
 				maze[r][c] += " path";
+				pathendr = r; pathendc = c;
 				console.log("Finished after ", +new Date - start);
-				break;
+				render(maze, r, c);
+				return;
 			}
 		} else {
 			const m = moves[Math.floor(Math.random() * moves.length)];
