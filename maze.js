@@ -5,7 +5,7 @@ let rendered_maze;
 let victory = false;
 function render(grid, posr, posc) {
 	rendered_maze = grid;
-	const size = Math.max(Math.min(window.innerHeight / grid.length, window.innerWidth / grid[0].length, 100), 10);
+	const size = Math.floor(Math.max(Math.min(window.innerHeight / grid.length, window.innerWidth / grid[0].length, 100), 12));
 	replace_content("#display", DIV(
 		{class: "grid" + (victory ? " victory" : ""), "style":
 			`grid-template-rows: repeat(${grid.length}, ${size}px);
