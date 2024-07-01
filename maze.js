@@ -40,14 +40,14 @@ let interval, start = +new Date;
 function improve_maze(maze, walk, fast) {
 	let preferred_exit = -1;
 	if (fast && walk.length > 1 && walk[walk.length - 1][0] === maze.length - 1) preferred_exit = walk[walk.length - 1][1];
+	if (!walk.length) {
+		//Initialize our random walk with a cell at the top of the grid,
+		//and make that the entrance.
+		const entry = Math.floor(Math.random() * maze[0].length);
+		walk.push([0, entry]);
+		maze[0][entry] = "wl wr wb";
+	}
 	do { //In fast mode, keep going till the maze is fully generated, THEN render.
-		if (!walk.length) {
-			//Initialize our random walk with a cell at the top of the grid,
-			//and make that the entrance.
-			const entry = Math.floor(Math.random() * maze[0].length);
-			walk.push([0, entry]);
-			maze[0][entry] = "wl wr wb";
-		}
 		const [r, c] = walk[walk.length - 1]; //Alright, now where were we?
 		//And where can we go from there? Note that we assume that array[-1] and array[length]
 		//are indexable and undefined (and make use of optional chaining for the rows). Thus
