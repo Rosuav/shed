@@ -98,9 +98,17 @@ else:
 pids = [proc for proc in os.listdir("/proc") if set(proc) <= set("1234567890")]
 status = collections.Counter()
 for pid in pids:
-	with open(f"/proc/{pid}/stat") as f:
-		if m := re.match(r"^[0-9]+ \((.*?)\) (.)", f.read()):
-			status[m.group(2)] += 1
-			#if m.group(2) == "D": print(pid, "DiskSleep", m.group(1))
+	try:
+		with open(f"/proc/{pid}/stat") as f:
+			# Assumes that the process title is the only text string and thus the only place with parentheses.
+			m = re.match(r"^[0-9]+ \((.*)\) (.*)", f.read())
+			if not m: continue
+			title = m.group(1)
+			info = m.group(2).split()
+			state, ppid, *_ = info
+			status[state] += 1
+			if state == "D" and "-v" in sys.argv:
+				print(pid, "DiskSleep", title, "ppid", ppid)
+	except FileNotFoundError: pass # Process must have terminated while we were searching
 print("Procs", len(pids), f"({status['D']} D, {status['R']} R)")
 sys.exit(error)
