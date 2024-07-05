@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import ast
+import collections
 import os
+import re
 import subprocess
 import sys
 p = subprocess.run(["ss", "-plun"], capture_output=True, encoding="utf-8")
@@ -92,4 +94,13 @@ else:
 	else: color = "\x1b[1;32m"
 	print("ShMem %s%s (%d files)\x1b[0m" % (color, percent, len(os.listdir("/dev/shm"))))
 
+# Get some basic stats about processes
+pids = [proc for proc in os.listdir("/proc") if set(proc) <= set("1234567890")]
+status = collections.Counter()
+for pid in pids:
+	with open(f"/proc/{pid}/stat") as f:
+		if m := re.match(r"^[0-9]+ \((.*?)\) (.)", f.read()):
+			status[m.group(2)] += 1
+			#if m.group(2) == "D": print(pid, "DiskSleep", m.group(1))
+print("Procs", len(pids), f"({status['D']} D, {status['R']} R)")
 sys.exit(error)
