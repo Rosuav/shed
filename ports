@@ -110,5 +110,9 @@ for pid in pids:
 			if state == "D" and "-v" in sys.argv:
 				print(pid, "DiskSleep", title, "ppid", ppid)
 	except FileNotFoundError: pass # Process must have terminated while we were searching
-print("Procs", len(pids), f"({status['D']} D, {status['R']} R)")
+if status["D"] > 10 or status["R"] > 30: color = "\x1b[1;31m"
+elif status["D"]: color = "\x1b[1;33m"
+elif status["R"] > 10: color = "\x1b[1m"
+else: color = "\x1b[1;32m"
+print(f"Procs {color}{len(pids)} ({status['D']} D, {status['R']} R)\x1b[0m")
 sys.exit(error)
