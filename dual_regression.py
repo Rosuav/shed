@@ -1,4 +1,14 @@
 # Can you do two linear regressions at once to do pixel-to-pixel mappings?
+# Plan: Make an image by dumping a G&S libretto into Markdown, adding variations, and
+# then turning to PNG. Keep a copy. Rescan the same thing at a different resolution,
+# use Pike's image library to add some speckles to it randomly, load it up in the Gimp,
+# and have something repeatedly screenshot what I'm doing. Do the full Tesseracting and
+# word pairing. For maximum challenge, let Gimp put extra words around the place (menus
+# etc), which will have to get ignored.
+# Pick a few regions and ensure that we can draw them. For debugging, show both images
+# side by side (rescaled to the same height, even if not same width), and draw lines to
+# link the words that got paired.
+# Gimp can rotate the view. Can it give us a keystone effect easily?
 ############ From Ahmed Hafdi
 import numpy as np
 
