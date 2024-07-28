@@ -51,7 +51,7 @@ void update_averages(int|float add) {
 
 string stdout_buf = "", stderr_buf = "";
 int seen_good = 0;
-void got_stdout(string data) {
+void got_stdout(mixed _, string data) {
 	stdout_buf += data;
 	while (sscanf(stdout_buf, "%s\n%s", string line, stdout_buf) == 2) {
 		if (sscanf(line, "%*d bytes from %*s: icmp_seq=%*d ttl=%*d time=%f ms", float tm) == 5) {
@@ -65,12 +65,20 @@ void got_stdout(string data) {
 		if (seen_good) update_averages(0);
 	}
 }
-void got_stderr(string data) {
+void got_stderr(mixed _, string data) {
 	stderr_buf += data;
 	while (sscanf(stderr_buf, "%s\n%s", string line, stderr_buf) == 2)
 		bad_line(line);
 }
 
 int main(int argc, array(string) argv) {
-	return Process.run(({"ping"}) + argv[1..], (["stdout": got_stdout, "stderr": got_stderr]))->exitcode;
+	mapping modifiers = (["stdout": got_stdout, "stderr": got_stderr]);
+	object out = Stdio.File(), err = Stdio.File();
+	object proc = Process.Process(({"ping"}) + argv[1..], ([
+		"stdout": out->pipe(), "err": err->pipe(),
+		"callback": lambda() {exit(0);},
+	]));
+	out->set_read_callback(got_stdout);
+	err->set_read_callback(got_stderr);
+	return -1;
 }
