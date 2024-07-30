@@ -1,7 +1,7 @@
 import sys
 import time
 last = float("inf")
-log = open("memusage.log") if "--log" in sys.argv else None
+log = open("memusage.log", "w") if "--log" in sys.argv else None
 while True:
 	with open("/proc/meminfo") as mem:
 		for line in mem:
