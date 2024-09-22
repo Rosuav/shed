@@ -12,14 +12,14 @@ Melee weapons
 * Boxing Gloves
 * Breaker Sword. Slow attack, massive damage.
 * ???
-* Criss & Cross
+* Criss & Cross. Fastish.
 * ???
-* Katana
+* Katana. Medium, decent.
 * Knife
 * ???
 * ???
 * Johann's Blade
-* Crashing Wave Strikes
+* Crashing Wave Strikes. Fast.
 * Terrasurge
 * ???
 * Twin Wolf Heads
@@ -27,7 +27,7 @@ Melee weapons
 * Unarmed
 * The Masher
 * Megaton Stingers
-* Pool Cue
+* Pool Cue. Slow, good damage.
 * ???
 * Gale Blade
 * ???
@@ -35,12 +35,13 @@ Melee weapons
 
 Ranged weapons
 --------------
+
 * ???
-* Bottle Rocket
+* Bottle Rocket - fast
 * Decent Drencher 1000
 * Finger Gun
 * ???
-* Boostie Fuego
+* Boostie Fuego - fast, very short range
 * ???
 * Kunai
 * Longbow
@@ -50,18 +51,18 @@ Ranged weapons
 * ???
 * Wand of Blasting
 * Snowball
-* Water Balloon
+* Water Balloon - medium
 * Paper Airplane
 * ???
 
 Shoes
 -----
 * Acrobatic Shoes
-* Astral Hop
-* Feather-Foot Flip
-* Roll
+* Astral Hop - fast
+* Feather-Foot Flip - delay before reuse
+* Roll - fast
 * Shadow Step
-* Lightspeed
+* Lightspeed - good bit of damage, decently fast
 * Weave
 * Burning Step
 
@@ -85,7 +86,9 @@ Shields
 
 Lucid attacks
 -------------
-* Astral Blow
+Fast/slow - windup time. Cooldown in seconds (lower is better).
+
+* Astral Blow - fast, 4s, forward
 * Coldsnap
 * ???
 * ???
@@ -93,11 +96,11 @@ Lucid attacks
 * Frost Fracture
 * ???
 * Thundering Lunge
-* Eden Beam
+* Eden Beam - medium, 8s, forward, underwhelming
 * ???
 * Primal Scream
-* Grasp of the Shadow
-* Static Field
+* Grasp of the Shadow - fast, 3s, forward
+* Static Field - slow, 15s, medium AoE
 * Draconic Rage
 * Upheaval
 * Fireburst
@@ -105,7 +108,7 @@ Lucid attacks
 * ???
 * ???
 * ???
-* Rain of Blades
+* Rain of Blades - slow, 12s, map range - very good
 * ???
 * Blast Flare
 * Ice Spike
@@ -119,8 +122,8 @@ Lucid attacks
 * Cyclone
 * Maelstrom
 * Tempest
-* Aqua Harpoon
-* Torrential Frost
+* Aqua Harpoon - medium, 7s, aim at mouse
+* Torrential Frost - medium, 20s, aim at mouse
 * Wild Squall
 * ???
 * ???
