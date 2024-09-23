@@ -15,10 +15,10 @@ Melee weapons
 * Criss & Cross. Fastish.
 * ???
 * Katana. Medium, decent.
-* Knife
+* Knife. Fast, low damage, stunlocks a single enemy fairly reliably.
 * ???
 * ???
-* Johann's Blade
+* Johann's Blade. Medium.
 * Crashing Wave Strikes. Fast.
 * Terrasurge
 * ???
@@ -38,13 +38,13 @@ Ranged weapons
 
 * ???
 * Bottle Rocket - fast
-* Decent Drencher 1000
+* Decent Drencher 1000 - slow
 * Finger Gun
 * ???
 * Boostie Fuego - fast, very short range
 * ???
 * Kunai
-* Longbow
+* Longbow - medium
 * Optic Sear
 * Slingshot
 * ???
@@ -63,7 +63,7 @@ Shoes
 * Roll - fast
 * Shadow Step
 * Lightspeed - good bit of damage, decently fast
-* Weave
+* Weave - fast and simple
 * Burning Step
 
 Shields
@@ -95,13 +95,13 @@ Fast/slow - windup time. Cooldown in seconds (lower is better).
 * ???
 * Frost Fracture
 * ???
-* Thundering Lunge
+* Thundering Lunge, fast, 8s, forward
 * Eden Beam - medium, 8s, forward, underwhelming
 * ???
-* Primal Scream
+* Primal Scream - fast, 3s, forward
 * Grasp of the Shadow - fast, 3s, forward
 * Static Field - slow, 15s, medium AoE
-* Draconic Rage
+* Draconic Rage - medium, 8s, forward
 * Upheaval
 * Fireburst
 * ???
@@ -124,7 +124,7 @@ Fast/slow - windup time. Cooldown in seconds (lower is better).
 * Tempest
 * Aqua Harpoon - medium, 7s, aim at mouse
 * Torrential Frost - medium, 20s, aim at mouse
-* Wild Squall
+* Wild Squall - medium, 45s, map range
 * ???
 * ???
 * ???
