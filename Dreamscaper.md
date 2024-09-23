@@ -11,7 +11,7 @@ Melee weapons
 * Super Slugger
 * Boxing Gloves
 * Breaker Sword. Slow attack, massive damage.
-* ???
+* Biting Dagger. Fast, low damage, similar to knife
 * Criss & Cross. Fastish.
 * ???
 * Katana. Medium, decent.
@@ -20,9 +20,9 @@ Melee weapons
 * ???
 * Johann's Blade. Medium.
 * Crashing Wave Strikes. Fast.
-* Terrasurge
+* Terrasurge. Medium.
 * ???
-* Twin Wolf Heads
+* Twin Wolf Heads. Fast.
 * ???
 * Unarmed
 * The Masher
@@ -45,15 +45,15 @@ Ranged weapons
 * ???
 * Kunai
 * Longbow - medium
-* Optic Sear
+* Optic Sear - hitscan!
 * Slingshot
-* ???
+* Telekinesis
 * ???
 * Wand of Blasting
 * Snowball
 * Water Balloon - medium
-* Paper Airplane
-* ???
+* Paper Airplane - slow
+* Glitter Bomb - fast, impact damage, possible AoE?
 
 Shoes
 -----
@@ -89,7 +89,7 @@ Lucid attacks
 Fast/slow - windup time. Cooldown in seconds (lower is better).
 
 * Astral Blow - fast, 4s, forward
-* Coldsnap
+* Coldsnap - medium, map range, very low damage but high chance to freeze
 * ???
 * ???
 * ???
@@ -102,7 +102,7 @@ Fast/slow - windup time. Cooldown in seconds (lower is better).
 * Grasp of the Shadow - fast, 3s, forward
 * Static Field - slow, 15s, medium AoE
 * Draconic Rage - medium, 8s, forward
-* Upheaval
+* Upheaval - fast, 3s, melee range
 * Fireburst
 * ???
 * ???
@@ -114,7 +114,7 @@ Fast/slow - windup time. Cooldown in seconds (lower is better).
 * Ice Spike
 * Black Hole
 * Spirit Shuriken
-* ???
+* Breaking - medium, 9s, melee range
 * Saute
 * ???
 * ???
