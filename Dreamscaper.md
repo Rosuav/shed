@@ -13,25 +13,25 @@ Melee weapons
 * Breaker Sword. Slow attack, massive damage.
 * Biting Dagger. Fast, low damage, similar to knife
 * Criss & Cross. Fastish.
-* ???
+* Fishing Pole
 * Katana. Medium, decent.
 * Knife. Fast, low damage, stunlocks a single enemy fairly reliably.
 * ???
-* ???
+* Mallory. Slowish but massive damage.
 * Johann's Blade. Medium.
 * Crashing Wave Strikes. Fast.
 * Terrasurge. Medium.
 * ???
 * Twin Wolf Heads. Fast.
 * ???
-* Unarmed
-* The Masher
+* Unarmed. Fast, low damage, easy against a single enemy but weak on a boss
+* The Masher. Slow, underwhelming.
 * Megaton Stingers
 * Pool Cue. Slow, good damage.
 * ???
 * Gale Blade
 * ???
-* Raijin
+* Raijin. Medium.
 
 Ranged weapons
 --------------
@@ -39,18 +39,18 @@ Ranged weapons
 * ???
 * Bottle Rocket - fast
 * Decent Drencher 1000 - slow
-* Finger Gun
+* Finger Gun - slow, good damage
 * ???
 * Boostie Fuego - fast, very short range
 * ???
 * Kunai
 * Longbow - medium
-* Optic Sear - hitscan!
+* Optic Sear - hitscan! Utterly spectacular if you get a homing variant.
 * Slingshot
-* Telekinesis
+* Telekinesis - slow
 * ???
-* Wand of Blasting
-* Snowball
+* Wand of Blasting - medium
+* Snowball - slowish
 * Water Balloon - medium
 * Paper Airplane - slow
 * Glitter Bomb - fast, impact damage, possible AoE?
@@ -70,9 +70,9 @@ Shields
 -------
 * Buckler
 * Bulwark of Buffing
-* ???
+* Crimson Shield
 * Crystal Barrier
-* ???
+* Deflector - double(?) parry window, makes it WAY easier to practice parrying
 * ???
 * Storm Ward
 * Psionic Barrier
@@ -81,7 +81,7 @@ Shields
 * Stalwart Shield
 * Blowback
 * Tripoint Shield
-* ???
+* Warding Winds
 * Cordonazo Winds
 
 Lucid attacks
@@ -103,31 +103,31 @@ Fast/slow - windup time. Cooldown in seconds (lower is better).
 * Static Field - slow, 15s, medium AoE
 * Draconic Rage - medium, 8s, forward
 * Upheaval - fast, 3s, melee range
-* Fireburst
+* Fireburst - fast, 3s, aim at mouse
+* Ground Surge - medium, 9s, map range?? Sends guided projectile electricity out in all directions.
 * ???
-* ???
-* ???
-* ???
+* Lightning Strike - fast, 10s, aim at mouse
+* Skyfall - slow, 16s, aim at mouse
 * Rain of Blades - slow, 12s, map range - very good
 * ???
-* Blast Flare
-* Ice Spike
-* Black Hole
-* Spirit Shuriken
+* Blast Flare - fast, 5s, forward
+* Ice Spike - fast, 5s, aim at mouse full range
+* Black Hole - slow, 20s, aim at mouse
+* Spirit Shuriken - fast, 3s, aim at mouse
 * Breaking - medium, 9s, melee range
-* Saute
+* Saute - medium, 10s, aim at mouse
 * ???
-* ???
-* ???
-* Cyclone
-* Maelstrom
-* Tempest
+* Power Chord
+* Spirit Board - slow, 20s, forward, a lot of damage
+* Cyclone - medium, 14s, melee range; massive knockback
+* Maelstrom - medium, 24s, medium AoE
+* Tempest - fast, 15s, melee range
 * Aqua Harpoon - medium, 7s, aim at mouse
 * Torrential Frost - medium, 20s, aim at mouse
 * Wild Squall - medium, 45s, map range
 * ???
 * ???
-* ???
+* Shadow Spire - fast, 7s, forward
 * ???
 
 Fin
