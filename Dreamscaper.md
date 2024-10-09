@@ -16,7 +16,7 @@ Melee weapons
 * Fishing Pole. Slow but multiattacks.
 * Katana. Medium, decent.
 * Knife. Fast, low damage, stunlocks a single enemy fairly reliably.
-* ???
+* Radiant Edge
 * Mallory. Slowish but massive damage.
 * Johann's Blade. Medium.
 * Crashing Wave Strikes. Fast.
@@ -28,9 +28,9 @@ Melee weapons
 * The Masher. Slow, underwhelming.
 * Megaton Stingers. Slow, underwhelming.
 * Pool Cue. Slow, good damage.
-* ???
+* Whirling Current. Fast, decent damage, has a bit of reach. Might always come with a health recov bonus??
 * Gale Blade. Medium.
-* ???
+* Redbeard. Slow, but there's something amazing about prehensile facial hair.
 * Raijin. Medium.
 
 Ranged weapons
@@ -40,7 +40,7 @@ Ranged weapons
 * Bottle Rocket - fast
 * Decent Drencher 1000 - slow
 * Finger Gun - slow, good damage
-* ???
+* Firecracker -slowish, good damage
 * Boostie Fuego - fast, very short range
 * Frisbee - medium, ricochets
 * Kunai - medium, three-shot (five if boosted)
@@ -90,14 +90,14 @@ Fast/slow - windup time. Cooldown in seconds (lower is better).
 
 * Astral Blow - fast, 4s, forward
 * Coldsnap - medium, map range, very low damage but high chance to freeze
-* ???
-* ???
-* ???
+* Detonate - medium-fast, 10s, small AoE
+* Terracade - fast, 2s, builds a wall
+* Release - fast, 3s, pushback
 * Frost Fracture - fast, 12s, forward
-* ???
+* Lightning Storm - slow, 29s, map range
 * Thundering Lunge, fast, 8s, forward
 * Eden Beam - medium, 8s, forward, underwhelming
-* ???
+* Overdrive - fast, 60s(?), self-augmentation
 * Primal Scream - fast, 3s, forward
 * Grasp of the Shadow - fast, 3s, forward
 * Static Field - slow, 15s, medium AoE
@@ -116,7 +116,7 @@ Fast/slow - windup time. Cooldown in seconds (lower is better).
 * Spirit Shuriken - fast, 3s, aim at mouse
 * Breaking - medium, 9s, melee range
 * Saute - medium, 10s, aim at mouse
-* ???
+* Seismic Wave - fast, 6s, short range aim at mouse
 * Power Chord - medium, 8s, forward
 * Spirit Board - slow, 20s, forward, a lot of damage
 * Cyclone - medium, 14s, melee range; massive knockback
@@ -126,10 +126,9 @@ Fast/slow - windup time. Cooldown in seconds (lower is better).
 * Torrential Frost - medium, 20s, aim at mouse
 * Wild Squall - medium, 45s, map range
 * Oil Slick - fast, 10s, aim at mouse; lays a trap (doesn't last long, aim it well)
-* ???
+* Shivering Sphere - fast windup but slow projectile; continues through, ignoring enemies; aim at mouse
 * Shadow Spire - fast, 7s, forward
 * Geyser - medium, 8s, aim at mouse
 
 Notes
 -----
-Expecting lucid attacks: Whirling Current, Release, Detonate, Shivering Sphere, Lightning Storm, Seismic Wave
