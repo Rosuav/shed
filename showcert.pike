@@ -15,7 +15,9 @@ int main(int argc, array(string) argv) {
 		object ssl = SSL.File(sock, SSL.Context());
 		ssl->set_nonblocking(0) {
 			object cert = Standards.X509.decode_certificate(ssl->get_peer_certificates()[0]);
-			write("Certificate valid until " + ctime(cert->validity[1]->get_posix()));
+			int valid = cert->validity[1]->get_posix();
+			if (valid < time()) write("Certificate EXPIRED at " + ctime(valid));
+			else write("Certificate valid until " + ctime(valid));
 			write("Subject: %s\n", cert->subject_str());
 			object alt = cert->extensions[SAN];
 			if (alt) write("Alternate: %s\n", alt->elements->value[*]);
