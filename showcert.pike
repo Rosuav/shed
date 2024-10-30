@@ -1,4 +1,5 @@
 int main(int argc, array(string) argv) {
+	Thread.Thread() {sleep(15); exit(1, "TIMEOUT Unable to connect to server\n");};
 	//Subject Alternative Name - defined in RFC 3280 as having the ID 2.5.29.17
 	object SAN = Standards.ASN1.Types.Identifier(); SAN->id = ({2, 5, 29, 17});
 	if (argc < 2) exit(1, "USAGE: pike %s address [port] [domain name]\nConnects to address:port and requests domain, shows SSL cert.\n");
