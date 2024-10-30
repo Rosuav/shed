@@ -23,6 +23,8 @@ int main(int argc, array(string) argv) {
 		};
 		ssl->connect(domain);
 	};
-	sock->connect(address, port);
+	array ip = gethostbyname(address);
+	if (!ip || !sizeof(ip[1])) exit(0, "Unable to look up %s\n", address);
+	sock->connect(ip[1][0], port);
 	return -1;
 }
