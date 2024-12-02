@@ -1,5 +1,8 @@
 int last_command = 0;
 Stdio.Buffer data = Stdio.Buffer();
+array notenames = "C C# D Eb E F F# G Ab A Bb B" / " ";
+array colors = "1;31 1;35 1;34 1;36" / " ";
+int lastvel = 64;
 void parsemessage() {
 	while (sizeof(data)) {
 		Stdio.Buffer.RewindKey rewind = data->rewind_on_error();
@@ -33,7 +36,15 @@ void parsemessage() {
 				error("Meta event?? In a MIDI stream??\n");
 		}
 		rewind->release();
-		write("%{%02X %}\n", ev);
+		if (ev[0] < 0x90 || (ev[0] < 0xA0 && ev[2] == 0)) {
+			//write("Note off [%d] %s%d\n", (ev[0] & 15) + 1, notenames[ev[1] % 12], ev[1] / 12);
+		} else if (ev[0] < 0xA0) {
+			int delta = ev[2] - lastvel; lastvel = ev[2];
+			//write("Note on  [%d] %s%d vel %d\n", (ev[0] & 15) + 1, notenames[ev[1] % 12], ev[1] / 12, ev[2]);
+			//write("Note on  [%d] %s%d vel %+d\n", (ev[0] & 15) + 1, notenames[ev[1] % 12], ev[1] / 12, delta);
+			write("\e[%sm%4s %s\e[0m\n", colors[ev[0] & 15], notenames[ev[1] % 12] + (ev[1] / 12), "*" * ev[2]);
+		}
+		else write("Event: %{%02X %}\n", ev);
 	}
 }
 
