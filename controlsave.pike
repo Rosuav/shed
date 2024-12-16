@@ -75,6 +75,22 @@ void parse_inventory(array piece) {
 	array persisted = read_array(chunk, "%-8c%-8c"); //gid, unknown
 	array active = read_array(chunk, "%-4c%-4c%-4c"); //version, index, parent
 	int unknown = objectversion >= 4 ? chunk->read_int8() : 0;
+	//Mutate...
+	items += ({
+		//I have no idea how important the PIDs are. For now, picking arbitrary distinct numbers.
+		({4, 0x322e985e6b2bc054, 72.0, 0, 43100, 1}), //Damage +72% (better than I've ever seen)
+		({4, 0x322e985e6b2bc054, 60.0, 0, 43101, 1}), //Damage +60% (best I've ever seen)
+		({4, 0x20a48983004a0054, 100.0, 0, 43102, 1}), //Eternal Fire
+	});
+	//And rebuild.
+	chunk = Stdio.Buffer();
+	chunk->sprintf("%-4c%-4c%{%-4c%-8c%-4F%-4c%-8c%-4c%}", objectversion, sizeof(items), items);
+	chunk->sprintf("%-4c%-4c%{%-8c%-8c%}%-4c%{%-4c%-4c%-4c%}", equipped, sizeof(persisted), persisted, sizeof(active), active);
+	if (objectversion >= 4) chunk->add_int8(unknown);
+	string newdata = (string)chunk;
+	if (newdata == piece[2]) write("All good!\n");
+	else write("Size %d -> %d\n", sizeof(piece[2]), sizeof(newdata));
+	piece[2] = newdata;
 }
 
 int main(int argc, array(string) argv) {
