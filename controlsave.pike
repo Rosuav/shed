@@ -60,14 +60,15 @@ int main(int argc, array(string) argv) {
 	string data = Stdio.read_file(argv[1]);
 	if (!data) exit(1, "USAGE: pike %s filename\n", argv[0]);
 	sscanf(data, "%-8c%-4c%-4H%c%-4c%-4c%s", int version, int crc, string filename, int scope, int unknown, int nchunks, data);
-	werror("%x %O\n", crc, filename);
-	werror("Calculated CRC: %x\n", Crypto.Checksum.crc32(sprintf("%-4H%c%-4c%-4c%s", filename, scope, unknown, nchunks, data)));
 	array chunks = ({ });
 	for (int i = 0; i < nchunks; ++i) {
 		sscanf(data, "%-4c%-4c%-4H%s", int uidlow, int uid, string chunk, data);
-		werror("Chunk: %s (%d bytes, %d left)\n", label[uid] || "???", sizeof(chunk), sizeof(data));
 		chunks += ({({uidlow, uid, chunk})});
 	}
 	//TODO: Make edits to the chunks, possibly including adding to inventory
-	//TODO: Save back to a file and make it ready to load!
+	data = sprintf("%-4H%c%-4c%-4c", filename, scope, unknown, nchunks);
+	foreach (chunks, [int uidlow, int uid, string chunk])
+		data = sprintf("%s%-4c%-4c%-4H", data, uidlow, uid, chunk);
+	data = sprintf("%-8c%-4c%s", version, Crypto.Checksum.crc32(data), data);
+	if (argc > 2) Stdio.write_file(argv[2], data);
 }
