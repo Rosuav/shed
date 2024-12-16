@@ -1,47 +1,4 @@
-/* Run this script to upgrade a new save game to a New Game Plus with the unique mods loaded
-Some useful weapon GIDs:
-
-Weapon Mod Exquisite Eternal Fire 100
-Unmistakable :)
-0x20a48983004a0054
-
-Weapon Mod Exquisite DLC2 Shotgun specific Impact Cannon -100
-Probably Single-Track whatever, the Shatter unique
-0x4e50def20e48054
-
-Weapon Mod Exquisite DLC2 RL specific Folded Space 500
-Should be the projectile speed boost
-0x2256ef6508184054
-
-Weapon Mod Exquisite DLC2 Railgun specific Snap Charge -100
-Custodial Readiness
-0x2d353346ebf84054
-
-Weapon Mod Exquisite DLC2 SMG specific Devastator 100
-Spam Mail?
-0x89c1f77ecf18054
-
-Player Mod Exquisite Fleet Foot 50
-Possibly health on evade?
-0x22a72842ade64054
-
-Weapon Mod Legendary Damage eg 46, 48, 60
-Should be a basic damage mod at high rarity
-0x322e985e6b2bc054
-
-Weapon Mod Exquisite Specific Missile Blast Radius 98
-Might not be a unique
-0xf56a66e21fcc054
-*/
-
-/* Structure of one inventory item:
-4 Version (always four)
-8 GID
-4 Parameter (float)
-4 Overcharge Normalized Value (always zero)
-8 PID <== this one seems to be essential
-4 Qty
-*/
+//Run this script to upgrade a new save game to a New Game Plus with the unique mods loaded
 constant label = ([
 	//Lifted from https://reg2k.github.io/control-save-editor-beta/
 	542507875: "GLOBAL_VARIABLE_MANAGER",
@@ -78,19 +35,22 @@ void parse_inventory(array piece) {
 	//Mutate...
 	items += ({
 		//I have no idea how important the PIDs are. For now, picking arbitrary distinct numbers.
-		({4, 0x322e985e6b2bc054, 72.0, 0, 43100, 1}), //Damage +72% (better than I've ever seen)
-		({4, 0x322e985e6b2bc054, 60.0, 0, 43101, 1}), //Damage +60% (best I've ever seen)
-		({4, 0x20a48983004a0054, 100.0, 0, 43102, 1}), //Eternal Fire
+		//Uncomment whichever ones you want to have.
+		//({4, 0x322e985e6b2bc054,  72.0, 0, 43100, 1}), //Damage +72% (better than I've ever seen)
+		//({4, 0x322e985e6b2bc054,  60.0, 0, 43101, 1}), //Damage +60% (best I've ever seen)
+		//({4, 0x20a48983004a0054, 100.0, 0, 43102, 1}), //Eternal Fire - Grip unique mod
+		//({4, 0x04e50def20e48054,-100.0, 0, 43103, 1}), //One-Way Track - Shatter unique mod
+		//({4, 0x2256ef6508184054, 500.0, 0, 43104, 1}), //Thin Space - Charge unique mod
+		//({4, 0x2d353346ebf84054,-100.0, 0, 43105, 1}), //Custodial Readiness - Pierce unique mod
+		//({4, 0x089c1f77ecf18054, 100.0, 0, 43106, 1}), //Spam Mail - Spin unique mod
+		//({4, 0x22a72842ade64054,  50.0, 0, 43107, 1}), //Aerobics - unique player mod (health on evade)
 	});
 	//And rebuild.
 	chunk = Stdio.Buffer();
 	chunk->sprintf("%-4c%-4c%{%-4c%-8c%-4F%-4c%-8c%-4c%}", objectversion, sizeof(items), items);
 	chunk->sprintf("%-4c%-4c%{%-8c%-8c%}%-4c%{%-4c%-4c%-4c%}", equipped, sizeof(persisted), persisted, sizeof(active), active);
 	if (objectversion >= 4) chunk->add_int8(unknown);
-	string newdata = (string)chunk;
-	if (newdata == piece[2]) write("All good!\n");
-	else write("Size %d -> %d\n", sizeof(piece[2]), sizeof(newdata));
-	piece[2] = newdata;
+	piece[2] = (string)chunk;
 }
 
 int main(int argc, array(string) argv) {
