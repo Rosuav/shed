@@ -21,8 +21,8 @@ string reduce(string data, multiset tracks, multiset channels, int(1bit) lyrics,
 	array(array(string|array(array(int|string)))) chunks = midilib->parsesmf(data);
 	mapping mergedest = ([]);
 	foreach (chunks; int i; [string id, array chunk]) if (id == "MTrk") {
-		if (tracks[i]) continue; //Track is kept by index, no need to scan
 		int(1bit) keep = 0;
+		if (tracks[i]) keep = 1; //Track is kept by index, but check for the merge hack
 		foreach (chunk; int ev; array data) {
 			//data == ({delay, command[, args...]})
 			int cmd = data[1];
@@ -65,6 +65,7 @@ string reduce(string data, multiset tracks, multiset channels, int(1bit) lyrics,
 				//And add on the necessary end event.
 				dest += ({arr1[-1]}); //TODO: Enforce that it has zero delta-time
 				chunks[mergedest[cmd]][1] = dest;
+				keep = 0;
 				break;
 			}
 			if (cmd >= 0x90 && cmd <= 0x9F && channels[1 + (cmd&15)]) {
