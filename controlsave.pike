@@ -27,7 +27,7 @@ void parse_inventory(array piece) {
 	object chunk = Stdio.Buffer(piece[2]); chunk->read_only();
 	int objectversion = chunk->read_le_int(4);
 	array items = read_array(chunk, "%-4c%-8c%-4F%-4c%-8c%-4c"); //version, gid, param, overcharge, pid, qty
-	write("%{Got an item: %[1]X (%[2].0f), PID %[4]d qty %[5]d\n%}", items);
+	write("%{Got an item: 0x%16[1]x (%4[2].0f), PID %5[4]d qty %[5]d\n%}", items);
 	[int equipped] = chunk->sscanf("%-4c"); //read_le_int(4) won't read -1 correctly
 	array persisted = read_array(chunk, "%-8c%-8c"); //gid, unknown
 	array active = read_array(chunk, "%-4c%-4c%-4c"); //version, index, parent
@@ -36,14 +36,43 @@ void parse_inventory(array piece) {
 	items += ({
 		//I have no idea how important the PIDs are. For now, picking arbitrary distinct numbers.
 		//Uncomment whichever ones you want to have.
-		//({4, 0x322e985e6b2bc054,  72.0, 0, 43100, 1}), //Damage +72% (better than I've ever seen)
-		//({4, 0x322e985e6b2bc054,  60.0, 0, 43101, 1}), //Damage +60% (best I've ever seen)
+		//The unique mods. These are the exact ones you would get during a playthrough; aside from
+		//the first two, they come from DLC side missions. Most of them already have their values
+		//as good as can be (eg Eternal Fire can't benefit from being above 100% chance), but you
+		//could (say) boost the health gained by Aerobics if you want something extra special.
+		//({4, 0x22a72842ade64054,  50.0, 0, 43101, 1}), //Aerobics - unique player mod (health on evade)
 		//({4, 0x20a48983004a0054, 100.0, 0, 43102, 1}), //Eternal Fire - Grip unique mod
 		//({4, 0x04e50def20e48054,-100.0, 0, 43103, 1}), //One-Way Track - Shatter unique mod
 		//({4, 0x2256ef6508184054, 500.0, 0, 43104, 1}), //Thin Space - Charge unique mod
 		//({4, 0x2d353346ebf84054,-100.0, 0, 43105, 1}), //Custodial Readiness - Pierce unique mod
 		//({4, 0x089c1f77ecf18054, 100.0, 0, 43106, 1}), //Spam Mail - Spin unique mod
-		//({4, 0x22a72842ade64054,  50.0, 0, 43107, 1}), //Aerobics - unique player mod (health on evade)
+
+		//Regular mods, as good as they ever come. If I ever spot a randomly-generated mod with
+		//better numbers than these, I'll update. Note that the rarity doesn't actually imply
+		//anything about the quality, and you could theoretically have a lower rarity mod with
+		//better numbers.
+		//({4, 0x322e985e6b2bc054,  60.0, 0, 43201, 1}), //[Prm] Damage
+		//({4, 0x137fa77cd2a14054,  36.0, 0, 43202, 1}), //[Prm] Spin rate of fire boost
+		//({4, 0x268ad8821bf98054,  63.0, 0, 43203, 1}), //[Rar] Headshot Damage
+		//({4, 0x24f564d1bb194054,  24.0, 0, 43204, 1}), //[Abs] Spin Grouping Efficiency
+		//({4, 0x26eca82103c84054,  37.0, 0, 43205, 1}), //[Prm] Pierce Aimed Fire Boost
+		//({4, 0x296b77f499b00054,  44.0, 0, 43206, 1}), //[Unc] Headshot Damage
+		//({4, 0x2b7de92445e0c054,   9.0, 0, 43207, 1}), //[Rar] Accuracy
+		//({4, 0x26325de691648054,   4.0, 0, 43208, 1}), //[Rar] Shatter Projectile Boost
+		//({4, 0x282d8e0d682f0054,  95.0, 0, 43209, 1}), //[Abs] Consecutive Kills Boost
+		//({4, 0x0fe906cd12db8054, -24.0, 0, 43210, 1}), //[Abs] Dodge Efficiency
+		//({4, 0x3db45158abde0054, -24.0, 0, 43211, 1}), //[Abs] Shield Efficiency
+		//({4, 0x18319f9ca0820054, -25.0, 0, 43212, 1}), //[Abs] Launch Efficiency
+		//({4, 0x233eeade10c9c054,  82.0, 0, 43213, 1}), //[Abs] Seize Accelerator
+		//({4, 0x2c5e8b91ca40c054,  58.0, 0, 43214, 1}), //[Abs] Health Recovery (per element pick-up)
+		//({4, 0x2c56b490927b4054,  31.0, 0, 43215, 1}), //[Prm] Health Boost
+		//({4, 0x26b40c2259bec054,  10.0, 0, 43216, 1}), //[Rar] Energy Boost
+
+		//Regular mods, but better than they have ever been seen. Super-powered mods.
+		//({4, 0x322e985e6b2bc054,  72.0, 0, 43301, 1}), //[Prm] Damage
+		//({4, 0x2c56b490927b4054,  50.0, 0, 43302, 1}), //[Prm] Health Boost
+		//({4, 0x0fe906cd12db8054,-100.0, 0, 43210, 1}), //[Abs] Dodge Efficiency
+		//({4, 0x18319f9ca0820054,-100.0, 0, 43212, 1}), //[Abs] Launch Efficiency
 	});
 	//And rebuild.
 	chunk = Stdio.Buffer();
