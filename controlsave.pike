@@ -27,7 +27,7 @@ void parse_inventory(array piece) {
 	object chunk = Stdio.Buffer(piece[2]); chunk->read_only();
 	int objectversion = chunk->read_le_int(4);
 	array items = read_array(chunk, "%-4c%-8c%-4F%-4c%-8c%-4c"); //version, gid, param, overcharge, pid, qty
-	write("%{Got an item: 0x%16[1]x (%4[2].0f), PID %5[4]d qty %[5]d\n%}", items);
+	write("%{Got an item: 0x%016[1]x (%4[2].0f), PID %5[4]d qty %[5]d\n%}", items);
 	[int equipped] = chunk->sscanf("%-4c"); //read_le_int(4) won't read -1 correctly
 	array persisted = read_array(chunk, "%-8c%-8c"); //gid, unknown
 	array active = read_array(chunk, "%-4c%-4c%-4c"); //version, index, parent
@@ -58,7 +58,7 @@ void parse_inventory(array piece) {
 		//({4, 0x26eca82103c84054,  37.0, 0, 43205, 1}), //[Prm] Pierce Aimed Fire Boost
 		//({4, 0x296b77f499b00054,  44.0, 0, 43206, 1}), //[Unc] Headshot Damage
 		//({4, 0x2b7de92445e0c054,   9.0, 0, 43207, 1}), //[Rar] Accuracy
-		//({4, 0x26325de691648054,   4.0, 0, 43208, 1}), //[Rar] Shatter Projectile Boost
+		//({4, 0x08c3f4ba37e00054,   5.0, 0, 43208, 1}), //[Prm] Shatter Projectile Boost
 		//({4, 0x282d8e0d682f0054,  95.0, 0, 43209, 1}), //[Abs] Consecutive Kills Boost
 		//({4, 0x0fe906cd12db8054, -24.0, 0, 43210, 1}), //[Abs] Dodge Efficiency
 		//({4, 0x3db45158abde0054, -24.0, 0, 43211, 1}), //[Abs] Shield Efficiency
