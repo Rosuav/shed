@@ -1062,7 +1062,7 @@ class ProtoBuf:
 		return b"".join(data)
 
 # Stub types that are used by SaveFile
-SkillData = ResourceData = ItemData = Weapon = MissionPlaythrough = bytes
+SkillData = ResourceData = ItemData = Weapon = bytes
 DLCData = RegionGameStage = WorldDiscovery = WeaponMemento = ItemMemento = bytes
 Challenge = OneOffChallenge = Lockout = VehicleSkin = bytes
 
@@ -1116,6 +1116,29 @@ class PackedWeaponData(ProtoBuf):
 	def order(self): return self.quickslot or 6
 	def is_equipped(self): return self.quickslot
 	def is_carried(self): return True
+
+@dataclass
+class MissionData(ProtoBuf):
+	name: bytes
+	status: bytes # Enumeration - NotStarted = 0, Active = 1, ObjectivesComplete, ReadyToTurnIn, Complete = 4, Failed = 5
+	isfromdlc: int
+	dlcpackageid: int
+	objectives: [bytes] = None
+	activeobjective: int = 0
+	subobjectives: [bytes] = None
+	needsrewards: bool = None
+	unknown9: int = None
+	heardkickoff: int = 0
+	gamestage: int = 0
+
+@dataclass
+class MissionPlaythrough(ProtoBuf):
+	playthrough: int = 0
+	activemission: bytes = b""
+	missions: [MissionData] = None
+	pendingrewards: [bytes] = None
+	filteredmissions: [bytes] = None
+MissionPlaythrough = bytes # Hack: Don't parse them out, they don't roundtrip (all missions end up marked as incomplete)
 
 @dataclass
 class SaveFile(ProtoBuf):
@@ -1176,14 +1199,17 @@ class SaveFile(ProtoBuf):
 	awesome_skill_disabled: int = 0
 	max_bank_slots: int = 0 # Might be useful when looking for a place to put stuff
 	vehicle_skins: [VehicleSkin] = None
-	if GAME == "borderlands the pre-sequel":
-		body_switches: bytes = b""
-		player_flags: [int] = None
-		vehicle_steering_mode: int = 0
-		discovered_compass_icons: [bytes] = None
-		suppress_oxygen_notifs: int = 0
-	else:
-		vehicle_steering_mode: int = 0
+
+	#### Conditionals seem to be broken when in Python 3.14 dataclasses ####
+	# if GAME == "borderlands the pre-sequel":
+		# body_switches: bytes = b""
+		# player_flags: [int] = None
+		# vehicle_steering_mode: int = 0
+		# discovered_compass_icons: [bytes] = None
+		# suppress_oxygen_notifs: int = 0
+	# else:
+	vehicle_steering_mode: int = 0
+
 	has_played_uvhm: int = None
 	overpower_levels: int = None
 	last_overpower_choice: int = None
@@ -1197,6 +1223,8 @@ class SaveFile(ProtoBuf):
 			self.packed_item_data.append(packed)
 
 class SaveFileFormatError(Exception): pass
+
+mission_stats = collections.Counter()
 
 def parse_savefile(fn):
 	with open(fn, "rb") as f: data = Consumable(f.read())
@@ -1294,6 +1322,13 @@ def parse_savefile(fn):
 		savefile.preferences.name, len(savefile.packed_weapon_data), len(savefile.packed_item_data) - 2)
 	items.sort()
 	ret += "".join("\n" + desc for order, lvl, desc in items if order >= 0)
+	if MissionPlaythrough is not bytes:
+		for m in savefile.missions:
+			# if m.activemission: print("Active:", m.activemission.decode())
+			for m in m.missions or []:
+				n = m.name.decode()
+				if m.status == 4: mission_stats[n] += 1
+
 	if args.synth is not None:
 		# Make changes to the save file before synthesizing
 		# savefile.preferences.name = "PATCHED" # Easy way to see what's happening
@@ -1400,3 +1435,4 @@ if args.library:
 		id = base64.b64encode(serial).decode("ascii").strip("=")
 		if id not in library[args.game]:
 			print('\t\t"%s": "%s",' % (id, obj.get_title()))
+if mission_stats: print(mission_stats)
