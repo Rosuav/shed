@@ -1324,7 +1324,7 @@ def parse_savefile(fn):
 	ret += "".join("\n" + desc for order, lvl, desc in items if order >= 0)
 	if MissionPlaythrough is not bytes:
 		for m in savefile.missions:
-			# if m.activemission: print("Active:", m.activemission.decode())
+			# if m.activemission: print("Active:", l10n[m.activemission.decode()]["name"])
 			for m in m.missions or []:
 				n = m.name.decode()
 				if m.status == 4: mission_stats[n] += 1
@@ -1435,4 +1435,8 @@ if args.library:
 		id = base64.b64encode(serial).decode("ascii").strip("=")
 		if id not in library[args.game]:
 			print('\t\t"%s": "%s",' % (id, obj.get_title()))
-if mission_stats: print(mission_stats)
+if mission_stats:
+	mission_data = get_asset("Missions")
+	for id, n in sorted(mission_stats.items(), key=lambda pair: mission_data[pair[0]]["number"]):
+		data = mission_data[id]
+		print("%4d %3d %s" % (data["number"], n, data["name"]))
