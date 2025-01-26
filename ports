@@ -12,7 +12,7 @@ if p.returncode:
 	sys.exit(p.returncode)
 expectations = {
 	27015: "srcds_linux:TF2",
-	# 27016: "srcds_linux:CSGO", # Temporarily down
+	27016: "cs2",
 }
 allowable = {27016: ["eu4"]}
 error = 0
