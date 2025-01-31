@@ -28,4 +28,5 @@ with open(fn) as f:
 			else:
 				print("Unable to find assembly: ", basename, file=sys.stderr)
 cmd.append(fn)
-subprocess.run(cmd, check=True)
+try: subprocess.run(cmd, check=True)
+except subprocess.CalledProcessError: sys.exit(1) # It's okay to suppress the traceback, but we still want to exit 1
