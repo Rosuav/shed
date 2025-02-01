@@ -18,20 +18,29 @@ void parse_savefile(string fn) {
 	//unk6 is always 32, unk7 is always 40. I'm reading unk6 as a byte purely as a hunch.
 	//I've no idea what the session ID is at this point but it seems to stay constant for one session. It's always 22 bytes (plus the null).
 	[int unk4, int unk5, int unk6, int unk7, int zero1, int zero2, string sessid] = data->sscanf("%-4c%-4c%c%-4c%-4c%-4c%-4H");
-	string unk8 = data->read(76); //Possibly a bunch of numbers, hard to tell
-	//????? For some reason, simply reading 77 bytes and then inflating segfaults.
-	for (int i = 0; i < 2; ++i) {
-		string infl;
+	string unk8 = data->read(28); //Possibly a bunch of numbers, hard to tell
+	//The rest of the file is a series of compressed chunks. Each blob of deflated data has a
+	//header prepended which is 49 bytes long.
+	string decomp = "";
+	while (sizeof(data)) {
+		//Chunk header is a fixed eight byte string
+		//Oddly, the inflated size is always 131072, even on the last chunk, which has whatever's left.
+		//A lot of this is guesses, esp since most of this seems to be fixed format (eg type is always 3,
+		//but I'm guessing that's a one-byte marker saying "gzipped"). In the last 24 bytes, there seem
+		//to be more copies of the same information, no idea why.
+		//werror("%O\n", ((string)data)[..20]);
+		[string chunkhdr, int inflsz, int zero1, int type, int deflsz, int zero2, string unk9] = data->sscanf("%8s%-4c%-4c%c%-4c%-4c%24s");
+		//00 00 02 00 00 00 00 00 71 e2 00 00 00 00 00 00 00 00 02 00 00 00 00 00
+		//????? For some reason, Pike segfaults if we don't first probe the buffer like this.
+		//So don't remove this 'raw =' line even if raw itself isn't needed.
+		string raw = (string)data;
 		object gz = Gz.inflate();
-		mixed ex = catch {infl = gz->inflate((string)data);};
-		if (!ex) {
-			data = Stdio.Buffer(gz->end_of_stream()); data->read_only();
-			write("GOT A DEFLATE HEADER %d %O\n", sizeof(infl), infl[..16]);
-			break;
-		}
-		data->read(1);
+		decomp += gz->inflate((string)data);
+		data = Stdio.Buffer(gz->end_of_stream()); data->read_only();
 	}
-	write("Remaining: %d %O\n", sizeof(data), data->read(32));
+	write("Decompressed: %d\n", sizeof(decomp));
+	//Alright. Now that we've unpacked all the REAL data, let's get to parsing.
+	data = Stdio.Buffer(decomp); data->read_only();
 }
 
 int main(int argc, array(string) argv) {
