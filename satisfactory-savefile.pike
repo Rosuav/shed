@@ -30,7 +30,6 @@ void parse_savefile(string fn) {
 		//to be more copies of the same information, no idea why.
 		//werror("%O\n", ((string)data)[..20]);
 		[string chunkhdr, int inflsz, int zero1, int type, int deflsz, int zero2, string unk9] = data->sscanf("%8s%-4c%-4c%c%-4c%-4c%24s");
-		//00 00 02 00 00 00 00 00 71 e2 00 00 00 00 00 00 00 00 02 00 00 00 00 00
 		//????? For some reason, Pike segfaults if we don't first probe the buffer like this.
 		//So don't remove this 'raw =' line even if raw itself isn't needed.
 		string raw = (string)data;
@@ -38,9 +37,20 @@ void parse_savefile(string fn) {
 		decomp += gz->inflate((string)data);
 		data = Stdio.Buffer(gz->end_of_stream()); data->read_only();
 	}
-	write("Decompressed: %d\n", sizeof(decomp));
 	//Alright. Now that we've unpacked all the REAL data, let's get to parsing.
 	data = Stdio.Buffer(decomp); data->read_only();
+	[int sz] = data->sscanf("%-8c"); //Total size (will be equal to sizeof(data) after this returns)
+	[int unk10, string unk11, int zero3, int unk12, int unk13, string unk14, int unk15] = data->sscanf("%-4c%-4H%-4c%-4c%-4c%-4H%-4c");
+	while (sizeof(data)) {
+		[string title, int unk17, int unk18, int n] = data->sscanf("%-4H%-4c%-4c%-4c");
+		write("%O %O %d\n", unk17, unk18, n);
+		write("Next section: %d %O\n", n, title);
+		while (n--) {
+			[string unk19, int unk20] = data->sscanf("%-4H%-4c");
+			//write("[%d] %O %O\n", n, unk19, unk20);
+		}
+	}
+	write("Remaining: %d %O\n", sizeof(data), data->read(32));
 }
 
 int main(int argc, array(string) argv) {
