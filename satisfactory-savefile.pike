@@ -43,14 +43,16 @@ void parse_savefile(string fn) {
 	[int unk10, string unk11, int zero3, int unk12, int unk13, string unk14, int unk15] = data->sscanf("%-4c%-4H%-4c%-4c%-4c%-4H%-4c");
 	while (sizeof(data)) {
 		[string title, int unk17, int unk18, int n] = data->sscanf("%-4H%-4c%-4c%-4c");
-		write("%O %O %d\n", unk17, unk18, n);
-		write("Next section: %d %O\n", n, title);
+		if (title == "HLOD0_256m_1023m\0") n = data->read_le_int(4);
+		write("Next section: %d %O (%x/%x)\n", n, title, unk17, unk18);
 		while (n--) {
 			[string unk19, int unk20] = data->sscanf("%-4H%-4c");
-			//write("[%d] %O %O\n", n, unk19, unk20);
+			if (title == "HLOD0_256m_1023m\0") data->sscanf("%-4c" * 7);
+			if (title == "HLOD0_256m_1023m\0") write("[%d] %O %O\n", n, unk19, unk20);
 		}
+		if (title == "HLOD0_256m_1023m\0") break;
 	}
-	write("Remaining: %d %O\n", sizeof(data), data->read(32));
+	write("Remaining: %d %O\n\n", sizeof(data), data->read(32));
 }
 
 int main(int argc, array(string) argv) {
