@@ -41,20 +41,20 @@ void parse_savefile(string fn) {
 	//Alright. Now that we've unpacked all the REAL data, let's get to parsing.
 	data = Stdio.Buffer(decomp); data->read_only();
 	[int sz] = data->sscanf("%-8c"); //Total size (will be equal to sizeof(data) after this returns)
+	//Most of these are fixed and have unknown purpose
 	[int unk10, string unk11, int zero3, int unk12, int unk13, string unk14, int unk15] = data->sscanf("%-4c%-4H%-4c%-4c%-4c%-4H%-4c");
-	while (sizeof(data)) {
+	for (int i = 0; i < 5; ++i) {
 		[string title, int unk17, int unk18, int n] = data->sscanf("%-4H%-4c%-4c%-4c");
-		if (title == "HLOD0_256m_1023m\0") n = data->read_le_int(4);
 		write("Next section: %d %O (%x/%x)\n", n, title, unk17, unk18);
 		while (n--) {
 			[string unk19, int unk20] = data->sscanf("%-4H%-4c");
-			if (title == "HLOD0_256m_1023m\0") {
-				write("[%d] %O %O\n", n, unk19, unk20);
-				if (unk20 == 8) write("xtra %{%O %}\n", data->sscanf("%-4c" * 7));
-				else write("xtra %{%O %}\n", data->sscanf("%-4H%-4c%-4c%-4H"));
-			}
 		}
-		if (title == "HLOD0_256m_1023m\0") break;
+	}
+	[int sublevelcount] = data->sscanf("%-4c");
+	write("Sublevels: %d\n", sublevelcount);
+	while (sublevelcount--) {
+		[string lvlname, int sz, int count] = data->sscanf("%-4H%-8c%-4c");
+		write("Level %O size %d count %d\n", lvlname, sz, count);
 	}
 	write("Remaining: %d %O\n\n", sizeof(data), data->read(128));
 }
