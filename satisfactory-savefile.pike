@@ -47,12 +47,15 @@ void parse_savefile(string fn) {
 		write("Next section: %d %O (%x/%x)\n", n, title, unk17, unk18);
 		while (n--) {
 			[string unk19, int unk20] = data->sscanf("%-4H%-4c");
-			if (title == "HLOD0_256m_1023m\0") data->sscanf("%-4c" * 7);
-			if (title == "HLOD0_256m_1023m\0") write("[%d] %O %O\n", n, unk19, unk20);
+			if (title == "HLOD0_256m_1023m\0") {
+				write("[%d] %O %O\n", n, unk19, unk20);
+				if (unk20 == 8) write("xtra %{%O %}\n", data->sscanf("%-4c" * 7));
+				else write("xtra %{%O %}\n", data->sscanf("%-4H%-4c%-4c%-4H"));
+			}
 		}
 		if (title == "HLOD0_256m_1023m\0") break;
 	}
-	write("Remaining: %d %O\n\n", sizeof(data), data->read(32));
+	write("Remaining: %d %O\n\n", sizeof(data), data->read(128));
 }
 
 int main(int argc, array(string) argv) {
