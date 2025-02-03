@@ -46,7 +46,6 @@ With six columns, overall error is 43744453 (a 2.5% drop).
 With all but the last two: 39004513 (about a 12.5% drop).
 
 Questions:
-* Are all the characters from 0xE0 to 0xEF done on 5x10 rather than 5x8?
 * What's the correct way to use non-ASCII characters? Put Unicode codepoints 128-255 into the message? Bytes?
   - lcd.message = "37\xDF" # Should be a degree symbol
   - lcd.message = b"37\xDF"
