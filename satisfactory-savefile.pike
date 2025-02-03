@@ -55,6 +55,22 @@ void parse_savefile(string fn) {
 	while (sublevelcount--) {
 		[string lvlname, int sz, int count] = data->sscanf("%-4H%-8c%-4c");
 		write("Level %O size %d count %d\n", lvlname, sz, count);
+		while (count--) {
+			[int objtype, string cls, string lvl, string prop] = data->sscanf("%-4c%-4H%-4H%-4H");
+			write("%d %s %s\n", objtype, cls, prop);
+			if (objtype) {
+				//Actor
+				data->sscanf("%-4c%4F%4F%4F%4F%4F%4F%4F%4F%4F%4F%-4c"); //Transform (rotation/translation/scale)
+			} else {
+				//Object
+				[string path] = data->sscanf("%-4H");
+			}
+		}
+		[int coll] = data->sscanf("%-4c");
+		//TODO: Snap to the position defined by sz. What if we aren't exactly there?
+		[int entsz, int nument] = data->sscanf("%-8c%-4c");
+		//TODO: Again, snap to the right point
+		[int collected] = data->sscanf("%-4c");
 	}
 	write("Remaining: %d %O\n\n", sizeof(data), data->read(128));
 }
