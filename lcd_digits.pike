@@ -43,6 +43,7 @@ Try to have the most improvement possible for each one.
 
 With just three columns of characters, overall error is 44807293.
 With six columns, overall error is 43744453 (a 2.5% drop).
+With all but the last two: 39004513 (about a 12.5% drop).
 
 Questions:
 * Are all the characters from 0xE0 to 0xEF done on 5x10 rather than 5x8?
