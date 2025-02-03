@@ -42,7 +42,7 @@ Third step: Design a maximum of eight RAM characters, for which we have full con
 Try to have the most improvement possible for each one.
 */
 
-constant BLANK = ({0x00}) * 8;
+constant BLANK = ({0x00}) * 7;
 constant CHARACTERS = ({
 	({BLANK}) * 16, //00 - 0F - actually the RAM characters
 	({BLANK}) * 16, //10 - 1F
@@ -99,18 +99,44 @@ constant CHARACTERS = ({
 int main() {
 	Image.Fonts.set_font_dirs(({"/usr/share/fonts/truetype/dejavu"}));
 	object font = Image.Fonts.open_font("DejaVu Sans", 32, 0);
+	int overallerror = 0;
 	foreach ("0123456789" / "", string digit) {
 		object img = font->write(digit)->autocrop();
 		//Center the image in a 17x26 grid, or crop to the middle part if too big
 		int xsz = 17, ysz = 26;
 		int xofs = (img->xsize() - xsz) / 2, yofs = (img->ysize() - ysz) / 2;
 		img = img->copy(xofs, yofs, xofs + xsz - 1, yofs + ysz - 1, 0, 0, 0);
-		write("%O --> %d x %d\n", digit, img->xsize(), img->ysize());
+		array font = allocate(3, allocate(3));
+		int toterror = 0;
+		for (int r = 0; r < 3; ++r) for (int c = 0; c < 3; ++c) {
+			//Pick a character, then compare against the bitmap to get a closeness score
+			array best; int besterror, worsterror;
+			foreach (CHARACTERS * ({ }), array chr) {
+				int error = 0;
+				foreach (chr; int y; int row) {
+					for (int x = 0; x < 5; ++x) {
+						int have = (row & (1<<(5-x))) && 255; //We either have fully on or fully off, but we want some nuance for the font.
+						//Note that we just look at the red component; it's assumed that green and blue are the same.
+						int want = img->getpixel(x + c * 6, y + r * 9)[0];
+						error += (want - have) ** 2;
+					}
+				}
+				if (!best || error < besterror) {
+					best = chr;
+					besterror = error;
+				}
+				if (error > worsterror) worsterror = error;
+			}
+			font[r][c] = best;
+			toterror += besterror; overallerror += besterror;
+			//write("Error ranges from %d to %d\n", besterror, worsterror);
+		}
+		//Visualize the transformation
+		write("%O --> %d x %d - total error %d\n", digit, img->xsize(), img->ysize(), toterror);
 		write("_" * img->xsize() + "\n");
 		for (int r = 0; r < img->ysize(); ++r) {
 			string line = "";
 			for (int c = 0; c < img->xsize(); ++c) {
-				//Note that we just look at the red component; it's assumed that green and blue are the same.
 				int pixel = img->getpixel(c, r)[0];
 				//For visuals, show an approximation of the darkness using a block-drawing character.
 				string chr = " ";
@@ -120,7 +146,9 @@ int main() {
 				if (pixel >= 224) chr = "\u2588";
 				line += chr;
 			}
-			write("%s|\n", string_to_utf8(line));
+			array row = r % 9 >= 7 ? ({0, 0, 0}) : font[r / 9][*][r % 9];
+			write("%s| %s\n", string_to_utf8(line), string_to_utf8(replace(sprintf("%{ %05b%}", row), (["0": " ", "1": "\u2588"]))));
 		}
 	}
+	write("Overall error: %d\n", overallerror);
 }
