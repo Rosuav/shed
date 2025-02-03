@@ -101,6 +101,10 @@ int main() {
 	object font = Image.Fonts.open_font("DejaVu Sans", 32, 0);
 	foreach ("0123456789" / "", string digit) {
 		object img = font->write(digit)->autocrop();
+		//Center the image in a 17x26 grid, or crop to the middle part if too big
+		int xsz = 17, ysz = 26;
+		int xofs = (img->xsize() - xsz) / 2, yofs = (img->ysize() - ysz) / 2;
+		img = img->copy(xofs, yofs, xofs + xsz - 1, yofs + ysz - 1, 0, 0, 0);
 		write("%O --> %d x %d\n", digit, img->xsize(), img->ysize());
 		write("_" * img->xsize() + "\n");
 		for (int r = 0; r < img->ysize(); ++r) {
