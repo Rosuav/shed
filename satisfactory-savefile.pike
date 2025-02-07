@@ -95,38 +95,38 @@ void parse_savefile(string fn) {
 				//Object. Nothing interesting here.
 			}
 			//Properties.
-			write("RAW PROPERTIES %O\n", ((string)data)[..sizeof(data) - end - 1]);
+			//write("RAW PROPERTIES %O\n", ((string)data)[..sizeof(data) - end - 1]);
 			while (sizeof(data) > end) {
 				[string prop, string type] = data->sscanf("%-4H%-4H");
 				if (prop == "None\0") break;
-				write("Prop %O %O\n", prop, type);
+				//write("Prop %O %O\n", prop, type);
+				[int sz, int idx] = data->sscanf("%-4c%-4c");
 				if (type == "BoolProperty\0") {
 					//Special-case: Doesn't have a type string, has the value in there instead
-					[int sz, int idx, int val, int zero] = data->sscanf("%-4c%-4c%c%c");
-					if (sz) write("Content %O\n", data->read(sz));
+					[int val, int zero] = data->sscanf("%c%c");
 				} else if ((<"ArrayProperty\0", "ByteProperty\0", "EnumProperty\0", "SetProperty\0">)[type]) {
 					//Complex types have a single type
-					[int sz, int idx, string type, int zero] = data->sscanf("%-4c%-4c%-4H%c");
-					if (sz) write("Content %O\n", data->read(sz));
+					[string type, int zero] = data->sscanf("%-4H%c");
 				} else if (type == "MapProperty\0") {
 					//Mapping types have two types (key and value)
-					[int sz, int idx, string keytype, string valtype, int zero] = data->sscanf("%-4c%-4c%-4H%-4H%c");
-					if (sz) write("Content %O\n", data->read(sz));
+					[string keytype, string valtype, int zero] = data->sscanf("%-4H%-4H%c");
 				} else if (type == "StructProperty\0") {
 					//Struct types have more padding
-					[int sz, int idx, string type, int zero] = data->sscanf("%-4c%-4c%-4H%17c");
-					if (sz) write("Content %O\n", data->read(sz));
+					[string type, int zero] = data->sscanf("%-4H%17c");
 				} else {
 					//Primitive types have no type notation
-					[int sz, int idx, int zero] = data->sscanf("%-4c%-4c%c");
-					if (sz) write("Content %O\n", data->read(sz));
+					[int zero] = data->sscanf("%c");
 				}
+				if (sz) data->read(sz);
 			}
 			if (sizeof(data) > end) write("REST %O\n", data->read(sizeof(data) - end));
 		}
 		if (sizeof(data) > endpoint) data->read(sizeof(data) - endpoint);
 		[int collected] = data->sscanf("%-4c");
 		write("entsz %d nument %d coll %d\n", entsz, nument, collected);
+		while (collected--) {
+			write("Collected %O %O\n", @data->sscanf("%-4H%-4H"));
+		}
 	}
 	write("Remaining: %d %O\n\n", sizeof(data), data->read(128));
 }
