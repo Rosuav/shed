@@ -108,13 +108,13 @@ void parse_savefile(string fn) {
 					//Complex types have a single type
 					[int sz, int idx, string type, int zero] = data->sscanf("%-4c%-4c%-4H%c");
 					if (sz) write("Content %O\n", data->read(sz));
-				} else if ((<"ArrayProperty\0", "ByteProperty\0", "EnumProperty\0">)[type]) {
+				} else if (type == "MapProperty\0") {
 					//Mapping types have two types (key and value)
 					[int sz, int idx, string keytype, string valtype, int zero] = data->sscanf("%-4c%-4c%-4H%-4H%c");
 					if (sz) write("Content %O\n", data->read(sz));
-				} else if ((<"ArrayProperty\0", "ByteProperty\0", "EnumProperty\0">)[type]) {
+				} else if (type == "StructProperty\0") {
 					//Struct types have more padding
-					[int sz, int idx, string type, int zero] = data->sscanf("%-4c%-4c%-4H%9c");
+					[int sz, int idx, string type, int zero] = data->sscanf("%-4c%-4c%-4H%17c");
 					if (sz) write("Content %O\n", data->read(sz));
 				} else {
 					//Primitive types have no type notation
