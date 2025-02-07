@@ -39,6 +39,7 @@ void parse_savefile(string fn) {
 		data = Stdio.Buffer(gz->end_of_stream()); data->read_only();
 	}
 	//Alright. Now that we've unpacked all the REAL data, let's get to parsing.
+	//Stdio.write_file("dump", decomp);
 	data = Stdio.Buffer(decomp); data->read_only();
 	[int sz] = data->sscanf("%-8c"); //Total size (will be equal to sizeof(data) after this returns)
 	//Most of these are fixed and have unknown purpose
@@ -54,23 +55,78 @@ void parse_savefile(string fn) {
 	write("Sublevels: %d\n", sublevelcount);
 	while (sublevelcount--) {
 		[string lvlname, int sz, int count] = data->sscanf("%-4H%-8c%-4c");
+		int endpoint = sizeof(data) + 4 - sz; //The size includes the count, so adjust our position accordingly
 		write("Level %O size %d count %d\n", lvlname, sz, count);
+		array objects = ({});
 		while (count--) {
-			[int objtype, string cls, string lvl, string prop] = data->sscanf("%-4c%-4H%-4H%-4H");
-			write("%d %s %s\n", objtype, cls, prop);
-			if (objtype) {
+			//objtype, class, level, prop
+			array obj = data->sscanf("%-4c%-4H%-4H%-4H");
+			if (obj[0]) {
 				//Actor
-				data->sscanf("%-4c%4F%4F%4F%4F%4F%4F%4F%4F%4F%4F%-4c"); //Transform (rotation/translation/scale)
+				obj += data->sscanf("%-4c%-4F%-4F%-4F%-4F%-4F%-4F%-4F%-4F%-4F%-4F%-4c"); //Transform (rotation/translation/scale)
 			} else {
-				//Object
-				[string path] = data->sscanf("%-4H");
+				//Object/component
+				obj += data->sscanf("%-4H");
 			}
+			objects += ({obj});
 		}
 		[int coll] = data->sscanf("%-4c");
-		//TODO: Snap to the position defined by sz. What if we aren't exactly there?
+		while (coll--) {
+			[string lvl, string path] = data->sscanf("%-4H%-4H");
+			write("Collectable: %O\n", path);
+		}
+		//Not sure what extra bytes there might be. Also, what if we're already past this point?
+		if (sizeof(data) > endpoint) data->read(sizeof(data) - endpoint);
 		[int entsz, int nument] = data->sscanf("%-8c%-4c");
-		//TODO: Again, snap to the right point
+		endpoint = sizeof(data) + 4 - entsz;
+		//Note that nument ought to be the same as the object count (and therefore sizeof(objects)) from above
+		for (int i = 0; i < sizeof(objects) && i < nument; ++i) {
+			[int ver, int flg, int sz] = data->sscanf("%-4c%-4c%-4c");
+			write("i %d obj %O\n", i, objects[i][1]);
+			int end = sizeof(data) - sz;
+			if (objects[i][0]) {
+				//Actor
+				[string parlvl, string parpath, int components] = data->sscanf("%-4H%-4H%-4c");
+				while (components--) {
+					[string complvl, string comppath] = data->sscanf("%-4H-4H");
+					//write("Component %O %O\n", complvl, comppath);
+				}
+			} else {
+				//Object. Nothing interesting here.
+			}
+			//Properties.
+			write("RAW PROPERTIES %O\n", ((string)data)[..sizeof(data) - end - 1]);
+			while (sizeof(data) > end) {
+				[string prop, string type] = data->sscanf("%-4H%-4H");
+				if (prop == "None\0") break;
+				write("Prop %O %O\n", prop, type);
+				if (type == "BoolProperty\0") {
+					//Special-case: Doesn't have a type string, has the value in there instead
+					[int sz, int idx, int val, int zero] = data->sscanf("%-4c%-4c%c%c");
+					if (sz) write("Content %O\n", data->read(sz));
+				} else if ((<"ArrayProperty\0", "ByteProperty\0", "EnumProperty\0", "SetProperty\0">)[type]) {
+					//Complex types have a single type
+					[int sz, int idx, string type, int zero] = data->sscanf("%-4c%-4c%-4H%c");
+					if (sz) write("Content %O\n", data->read(sz));
+				} else if ((<"ArrayProperty\0", "ByteProperty\0", "EnumProperty\0">)[type]) {
+					//Mapping types have two types (key and value)
+					[int sz, int idx, string keytype, string valtype, int zero] = data->sscanf("%-4c%-4c%-4H%-4H%c");
+					if (sz) write("Content %O\n", data->read(sz));
+				} else if ((<"ArrayProperty\0", "ByteProperty\0", "EnumProperty\0">)[type]) {
+					//Struct types have more padding
+					[int sz, int idx, string type, int zero] = data->sscanf("%-4c%-4c%-4H%9c");
+					if (sz) write("Content %O\n", data->read(sz));
+				} else {
+					//Primitive types have no type notation
+					[int sz, int idx, int zero] = data->sscanf("%-4c%-4c%c");
+					if (sz) write("Content %O\n", data->read(sz));
+				}
+			}
+			if (sizeof(data) > end) write("REST %O\n", data->read(sizeof(data) - end));
+		}
+		if (sizeof(data) > endpoint) data->read(sizeof(data) - endpoint);
 		[int collected] = data->sscanf("%-4c");
+		write("entsz %d nument %d coll %d\n", entsz, nument, collected);
 	}
 	write("Remaining: %d %O\n\n", sizeof(data), data->read(128));
 }
