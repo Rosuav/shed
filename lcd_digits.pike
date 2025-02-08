@@ -45,15 +45,31 @@ With just three columns of characters, overall error is 44807293.
 With six columns, overall error is 43744453 (a 2.5% drop).
 With all but the last two: 39004513 (about a 12.5% drop).
 
-Questions:
-* What's the correct way to use non-ASCII characters? Put Unicode codepoints 128-255 into the message? Bytes?
-  - lcd.message = "37\xDF" # Should be a degree symbol
-  - lcd.message = b"37\xDF"
-  - Something else?
-* How do the 5x10 characters align with 5x8 ones? Example:
+How do the 5x11 characters align with 5x8 ones? Example:
   - Five letter p's: "\x70\xF0\x70\xE7\x70"
   - Block separation: "\xFF\x68\xFF\xE8\xFF"
   - Three lines with blocks: "\xFF\xFF\xFF\xFF\xFF\n\xFF\x7A\xFF\xFA\xFF\n\xFF\xFF\xFF\xFF\xFF"
+Answer: 5x11 characters don't actually work properly in two-line mode; only the first eight rows display.
+However, this does mean that there are some characters that actually render the eighth row, which none
+of the 5x8 characters do (they're actually 5x7). So there may be some value here. Also, the solid block
+MAY be special cased, it's hard to know.
+
+Custom characters are allowed to use eight rows. Experiment with something like this:
+X...XXXX
+XX..XXXX
+X.X.XXXX
+X..XXXXX
+X..XXXXX
+X.X.XXXX
+XX..XXXX
+X...XXXX
+
+If it looks correctly symmetrical, great! But if it's clipped off below, then we only have seven rows everywhere.
+
+Possible custom characters:
+1-4) Four corners
+5-6) A couple of belt characters for the 8
+7-8) Room for more, what would be best?
 */
 
 constant BLANK = ({0x00}) * 7;
