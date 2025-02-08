@@ -54,9 +54,10 @@ void parse_savefile(string fn) {
 	[int sublevelcount] = data->sscanf("%-4c");
 	write("Sublevels: %d\n", sublevelcount);
 	while (sublevelcount--) {
+		int pos = sizeof(decomp) - sizeof(data);
 		[string lvlname, int sz, int count] = data->sscanf("%-4H%-8c%-4c");
 		int endpoint = sizeof(data) + 4 - sz; //The size includes the count, so adjust our position accordingly
-		write("Level %O size %d count %d\n", lvlname, sz, count);
+		write("[%X] Level %O size %d count %d\n", pos, lvlname, sz, count);
 		array objects = ({});
 		while (count--) {
 			//objtype, class, level, prop
