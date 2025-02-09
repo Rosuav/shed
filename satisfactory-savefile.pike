@@ -44,6 +44,44 @@ constant HARD_DRIVE_REQUIREMENTS = ([
 	"Desc_QuantumOscillator_C": 1, //Superposition Oscillator
 ]);
 
+constant ITEM_NAMES = ([
+	"Desc_AluminumPlateReinforced_C": "Heat Sink",
+	"Desc_AluminumPlate_C": "Alclad Aluminum Sheet",
+	"Desc_Biofuel_C": "Solid Biofuel",
+	"Desc_CartridgeSmart_C": "Unknown 'Cartridge Smart'",
+	"Desc_CartridgeStandard_C": "Rifle Ammo",
+	"Desc_Cement_C": "Concrete",
+	"Desc_ComputerSuper_C": "Supercomputer",
+	"Desc_Filter_C": "Gas Filter",
+	"Desc_Fuel_C": "Packaged Fuel",
+	"Desc_HighSpeedConnector_C": "High-Speed Connector",
+	"Desc_HighSpeedWire_C": "Quickwire",
+	"Desc_IronPlateReinforced_C": "Reinforced Iron Plate",
+	"Desc_IronScrew_C": "Screw",
+	"Desc_Medkit_C": "Medicinal Inhaler",
+	"Desc_ModularFrameFused_C": "Fused Modular Frame",
+	"Desc_ModularFrameHeavy_C": "Heavy Modular Frame",
+	"Desc_MotorLightweight_C": "Turbo Motor",
+	"Desc_NobeliskCluster_C": "Cluster Nobelisk",
+	"Desc_NobeliskExplosive_C": "Nobelisk",
+	"Desc_NobeliskGas_C": "Gas Nobelisk",
+	"Desc_NobeliskShockwave_C": "Pulse Nobelisk",
+	"Desc_PackagedBiofuel_C": "Packaged Liquid Biofuel",
+	"Desc_Rebar_Explosive_C": "Explosive Rebar",
+	"Desc_Rebar_Spreadshot_C": "Shatter Rebar",
+	"Desc_Rebar_Stunshot_C": "Stun Rebar",
+	"Desc_SpikedRebar_C": "Iron Rebar",
+	"Desc_SteelPlateReinforced_C": "Encased Industrial Beam",
+	"Desc_SteelPlate_C": "Steel Beam",
+	"Desc_TurboFuel_C": "Packaged Turbofuel",
+]);
+
+string L10n(string id) {
+	if (ITEM_NAMES[id]) return ITEM_NAMES[id];
+	sscanf(id, "Desc_%s_C", id);
+	return String.trim(Regexp.SimpleRegexp("[A-Z][a-z]+")->replace(id) {return __ARGS__[0] + " ";});
+}
+
 void parse_savefile(string fn) {
 	Stdio.Buffer data = Stdio.Buffer(Stdio.read_file(fn));
 	data->read_only();
@@ -236,7 +274,7 @@ void parse_savefile(string fn) {
 		write("Crash site %s (%.0f,%.0f,%.0f)\n", crash - "\0", @pos);
 		if (!crash_loot[crash]) write("\tNO LOOT HERE\n");
 		else foreach (crash_loot[crash], [string item, int num, float dist])
-			write("\t[%.0f] %d %s\n", dist, num, item - "\0");
+			write("\t%d %s\n", num, item - "\0");
 	}
 	if (crash_loot[0]) {
 		write("Loot not at a crash site:\n");
@@ -245,11 +283,16 @@ void parse_savefile(string fn) {
 			total_loot[item] -= num; //Optionally exclude these from the total loot, thus making it "crash site loot" exclusively
 		}
 	}
-	write("Total loot: %O\n", filter(total_loot, `>, 0));
+	array items = indices(total_loot), counts = values(total_loot);
+	sort(-counts[*], items, counts);
+	write("Total loot:\n");
+	foreach (counts; int i; int n) if (n) write("\t%d %s\n", n, L10n(items[i]));
+	//Or format it for the wiki:
+	//foreach (counts; int i; int n) if (n) write("* {{itemLink|%s}} (%d)\n", L10n(items[i]), n);
 	write("Sighted crash sites: %d/118\n", sizeof(crashsites));
 	foreach (sort((array)HARD_DRIVE_REQUIREMENTS), [string item, int qty]) {
-		if (!total_loot[item]) write("Need %d %s\n", qty, item);
-		else if (total_loot[item] < qty) write("Need %d more %s\n", qty - total_loot[item], item);
+		if (!total_loot[item]) write("Need %d %s\n", qty, L10n(item));
+		else if (total_loot[item] < qty) write("Need %d more %s\n", qty - total_loot[item], L10n(item));
 	}
 	//The wiki says there's a 32-bit zero before this count, but I don't see it.
 	//It's also possible that this refcnt isn't even here. Presumably no refs??
