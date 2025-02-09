@@ -7,10 +7,19 @@
 //Strings are stored as null-terminated Hollerith strings, which seems redundant. (The null is included in the length.)
 //Integers, including string lengths, are all 32-bit little-endian.
 
+/* More stuff to query:
+- Hotbars, to see how my tastes have changed over time
+- Recognize whether items have been spawned and then removed - mVisitedAreas?
+- Pick an item, tell me where the nearest is
+- How close to each crash site is its requirements?
+  - If you find insufficient of the right item in one place, scan further
+  - If the more distant location has sufficient all on its own, downplay the near one
+  - Will require the individual hard drive requirements (transcribe from the same source)
+*/
 
 //Total of all hard drive requirements, not counting power
-//This is cribbed from https://satisfactory-calculator.com/en/hard-drives as I haven't figured out where that's stored
-//in the save file; in fact, it may not be, and the information may need to be parsed from the map elsewhere instead.
+//This is cribbed from https://satisfactory-calculator.com/en/hard-drives as I haven't figured out where that's stored;
+//it isn't in the savefile, so it's either a matter of parsing the map file somewhere, or maintaining a separate record.
 constant HARD_DRIVE_REQUIREMENTS = ([
 	"Desc_SteelPlate_C": 150, //Steel Beam
 	"Desc_ElectromagneticControlRod_C": 84,
