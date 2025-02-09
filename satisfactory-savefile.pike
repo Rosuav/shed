@@ -92,7 +92,7 @@ void parse_savefile(string fn) {
 	[int sublevelcount] = data->sscanf("%-4c");
 	//write("Sublevels: %d\n", sublevelcount);
 	multiset seen = (<>);
-	mapping total_loot = ([]);
+	mapping total_loot = ([]); int harddrives = 0;
 	while (sublevelcount-- > -1) {
 		int pos = sizeof(decomp) - sizeof(data);
 		//The persistent level (one past the sublevel count) has no name field.
@@ -125,6 +125,7 @@ void parse_savefile(string fn) {
 		for (int i = 0; i < sizeof(objects) && i < nument; ++i) {
 			[int ver, int flg, int sz] = data->sscanf("%-4c%-4c%-4c");
 			int propend = sizeof(data) - sz;
+			if (objects[i][1] == "/Game/FactoryGame/World/Benefit/DropPod/BP_DropPod.BP_DropPod_C\0") ++harddrives;
 			int interesting = 0;//has_value(objects[i][3], "BP_DropPod14_389"); //Should require 5 modular frames, can't see it though
 			if (interesting) write("INTERESTING: %O\n", objects[i]);
 			//if (!seen[objects[i][1]]) {write("OBJECT %O\n", objects[i][1]); seen[objects[i][1]] = 1;}
@@ -201,11 +202,11 @@ void parse_savefile(string fn) {
 			if (interesting) write("Properties %O\n", prop);
 			if (has_value(objects[i][1], "Pickup_Spawnable")) {
 				total_loot[(replace(prop["mPickupItems\0"][?"Item\0"] || "", "\0", "") / ".")[-1]] += prop["mPickupItems\0"][?"NumItems\0"];
-				write("Spawnable: (%.0f,%.0f,%.0f) %d of %s\n", 
+				/*write("Spawnable: (%.0f,%.0f,%.0f) %d of %s\n", 
 					objects[i][9], objects[i][10], objects[i][11],
 					prop["mPickupItems\0"][?"NumItems\0"],
 					(replace(prop["mPickupItems\0"][?"Item\0"] || "", "\0", "") / ".")[-1],
-				);
+				);*/
 			}
 		}
 		if (sizeof(data) > endpoint) data->read(sizeof(data) - endpoint);
@@ -216,7 +217,8 @@ void parse_savefile(string fn) {
 		}
 	}
 	write("Total loot: %O\n", total_loot);
-	foreach (HARD_DRIVE_REQUIREMENTS; string item; int qty) {
+	write("Sighted hard drives: %d\n", harddrives);
+	foreach (sort((array)HARD_DRIVE_REQUIREMENTS), [string item, int qty]) {
 		if (!total_loot[item]) write("Need %d %s\n", qty, item);
 		else if (total_loot[item] < qty) write("Need %d more %s\n", qty - total_loot[item], item);
 	}
