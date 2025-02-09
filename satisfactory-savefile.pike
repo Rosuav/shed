@@ -86,7 +86,7 @@ void parse_savefile(string fn) {
 		for (int i = 0; i < sizeof(objects) && i < nument; ++i) {
 			[int ver, int flg, int sz] = data->sscanf("%-4c%-4c%-4c");
 			int propend = sizeof(data) - sz;
-			int interesting = 0;//has_value(objects[i][1], "Pickup_Spawnable");
+			int interesting = 0;//has_value(objects[i][3], "BP_DropPod14_389"); //Should require 5 modular frames, can't see it though
 			if (interesting) write("INTERESTING: %O\n", objects[i]);
 			//if (!seen[objects[i][1]]) {write("OBJECT %O\n", objects[i][1]); seen[objects[i][1]] = 1;}
 			if (objects[i][0]) {
@@ -141,6 +141,10 @@ void parse_savefile(string fn) {
 					} else if (type == "IntProperty\0") {
 						//Primitive. Also potentially more interesting.
 						[int zero, ret[prop]] = data->sscanf("%c%-4c");
+						sz -= 4;
+					} else if (type == "FloatProperty\0") {
+						//Primitive. Also potentially more interesting.
+						[int zero, ret[prop]] = data->sscanf("%c%-4F");
 						sz -= 4;
 					} else {
 						//Primitive types have no type notation
