@@ -264,44 +264,46 @@ void parse_savefile(string fn) {
 			//write("Collected %O\n", path);
 		}
 	}
-	mapping crash_loot = ([]);
-	foreach (loot, [string item, int num, array(float) pos]) {
-		string closest; float distance;
-		foreach (crashsites, [string crash, array(float) ref]) {
-			float dist = `+(@((ref[*] - pos[*])[*] ** 2));
-			//There are some loot items that are not actually near crash sites.
-			//The furthest distance-squared I've seen of any crash site loot is two where
-			//the drop pod is a little bit away from the centroid of the loot (DropPod7_5615
-			//and DropPod3_12), and they still come in at less than 100,000,000 distance-squared
-			//(10,000 diagonal distance from drop pod to loot item).
-			if (dist > 1e8) continue;
-			if (!closest || dist < distance) {closest = crash; distance = dist;}
+	if (0) { //TODO: Have options to control outputs
+		mapping crash_loot = ([]);
+		foreach (loot, [string item, int num, array(float) pos]) {
+			string closest; float distance;
+			foreach (crashsites, [string crash, array(float) ref]) {
+				float dist = `+(@((ref[*] - pos[*])[*] ** 2));
+				//There are some loot items that are not actually near crash sites.
+				//The furthest distance-squared I've seen of any crash site loot is two where
+				//the drop pod is a little bit away from the centroid of the loot (DropPod7_5615
+				//and DropPod3_12), and they still come in at less than 100,000,000 distance-squared
+				//(10,000 diagonal distance from drop pod to loot item).
+				if (dist > 1e8) continue;
+				if (!closest || dist < distance) {closest = crash; distance = dist;}
+			}
+			crash_loot[closest] += ({({item, num, distance})});
 		}
-		crash_loot[closest] += ({({item, num, distance})});
-	}
-	foreach (crashsites, [string crash, array(float) pos]) {
-		write("Crash site %s (%.0f,%.0f,%.0f)\n", crash - "\0", @pos);
-		if (!crash_loot[crash]) write("\tNO LOOT HERE\n");
-		else foreach (crash_loot[crash], [string item, int num, float dist])
-			write("\t%d %s\n", num, L10n(item));
-	}
-	if (crash_loot[0]) {
-		write("Loot not at a crash site:\n");
-		foreach (crash_loot[0], [string item, int num, float dist]) {
-			write("\t%d %s\n", num, L10n(item));
-			total_loot[item] -= num; //Optionally exclude these from the total loot, thus making it "crash site loot" exclusively
+		foreach (crashsites, [string crash, array(float) pos]) {
+			write("Crash site %s (%.0f,%.0f,%.0f)\n", crash - "\0", @pos);
+			if (!crash_loot[crash]) write("\tNO LOOT HERE\n");
+			else foreach (crash_loot[crash], [string item, int num, float dist])
+				write("\t%d %s\n", num, L10n(item));
 		}
-	}
-	array items = indices(total_loot), counts = values(total_loot);
-	sort(-counts[*], items, counts);
-	write("Total loot:\n");
-	foreach (counts; int i; int n) if (n) write("\t%d %s\n", n, L10n(items[i]));
-	//Or format it for the wiki:
-	//foreach (counts; int i; int n) if (n) write("* {{itemLink|%s}} (%d)\n", L10n(items[i]), n);
-	write("Sighted crash sites: %d/118\n", sizeof(crashsites));
-	foreach (sort((array)HARD_DRIVE_REQUIREMENTS), [string item, int qty]) {
-		if (!total_loot[item]) write("Need %d %s\n", qty, L10n(item));
-		else if (total_loot[item] < qty) write("Need %d more %s\n", qty - total_loot[item], L10n(item));
+		if (crash_loot[0]) {
+			write("Loot not at a crash site:\n");
+			foreach (crash_loot[0], [string item, int num, float dist]) {
+				write("\t%d %s\n", num, L10n(item));
+				total_loot[item] -= num; //Optionally exclude these from the total loot, thus making it "crash site loot" exclusively
+			}
+		}
+		array items = indices(total_loot), counts = values(total_loot);
+		sort(-counts[*], items, counts);
+		write("Total loot:\n");
+		foreach (counts; int i; int n) if (n) write("\t%d %s\n", n, L10n(items[i]));
+		//Or format it for the wiki:
+		//foreach (counts; int i; int n) if (n) write("* {{itemLink|%s}} (%d)\n", L10n(items[i]), n);
+		write("Sighted crash sites: %d/118\n", sizeof(crashsites));
+		foreach (sort((array)HARD_DRIVE_REQUIREMENTS), [string item, int qty]) {
+			if (!total_loot[item]) write("Need %d %s\n", qty, L10n(item));
+			else if (total_loot[item] < qty) write("Need %d more %s\n", qty - total_loot[item], L10n(item));
+		}
 	}
 	//The wiki says there's a 32-bit zero before this count, but I don't see it.
 	//It's also possible that this refcnt isn't even here. Presumably no refs??
