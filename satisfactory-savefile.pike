@@ -46,13 +46,13 @@ void parse_savefile(string fn) {
 	[int unk10, string unk11, int zero3, int unk12, int unk13, string unk14, int unk15] = data->sscanf("%-4c%-4H%-4c%-4c%-4c%-4H%-4c");
 	for (int i = 0; i < 5; ++i) {
 		[string title, int unk17, int unk18, int n] = data->sscanf("%-4H%-4c%-4c%-4c");
-		write("Next section: %d %O (%x/%x)\n", n, title, unk17, unk18);
+		//write("Next section: %d %O (%x/%x)\n", n, title, unk17, unk18);
 		while (n--) {
 			[string unk19, int unk20] = data->sscanf("%-4H%-4c");
 		}
 	}
 	[int sublevelcount] = data->sscanf("%-4c");
-	write("Sublevels: %d\n", sublevelcount);
+	//write("Sublevels: %d\n", sublevelcount);
 	multiset seen = (<>);
 	while (sublevelcount-- > -1) {
 		int pos = sizeof(decomp) - sizeof(data);
@@ -172,8 +172,11 @@ void parse_savefile(string fn) {
 		}
 	}
 	//The wiki says there's a 32-bit zero before this count, but I don't see it.
-	[int refcnt] = data->sscanf("%-4c");
-	while (refcnt--) data->sscanf("%-4H%-4H");
+	//It's also possible that this refcnt isn't even here. Presumably no refs??
+	if (sizeof(data)) {
+		[int refcnt] = data->sscanf("%-4c");
+		while (refcnt--) data->sscanf("%-4H%-4H");
+	}
 	if (sizeof(data)) write("[%X] Remaining: %d %O\n\n", sizeof(decomp) - sizeof(data), sizeof(data), data->read(128));
 }
 
