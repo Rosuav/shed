@@ -93,7 +93,7 @@ void parse_savefile(string fn) {
 	//write("Sublevels: %d\n", sublevelcount);
 	multiset seen = (<>);
 	mapping total_loot = ([]);
-	array crashsites = ({ });
+	array crashsites = ({ }), loot = ({ });
 	while (sublevelcount-- > -1) {
 		int pos = sizeof(decomp) - sizeof(data);
 		//The persistent level (one past the sublevel count) has no name field.
@@ -127,7 +127,7 @@ void parse_savefile(string fn) {
 			[int ver, int flg, int sz] = data->sscanf("%-4c%-4c%-4c");
 			int propend = sizeof(data) - sz;
 			if (objects[i][1] == "/Game/FactoryGame/World/Benefit/DropPod/BP_DropPod.BP_DropPod_C\0")
-				crashsites += ({({(objects[i][3] / ".")[-1], objects[i][9], objects[i][10], objects[i][11]})});
+				crashsites += ({({(objects[i][3] / ".")[-1], objects[i][9..11]})});
 			int interesting = 0;//has_value(objects[i][3], "BP_DropPod14_389"); //Should require 5 modular frames, can't see it though
 			if (interesting) write("INTERESTING: %O\n", objects[i]);
 			//if (!seen[objects[i][1]]) {write("OBJECT %O\n", objects[i][1]); seen[objects[i][1]] = 1;}
@@ -203,12 +203,11 @@ void parse_savefile(string fn) {
 			mapping prop = parse_properties(propend);
 			if (interesting) write("Properties %O\n", prop);
 			if (has_value(objects[i][1], "Pickup_Spawnable")) {
-				total_loot[(replace(prop["mPickupItems\0"][?"Item\0"] || "", "\0", "") / ".")[-1]] += prop["mPickupItems\0"][?"NumItems\0"];
-				/*write("Spawnable: (%.0f,%.0f,%.0f) %d of %s\n", 
-					objects[i][9], objects[i][10], objects[i][11],
-					prop["mPickupItems\0"][?"NumItems\0"],
-					(replace(prop["mPickupItems\0"][?"Item\0"] || "", "\0", "") / ".")[-1],
-				);*/
+				string id = (replace(prop["mPickupItems\0"][?"Item\0"] || "", "\0", "") / ".")[-1];
+				int num = prop["mPickupItems\0"][?"NumItems\0"];
+				total_loot[id] += num;
+				loot += ({({id, num, objects[i][9..11]})});
+				//write("Spawnable: (%.0f,%.0f,%.0f) %d of %s\n", objects[i][9], objects[i][10], objects[i][11], num, id);
 			}
 		}
 		if (sizeof(data) > endpoint) data->read(sizeof(data) - endpoint);
@@ -218,7 +217,35 @@ void parse_savefile(string fn) {
 			//write("Collected %O\n", path);
 		}
 	}
-	write("Total loot: %O\n", total_loot);
+	mapping crash_loot = ([]);
+	foreach (loot, [string item, int num, array(float) pos]) {
+		string closest; float distance;
+		foreach (crashsites, [string crash, array(float) ref]) {
+			float dist = `+(@((ref[*] - pos[*])[*] ** 2));
+			//There are some loot items that are not actually near crash sites.
+			//The furthest distance-squared I've seen of any crash site loot is two where
+			//the drop pod is a little bit away from the centroid of the loot (DropPod7_5615
+			//and DropPod3_12), and they still come in at less than 100,000,000 distance-squared
+			//(10,000 diagonal distance from drop pod to loot item).
+			if (dist > 1e8) continue;
+			if (!closest || dist < distance) {closest = crash; distance = dist;}
+		}
+		crash_loot[closest] += ({({item, num, distance})});
+	}
+	foreach (crashsites, [string crash, array(float) pos]) {
+		write("Crash site %s (%.0f,%.0f,%.0f)\n", crash - "\0", @pos);
+		if (!crash_loot[crash]) write("\tNO LOOT HERE\n");
+		else foreach (crash_loot[crash], [string item, int num, float dist])
+			write("\t[%.0f] %d %s\n", dist, num, item - "\0");
+	}
+	if (crash_loot[0]) {
+		write("Loot not at a crash site:\n");
+		foreach (crash_loot[0], [string item, int num, float dist]) {
+			write("\t%d %s\n", num, item - "\0");
+			total_loot[item] -= num; //Optionally exclude these from the total loot, thus making it "crash site loot" exclusively
+		}
+	}
+	write("Total loot: %O\n", filter(total_loot, `>, 0));
 	write("Sighted crash sites: %d/118\n", sizeof(crashsites));
 	foreach (sort((array)HARD_DRIVE_REQUIREMENTS), [string item, int qty]) {
 		if (!total_loot[item]) write("Need %d %s\n", qty, item);
