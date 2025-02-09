@@ -231,5 +231,12 @@ void parse_savefile(string fn) {
 
 int main(int argc, array(string) argv) {
 	if (argc < 2) exit(0, "Need a file to parse.\n");
+	if (has_value(argv, "--latest")) {
+		array files = argv[1..] - ({"--latest"});
+		array dates = file_stat(files[*])->mtime;
+		sort(dates, files);
+		parse_savefile(files[-1]);
+		return 0;
+	}
 	parse_savefile(argv[1..][*]);
 }
