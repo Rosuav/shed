@@ -6,6 +6,44 @@
 
 //Strings are stored as null-terminated Hollerith strings, which seems redundant. (The null is included in the length.)
 //Integers, including string lengths, are all 32-bit little-endian.
+
+
+//Total of all hard drive requirements, not counting power
+//This is cribbed from https://satisfactory-calculator.com/en/hard-drives as I haven't figured out where that's stored
+//in the save file; in fact, it may not be, and the information may need to be parsed from the map elsewhere instead.
+constant HARD_DRIVE_REQUIREMENTS = ([
+	"Desc_SteelPlate_C": 150, //Steel Beam
+	"Desc_ElectromagneticControlRod_C": 84,
+	"Desc_Silica_C": 70,
+	"Desc_Rubber_C": 70,
+	"Desc_CoolingSystem_C": 65,
+	"Desc_HighSpeedWire_C": 63,
+	"Desc_Plastic_C": 60,
+	"Desc_AluminumPlate_C": 57, //Alclad Sheet
+	"Desc_AluminumPlateReinforced_C": 54, //Heat Sink
+	"Desc_MotorLightweight_C": 41, //Turbo Motor
+	"Desc_CopperSheet_C": 40,
+	"Desc_ModularFrame_C": 37,
+	"Desc_HighSpeedConnector_C": 35,
+	"Desc_QuartzCrystal_C": 32,
+	"Desc_SteelPlateReinforced_C": 30, //Encased Beam
+	"Desc_Motor_C": 30,
+	"Desc_Rotor_C": 27,
+	"Desc_ModularFrameHeavy_C": 26,
+	"Desc_IronScrew_C": 25,
+	"Desc_CrystalOscillator_C": 20,
+	"Desc_Computer_C": 16,
+	"Desc_CircuitBoard_C": 15,
+	"Desc_AluminumCasing_C": 15,
+	"Desc_ModularFrameFused_C": 12,
+	"Desc_Stator_C": 10,
+	"Desc_Biofuel_C": 10,
+	"Desc_IronRod_C": 5,
+	"Desc_IronPlateReinforced_C": 5,
+	"Desc_Gunpowder_C": 2,
+	"Desc_QuantumOscillator_C": 1, //Superposition Oscillator
+]);
+
 void parse_savefile(string fn) {
 	Stdio.Buffer data = Stdio.Buffer(Stdio.read_file(fn));
 	data->read_only();
@@ -54,6 +92,7 @@ void parse_savefile(string fn) {
 	[int sublevelcount] = data->sscanf("%-4c");
 	//write("Sublevels: %d\n", sublevelcount);
 	multiset seen = (<>);
+	mapping total_loot = ([]);
 	while (sublevelcount-- > -1) {
 		int pos = sizeof(decomp) - sizeof(data);
 		//The persistent level (one past the sublevel count) has no name field.
@@ -161,10 +200,11 @@ void parse_savefile(string fn) {
 			mapping prop = parse_properties(propend);
 			if (interesting) write("Properties %O\n", prop);
 			if (has_value(objects[i][1], "Pickup_Spawnable")) {
+				total_loot[(replace(prop["mPickupItems\0"][?"Item\0"] || "", "\0", "") / ".")[-1]] += prop["mPickupItems\0"][?"NumItems\0"];
 				write("Spawnable: (%.0f,%.0f,%.0f) %d of %s\n", 
 					objects[i][9], objects[i][10], objects[i][11],
 					prop["mPickupItems\0"][?"NumItems\0"],
-					(replace(prop["mPickupItems\0"][?"Item\0"] || "", "\0", "") / "/")[-1],
+					(replace(prop["mPickupItems\0"][?"Item\0"] || "", "\0", "") / ".")[-1],
 				);
 			}
 		}
@@ -174,6 +214,11 @@ void parse_savefile(string fn) {
 			[string lvl, string path] = data->sscanf("%-4H%-4H");
 			//write("Collected %O\n", path);
 		}
+	}
+	write("Total loot: %O\n", total_loot);
+	foreach (HARD_DRIVE_REQUIREMENTS; string item; int qty) {
+		if (!total_loot[item]) write("Need %d %s\n", qty, item);
+		else if (total_loot[item] < qty) write("Need %d more %s\n", qty - total_loot[item], item);
 	}
 	//The wiki says there's a 32-bit zero before this count, but I don't see it.
 	//It's also possible that this refcnt isn't even here. Presumably no refs??
