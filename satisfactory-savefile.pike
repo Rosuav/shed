@@ -53,11 +53,12 @@ void parse_savefile(string fn) {
 	}
 	[int sublevelcount] = data->sscanf("%-4c");
 	write("Sublevels: %d\n", sublevelcount);
-	while (sublevelcount--) {
+	while (sublevelcount-- > -1) {
 		int pos = sizeof(decomp) - sizeof(data);
-		[string lvlname, int sz, int count] = data->sscanf("%-4H%-8c%-4c");
+		//The persistent level (one past the sublevel count) has no name field.
+		[string lvlname, int sz, int count] = data->sscanf(sublevelcount < 0 ? "%0s%-8c%-4c" : "%-4H%-8c%-4c");
 		int endpoint = sizeof(data) + 4 - sz; //The size includes the count, so adjust our position accordingly
-		write("[%X] Level %O size %d count %d\n", pos, lvlname, sz, count);
+		//write("[%X] Level %O size %d count %d\n", pos, lvlname, sz, count);
 		array objects = ({});
 		while (count--) {
 			//objtype, class, level, prop
@@ -83,14 +84,12 @@ void parse_savefile(string fn) {
 		//Note that nument ought to be the same as the object count (and therefore sizeof(objects)) from above
 		for (int i = 0; i < sizeof(objects) && i < nument; ++i) {
 			[int ver, int flg, int sz] = data->sscanf("%-4c%-4c%-4c");
-			write("i %d obj %O\n", i, objects[i][1]);
 			int end = sizeof(data) - sz;
 			if (objects[i][0]) {
 				//Actor
 				[string parlvl, string parpath, int components] = data->sscanf("%-4H%-4H%-4c");
 				while (components--) {
-					[string complvl, string comppath] = data->sscanf("%-4H-4H");
-					//write("Component %O %O\n", complvl, comppath);
+					[string complvl, string comppath] = data->sscanf("%-4H%-4H");
 				}
 			} else {
 				//Object. Nothing interesting here.
@@ -120,16 +119,21 @@ void parse_savefile(string fn) {
 				}
 				if (sz) data->read(sz);
 			}
-			if (sizeof(data) > end) write("REST %O\n", data->read(sizeof(data) - end));
+			if (sizeof(data) > end) {
+				string rest = data->read(sizeof(data) - end);
+				//if (rest != "\0" * sizeof(rest)) write("REST %O\n", rest);
+			}
 		}
 		if (sizeof(data) > endpoint) data->read(sizeof(data) - endpoint);
 		[int collected] = data->sscanf("%-4c");
-		write("entsz %d nument %d coll %d\n", entsz, nument, collected);
 		while (collected--) {
 			write("Collected %O %O\n", @data->sscanf("%-4H%-4H"));
 		}
 	}
-	write("Remaining: %d %O\n\n", sizeof(data), data->read(128));
+	//The wiki says there's a 32-bit zero before this count, but I don't see it.
+	[int refcnt] = data->sscanf("%-4c");
+	while (refcnt--) data->sscanf("%-4H%-4H");
+	if (sizeof(data)) write("[%X] Remaining: %d %O\n\n", sizeof(decomp) - sizeof(data), sizeof(data), data->read(128));
 }
 
 int main(int argc, array(string) argv) {
