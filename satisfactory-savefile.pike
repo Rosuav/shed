@@ -57,7 +57,7 @@ constant ITEM_NAMES = ([
 	"Desc_AluminumPlateReinforced_C": "Heat Sink",
 	"Desc_AluminumPlate_C": "Alclad Aluminum Sheet",
 	"Desc_Biofuel_C": "Solid Biofuel",
-	"Desc_CartridgeSmart_C": "Unknown 'Cartridge Smart'",
+	"Desc_CartridgeSmart_C": "\e[1;34mRifle Smartridge\e[0m (nonfunctional Homing Rifle Ammo)",
 	"Desc_CartridgeStandard_C": "Rifle Ammo",
 	"Desc_Cement_C": "Concrete",
 	"Desc_ComputerSuper_C": "Supercomputer",
@@ -283,12 +283,12 @@ void parse_savefile(string fn) {
 		write("Crash site %s (%.0f,%.0f,%.0f)\n", crash - "\0", @pos);
 		if (!crash_loot[crash]) write("\tNO LOOT HERE\n");
 		else foreach (crash_loot[crash], [string item, int num, float dist])
-			write("\t%d %s\n", num, item - "\0");
+			write("\t%d %s\n", num, L10n(item));
 	}
 	if (crash_loot[0]) {
 		write("Loot not at a crash site:\n");
 		foreach (crash_loot[0], [string item, int num, float dist]) {
-			write("\t%d %s\n", num, item - "\0");
+			write("\t%d %s\n", num, L10n(item));
 			total_loot[item] -= num; //Optionally exclude these from the total loot, thus making it "crash site loot" exclusively
 		}
 	}
