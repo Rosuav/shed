@@ -76,7 +76,7 @@ void parse_savefile(string fn) {
 		[int coll] = data->sscanf("%-4c");
 		while (coll--) {
 			[string lvl, string path] = data->sscanf("%-4H%-4H");
-			write("Collectable: %O\n", path);
+			//write("Collectable: %O\n", path);
 		}
 		//Not sure what extra bytes there might be. Also, what if we're already past this point?
 		if (sizeof(data) > endpoint) data->read(sizeof(data) - endpoint);
@@ -167,7 +167,8 @@ void parse_savefile(string fn) {
 		if (sizeof(data) > endpoint) data->read(sizeof(data) - endpoint);
 		[int collected] = data->sscanf("%-4c");
 		while (collected--) {
-			write("Collected %O %O\n", @data->sscanf("%-4H%-4H"));
+			[string lvl, string path] = data->sscanf("%-4H%-4H");
+			//write("Collected %O\n", path);
 		}
 	}
 	//The wiki says there's a 32-bit zero before this count, but I don't see it.
