@@ -39,7 +39,7 @@ void parse_savefile(string fn) {
 		data = Stdio.Buffer(gz->end_of_stream()); data->read_only();
 	}
 	//Alright. Now that we've unpacked all the REAL data, let's get to parsing.
-	//Stdio.write_file("dump", decomp);
+	//Stdio.write_file("dump", decomp); Process.create_process(({"hd", "dump"}), (["stdout": Stdio.File("dump.hex", "wct")]));
 	data = Stdio.Buffer(decomp); data->read_only();
 	[int sz] = data->sscanf("%-8c"); //Total size (will be equal to sizeof(data) after this returns)
 	//Most of these are fixed and have unknown purpose
@@ -53,6 +53,7 @@ void parse_savefile(string fn) {
 	}
 	[int sublevelcount] = data->sscanf("%-4c");
 	write("Sublevels: %d\n", sublevelcount);
+	multiset seen = (<>);
 	while (sublevelcount-- > -1) {
 		int pos = sizeof(decomp) - sizeof(data);
 		//The persistent level (one past the sublevel count) has no name field.
@@ -84,44 +85,83 @@ void parse_savefile(string fn) {
 		//Note that nument ought to be the same as the object count (and therefore sizeof(objects)) from above
 		for (int i = 0; i < sizeof(objects) && i < nument; ++i) {
 			[int ver, int flg, int sz] = data->sscanf("%-4c%-4c%-4c");
-			int end = sizeof(data) - sz;
+			int propend = sizeof(data) - sz;
+			int interesting = 0;//has_value(objects[i][1], "Pickup_Spawnable");
+			if (interesting) write("INTERESTING: %O\n", objects[i]);
+			//if (!seen[objects[i][1]]) {write("OBJECT %O\n", objects[i][1]); seen[objects[i][1]] = 1;}
 			if (objects[i][0]) {
 				//Actor
 				[string parlvl, string parpath, int components] = data->sscanf("%-4H%-4H%-4c");
 				while (components--) {
 					[string complvl, string comppath] = data->sscanf("%-4H%-4H");
+					if (interesting) write("Component %O %O\n", complvl, comppath);
 				}
 			} else {
 				//Object. Nothing interesting here.
 			}
 			//Properties.
-			//write("RAW PROPERTIES %O\n", ((string)data)[..sizeof(data) - end - 1]);
-			while (sizeof(data) > end) {
-				[string prop, string type] = data->sscanf("%-4H%-4H");
-				if (prop == "None\0") break;
-				//write("Prop %O %O\n", prop, type);
-				[int sz, int idx] = data->sscanf("%-4c%-4c");
-				if (type == "BoolProperty\0") {
-					//Special-case: Doesn't have a type string, has the value in there instead
-					[int val, int zero] = data->sscanf("%c%c");
-				} else if ((<"ArrayProperty\0", "ByteProperty\0", "EnumProperty\0", "SetProperty\0">)[type]) {
-					//Complex types have a single type
-					[string type, int zero] = data->sscanf("%-4H%c");
-				} else if (type == "MapProperty\0") {
-					//Mapping types have two types (key and value)
-					[string keytype, string valtype, int zero] = data->sscanf("%-4H%-4H%c");
-				} else if (type == "StructProperty\0") {
-					//Struct types have more padding
-					[string type, int zero] = data->sscanf("%-4H%17c");
-				} else {
-					//Primitive types have no type notation
-					[int zero] = data->sscanf("%c");
+			mapping parse_properties(int end) {
+				mapping ret = ([]);
+				//write("RAW PROPERTIES %O\n", ((string)data)[..sizeof(data) - end - 1]);
+				while (sizeof(data) > end) {
+					[string prop] = data->sscanf("%-4H");
+					if (prop == "None\0") break; //There MAY still be a type after that, but it won't be relevant. If there is, it'll be skipped in the END part.
+					[string type] = data->sscanf("%-4H");
+					if (interesting) write("Prop %O %O\n", prop, type);
+					[int sz, int idx] = data->sscanf("%-4c%-4c");
+					if (type == "BoolProperty\0") {
+						//Special-case: Doesn't have a type string, has the value in there instead
+						[ret[prop], int zero] = data->sscanf("%c%c");
+					} else if ((<"ArrayProperty\0", "ByteProperty\0", "EnumProperty\0", "SetProperty\0">)[type]) {
+						//Complex types have a single type
+						[string type, int zero] = data->sscanf("%-4H%c");
+					} else if (type == "MapProperty\0") {
+						//Mapping types have two types (key and value)
+						[string keytype, string valtype, int zero] = data->sscanf("%-4H%-4H%c");
+					} else if (type == "StructProperty\0") {
+						//Struct types have more padding
+						[string type, int zero] = data->sscanf("%-4H%17c");
+						if (interesting) write("Type %O\n", type);
+						switch (type) {
+							case "InventoryStack\0": {
+								//The stack itself is a property list. But a StructProperty inside it has less padding??
+								int end = sizeof(data) - sz;
+								//write("RAW INVENTORY %O\n", ((string)data)[..sizeof(data) - end - 1]);
+								ret[prop] = parse_properties(end);
+								sz = sizeof(data) - end; //Should now be zero
+								break;
+							}
+							case "InventoryItem\0": {
+								int end = sizeof(data) - sz;
+								[int padding, ret[prop], int unk] = data->sscanf("%-4c%-4H%-4c");
+								sz = sizeof(data) - end; //Should be zero
+							}
+							default: break;
+						}
+					} else if (type == "IntProperty\0") {
+						//Primitive. Also potentially more interesting.
+						[int zero, ret[prop]] = data->sscanf("%c%-4c");
+						sz -= 4;
+					} else {
+						//Primitive types have no type notation
+						[int zero] = data->sscanf("%c");
+					}
+					if (sz) data->read(sz);
 				}
-				if (sz) data->read(sz);
+				if (sizeof(data) > end) {
+					string rest = data->read(sizeof(data) - end);
+					//if (rest != "\0" * sizeof(rest)) write("REST %O\n", rest);
+				}
+				return ret;
 			}
-			if (sizeof(data) > end) {
-				string rest = data->read(sizeof(data) - end);
-				//if (rest != "\0" * sizeof(rest)) write("REST %O\n", rest);
+			mapping prop = parse_properties(propend);
+			if (interesting) write("Properties %O\n", prop);
+			if (has_value(objects[i][1], "Pickup_Spawnable")) {
+				write("Spawnable: (%.0f,%.0f,%.0f) %d of %s\n", 
+					objects[i][9], objects[i][10], objects[i][11],
+					prop["mPickupItems\0"][?"NumItems\0"],
+					(replace(prop["mPickupItems\0"][?"Item\0"] || "", "\0", "") / "/")[-1],
+				);
 			}
 		}
 		if (sizeof(data) > endpoint) data->read(sizeof(data) - endpoint);
