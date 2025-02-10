@@ -70,7 +70,7 @@ constant ITEM_NAMES = ([
 	"Desc_AluminumPlateReinforced_C": "Heat Sink",
 	"Desc_AluminumPlate_C": "Alclad Aluminum Sheet",
 	"Desc_Biofuel_C": "Solid Biofuel",
-	"Desc_CartridgeSmart_C": "\e[1;34mRifle Smartridge\e[0m (nonfunctional Homing Rifle Ammo)",
+	"Desc_CartridgeSmart_C": "Rifle Smartridge (nonfunctional Homing Rifle Ammo)",
 	"Desc_CartridgeStandard_C": "Rifle Ammo",
 	"Desc_Cement_C": "Concrete",
 	"Desc_ComputerSuper_C": "Supercomputer",
