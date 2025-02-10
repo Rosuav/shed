@@ -208,6 +208,20 @@ void parse_savefile(string fn) {
 					} else if ((<"ArrayProperty\0", "ByteProperty\0", "EnumProperty\0", "SetProperty\0">)[type]) {
 						//Complex types have a single type
 						[string type, int zero] = data->sscanf("%-4H%c");
+						if (type == "None\0") {data->read(sz); sz = 0; continue;} //Empty array???
+						int end = sizeof(data) - sz;
+						[int elements] = data->sscanf("%-4c");
+						array arr = ({ });
+						if (interesting) write("Subtype %O, %d elem\n", type, elements);
+						while (elements--) {
+							switch (type) {
+								case "ObjectProperty\0": arr += ({(data->sscanf("%-4H%-4H")[*] - "\0") * " :: "}); break;
+								case "StructProperty\0": break;
+								default: if (interesting) write("UNKNOWN ARRAY SUBTYPE %O [%d]\n", type, elements); break;
+							}
+						}
+						sz = sizeof(data) - end;
+						ret[prop] = arr;
 					} else if (type == "MapProperty\0") {
 						//Mapping types have two types (key and value)
 						[string keytype, string valtype, int zero] = data->sscanf("%-4H%-4H%c");
@@ -259,6 +273,9 @@ void parse_savefile(string fn) {
 				total_loot[id] += num;
 				loot += ({({id, num, objects[i][9..11]})});
 				//write("Spawnable: (%.0f,%.0f,%.0f) %d of %s\n", objects[i][9], objects[i][10], objects[i][11], num, id);
+			}
+			if (has_value(objects[i][1], "PlayerState")) {
+				write("Have visited: %O\n", prop["mVisitedAreas\0"]);
 			}
 		}
 		if (sizeof(data) > endpoint) data->read(sizeof(data) - endpoint);
