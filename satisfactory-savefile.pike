@@ -9,6 +9,8 @@
 
 /* More stuff to query:
 - Hotbars, to see how my tastes have changed over time
+  - Probably not THAT interesting, and requires delving through several levels of indirection
+    PlayerState has an array of ten hotbars, each of which has an array of ten references to the things on it.
 - Recognize whether items have been spawned and then removed - mVisitedAreas?
 - Pick an item, tell me where the nearest is
 - How close to each crash site is its requirements?
@@ -175,7 +177,7 @@ void parse_savefile(string fn) {
 			int propend = sizeof(data) - sz;
 			if (objects[i][1] == "/Game/FactoryGame/World/Benefit/DropPod/BP_DropPod.BP_DropPod_C\0")
 				crashsites += ({({(objects[i][3] / ".")[-1], objects[i][9..11]})});
-			int interesting = 0;//has_value(objects[i][3], "BP_DropPod14_389"); //Should require 5 modular frames, can't see it though
+			int interesting = 0;//has_value(objects[i][1], "PlayerState");
 			if (interesting) write("INTERESTING: %O\n", objects[i]);
 			//if (!seen[objects[i][1]]) {write("OBJECT %O\n", objects[i][1]); seen[objects[i][1]] = 1;}
 			if (objects[i][0]) {
@@ -189,12 +191,14 @@ void parse_savefile(string fn) {
 				//Object. Nothing interesting here.
 			}
 			//Properties.
-			mapping parse_properties(int end) {
+			mapping parse_properties(int end, string path) {
 				mapping ret = ([]);
 				//write("RAW PROPERTIES %O\n", ((string)data)[..sizeof(data) - end - 1]);
 				while (sizeof(data) > end) {
 					[string prop] = data->sscanf("%-4H");
 					if (prop == "None\0") break; //There MAY still be a type after that, but it won't be relevant. If there is, it'll be skipped in the END part.
+					//To search for something found by scanning the strings:
+					//if (prop == "mVisitedAreas\0") write("*** FOUND %O --> %O\n", path, prop);
 					[string type] = data->sscanf("%-4H");
 					if (interesting) write("Prop %O %O\n", prop, type);
 					[int sz, int idx] = data->sscanf("%-4c%-4c");
@@ -216,7 +220,7 @@ void parse_savefile(string fn) {
 								//The stack itself is a property list. But a StructProperty inside it has less padding??
 								int end = sizeof(data) - sz;
 								//write("RAW INVENTORY %O\n", ((string)data)[..sizeof(data) - end - 1]);
-								ret[prop] = parse_properties(end);
+								ret[prop] = parse_properties(end, path + " --> " + prop - "\0");
 								sz = sizeof(data) - end; //Should now be zero
 								break;
 							}
@@ -247,7 +251,7 @@ void parse_savefile(string fn) {
 				}
 				return ret;
 			}
-			mapping prop = parse_properties(propend);
+			mapping prop = parse_properties(propend, objects[i][1] - "\0");
 			if (interesting) write("Properties %O\n", prop);
 			if (has_value(objects[i][1], "Pickup_Spawnable")) {
 				string id = (replace(prop["mPickupItems\0"][?"Item\0"] || "", "\0", "") / ".")[-1];
