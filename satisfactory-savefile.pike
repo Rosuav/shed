@@ -22,6 +22,9 @@ Hypothesis: Drop pods and their corresponding loot are spawned in at the same ti
 the mVisitedAreas array. This will mean that, for any given area name, there is a set of drop pods whose
 visibility should always match that of the area.
 
+FLAWED. The loot does not spawn in at this point. This MAY correspond to the drop pods but it seems unlikely,
+as there are too many drop pods in the initial save despite only one map area being visited.
+
 Experiment: For each save file, list each area and each drop pod. If one save file's area set is a strict
 superset of another's, ensure that its drop pods are also a superset, and then deem the additional pods and
 the additional areas as a group. Iterate. See if anything ever conflicts.
@@ -150,7 +153,7 @@ void parse_savefile(string fn) {
 	//write("Sublevels: %d\n", sublevelcount);
 	multiset seen = (<>);
 	mapping total_loot = ([]);
-	array crashsites = ({ }), loot = ({ });
+	array crashsites = ({ }), loot = ({ }), visited_areas = ({ });
 	while (sublevelcount-- > -1) {
 		int pos = sizeof(decomp) - sizeof(data);
 		//The persistent level (one past the sublevel count) has no name field.
@@ -282,8 +285,9 @@ void parse_savefile(string fn) {
 				loot += ({({id, num, objects[i][9..11]})});
 				//write("Spawnable: (%.0f,%.0f,%.0f) %d of %s\n", objects[i][9], objects[i][10], objects[i][11], num, id);
 			}
-			if (has_value(objects[i][1], "PlayerState")) {
-				write("Have visited: %O\n", prop["mVisitedAreas\0"]);
+			if (has_value(objects[i][1], "PlayerState") && prop["mVisitedAreas\0"]) {
+				//write("Have visited: %O\n", prop["mVisitedAreas\0"]);
+				visited_areas = prop["mVisitedAreas\0"][*] - "\0";
 			}
 		}
 		if (sizeof(data) > endpoint) data->read(sizeof(data) - endpoint);
@@ -334,6 +338,7 @@ void parse_savefile(string fn) {
 			else if (total_loot[item] < qty) write("Need %d more %s\n", qty - total_loot[item], L10n(item));
 		}
 	}
+	write("Visited %O\nCrash %O\n", sizeof(visited_areas), sizeof(crashsites));
 	//The wiki says there's a 32-bit zero before this count, but I don't see it.
 	//It's also possible that this refcnt isn't even here. Presumably no refs??
 	if (sizeof(data)) {
