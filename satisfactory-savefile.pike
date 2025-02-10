@@ -17,6 +17,14 @@
   - If you find insufficient of the right item in one place, scan further
   - If the more distant location has sufficient all on its own, downplay the near one
   - Will require the individual hard drive requirements (transcribe from the same source)
+
+Hypothesis: Drop pods and their corresponding loot are spawned in at the same time that an area is added to
+the mVisitedAreas array. This will mean that, for any given area name, there is a set of drop pods whose
+visibility should always match that of the area.
+
+Experiment: For each save file, list each area and each drop pod. If one save file's area set is a strict
+superset of another's, ensure that its drop pods are also a superset, and then deem the additional pods and
+the additional areas as a group. Iterate. See if anything ever conflicts.
 */
 
 //Total of all hard drive requirements, not counting power
