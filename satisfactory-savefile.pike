@@ -40,6 +40,9 @@ Then go to extreme altitude (fly mode), just below the mist. Does this load in a
 What about photo mode binoculars?
 Place marker where a drop pod is expected. Does that load anything in? Highlight the marker. Now?
 
+* Seems to be a radius around the player that gets loaded in
+* Altitude does not increase this. Nor does photo mode binocs.
+
 May need to develop a PNG annotation as per Danger Zone.
 */
 
@@ -167,6 +170,7 @@ void parse_savefile(string fn) {
 	multiset seen = (<>);
 	mapping total_loot = ([]);
 	array crashsites = ({ }), loot = ({ }), visited_areas = ({ });
+	array spawners = ({ });
 	while (sublevelcount-- > -1) {
 		int pos = sizeof(decomp) - sizeof(data);
 		//The persistent level (one past the sublevel count) has no name field.
@@ -199,9 +203,7 @@ void parse_savefile(string fn) {
 		for (int i = 0; i < sizeof(objects) && i < nument; ++i) {
 			[int ver, int flg, int sz] = data->sscanf("%-4c%-4c%-4c");
 			int propend = sizeof(data) - sz;
-			if (objects[i][1] == "/Game/FactoryGame/World/Benefit/DropPod/BP_DropPod.BP_DropPod_C\0")
-				crashsites += ({({(objects[i][3] / ".")[-1], objects[i][9..11]})});
-			int interesting = 0;//has_value(objects[i][1], "PlayerState");
+			int interesting = 0; //has_value(objects[i][1], "CreatureSpawner");
 			if (interesting) write("INTERESTING: %O\n", objects[i]);
 			//if (!seen[objects[i][1]]) {write("OBJECT %O\n", objects[i][1]); seen[objects[i][1]] = 1;}
 			if (objects[i][0]) {
@@ -214,8 +216,8 @@ void parse_savefile(string fn) {
 			} else {
 				//Object. Nothing interesting here.
 			}
-			//Properties.
-			mapping parse_properties(int end, string path) {
+			//Properties. If chain, expect more meaningful data after the None - otherwise, everything up to the end marker will be discarded.
+			mapping parse_properties(int end, int(1bit) chain, string path) {
 				mapping ret = ([]);
 				//write("RAW PROPERTIES %O\n", ((string)data)[..sizeof(data) - end - 1]);
 				while (sizeof(data) > end) {
@@ -240,8 +242,25 @@ void parse_savefile(string fn) {
 						while (elements--) {
 							switch (type) {
 								case "ObjectProperty\0": arr += ({(data->sscanf("%-4H%-4H")[*] - "\0") * " :: "}); break;
-								case "StructProperty\0": break;
-								default: if (interesting) write("UNKNOWN ARRAY SUBTYPE %O [%d]\n", type, elements); break;
+								case "StructProperty\0": {
+									//if (interesting) {write("Array of struct %O\n", data->read(sizeof(data) - end)); break;}
+									mapping struct = ([]);
+									if (sizeof(arr)) struct->_type = arr[0]->_type;
+									else {
+										data->sscanf("%-4H%-4H%-8c"); //Uninteresting - mostly repeated info from elsewhere
+										[struct->_type, int zero] = data->sscanf("%-4H%17c");
+									}
+									//struct->_raw = ((string)data)[..sizeof(data) - end - 1];
+									switch (struct->_type) {
+										case "SpawnData\0": //A lot will be property lists
+											struct |= parse_properties(end, 1, path + " --> " + prop - "\0");
+											break;
+										default: break; //Unknown - just skip to the next one
+									}
+									arr += ({struct});
+									break;
+								}
+								default: if (interesting) write("UNKNOWN ARRAY SUBTYPE %O [%d]\n", type, elements + 1); break;
 							}
 						}
 						sz = sizeof(data) - end;
@@ -258,7 +277,7 @@ void parse_savefile(string fn) {
 								//The stack itself is a property list. But a StructProperty inside it has less padding??
 								int end = sizeof(data) - sz;
 								//write("RAW INVENTORY %O\n", ((string)data)[..sizeof(data) - end - 1]);
-								ret[prop] = parse_properties(end, path + " --> " + prop - "\0");
+								ret[prop] = parse_properties(end, 0, path + " --> " + prop - "\0");
 								sz = sizeof(data) - end; //Should now be zero
 								break;
 							}
@@ -277,19 +296,25 @@ void parse_savefile(string fn) {
 						//Primitive. Also potentially more interesting.
 						[int zero, ret[prop]] = data->sscanf("%c%-4F");
 						sz -= 4;
+					} else if (type == "ObjectProperty\0") {
+						//Primitive. Also potentially more interesting.
+						int end = sizeof(data) - sz - 1;
+						[int zero, string lvl, string path] = data->sscanf("%c%-4H%-4H");
+						ret[prop] = lvl + " :: " + path;
+						sz = sizeof(data) - end;
 					} else {
 						//Primitive types have no type notation
 						[int zero] = data->sscanf("%c");
 					}
 					if (sz) data->read(sz);
 				}
-				if (sizeof(data) > end) {
+				if (!chain && sizeof(data) > end) {
 					string rest = data->read(sizeof(data) - end);
 					//if (rest != "\0" * sizeof(rest)) write("REST %O\n", rest);
 				}
 				return ret;
 			}
-			mapping prop = parse_properties(propend, objects[i][1] - "\0");
+			mapping prop = parse_properties(propend, 0, objects[i][1] - "\0");
 			if (interesting) write("Properties %O\n", prop);
 			if (has_value(objects[i][1], "Pickup_Spawnable")) {
 				string id = (replace(prop["mPickupItems\0"][?"Item\0"] || "", "\0", "") / ".")[-1];
@@ -302,6 +327,10 @@ void parse_savefile(string fn) {
 				//write("Have visited: %O\n", prop["mVisitedAreas\0"]);
 				visited_areas = prop["mVisitedAreas\0"][*] - "\0";
 			}
+			if (objects[i][1] == "/Game/FactoryGame/World/Benefit/DropPod/BP_DropPod.BP_DropPod_C\0")
+				crashsites += ({({(objects[i][3] / ".")[-1], objects[i][9..11]})});
+			if (objects[i][1] == "/Game/FactoryGame/Character/Creature/BP_CreatureSpawner.BP_CreatureSpawner_C\0")
+				spawners += ({({(objects[i][3] / ".")[-1], objects[i][9..11], prop["mSpawnData\0"]})});
 		}
 		if (sizeof(data) > endpoint) data->read(sizeof(data) - endpoint);
 		[int collected] = data->sscanf("%-4c");
@@ -349,6 +378,11 @@ void parse_savefile(string fn) {
 		foreach (sort((array)HARD_DRIVE_REQUIREMENTS), [string item, int qty]) {
 			if (!total_loot[item]) write("Need %d %s\n", qty, L10n(item));
 			else if (total_loot[item] < qty) write("Need %d more %s\n", qty - total_loot[item], L10n(item));
+		}
+	}
+	if (1) {
+		foreach (spawners, [string spawn, array(float) pos, array critters]) {
+			write("Creature spawner %s (%.0f,%.0f,%.0f)\n", spawn - "\0", @pos);
 		}
 	}
 	write("Visited %O\nCrash %O\n", sizeof(visited_areas), sizeof(crashsites));
