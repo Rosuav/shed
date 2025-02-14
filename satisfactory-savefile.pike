@@ -371,7 +371,7 @@ void parse_savefile(string fn) {
 			}
 		}
 	}
-	if (0) { //TODO: Have options to control outputs
+	if (args->loot) {
 		mapping crash_loot = ([]);
 		foreach (loot, [string item, int num, array(float) pos]) {
 			string closest; float distance;
@@ -412,17 +412,26 @@ void parse_savefile(string fn) {
 			else if (total_loot[item] < qty) write("Need %d more %s\n", qty - total_loot[item], L10n(item));
 		}
 	}
-	if (1) {
+	if (args->spawns) {
 		array dists = ({ }), msgs = ({ });
 		foreach (spawners, [string spawn, array(float) pos, array critters]) {
-			string closest; float distance;
+			if (annot_map) {
+				//Draw a circle at the spawner
+				[int x, int y] = coords_to_pixels(pos);
+				annot_map->circle(x, y, 5, 5, 192, 160, 0);
+				/* Highlight for visibility at map range
+				annot_map->circle(x, y, 4, 4, 64, 0, 0);
+				annot_map->circle(x, y, 3, 3, 64, 0, 0);
+				annot_map->circle(x, y, 2, 2, 64, 0, 0); // */
+			}
+			string closest; float distance; array podlocation;
 			foreach (crashsites, [string crash, array(float) ref]) {
 				float dist = `+(@((ref[*] - pos[*])[*] ** 2));
 				//Not all spawners are close to crash sites (obviously). Those that are
 				//further away than my definition of "connected" for crash site loot are
 				//uninteresting to our analysis.
 				if (dist > 1e8) continue;
-				if (!closest || dist < distance) {closest = crash; distance = dist;}
+				if (!closest || dist < distance) {closest = crash; distance = dist; podlocation = ref;}
 			}
 			//Hypothesis: In every savefile, all creature spawners within 10,000 distance of a
 			//drop pod will ALWAYS, regardless of save state, be within that distance of the same
@@ -430,6 +439,10 @@ void parse_savefile(string fn) {
 			if (closest) {
 				msgs += ({sprintf("%12.2f Creature spawner %s (%.0f,%.0f,%.0f) %s\n", distance ** 0.5, spawn - "\0", @pos, closest - "\0")});
 				dists += ({distance});
+				//Draw a line linking the spawner to the nearest drop pod
+				[int x1, int y1] = coords_to_pixels(pos);
+				[int x2, int y2] = coords_to_pixels(podlocation);
+				annot_map->line(x1, y1, x2, y2, 160, 128, 0);
 			}
 		}
 		sort(dists, msgs);
