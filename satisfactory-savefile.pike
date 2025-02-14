@@ -424,10 +424,6 @@ void parse_savefile(string fn) {
 				//Draw a circle at the spawner
 				[int x, int y] = coords_to_pixels(pos);
 				annot_map->circle(x, y, 5, 5, 192, 160, 0);
-				/* Highlight for visibility at map range
-				annot_map->circle(x, y, 4, 4, 64, 0, 0);
-				annot_map->circle(x, y, 3, 3, 64, 0, 0);
-				annot_map->circle(x, y, 2, 2, 64, 0, 0); // */
 			}
 			string closest; float distance; array podlocation;
 			foreach (crashsites, [string crash, array(float) ref]) {
@@ -448,6 +444,10 @@ void parse_savefile(string fn) {
 				[int x1, int y1] = coords_to_pixels(pos);
 				[int x2, int y2] = coords_to_pixels(podlocation);
 				annot_map->line(x1, y1, x2, y2, 160, 128, 0);
+				/* Highlight for visibility at map range
+				annot_map->circle(x1, y1, 4, 4, 64, 0, 0);
+				annot_map->circle(x1, y1, 3, 3, 64, 0, 0);
+				annot_map->circle(x1, y1, 2, 2, 64, 0, 0); // */
 			}
 		}
 		sort(dists, msgs);
