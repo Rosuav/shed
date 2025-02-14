@@ -415,16 +415,22 @@ void parse_savefile(string fn) {
 
 int main(int argc, array(string) argv) {
 	if (argc < 2) exit(0, "Need a file to parse.\n");
-	string mapfile = dirname(argv[0]) + "/satisfactory-map.jpg";
-	if (!file_stat(mapfile)) {
-		//For annotations, we need the background map
-		werror("Downloading map...\n");
-		string raw = Protocols.HTTP.get_url_data("https://static.wikia.nocookie.net/satisfactory_gamepedia_en/images/e/ea/Map.jpg/revision/latest");
-		if (!raw) werror("Unable to download map\n"); //No explanation, whatevs.
-		else {Stdio.write_file(mapfile, raw); werror("Map downloaded and saved to %O.\n", mapfile);}
+	if (has_value(argv, "--annotate")) {
+		argv -= ({"--annotate"});
+		string mapfile = dirname(argv[0]) + "/satisfactory-map.jpg";
+		if (!file_stat(mapfile)) {
+			//For annotations, we need the background map
+			werror("Downloading map...\n");
+			string raw = Protocols.HTTP.get_url_data(
+				"https://satisfactory.wiki.gg/images/e/ea/Map.jpg",
+				([]),
+				(["User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"]),
+			);
+			if (!raw) werror("Unable to download map\n"); //No explanation, whatevs.
+			else {Stdio.write_file(mapfile, raw); werror("Map downloaded and saved to %O.\n", mapfile);}
+		}
+		mapimg = Image.JPEG.decode(Stdio.read_file(mapfile));
 	}
-	Image.Image mapimg = Image.JPEG.decode(Stdio.read_file(mapfile));
-	write("MAP %O\n", mapimg);
 	if (has_value(argv, "--latest")) {
 		array files = argv[1..] - ({"--latest"});
 		array dates = file_stat(files[*])->mtime;
