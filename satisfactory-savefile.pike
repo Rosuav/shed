@@ -120,6 +120,8 @@ string L10n(string id) {
 	return String.trim(Regexp.SimpleRegexp("[A-Z][a-z]+")->replace(id) {return __ARGS__[0] + " ";});
 }
 
+mapping args;
+
 Image.Image mapimg;
 array(int) coords_to_pixels(array(float) pos) {
 	//To convert in-game coordinates to pixel positions:
@@ -449,9 +451,9 @@ void parse_savefile(string fn) {
 }
 
 int main(int argc, array(string) argv) {
+	args = Arg.parse(argv);
 	if (argc < 2) exit(0, "Need a file to parse.\n");
-	if (has_value(argv, "--annotate")) {
-		argv -= ({"--annotate"});
+	if (args->annotate) {
 		string mapfile = dirname(argv[0]) + "/satisfactory-map.jpg";
 		if (!file_stat(mapfile)) {
 			//For annotations, we need the background map
@@ -466,12 +468,12 @@ int main(int argc, array(string) argv) {
 		}
 		mapimg = Image.JPEG.decode(Stdio.read_file(mapfile));
 	}
-	if (has_value(argv, "--latest")) {
-		array files = argv[1..] - ({"--latest"});
+	if (args->latest) {
+		array files = args[Arg.REST];
 		array dates = file_stat(files[*])->mtime;
 		sort(dates, files);
 		parse_savefile(files[-1]);
 		return 0;
 	}
-	parse_savefile(argv[1..][*]);
+	parse_savefile(args[Arg.REST][*]);
 }
