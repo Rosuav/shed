@@ -25,9 +25,22 @@ visibility should always match that of the area.
 FLAWED. The loot does not spawn in at this point. This MAY correspond to the drop pods but it seems unlikely,
 as there are too many drop pods in the initial save despite only one map area being visited.
 
+Alternate hypothesis: Creature spawners are probably never deleted. Are they added at the same time as the
+drop pods? Notably, every drop pod with guards will have spawners right near it.
+* Do spawners begin existing in the savefile progressively?
+* Do they appear at approximately the same time as the related drop pods?
+* Do they ever disappear? Use Noob file, list those absent compared to Pristine, plot their locations.
+
 Experiment: For each save file, list each area and each drop pod. If one save file's area set is a strict
 superset of another's, ensure that its drop pods are also a superset, and then deem the additional pods and
 the additional areas as a group. Iterate. See if anything ever conflicts.
+
+Experiment: Start a new savefile in the Dune Desert. Save immediately, see which drop pods are in savefile.
+Then go to extreme altitude (fly mode), just below the mist. Does this load in anything as you 360 observe?
+What about photo mode binoculars?
+Place marker where a drop pod is expected. Does that load anything in? Highlight the marker. Now?
+
+May need to develop a PNG annotation as per Danger Zone.
 */
 
 //Total of all hard drive requirements, not counting power
