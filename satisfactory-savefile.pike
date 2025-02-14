@@ -381,9 +381,27 @@ void parse_savefile(string fn) {
 		}
 	}
 	if (1) {
+		array dists = ({ }), msgs = ({ });
 		foreach (spawners, [string spawn, array(float) pos, array critters]) {
-			write("Creature spawner %s (%.0f,%.0f,%.0f)\n", spawn - "\0", @pos);
+			string closest; float distance;
+			foreach (crashsites, [string crash, array(float) ref]) {
+				float dist = `+(@((ref[*] - pos[*])[*] ** 2));
+				//Not all spawners are close to crash sites (obviously). Those that are
+				//further away than my definition of "connected" for crash site loot are
+				//uninteresting to our analysis.
+				if (dist > 1e8) continue;
+				if (!closest || dist < distance) {closest = crash; distance = dist;}
+			}
+			//Hypothesis: In every savefile, all creature spawners within 10,000 distance of a
+			//drop pod will ALWAYS, regardless of save state, be within that distance of the same
+			//drop pod, which will also have been loaded in.
+			if (closest) {
+				msgs += ({sprintf("%12.2f Creature spawner %s (%.0f,%.0f,%.0f) %s\n", distance ** 0.5, spawn - "\0", @pos, closest - "\0")});
+				dists += ({distance});
+			}
 		}
+		sort(dists, msgs);
+		write(msgs * "");
 	}
 	write("Visited %O\nCrash %O\n", sizeof(visited_areas), sizeof(crashsites));
 	//The wiki says there's a 32-bit zero before this count, but I don't see it.
