@@ -120,7 +120,24 @@ string L10n(string id) {
 	return String.trim(Regexp.SimpleRegexp("[A-Z][a-z]+")->replace(id) {return __ARGS__[0] + " ";});
 }
 
+Image.Image mapimg;
+array(int) coords_to_pixels(array(float) pos) {
+	//To convert in-game coordinates to pixel positions:
+	//1) Rescale from 750000.0,750000.0 to 5000,5000 (TODO: Adjust if the map coords are wrong)
+	//2) Reposition since pixel coordinates have to use (0,0) at the corner
+	float x = (pos[0] + 324600.0) * 2 / 300;
+	float y = (pos[1] + 375000.0) * 2 / 300;
+	//Should we limit this to (0,0)-(5000,5000)?
+	return ({(int)x, (int)y});
+}
+
+void set_pixel_safe(Image.Image img, int x, int y, int r, int g, int b) {
+	if (x < 0 || y < 0 || x >= img->xsize() || y >= img->ysize()) return; //Out of bounds, ignore.
+	img->setpixel(x, y, r, g, b);
+}
+
 void parse_savefile(string fn) {
+	Image.Image annot_map = mapimg->?clone();
 	Stdio.Buffer data = Stdio.Buffer(Stdio.read_file(fn));
 	data->read_only();
 	//Huh. Unlike the vast majority of games out there, Satisfactory has info on its official wiki.
@@ -339,6 +356,19 @@ void parse_savefile(string fn) {
 			//write("Collected %O\n", path);
 		}
 	}
+	if (annot_map) {
+		//Mark all known crash sites
+		foreach (crashsites, [string crash, array(float) pos]) {
+			[int x, int y] = coords_to_pixels(pos);
+			for (int d = -10; d <= 10; ++d) {
+				set_pixel_safe(annot_map, x + d, y, 0, 0, 128); //Horizontal stroke
+				set_pixel_safe(annot_map, x, y + d, 0, 0, 128); //Vertical stroke
+				int diag = (int)(d * .7071); //Multiply by root two over two
+				set_pixel_safe(annot_map, x + diag, y + diag, 0, 0, 128); //Solidus
+				set_pixel_safe(annot_map, x + diag, y - diag, 0, 0, 128); //Reverse Solidus
+			}
+		}
+	}
 	if (0) { //TODO: Have options to control outputs
 		mapping crash_loot = ([]);
 		foreach (loot, [string item, int num, array(float) pos]) {
@@ -411,6 +441,11 @@ void parse_savefile(string fn) {
 		while (refcnt--) data->sscanf("%-4H%-4H");
 	}
 	if (sizeof(data)) write("[%X] Remaining: %d %O\n\n", sizeof(decomp) - sizeof(data), sizeof(data), data->read(128));
+	if (annot_map) {
+		string imgfn = fn - ".sav" + ".png";
+		Stdio.write_file(imgfn, Image.PNG.encode(annot_map));
+		write("Annotated map written to %s\n", imgfn);
+	}
 }
 
 int main(int argc, array(string) argv) {
