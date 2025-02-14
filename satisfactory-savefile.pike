@@ -374,6 +374,11 @@ void parse_savefile(string fn) {
 	if (args->loot) {
 		mapping crash_loot = ([]);
 		foreach (loot, [string item, int num, array(float) pos]) {
+			if (annot_map) {
+				//Draw a solid box at the item
+				[int x, int y] = coords_to_pixels(pos);
+				annot_map->box(x - 2, y - 2, x + 2, y + 2, 0, 128, 64);
+			}
 			string closest; float distance;
 			foreach (crashsites, [string crash, array(float) ref]) {
 				float dist = `+(@((ref[*] - pos[*])[*] ** 2));
