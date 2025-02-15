@@ -64,13 +64,103 @@ X.X.XXXX
 XX..XXXX
 X...XXXX
 
+0x11, 0x19, 0x15, 0x13, 0x13, 0x15, 0x19, 0x11
+
 If it looks correctly symmetrical, great! But if it's clipped off below, then we only have seven rows everywhere.
 
 Possible custom characters:
 1-4) Four corners
 5-6) A couple of belt characters for the 8
 7-8) Room for more, what would be best?
+
+     v     v
+.....XXXXXXX.....
+....XXXXXXXXX....
+...XXXXXXXXXXX...
+..XXXXXXXXXXXXX..
+..XXXXXXXXXXXXX..
+.XXXXXXXXXXXXXXX.
+.XXXXXXXXXXXXXXX.
+XXXXXXXXXXXXXXXXX
+XXXXX.......XXXXX <==
+XXXXX.......XXXXX
+XXXXX.......XXXXX
+XXXXX.......XXXXX
+XXXXX.......XXXXX
+XXXXX.......XXXXX
+XXXXX.......XXXXX
+XXXXX.......XXXXX
+XXXXX.......XXXXX
+XXXXX.......XXXXX <==
+XXXXXXXXXXXXXXXXX
+.XXXXXXXXXXXXXXX.
+.XXXXXXXXXXXXXXX.
+..XXXXXXXXXXXXX..
+..XXXXXXXXXXXXX..
+...XXXXXXXXXXX...
+....XXXXXXXXX....
+.....XXXXXXX.....
+     ^     ^
+
+     v     v
+.....XXXXXXX.....
+....XXXXXXXXX....
+...XXXXXXXXXXX...
+..XXXXXXXXXXXXX..
+..XXXXXXXXXXXXX..
+.XXXXXXXXXXXXXXX.
+.XXXXXXXXXXXXXXX.
+XXXXXXXXXXXXXXXXX
+XXXXX.......XXXXX <==
+XXXXX.......XXXXX
+.XXXX.......XXXX.
+.XXXX.......XXXX.
+..XXXXXXXXXXXXX..
+..XXXXXXXXXXXXX..
+.XXXX.......XXXX.
+.XXXX.......XXXX.
+XXXXX.......XXXXX
+XXXXX.......XXXXX <==
+XXXXXXXXXXXXXXXXX
+.XXXXXXXXXXXXXXX.
+.XXXXXXXXXXXXXXX.
+..XXXXXXXXXXXXX..
+..XXXXXXXXXXXXX..
+...XXXXXXXXXXX...
+....XXXXXXXXX....
+.....XXXXXXX.....
+     ^     ^
+
 */
+
+constant BUILDME = #"\
+.....XXXXXXX.....
+....XXXXXXXXX....
+...XXXXXXXXXXX...
+..XXXXXXXXXXXXX..
+..XXXXXXXXXXXXX..
+.XXXXXXXXXXXXXXX.
+.XXXXXXXXXXXXXXX.
+XXXX.XXXXXXX.XXXX
+XXXX.........XXXX
+.XXXX.......XXXX.
+..XXX.......XXX..
+...XXXXXXXXXXX...
+...XX.......XX...
+...XXXXXXXXXXX...
+...XX.......XX...
+..XXX.......XXX..
+.XXX.........XXX.
+XXX...........XXX
+XXXX.XXXXXXX.XXXX
+.XXXXXXXXXXXXXXX.
+.XXXXXXXXXXXXXXX.
+..XXXXXXXXXXXXX..
+..XXXXXXXXXXXXX..
+...XXXXXXXXXXX...
+....XXXXXXXXX....
+.....XXXXXXX.....
+" / "\n";
 
 constant BLANK = ({0x00}) * 7;
 constant CHARACTERS = ({
@@ -256,6 +346,41 @@ constant CHARACTERS = ({
 });
 
 int main(int argc, array(string) argv) {
+	if (has_value(argv, "--buildme")) {
+		mapping charset = ([
+			"b'\\x1F\\x1F\\x1F\\x1F\\x1F\\x1F\\x1F\\x1F'": "\\xFF",
+			"b'\\x00\\x00\\x00\\x00\\x00\\x00\\x00\\x00'": " ",
+			"b'\\x00\\x00\\x1F\\x00\\x1F\\x00\\x00\\x00'": "=",
+		]);
+		int nextchr = 0;
+		array chars = ({({}), ({}), ({})});
+		array custom_char = ({ });
+		string code = "", message = "";;
+		foreach (BUILDME; int i; string row) {
+			if (i % 9 == 8) {
+				//Dead row, skip
+				write("\n");
+				foreach (chars, array c) {
+					string chr = sprintf("b'%{\\x%02X%}'", c);
+					if (!charset[chr]) {
+						charset[chr] = "\\" + nextchr;
+						code += sprintf("tot.lcd.create_char(%d, %s);\n", nextchr++, chr);
+					}
+					message += charset[chr];
+				}
+				message += "\\n";
+				chars = ({({}), ({}), ({})});
+				continue;
+			}
+			write("%{%5.5s %}\n", row / 6.0);
+			foreach (row / 6.0; int j; string c) {
+				sscanf(replace(c, (["X": "1", ".": "0"])), "%05b", int n);
+				chars[j] += ({n});
+			}
+		}
+		write("%stot.lcd.message = '%s'\n", code, message);
+		return 0;
+	}
 	if (has_value(argv, "--dump")) {
 		//write("%O\n", sizeof(CHARACTERS[*])); //Quick character count
 		//For debugging, dump the charset to the console in columns, similar to the datasheet
