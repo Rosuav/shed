@@ -110,6 +110,7 @@ constant ITEM_NAMES = ([
 	"Desc_SteelPlate_C": "Steel Beam",
 	"Desc_TurboFuel_C": "Packaged Turbofuel",
 ]);
+string PROGRAM_DIR; //Not technically a constant but it functions like one
 
 string L10n(string id) {
 	if (ITEM_NAMES[id]) return ITEM_NAMES[id];
@@ -133,6 +134,18 @@ array(int) coords_to_pixels(array(float) pos) {
 void set_pixel_safe(Image.Image img, int x, int y, int r, int g, int b) {
 	if (x < 0 || y < 0 || x >= img->xsize() || y >= img->ysize()) return; //Out of bounds, ignore.
 	img->setpixel(x, y, r, g, b);
+}
+
+//reference can be eg crashsites or creaturespawns
+//Note that maxdist is measured diagonally as distance-squared.
+array(string|float) find_nearest(array reference, array(float) pos, float|void maxdist) {
+	string closest; float distance;
+	foreach (reference, array ref) {
+		float dist = `+(@((ref[1][*] - pos[*])[*] ** 2));
+		if (maxdist && dist > maxdist) continue;
+		if (!closest || dist < distance) {closest = ref[0]; distance = dist;}
+	}
+	return ({closest, distance});
 }
 
 void parse_savefile(string fn) {
@@ -355,6 +368,38 @@ void parse_savefile(string fn) {
 			//write("Collected %O\n", path);
 		}
 	}
+	if (args->pristine) {
+		//This is deemed a "pristine" save file, and should augment the list of dropped items.
+		string cfgfile = PROGRAM_DIR + "/satisfactory-savefile.json";
+		mapping cfg = Standards.JSON.decode_utf8(Stdio.read_file(cfgfile) || "{}");
+		//cfg->loot maps class name eg "Desc_Rotor_C" to a mapping of quantities and where it
+		//can be found: (["{x},{y},{z}": ({17, "BP_DropPod...", 10000000, "BP_CreatureSpawner...", 10000000})])
+		//with the nearest drop pod and creature spawner listed as witnesses, with their
+		//distances. The key is the x/y/z of its location, truncated to integer.
+		//Distances are diagonal distance-squared to the relevant entity.
+		//If the list is ever wrong, delete the JSON file and provide a pristine file.
+		//Otherwise it is assumed the list is correct (but potentially incomplete), and
+		//will be augmented.
+		if (!cfg->loot) cfg->loot = ([]);
+		foreach (loot, [string item, int num, array(float) pos]) {
+			[string crash, float crashdist] = find_nearest(crashsites, pos);
+			[string spawn, float spawndist] = find_nearest(spawners, pos);
+			if (crash) crash -= "\0"; else crash = "";
+			if (spawn) spawn -= "\0"; else spawn = "";
+			string key = sprintf("%d,%d,%d", @(array(int))pos);
+			mapping locs = cfg->loot[item]; if (!locs) locs = cfg->loot[item] = ([]);
+			if (locs[key]) {
+				//We've already seen this one. Update the quantity (probably will be the same
+				//and maybe a discrepancy should be an error), and see if we have closer
+				//witnesses, in which case, switch them out.
+				locs[key][0] = num;
+				if (locs[key][2] > crashdist) {locs[key][1] = crash; locs[key][2] = crashdist;}
+				if (locs[key][4] > spawndist) {locs[key][3] = spawn; locs[key][4] = spawndist;}
+			} else locs[key] = ({num, crash, crashdist, spawn, spawndist});
+		}
+		Stdio.write_file(cfgfile, Standards.JSON.encode(cfg, 4));
+		write("List of item spawns updated.\n");
+	}
 	if (annot_map) {
 		//Mark all known crash sites
 		foreach (crashsites, [string crash, array(float) pos]) {
@@ -376,17 +421,12 @@ void parse_savefile(string fn) {
 				[int x, int y] = coords_to_pixels(pos);
 				annot_map->box(x - 2, y - 2, x + 2, y + 2, 0, 128, 64);
 			}
-			string closest; float distance;
-			foreach (crashsites, [string crash, array(float) ref]) {
-				float dist = `+(@((ref[*] - pos[*])[*] ** 2));
-				//There are some loot items that are not actually near crash sites.
-				//The furthest distance-squared I've seen of any crash site loot is two where
-				//the drop pod is a little bit away from the centroid of the loot (DropPod7_5615
-				//and DropPod3_12), and they still come in at less than 100,000,000 distance-squared
-				//(10,000 diagonal distance from drop pod to loot item).
-				if (dist > 1e8) continue;
-				if (!closest || dist < distance) {closest = crash; distance = dist;}
-			}
+			//There are some loot items that are not actually near crash sites.
+			//The furthest distance-squared I've seen of any crash site loot is two where
+			//the drop pod is a little bit away from the centroid of the loot (DropPod7_5615
+			//and DropPod3_12), and they still come in at less than 100,000,000 distance-squared
+			//(10,000 diagonal distance from drop pod to loot item).
+			[string closest, float distance] = find_nearest(crashsites, pos, 1e8);
 			crash_loot[closest] += ({({item, num, distance})});
 		}
 		foreach (crashsites, [string crash, array(float) pos]) {
@@ -440,7 +480,7 @@ void parse_savefile(string fn) {
 				//Draw a line linking the spawner to the nearest drop pod
 				[int x1, int y1] = coords_to_pixels(pos);
 				[int x2, int y2] = coords_to_pixels(podlocation);
-				annot_map->line(x1, y1, x2, y2, 160, 128, 0);
+				if (annot_map) annot_map->line(x1, y1, x2, y2, 160, 128, 0);
 				/* Highlight for visibility at map range
 				annot_map->circle(x1, y1, 4, 4, 64, 0, 0);
 				annot_map->circle(x1, y1, 3, 3, 64, 0, 0);
@@ -468,8 +508,9 @@ void parse_savefile(string fn) {
 int main(int argc, array(string) argv) {
 	args = Arg.parse(argv);
 	if (argc < 2) exit(0, "Need a file to parse.\n");
+	PROGRAM_DIR = dirname(argv[0]);
 	if (args->annotate) {
-		string mapfile = dirname(argv[0]) + "/satisfactory-map.jpg";
+		string mapfile = PROGRAM_DIR + "/satisfactory-map.jpg";
 		if (!file_stat(mapfile)) {
 			//For annotations, we need the background map
 			werror("Downloading map...\n");
