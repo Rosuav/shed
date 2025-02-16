@@ -498,6 +498,13 @@ void parse_savefile(string fn) {
 		write(msgs * "");
 	}
 	write("Visited %O\nCrash %O\n", sizeof(visited_areas), sizeof(crashsites));
+	if (args->find) {
+		//Interactive item search
+		write("Reference location:\n");
+		//TODO: List players and markers
+		write("Items available:\n");
+		//TODO: List all items
+	}
 	if (annot_map) {
 		string imgfn = fn - ".sav" + ".png";
 		Stdio.write_file(imgfn, Image.PNG.encode(annot_map));
