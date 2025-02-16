@@ -368,6 +368,13 @@ void parse_savefile(string fn) {
 			//write("Collected %O\n", path);
 		}
 	}
+	//The wiki says there's a 32-bit zero before this count, but I don't see it.
+	//It's also possible that this refcnt isn't even here. Presumably no refs??
+	if (sizeof(data)) {
+		[int refcnt] = data->sscanf("%-4c");
+		while (refcnt--) data->sscanf("%-4H%-4H");
+	}
+	if (sizeof(data)) write("[%X] Remaining: %d %O\n\n", sizeof(decomp) - sizeof(data), sizeof(data), data->read(128));
 	if (args->pristine) {
 		//This is deemed a "pristine" save file, and should augment the list of dropped items.
 		string cfgfile = PROGRAM_DIR + "/satisfactory-savefile.json";
@@ -491,13 +498,6 @@ void parse_savefile(string fn) {
 		write(msgs * "");
 	}
 	write("Visited %O\nCrash %O\n", sizeof(visited_areas), sizeof(crashsites));
-	//The wiki says there's a 32-bit zero before this count, but I don't see it.
-	//It's also possible that this refcnt isn't even here. Presumably no refs??
-	if (sizeof(data)) {
-		[int refcnt] = data->sscanf("%-4c");
-		while (refcnt--) data->sscanf("%-4H%-4H");
-	}
-	if (sizeof(data)) write("[%X] Remaining: %d %O\n\n", sizeof(decomp) - sizeof(data), sizeof(data), data->read(128));
 	if (annot_map) {
 		string imgfn = fn - ".sav" + ".png";
 		Stdio.write_file(imgfn, Image.PNG.encode(annot_map));
