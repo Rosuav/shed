@@ -556,8 +556,27 @@ void parse_savefile(string fn) {
 			);
 			shortcuts[(string)mark["MarkerID\0"]] = ({mark["Location\0"]["X\0"], mark["Location\0"]["Y\0"], mark["Location\0"]["Z\0"]});
 		}
-		//TODO: Prompt for either a shortcut (lowercase and use mapping) or two numbers separated by spaces or commas (assume z = 0)
-		//TODO: If annot_map, draw the reference location as a blue star
+		write("Enter location: ");
+		array loc;
+		while (string choice = Stdio.stdin->gets()) {
+			if (array l = shortcuts[lower_case(String.trim(choice)) - "[" - "]"]) loc = l;
+			else if (sscanf(choice, "%f%*[, ]%f%*[, ]%f", float x, float y, float z) && x && y && z) loc = ({x, y, z});
+			else if (sscanf(choice, "%f%*[, ]%f", float x, float y) && x && y) loc = ({x, y, 0});
+			else {write("Enter two coordinates, or choose one of the bracketed identifiers.\nEnter location: "); continue;}
+			break;
+		}
+		write("Loc: %O\n", loc);
+		if (annot_map) {
+			//The reference location is given as a blue star
+			[int x, int y] = coords_to_pixels(loc);
+			for (int d = -10; d <= 10; ++d) {
+				set_pixel_safe(annot_map, x + d, y, 0, 0, 128); //Horizontal stroke
+				set_pixel_safe(annot_map, x, y + d, 0, 0, 128); //Vertical stroke
+				int diag = (int)(d * .7071); //Multiply by root two over two
+				set_pixel_safe(annot_map, x + diag, y + diag, 0, 0, 128); //Solidus
+				set_pixel_safe(annot_map, x + diag, y - diag, 0, 0, 128); //Reverse Solidus
+			}
+		}
 		write("Items available:\n");
 		//TODO: List all item types
 		//TODO: Prompt for an item type
