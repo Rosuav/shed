@@ -577,6 +577,37 @@ void parse_savefile(string fn) {
 				set_pixel_safe(annot_map, x + diag, y - diag, 0, 0, 128); //Reverse Solidus
 			}
 		}
+		//Which loot items do we already have?
+		mapping haveloot = ([]);
+		foreach (loot, [string item, int num, array(float) pos]) {
+			if (!haveloot[item]) haveloot[item] = ([]);
+			haveloot[item][sprintf("%d,%d,%d", @(array(int))pos)] = num;
+		}
+		//Which witnesses are we aware of?
+		multiset witness_crash = (multiset)crashsites[*][0], witness_spawn = (multiset)spawners[*][0];
+		//Okay. So, for all the loot in the pristine file, do we have both its witnesses?
+		string cfgfile = PROGRAM_DIR + "/satisfactory-savefile.json";
+		mapping cfg = Standards.JSON.decode_utf8(Stdio.read_file(cfgfile) || "{}");
+		foreach (cfg->loot || ([]); string item; mapping locs) {
+			mapping thisloot = haveloot[item];
+			foreach (locs; string key; [int num, string cr, float crdist, string sp, float spdist]) {
+				//If it's in the savefile and not removed, keep it; it's possible the quantity
+				//has dropped (if you had a partial stack of that item and a full inventory, so
+				//you picked up only some).
+				if (thisloot[?key]) continue;
+				//If we have both the witnesses - the nearest crash and the nearest spawner - it's
+				//highly likely you've been to the location and removed the item. This is still
+				//far from certain, though. You might have gotten close enough to trigger the
+				//spawner to be loaded, but not close enough to trigger the item. If that happens,
+				//the tool won't report that item until you get close enough to load it in.
+				if (witness_crash[cr + "\0"] && witness_spawn[sp + "\0"]) continue;
+				//Okay. It looks likely that this one hasn't been loaded. Add it.
+				//Note that we don't create the mapping until this point. If all of an item have
+				//been collected, they are simply not available any more.
+				if (!thisloot) thisloot = haveloot[item] = ([]);
+				thisloot[key] = num;
+			}
+		}
 		write("Items available:\n");
 		//TODO: List all item types
 		//TODO: Prompt for an item type
