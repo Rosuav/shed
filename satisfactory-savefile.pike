@@ -446,7 +446,7 @@ void parse_savefile(string fn) {
 		Stdio.write_file(cfgfile, Standards.JSON.encode(cfg, 4));
 		write("List of item spawns updated.\n");
 	}
-	if (annot_map) {
+	if (annot_map && args->crashes) {
 		//Mark all known crash sites
 		foreach (crashsites, [string crash, array(float) pos]) {
 			[int x, int y] = coords_to_pixels(pos);
@@ -627,8 +627,28 @@ void parse_savefile(string fn) {
 			write("For now, you have to enter the index, sorry.\nSelect an item: ");
 		}
 		write("Searching for: %s\n", item);
-		//TODO: List the (up to) three instances of that item nearest to the reference location
-		//TODO: If annot_map, draw each of the items as a marker and a line to the reference location
+		//Alright. Now to list the (up to) three instances of that item nearest to the reference location.
+		//TODO: Check the quantities, and allow the user to request a certain number of the item
+		array distances = ({ }), details = ({ });
+		foreach (haveloot[item]; string pos; int num) {
+			sscanf(pos, "%f,%f,%f", float x, float y, float z);
+			float dist = (x - loc[0]) ** 2 + (y - loc[1]) ** 2 + (z - loc[2]) ** 2;
+			distances += ({dist});
+			details += ({({x, y, z, num})});
+		}
+		sort(distances, details);
+		foreach (details[..2]; int i; array details) {
+			write("Found %d %s at %.0f,%.0f,%.0f\n", details[3], L10n(item), details[0], details[1], details[2]);
+			if (annot_map) {
+				//Mark the location and draw a line to it
+				[int basex, int basey] = coords_to_pixels(loc);
+				[int x, int y] = coords_to_pixels(details);
+				annot_map->circle(x, y, 5, 5, 128, 192, 0);
+				annot_map->circle(x, y, 4, 4, 128, 192, 0);
+				annot_map->circle(x, y, 3, 3, 128, 192, 0);
+				annot_map->line(basex, basey, x, y, 32, 64, 0);
+			}
+		}
 	}
 	if (annot_map) {
 		string imgfn = fn - ".sav" + ".png";
