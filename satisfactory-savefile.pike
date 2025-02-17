@@ -232,9 +232,9 @@ void parse_savefile(string fn) {
 		for (int i = 0; i < sizeof(objects) && i < nument; ++i) {
 			[int ver, int flg, int sz] = data->sscanf("%-4c%-4c%-4c");
 			int propend = sizeof(data) - sz;
-			int interesting = 0; //has_value(objects[i][1], "CreatureSpawner");
+			int interesting = 0; //has_value(objects[i][1], "FGMapManager");
 			if (interesting) write("INTERESTING: %O\n", objects[i]);
-			//if (!seen[objects[i][1]]) {write("OBJECT %O\n", objects[i][1]); seen[objects[i][1]] = 1;}
+			//if (!seen[objects[i][1]]) {write("OBJECT %O\n", (objects[i][1] / ".")[-1] - "\0"); seen[objects[i][1]] = 1;}
 			if (objects[i][0]) {
 				//Actor
 				[string parlvl, string parpath, int components] = data->sscanf("%-4H%-4H%-4c");
@@ -260,7 +260,7 @@ void parse_savefile(string fn) {
 					if (type == "BoolProperty\0") {
 						//Special-case: Doesn't have a type string, has the value in there instead
 						[ret[prop], int zero] = data->sscanf("%c%c");
-					} else if ((<"ArrayProperty\0", "ByteProperty\0", "EnumProperty\0", "SetProperty\0">)[type]) {
+					} else if ((<"ArrayProperty\0", "ByteProperty\0", "SetProperty\0">)[type]) {
 						//Complex types have a single type
 						[string type, int zero] = data->sscanf("%-4H%c");
 						if (type == "None\0") {data->read(sz); sz = 0; continue;} //Empty array???
@@ -281,7 +281,7 @@ void parse_savefile(string fn) {
 									}
 									//struct->_raw = ((string)data)[..sizeof(data) - end - 1];
 									switch (struct->_type) {
-										case "SpawnData\0": //A lot will be property lists
+										case "SpawnData\0": case "MapMarker\0": //A lot will be property lists
 											struct |= parse_properties(end, 1, path + " --> " + prop - "\0");
 											break;
 										default: break; //Unknown - just skip to the next one
@@ -289,11 +289,17 @@ void parse_savefile(string fn) {
 									arr += ({struct});
 									break;
 								}
+								case "ByteProperty\0": arr += data->sscanf("%c"); break;
 								default: if (interesting) write("UNKNOWN ARRAY SUBTYPE %O [%d]\n", type, elements + 1); break;
 							}
 						}
 						sz = sizeof(data) - end;
 						ret[prop] = arr;
+					} else if (type == "EnumProperty\0") {
+						[string type, int zero] = data->sscanf("%-4H%c");
+						int end = sizeof(data) - sz;
+						[ret[prop]] = data->sscanf("%-4H");
+						sz = sizeof(data) - end;
 					} else if (type == "MapProperty\0") {
 						//Mapping types have two types (key and value)
 						[string keytype, string valtype, int zero] = data->sscanf("%-4H%-4H%c");
@@ -355,6 +361,10 @@ void parse_savefile(string fn) {
 			if (has_value(objects[i][1], "PlayerState") && prop["mVisitedAreas\0"]) {
 				//write("Have visited: %O\n", prop["mVisitedAreas\0"]);
 				visited_areas = prop["mVisitedAreas\0"][*] - "\0";
+			}
+			if (has_value(objects[i][1], "FGMapManager") && prop["mMapMarkers\0"]) {
+				write("Map markers: %O\n", prop["mMapMarkers\0"]);
+				//visited_areas = prop["mVisitedAreas\0"][*] - "\0";
 			}
 			if (objects[i][1] == "/Game/FactoryGame/World/Benefit/DropPod/BP_DropPod.BP_DropPod_C\0")
 				crashsites += ({({(objects[i][3] / ".")[-1], objects[i][9..11]})});
