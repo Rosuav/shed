@@ -109,6 +109,7 @@ constant ITEM_NAMES = ([
 	"Desc_SteelPlateReinforced_C": "Encased Industrial Beam",
 	"Desc_SteelPlate_C": "Steel Beam",
 	"Desc_TurboFuel_C": "Packaged Turbofuel",
+	"BP_EquipmentDescriptorJumpingStilts_C": "Blade Runners",
 ]);
 string PROGRAM_DIR; //Not technically a constant but it functions like one
 
@@ -537,7 +538,7 @@ void parse_savefile(string fn) {
 	}
 	write("Visited %O\nCrash %O\n", sizeof(visited_areas), sizeof(crashsites));
 	if (args->find) {
-		//Interactive item search
+		//Interactive item search. It may be worth making a web interface to this.
 		write("Reference location:\n");
 		mapping shortcuts = ([]);
 		foreach (players; int i; [string name, array(float) loc, mapping prop]) {
@@ -565,7 +566,6 @@ void parse_savefile(string fn) {
 			else {write("Enter two coordinates, or choose one of the bracketed identifiers.\nEnter location: "); continue;}
 			break;
 		}
-		write("Loc: %O\n", loc);
 		if (annot_map) {
 			//The reference location is given as a blue star
 			[int x, int y] = coords_to_pixels(loc);
@@ -609,8 +609,24 @@ void parse_savefile(string fn) {
 			}
 		}
 		write("Items available:\n");
-		//TODO: List all item types
-		//TODO: Prompt for an item type
+		array ids = indices(haveloot), names = L10n(ids[*]);
+		sort(names, ids);
+		mapping name_to_id = mkmapping(names, ids);
+		foreach (names; int i; string item)
+			write("[%2d] %s\n", i + 1, item);
+		string item;
+		write("Select an item: ");
+		while (string choice = Stdio.stdin->gets()) {
+			if (int idx = (int)choice) {
+				if (idx > 0 && idx <= sizeof(names)) {item = ids[idx - 1]; break;}
+				write("Index out of bounds, try again\nSelect an item: ");
+				continue;
+			}
+			//TODO: If user enters partial string, filter to those containing each word of it (so "ste pi" will match "Steel Pipe")
+			//If this results in more than one match, prompt again, using the reduced list.
+			write("For now, you have to enter the index, sorry.\nSelect an item: ");
+		}
+		write("Searching for: %s\n", item);
 		//TODO: List the (up to) three instances of that item nearest to the reference location
 		//TODO: If annot_map, draw each of the items as a marker and a line to the reference location
 	}
