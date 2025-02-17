@@ -199,8 +199,7 @@ void parse_savefile(string fn) {
 	multiset seen = (<>);
 	mapping total_loot = ([]);
 	array crashsites = ({ }), loot = ({ }), visited_areas = ({ });
-	array spawners = ({ });
-	array mapmarkers = ({ });
+	array spawners = ({ }), mapmarkers = ({ }), players = ({ });
 	while (sublevelcount-- > -1) {
 		int pos = sizeof(decomp) - sizeof(data);
 		//The persistent level (one past the sublevel count) has no name field.
@@ -233,7 +232,7 @@ void parse_savefile(string fn) {
 		for (int i = 0; i < sizeof(objects) && i < nument; ++i) {
 			[int ver, int flg, int sz] = data->sscanf("%-4c%-4c%-4c");
 			int propend = sizeof(data) - sz;
-			int interesting = 0; //has_value(objects[i][1], "FGMapManager");
+			int interesting = 0; //has_value(objects[i][1], "Char_Player");
 			if (interesting) write("INTERESTING: %O\n", objects[i]);
 			//if (!seen[objects[i][1]]) {write("OBJECT %O\n", (objects[i][1] / ".")[-1] - "\0"); seen[objects[i][1]] = 1;}
 			if (objects[i][0]) {
@@ -328,6 +327,14 @@ void parse_savefile(string fn) {
 								ret[prop] = data->sscanf("%-4F%-4F%-4F%-4F");
 								break;
 							}
+							case "Vector\0": {
+								//The wiki says these are floats, but the size seems to be 24,
+								//which is enough for three doubles. Is the size always the same?
+								//Note also that mLastSafeGroundPositions seems to be repeated.
+								//Is it necessary to combine into an array??
+								ret[prop] = data->sscanf("%-8F%-8F%-8F");
+								break;
+							}
 							default: break;
 						}
 						sz = sizeof(data) - end;
@@ -389,6 +396,8 @@ void parse_savefile(string fn) {
 				crashsites += ({({(objects[i][3] / ".")[-1], objects[i][9..11]})});
 			if (objects[i][1] == "/Game/FactoryGame/Character/Creature/BP_CreatureSpawner.BP_CreatureSpawner_C\0")
 				spawners += ({({(objects[i][3] / ".")[-1], objects[i][9..11], prop["mSpawnData\0"]})});
+			if (objects[i][1] == "/Game/FactoryGame/Character/Player/Char_Player.Char_Player_C\0")
+				players += ({({prop["mCachedPlayerName\0"] - "\0", objects[i][9..11], prop})});
 		}
 		if (sizeof(data) > endpoint) data->read(sizeof(data) - endpoint);
 		[int collected] = data->sscanf("%-4c");
@@ -530,7 +539,11 @@ void parse_savefile(string fn) {
 	if (args->find) {
 		//Interactive item search
 		write("Reference location:\n");
-		//TODO: List players
+		mapping shortcuts = ([]);
+		foreach (players; int i; [string name, array(float) loc, mapping prop]) {
+			write("[P%d] %s (%.0f,%.0f)\n", i + 1, name, loc[0], loc[1]);
+			shortcuts["p" + (i+1)] = shortcuts[lower_case(name)] = loc;
+		}
 		foreach (mapmarkers, mapping mark) {
 			//NOTE: A marker with MarkerID\0 of 255 seems possibly to have been deleted??
 			//It's like the slot is left in the array but the marker is simply not shown.
@@ -541,8 +554,9 @@ void parse_savefile(string fn) {
 				mark["MarkerID\0"], mark["Name\0"] - "\0",
 				mark["Location\0"]["X\0"], mark["Location\0"]["Y\0"],
 			);
+			shortcuts[(string)mark["MarkerID\0"]] = ({mark["Location\0"]["X\0"], mark["Location\0"]["Y\0"], mark["Location\0"]["Z\0"]});
 		}
-		//TODO: Prompt for either a number (will use that marker ID) or two numbers separated by spaces or commas (coordinates)
+		//TODO: Prompt for either a shortcut (lowercase and use mapping) or two numbers separated by spaces or commas (assume z = 0)
 		//TODO: If annot_map, draw the reference location as a blue star
 		write("Items available:\n");
 		//TODO: List all item types
