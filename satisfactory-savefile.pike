@@ -200,6 +200,7 @@ void parse_savefile(string fn) {
 	mapping total_loot = ([]);
 	array crashsites = ({ }), loot = ({ }), visited_areas = ({ });
 	array spawners = ({ });
+	array mapmarkers = ({ });
 	while (sublevelcount-- > -1) {
 		int pos = sizeof(decomp) - sizeof(data);
 		//The persistent level (one past the sublevel count) has no name field.
@@ -255,12 +256,13 @@ void parse_savefile(string fn) {
 					//To search for something found by scanning the strings:
 					//if (prop == "mVisitedAreas\0") write("*** FOUND %O --> %O\n", path, prop);
 					[string type] = data->sscanf("%-4H");
-					if (interesting) write("Prop %O %O\n", prop, type);
+					if (interesting) write("[%s] Prop %O %O\n", path, prop, type);
 					[int sz, int idx] = data->sscanf("%-4c%-4c");
 					if (type == "BoolProperty\0") {
 						//Special-case: Doesn't have a type string, has the value in there instead
 						[ret[prop], int zero] = data->sscanf("%c%c");
-					} else if ((<"ArrayProperty\0", "ByteProperty\0", "SetProperty\0">)[type]) {
+					} else if (prop == "mFogOfWarRawData\0") { data->sscanf("%-4H%c"); //HACK - Don't dump the FOW to the console
+					} else if ((<"ArrayProperty\0", "SetProperty\0">)[type]) {
 						//Complex types have a single type
 						[string type, int zero] = data->sscanf("%-4H%c");
 						if (type == "None\0") {data->read(sz); sz = 0; continue;} //Empty array???
@@ -295,6 +297,9 @@ void parse_savefile(string fn) {
 						}
 						sz = sizeof(data) - end;
 						ret[prop] = arr;
+					} else if (type == "ByteProperty\0") {
+						[string type, int zero, ret[prop]] = data->sscanf("%-4H%c%c");
+						--sz;
 					} else if (type == "EnumProperty\0") {
 						[string type, int zero] = data->sscanf("%-4H%c");
 						int end = sizeof(data) - sz;
@@ -307,32 +312,46 @@ void parse_savefile(string fn) {
 						//Struct types have more padding
 						[string type, int zero] = data->sscanf("%-4H%17c");
 						if (interesting) write("Type %O\n", type);
+						int end = sizeof(data) - sz;
 						switch (type) {
-							case "InventoryStack\0": {
+							case "InventoryStack\0": case "Vector_NetQuantize\0": {
 								//The stack itself is a property list. But a StructProperty inside it has less padding??
-								int end = sizeof(data) - sz;
 								//write("RAW INVENTORY %O\n", ((string)data)[..sizeof(data) - end - 1]);
 								ret[prop] = parse_properties(end, 0, path + " --> " + prop - "\0");
-								sz = sizeof(data) - end; //Should now be zero
 								break;
 							}
 							case "InventoryItem\0": {
-								int end = sizeof(data) - sz;
 								[int padding, ret[prop], int unk] = data->sscanf("%-4c%-4H%-4c");
-								sz = sizeof(data) - end; //Should be zero
+								break;
+							}
+							case "LinearColor\0": {
+								ret[prop] = data->sscanf("%-4F%-4F%-4F%-4F");
+								break;
 							}
 							default: break;
 						}
+						sz = sizeof(data) - end;
 					} else if (type == "IntProperty\0") {
-						//Primitive. Also potentially more interesting.
 						[int zero, ret[prop]] = data->sscanf("%c%-4c");
 						sz -= 4;
 					} else if (type == "FloatProperty\0") {
-						//Primitive. Also potentially more interesting.
 						[int zero, ret[prop]] = data->sscanf("%c%-4F");
 						sz -= 4;
+					} else if (type == "DoubleProperty\0") {
+						[int zero, ret[prop]] = data->sscanf("%c%-8F");
+						sz -= 8;
+					} else if (type == "StrProperty\0") {
+						if (sz == 4) {
+							//If the string is empty, the padding byte seems to be
+							//missing, so there's just four bytes of zeroes, not five.
+							ret[prop] = "";
+							data->read(1);
+						} else {
+							int end = sizeof(data) - sz - 1;
+							[int zero, ret[prop]] = data->sscanf("%c%-4H");
+							sz = sizeof(data) - end;
+						}
 					} else if (type == "ObjectProperty\0") {
-						//Primitive. Also potentially more interesting.
 						int end = sizeof(data) - sz - 1;
 						[int zero, string lvl, string path] = data->sscanf("%c%-4H%-4H");
 						ret[prop] = lvl + " :: " + path;
@@ -363,8 +382,8 @@ void parse_savefile(string fn) {
 				visited_areas = prop["mVisitedAreas\0"][*] - "\0";
 			}
 			if (has_value(objects[i][1], "FGMapManager") && prop["mMapMarkers\0"]) {
-				write("Map markers: %O\n", prop["mMapMarkers\0"]);
-				//visited_areas = prop["mVisitedAreas\0"][*] - "\0";
+				//write("Map markers: %O\n", prop["mMapMarkers\0"]);
+				mapmarkers = prop["mMapMarkers\0"];
 			}
 			if (objects[i][1] == "/Game/FactoryGame/World/Benefit/DropPod/BP_DropPod.BP_DropPod_C\0")
 				crashsites += ({({(objects[i][3] / ".")[-1], objects[i][9..11]})});
@@ -511,9 +530,25 @@ void parse_savefile(string fn) {
 	if (args->find) {
 		//Interactive item search
 		write("Reference location:\n");
-		//TODO: List players and markers
+		//TODO: List players
+		foreach (mapmarkers, mapping mark) {
+			//NOTE: A marker with MarkerID\0 of 255 seems possibly to have been deleted??
+			//It's like the slot is left in the array but the marker is simply not shown.
+			if (mark["MarkerID\0"] == 255) continue;
+			//Would be nice to show if the marker is highlighted. This info may actually be
+			//stored the other way around - a flag on the player saying "highlight this marker".
+			write("[%d] %s (%.0f,%.0f)\n",
+				mark["MarkerID\0"], mark["Name\0"] - "\0",
+				mark["Location\0"]["X\0"], mark["Location\0"]["Y\0"],
+			);
+		}
+		//TODO: Prompt for either a number (will use that marker ID) or two numbers separated by spaces or commas (coordinates)
+		//TODO: If annot_map, draw the reference location as a blue star
 		write("Items available:\n");
-		//TODO: List all items
+		//TODO: List all item types
+		//TODO: Prompt for an item type
+		//TODO: List the (up to) three instances of that item nearest to the reference location
+		//TODO: If annot_map, draw each of the items as a marker and a line to the reference location
 	}
 	if (annot_map) {
 		string imgfn = fn - ".sav" + ".png";
