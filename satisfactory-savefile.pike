@@ -638,7 +638,10 @@ void parse_savefile(string fn) {
 		}
 		sort(distances, details);
 		foreach (details[..2]; int i; array details) {
-			write("Found %d %s at %.0f,%.0f,%.0f\n", details[3], L10n(item), details[0], details[1], details[2]);
+			write("Found %d %s at %.0f,%.0f,%.0f - %.0f away\n",
+				details[3], L10n(item),
+				details[0], details[1], details[2],
+				(distances[i] ** 0.5) / 100.0);
 			if (annot_map) {
 				//Mark the location and draw a line to it
 				[int basex, int basey] = coords_to_pixels(loc);
