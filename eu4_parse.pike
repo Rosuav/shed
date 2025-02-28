@@ -1,5 +1,7 @@
 #define POLYGLOT "This script can be run as Python or Pike code and is a minimal client for the EU4 parser. \
 """
+//TODO: Rework this to use websockets instead. Is it worth remaining polyglot or should this just become a
+//Python script that connects to the server? The two aren't sharing any code anyway.
 //The bulk of this code was moved directly from the main EU4 parser as part of the migration.
 class ClientConnection(Stdio.File sock) {
 	Stdio.Buffer incoming = Stdio.Buffer(), outgoing = Stdio.Buffer();
