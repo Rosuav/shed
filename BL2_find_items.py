@@ -388,6 +388,7 @@ parser.add_argument("--pieces", help="Show the individual pieces inside weapons/
 parser.add_argument("--raw", help="Show the raw details of weapons/items (spammy - use loot filters)", action="store_true")
 parser.add_argument("--itemids", help="Show the IDs of weapons/items", action="store_true")
 parser.add_argument("--synth", help="Synthesize a modified save file", type=synthesizer, nargs="*")
+parser.add_argument("--write", help="Write the modified save file back", action="store_true")
 parser.add_argument("-l", "--loot-filter", help="Show loot, optionally filtered to only what's interesting", type=loot_filter, nargs="*")
 parser.add_argument("-f", "--file", help="Process only one save file")
 parser.add_argument("--dir", help="Specify the savefile directory explicitly (ignores --proton/--native and --player)")
@@ -1347,8 +1348,12 @@ def parse_savefile(fn):
 		])
 		comp = len(reconstructed).to_bytes(4, "big") + lzo.compress(reconstructed, 1, False)
 		comp = hashlib.sha1(comp).digest() + comp
-		# TODO: Have an option to move the original into the current directory, and then write to the original file name
-		with open("synthesized-%s.sav" % (args.file or ""), "wb") as f: f.write(comp)
+		if args.write:
+			savefn = fn
+			os.rename(fn, fn + ".bak")
+		else:
+			savefn = "synthesized-%s.sav" % (args.file or "")
+		with open(savefn, "wb") as f: f.write(comp)
 	return ret
 
 def compare(id1, id2):
