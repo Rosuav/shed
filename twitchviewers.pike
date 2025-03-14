@@ -55,18 +55,6 @@ int main(int argc, array(string) argv)
 	if (argc<2) exit(1, "USAGE: pike %s username [delay]\nWill display the current viewers for username's channel\nUpdates every delay seconds - default 10.\n");
 	string username = argv[1];
 	if (argc>2) delay = (int)argv[2] || 10;
-	//First check if there's another process doing the same job. LINUX ONLY - might work on other Unices but untested.
-	foreach (get_dir("/proc"), string fn) if (fn == (string)(int)fn && getpid() != (int)fn) catch
-	{
-		//This might bomb, eg if the process is owned by another user.
-		//If so, we assume that process doesn't matter to us.
-		array(string) other_argv = Stdio.read_file("/proc/" + fn + "/cmdline") / "\0";
-		if (sizeof(other_argv) < 3) continue; //Can't be what we want.
-		if (other_argv[0] != "pike" && !has_suffix(other_argv[0], "/pike")) continue; //Not Pike
-		if (other_argv[2] != argv[1]) continue; //Different Twitch user
-		if (other_argv[1] == argv[0]) exit(0, "Already monitoring this user [pid=%s].\n", fn); //Exact file match
-		//TODO: Sloppy script path matching, as long as they refer to the same file.
-	};
 	//TODO: Allow a separate moderator login, and then use bcaster_token
 	//Note that querying mods requires broadcaster auth so maybe better to require that instead?
 	clientid = Standards.JSON.decode_utf8(Stdio.read_file("../stillebot/instance-config.json"))->clientid;
