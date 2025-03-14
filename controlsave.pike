@@ -56,7 +56,7 @@ void parse_inventory(array piece) {
 		//({4, 0x268ad8821bf98054,  63.0, 0, 43203, 1}), //[Rar] Headshot Damage
 		//({4, 0x24f564d1bb194054,  29.0, 0, 43204, 1}), //[Abs] Spin Grouping Efficiency
 		//({4, 0x2b8e23e8eb2d0054,  42.0, 0, 43205, 1}), //[Abs] Pierce Aimed Fire Boost
-		//({4, 0x02c3b6c628f4c054,  25.0, 0, 43206, 1}), //[Prm] Levitation Ammo Efficiency (one of the few ammo cost reductions that works on Pierce)
+		//({4, 0x02c3b6c628f4c054, -25.0, 0, 43206, 1}), //[Prm] Levitation Ammo Efficiency (one of the few ammo cost reductions that works on Pierce)
 		//({4, 0x2b7de92445e0c054,   9.0, 0, 43207, 1}), //[Rar] Accuracy
 		//({4, 0x3aae75a1827d8054,   7.0, 0, 43208, 1}), //[Abs] Shatter Projectile Boost
 		//({4, 0x282d8e0d682f0054,  95.0, 0, 43209, 1}), //[Abs] Consecutive Kills Boost
@@ -73,7 +73,7 @@ void parse_inventory(array piece) {
 		//Regular mods, but better than they have ever been seen. Super-powered mods.
 		//({4, 0x322e985e6b2bc054,  72.0, 0, 43301, 1}), //[Prm] Damage
 		//({4, 0x2c56b490927b4054,  50.0, 0, 43302, 1}), //[Prm] Health Boost
-		//({4, 0x02c3b6c628f4c054, 100.0, 0, 43206, 1}), //[Prm] Levitation Ammo Efficiency (free bullets while levitating?)
+		//({4, 0x02c3b6c628f4c054,-100.0, 0, 43206, 1}), //[Prm] Levitation Ammo Efficiency (free bullets while levitating?)
 		//({4, 0x0fe906cd12db8054,-100.0, 0, 43210, 1}), //[Abs] Dodge Efficiency
 		//({4, 0x18319f9ca0820054,-100.0, 0, 43212, 1}), //[Abs] Launch Efficiency
 	});
