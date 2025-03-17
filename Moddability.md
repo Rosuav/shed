@@ -55,6 +55,15 @@ enable and disable them.
   - SO VERY moddable! You can mess around with basically everything.
   - Most of the edit files are XML, which means you probably want to get a tool
     to edit them with, but that's easy enough.
+* [Satisfactory](https://www.satisfactorygame.com/)
+  - Most of the work is done by the Unreal modular build system, which helps, but
+    more importantly, there is a culture of welcome that makes even unofficial
+    support so much more helpful. During the game's "Early Access" period, modding
+    was not a priority of the devs, and yet there was a strong modding community
+    already. (See below for my original writeup.)
+  - Want to build a savefile editor? There's information on the [official wiki](https://satisfactory.wiki.gg/wiki/Save_files)
+    about how to do it. This is no secret and the game publisher is happy for us
+    to learn how to tinker with the game.
 
 The Okay (Ignoring)
 -------------------
@@ -63,9 +72,11 @@ While not specifically *welcoming* modders, these games do at least permit it.
 They might simply ignore what you're doing, with no documentation or assistance
 in figuring out what anything means.
 
-* [Satisfactory](https://www.satisfactorygame.com/)
-  - Yes, I'm putting this down here rather than in "Welcoming", even though
-    there IS some documentation on how to mod the game. The game itself doesn't
+* Satisfactory, during Early Access
+  - Even back in Early Access, Satisfactory was non-hostile to modders. It was
+    "you're on your own" for the most part, but even back then, things were good
+    enough that I wrote the following (verb tenses unchanged from the original):
+  - There IS some documentation on how to mod the game. The game itself doesn't
     really support modding - you have to basically hack it in. I'm hoping that,
     by the time the game's out of Early Access, there'll be enough tools that it
     can be promoted to the top category.
