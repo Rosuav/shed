@@ -40,6 +40,7 @@ string reduce(string data, multiset tracks, multiset channels, int(1bit) lyrics,
 				foreach (chunk, array data) {
 					if (data[1] >= 0x80 && data[1] <= 0x9F) {
 						data[0] += delay;
+						delay = 0;
 						notes += ({data});
 					}
 					else delay += data[0];
