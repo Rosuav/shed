@@ -16,7 +16,7 @@ int main(int argc, array(string) argv) {
 				//Sometimes there's one more byte, not sure why.
 				decomp = Gz.inflate()->inflate(comp[1..]);
 			sscanf(decomp, "%c%2c%s", int type, int size, string data);
-			if (has_value(data, "dream")) write("%s\n", fn);
+			write("%s\n", data);
 		}
 	}
 }
