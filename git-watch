@@ -2,6 +2,9 @@
 """
 Watch git repositories for uncommitted or unpushed changes
 
+Watched repository paths are stored in the `~.gitconfig` file in section 
+`rosuav` and subsection `git-watch`: `[rosuav "git-watch"]`.
+
 Suggestion: Have notifications automatically emailed to you.
 git watch | mail user@domain.example -s "Status of git repos" -E
 
