@@ -7,6 +7,8 @@ git watch | mail user@domain.example -s "Status of git repos" -E
 
 Further suggestion: Set up a cron job or equivalent to do the
 above regularly (eg daily).
+
+Another option, use `watch -n {number of milliseconds} git watch`
 """
 import argparse
 import os
