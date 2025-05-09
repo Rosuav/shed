@@ -1,0 +1,42 @@
+Python syntax quiz
+
+https://docs.google.com/forms/d/e/1FAIpQLScx9h_lLiFGLTL6QcUN-t6JIngGsUospR6sY2C1lr6aCwjTRA/viewform
+
+NOTE: All questions are to be answered based solely on your own knowledge. Looking up documentation, or testing things in the REPL, is considered cheating. This quiz is purely for entertainment purposes, and you will not be judged in any way.
+
+NOTE: These questions are correct for reasonably current versions of Python (say, 3.12 and onwards). Anything may change in the future.
+
+* Which of these is a valid integer literal? 1_000__000__0000, 0_0, 01234, 0xCOFFEE
+* Which of these is NOT a valid string literal? Rf"Radio Frequency", br"Brazil", U"and Me", fU"U+1F595"
+* Lambda functions can have local variables. True or false?
+* a+b may call which of the following functions: (Multiple correct answers) a.__dict__["__add__"](b), type(a).__add__(a, b), type(b).__radd__(b, a), type(b).__add__(a)
+* Python has: More kinds of parameters than arguments; The same number of each; More kinds of arguments than parameters
+* Which of the following is a valid f-string: f"{lambda: 1}" f"{{1:1}[1]}" f"{{1:1}}" f"{1: lambda}"
+* What exception will math.floor(1e1000) raise? ValueError, OverflowError, OutOfMemoryException, TypeError
+* Easy one: Which of these is valid Python code? idlelib.idle = "Eric"; spam * 3 + eggs; if violence in system: raise BeingRepressed(); def clinic(*argument): "Room 12A"
+* One of these will raise an exception. Which? match = 1 (SyntaxError); True + False (ValueError); {0}[0] (TypeError); print(exit) (SystemExit)
+* Which of these is NOT a statement: nonlocal x, type spam = ham, yield eggs(), break 2
+* You can destroy any Python object with the syntax "del objectname". True or false?
+* It's nice to do more than one thing at once. Which of these is legal? (Multiple correct answers) from module import name1, name2, name3; with obj1 as x, obj2 as y; for x, y in stuff; except ValueError, TypeError
+* What is the risk in using files without a context manager (eg open(fn).read())? Guido van Rossum will send you a letter of disappointment; The file might not be closed before you continue on; The file might only be partially read; Large files might cause a deadlock
+* Negative numbers are just WEIRD, they don't make any sense! Which of these expressions will succeed? range(-2); math.sqrt(-2); [-2] * -2; (-1, -2,) -3
+* Python 2 was officially sunset years ago, but one feature from it was added into the Python 3 branch and is still valid today. Is it: Using print without parentheses; Putting a u'...' prefix on Unicode strings; Raising a string as an exception; Putting an L suffix on long integers
+* One of these is not valid in a match block: case 1 | 2 | 3: case signal.SIGINT: case len("spam"): case otherwise:
+* The underscore is special. How special? (Multiple correct answers) Class members starting with an underscore cannot be used from outside the class; Names beginning with an underscore aren't star-imported; "case _:" in a match statement does less work; Module names containing underscores are invalid
+* Even without third-party libraries, Python is quite internet-capable. What can you do with just the standard library? Build a web server; Fetch pages via HTTPS; Send emails; Use CSS to change the colour of print statements
+* What is the return value from this function?
+    def spam():
+      try: 1/0
+      except: return 1
+      else: return 2
+      finally: return 3
+      return 4
+* What will this print?
+x = 1
+class x:
+   x = 2
+   def f():
+      print(x)
+   f()
+   print(x)
+1 1, 2 2, 1 2, 2 1
