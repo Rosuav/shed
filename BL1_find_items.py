@@ -204,7 +204,7 @@ def decode_dataclass(data, typ):
 		return data.get(typ)
 	if isinstance(typ, bytes):
 		ret = data.get(len(typ))
-		assert ret == typ
+		assert ret == typ, "%r != %r" % (ret, typ)
 		return ret
 	if typ is int:
 		return data.int()
@@ -458,6 +458,7 @@ def main(args):
 	dir = os.path.expanduser(args.path + "/steam/steamapps/compatdata/729040/pfx/drive_c/users/steamuser/My Documents/My Games/Borderlands Game of the Year/Binaries/SaveData")
 	for fn in sorted(os.listdir(dir)):
 		if not fn.endswith(".sav"): continue
+		if args.file and int(args.file) != int(fn[4:8]): continue
 		print(fn, end="... ")
 		try: print(parse_savefile(os.path.join(dir, fn)))
 		except SaveFileFormatError as e: print(e.args[0])
@@ -470,7 +471,7 @@ if __name__ == '__main__':
 	# parser.add_argument("--raw", help="Show the raw details of weapons/items (spammy - use loot filters)", action="store_true")
 	parser.add_argument("--synth", help="Synthesize a modified save file", type=synthesizer, nargs="*")
 	parser.add_argument("-l", "--loot-filter", help="Show loot, optionally filtered to only what's interesting", type=loot_filter, nargs="*")
-	# parser.add_argument("-f", "--file", help="Process only one save file")
+	parser.add_argument("-f", "--file", help="Process only one save file")
 	args = parser.parse_args()
 	print(args)
 	main(args)
