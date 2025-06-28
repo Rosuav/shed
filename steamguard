@@ -228,8 +228,8 @@ def generate_identity_hash(secret, tag, timestamp=None):
 	hash = hmac.new(secret, timestamp + tag.encode("ascii"), hashlib.sha1).digest()
 	return base64.b64encode(hash)
 
-def do_trade(username):
-	"""Accept all pending trades/markets"""
+def do_confirm(username):
+	"""List pending confirmations"""
 	if not username: username = get_default_user()
 	user = users.get(username)
 	if not user:
@@ -237,7 +237,7 @@ def do_trade(username):
 		return
 	import requests
 	params = {
-		"m": "android", "tag": "conf", "t": now(),
+		"m": "react", "tag": "conf", "t": now(),
 		"p": "android:92bb3646-1d32-3646-3646-36461d32bdbe",
 		"a": user["steamid"],
 		"k": generate_identity_hash(user["identity_secret"], "conf"),
@@ -245,11 +245,12 @@ def do_trade(username):
 	cookies = {
 		'steamLoginSecure': user_cookies.get(username, ""),
 	}
+	cookies = do_setup(username) # HACK: Prompt for password and get all the cookies
 	info = None
 	def attempt_login():
 		try:
 			nonlocal info
-			info = requests.get("https://steamcommunity.com/mobileconf/conf", params=params, cookies=cookies)
+			info = requests.get("https://steamcommunity.com/mobileconf/getlist", params=params, cookies=cookies)
 		except requests.exceptions.InvalidSchema as e:
 			# If the login fails, Steam returns a redirect, which requests.get attempts to
 			# follow. But it can't, because the scheme isn't valid.
@@ -286,6 +287,11 @@ def do_trade(username):
 			if not attempt_login():
 				print("Something went wrong with the login - maybe there's an error above?")
 				return
+
+	print("Maybe worked?")
+	print(info)
+	print(info.text)
+	return
 
 	# Now begins the parsing of HTML. Followed by a light salad.
 	# It's a mess, it's not truly parsing HTML, and it's not pretty.
@@ -575,6 +581,16 @@ def do_setup(user):
 		pprint.pprint(data)
 		print()
 		pprint.pprint(cookies)
+
+	# CJA 20250628: There's no oauth any more. However, this is still the easiest way to update the login cookie.
+	# So this is a fine reauth but it's possibly not able to set up the authenticator any more. Haven't tested.
+	if True:
+		user_cookies[user] = cookies["steamLoginSecure"]
+		save_users()
+		print("Cookie saved.")
+		print(cookies)
+		return cookies
+
 	# For reasons which escape me, the OAuth info is provided as a *string*
 	# that happens to be JSON-formatted. This is inside a JSON response
 	# body. It could have simply been a nested object, but noooooo.
