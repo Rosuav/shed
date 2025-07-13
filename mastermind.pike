@@ -78,9 +78,9 @@ int main() {
 		potential = filter(potential) {return compare(guess, __ARGS__[0]) == result;};
 		write("%d words remain.\n", sizeof(potential));
 		if (sizeof(potential) <= 12) write("%{%s %}\n", potential);
-		write("Guess00: %s\n", recommend(potential));
-		write("Guess01: %s\n", recommend(potential, 0, 1));
-		write("Guess10: %s\n", recommend(potential, 1, 0));
-		write("Guess11: %s\n", recommend(potential, 1, 1));
+		//write("Guess00: %s\n", recommend(potential));
+		//write("Guess01: %s\n", recommend(potential, 0, 1));
+		//write("Guess10: %s\n", recommend(potential, 1, 0));
+		write("Guess: %s\n", recommend(potential, 1, 1));
 	}
 }
