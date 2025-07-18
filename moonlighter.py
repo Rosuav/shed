@@ -22,9 +22,11 @@ for node in tree:
 	page = node.find("title").text
 	info = node.find("revision/text").text
 	if not info: print(page)
-	if "{{Item Page" not in info: continue
+	if m := re.search("{{(Item|Gear) Page(.*)", info, re.S):
+		lines = m[2].split("\n")
+	else: continue
 	stats = {}
-	for line in info.split("{{Item Page", 1)[1].split("\n"):
+	for line in lines:
 		if not line: continue
 		if line == "}}": break
 		if "=" in line:
@@ -32,17 +34,26 @@ for node in tree:
 			stats[key.replace("|", "").strip()] = val.strip()
 	if "value" not in stats: continue
 	culture = stats.get("culture", "")
-	culture = re.sub(r"<!--.*-->", "", culture).strip() # Remove comments and whites
-	if culture not in ("Merchant", "Golem", "Forest", "Desert", "Tech"): continue
-	if page.endswith(" +1"): culture += " +1"
+	culture = re.sub(r"<!--.*-->", "", culture).strip() or "Unknown" # Remove comments and whites
+	# NOTE: The wiki no longer has separate pages for the NG+ variants.
+	# Instead, the NG+ variant is simply priced at ceil(x*5.6) which is within 1 gold of the
+	# values that I was previously getting.
+	# if page.endswith(" +1"): culture += " +1"
 	stats["page"] = page
 	cultures[culture].append(stats)
 
+def intify(x): # Intify for sorting; unknowns get sorted to the bottom.
+	try: return int(x)
+	except ValueError: return -1
+
 for culture, items in cultures.items():
-	items.sort(key=lambda item: (-int(item["value"]), item["page"]))
+	items.sort(key=lambda item: (-intify(item["value"]), item["page"]))
 	print(culture)
 	for item in items:
-		base = int(item["value"])
-		sale = base * 11 // 10 # I'm flooring, but it's possible that ceil is actually correct (??)
-		if culture.endswith(" +1"): sale -= 1
-		print("\t%6d %s" % (sale, item["page"]))
+		try:
+			base = int(item["value"])
+			sale = base * 11 // 10 # I'm flooring, but it's possible that ceil is actually correct (??)
+			if culture.endswith(" +1"): sale -= 1
+		except ValueError:
+			sale = "?"
+		print("\t%6s %s" % (sale, item["page"]))
