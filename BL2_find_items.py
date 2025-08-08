@@ -618,6 +618,7 @@ library = {
 		"CgAAADI+S20A5dYAwKjYz4NegALL8Ru8DDSKueYQ4Wt0pG1fLQs": "Inspirational Brotrap Title.Title_ClassMod", # V
 		"CgAAADI+S20A5dYAwKjZT4degAIo+hu5DCqKWecQoW10pC1ALQs": "Loot Piñata Title.Title_ClassMod", # V
 		"CgAAADI+S20A5dYAwOjZD4F8gALIaBm5HTsq6ucQYXX0pa1fLQs": "Chronicler Of Elpis Title.Title_ClassMod", # V
+		"CgAAADI+S20A5dYAwKjYT4tegAIZYhu3DDCK2ecQYXW0pS1fLQs": "Eridian Vanquisher Class Mod", # V
 		# Baroness
 		"CgAAADI+S20A5dYAwOjZT4p8gAIwQh2yHAMCCucQIWp0pK1fLQs": "High-and-Mighty Gentry Title.Title_ClassMod", # only a blue, need a purple
 		"CgAAADI+S20A5dYAwKjYD4Z8gALIJB2wHA0C6ucQYWq0pG1ALQs": "Posh Blue Blood Title.Title_ClassMod",
