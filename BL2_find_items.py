@@ -1202,15 +1202,15 @@ class SaveFile(ProtoBuf):
 	max_bank_slots: int = 0 # Might be useful when looking for a place to put stuff
 	vehicle_skins: [VehicleSkin] = None
 
-	#### Conditionals seem to be broken when in Python 3.14 dataclasses ####
-	# if GAME == "borderlands the pre-sequel":
-		# body_switches: bytes = b""
-		# player_flags: [int] = None
-		# vehicle_steering_mode: int = 0
-		# discovered_compass_icons: [bytes] = None
-		# suppress_oxygen_notifs: int = 0
-	# else:
-	vehicle_steering_mode: int = 0
+	# Conditionals seemed broken when in Python 3.14 dataclasses, but are working again as of 20250809.
+	if GAME == "borderlands the pre-sequel":
+		body_switches: bytes = b""
+		player_flags: [int] = None
+		vehicle_steering_mode: int = 0
+		discovered_compass_icons: [bytes] = None
+		suppress_oxygen_notifs: int = 0
+	else:
+		vehicle_steering_mode: int = 0
 
 	has_played_uvhm: int = None
 	overpower_levels: int = None
