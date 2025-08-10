@@ -535,11 +535,13 @@ library = {
 		# Lasers
 		"igAAADJ+ogDSPtYAPme6Lrha4k4gJV28ni4JxtkBKztVdG/CaBC3": "E-GUN",
 		"igAAADJIsoD8PtYAPmfiDRUd2ME0uay5nk6I/9gBK6dUPG1S7sRI": "Tannis' Laser of Enlightenment", # V
+		"igAAADKIsoD8PtYAPmfiDRUd2ME0d0S5nk6I/9gBK6dULG1S7sRI": "Tannis' Laser of Enlightenment", # V
 		"igAAADJIsoD7PtYAPmcCL3BZUkkgN2G8ni4LxtkBK6dULG1CbrBI": "Miss Moxxi's Vibra-Pulse",
 		"igAAADLIr4D8PtYAwGh9LuhaQk4gIsK8nG4JxtcBK8dV/G7ya5BF": "The ZX-1",
 		"igAAADIIsgAA5dYAPmfmDU0dKME0sGS5no6I/9gBK6dUJG3S7oRI": "MINAC's Atonement", # V
 		"igAAADLIsgAA5dYAPmfmDU0dKME0nDO5no6I/9gBK6dUPG3S7sRI": "MINAC's Atonement", # V
 		"igAAADJIsgAA5dYAPmfmDU0dKME07Ve5no6I/9gBK6dUPG3S7sRI": "MINAC's Atonement", # V
+		"igAAADKIsgAA5dYAPmfmDU0dKME00g+5no6I/9gBK6dULG3S7qRI": "MINAC's Atonement", # V
 		"igAAADLIsgD7Pgq3P2eWLDBaQk8ggYK8nY4OxsUBK0NVNG3yYFBI": "Excalibastard",
 		"igAAADIIsoD7PtYAPmfCDcUd+MA0q1K5nq6L/9gBK1dVNG0C72RI": "Thunderfire", # V
 		"igAAADJIsoD8Pgu3P2e2LsBYEk4gHLa8nc4KxtUBKxNVPG2yaLBI": "Lensed Mining Laser", # V
@@ -640,9 +642,7 @@ library = {
 		"igAAADISS+3qVgRnP2dub9gZFkEhksO83E8Ix9cBK38U/++kb5FI": "Shock Gwen's Other Head",
 		"CgAAADIJS20A5dYAwOjlx34j0QorbBurC2aC+ecQoWF8s6V/5ds": "Sunshine",
 		"CgAAADIJS20A5dYAwCjDx37jnwoTIBu9CwCC+ecQoWG8sGVRpfI": "Haymaker",
-		"igAAADKIsgAA5dYAPmfmDU0dKME00g+5no6I/9gBK6dULG3S7qRI": "MINAC's Atonement",
 		"igAAADJRpbL2mjB/fZfgDx0cWMM0W4i+3W6K+9wBK8N0py+U7ORJ": "Bloody Wiggly Cry Baby",
-		"igAAADKIsoD8PtYAPmfiDRUd2ME0d0S5nk6I/9gBK6dULG1S7sRI": "Tannis' Laser of Enlightenment",
 		"CgAAADLHoFT53NZAOJHL7n7jgCO3KB69HAcaCucQYZnLtYxR6/E": "Data Scrubber",
 		"igAAADIXtIryQtYAwGjZj1gcI8Mi6b28HAiLx8cBK2f0vC1z7dJJ": "Boomacorn",
 		"igAAADJ+tj4A5TZPP2eGj+hctcAihVu8HyiLx9sBK1O1v6117BK3": "Lumpy Jack-o'-Cannon",
