@@ -605,6 +605,8 @@ library = {
 		"CgAAADIJS20A5dYAwKjtx35jsQokxBuuC1yCuecQoWH8saVRJdU": "The Sham", # Synth
 		"CgAAADIJS20A5dYAwKjqx34jxAr3+Bu3C06CGecQIWF8sCVSZdA": "Supernova", # Synth
 		"CgAAADIjS20A5dYAwOjI7X4jgSDAXB69HQcSyucQoW58sCVSJfQ": "Rerouter", # Synth
+		"CgAAADIJS20A5dYAwOjlx34j0QorbBurC2aC+ecQoWF8s6V/5ds": "Sunshine",
+		"CgAAADIJS20A5dYAwCjDx37jnwoTIBu9CwCC+ecQoWG8sGVRpfI": "Haymaker",
 
 		# Oz Kits
 		"CgAAADI+S20ApSB4OlA1MJNbkwVxmhunClJy2+cQ4WezStKvEgs": "Voltaic Support Relay",
@@ -640,8 +642,6 @@ library = {
 		"igAAADKWsLzxRjdHwWiRD83ZxcM0w+2+WJSK+9ABKyOVh+0F7ORL": "Sparkling Boxxy Gunn",
 		"igAAADKTvjbzUipvP2fOT1CeRMIh0fe8ng+KxtEBKxc0p6xU7TFJ": "Ultraprecise Volt Thrower",
 		"igAAADISS+3qVgRnP2dub9gZFkEhksO83E8Ix9cBK38U/++kb5FI": "Shock Gwen's Other Head",
-		"CgAAADIJS20A5dYAwOjlx34j0QorbBurC2aC+ecQoWF8s6V/5ds": "Sunshine",
-		"CgAAADIJS20A5dYAwCjDx37jnwoTIBu9CwCC+ecQoWG8sGVRpfI": "Haymaker",
 		"igAAADJRpbL2mjB/fZfgDx0cWMM0W4i+3W6K+9wBK8N0py+U7ORJ": "Bloody Wiggly Cry Baby",
 		"CgAAADLHoFT53NZAOJHL7n7jgCO3KB69HAcaCucQYZnLtYxR6/E": "Data Scrubber",
 		"igAAADIXtIryQtYAwGjZj1gcI8Mi6b28HAiLx8cBK2f0vC1z7dJJ": "Boomacorn",
