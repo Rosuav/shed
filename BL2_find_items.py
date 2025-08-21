@@ -557,6 +557,7 @@ library = {
 		"igAAADKWtzzyRg1HP2eeDS3YpcY0kga5WOiI/8QBK1OVj+1F6QRK": "Accessible Cheat Code", # V
 		"igAAADKWsDzyRghHP2eeDY3YpcY0vJe5WOiI/8QBK1OVn+1F6aRL": "All-In Cheat Code", # V
 		"igAAADKWsDz/RglH0ZfkDjXfBUsvXJu5XmiJ/9YBK7OUj+0VbP9L": "Deft Fox", # V
+		"igAAADL+sDzyRhhHP2fSr/Df5UMiM8G8XkgKxNcBK3fUhO0FbRK3": "Bladed Torrent", # V
 		# Launchers
 		"igAAADJTvrb0UiFvxZeQDh2flMstKU25nq+M/9ABK7s0t6wk7z1J": "Large Spread", # V
 		"igAAADJTvrb0UitvwWitDz2e9MM0zHi+XxSL+9IBK2s1v6zU7ARJ": "Berrigan", # V
