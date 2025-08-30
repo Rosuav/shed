@@ -416,6 +416,7 @@ library = {
 		"hwAAADLKvwT5NtYAwGgtbVDfok4hoqu8XywJu8cDK8sWhOzSZrFJ": "Fervid Hellfire",
 		"hwAAADIHS20A5TXPwWjVy1Ge8dMnX1a8mQMPut8DK7+3zagx/fdK": "Crammed Unkempt Harold",
 		"hwAAADIKvgT4Nj2nwWj5L33dMkI07Nm1X2wK9sYDK8sWhOzybYRJ": "Consummate Crit",
+		"hwAAADIHS+31AjLPwWgtbfie4dMnQkq8miMPuscDK9+3NagR/VdJ": "Elegant Thunderball Fists",
 		# Grenades
 		"BwAAADLCuhHxmSU8wOjSDKEfogGraRu+EzziescQoXr3uq5NbvU": "Longbow Bonus Package",
 		"BwAAADLCudH52S+8IhTTDKHfpQHpUxu2E0jiWscQ4X33uq5N7vY": "Longbow Breath of Terramorphous",
@@ -466,6 +467,7 @@ library = {
 		"hwAAADJEr5j3DjPXwWjRrwFdUUcmYiK8XwOKxdUDK2fUtW4Ba9ZI": "Speeedee Launcher",
 		"hwAAADLEr5j3DjHXwWi5rWld0UUmSgG8XYOIxd8DKwvWpW4xa5ZI": "dippity boom",
 		"hwAAADJErpj3DjPXwWixrQFdEUgmCTC8X6OIxdUDKzvWtW6BZNZI": "Speeedee Badaboom", # Synthesized, unconfirmed
+		"hwAAADKClhQA5T7nwWhlTTDewEslJOC8n8IIxd8DK7MWnekAbfVJ": "Slippery Rifle", # Torgue AR
 		# Relics
 		"BwAAADIBS20A5S1fPXd/xYkbgM3MtQqOBQSK/JcqOGg": "Heart of the Ancients", # SMG variant
 		"BwAAADI+S20AZS+/OldkWoEUi/wcxQqOBQTKBSjdR5k": "Proficiency Relic",
