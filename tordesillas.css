@@ -6,3 +6,31 @@ body, button { /* not sure why buttons don't get this by inheritance */
 	font-family: 'Lexend', sans-serif;
 	line-height: 1.3;
 }
+
+/* Remove the body margin and have main control the full view height and width */
+body {margin: 0;}
+
+h1 {
+	margin: 0;
+	text-align: center;
+}
+
+main {
+	padding: 8px; /* Reinstate what the body used to have for a margin */
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+main > * {
+	flex: 0;
+}
+
+main > #map {
+	flex: 1;
+	display: flex;
+}
+
+gmp-map-3d {
+	flex: 1;
+}
