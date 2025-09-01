@@ -15,11 +15,11 @@ if len(sys.argv) < 2:
 with open(sys.argv[1], newline="") as f: cities = list(csv.DictReader(f))
 print(len(cities), "cities loaded.")
 saint_colors = {
-	"san": "#de6",
-	"sao": "#3a3",
-	"saint": "#811", "st": "#811",
-	"sainte": "#218",
-	"santo": "#639", "santa": "#639",
+	"san": "#c1ab08",
+	"sao": "#39a065",
+	"saint": "#c11a0e", "st": "#c11a0e",
+	"sainte": "#1432d2",
+	"santo": "#639", "santa": "#639", # Unknown what country these should be, so they can get Rebecca Purple
 }
 saintcities = []
 for city in cities:
