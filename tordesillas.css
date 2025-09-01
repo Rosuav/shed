@@ -29,6 +29,7 @@ main > * {
 main > #map {
 	flex: 1;
 	display: flex;
+	gap: 10px;
 }
 
 gmp-map-3d {
