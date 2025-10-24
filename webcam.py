@@ -5,11 +5,13 @@ import curses
 import fcntl
 import signal
 import subprocess
+import sys
 from linuxpy.video.device import Device
 
 dev = "/dev/webcam_c615"
 
-vlc = subprocess.Popen(["vlc", "v4l2://" + dev], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+if "-q" not in sys.argv:
+	vlc = subprocess.Popen(["vlc", "v4l2://" + dev], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 def ended(*a, **kw):
 	# When the VLC process finishes, terminate ourselves cleanly.
 	# NOTE: Even if we don't, it seems to crash something. Might need to guard elsewhere
