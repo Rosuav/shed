@@ -1,11 +1,22 @@
-# Spawn ["vlc", "v4l2://" + device]
+# Spawn VLC to show the camera, and give controls to adjust it.
 # When VLC terminates, reset all settings that we changed and exit.
 # On Ctrl-C or other termination, reset all settings and abandon VLC.
 import curses
 import fcntl
+import signal
+import subprocess
 from linuxpy.video.device import Device
 
 dev = "/dev/webcam_c615"
+
+vlc = subprocess.Popen(["vlc", "v4l2://" + dev], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+def ended(*a, **kw):
+	# When the VLC process finishes, terminate ourselves cleanly.
+	# NOTE: Even if we don't, it seems to crash something. Might need to guard elsewhere
+	# against signals interrupting getkey().
+	if vlc.poll() is not None:
+		signal.raise_signal(signal.SIGINT)
+signal.signal(signal.SIGCHLD, ended)
 
 def main(stdscr):
 	with Device(dev) as fd:
@@ -35,4 +46,5 @@ def main(stdscr):
 			# Reset all settings when we're done.
 			for ctrl, ctrl.value in zip(controls, initial_values): pass
 
-curses.wrapper(main)
+try: curses.wrapper(main)
+except KeyboardInterrupt: pass # Ctrl-C is a valid termination signal, either manually or from VLC ending
