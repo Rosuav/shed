@@ -3,7 +3,8 @@
 int main(int argc,array(string) argv)
 {
 	if (argc<3) exit(1,"USAGE: %s time command [args...]\nExecutes command at time, with tick-down display.\n",argv[0]);
-	sscanf(argv[1],"%d:%d",int hr,int min);
+	int usetitle = argv[1] == "--title";
+	sscanf(argv[1 + usetitle], "%d:%d", int hr, int min);
 	while (1)
 	{
 		//Delay a bit and then redisplay the time. Recalculates every iteration for safety.
@@ -20,6 +21,7 @@ int main(int argc,array(string) argv)
 		if (secs<0) secs+=86400;
 		if (secs<=60)
 		{
+			if (usetitle) write("\033]0;%d\a", secs);
 			write("Sleeping %d seconds until %02d:%02d\n",secs,hr,min);
 			sleep(secs);
 			//Try an exec first. If that succeeds, great! But it doesn't search paths (it's not
@@ -32,8 +34,10 @@ int main(int argc,array(string) argv)
 			//then retry the exec. But it's probably not worth it.
 			exit(Process.create_process(argv[2..])->wait());
 		}
-		if (secs>=3600) write("Sleeping %d:%02d:%02d until %02d:%02d \r",secs/3600,(secs/60)%60,secs%60,hr,min);
-		else write("Sleeping %02d:%02d until %02d:%02d  \r",secs/60,secs%60,hr,min);
+		string timeleft = secs >= 3600 ? sprintf("%d:%02d:%02d", secs/3600, (secs/60)%60, secs%60)
+			: sprintf("%02d:%02d", secs/60, secs%60);
+		if (usetitle) write("\033]0;%s\a", timeleft);
+		write("Sleeping %s until %02d:%02d \r", timeleft, hr, min);
 		sleep(secs%60 || 60); //Try to get the "time to launch" to an exact number of minutes
 	}
 }
