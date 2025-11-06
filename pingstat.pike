@@ -18,9 +18,14 @@ additional successes within the first eighth of a second will be ignored.
 This is fairly arbitrary, but gives decent results in practice.
 */
 
+int scream = 0, last_scream = time() - 299; //Even in scream mode, don't scream in the first second.
 void bad_line(string line) {
 	//TODO: Figure out if the terminal supports colour
 	write("\e[1;31m%s\e[0m\e[K\n", line);
+	if (scream && last_scream < time() - 300) {
+		Process.create_process(({"vlc", "/home/rosuav/Music/Alice/Alice.mp3"}));
+		last_scream = time();
+	}
 }
 
 object runtime = System.Timer();
@@ -74,6 +79,7 @@ void got_stderr(mixed _, string data) {
 int main(int argc, array(string) argv) {
 	mapping modifiers = (["stdout": got_stdout, "stderr": got_stderr]);
 	object out = Stdio.File(), err = Stdio.File();
+	scream = has_value(argv, "--scream"); argv -= ({"--scream"});
 	object proc = Process.Process(({"ping"}) + argv[1..], ([
 		"stdout": out->pipe(), "err": err->pipe(),
 		"callback": lambda() {exit(0);},
