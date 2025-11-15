@@ -3,8 +3,8 @@
 int main(int argc,array(string) argv)
 {
 	if (argc<3) exit(1,"USAGE: %s time command [args...]\nExecutes command at time, with tick-down display.\n",argv[0]);
-	int usetitle = argv[1] == "--title";
-	sscanf(argv[1 + usetitle], "%d:%d", int hr, int min);
+	int usetitle = argv[1] == "--title"; argv -= ({"--title"});
+	sscanf(argv[1], "%d:%d", int hr, int min);
 	while (1)
 	{
 		//Delay a bit and then redisplay the time. Recalculates every iteration for safety.
