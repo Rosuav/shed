@@ -40,7 +40,7 @@ def main(stdscr):
 				stdscr.refresh()
 				key = stdscr.getkey()
 				if key == "KEY_DOWN": curctrl = (curctrl + 1) % len(controls)
-				elif key == "KEY_UP": curctrl = (curctrl + 1) % len(controls)
+				elif key == "KEY_UP": curctrl = (curctrl - 1) % len(controls)
 				elif key == "KEY_LEFT":  controls[curctrl].decrease()
 				elif key == "KEY_RIGHT": controls[curctrl].increase()
 				elif key == "q" or key == "Q": break
