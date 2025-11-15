@@ -32,6 +32,7 @@ int main(int argc,array(string) argv)
 			//Note that if we absolutely had to exec here (if we promised to maintain the PID,
 			//for instance), we could probably shell out to /usr/bin/which on the first arg and
 			//then retry the exec. But it's probably not worth it.
+			if (usetitle) write("\033]0;GO!\a");
 			exit(Process.create_process(argv[2..])->wait());
 		}
 		string timeleft = secs >= 3600 ? sprintf("%d:%02d:%02d", secs/3600, (secs/60)%60, secs%60)
