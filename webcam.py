@@ -34,7 +34,7 @@ def main(stdscr):
 			curctrl = 0
 			while True:
 				for i, ctrl in enumerate(controls):
-					stdscr.addstr(i, 0, f"{'>' if curctrl == i else ' '} {ctrl.name:20} [{ctrl.value}]")
+					stdscr.addstr(i, 0, f"{'>' if curctrl == i else ' '} {ctrl.name:20} [{ctrl.value}]  ")
 				stdscr.addstr(i + 2, 0, "Up/down to select, right/left to adjust, Q to quit: ")
 				#stdscr.move(i + 3, 0)
 				stdscr.refresh()
