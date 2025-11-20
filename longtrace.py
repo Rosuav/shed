@@ -18,7 +18,7 @@ def icmpv6_checksum(src, dest, pkt):
 		checksum = (checksum >> 16) + (checksum & 0xFFFF)
 	return ~checksum & 0xFFFF
 
-def print_and_accept(pkt):
+def handle_packet(pkt):
 	data = pkt.get_payload()
 	src = socket.inet_ntop(socket.AF_INET6, data[8:8+16])
 	dest = socket.inet_ntop(socket.AF_INET6, data[24:24+16])
@@ -51,7 +51,7 @@ def print_and_accept(pkt):
 	sock.sendto(resp, (src, 0))
 
 nfqueue = NetfilterQueue()
-nfqueue.bind(1, print_and_accept)
+nfqueue.bind(1, handle_packet)
 try: nfqueue.run()
 except KeyboardInterrupt: print()
 finally: nfqueue.unbind()
