@@ -40,6 +40,8 @@ def dnsresp():
 		ip, port, data = msg.split(b" ")
 		data = base64.b64decode(data)
 		print("Send to", ip, port)
+		# TODO: Build a UDP header, using the correct port numbers (source 53, dest as given)
+		# Then send it from "2403:5803:bf48:1::" to the given IP
 threading.Thread(target=dnsresp).start()
 
 def handle_packet(pkt):
