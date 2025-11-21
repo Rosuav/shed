@@ -4,6 +4,12 @@ import subprocess
 import threading
 from netfilterqueue import NetfilterQueue # pip install netfilterqueue
 
+# New option, proposed 20251121 for inclusion in Python 3.15
+# The feature is supported by the underlying kernel, so if the constant is missing,
+# we just need to add it.
+try: socket.IPV6_HDRINCL
+except AttributeError: socket.IPV6_HDRINCL = 36
+
 # Everything here is in the address space 2403:5803:bf48:1::xxxx.
 # This is magically routed to the netfilter queue and handled by this script.
 # Currently, all relevant addresses are in 2403:5803:bf48:1::/112 but this may change in the future.
@@ -88,11 +94,10 @@ def send_ipv6(srcaddr, destaddr, nexthdr, pkt):
 	# addresses as an actual bindable address on the network interface. Bit of a pain. I don't
 	# know how 127.x.y.z works, as you can bind to any address within that range, but I haven't
 	# been able to replicate that for an IPv6 netblock. So we use option 2: raw socket, no IP
-	# header, and build our own. However, we need to stop the system from adding its own. On an
-	# IPv4 socket, that's pretty straightforward; for some reason, the corresponding sockopt
-	# for IPv6 doesn't seem to be listed in the Python socket module, at least not in 3.14.
-	# Fortunately, the underlying kernel does support it, and it's socket option 36.
-	sock.setsockopt(socket.IPPROTO_IPV6, 36, 1)
+	# header, and build our own. However, we need to stop the system from adding its own. The
+	# option to do this is called HDRINCL, and it causes the system to *not* include a header,
+	# so I guess the meaning is "the header is already included"?
+	sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_HDRINCL, 1)
 	sock.sendto(resp, (socket.inet_ntop(socket.AF_INET6, destaddr), 0))
 
 nfqueue = NetfilterQueue()
