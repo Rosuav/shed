@@ -20,27 +20,26 @@ def calc_checksum(src, dest, nexthdr, pkt):
 	checksum = 0
 	for i in range(0, len(pkt), 2):
 		checksum += (pkt[i] << 8) + pkt[i + 1]
-	if len(pkt) % 2:
-		# Unsure if this is correct. Is a loose byte considered high or low?
-		# I think it's supposed to be padded, maybe that should happen elsewhere??
-		checksum += pkt[i] << 8
 	while checksum > 0x10000:
 		checksum = (checksum >> 16) + (checksum & 0xFFFF)
 	return ~checksum & 0xFFFF
 
 dnshandler = subprocess.Popen(["pike", "dnspipe.pike"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=0)
+tracelengths = []
 def dnsresp():
 	buf = b""
 	while True:
 		while b"\n" not in buf:
 			chunk = dnshandler.stdout.read(1024)
-			print("GOT CHUNK", chunk)
 			if not chunk: return
 			buf += chunk
 		msg, _, buf = buf.partition(b"\n")
+		if msg.startswith(b"TRACES"):
+			global tracelengths; tracelengths = [int(x) for x in msg.split(b" ")[1:]]
+			continue
 		ip, port, data = msg.split(b" ")
 		data = base64.b64decode(data)
-		print("Send to", ip, port)
+		if len(data) % 2: data += b"\0" # The packet has to be a multiple of 2 octets
 		# TODO: Build a UDP header, using the correct port numbers (source 53, dest as given)
 		# Then send it from "2403:5803:bf48:1::" to the given IP
 		srcbin = socket.inet_pton(socket.AF_INET6, "2403:5803:bf48:1::")
@@ -48,7 +47,6 @@ def dnsresp():
 		destport = int(port).to_bytes(2, "big")
 		data = b"\0\x35" + destport + (len(data) + 8).to_bytes(2, "big") + b"\0\0" + data
 		checksum = calc_checksum(srcbin, destbin, b"\x11", data)
-		print("Checksum: %04x" % checksum)
 		data = data[:6] + checksum.to_bytes(2, "big") + data[8:]
 		send_ipv6(srcbin, destbin, b"\x11", data)
 
@@ -58,22 +56,22 @@ def handle_packet(pkt):
 	data = pkt.get_payload()
 	src = socket.inet_ntop(socket.AF_INET6, data[8:8+16])
 	dest = socket.inet_ntop(socket.AF_INET6, data[24:24+16])
-	print(pkt, "from", src, "to", dest, "TTL", data[7])
+	# print(pkt, "from", src, "to", dest, "TTL", data[7])
 	pkt.drop()
 	# Is it a UDP packet on port 53? That's what we in the biz call "DNS"!
 	if data[6] == 17 and dest == "2403:5803:bf48:1::" and data[42:44] == b"\0\x35":
-		print("That looks like DNS to me!")
 		port = data[40] * 256 + data[41]
 		dnshandler.stdin.write(b"%s %d %s\n" % (src.encode(), port, base64.b64encode(data[48:])));
 		return
 	# If we've reached the end of the trace (here, arbitrarily set at 10 hops), send back "Port unreachable",
 	# otherwise send back "Time exceeded".
-	if data[7] >= 10:
+	trace = data[39]
+	if trace > len(tracelengths) or data[7] >= tracelengths[trace - 1]:
 		srcaddr = dest # Response comes back from the actual destination
 		resp = b"\1\4\0\0\0\0\0\0" + data[:48]
 	else:
 		# Response comes back from a mythical hop between here and there
-		srcaddr = "2403:5803:bf48:1::%x" % (0x100 + data[7])
+		srcaddr = "2403:5803:bf48:1::%x" % (trace * 256 + data[7])
 		resp = b"\3\0\0\0\0\0\0\0" + data[:48]
 	srcbin = socket.inet_pton(socket.AF_INET6, srcaddr)
 	destbin = data[8:8+16]
