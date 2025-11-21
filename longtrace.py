@@ -11,12 +11,12 @@ from netfilterqueue import NetfilterQueue # pip install netfilterqueue
 # ::0001 is the target for the first trace (Jabberwocky)
 # ::01xx is the steps of the first trace, where xx is the hop count.
 
-def icmpv6_checksum(src, dest, pkt):
-	"""Calculate an ICMPv6 checksum for a packet
+def calc_checksum(src, dest, extra, pkt):
+	"""Calculate an ICMPv6 or UDP checksum for a packet
 	The algorithm is not the same as the one used for ICMPv4, and includes a pseudo-header.
 	The source and dest IPs should be provided in packed format.
 	"""
-	pkt = src + dest + len(pkt).to_bytes(4, "big") + b"\0\0\0\x3a" + pkt
+	pkt = src + dest + len(pkt).to_bytes(4, "big") + extra + pkt
 	checksum = 0
 	for i in range(0, len(pkt), 2):
 		checksum += (pkt[i] << 8) + pkt[i + 1]
@@ -42,6 +42,9 @@ def dnsresp():
 		print("Send to", ip, port)
 		# TODO: Build a UDP header, using the correct port numbers (source 53, dest as given)
 		# Then send it from "2403:5803:bf48:1::" to the given IP
+		#checksum = calc_checksum(
+		...
+
 threading.Thread(target=dnsresp).start()
 
 def handle_packet(pkt):
@@ -65,15 +68,15 @@ def handle_packet(pkt):
 		# Response comes back from a mythical hop between here and there
 		srcaddr = "2403:5803:bf48:1::%x" % (0x100 + data[7])
 		resp = b"\3\0\0\0\0\0\0\0" + data[:48]
-	checksum = icmpv6_checksum(socket.inet_pton(socket.AF_INET6, srcaddr), data[8:8+16], resp)
+	srcbin = socket.inet_pton(socket.AF_INET6, srcaddr)
+	destbin = data[8:8+16]
+	checksum = calc_checksum(srcbin, destbin, b"\0\0\0\x3a", resp)
 	resp = resp[:2] + checksum.to_bytes(2, "big") + resp[4:]
-	send_ipv6(srcaddr, src, resp)
+	send_ipv6(srcbin, destbin, resp)
 
-def send_ipv6(src, dest, pkt):
+def send_ipv6(srcaddr, destaddr, pkt):
 	# Prepend an IPv6 header to the ICMP packet.
 	# TODO: Randomize the 20-bit flow label (here 0x12345) once I no longer need to be able to spot it in wireshark
-	srcaddr = socket.inet_pton(socket.AF_INET6, src)
-	destaddr = socket.inet_pton(socket.AF_INET6, dest)
 	resp = b"\x60\x01\x23\x45" + len(pkt).to_bytes(2, "big") + b"\x3a\x40" + srcaddr + destaddr + pkt
 	sock = socket.socket(socket.AF_INET6, socket.SOCK_RAW, socket.IPPROTO_ICMPV6)
 	# So, we need to send this from a specific origin address. Option 1: Have every one of those
@@ -85,7 +88,7 @@ def send_ipv6(src, dest, pkt):
 	# for IPv6 doesn't seem to be listed in the Python socket module, at least not in 3.14.
 	# Fortunately, the underlying kernel does support it, and it's socket option 36.
 	sock.setsockopt(socket.IPPROTO_IPV6, 36, 1)
-	sock.sendto(resp, (dest, 0))
+	sock.sendto(resp, (socket.inet_ntop(socket.AF_INET6, destaddr), 0))
 
 nfqueue = NetfilterQueue()
 nfqueue.bind(1, handle_packet)
