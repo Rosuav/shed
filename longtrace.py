@@ -11,17 +11,18 @@ from netfilterqueue import NetfilterQueue # pip install netfilterqueue
 # ::0001 is the target for the first trace (Jabberwocky)
 # ::01xx is the steps of the first trace, where xx is the hop count.
 
-def calc_checksum(src, dest, extra, pkt):
+def calc_checksum(src, dest, nexthdr, pkt):
 	"""Calculate an ICMPv6 or UDP checksum for a packet
 	The algorithm is not the same as the one used for ICMPv4, and includes a pseudo-header.
 	The source and dest IPs should be provided in packed format.
 	"""
-	pkt = src + dest + len(pkt).to_bytes(4, "big") + extra + pkt
+	pkt = src + dest + len(pkt).to_bytes(4, "big") + b"\0\0\0" + nexthdr + pkt
 	checksum = 0
 	for i in range(0, len(pkt), 2):
 		checksum += (pkt[i] << 8) + pkt[i + 1]
 	if len(pkt) % 2:
 		# Unsure if this is correct. Is a loose byte considered high or low?
+		# I think it's supposed to be padded, maybe that should happen elsewhere??
 		checksum += pkt[i] << 8
 	while checksum > 0x10000:
 		checksum = (checksum >> 16) + (checksum & 0xFFFF)
@@ -42,8 +43,14 @@ def dnsresp():
 		print("Send to", ip, port)
 		# TODO: Build a UDP header, using the correct port numbers (source 53, dest as given)
 		# Then send it from "2403:5803:bf48:1::" to the given IP
-		#checksum = calc_checksum(
-		...
+		srcbin = socket.inet_pton(socket.AF_INET6, "2403:5803:bf48:1::")
+		destbin = socket.inet_pton(socket.AF_INET6, ip.decode())
+		destport = int(port).to_bytes(2, "big")
+		data = b"\0\x35" + destport + (len(data) + 8).to_bytes(2, "big") + b"\0\0" + data
+		checksum = calc_checksum(srcbin, destbin, b"\x11", data)
+		print("Checksum: %04x" % checksum)
+		data = data[:6] + checksum.to_bytes(2, "big") + data[8:]
+		send_ipv6(srcbin, destbin, b"\x11", data)
 
 threading.Thread(target=dnsresp).start()
 
@@ -70,14 +77,14 @@ def handle_packet(pkt):
 		resp = b"\3\0\0\0\0\0\0\0" + data[:48]
 	srcbin = socket.inet_pton(socket.AF_INET6, srcaddr)
 	destbin = data[8:8+16]
-	checksum = calc_checksum(srcbin, destbin, b"\0\0\0\x3a", resp)
+	checksum = calc_checksum(srcbin, destbin, b"\x3a", resp)
 	resp = resp[:2] + checksum.to_bytes(2, "big") + resp[4:]
-	send_ipv6(srcbin, destbin, resp)
+	send_ipv6(srcbin, destbin, b"\x3a", resp)
 
-def send_ipv6(srcaddr, destaddr, pkt):
+def send_ipv6(srcaddr, destaddr, nexthdr, pkt):
 	# Prepend an IPv6 header to the ICMP packet.
 	# TODO: Randomize the 20-bit flow label (here 0x12345) once I no longer need to be able to spot it in wireshark
-	resp = b"\x60\x01\x23\x45" + len(pkt).to_bytes(2, "big") + b"\x3a\x40" + srcaddr + destaddr + pkt
+	resp = b"\x60\x01\x23\x45" + len(pkt).to_bytes(2, "big") + nexthdr + b"\x40" + srcaddr + destaddr + pkt
 	sock = socket.socket(socket.AF_INET6, socket.SOCK_RAW, socket.IPPROTO_ICMPV6)
 	# So, we need to send this from a specific origin address. Option 1: Have every one of those
 	# addresses as an actual bindable address on the network interface. Bit of a pain. I don't

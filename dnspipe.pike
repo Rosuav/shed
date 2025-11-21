@@ -14,7 +14,8 @@ mapping dns_response(mapping req) {
 		string ptr;
 		if (b) {
 			//eg ::01xx, this is a step in the chain. The last two digits are the step number, and b is the document number.
-			int step = c << 4 + d;
+			int step = (c << 4) | d;
+			//This would be where we fetch the actual text.
 			ptr = "step-" + step + ".jabberwocky.";
 		} else if (d) {
 			//eg ::000x, this is the endpoint of a chain
@@ -32,11 +33,9 @@ int main() {
 	while (1) catch {
 		string line = Stdio.stdin->gets();
 		if (!line || !sizeof(line)) break;
-		werror("Got a packet\n");
 		sscanf(line, "%s %d %s", string ip, int port, string pkt);
 		mapping req = decode_res(MIME.decode_base64(pkt));
 		pkt = low_send_reply(dns_response(req), req, ([]));
-		werror("SENDING RESP %O %O\n", ip, port);
 		write("%s %d %s\n", ip, port, MIME.encode_base64(pkt, 1));
 		Stdio.stdout->flush();
 	};
