@@ -4,7 +4,7 @@ import subprocess
 import threading
 from netfilterqueue import NetfilterQueue # pip install netfilterqueue
 
-# New option, proposed 20251121 for inclusion in Python 3.15
+# This constant was added in Python 3.15, but doesn't exist in previous Pythons.
 # The feature is supported by the underlying kernel, so if the constant is missing,
 # we just need to add it.
 try: socket.IPV6_HDRINCL
