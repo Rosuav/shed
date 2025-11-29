@@ -72,7 +72,7 @@ def handle_packet(pkt):
 	# If we've reached the end of the trace (here, arbitrarily set at 10 hops), send back "Port unreachable",
 	# otherwise send back "Time exceeded".
 	trace = data[39]
-	if trace > len(tracelengths) or data[7] >= tracelengths[trace - 1]:
+	if trace > len(tracelengths) or data[7] > tracelengths[trace - 1]:
 		srcaddr = dest # Response comes back from the actual destination
 		resp = b"\1\4\0\0\0\0\0\0" + data[:48]
 	else:
