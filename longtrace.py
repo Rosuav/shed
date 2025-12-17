@@ -10,9 +10,9 @@ from netfilterqueue import NetfilterQueue # pip install netfilterqueue
 try: socket.IPV6_HDRINCL
 except AttributeError: socket.IPV6_HDRINCL = 36
 
-# Everything here is in the address space 2403:5803:bf48:1::xxxx.
+# Everything here is in the address space 2403:5803:f90e:1::xxxx.
 # This is magically routed to the netfilter queue and handled by this script.
-# Currently, all relevant addresses are in 2403:5803:bf48:1::/112 but this may change in the future.
+# Currently, all relevant addresses are in 2403:5803:f90e:1::/112 but this may change in the future.
 # ::0000 is the DNS server
 # ::0001 is the target for the first trace (Jabberwocky)
 # ::01xx is the steps of the first trace, where xx is the hop count.
@@ -47,8 +47,8 @@ def dnsresp():
 		data = base64.b64decode(data)
 		if len(data) % 2: data += b"\0" # The packet has to be a multiple of 2 octets
 		# TODO: Build a UDP header, using the correct port numbers (source 53, dest as given)
-		# Then send it from "2403:5803:bf48:1::" to the given IP
-		srcbin = socket.inet_pton(socket.AF_INET6, "2403:5803:bf48:1::")
+		# Then send it from "2403:5803:f90e:1::" to the given IP
+		srcbin = socket.inet_pton(socket.AF_INET6, "2403:5803:f90e:1::")
 		destbin = socket.inet_pton(socket.AF_INET6, ip.decode())
 		destport = int(port).to_bytes(2, "big")
 		data = b"\0\x35" + destport + (len(data) + 8).to_bytes(2, "big") + b"\0\0" + data
@@ -65,7 +65,7 @@ def handle_packet(pkt):
 	# print(pkt, "from", src, "to", dest, "TTL", data[7])
 	pkt.drop()
 	# Is it a UDP packet on port 53? That's what we in the biz call "DNS"!
-	if data[6] == 17 and dest == "2403:5803:bf48:1::" and data[42:44] == b"\0\x35":
+	if data[6] == 17 and dest == "2403:5803:f90e:1::" and data[42:44] == b"\0\x35":
 		port = data[40] * 256 + data[41]
 		dnshandler.stdin.write(b"%s %d %s\n" % (src.encode(), port, base64.b64encode(data[48:])));
 		return
@@ -77,7 +77,7 @@ def handle_packet(pkt):
 		resp = b"\1\4\0\0\0\0\0\0" + data[:48]
 	else:
 		# Response comes back from a mythical hop between here and there
-		srcaddr = "2403:5803:bf48:1::%x" % (trace * 256 + data[7])
+		srcaddr = "2403:5803:f90e:1::%x" % (trace * 256 + data[7])
 		resp = b"\3\0\0\0\0\0\0\0" + data[:48]
 	srcbin = socket.inet_pton(socket.AF_INET6, srcaddr)
 	destbin = data[8:8+16]
