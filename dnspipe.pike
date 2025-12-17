@@ -69,7 +69,7 @@ mapping dns_response(mapping req) {
 	if (q->type == Protocols.DNS.T_PTR) {
 		sscanf(q->name, "%x.%x.%x.%x.%s", int d, int c, int b, int a, string tail);
 		//This should be the only domain that's delegated to us
-		if (tail != "0.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0.8.4.f.b.3.0.8.5.3.0.4.2.ip6.arpa") return (["rcode": Protocols.DNS.NXDOMAIN]);
+		if (tail != "0.0.0.0.0.0.0.0.0.0.0.0.1.0.0.0.e.0.9.f.3.0.8.5.3.0.4.2.ip6.arpa") return (["rcode": Protocols.DNS.NXDOMAIN]);
 		if (a) return (["rcode": Protocols.DNS.NXDOMAIN]);
 		string ptr;
 		if (b) {
