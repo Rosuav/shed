@@ -7,11 +7,24 @@ int main(int argc, array(string) argv)
 	mapping lastinfo=([]);
 	System.Timer timer=System.Timer();
 	int have_comments = 0;
+	mapping lastipv6 = ([]);
 	while (1)
 	{
 		mapping info=([]);
 		string chain="???";
 		float tm=timer->get();
+		//Get some IPv6 stats. Then, as we go through the IPv4 stats, any corresponding stats will be put on the same line.
+		mapping ipv6 = ([]);
+		foreach (Process.run(({"ip6tables", "-nvxL"}))->stdout / "\n", string line) if (has_value(line, "/* stat:")) {
+			array parts=line/" "-({""});
+			if (sizeof(parts)<9) continue; //Invalid line
+			[string pkts,string bytes,string target,string prot,string opt,string in,string out,string source,string dest]=parts[..8];
+			string extra=parts[9..]*" ";
+			have_comments = 1;
+			sscanf(extra, "%*s/* stat: %s */", string comment);
+			ipv6[comment] = ({(int)bytes, (int)pkts});
+		}
+		//Now get the IPv4 stats.
 		foreach (Process.run(({"iptables","-nvxL"}))->stdout/"\n",string line)
 		{
 			if (line=="") continue;
@@ -55,15 +68,20 @@ int main(int argc, array(string) argv)
 				while (info[desc]) desc+="*"; //Force disambiguation. If this marker is coming up, it probably means the above info needs to be cleaned up.
 			}
 			info[desc] = ({(int)bytes, (int)pkts});
-			if (lastinfo[desc]) write("%12f/s %9f/s %s\n", @diff(info[desc][*], lastinfo[desc][*], tm), desc);
-			else write("New: %11d %9d %s\n", @info[desc], desc);
+			string ipv4line = lastinfo[desc] ? sprintf("%12f/s %9f/s %s", @diff(info[desc][*], lastinfo[desc][*], tm), desc)
+				: sprintf("New: %11d %9d %s", @info[desc], desc);
+			if (ipv6[desc]) {
+				string ipv6line = lastipv6[desc] ? sprintf("%12f/s %9f/s", @diff(ipv6[desc][*], lastipv6[desc][*], tm))
+					: sprintf("New: %11d %9d", @ipv6[desc]);
+				write("%-60s | %s\n", ipv4line, ipv6line);
+			} else write("%s\n", ipv4line);
 		}
 		if (info[chain])
 		{
 			if (lastinfo[chain]) write("%12f/s %9f/s %s\n", @diff(info[chain][*], lastinfo[chain][*], tm), chain);
 			else write("New: %11d %9d %s\n", @info[chain], chain);
 		}
-		lastinfo=info;
+		lastinfo = info; lastipv6 = ipv6;
 		write("\n");
 		sleep(rate);
 	}
