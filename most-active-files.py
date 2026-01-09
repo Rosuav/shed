@@ -29,7 +29,8 @@ for line in proc.stdout.split("\n"):
 	stats[1] += int(added)
 	stats[2] += int(removed)
 files = list(active_files.items())
-files.sort(key=lambda pair: -pair[1][0])
+files.sort(key=lambda pair: -pair[1][0]) # Sort by number of commits
+# files.sort(key=lambda pair: -pair[1][1]-pair[1][2]) # Sort by total lines added/removed
 print("Top ten most-active files are:")
 print("Commits |  Added  | Removed | File name")
 for fn, [commits, added, removed] in files[:10]:
