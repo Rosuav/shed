@@ -33,12 +33,20 @@ def read_char(screen, xpos, ypos):
 		print(f"{stripe:016b}")
 		char.append(stripe)
 	print(char)
-# read_char(717, 276)
+#read_char(ImageGrab.grab(), 995, 622)
+
+def read_image(screen, xpos, ypos):
+	for y in range(ypos, ypos + 13):
+		for x in range(xpos, xpos + 17): # Try for two digits
+			print("X" if screen.getpixel((x, y))[0] < 0x60 else " ", end="")
+		print()
+#read_image(ImageGrab.grab(), 994, 622)
 
 def read_row(screen, xpos, ypos, width):
 	xmax = xpos + width
 	xpos -= 1 # Allow the increment to happen at the top of the loop
-	number = 0
+	number = integer = 0
+	have_decimal = 0
 	post_number = []
 	while xpos < xmax:
 		xpos += 1 # This logically belongs at the bottom of the loop, but it's easier to use 'continue' if it's at the top
@@ -46,6 +54,14 @@ def read_row(screen, xpos, ypos, width):
 		# Everything after the number could be a unit that matters to us
 		if stripe or post_number: post_number.append(stripe)
 		if stripe == 0: continue # Empty column, step forward
+		if (stripe == 7168 # Decimal point?
+			and read_stripe(screen, xpos + 1, ypos) == 7168
+			and read_stripe(screen, xpos + 2, ypos) == 7168
+			and read_stripe(screen, xpos + 3, ypos) == 0):
+				print("Got a decimal!")
+				integer = number
+				number = 0
+				have_decimal = 1
 		likely = [0] * 10
 		for i in range(CHAR_WIDTH):
 			if i: stripe = read_stripe(screen, xpos + i, ypos)
@@ -56,11 +72,20 @@ def read_row(screen, xpos, ypos, width):
 		digit, quality = max(enumerate(likely), key=lambda x: x[1])
 		if quality < 4: continue # Bad match, slide forward a pixel and try again
 		number = (number * 10) + digit
+		if have_decimal: have_decimal += 1 # Count how many digits we get after the decimal
 		xpos += CHAR_WIDTH
 		post_number = []
 	#for stripe in post_number:
 	#	print(f"{stripe:013b}")
+	if have_decimal:
+		# Return fixed-place integer rather than float. The number
+		# is the part after the decimal, and needs to be padded correctly.
+		# Note that have_decimal is one more than the number of digits after the decimal.
+		for _ in range(have_decimal, 3):
+			number *= 10 # Replace missing trailing zeroes
+		number += integer * 100
 	return number, post_number
+# print(read_row(ImageGrab.grab(), 984, 622, 50))
 
 cols = [594, 958]
 rows = [159, 276, 393]
@@ -88,7 +113,7 @@ def reset():
 				subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + downbutton), "click", "1"], check=True)
 reset()
 
-while True:
+while False:
 	screen = ImageGrab.grab()
 	print(read_numbers(screen))
 	time.sleep(0.2)
