@@ -115,6 +115,8 @@ def rate():
 	reset()
 	time.sleep(0.25) # Let the last one finish
 	baseline = read_row(ImageGrab.grab(), 984, 622, 50)[0]
+	pairs = {}
+	items, xy = [], []
 	for y in rows:
 		for x in cols:
 			values = [baseline]
@@ -123,10 +125,30 @@ def rate():
 				time.sleep(0.1)
 				values.append(read_row(ImageGrab.grab(), 984, 622, 50)[0])
 			subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + downbutton)] + ["click", "1"] * 20, check=True)
-			print(values)
-rate()
+			values = tuple(values)
+			# Up to two of them may remain unpaired
+			if values in pairs: pairs[values] = (pairs[values][0], len(items))
+			else: pairs[values] = (len(items), None)
+			items.append(values)
+			xy.append((x, y))
+	for idx, values in enumerate(items):
+		a, b = pairs[values]
+		if b is None:
+			# It's unpaired. Find the single highest and report it.
+			peak = max(range(21), key=lambda i: values[i])
+			print("(unpaired, peak %d)" % peak)
+			x, y = xy[idx]
+			if peak: subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + upbutton)] + ["click", "1"] * peak, check=True)
+		elif a == idx:
+			# Find the peaks. A peak is any index where the values on each side are lower than it,
+			# pretending that the values beyond the ends are zero.
+			peaks = []
+			if values[0] > values[1]: peaks.append(0)
+			for i in range(1, 20):
+				if values[i-1] < values[i] > values[i+1]: peaks.append(i)
+			if values[20] > values[19]: peaks.append(20)
+			print(*peaks, "paired with", b + 1)
+		else:
+			print("Paired with", a + 1)
 
-while False:
-	screen = ImageGrab.grab()
-	print(read_numbers(screen))
-	time.sleep(0.2)
+rate()
