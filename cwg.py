@@ -58,7 +58,6 @@ def read_row(screen, xpos, ypos, width):
 			and read_stripe(screen, xpos + 1, ypos) == 7168
 			and read_stripe(screen, xpos + 2, ypos) == 7168
 			and read_stripe(screen, xpos + 3, ypos) == 0):
-				print("Got a decimal!")
 				integer = number
 				number = 0
 				have_decimal = 1
@@ -109,9 +108,23 @@ def reset():
 	screen = ImageGrab.grab()
 	for y, row in zip(rows, read_numbers(screen)):
 		for x, num in zip(cols, row):
-			for _ in range(num):
-				subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + downbutton), "click", "1"], check=True)
-reset()
+			if num:
+				subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + downbutton)] + ["click", "1"] * num, check=True)
+
+def rate():
+	reset()
+	time.sleep(0.25) # Let the last one finish
+	baseline = read_row(ImageGrab.grab(), 984, 622, 50)[0]
+	for y in rows:
+		for x in cols:
+			values = [baseline]
+			for _ in range(20):
+				subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + upbutton), "click", "1"], check=True)
+				time.sleep(0.1)
+				values.append(read_row(ImageGrab.grab(), 984, 622, 50)[0])
+			subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + downbutton)] + ["click", "1"] * 20, check=True)
+			print(values)
+rate()
 
 while False:
 	screen = ImageGrab.grab()
