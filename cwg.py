@@ -42,7 +42,7 @@ def read_image(screen, xpos, ypos):
 		print()
 #read_image(ImageGrab.grab(), 994, 622)
 
-def read_row(screen, xpos, ypos, width):
+def read_row(screen, xpos, ypos, width, show_unit=False):
 	xmax = xpos + width
 	xpos -= 1 # Allow the increment to happen at the top of the loop
 	number = integer = 0
@@ -83,8 +83,12 @@ def read_row(screen, xpos, ypos, width):
 		for _ in range(have_decimal, 3):
 			number *= 10 # Replace missing trailing zeroes
 		number += integer * 100
-	return number, post_number
-# print(read_row(ImageGrab.grab(), 984, 622, 50))
+	# TODO: Scan the unit to see if we need to scale the number down
+	if show_unit:
+		for slice in post_number:
+			print(f"{slice:013b}")
+	return number
+print(read_row(ImageGrab.grab(), 594, 393, 170, 1))
 
 cols = [594, 958]
 rows = [159, 276, 393]
@@ -94,9 +98,7 @@ def read_numbers(screen):
 	for row in rows:
 		ret.append([])
 		for col in cols:
-			number, unit = read_row(screen, col, row, 170)
-			# TODO: Scan the unit to see if we need to scale the number down
-			ret[-1].append(number)
+			ret[-1].append(read_row(screen, col, row, 170))
 	return ret
 
 # Coordinates of the up and down buttons
@@ -114,7 +116,7 @@ def reset():
 def rate():
 	reset()
 	time.sleep(0.25) # Let the last one finish
-	baseline = read_row(ImageGrab.grab(), 984, 622, 50)[0]
+	baseline = read_row(ImageGrab.grab(), 984, 622, 50)
 	pairs = {}
 	items, xy = [], []
 	for y in rows:
@@ -123,7 +125,7 @@ def rate():
 			for _ in range(20):
 				subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + upbutton), "click", "1"], check=True)
 				time.sleep(0.1)
-				values.append(read_row(ImageGrab.grab(), 984, 622, 50)[0])
+				values.append(read_row(ImageGrab.grab(), 984, 622, 50))
 			subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + downbutton)] + ["click", "1"] * 20, check=True)
 			values = tuple(values)
 			# Up to two of them may remain unpaired
@@ -151,4 +153,4 @@ def rate():
 		else:
 			print("Paired with", a + 1)
 
-rate()
+#rate()
