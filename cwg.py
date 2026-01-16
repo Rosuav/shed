@@ -17,6 +17,8 @@ digits = [
 	[3996, 8190, 6374, 6210, 6211, 6374, 8190, 3996], # 8
 	[3196, 7422, 6598, 6531, 6278, 7374, 4094, 2044], # 9
 ]
+mL = [8176, 8184, 8176, 48, 16, 56, 8176, 8176, 96, 16, 24, 8184, 8176, 8160, 0, 0, 8191, 8191, 8191]
+cups = [1016, 4092, 3870, 7174, 6150, 6147, 6151, 6150, 7182, 3598, 1548, 0, 0, 2032, 8184, 8176, 6144, 6144, 2048, 8176, 8184, 8176, 0, 0, 8176, 8184, 8176, 2096, 6160, 6168, 7288, 8176, 2016, 0, 0, 2272, 7408, 6608, 4504, 4504, 7056, 7984, 3872]
 CHAR_WIDTH = len(digits[0]) # After we find a character, we skip forward this many pixels
 
 def read_stripe(screen, xpos, ypos):
@@ -83,12 +85,16 @@ def read_row(screen, xpos, ypos, width, show_unit=False):
 		for _ in range(have_decimal, 3):
 			number *= 10 # Replace missing trailing zeroes
 		number += integer * 100
-	# TODO: Scan the unit to see if we need to scale the number down
+	# TODO: Are there any other units that matter? "Cups" is //=2 , but are single cups distinguishable?
 	if show_unit:
+		print(post_number)
 		for slice in post_number:
 			print(f"{slice:013b}")
+	if len(post_number) >= len(mL) and number % 50 == 0:
+		matches = sum(s1 == s2 for s1, s2 in zip(mL, post_number))
+		if matches > len(mL) / 2: number //= 50 # Yep, it's mL
 	return number
-print(read_row(ImageGrab.grab(), 594, 393, 170, 1))
+# print(read_row(ImageGrab.grab(), 594, 159, 170, 1))
 
 cols = [594, 958]
 rows = [159, 276, 393]
@@ -153,4 +159,4 @@ def rate():
 		else:
 			print("Paired with", a + 1)
 
-#rate()
+rate()
