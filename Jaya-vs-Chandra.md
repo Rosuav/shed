@@ -81,7 +81,7 @@ The Quotes
 "They started it."
 - Chandra Nalaar ([Chandra's Fury](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=398632))
 
-[CENSORED] never believed in using her "inside voice".
+\[CENSORED\] never believed in using her "inside voice".
 - Chandra Nalaar ([Chandra's Outrage](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=226585))
 
 "There's plenty of fire to go around."
@@ -105,7 +105,7 @@ The Quotes
 "Who said there are no assurances in life? I assure you this is going to hurt."
 - Chandra Nalaar ([Incinerate](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=393844))
 
-"Those who wish to invade [CENSORED], please take it up with my servant."
+"Those who wish to invade \[CENSORED\], please take it up with my servant."
 - Chandra Nalaar ([Inferno Elemental](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Inferno Elemental))
 
 "Lighting a fire needs kindling and heat. You be the kindling. I'll bring the heat."
@@ -117,7 +117,7 @@ The Quotes
 "I like it here. You always get a little more for your mana."
 - Chandra Nalaar ([Rumbling Aftershocks](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Rumbling Aftershocks))
 
-After the fourth time [CENSORED] left a place engulfed in flames, she decided to just go ahead and make it her thing.
+After the fourth time \[CENSORED\] left a place engulfed in flames, she decided to just go ahead and make it her thing.
 - Chandra Nalaar ([Seal of Fire](https://gatherer.wizards.com/Pages/Card/Details.aspx?name=Seal of Fire))
 
 "The land here seems to go out of its way to kill you."
