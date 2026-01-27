@@ -62,7 +62,8 @@ del:not(.visible) a {
 
 The Cards
 ========="""
-SCRIPT = """<script>
+SCRIPT = """
+<script>
 document.onclick = e => {
 	if (e.target.closest("del.visible a")) return; //If you click on a link after unspoilering, don't respoiler
 	const spoiler = e.target.closest("del");

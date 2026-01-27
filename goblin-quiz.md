@@ -122,6 +122,7 @@ The Cards
 - Splatter Goblin ~~Legal: [Dominaria United](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=574589&printed=false) (2022)~~
 - Swab Goblin ~~Legal: [Foundations](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=677987&printed=false) (2024)~~
 - Wandering Goblins ~~Legal: [Conflux](https://gatherer.wizards.com/Pages/Card/Details.aspx?multiverseid=180279&printed=false) (2009)~~
+
 <script>
 document.onclick = e => {
 	if (e.target.closest("del.visible a")) return; //If you click on a link after unspoilering, don't respoiler
