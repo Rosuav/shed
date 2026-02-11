@@ -53,24 +53,30 @@ def read_row(screen, xpos, ypos, width, show_unit=False):
 	while xpos < xmax:
 		xpos += 1 # This logically belongs at the bottom of the loop, but it's easier to use 'continue' if it's at the top
 		stripe = read_stripe(screen, xpos, ypos)
+		#print(f"{stripe:013b}"); continue
 		# Everything after the number could be a unit that matters to us
 		if stripe or post_number: post_number.append(stripe)
 		if stripe == 0: continue # Empty column, step forward
-		if (stripe == 7168 # Decimal point?
-			and read_stripe(screen, xpos + 1, ypos) == 7168
-			and read_stripe(screen, xpos + 2, ypos) == 7168
+		if (bin(stripe)[2:].strip("0") == "111" # Decimal point? It has three 1s in a block and nothing else
+			and read_stripe(screen, xpos + 1, ypos) == stripe
+			and read_stripe(screen, xpos + 2, ypos) == stripe
 			and read_stripe(screen, xpos + 3, ypos) == 0):
 				integer = number
 				number = 0
 				have_decimal = 1
-		likely = [0] * 10
-		for i in range(CHAR_WIDTH):
-			if i: stripe = read_stripe(screen, xpos + i, ypos)
-			for digit, bitmap in enumerate(digits):
-				if bitmap[i] == stripe: likely[digit] += 1
-		# Pick the most likely. We assume that, most of the time, the bitmaps will exactly match;
-		# in the event of something not quite matching, chances are a few of the stripes will still.
-		digit, quality = max(enumerate(likely), key=lambda x: x[1])
+		# Nudge the search up and down a little for best matching
+		best = 0, 0
+		for yoffset in -2, -1, 0, 1, 2:
+			likely = [0] * 10
+			for i in range(CHAR_WIDTH):
+				stripe = read_stripe(screen, xpos + i, ypos + yoffset)
+				for digit, bitmap in enumerate(digits):
+					if bitmap[i] == stripe: likely[digit] += 1
+			# Pick the most likely. We assume that, most of the time, the bitmaps will exactly match;
+			# in the event of something not quite matching, chances are a few of the stripes will still.
+			digit, quality = max(enumerate(likely), key=lambda x: x[1])
+			if quality > best[1]: best = digit, quality
+		digit, quality = best
 		if quality < 4: continue # Bad match, slide forward a pixel and try again
 		number = (number * 10) + digit
 		if have_decimal: have_decimal += 1 # Count how many digits we get after the decimal
@@ -90,9 +96,13 @@ def read_row(screen, xpos, ypos, width, show_unit=False):
 		print(post_number)
 		for slice in post_number:
 			print(f"{slice:013b}")
-	if len(post_number) >= len(mL) and number % 50 == 0:
-		matches = sum(s1 == s2 for s1, s2 in zip(mL, post_number))
-		if matches > len(mL) / 2: number //= 50 # Yep, it's mL
+	# Full check: See if it has mL after the number
+	#if len(post_number) >= len(mL) and number % 50 == 0:
+	#	matches = sum(s1 == s2 for s1, s2 in zip(mL, post_number))
+	#	if matches > len(mL) / 2: number //= 50 # Yep, it's mL
+	# Simplified check: if it's a multiple of 50, divide.
+	if number % 50 == 0 and not have_decimal:
+		number //= 50
 	return number
 # print(read_row(ImageGrab.grab(), 594, 159, 170, 1))
 
@@ -106,6 +116,7 @@ def read_numbers(screen):
 		for col in cols:
 			ret[-1].append(read_row(screen, col, row, 170))
 	return ret
+#print(read_numbers(ImageGrab.grab()))
 
 # Coordinates of the up and down buttons
 buttonx = 200
