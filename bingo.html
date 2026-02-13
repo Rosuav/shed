@@ -54,27 +54,29 @@ an entire row or column in a single stream!
 </table>
 
 <p><small>Just for fun.</small></p>
-<script>
-/* Plans:
-1) Make the cells clickable to mark them off (and start with the free square marked)
-2) Network the cards, so you type in your name and see the same card
-2a) Have the card live-update if you have it open in two places
-2b) Have a hot-link to view only, eg "#yourname", for stream
-3) Generate cards from any arbitrary set of tiles - allow multiple cardsets
-4) Give each cell an ID such that the positions can be randomized. Free square stays put.
-*/
-function cell_clicked(ev) {
-	console.log(this.dataset.id);
-	if (this.dataset.freebie) return; //Can't unmark the freebie
-	this.classList.toggle("marked");
-}
-
-let nextid = 0;
-document.querySelectorAll("td").forEach(el => {
-	el.onclick = cell_clicked;
-	el.dataset.id = ++nextid;
-	if (el.dataset.freebie) el.classList.add("marked");
+<script type=module>
+import {choc, set_content, DOM, on} from "https://rosuav.github.io/choc/factory.js";
+on("click", "td", e => {
+	if (e.match.dataset.freebie) return; //Can't unmark the freebie
+	e.match.classList.toggle("marked");
 });
+
+const shuffleme = [...document.querySelectorAll("td")];
+//The middle one should be the freebie, don't reposition it.
+const freebie = shuffleme.splice(12, 1)[0];
+freebie.classList.add("marked");
+//Fisher-Yates the array, now not including the freebie
+for (let i = 0; i < shuffleme.length - 1; ++i) {
+	const swap = Math.floor(Math.random() * shuffleme.length);
+	[shuffleme[i], shuffleme[swap]] = [shuffleme[swap], shuffleme[i]];
+}
+//And stick the freebie back in.
+shuffleme.splice(12, 0, freebie);
+//Okay, let's rebuild those rows.
+const rows = [];
+for (let row = 0; row < shuffleme.length; row += 5)
+	rows.push(choc.TR(shuffleme.slice(row, row + 5)));
+set_content("table", rows);
 </script>
 </body>
 </html>
