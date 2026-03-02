@@ -3,7 +3,7 @@
 -- Activate this extension to arm the plugin; it will autodeploy
 -- the next time you change scenes.
 
-HOST = "192.168.0.19"
+HOST = "127.0.0.1"
 PORT = 4455
 PASSWORD = "correct-horse-battery-staple"
 sock = nil
