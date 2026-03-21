@@ -41,6 +41,7 @@ My needs:
   - Env vars (eg "DISPLAY=:0.0")
   - Dependencies (eg "Requires postgres")
   - Launch on boot (default), or explicit launch request
+  - Sockets, maybe?
 
 Desktop
 -------
