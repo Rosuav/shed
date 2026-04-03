@@ -26,9 +26,9 @@ string reduce(string data, multiset tracks, multiset channels, int(1bit) lyrics,
 		foreach (chunk; int ev; array data) {
 			//data == ({delay, command[, args...]})
 			int cmd = data[1];
-			if (merge && (cmd == 0x95 || cmd == 0x97)) mergedest[cmd + 1] = i;
+			if (merge && (cmd == 0x95 || cmd == 0x97)) {keep = 1; mergedest[cmd + 1] = i;}
 			if (mergedest[cmd]) {
-				//HACK HACK HACK - undocumented --merge parameter
+				//HACK HACK HACK - undocumented merge parameter (incl for external caller)
 				//Merge chunks with channels 6 and 7 into a single chunk
 				//Ditto channels 8 and 9
 				//Adds in any note-on/note-off messages, but nothing else.
