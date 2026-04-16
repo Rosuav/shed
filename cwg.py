@@ -107,7 +107,7 @@ def read_row(screen, xpos, ypos, width, show_unit=False):
 # print(read_row(ImageGrab.grab(), 594, 159, 170, 1))
 
 cols = [594, 958]
-rows = [159, 276, 393]
+rows = [159, 276, 393, 508]
 
 def read_numbers(screen):
 	ret = []
@@ -133,19 +133,22 @@ def reset():
 def rate():
 	reset()
 	time.sleep(0.25) # Let the last one finish
-	baseline = read_row(ImageGrab.grab(), 984, 622, 50)
+	baseimg = ImageGrab.grab()
+	baseline = read_row(baseimg, 984, 620, 50)
 	pairs = {}
 	items, xy = [], []
 	for y in rows:
 		for x in cols:
+			if baseimg.getpixel((x, y))[0] == 102: continue # It's the 7th or 8th and hasn't been unlocked.
 			values = [baseline]
 			for _ in range(20):
 				subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + upbutton), "click", "1"], check=True)
 				time.sleep(0.1)
-				values.append(read_row(ImageGrab.grab(), 984, 622, 50))
+				values.append(read_row(ImageGrab.grab(), 984, 620, 50))
 			subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + downbutton)] + ["click", "1"] * 20, check=True)
 			values = tuple(values)
-			# Up to two of them may remain unpaired
+			# Up to two of them may remain unpaired if there are only 6 unlocked.
+			# With 7 unlocked, exactly one should remain unpaired, and with 8, none.
 			if values in pairs: pairs[values] = (pairs[values][0], len(items))
 			else: pairs[values] = (len(items), None)
 			items.append(values)
