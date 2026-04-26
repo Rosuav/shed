@@ -28,6 +28,7 @@ def main(stdscr):
 			fd.controls.contrast,
 			#fd.controls.focus_absolute, # Can only be set if autofocus is disabled
 			#fd.controls.exposure_time_absolute, # Ditto autoexposure
+			fd.controls.zoom_absolute, fd.controls.pan_absolute, fd.controls.tilt_absolute, # if you need to move it around
 		]
 		initial_values = [ctrl.value for ctrl in controls]
 		try:
