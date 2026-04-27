@@ -61,6 +61,10 @@ on("click", "td", e => {
 	e.match.classList.toggle("marked");
 });
 
+//TODO: Have a pool of available options, more than needed. Shuffle them and deploy the first
+//ones, leaving the rest behind.
+//Additional ideas: Magical Girl song plays
+
 const shuffleme = [...document.querySelectorAll("td")];
 //The middle one should be the freebie, don't reposition it.
 const freebie = shuffleme.splice(12, 1)[0];
