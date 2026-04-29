@@ -47,7 +47,7 @@ int hook_prepare_commit_msg(array(string) argv)
 	//For single-file commits, provide a prefix.
 	//If the commit message doesn't start with a comment, don't touch it - it's probably a rebase.
 	string msg=Stdio.File(argv[1])->read();
-	if (sizeof(argv)<4 && has_prefix(String.trim_all_whites(msg),"#"))
+	if (sizeof(argv)<4 && has_prefix(String.trim(msg),"#"))
 	{
 		//NOTE: The diff shows paths relative to the repository root, but 'git log' below works with
 		//paths relative to the current directory. When this is run as a git hook, the cwd always
@@ -91,7 +91,7 @@ int hook_prepare_commit_msg(array(string) argv)
 			mapping(string:int) tagcnt=([]);
 			for (int i=0;i<sizeof(log)-1;i+=2) //log should be pairs of lines: ({commit + summary, shortstat}) repeated.
 				if (has_prefix(log[i+1]-"s"," 1 file changed")) //Ignore commits that changed any other file
-					if (sscanf(log[i],"%*s %s: %s",string tag,string msg) && msg) tagcnt[String.trim_all_whites(tag-"squash!"-"fixup!"-"Revert \"")]++;
+					if (sscanf(log[i],"%*s %s: %s",string tag,string msg) && msg) tagcnt[String.trim(tag-"squash!"-"fixup!"-"Revert \"")]++;
 			switch (sizeof(tagcnt))
 			{
 				case 0: break; //No tags found, nothing to do.
@@ -115,13 +115,13 @@ int hook_commit_msg(array(string) argv)
 	//Designed for "git rebase -i" with option rebase.autosquash=true; effectively allows casual amending of commits
 	//other than the current branch head. In the common case where nothing else is changed: "git commit -amf"
 	string msg=Stdio.File(argv[1])->read();
-	if (String.trim_all_whites(msg)=="f")
+	if (String.trim(msg)=="f")
 	{
 		array(string) stat=Process.run("git diff --cached --stat")->stdout/"\n";
 		if (sizeof(stat)>1 && has_prefix(stat[1]-"s"," 1 file changed") && sscanf(stat[0]," %s |",string fn) && fn && fn!="") //As above
 		{
 			//Bound the search to unpushed changes only.
-			string branch=String.trim_all_whites(Process.run(({"git","symbolic-ref","--short","-q","HEAD"}))->stdout);
+			string branch=String.trim(Process.run(({"git","symbolic-ref","--short","-q","HEAD"}))->stdout);
 			if (branch=="") exit(1,"Shortcut fixup commits work only on a branch.\n");
 			array(string) log=Process.run(({"git","log","origin/"+branch+"..","--shortstat","--full-diff","-1","--oneline",fn}))->stdout/"\n";
 			if (sizeof(log)>1)
