@@ -15,6 +15,7 @@ void ws_msg(Protocols.WebSocket.Frame frm, object sock) {
 }
 
 void ws_handler(array(string) proto, Protocols.WebSocket.Request req) {
+	write("Connection from %s\n", req->get_ip());
 	Protocols.WebSocket.Connection sock = req->websocket_accept(0);
 	sock->onmessage = ws_msg;
 	sock->send_text(Standards.JSON.encode((["cmd": "hello", "msg": "You requested: " + req->not_query])));
