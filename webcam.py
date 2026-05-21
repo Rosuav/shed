@@ -9,6 +9,8 @@ import sys
 from linuxpy.video.device import Device
 
 dev = "/dev/webcam_c615"
+for arg in sys.argv:
+	if "c922" in arg.casefold(): dev = "/dev/webcam_c922"
 
 if "-q" not in sys.argv:
 	vlc = subprocess.Popen(["vlc", "v4l2://" + dev], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
