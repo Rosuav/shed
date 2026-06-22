@@ -23,6 +23,16 @@ class LinkAttrsTP(AttrListTreeprocessor):
 						child.set("type", "button") # Can be overridden if needed eg [Apply](:type=submit)
 					self.assign_attrs(child, attrs)
 
+	def assign_attrs(self, elem, *a, **kw):
+		ret = super().assign_attrs(elem, *a, **kw)
+		# Post-process to check if there's a tag attribute, in which case we
+		# replace the tag with that: *42*{:tag=output}
+		tag = elem.get("tag")
+		if tag:
+			del elem.attrib["tag"]
+			elem.tag = tag
+		return ret
+
 class LinkAttrs(markdown.extensions.Extension):
 	def extendMarkdown(self, md):
 		# Priority zero puts us last; increased priority will insert us ahead of
@@ -37,6 +47,6 @@ print(markdown.markdown("""# Hello, world!
 * [Button](:.btn)
 
 Sidebar
-{:.sidebar}
+{:tag=aside}
 
 """, extensions=[LinkAttrs()]))
