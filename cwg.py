@@ -44,7 +44,7 @@ def read_image(screen, xpos, ypos):
 		print()
 #read_image(ImageGrab.grab(), 994, 622)
 
-def read_row(screen, xpos, ypos, width, show_unit=False):
+def read_row(screen, xpos, ypos, width, show_unit=False, assume_decimal=False):
 	xmax = xpos + width
 	xpos -= 1 # Allow the increment to happen at the top of the loop
 	number = integer = 0
@@ -84,6 +84,7 @@ def read_row(screen, xpos, ypos, width, show_unit=False):
 		post_number = []
 	#for stripe in post_number:
 	#	print(f"{stripe:013b}")
+	if assume_decimal and not have_decimal: have_decimal = 1 # In some contexts, even without a decimal provided, return a value scaled by 100 anyway
 	if have_decimal:
 		# Return fixed-place integer rather than float. The number
 		# is the part after the decimal, and needs to be padded correctly.
@@ -105,6 +106,7 @@ def read_row(screen, xpos, ypos, width, show_unit=False):
 		number //= 50
 	return number
 # print(read_row(ImageGrab.grab(), 594, 159, 170, 1))
+# print(read_row(ImageGrab.grab(), 984, 620, 50, assume_decimal=True))
 
 cols = [594, 958]
 rows = [159, 276, 393, 508]
@@ -134,7 +136,7 @@ def rate():
 	reset()
 	time.sleep(0.25) # Let the last one finish
 	baseimg = ImageGrab.grab()
-	baseline = read_row(baseimg, 984, 620, 50)
+	baseline = read_row(baseimg, 984, 620, 50, assume_decimal=True)
 	pairs = {}
 	items, xy = [], []
 	for y in rows:
@@ -144,7 +146,7 @@ def rate():
 			for _ in range(20):
 				subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + upbutton), "click", "1"], check=True)
 				time.sleep(0.1)
-				values.append(read_row(ImageGrab.grab(), 984, 620, 50))
+				values.append(read_row(ImageGrab.grab(), 984, 620, 50, assume_decimal=True))
 			subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + downbutton)] + ["click", "1"] * 20, check=True)
 			values = tuple(values)
 			# Up to two of them may remain unpaired if there are only 6 unlocked.
