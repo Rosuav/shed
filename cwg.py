@@ -139,22 +139,29 @@ def rate():
 	baseline = read_row(baseimg, 984, 620, 50, assume_decimal=True)
 	pairs = {}
 	items, xy = [], []
+	saved_values = None
+	saved_values = [(589, 608, 659, 787, 1101, 788, 662, 616, 611, 641, 732, 960, 735, 650, 632, 663, 763, 1002, 1544, 2747, 1544), (589, 589, 590, 593, 600, 621, 674, 810, 1147, 1962, 1783, 2525, 1819, 2064, 1188, 826, 680, 623, 601, 593, 590), (589, 778, 1239, 984, 1144, 1793, 1054, 723, 577, 516, 495, 501, 542, 656, 937, 655, 539, 493, 476, 469, 467), (589, 589, 590, 593, 600, 621, 674, 810, 1147, 1962, 1783, 2525, 1819, 2064, 1188, 826, 680, 623, 601, 593, 590), (589, 778, 1239, 984, 1144, 1793, 1054, 723, 577, 516, 495, 501, 542, 656, 937, 655, 539, 493, 476, 469, 467), (589, 854, 1503, 854, 589, 483, 443, 427, 422, 420, 420, 420, 420, 423, 430, 448, 495, 615, 906, 615, 495), (589, 608, 659, 787, 1101, 788, 662, 616, 611, 641, 732, 960, 735, 650, 632, 663, 763, 1002, 1544, 2747, 1544), (589, 854, 1503, 854, 589, 483, 443, 427, 422, 420, 420, 420, 420, 423, 430, 448, 495, 615, 906, 615, 495)]
 	for y in rows:
 		for x in cols:
-			if baseimg.getpixel((x, y))[0] == 102: continue # It's the 7th or 8th and hasn't been unlocked.
-			values = [baseline]
-			for _ in range(20):
-				subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + upbutton), "click", "1"], check=True)
-				time.sleep(0.1)
-				values.append(read_row(ImageGrab.grab(), 984, 620, 50, assume_decimal=True))
-			subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + downbutton)] + ["click", "1"] * 20, check=True)
-			values = tuple(values)
+			if saved_values:
+				values = saved_values.pop(0)
+			else:
+				if baseimg.getpixel((x, y))[0] == 102: continue # It's the 7th or 8th and hasn't been unlocked.
+				values = [baseline]
+				for _ in range(20):
+					subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + upbutton), "click", "1"], check=True)
+					time.sleep(0.1)
+					values.append(read_row(ImageGrab.grab(), 984, 620, 50, assume_decimal=True))
+				subprocess.run(["xdotool", "mousemove", str(x + buttonx), str(y + downbutton)] + ["click", "1"] * 20, check=True)
+				values = tuple(values)
 			# Up to two of them may remain unpaired if there are only 6 unlocked.
 			# With 7 unlocked, exactly one should remain unpaired, and with 8, none.
 			if values in pairs: pairs[values] = (pairs[values][0], len(items))
 			else: pairs[values] = (len(items), None)
 			items.append(values)
 			xy.append((x, y))
+	# print(items) # Save the full list for faster iteration
+	once = 0
 	for idx, values in enumerate(items):
 		a, b = pairs[values]
 		if b is None:
@@ -172,6 +179,38 @@ def rate():
 				if values[i-1] < values[i] > values[i+1]: peaks.append(i)
 			if values[20] > values[19]: peaks.append(20)
 			print(*peaks, "paired with", b + 1)
+			if once == 2: continue
+			if once == 1: once = 2
+			# Ultimately, this search is an optimized version of "iterate A from 0 to 20, iterate B from 0 to 20, find the best".
+			# It'd take a long time to brute-force 441 options, and we can do better.
+			x1, y1 = xy[a]
+			x2, y2 = xy[b]
+			best = (0, 0); bestscore = baseline
+			if "brute-force": # meh let's just brute force it.
+				for A in range(21):
+					for B in range(21):
+						time.sleep(0.1)
+						score = read_row(ImageGrab.grab(), 984, 620, 50, assume_decimal=True)
+						if score > bestscore:
+							best = (A, B); bestscore = score
+						if B < 20: subprocess.run(["xdotool", "mousemove", str(x2 + buttonx), str(y2 + upbutton)] + ["click", "1"], check=True)
+					subprocess.run(["xdotool", "mousemove", str(x2 + buttonx), str(y2 + downbutton)] + ["click", "1"] * 20, check=True)
+					if A < 20: subprocess.run(["xdotool", "mousemove", str(x1 + buttonx), str(y1 + upbutton)] + ["click", "1"], check=True)
+				subprocess.run(["xdotool", "mousemove", str(x1 + buttonx), str(y1 + downbutton)] + ["click", "1"] * 20, check=True)
+			else:
+				# Let's try being smarter. We already know what happens if we set one value to
+				# its first peak; let's use that. (If (0,0) is better than other values, the
+				# first peak WILL be 0, so this will be the same thing.)
+				best = (peaks[0], 0); bestscore = values[peaks[0]]
+				# And we know that nudging either side from there won't help, so let's not.
+				# What if we set the other to the same peak?
+				if peaks[0]:
+					...
+				# Actually, you know what? 150 seconds per pair isn't that bad after all. I'm lazy.
+			print("Best:", best, bestscore)
+			A, B = best
+			if A: subprocess.run(["xdotool", "mousemove", str(x1 + buttonx), str(y1 + upbutton)] + ["click", "1"] * A, check=True)
+			if B: subprocess.run(["xdotool", "mousemove", str(x2 + buttonx), str(y2 + upbutton)] + ["click", "1"] * B, check=True)
 		else:
 			print("Paired with", a + 1)
 
