@@ -193,10 +193,12 @@ def rate():
 						score = read_row(ImageGrab.grab(), 984, 620, 50, assume_decimal=True)
 						if score > bestscore:
 							best = (A, B); bestscore = score
+							if bestscore == 10000: break
 						if B < 20: subprocess.run(["xdotool", "mousemove", str(x2 + buttonx), str(y2 + upbutton)] + ["click", "1"], check=True)
+					if bestscore == 10000: break
 					subprocess.run(["xdotool", "mousemove", str(x2 + buttonx), str(y2 + downbutton)] + ["click", "1"] * 20, check=True)
 					if A < 20: subprocess.run(["xdotool", "mousemove", str(x1 + buttonx), str(y1 + upbutton)] + ["click", "1"], check=True)
-				subprocess.run(["xdotool", "mousemove", str(x1 + buttonx), str(y1 + downbutton)] + ["click", "1"] * 20, check=True)
+				if bestscore < 10000: subprocess.run(["xdotool", "mousemove", str(x1 + buttonx), str(y1 + downbutton)] + ["click", "1"] * 20, check=True)
 			else:
 				# Let's try being smarter. We already know what happens if we set one value to
 				# its first peak; let's use that. (If (0,0) is better than other values, the
@@ -207,6 +209,9 @@ def rate():
 				if peaks[0]:
 					...
 				# Actually, you know what? 150 seconds per pair isn't that bad after all. I'm lazy.
+			if bestscore == 10000:
+				print("Nailed it!", best)
+				continue # Any remaining messages should be "Paired with" and nothing more
 			print("Best:", best, bestscore)
 			A, B = best
 			if A: subprocess.run(["xdotool", "mousemove", str(x1 + buttonx), str(y1 + upbutton)] + ["click", "1"] * A, check=True)
