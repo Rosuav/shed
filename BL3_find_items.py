@@ -493,7 +493,7 @@ def parse_savefile(fn, args):
 	for inv in char.inventory_category_list:
 		if inv.base_category_definition_hash == 618814354: money = inv.quantity
 		if inv.base_category_definition_hash == 3679636065: eridium = inv.quantity
-	print(char.preferred_character_name, "lvl", level, "cash", money, "eridium", eridium)
+	print("\t" + fn.name, char.preferred_character_name, "lvl", level, "cash", money, "eridium", eridium)
 	slot = { }
 	for eq in char.equipped_inventory_list:
 		slot[eq.inventory_list_index] = eq.slot_data_path.split(".")[-1].removeprefix("BPInvSlot_")
@@ -509,13 +509,15 @@ def parse_savefile(fn, args):
 			if item.flags & 4: continue # Marked as Trash (I think)
 			print('\t"%s": "%s",' % (ser, obj.get_title()))
 			continue
+		if args.boost: obj.level = level
 		eq = slot.get(i)
 		desc = "Lvl %d %s" % (obj.level, obj.get_title())
 		if eq: equipment[DISPLAY_ORDER[eq]] = eq + ": " + desc
 		else: inventory.append(desc)
 	for obj in equipment:
 		if obj: print(obj)
-	for obj in inventory: print(obj)
+	for obj in inventory:
+		print(obj)
 	for serial in args.give.split(","):
 		if not serial: continue
 		serial, *changes = serial.split(":")
@@ -563,6 +565,7 @@ def main(args=None):
 	parser.add_argument("--files", help="File name pattern", default="*.sav")
 	parser.add_argument("--library", action="store_true", help="List library IDs for all items")
 	parser.add_argument("--give", default="", help="Add items to your inventory")
+	parser.add_argument("--boost", action="store_true", help="Level-boost all inventory")
 	# TODO: Know the standard directory and go looking there
 	args = parser.parse_args(args)
 	print(args)
