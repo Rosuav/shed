@@ -445,10 +445,11 @@ def parse_savefile(fn):
 	assert len(data) == 0
 	assert encode_dataclass(savefile, Savefile) == data.data
 	if args.synth is not None:
-		savefile.name = "PATCHED"
+		# savefile.name = "PATCHED"
 		for synth, synthargs in args.synth: synth(savefile, *synthargs)
 		synthesized = encode_dataclass(savefile, Savefile)
-		with open(os.path.basename(fn), "wb") as f: f.write(synthesized)
+		with open(fn if args.writeback else os.path.basename(fn), "wb") as f:
+			f.write(synthesized)
 	return ""
 
 def main(args):
@@ -472,6 +473,7 @@ if __name__ == '__main__':
 	parser.add_argument("--synth", help="Synthesize a modified save file", type=synthesizer, nargs="*")
 	parser.add_argument("-l", "--loot-filter", help="Show loot, optionally filtered to only what's interesting", type=loot_filter, nargs="*")
 	parser.add_argument("-f", "--file", help="Process only one save file")
+	parser.add_argument("-w", "--writeback", help="Write back to original file", action="store_true")
 	args = parser.parse_args()
 	print(args)
 	main(args)
