@@ -93,6 +93,40 @@ def create_shields(savefile):
 		))
 
 @synthesizer
+def lady_finger(savefile):
+	#See https://borderlands.fandom.com/wiki/Repeater_Pistol/parts
+	# Remove any previous Lady Fingers first
+	savefile.weapons = [w for w in savefile.weapons if w.slot or w.title != "gd_weap_repeater_pistol.Title.TitleU_LadyFinger"]
+	# for part in ["acc5_incendiary", "acc4_doubleshot", "acc1_lacerator", "acc2_stabilized"]:
+	# for quality in range(6):
+	if 1:
+		savefile.weapons.append(Weapon(
+			grade="gd_customweapons.Weapons.CustomWeap_Repeater_LadiesFinger",
+			mfg="gd_manufacturers.Manufacturers.Hyperion",
+			type="gd_weap_repeater_pistol.A_Weapon.WeaponType_repeater_pistol",
+			pieces=[
+				"gd_weap_repeater_pistol.Body.body3",
+				"gd_weap_repeater_pistol.Grip.grip5",
+				"gd_weap_repeater_pistol.mag.mag2a",
+				"gd_weap_repeater_pistol.UniqueParts.LadyFinger_barrel1",
+				# Sight options: 1/3 for iron sights, 2/4 for actual scopes, 5 for a v. high power sight
+				"gd_weap_repeater_pistol.Sight.sight2",
+				"None",
+				"gd_weap_repeater_pistol.Action.action2",
+				# Accessories include elemental damage, melee damage bonus, etc
+				# Pick just one:
+				"gd_weap_repeater_pistol.acc.acc3_LaserSight", # Better accuracy
+				# "gd_weap_repeater_pistol.acc.acc4_doubleshot", # Two shots per trigger pull
+				# "gd_weap_repeater_pistol.acc.acc5_incendiary", # Hot singles in your area!
+				# "gd_weap_repeater_pistol.acc." + part, # or loop through several of 'em
+			],
+			material="gd_weap_repeater_pistol.UniqueParts.LadyFinger_Material",
+			prefix="gd_weap_names_shared.Prefix.PrefixU_blank",
+			title="gd_weap_repeater_pistol.Title.TitleU_LadyFinger",
+			ammo=0, quality=0, level=0, slot=0, junk=0, locked=1,
+		))
+
+@synthesizer
 def create_class_mods(savefile, who):
 	# TODO: Deduplicate
 	if who.casefold() == "brick":
