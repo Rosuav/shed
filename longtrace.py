@@ -69,7 +69,7 @@ def handle_packet(pkt):
 		port = data[40] * 256 + data[41]
 		dnshandler.stdin.write(b"%s %d %s\n" % (src.encode(), port, base64.b64encode(data[48:])));
 		return
-	# If we've reached the end of the trace (here, arbitrarily set at 10 hops), send back "Port unreachable",
+	# If we've reached the end of the trace, send back "Port unreachable",
 	# otherwise send back "Time exceeded".
 	trace = data[39]
 	if trace > len(tracelengths) or data[7] > tracelengths[trace - 1]:
