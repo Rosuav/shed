@@ -187,7 +187,7 @@ def boost_weapons(savefile):
 	newweaps = []
 	for weapon in savefile.weapons:
 		if weapon.slot:
-			for quality in range(weapon.quality, 6):
+			for quality in range(weapon.quality + 1, 6):
 				newweap = Weapon(**vars(weapon))
 				newweap.quality = quality
 				newweap.slot = 0
