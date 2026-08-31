@@ -179,6 +179,10 @@ array(string) endpoints = ({
 	"ykcowrebbaj.rosuav.com.",
 	"walruscarpenter.rosuav.com.",
 });
+//Convenience aliases - will need to be covered by the SSL cert too
+array(string) aliases = ({
+	"walrus.rosuav.com.",
+});
 
 mapping dns_response(mapping req) {
 	mapping q = req->qd[0];
@@ -212,6 +216,11 @@ int main(int argc, array(string) argv) {
 		}
 		write("%O\n", lines - ({""}));
 		return 0;
+	}
+
+	if (has_value(argv, "--cert")) {
+		//Request an SSL certificate covering all the necessary names
+		Process.exec("/usr/bin/env", "certbot", "certonly", "--standalone", "-d", (endpoints + aliases) * ",");
 	}
 
 	//Notify the parent of our available traces and their lengths.
