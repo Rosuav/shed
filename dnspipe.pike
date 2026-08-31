@@ -222,6 +222,15 @@ int main(int argc, array(string) argv) {
 		//Request an SSL certificate covering all the necessary names
 		Process.exec("/usr/bin/env", "certbot", "certonly", "--standalone", "-d", (endpoints + aliases) * ",");
 	}
+	if (has_value(argv, "--html")) {
+		//TODO: Build a series of files in /var/www/html
+		//Make an index.html that lists non-redirect poetry destinations
+		//For each destination (including redirects), create a file explaining what the traceroute
+		//does, how to trigger it (on multiple platforms, and include a parameter to lengthen the
+		//max trace), and showing what it looks like. Colour-code the trace; borrow the trace start
+		//from Gideon but do only a single probe so that it pretends to be stable.
+		return 0;
+	}
 
 	//Notify the parent of our available traces and their lengths.
 	write("TRACES%{ %d%}\n", sizeof(traces[*]));
