@@ -145,6 +145,20 @@ def create_class_mods(savefile, who):
 				title="gd_CommandDecks.Title.Title_ComDeckBrick",
 				unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
 			))
+			savefile.items.append(Item(
+				grade="gd_itemgrades.Gear.ItemGrade_Gear_ComDeck_Brick",
+				type='gd_CommandDecks.A_Item.Item_CommandDeck_Brick',
+				pieces=[
+					"gd_CommandDecks.Body_Brick.Brick_Centurion",
+					"gd_CommandDecks.LeftSide.leftside6b",
+					"gd_CommandDecks.RightSide.rightside6",
+					"gd_CommandDecks.ManufacturerMaterials.Material_Pangolin_3",
+				],
+				mfg='gd_manufacturers.Manufacturers.Pangolin',
+				prefix="gd_CommandDecks.Prefix.Prefix_Brick_Centurion",
+				title="gd_CommandDecks.Title.Title_ComDeckBrick",
+				unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
+			))
 	elif who.casefold() == "lilith":
 		for quality in range(3, 6):
 			savefile.items.append(Item(
