@@ -2,6 +2,8 @@
 //Requires no external tools.
 
 //TODO: What happens if a file name isn't ASCII? How should it be represented?
+//Currently taking the simple approach of storing it UTF-8, but haven't seen any
+//confirmation that this is correct.
 
 //files is an array of ({name, content}) pairs
 string(8bit) make_zip(array(array(string(8bit))) files) {
@@ -19,6 +21,7 @@ string(8bit) make_zip(array(array(string(8bit))) files) {
 		string|zero compressed = Gz.compress(content, 1, 9, 0, 15);
 		if (sizeof(compressed) >= sizeof(content)) compressed = 0; //Stored (0%)
 		int pos = sizeof(data);
+		name = string_to_utf8(name);
 		data->sprintf("PK\3\4\x14\0\0\0%c\0%s%-4c%-4c%-4c%-2c\0\0%s",
 			compressed ? 8 : 0, ts, crc,
 			sizeof(compressed || content), sizeof(content), //Compressed and uncompressed size
