@@ -154,6 +154,32 @@ def snipers(savefile):
 		))
 
 @synthesizer
+def eridian(savefile, which):
+	# TODO: Have eridian:storm, eridian:blaster, eridian:lightning, etc
+
+	#See https://borderlands.fandom.com/wiki/Eridian_Weapons
+	for quality in range(6):
+		savefile.weapons.append(Weapon(
+			grade="gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_Shotgun_ThunderStorm",
+			mfg="gd_manufacturers.Manufacturers.Eridian",
+			type="gd_weap_alien_rifle.A_Shotgun.a_weap.WeaponType_Eridan_Thunder_Storm",
+			pieces=[
+				"gd_weap_alien_rifle.Body.body4",
+				"gd_weap_alien_rifle.Grip.grip5",
+				"gd_weap_alien_rifle.mag.mag6",
+				"gd_weap_alien_rifle.Barrel.barrel6",
+				"gd_weap_alien_rifle.Sight.sight1",
+				"gd_weap_alien_rifle.Stock.stock_none",
+				"None",
+				"gd_weap_alien_rifle.acc.acc6",
+			],
+			material="gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1",
+			prefix="gd_weap_alien_rifle.Prefix.Prefix_Thunder",
+			title="gd_weap_alien_rifle.Title.Title_Storm",
+			ammo=0, quality=quality, level=0, slot=0, junk=0, locked=1,
+		))
+
+@synthesizer
 def create_class_mods(savefile, who):
 	# TODO: Deduplicate
 	if who.casefold() == "brick":
