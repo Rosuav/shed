@@ -1,10 +1,6 @@
 //Build a zip file out of a series of file names and content
 //Requires no external tools.
 
-//TODO: What happens if a file name isn't ASCII? How should it be represented?
-//Currently taking the simple approach of storing it UTF-8, but haven't seen any
-//confirmation that this is correct.
-
 //files is an array of ({name, content}) pairs
 string(8bit) make_zip(array(array(string(8bit))) files) {
 	Stdio.Buffer data = Stdio.Buffer();
@@ -22,14 +18,14 @@ string(8bit) make_zip(array(array(string(8bit))) files) {
 		if (sizeof(compressed) >= sizeof(content)) compressed = 0; //Stored (0%)
 		int pos = sizeof(data);
 		name = string_to_utf8(name);
-		data->sprintf("PK\3\4\x14\0\0\0%c\0%s%-4c%-4c%-4c%-2c\0\0%s",
+		data->sprintf("PK\3\4\x14\0\b\0%c\0%s%-4c%-4c%-4c%-2c\0\0%s",
 			compressed ? 8 : 0, ts, crc,
 			sizeof(compressed || content), sizeof(content), //Compressed and uncompressed size
 			sizeof(name), name,
 		);
 		data->add(compressed || content);
 		//Add the entry to the central directory, to be appended.
-		central->sprintf("PK\1\2\x1e\3\x14\0\0\0%c\0%s%-4c%-4c%-4c%-2c\0\0\0\0\0\0\0\0\0\0\0\0%-4c%s",
+		central->sprintf("PK\1\2\x1e\3\x14\0\b\0%c\0%s%-4c%-4c%-4c%-2c\0\0\0\0\0\0\0\0\0\0\0\0%-4c%s",
 			compressed ? 8 : 0, ts, crc,
 			sizeof(compressed || content), sizeof(content), //Compressed and uncompressed size
 			sizeof(name), pos, name,
