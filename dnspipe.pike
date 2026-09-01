@@ -180,9 +180,9 @@ array(string) endpoints = ({
 	"walruscarpenter.rosuav.com.",
 });
 //Convenience aliases - will need to be covered by the SSL cert too
-array(string) aliases = ({
-	"walrus.rosuav.com.",
-});
+mapping(string:string) aliases = ([
+	"walrus.rosuav.com.": "walruscarpenter.rosuav.com.",
+]);
 
 mapping dns_response(mapping req) {
 	mapping q = req->qd[0];
@@ -220,7 +220,7 @@ int main(int argc, array(string) argv) {
 
 	if (has_value(argv, "--cert")) {
 		//Request an SSL certificate covering all the necessary names
-		Process.exec("/usr/bin/env", "certbot", "certonly", "--standalone", "-d", (endpoints + aliases) * ",");
+		Process.exec("/usr/bin/env", "certbot", "certonly", "--standalone", "-d", (endpoints + indices(aliases)) * ",");
 	}
 	if (has_value(argv, "--html")) {
 		//TODO: Build a series of files in /var/www/html
@@ -258,8 +258,11 @@ int main(int argc, array(string) argv) {
 				"$$trace$$": trace * "\n",
 			])));
 		}
-		foreach (aliases, string alias) {
-			//Create a redirect?
+		foreach (aliases; string alias; string target) {
+			Stdio.write_file(targetdir + alias + "html",
+				"<meta http-equiv=refresh content=\"0; url=https://" + target[..<1] + "/\">\n" +
+				"<script>window.location = \"https://" + target[..<1] + "\"</script>\n"
+			);
 		}
 		//Copy some static files
 		foreach (({"dnspipe.css", "dnspipe.js"}), string fn)
