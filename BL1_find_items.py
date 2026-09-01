@@ -223,18 +223,28 @@ def create_cmod_variants(savefile):
 			unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
 		))
 
+# Since, unlike BL2 and later, there's no easy way to grab the most level-appropriate
+# item, we synthesize a bunch of them. This can get very spammy, so we do it for the
+# weapons and equipment separately. You'll get all superior versions of what you have
+# equipped, and can then discard those that are too far beyond.
+def boost(collection, type):
+	newthings = []
+	for thing in collection:
+		if thing.slot:
+			for quality in range(thing.quality + 1, 6):
+				newthing = type(**vars(thing))
+				newthing.quality = quality
+				newthing.slot = 0
+				newthings.append(newthing)
+	collection.extend(newthings) # Don't change the list while we're iterating over it
+
 @synthesizer
 def boost_weapons(savefile):
-	newweaps = []
-	for weapon in savefile.weapons:
-		if weapon.slot:
-			for quality in range(weapon.quality + 1, 6):
-				newweap = Weapon(**vars(weapon))
-				newweap.quality = quality
-				newweap.slot = 0
-				# print(newweap)
-				newweaps.append(newweap)
-	savefile.weapons.extend(newweaps) # Don't change the list while we're iterating over it
+	boost(savefile.weapons, Weapon)
+
+@synthesizer
+def boost_equip(savefile):
+	boost(savefile.items, Item)
 
 class Consumable:
 	"""Like a bytes/str object but can be consumed a few bytes/chars at a time"""
