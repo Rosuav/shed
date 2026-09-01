@@ -127,6 +127,33 @@ def lady_finger(savefile):
 		))
 
 @synthesizer
+def snipers(savefile):
+	#See https://borderlands.fandom.com/wiki/Sniper_Rifle/parts
+	savefile.weapons = [w for w in savefile.weapons if w.slot or w.title != "gd_weap_sniper_rifle.Title.Title__SniperRifle"]
+	# for part in ["acc5_incendiary", "acc4_doubleshot", "acc1_lacerator", "acc2_stabilized"]:
+	# for quality in range(6):
+	if 1:
+		savefile.weapons.append(Weapon(
+			grade="gd_itemgrades.Weapons.ItemGrade_Weapon_SniperRifle",
+			mfg="gd_manufacturers.Manufacturers.Atlas",
+			type="gd_weap_sniper_rifle.A_Weapon.WeaponType_sniper_rifle",
+			pieces=[
+				"gd_weap_sniper_rifle.Body.body5", # Semi-auto. Body 1/3/4 would be single shot.
+				"gd_weap_sniper_rifle.Grip.grip5",
+				"gd_weap_sniper_rifle.mag.mag5", # If single-shot, use mag3 or mag4 instead
+				"gd_weap_sniper_rifle.Barrel.barrel5", # Or barrel4 for more power
+				"gd_weap_sniper_rifle.Sight.sight3",
+				"gd_weap_sniper_rifle.Stock.stock5",
+				"None",
+				"gd_weap_sniper_rifle.acc.acc4_deep",
+			],
+			material="gd_weap_shared_materialparts.ManufacturerMaterials.Material_Atlas_2",
+			prefix="gd_weap_shared_materialparts.Prefix.Prefix_Atlas1_White",
+			title="gd_weap_sniper_rifle.Title.Title__SniperRifle",
+			ammo=0, quality=1, level=0, slot=0, junk=0, locked=1,
+		))
+
+@synthesizer
 def create_class_mods(savefile, who):
 	# TODO: Deduplicate
 	if who.casefold() == "brick":
