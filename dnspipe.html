@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html lang=en>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Traceroute to $$destination$$</title>
+<link rel="stylesheet" href="dnspipe.css">
+<link rel="icon" href="icon.png">
+<script type=module src="dnspipe.js"></script>
+<style id=explanations>.explanation:not(#expl-default) {display: none;} /* Hide them all until JS shows them */</style>
+</head>
+<body class=show-default>
+<main>
+<h1>Traceroute to $$destination$$</h1>
+<h2>What even IS a traceroute?</h2>
+<p>Traceroute is a network debugging tool that can tell you how information gets from your computer
+to some other computer on the internet. Usually you will see a series of hops tracing a path from,
+say, your computer to your wifi to your <a href="https://en.wikipedia.org/wiki/Internet_service_provider">ISP</a> to
+the country where the server is to that server's location and finally to the server itself. Sometimes,
+some of the hops will be masked, and some traces never successfully complete, but this is a valuable
+tool for exploring the internet.</p>
+
+<div style="display: flex; gap: 0.5em">
+<section>
+<h2>The trace</h2>
+<pre id=trace>
+<span class=cmd>$ traceroute $$destination$$ -m 255</span>
+<span class=hdr>traceroute to </span><span class=dest>$$destination$$ ($$ip$$)</span><span class=hdr>, 255 hops max, 80 byte packets</span>
+<span class=early><span class=index> 1  </span><span class=hop>2a01:488:67:1000:: (2a01:488:67:1000::)</span>  <span class=time>1.894 ms  1.844 ms  1.828 ms</span></span>
+<span class=early><span class=index> 2  </span><span class=hop>2607:f208:d318:1d::f1 (2607:f208:d318:1d::f1)</span>  <span class=time>1.805 ms  1.795 ms  1.783 ms</span></span>
+<span class=early><span class=index> 3  </span><span class=hop>2607:f208:d318:1d::3 (2607:f208:d318:1d::3)</span>  <span class=time>2.114 ms  2.193 ms  2.208 ms</span></span>
+<span class=early><span class=index> 4  </span><span class=hop>2607:f208:e5:8000::a90 (2607:f208:e5:8000::a90)</span>  <span class=time>5.437 ms  5.501 ms  5.533 ms</span></span>
+<span class=early><span class=index> 5  </span><span class=hop>2607:f208:e5:8000::62e (2607:f208:e5:8000::62e)</span>  <span class=time>2.148 ms  1.955 ms  2.127 ms</span></span>
+<span class=early><span class=index> 6  </span><span class=hop>2607:f208:e5:8000::428 (2607:f208:e5:8000::428)</span>  <span class=time>2.024 ms  0.872 ms  1.167 ms</span></span>
+<span class=early><span class=index> 7  </span><span class=hop>2607:f208:e5:8000::42e (2607:f208:e5:8000::42e)</span>  <span class=time>1.146 ms  1.163 ms  1.175 ms</span></span>
+<span class=early><span class=index> 8  </span><span class=hop>ae1-u260.sxb1-cr-vega.bb.gdinf.net (2a01:488:bb00:128::2)</span>  <span class=time>1.239 ms  0.885 ms  1.774 ms</span></span>
+<span class=early><span class=index> 9  </span><span class=hop>ae1.sxb1-ibr-tarazed.bb.gdinf.net (2a01:488:bb00:106::2)</span>  <span class=time>1.816 ms  1.745 ms  1.714 ms</span></span>
+<span class=early><span class=index>10  </span><span class=hop>2001:2035:0:3e3::1 (2001:2035:0:3e3::1)</span>  <span class=time>4.748 ms  4.728 ms  10.591 ms</span></span>
+<span class=early><span class=index>11  </span><span class=hop>ffm-bb1-link.ip.twelve99.net (2001:2034:a:d8::)</span>  <span class=time>21.747 ms  10.142 ms  21.615 ms</span></span>
+<span class=early><span class=index>12  </span><span class=hop>mei-b5-link.ip.twelve99.net (2001:2034:a:235::1)</span>  <span class=time>19.590 ms  19.161 ms  19.564 ms</span></span>
+<span class=early><span class=index>13  </span><span class=hop>mei-b6-link.ip.twelve99.net (2001:2034:a:dc::1)</span>  <span class=time>158.693 ms  158.323 ms  160.959 ms</span></span>
+<span class=early><span class=index>14  </span><span class=hop>sng-b7-v6.ip.twelve99.net (2001:2034:0:14::1)</span>  <span class=time>154.841 ms * *</span></span>
+<span class=early><span class=index>15  </span><span class=hidden>* * *</span></span>
+<span class=early><span class=index>16  </span><span class=hop>aussiebroadband-ic-383863.ip.twelve99-cust.net (2001:2035:0:8ac::2)</span>  <span class=time>156.859 ms *  156.837 ms</span></span>
+<span class=early><span class=index>17  </span><span class=hop>aussiebroadband-ic-383863.ip.twelve99-cust.net (2001:2035:0:8ac::2)</span>  <span class=time>168.838 ms  249.475 ms  248.041 ms</span></span>
+<span class=early><span class=index>18  </span><span class=hop>HundredGigE0-0-0-20.bng3.578lor.vic.aussiebb.net (2403:5800:1300:40::2)</span>  <span class=time>259.263 ms  248.897 ms 248.013 ms</span></span>
+$$trace$$
+</pre>
+</section>
+<section>
+<h2>Explanation</h2>
+<p class=explanation id=expl-default>Point to or hover over a segment of the trace to see what it means.</p>
+<p class=explanation id=expl-cmd>Run this command to generate the trace. On Windows, use <code>tracert $$destination$$ /h 255</code> instead.</p>
+<p class=explanation id=expl-hdr>The trace begins with a quick summary of what we're trying to do.</p>
+<p class=explanation id=expl-dest>The header tells us where we're going to be tracing to, including its IP address.</p>
+<p class=explanation id=expl-early>In the early part of the trace, we find out how to get from the source to where the interesting part begins. This section will look very different for you.</p>
+<p class=explanation id=expl-poem>This is the fun section! In here, we see the internet reciting poetry...</p>
+<p class=explanation id=expl-arrival>We have arrived! This line shows that the trace completed successfully.</p>
+<p class=explanation id=expl-index>How far have we come so far? Let's keep counting.</p>
+<p class=explanation id=expl-hop>Where did we get to on this hop? Both the name and IP address are given.</p>
+<p class=explanation id=expl-hidden>This hop is masked. Whatever is at this point, it isn't telling us anything. The trace continues past it.</p>
+<p class=explanation id=expl-time>How long did it take to get a response? Three probes were sent and the times are reported. An asterisk means that a probe didn't come back.</p>
+<p class=explanation id=expl-line>The best part!! The lines of the poem can be found here, transformed into internet names. Yay!</p>
+<p class=explanation id=expl-ip>Each poem line comes from one of these magical and mythical computers.</p>
+<p class=explanation id=expl-landing>The official name of the mythical computer that we traced to.</p>
+</section>
+</div>
+
+</main>
+</body>
+</html>

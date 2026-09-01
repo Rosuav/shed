@@ -229,6 +229,41 @@ int main(int argc, array(string) argv) {
 		//does, how to trigger it (on multiple platforms, and include a parameter to lengthen the
 		//max trace), and showing what it looks like. Colour-code the trace; borrow the trace start
 		//from Gideon but do only a single probe so that it pretends to be stable.
+		string template = Stdio.read_file(replace(__FILE__, ".pike", ".html"));
+		string targetdir = "/var/www/html/";
+		foreach (endpoints[1..]; int i; string dest) {
+			array(string) trace = ({ });
+			foreach (traces[i]; int idx; string name) {
+				trace += ({sprintf("<span class=poem><span class=index>%d  </span><span class=line>%s</span> <span class=ip>(2403:5803:f90e:1::%x%02x)</span>  <span class=time>%.3f ms  %.3f ms %.3f ms</span></span>",
+					idx + 19, //Hop count where the interesting trace begins
+					name,
+					i + 1, idx + 1, //The last part of the IP address
+					//Randomize some timings here. This means it's unstable but I don't really mind.
+					250.0 + idx + random(5.0),
+					250.0 + idx + random(5.0),
+					250.0 + idx + random(5.0),
+				)});
+			}
+			trace += ({sprintf("<span class=arrival><span class=index>%d  </span><span class=landing>%s</span> <span class=ip>(2403:5803:f90e:1::%x)</span>  <span class=time>%.3f ms  %.3f ms %.3f ms</span></span>",
+				sizeof(traces[i]) + 19, //Should be the final hop count to the destination
+				dest[..<1],
+				i + 1,
+				250.0 + sizeof(traces[i]) + random(5.0),
+				250.0 + sizeof(traces[i]) + random(5.0),
+				250.0 + sizeof(traces[i]) + random(5.0),
+			)});
+			Stdio.write_file(targetdir + dest + "html", replace(template, ([
+				"$$destination$$": dest[..<1],
+				"$$ip$$": sprintf("2403:5803:f90e:1::%x", i + 1),
+				"$$trace$$": trace * "\n",
+			])));
+		}
+		foreach (aliases, string alias) {
+			//Create a redirect?
+		}
+		//Copy some static files
+		foreach (({"dnspipe.css", "dnspipe.js"}), string fn)
+			Stdio.cp(fn, targetdir + fn);
 		return 0;
 	}
 
