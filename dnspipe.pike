@@ -5,6 +5,16 @@
 inherit Protocols.DNS.server_base;
 
 //And here are the actual traces. They're a bit long, so you may need to extend your traceroute's max hop count.
+//To create a new long-trace:
+//1) Add the lines of the poem to traces[] - use "pike dnspipe.pike --fmt" to help out
+//2) Add the endpoint to endpoints[]
+//2a) Optionally add any aliases pointing back to it
+//3) In bindfiles repo, give the endpoint and any aliases AAAA records
+//4) Pull bindfiles onto both Sikorsky and Gideon, and reload bind9
+//5) Restart longtrace so it picks up the new traces
+//6) Run a traceroute, just to make sure
+//7) Run "sudo pike dnspipe.pike --html" to build the explanatory HTML page(s)
+//8) Run "sudo pike dnspipe.pike --cert" to expand the SSL certificate.
 array(array(string)) traces = ({({
 	"twas.brillig.and.the.slithy.toves",
 	"did.gyre.and.gimble.in.the.wabe",
