@@ -170,7 +170,31 @@ array(array(string)) traces = ({({
 	"but.answer.came.there.none",
 	"and.that.was.scarcely.odd.because",
 	"they.d.eaten.every.one",
+}), ({
+	"how.doth.the.little.crocodile",
+	"improve.his.shining.tail",
+	"and.pour.the.waters.of.the.nile",
+	"on.every.golden.scale",
+	"how.cheerfully.he.seems.to.grin",
+	"how.neatly.spread.his.claws",
+	"and.welcome.little.fishes.in",
+	"with.gently.smiling.jaws",
 })});
+
+/* For extra hilarity, this one should FAIL TO COMPLETE.
+  I passed by his garden, and marked, with one eye,
+  How the Owl and the Panther were sharing a pie
+  The Panther took pie-crust, and gravy, and meat,
+  While the Owl had the dish as its share of the treat.
+  When the pie was all finished, the Owl, as a boon,
+  Was kindly permitted to pocket the spoon:
+  While the Panther received knife and fork with a growl,
+  And concluded the banquet..........
+  * * *
+  * * *
+  * * *
+Would require special handling in the HTML rendition too.
+*/
 
 array(string) endpoints = ({
 	"tomfoolery.rosuav.com.", //The DNS server itself
@@ -178,10 +202,12 @@ array(string) endpoints = ({
 	"aboatbeneath.rosuav.com.",
 	"ykcowrebbaj.rosuav.com.",
 	"walruscarpenter.rosuav.com.",
+	"crocodile.rosuav.com.",
 });
 //Convenience aliases - will need to be covered by the SSL cert too
 mapping(string:string) aliases = ([
 	"walrus.rosuav.com.": "walruscarpenter.rosuav.com.",
+	"howdoththelittle.rosuav.com.": "crocodile.rosuav.com.",
 ]);
 
 mapping dns_response(mapping req) {
