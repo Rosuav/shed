@@ -16,6 +16,7 @@ const colors = {
 	early: "#fce",
 	poem: "#ecf",
 	arrival: "#cef",
+	spinout: "#cef",
 	index: "#dfd",
 	hop: "#fe9",
 	hidden: "#f88",

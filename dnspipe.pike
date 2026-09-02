@@ -189,22 +189,16 @@ array(array(string)) traces = ({({
 	"how.neatly.spread.his.claws",
 	"and.welcome.little.fishes.in",
 	"with.gently.smiling.jaws",
+}), ({
+	"i.passed.by.his.garden.and.marked.with.one.eye",
+	"how.the.owl.and.the.panther.were.sharing.a.pie",
+	"the.panther.took.pie.crust.and.gravy.and.meat",
+	"while.the.owl.had.the.dish.as.its.share.of.the.treat",
+	"when.the.pie.was.all.finished.the.owl.as.a.boon",
+	"was.kindly.permitted.to.pocket.the.spoon",
+	"while.the.panther.received.knife.and.fork.with.a.growl",
+	"and.concluded.the.banquet",
 })});
-
-/* For extra hilarity, this one should FAIL TO COMPLETE.
-  I passed by his garden, and marked, with one eye,
-  How the Owl and the Panther were sharing a pie
-  The Panther took pie-crust, and gravy, and meat,
-  While the Owl had the dish as its share of the treat.
-  When the pie was all finished, the Owl, as a boon,
-  Was kindly permitted to pocket the spoon:
-  While the Panther received knife and fork with a growl,
-  And concluded the banquet..........
-  * * *
-  * * *
-  * * *
-Would require special handling in the HTML rendition too.
-*/
 
 array(string) endpoints = ({
 	"tomfoolery.rosuav.com.", //The DNS server itself
@@ -213,6 +207,7 @@ array(string) endpoints = ({
 	"ykcowrebbaj.rosuav.com.",
 	"walruscarpenter.rosuav.com.",
 	"crocodile.rosuav.com.",
+	"owlpanther.rosuav.com.",
 });
 //Convenience aliases - will need to be covered by the SSL cert too
 mapping(string:string) aliases = ([
@@ -275,7 +270,8 @@ int main(int argc, array(string) argv) {
 					250.0 + idx + random(5.0),
 				)});
 			}
-			trace += ({sprintf("<span class=arrival><span class=index>%d  </span><span class=landing>%s</span> <span class=ip>(2403:5803:f90e:1::%x)</span>  <span class=time>%.3f ms  %.3f ms %.3f ms</span></span>",
+			if (dest == "owlpanther.rosuav.com.") trace += sprintf("<span class=spinout><span class=index>%d  </span><span class=hidden>* * *</span></span>", enumerate(4, 1, 19 + sizeof(traces[i]))[*]);
+			else trace += ({sprintf("<span class=arrival><span class=index>%d  </span><span class=landing>%s</span> <span class=ip>(2403:5803:f90e:1::%x)</span>  <span class=time>%.3f ms  %.3f ms %.3f ms</span></span>",
 				sizeof(traces[i]) + 19, //Should be the final hop count to the destination
 				dest[..<1],
 				i + 1,

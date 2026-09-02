@@ -73,6 +73,7 @@ def handle_packet(pkt):
 	# otherwise send back "Time exceeded".
 	trace = data[39]
 	if trace > len(tracelengths) or data[7] > tracelengths[trace - 1]:
+		if trace == 6: return # Muahahahaha, this trace never actually finishes (it's "and concluded the banquet.....")
 		srcaddr = dest # Response comes back from the actual destination
 		resp = b"\1\4\0\0\0\0\0\0" + data[:48]
 	else:
