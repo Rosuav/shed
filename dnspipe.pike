@@ -198,6 +198,7 @@ array(array(string)) traces = ({({
 	"was.kindly.permitted.to.pocket.the.spoon",
 	"while.the.panther.received.knife.and.fork.with.a.growl",
 	"and.concluded.the.banquet",
+	//... and the trace will time out
 })});
 
 array(string) endpoints = ({
