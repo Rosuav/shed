@@ -28,21 +28,17 @@ string(8bit) make_zip(array(array(string(8bit))) files) {
 		//to be support for setting bitflag 11 but I haven't confirmed that this works.
 		name = string_to_utf8(name);
 		data->sprintf("PK\3\4\x14\0\0\0%c\0%s%-4c%-4c%-4c%-2c%-2c%s%s",
-		//~ data->sprintf("PK\3\4\x14\0\0\0%c\0%s%-4c%-4c%-4c%-2c\0\0%s",
 			compressed ? 8 : 0, ts, crc,
 			sizeof(compressed || content), sizeof(content), //Compressed and uncompressed size
 			sizeof(name), sizeof(xtra), name, xtra,
-			//~ sizeof(name), name,
 		);
 		data->add(compressed || content);
 		//Add the entry to the central directory, to be appended.
 		//(A481 is hex for file mode 100644)
 		central->sprintf("PK\1\2\x1e\3\x14\0\0\0%c\0%s%-4c%-4c%-4c%-2c%-2c\0\0\0\0\0\0\0\0\xa4\x81%-4c%s%s",
-		//~ central->sprintf("PK\1\2\x1e\3\x14\0\0\0%c\0%s%-4c%-4c%-4c%-2c\0\0\0\0\0\0\0\0\0\0\0\0%-4c%s",
 			compressed ? 8 : 0, ts, crc,
 			sizeof(compressed || content), sizeof(content), //Compressed and uncompressed size
 			sizeof(name), sizeof(xtra), pos, name, xtra,
-			//~ sizeof(name), pos, name,
 		);
 	}
 	int sz = sizeof(central), pos = sizeof(data);
