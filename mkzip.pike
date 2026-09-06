@@ -49,10 +49,50 @@ string(8bit) make_zip(array(array(string(8bit))) files) {
 	return (string)data;
 }
 
+void read_zip(string zipfn, string|void data) {
+	if (!data) data = Stdio.read_file(zipfn);
+	//Note that the EOCD includes the zip file comment and so is of variable length.
+	//For now, we assume that the last instance of "PK\5\6" is the EOCD; is it possible
+	//to have a comment that happens to include that signature?
+	if (!has_value(data, "PK\5\6")) return; //Not a zip file.
+	string eocd = (data / "PK\5\6")[-1];
+	sscanf(eocd, "%-2c%-2c%-2c%-2c%-4c%-4c%-2H%s", int disk, int cddisk, int diskent, int entries, int cdsize, int cdoffset, string comment, string residue);
+	if (residue != "") {werror("Unexpected trailing data on ZIP file %O\n", residue); return;}
+	write("%s: %O\n", zipfn, comment);
+	if (disk || cddisk || diskent != entries) {werror("Multi-volume archives not supported"); return;}
+	Stdio.Buffer cd = Stdio.Buffer(data[cdoffset..cdoffset+cdsize-1]);
+	//Note that the central directory can be empty (if the archive contains no files).
+	while (array parse = cd->sscanf("PK\1\2%-2c%-2c%-2c%-2c%-2c%-2c%-4c%-4c%-4c%-2c%-2c%-2c%-2c%-2c%-4c%-4c")) {
+		[int ver, int minver, int flags, int compr,
+		int time, int date, int crc, int compsz, int decompsz,
+		int fnlen, int xtralen, int commlen, int disk,
+		int intattr, int extattr, int offset] = parse;
+		string fn = cd->read(fnlen);
+		string xtra = cd->read(xtralen);
+		string comm = cd->read(commlen);
+		write("\t%s flg %x\n", fn, flags);
+		while (sscanf(xtra, "%2c%-2H%s", int ident, string body, xtra)) switch (ident) {
+			//case 'UT': break; //Extended timestamp - one byte for which time(s) are included, then four bytes per time_t
+			case 'ux': //Unix info
+				//Assuming for now that the uid/gid are stored as four byte integers
+				//(they're length preceded).
+				sscanf(body, "%c\4%-4c\4%-4c", int ver, int uid, int gid);
+				write("\t\tXTRA uid %d gid %d\n", uid, gid);
+				break;
+			default:
+				write("\t\tXTRA '%2c' %O\n", ident, body);
+		}
+	}
+	//(string)cd should now be empty (unless the zip64 info is included in the EOCD's size of CD)
+}
+
 int main() {
-	Stdio.write_file("mkzip.zip", make_zip(({
+	read_zip("/tmp/mkzip/empty.zip");
+	read_zip("/tmp/mkzip/madezip.zip");
+	string zip = make_zip(({
 		({"hello.txt", "Hello, world!\n" * 32}),
 		({"goodbye.txt", "Goodbye, world.\n"}), //Small enough that compression isn't worth it, so this should store uncompressed
-	})));
-	Process.exec("/usr/bin/env", "unzip", "-l", "mkzip.zip");
+	}));
+	read_zip("synthesized", zip);
+	//Stdio.write_file("mkzip.zip", zip); Process.exec("/usr/bin/env", "unzip", "-l", "mkzip.zip");
 }
