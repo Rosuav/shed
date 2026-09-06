@@ -21,6 +21,9 @@ string(8bit) make_zip(array(array(string(8bit))) files) {
 		string|zero compressed = Gz.compress(content, 1, 9, 0, 15);
 		if (sizeof(compressed) >= sizeof(content)) compressed = 0; //Stored (0%)
 		int pos = sizeof(data);
+		//NOTE: This assumes that the files are not going to contain text, and will not set the
+		//internal flag "file appears to be text". We also assume a file mode of 0o100644 for
+		//all files, which is a safe default but may at some points need to be overridden.
 		//TODO: Make sure that this works correctly for non-ASCII names. There's supposed
 		//to be support for setting bitflag 11 but I haven't confirmed that this works.
 		name = string_to_utf8(name);
@@ -33,7 +36,8 @@ string(8bit) make_zip(array(array(string(8bit))) files) {
 		);
 		data->add(compressed || content);
 		//Add the entry to the central directory, to be appended.
-		central->sprintf("PK\1\2\x1e\3\x14\0\0\0%c\0%s%-4c%-4c%-4c%-2c%-2c\0\0\0\0\0\0\0\0\0\0%-4c%s%s",
+		//(A481 is hex for file mode 100644)
+		central->sprintf("PK\1\2\x1e\3\x14\0\0\0%c\0%s%-4c%-4c%-4c%-2c%-2c\0\0\0\0\0\0\0\0\xa4\x81%-4c%s%s",
 		//~ central->sprintf("PK\1\2\x1e\3\x14\0\0\0%c\0%s%-4c%-4c%-4c%-2c\0\0\0\0\0\0\0\0\0\0\0\0%-4c%s",
 			compressed ? 8 : 0, ts, crc,
 			sizeof(compressed || content), sizeof(content), //Compressed and uncompressed size
@@ -70,7 +74,7 @@ void read_zip(string zipfn, string|void data) {
 		string fn = cd->read(fnlen);
 		string xtra = cd->read(xtralen);
 		string comm = cd->read(commlen);
-		write("\t%s flg %x\n", fn, flags);
+		write("\t%s flg %x/%x\n", fn, intattr, extattr);
 		while (sscanf(xtra, "%2c%-2H%s", int ident, string body, xtra)) switch (ident) {
 			//case 'UT': break; //Extended timestamp - one byte for which time(s) are included, then four bytes per time_t
 			case 'ux': //Unix info
@@ -94,5 +98,5 @@ int main() {
 		({"goodbye.txt", "Goodbye, world.\n"}), //Small enough that compression isn't worth it, so this should store uncompressed
 	}));
 	read_zip("synthesized", zip);
-	//Stdio.write_file("mkzip.zip", zip); Process.exec("/usr/bin/env", "unzip", "-l", "mkzip.zip");
+	Stdio.write_file("mkzip.zip", zip); Process.exec("/usr/bin/env", "unzip", "-l", "mkzip.zip");
 }
