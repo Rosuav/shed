@@ -87,8 +87,8 @@ void read_zip(string zipfn, string|void data) {
 }
 
 int main() {
-	read_zip("/tmp/mkzip/empty.zip");
-	read_zip("/tmp/mkzip/madezip.zip");
+	//read_zip("/tmp/mkzip/empty.zip");
+	//read_zip("/tmp/mkzip/madezip.zip");
 	string zip = make_zip(({
 		({"hello.txt", "Hello, world!\n" * 32}),
 		({"goodbye.txt", "Goodbye, world.\n"}), //Small enough that compression isn't worth it, so this should store uncompressed
