@@ -11,8 +11,10 @@ string(8bit) make_zip(array(array(string(8bit))) files) {
 		tm->hour << 11 | tm->min << 5 | tm->sec >> 1, //Time
 		(tm->year - 80) << 9 | (tm->mon + 1) << 5 | tm->mday, //Date
 	);
-	//Extra field: "ux" 7875 for Unix permissions. For simplicity, giving ownership to uid/gid 1000.
-	string xtra = "ux\x0b\0\1\4\xe8\3\0\0\4\xe8\3\0\0"; xtra = "";
+	string xtra = sprintf("%{%s%-2H%}", ({
+		({"UT", sprintf("\3%-4c", time())}), //Timestamp
+		({"ux", sprintf("\1\4%-4c\4%-4c", getuid(), getgid())}), //Unix ownership
+	}));
 	foreach (files, [string name, string content]) {
 		//Slap in the local file header, followed by the file itself.
 		int crc = Gz.crc32(content);
