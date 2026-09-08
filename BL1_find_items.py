@@ -165,15 +165,7 @@ def eridian(savefile, which):
 			"gd_weap_alien_rifle.Barrel.barrel6",
 			"gd_weap_alien_rifle.Sight.sight1",
 			"gd_weap_alien_rifle.Stock.stock_none",
-		],
-		"blaster": [
-			"gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_SMG_Blaster",
-			"gd_weap_alien_rifle.A_SMG.a_weap.WeaponType_Eridan_Blaster",
-			"gd_weap_alien_rifle.Prefix.Prefix_Eridan",
-			"gd_weap_alien_rifle.Title.Title_Blaster",
-			"gd_weap_alien_rifle.Barrel.barrel4_Blaster",
-			"gd_weap_alien_rifle.Sight.sight4",
-			"gd_weap_alien_rifle.Stock.stock6",
+			"gd_weap_alien_rifle.acc.acc6",
 		],
 		"cannon": [
 			"gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_Cannon",
@@ -183,43 +175,51 @@ def eridian(savefile, which):
 			"gd_weap_alien_rifle.Barrel.barrel5_Cannon",
 			"gd_weap_alien_rifle.Sight.sight2",
 			"gd_weap_alien_rifle.Stock.stock5",
+			"gd_weap_alien_rifle.acc.acc6",
+		],
+		"lightning": [
+			"gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_Sniper_Railgun",
+			"gd_weap_alien_rifle.A_Sniper.a_weap.WeaponType_Eridan_Lightning",
+			"gd_weap_alien_rifle.Prefix.Prefix_Eridan",
+			"gd_weap_alien_rifle.Title.Title_Lightning",
+			"gd_weap_alien_rifle.Barrel.barrel1",
+			"gd_weap_alien_rifle.Sight.sight5",
+			"gd_weap_alien_rifle.Stock.stock1",
+			"gd_weap_alien_rifle.acc.acc3", # This is the only weapon type that needs a different accessory.
 		],
 	}
+# gd_weap_alien_rifle.Body.body1', 'gd_weap_alien_rifle.Grip.grip6', gd_weap_alien_rifle.Sight.sight3', 'gd_weap_alien_rifle.Stock.stock2', 'None', 'gd_weap_alien_rifle.acc.acc2
+# gd_weap_alien_rifle.Body.body2', 'gd_weap_alien_rifle.Grip.grip3', gd_weap_alien_rifle.Sight.sight2', 'gd_weap_alien_rifle.Stock.stock5', 'None', 'gd_weap_alien_rifle.acc.acc5
+
+	# Blasters are very similar in parts but function somewhat differently.
+	# Wave blasters fire slower and consume ammo faster, but have oscillating projectiles.
+	# Mercurial blasters fire at twice the rate and the projectiles move faster
+	# Ball blasters fire out of your face (annoying) but have larger and slower projectiles.
+	for blaster in "", "Wave", "Mercurial", "Ball":
+		families[blaster.lower() + "blaster"] = [
+			"gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_SMG_Blaster",
+			"gd_weap_alien_rifle.A_SMG.a_weap.WeaponType_Eridan_Blaster",
+			"gd_weap_alien_rifle.Prefix.Prefix_" + (blaster or "Eridan"),
+			"gd_weap_alien_rifle.Title.Title_Blaster",
+			"gd_weap_alien_rifle.Barrel.barrel4_" + blaster + "Blaster",
+			"gd_weap_alien_rifle.Sight.sight4",
+			"gd_weap_alien_rifle.Stock.stock6",
+			"gd_weap_alien_rifle.acc.acc6",
+		]
 	for quality in range(1): # default 6
 		for family in which.split(","):
-			grade, type, prefix, title, barrel, sight, stock = families[family]
+			grade, type, prefix, title, barrel, sight, stock, acc = families[family]
 			savefile.weapons.append(Weapon(
 				grade=grade, mfg="gd_manufacturers.Manufacturers.Eridian", type=type,
 				pieces=[
 					"gd_weap_alien_rifle.Body.body2",
 					"gd_weap_alien_rifle.Grip.grip1",
 					"gd_weap_alien_rifle.mag.mag6",
-					barrel,
-					sight,
-					stock,
-					"None",
-					"gd_weap_alien_rifle.acc.acc6", # Might need to override this for Lightnings??
+					barrel, sight, stock, "None", acc,
 				],
 				material="gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1",
 				prefix=prefix, title=title, ammo=0, quality=quality, level=0, slot=0, junk=0, locked=1,
 			))
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_SMG_Blaster', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_SMG.a_weap.WeaponType_Eridan_Blaster', pieces=('gd_weap_alien_rifle.Body.body3', 'gd_weap_alien_rifle.Grip.grip6', 'gd_weap_alien_rifle.mag.mag5', 'gd_weap_alien_rifle.Barrel.barrel4_BallBlaster', 'gd_weap_alien_rifle.Sight.sight4', 'gd_weap_alien_rifle.Stock.stock4', 'None', 'gd_weap_alien_rifle.acc.acc4'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Ball', title='gd_weap_alien_rifle.Title.Title_Blaster', ammo=0, quality=3, level=0, slot=0, junk=0, locked=1)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_SMG_Blaster', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_SMG.a_weap.WeaponType_Eridan_Blaster', pieces=('gd_weap_alien_rifle.Body.body2', 'gd_weap_alien_rifle.Grip.grip2', 'gd_weap_alien_rifle.mag.mag6', 'gd_weap_alien_rifle.Barrel.barrel4_WaveBlaster', 'gd_weap_alien_rifle.Sight.sight4', 'gd_weap_alien_rifle.Stock.stock6', 'None', 'gd_weap_alien_rifle.acc.acc6'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Wave', title='gd_weap_alien_rifle.Title.Title_Blaster', ammo=0, quality=3, level=0, slot=0, junk=0, locked=1)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_SMG_Blaster', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_SMG.a_weap.WeaponType_Eridan_Blaster', pieces=('gd_weap_alien_rifle.Body.body4', 'gd_weap_alien_rifle.Grip.grip3', 'gd_weap_alien_rifle.mag.mag6', 'gd_weap_alien_rifle.Barrel.barrel4_MercurialBlaster', 'gd_weap_alien_rifle.Sight.sight4', 'gd_weap_alien_rifle.Stock.stock6', 'None', 'gd_weap_alien_rifle.acc.acc4'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Mercurial', title='gd_weap_alien_rifle.Title.Title_Blaster', ammo=0, quality=3, level=0, slot=0, junk=0, locked=1)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_Shotgun_ThunderStorm', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_Shotgun.a_weap.WeaponType_Eridan_Thunder_Storm', pieces=('gd_weap_alien_rifle.Body.body5', 'gd_weap_alien_rifle.Grip.grip5', 'gd_weap_alien_rifle.mag.mag5', 'gd_weap_alien_rifle.Barrel.barrel6', 'gd_weap_alien_rifle.Sight.sight1', 'gd_weap_alien_rifle.Stock.stock_none', 'None', 'gd_weap_alien_rifle.acc.acc6'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Thunder', title='gd_weap_alien_rifle.Title.Title_Storm', ammo=0, quality=3, level=0, slot=0, junk=0, locked=1)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_Cannon', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_Launcher.a_weap.WeaponType_Eridan_Cannon', pieces=('gd_weap_alien_rifle.Body.body1', 'gd_weap_alien_rifle.Grip.grip6', 'gd_weap_alien_rifle.mag.mag1', 'gd_weap_alien_rifle.Barrel.barrel5_Cannon', 'gd_weap_alien_rifle.Sight.sight3', 'gd_weap_alien_rifle.Stock.stock2', 'None', 'gd_weap_alien_rifle.acc.acc2'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='None', title='gd_weap_alien_rifle.Title.Title_Cannon', ammo=0, quality=3, level=0, slot=0, junk=0, locked=1)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_Sniper_Railgun', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_Sniper.a_weap.WeaponType_Eridan_Lightning', pieces=('gd_weap_alien_rifle.Body.body2', 'gd_weap_alien_rifle.Grip.grip2', 'gd_weap_alien_rifle.mag.mag1', 'gd_weap_alien_rifle.Barrel.barrel1', 'gd_weap_alien_rifle.Sight.sight6', 'gd_weap_alien_rifle.Stock.stock1', 'None', 'gd_weap_alien_rifle.acc.acc_none'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Eridan', title='gd_weap_alien_rifle.Title.Title_Lightning', ammo=0, quality=3, level=0, slot=0, junk=0, locked=0)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_Shotgun_ThunderStorm', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_Shotgun.a_weap.WeaponType_Eridan_Thunder_Storm', pieces=('gd_weap_alien_rifle.Body.body1', 'gd_weap_alien_rifle.Grip.grip6', 'gd_weap_alien_rifle.mag.mag1', 'gd_weap_alien_rifle.Barrel.barrel6', 'gd_weap_alien_rifle.Sight.sight1', 'gd_weap_alien_rifle.Stock.stock_none', 'None', 'gd_weap_alien_rifle.acc.acc6'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Thunder', title='gd_weap_alien_rifle.Title.Title_Storm', ammo=0, quality=3, level=0, slot=0, junk=0, locked=0)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_Sniper_Railgun', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_Sniper.a_weap.WeaponType_Eridan_Lightning', pieces=('gd_weap_alien_rifle.Body.body5', 'gd_weap_alien_rifle.Grip.grip4', 'gd_weap_alien_rifle.mag.mag5', 'gd_weap_alien_rifle.Barrel.barrel1', 'gd_weap_alien_rifle.Sight.sight5', 'gd_weap_alien_rifle.Stock.stock3', 'None', 'gd_weap_alien_rifle.acc.acc3'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Eridan', title='gd_weap_alien_rifle.Title.Title_Lightning', ammo=0, quality=3, level=0, slot=0, junk=0, locked=0)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_SMG_Blaster', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_SMG.a_weap.WeaponType_Eridan_Blaster', pieces=('gd_weap_alien_rifle.Body.body5', 'gd_weap_alien_rifle.Grip.grip6', 'gd_weap_alien_rifle.mag.mag4', 'gd_weap_alien_rifle.Barrel.barrel4_MercurialBlaster', 'gd_weap_alien_rifle.Sight.sight4', 'gd_weap_alien_rifle.Stock.stock5', 'None', 'gd_weap_alien_rifle.acc.acc6'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Mercurial', title='gd_weap_alien_rifle.Title.Title_Blaster', ammo=0, quality=3, level=0, slot=0, junk=0, locked=0)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_Shotgun_ThunderStorm', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_Shotgun.a_weap.WeaponType_Eridan_Thunder_Storm', pieces=('gd_weap_alien_rifle.Body.body4', 'gd_weap_alien_rifle.Grip.grip4', 'gd_weap_alien_rifle.mag.mag6', 'gd_weap_alien_rifle.Barrel.barrel6', 'gd_weap_alien_rifle.Sight.sight1', 'gd_weap_alien_rifle.Stock.stock_none', 'None', 'gd_weap_alien_rifle.acc.acc4'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Thunder', title='gd_weap_alien_rifle.Title.Title_Storm', ammo=0, quality=3, level=0, slot=0, junk=0, locked=0)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_SMG_Blaster', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_SMG.a_weap.WeaponType_Eridan_Blaster', pieces=('gd_weap_alien_rifle.Body.body1', 'gd_weap_alien_rifle.Grip.grip3', 'gd_weap_alien_rifle.mag.mag5', 'gd_weap_alien_rifle.Barrel.barrel4_MercurialBlaster', 'gd_weap_alien_rifle.Sight.sight4', 'gd_weap_alien_rifle.Stock.stock6', 'None', 'gd_weap_alien_rifle.acc.acc6'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Mercurial', title='gd_weap_alien_rifle.Title.Title_Blaster', ammo=0, quality=3, level=0, slot=0, junk=0, locked=0)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_SMG_Blaster', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_SMG.a_weap.WeaponType_Eridan_Blaster', pieces=('gd_weap_alien_rifle.Body.body3', 'gd_weap_alien_rifle.Grip.grip1', 'gd_weap_alien_rifle.mag.mag5', 'gd_weap_alien_rifle.Barrel.barrel4_MercurialBlaster', 'gd_weap_alien_rifle.Sight.sight4', 'gd_weap_alien_rifle.Stock.stock5', 'None', 'gd_weap_alien_rifle.acc.acc4'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Mercurial', title='gd_weap_alien_rifle.Title.Title_Blaster', ammo=0, quality=3, level=0, slot=0, junk=0, locked=0)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_SMG_Blaster', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_SMG.a_weap.WeaponType_Eridan_Blaster', pieces=('gd_weap_alien_rifle.Body.body2', 'gd_weap_alien_rifle.Grip.grip4', 'gd_weap_alien_rifle.mag.mag5', 'gd_weap_alien_rifle.Barrel.barrel4_MercurialBlaster', 'gd_weap_alien_rifle.Sight.sight4', 'gd_weap_alien_rifle.Stock.stock6', 'None', 'gd_weap_alien_rifle.acc.acc6'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Mercurial', title='gd_weap_alien_rifle.Title.Title_Blaster', ammo=0, quality=3, level=0, slot=3, junk=0, locked=0)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_Shotgun_ThunderStorm', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_Shotgun.a_weap.WeaponType_Eridan_Thunder_Storm', pieces=('gd_weap_alien_rifle.Body.body5', 'gd_weap_alien_rifle.Grip.grip6', 'gd_weap_alien_rifle.mag.mag6', 'gd_weap_alien_rifle.Barrel.barrel6', 'gd_weap_alien_rifle.Sight.sight1', 'gd_weap_alien_rifle.Stock.stock_none', 'None', 'gd_weap_alien_rifle.acc.acc4'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Thunder', title='gd_weap_alien_rifle.Title.Title_Storm', ammo=0, quality=3, level=0, slot=0, junk=0, locked=1)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_Cannon', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_Launcher.a_weap.WeaponType_Eridan_Cannon', pieces=('gd_weap_alien_rifle.Body.body2', 'gd_weap_alien_rifle.Grip.grip3', 'gd_weap_alien_rifle.mag.mag5', 'gd_weap_alien_rifle.Barrel.barrel5_Cannon', 'gd_weap_alien_rifle.Sight.sight2', 'gd_weap_alien_rifle.Stock.stock5', 'None', 'gd_weap_alien_rifle.acc.acc5'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='None', title='gd_weap_alien_rifle.Title.Title_Cannon', ammo=0, quality=3, level=0, slot=0, junk=0, locked=1)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_Sniper_Railgun', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_Sniper.a_weap.WeaponType_Eridan_Lightning', pieces=('gd_weap_alien_rifle.Body.body6', 'gd_weap_alien_rifle.Grip.grip1', 'gd_weap_alien_rifle.mag.mag6', 'gd_weap_alien_rifle.Barrel.barrel1', 'gd_weap_alien_rifle.Sight.sight2', 'gd_weap_alien_rifle.Stock.stock1', 'None', 'gd_weap_alien_rifle.acc.acc_none'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Eridan', title='gd_weap_alien_rifle.Title.Title_Lightning', ammo=0, quality=3, level=0, slot=0, junk=0, locked=1)
-# Weapon(grade='gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_SMG_Blaster', mfg='gd_manufacturers.Manufacturers.Eridian', type='gd_weap_alien_rifle.A_SMG.a_weap.WeaponType_Eridan_Blaster', pieces=('gd_weap_alien_rifle.Body.body2', 'gd_weap_alien_rifle.Grip.grip4', 'gd_weap_alien_rifle.mag.mag6', 'gd_weap_alien_rifle.Barrel.barrel4_WaveBlaster', 'gd_weap_alien_rifle.Sight.sight4', 'gd_weap_alien_rifle.Stock.stock6', 'None', 'gd_weap_alien_rifle.acc.acc6'), material='gd_weap_shared_materialparts.ManufacturerMaterials.Material_Eridan_1', prefix='gd_weap_alien_rifle.Prefix.Prefix_Wave', title='gd_weap_alien_rifle.Title.Title_Blaster', ammo=0, quality=3, level=0, slot=0, junk=0, locked=1)
 
 @synthesizer
 def create_class_mods(savefile, who):
