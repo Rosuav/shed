@@ -175,7 +175,7 @@ def eridian(savefile, which):
 			"gd_weap_alien_rifle.Barrel.barrel5_Cannon",
 			"gd_weap_alien_rifle.Sight.sight2",
 			"gd_weap_alien_rifle.Stock.stock5",
-			"gd_weap_alien_rifle.acc.acc6",
+			"gd_weap_alien_rifle.acc.acc5",
 		],
 		"lightning": [
 			"gd_itemgrades.Weapons_Eridan.ItemGrade_Eridan_Sniper_Railgun",
@@ -185,11 +185,9 @@ def eridian(savefile, which):
 			"gd_weap_alien_rifle.Barrel.barrel1",
 			"gd_weap_alien_rifle.Sight.sight5",
 			"gd_weap_alien_rifle.Stock.stock1",
-			"gd_weap_alien_rifle.acc.acc3", # This is the only weapon type that needs a different accessory.
+			"gd_weap_alien_rifle.acc.acc3",
 		],
 	}
-# gd_weap_alien_rifle.Body.body1', 'gd_weap_alien_rifle.Grip.grip6', gd_weap_alien_rifle.Sight.sight3', 'gd_weap_alien_rifle.Stock.stock2', 'None', 'gd_weap_alien_rifle.acc.acc2
-# gd_weap_alien_rifle.Body.body2', 'gd_weap_alien_rifle.Grip.grip3', gd_weap_alien_rifle.Sight.sight2', 'gd_weap_alien_rifle.Stock.stock5', 'None', 'gd_weap_alien_rifle.acc.acc5
 
 	# Blasters are very similar in parts but function somewhat differently.
 	# Wave blasters fire slower and consume ammo faster, but have oscillating projectiles.
