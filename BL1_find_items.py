@@ -181,7 +181,7 @@ def eridian(savefile, which):
 			"None",
 			"gd_weap_alien_rifle.Title.Title_Cannon",
 			"gd_weap_alien_rifle.Barrel.barrel5_Cannon",
-			"gd_weap_alien_rifle.Sight.sight1",
+			"gd_weap_alien_rifle.Sight.sight2",
 			"gd_weap_alien_rifle.Stock.stock5",
 		],
 	}
@@ -191,7 +191,7 @@ def eridian(savefile, which):
 			savefile.weapons.append(Weapon(
 				grade=grade, mfg="gd_manufacturers.Manufacturers.Eridian", type=type,
 				pieces=[
-					"gd_weap_alien_rifle.Body.body4",
+					"gd_weap_alien_rifle.Body.body2",
 					"gd_weap_alien_rifle.Grip.grip1",
 					"gd_weap_alien_rifle.mag.mag6",
 					barrel,
