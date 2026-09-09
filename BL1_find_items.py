@@ -2,6 +2,7 @@ import argparse
 import os.path
 import struct
 import inspect
+import itertools
 from dataclasses import dataclass # ImportError? Upgrade to Python 3.7 or pip install dataclasses
 
 class FunctionArg:
@@ -267,12 +268,29 @@ def create_class_mods(savefile, who):
 				title="gd_CommandDecks.Title.Title_ComDeckLilith",
 				unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
 			))
+	elif who.casefold() == "mordecai":
+		# Give two different materials, granting either team reload or team damage
+		for quality, mat in itertools.product(range(1, 6), "23"):
+			savefile.items.append(Item(
+				grade="gd_itemgrades.Gear.ItemGrade_Gear_ComDeck_Mordecai",
+				type="gd_CommandDecks.A_Item.Item_CommandDeck_Mordecai",
+				pieces=[
+					"gd_CommandDecks.Body_Mordecai.Mordecai_Survivor",
+					"gd_CommandDecks.LeftSide.leftside6",
+					"gd_CommandDecks.RightSide.rightside6",
+					"gd_CommandDecks.ManufacturerMaterials.Material_Pangolin_%s" % mat,
+				],
+				mfg="gd_manufacturers.Manufacturers.Pangolin",
+				prefix="gd_CommandDecks.Prefix.Prefix_Mordecai_Survivor",
+				title="gd_CommandDecks.Title.Title_ComDeckMordecai",
+				unknown=1, quality=quality, level=0, slot=0, junk=0, locked=0,
+			))
 	else: raise ValueError("Dunno who you want class mods for - %r" % who)
 
 @synthesizer
 def create_cmod_variants(savefile):
-	import itertools
-	for quality, left, mfg, mat in itertools.product(range(3, 6), ["leftside6", "leftside6c"], ["Pangolin", "Maliwan"], "23"):
+	# Recode this to try out different variants, then pick out the best and use it above
+	for quality, left, mfg, mat in itertools.product([3], ["leftside6", "leftside6c"], ["Pangolin", "Maliwan"], "23"):
 		savefile.items.append(Item(
 			grade="gd_itemgrades.Gear.ItemGrade_Gear_ComDeck_Mordecai",
 			type='gd_CommandDecks.A_Item.Item_CommandDeck_Mordecai',
