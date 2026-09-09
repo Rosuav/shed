@@ -98,8 +98,7 @@ def lady_finger(savefile):
 	# Remove any previous Lady Fingers first
 	savefile.weapons = [w for w in savefile.weapons if w.slot or w.title != "gd_weap_repeater_pistol.Title.TitleU_LadyFinger"]
 	# for part in ["acc5_incendiary", "acc4_doubleshot", "acc1_lacerator", "acc2_stabilized"]:
-	# for quality in range(6):
-	if 1:
+	for quality in range(6):
 		savefile.weapons.append(Weapon(
 			grade="gd_customweapons.Weapons.CustomWeap_Repeater_LadiesFinger",
 			mfg="gd_manufacturers.Manufacturers.Hyperion",
@@ -123,7 +122,7 @@ def lady_finger(savefile):
 			material="gd_weap_repeater_pistol.UniqueParts.LadyFinger_Material",
 			prefix="gd_weap_names_shared.Prefix.PrefixU_blank",
 			title="gd_weap_repeater_pistol.Title.TitleU_LadyFinger",
-			ammo=0, quality=0, level=0, slot=0, junk=0, locked=1,
+			ammo=0, quality=quality, level=0, slot=0, junk=0, locked=1,
 		))
 
 @synthesizer
@@ -204,7 +203,7 @@ def eridian(savefile, which):
 			"gd_weap_alien_rifle.Stock.stock6",
 			"gd_weap_alien_rifle.acc.acc6",
 		]
-	for quality in range(1): # default 6
+	for quality in range(6):
 		for family in which.split(","):
 			grade, type, prefix, title, barrel, sight, stock, acc = families[family]
 			savefile.weapons.append(Weapon(
