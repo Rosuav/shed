@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+import sys, subprocess
+actions = ["xdotool"]
+for arg in sys.argv[1:]:
+	cmd, *args = arg.split(":")
+	if cmd == "ac":
+		if not args:
+			print("Activate what?")
+			continue
+		if len(args) == 1: args = [args[0], args[0]]
+		for pos in range(int(args[0]), int(args[1])+1): # inc-inc range
+			actions += ["mousemove", "3000" if pos > 4 else "2400", str(325 + 150 * (pos % 5)), "click", "1"]
+	if cmd == "power":
+		actions += ["mousemove", "2400", "325", "click", "--repeat", "75", "1"]
+subprocess.run(actions)
