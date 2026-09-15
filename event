@@ -19,4 +19,10 @@ for arg in sys.argv[1:]:
 			]
 	if cmd == "power":
 		actions += ["mousemove", "2400", "325", "click", "--repeat", "75", "1"]
-subprocess.run(actions)
+	if cmd == "sleep":
+		actions += ["sleep", args[0] if args else "2"]
+try:
+	subprocess.run(actions)
+except KeyboardInterrupt:
+	print()
+	sys.exit(1) # Silent, but return failure
