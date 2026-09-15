@@ -10,7 +10,6 @@ canvas.height = canvas.clientHeight;
 const lines = [];
 let drawing = null;
 function repaint() {
-	ctx.font = "12px 'Lexend', 'Noto Color Emoji', 'Noto Sans Symbols 2', sans-serif";
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.beginPath();
 	for (let line of lines) {
