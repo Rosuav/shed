@@ -46,4 +46,5 @@ canvas.addEventListener("pointerup", e => {
 	e.target.releasePointerCapture(e.pointerId);
 	drawing = null;
 	repaint();
+	document.querySelector("[name=scribble]").value = canvas.toDataURL();
 });
