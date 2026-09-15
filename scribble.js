@@ -19,6 +19,7 @@ function repaint() {
 		for (let point of line) ctx.lineTo(...point);
 	}
 	ctx.stroke();
+	if (!drawing) document.querySelector("[name=scribble]").value = canvas.toDataURL();
 }
 
 canvas.addEventListener("pointerdown", e => {
@@ -51,5 +52,11 @@ canvas.addEventListener("pointerup", e => {
 	e.target.releasePointerCapture(e.pointerId);
 	drawing = null;
 	repaint();
-	document.querySelector("[name=scribble]").value = canvas.toDataURL();
 });
+
+document.getElementById("clearcanvas").onclick = e => {
+	e.preventDefault();
+	drawing = null;
+	lines.length = 0;
+	repaint();
+}
