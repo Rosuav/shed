@@ -1,5 +1,10 @@
+//Scribble on a canvas to save it as a form element
 const canvas = document.querySelector("canvas");
 const ctx = canvas.getContext("2d");
+//Synchronize the canvas width to the element's size as governed by CSS
+//This should ensure that one pixel is one pixel.
+canvas.width = canvas.clientWidth;
+canvas.height = canvas.clientHeight;
 
 //Each line consists of 1 or more coordinate pairs, representing a start position and 0 or more segments.
 const lines = [];
