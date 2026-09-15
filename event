@@ -1,9 +1,7 @@
 #!/usr/bin/python3
 import sys, subprocess
-if subprocess.run(["xdotool", "getactivewindow", "getwindowname"], capture_output=True, encoding="utf-8").stdout != "AdCap!\n":
-	print("Focus is gone, halting")
-	sys.exit(1)
 actions = ["xdotool"]
+loop = 1
 for arg in sys.argv[1:]:
 	cmd, *args = arg.split(":")
 	if cmd == "ac" or cmd == "up":
@@ -21,8 +19,14 @@ for arg in sys.argv[1:]:
 		actions += ["mousemove", "2400", "325", "click", "--repeat", "75", "1"]
 	if cmd == "sleep":
 		actions += ["sleep", args[0] if args else "2"]
+	if cmd == "loop":
+		loop = int(args[0] if args else 1000000)
 try:
-	subprocess.run(actions)
+	for _ in range(loop):
+		if subprocess.run(["xdotool", "getactivewindow", "getwindowname"], capture_output=True, encoding="utf-8").stdout != "AdCap!\n":
+			print("Focus is gone, halting")
+			sys.exit(1)
+		subprocess.run(actions)
 except KeyboardInterrupt:
 	print()
 	sys.exit(1) # Silent, but return failure
