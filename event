@@ -16,7 +16,9 @@ for arg in sys.argv[1:]:
 				"click", "1",
 			]
 	if cmd == "power":
-		actions += ["mousemove", "2400", "325", "click", "--repeat", "75", "1"]
+		actions += ["mousemove", "2400", "325", "click", "--repeat", "75", "--delay", "50", "1"]
+	if cmd == "batch":
+		actions += ["mousemove", "3700", "75", "click", "1"]
 	if cmd == "sleep":
 		actions += ["sleep", args[0] if args else "2"]
 	if cmd == "loop":
