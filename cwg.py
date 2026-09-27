@@ -188,15 +188,15 @@ def rate():
 			best = (0, 0); bestscore = baseline
 			if "brute-force": # meh let's just brute force it.
 				for A in range(21):
-					for B in range(21):
+					for B in range(A+1):
 						time.sleep(0.1)
 						score = read_row(ImageGrab.grab(), 984, 620, 50, assume_decimal=True)
 						if score > bestscore:
 							best = (A, B); bestscore = score
 							if bestscore == 10000: break
-						if B < 20: subprocess.run(["xdotool", "mousemove", str(x2 + buttonx), str(y2 + upbutton)] + ["click", "1"], check=True)
+						if B < A: subprocess.run(["xdotool", "mousemove", str(x2 + buttonx), str(y2 + upbutton)] + ["click", "1"], check=True)
 					if bestscore == 10000: break
-					subprocess.run(["xdotool", "mousemove", str(x2 + buttonx), str(y2 + downbutton)] + ["click", "1"] * 20, check=True)
+					subprocess.run(["xdotool", "mousemove", str(x2 + buttonx), str(y2 + downbutton)] + ["click", "1"] * A, check=True)
 					if A < 20: subprocess.run(["xdotool", "mousemove", str(x1 + buttonx), str(y1 + upbutton)] + ["click", "1"], check=True)
 				if bestscore < 10000: subprocess.run(["xdotool", "mousemove", str(x1 + buttonx), str(y1 + downbutton)] + ["click", "1"] * 20, check=True)
 			else:
