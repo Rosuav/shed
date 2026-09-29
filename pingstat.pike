@@ -19,6 +19,7 @@ This is fairly arbitrary, but gives decent results in practice.
 */
 
 int scream = 0, last_scream = time() - 299; //Even in scream mode, don't scream in the first second.
+int proclaim = 0;
 void bad_line(string line) {
 	//TODO: Figure out if the terminal supports colour
 	write("\e[1;31m%s\e[0m\e[K\n", line);
@@ -64,6 +65,10 @@ void got_stdout(mixed _, string data) {
 			write("%s\e[K\n", line);
 			if (seen_good) update_averages(1);
 			else {seen_good = 1; runtime->get();}
+			if (proclaim) {
+				proclaim = 0; //One-shot: Pass --proclaim and we'll sing out when things are good
+				Process.create_process(({"vlc", "/home/rosuav/Videos/Let It Go/Flemish - Laat Het Los.mkv"}));
+			}
 			continue;
 		}
 		bad_line(line);
@@ -80,6 +85,7 @@ int main(int argc, array(string) argv) {
 	mapping modifiers = (["stdout": got_stdout, "stderr": got_stderr]);
 	object out = Stdio.File(), err = Stdio.File();
 	scream = has_value(argv, "--scream"); argv -= ({"--scream"});
+	proclaim = has_value(argv, "--proclaim"); argv -= ({"--proclaim"});
 	object proc = Process.Process(({"ping"}) + argv[1..], ([
 		"stdout": out->pipe(), "err": err->pipe(),
 		"callback": lambda() {exit(0);},
