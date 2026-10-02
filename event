@@ -11,18 +11,28 @@ for arg in sys.argv[1:]:
 		if len(args) == 1: args = [args[0], args[0]]
 		for pos in range(int(args[0]), int(args[1])+1): # inc-inc range
 			actions += ["mousemove",
-				str(2400 + 600 * (pos > 4) + 150 * (cmd != "ac")),
+				str(2400 + 650 * (pos > 4) + 150 * (cmd != "ac")),
 				str(325 + 150 * (pos % 5) + 50 * (cmd != "ac")),
 				"click", "1",
 			]
 	if cmd == "power":
-		actions += ["mousemove", "2400", "325", "click", "--repeat", "75", "--delay", "50", "1"]
+		count, delay = "75", "100"
+		for arg in args:
+			if arg == "fast": delay = "50"
+			if arg == "slow": delay = "200"
+			try: count = str(int(arg))
+			except ValueError: pass
+		actions += ["mousemove", "2400", "325", "click", "--repeat", count, "--delay", delay, "1"]
 	if cmd == "batch":
 		actions += ["mousemove", "3700", "75", "click", "1"]
 	if cmd == "sleep":
 		actions += ["sleep", args[0] if args else "2"]
 	if cmd == "loop":
 		loop = int(args[0] if args else 1000000)
+	if cmd == "upgrade":
+		actions += "mousemove 2175 520 click 1 sleep 0.5 mousemove 2750 680 click 1 sleep 0.5 key Escape".split()
+	if cmd == "angels":
+		actions += "mousemove 2175 720 click 1 sleep 0.5 mousemove 3562 710 click 1 sleep 0.5 mousemove 2630 800 click 1 sleep 0.5 key Escape Escape".split()
 try:
 	for _ in range(loop):
 		if subprocess.run(["xdotool", "getactivewindow", "getwindowname"], capture_output=True, encoding="utf-8").stdout != "AdCap!\n":
