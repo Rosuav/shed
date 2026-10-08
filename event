@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-import sys, subprocess
+import sys, subprocess, random
 actions = ["xdotool"]
 loop = 1
 for arg in sys.argv[1:]:
@@ -9,7 +9,12 @@ for arg in sys.argv[1:]:
 			print("Activate what?")
 			continue
 		if len(args) == 1: args = [args[0], args[0]]
-		for pos in range(int(args[0]), int(args[1])+1): # inc-inc range
+		positions = range(int(args[0]), int(args[1])+1) # inc-inc range
+		if "rand" in args:
+			# Do them in a random order for less triangular upgrades
+			positions = list(positions)
+			random.shuffle(positions)
+		for pos in positions:
 			actions += ["mousemove",
 				str(2400 + 650 * (pos > 4) + 150 * (cmd != "ac")),
 				str(325 + 150 * (pos % 5) + 50 * (cmd != "ac")),
