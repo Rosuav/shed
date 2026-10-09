@@ -63,11 +63,10 @@ def autoclickers_rollout():
 				elif cmd == "cycle":
 					print("Cycling!")
 					subprocess.run(cmd_actions(["angels", "power:1", "ac:1", "power:fast", "up:1:9", "power:fast", "ac:1:9"]))
-				elif cmd == "upgrade":
-					print("Upgrading!")
-					subprocess.run(cmd_actions(["upgrade"]))
 				else:
-					print("Unknown command", cmd)
+					ac = cmd_actions(cmd.split())
+					if len(ac) > 1: subprocess.run(ac)
+					else: print("Unknown command", cmd)
 				continue # Don't sleep
 			if loop < 0: break
 			time.sleep(loop)
