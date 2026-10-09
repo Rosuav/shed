@@ -40,6 +40,11 @@ def cmd_actions(cmds):
 			actions += "mousemove 2175 520 click 1 sleep 0.5 mousemove 2750 680 click 1 sleep 0.5 key Escape".split()
 		if cmd == "angels":
 			actions += "mousemove 2175 720 click 1 sleep 0.5 mousemove 3562 710 click 1 sleep 0.5 mousemove 2630 800 click 1 sleep 0.5 key Escape Escape".split()
+		if cmd == "goals":
+			actions += "mousemove 3775 300 click 1 sleep 0.5".split()
+			for y in "400 600 800 1000".split():
+				actions += ["mousemove", "2800", y, "click", "1"]
+			actions += ["sleep", "0.1", "key", "Escape", "sleep", "0.5"]
 	return actions
 
 actions = cmd_actions(sys.argv[1:]) # mostly just to parse out any loop directive
