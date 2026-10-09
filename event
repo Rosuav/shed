@@ -1,49 +1,80 @@
 #!/usr/bin/python3
-import sys, subprocess, random
-actions = ["xdotool"]
-loop = 1
-for arg in sys.argv[1:]:
-	cmd, *args = arg.split(":")
-	if cmd == "ac" or cmd == "up":
-		if not args:
-			print("Activate what?")
-			continue
-		if len(args) == 1: args = [args[0], args[0]]
-		positions = range(int(args[0]), int(args[1])+1) # inc-inc range
-		if "rand" in args:
-			# Do them in a random order for less triangular upgrades
-			positions = list(positions)
-			random.shuffle(positions)
-		for pos in positions:
-			actions += ["mousemove",
-				str(2400 + 650 * (pos > 4) + 150 * (cmd != "ac")),
-				str(325 + 150 * (pos % 5) + 50 * (cmd != "ac")),
-				"click", "1",
-			]
-	if cmd == "power":
-		count, delay = "75", "100"
-		for arg in args:
-			if arg == "fast": delay = "50"
-			if arg == "slow": delay = "200"
-			try: count = str(int(arg))
-			except ValueError: pass
-		actions += ["mousemove", "2400", "325", "click", "--repeat", count, "--delay", delay, "1"]
-	if cmd == "batch":
-		actions += ["mousemove", "3700", "75", "click", "1"]
-	if cmd == "sleep":
-		actions += ["sleep", args[0] if args else "2"]
-	if cmd == "loop":
-		loop = int(args[0] if args else 1000000)
-	if cmd == "upgrade":
-		actions += "mousemove 2175 520 click 1 sleep 0.5 mousemove 2750 680 click 1 sleep 0.5 key Escape".split()
-	if cmd == "angels":
-		actions += "mousemove 2175 720 click 1 sleep 0.5 mousemove 3562 710 click 1 sleep 0.5 mousemove 2630 800 click 1 sleep 0.5 key Escape Escape".split()
+import sys, subprocess, random, threading, time, os
+loop = -1 # If 0 or above, is the sleep time between loops
+def cmd_actions(cmds):
+	actions = ["xdotool"]
+	for arg in cmds:
+		cmd, *args = arg.split(":")
+		if cmd == "ac" or cmd == "up":
+			if not args:
+				print("Activate what?")
+				continue
+			if len(args) == 1: args = [args[0], args[0]]
+			positions = range(int(args[0]), int(args[1])+1) # inc-inc range
+			if "rand" in args:
+				# Do them in a random order for less triangular upgrades
+				positions = list(positions)
+				random.shuffle(positions)
+			for pos in positions:
+				actions += ["mousemove",
+					str(2400 + 650 * (pos > 4) + 150 * (cmd != "ac")),
+					str(325 + 150 * (pos % 5) + 50 * (cmd != "ac")),
+					"click", "1",
+				]
+		if cmd == "power":
+			count, delay = "75", "100"
+			for arg in args:
+				if arg == "fast": delay = "50"
+				if arg == "slow": delay = "200"
+				try: count = str(int(arg))
+				except ValueError: pass
+			actions += ["mousemove", "2400", "325", "click", "--repeat", count, "--delay", delay, "1"]
+		if cmd == "batch":
+			actions += ["mousemove", "3700", "75", "click", "1"]
+		if cmd == "sleep":
+			actions += ["sleep", args[0] if args else "2"]
+		if cmd == "loop":
+			global loop # yeah this breaks encapsulation, I don't care
+			loop = int(args[0] if args else 0)
+		if cmd == "upgrade":
+			actions += "mousemove 2175 520 click 1 sleep 0.5 mousemove 2750 680 click 1 sleep 0.5 key Escape".split()
+		if cmd == "angels":
+			actions += "mousemove 2175 720 click 1 sleep 0.5 mousemove 3562 710 click 1 sleep 0.5 mousemove 2630 800 click 1 sleep 0.5 key Escape Escape".split()
+	return actions
+
+actions = cmd_actions(sys.argv[1:]) # mostly just to parse out any loop directive
+
+cmd_queue = []
+def autoclickers_rollout():
+	try:
+		while True:
+			if subprocess.run(["xdotool", "getactivewindow", "getwindowname"], capture_output=True, encoding="utf-8").stdout != "AdCap!\n":
+				print("Focus is gone, halting")
+				break
+			subprocess.run(cmd_actions(sys.argv[1:]))
+			if cmd_queue:
+				cmd = cmd_queue.pop(0)
+				if cmd == "quit": break
+				elif cmd == "cycle":
+					print("Cycling!")
+					subprocess.run(cmd_actions(["angels", "power:1", "ac:1", "power:fast", "up:1:9", "power:fast", "ac:1:9"]))
+				elif cmd == "upgrade":
+					print("Upgrading!")
+					subprocess.run(cmd_actions(["upgrade"]))
+				else:
+					print("Unknown command", cmd)
+				continue # Don't sleep
+			if loop < 0: break
+			time.sleep(loop)
+	except KeyboardInterrupt:
+		pass
+	os.kill(os.getpid(), 2) # This meeting could have been SIGINT
+threading.Thread(target=autoclickers_rollout, daemon=True).start()
+
 try:
-	for _ in range(loop):
-		if subprocess.run(["xdotool", "getactivewindow", "getwindowname"], capture_output=True, encoding="utf-8").stdout != "AdCap!\n":
-			print("Focus is gone, halting")
-			sys.exit(1)
-		subprocess.run(actions)
+	while True:
+		cmd = input()
+		cmd_queue.append(cmd)
 except KeyboardInterrupt:
 	print()
 	sys.exit(1) # Silent, but return failure
