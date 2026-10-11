@@ -37,7 +37,9 @@ def cmd_actions(cmds):
 			global loop # yeah this breaks encapsulation, I don't care
 			loop = int(args[0] if args else 0)
 		if cmd == "upgrade":
-			actions += "mousemove 2175 520 click 1 sleep 0.5 mousemove 2750 680 click 1 sleep 0.5 key Escape".split()
+			actions += "mousemove 2175 520 click 1 sleep 0.5 mousemove 2750 680 click --repeat 50 --delay 50 1 sleep 0.5 key Escape".split()
+		if cmd == "upgang":
+			actions += "mousemove 2175 520 click 1 sleep 0.5 mousemove 2875 250 click 1 mousemove 2750 680 click --repeat 20 --delay 50 1 sleep 0.5 key Escape".split()
 		if cmd == "angels":
 			actions += "mousemove 2175 720 click 1 sleep 0.5 mousemove 3562 710 click 1 sleep 0.5 mousemove 2630 800 click 1 sleep 0.5 key Escape Escape".split()
 		if cmd == "goals":
