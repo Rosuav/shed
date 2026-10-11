@@ -2,6 +2,7 @@ import {lindt, replace_content, DOM} from "https://rosuav.github.io/choc/factory
 const {ASIDE, H1, H2, MAIN, P, STYLE} = choc; //autoimport
 
 const state = { };
+const TRANSPARENT_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNgAAIAAAUAAen63NgAAAAASUVORK5CYII=";
 
 export function render(data) {
 	Object.assign(state, data);
@@ -18,6 +19,7 @@ aside {flex: 0 1 auto;}
 		]),
 		ASIDE([
 			H2("Two tabs go here"),
+			IMG({src: state.foo_image || TRANSPARENT_IMAGE});
 		]),
 	]);
 }

@@ -1,19 +1,7 @@
 mapping websocket_types = (["event": (["groups": ([])])]);
 mapping state = ([]); //Shared websocket state
 
-void send_updates_all() {
-	string text = Standards.JSON.encode(state | (["cmd": "update"]), 4);
-	foreach (websocket_types->event->groups[""], object sock)
-		if (sock && sock->state == 1) sock->send_text(text);
-}
-
-void wsmsg_event__init(mapping conn, mapping msg) {
-	if (conn->sock && conn->sock->state == 1) conn->sock->send_text(Standards.JSON.encode(state | (["cmd": "update"]), 4));
-}
-
-void http_handler(Protocols.HTTP.Server.Request req) {
-	switch (req->not_query) {
-		case "/":  req->response_and_finish((["data": sprintf(#{<!DOCTYPE HTML>
+constant index_html = #{<!DOCTYPE HTML>
 <html lang=en>
 <head>
 <meta charset="utf-8">
@@ -27,7 +15,35 @@ let ws_host = location.hostname + ":" + location.port, ws_protocol_override = "w
 <body>
 </body>
 </html>
-#}, file_stat("event.js")->?mtime), "type": "text/html"])); break;
+#};
+
+//Lifted (and cut down) from Stillebot
+class run_process {
+	inherit Concurrent.Promise;
+	Stdio.File stdout = Stdio.File();
+	protected void create(array(string) command, mapping|void modifiers) {
+		modifiers = (modifiers || ([])) | (["callback": donecb, "stdout": stdout->pipe(Stdio.PROP_IPC)]);
+		Process.create_process(command, modifiers);
+	}
+	void done(object proc) {
+		if (proc->status() == 2) success((["rc": proc->wait(), "stdout": stdout->read()]));
+	}
+	void donecb(object proc) {call_out(done, 0, proc);}
+}
+
+void send_updates_all(mapping|void sendme) {
+	string text = Standards.JSON.encode((sendme || state) | (["cmd": "update"]), 4);
+	foreach (websocket_types->event->groups[""], object sock)
+		if (sock && sock->state == 1) sock->send_text(text);
+}
+
+void wsmsg_event__init(mapping conn, mapping msg) {
+	if (conn->sock && conn->sock->state == 1) conn->sock->send_text(Standards.JSON.encode(state | (["cmd": "update"]), 4));
+}
+
+void http_handler(Protocols.HTTP.Server.Request req) {
+	switch (req->not_query) {
+		case "/":  req->response_and_finish((["data": sprintf(index_html, file_stat("event.js")->?mtime), "type": "text/html"])); break;
 		case "/event.js": req->response_and_finish((["file": Stdio.File("event.js"), "type": "text/javascript"])); break;
 		default: req->response_and_finish((["data": "Not found", "error": 404, "type": "text/plain"])); break;
 	}
@@ -62,7 +78,21 @@ void ws_handler(array(string) proto, Protocols.WebSocket.Request req) {
 	sock->onclose = ws_close;
 }
 
+__async__ void rollout() {
+	werror("Rolling out!\n");
+	while (1) {
+		mapping proc = await(run_process(({"xwd", "-root"})));
+		werror("Proc rc %O\n", proc->rc);
+		object img = Image.ANY.decode(proc->stdout);
+		werror("Image %O\n", img);
+		state->foo_image = "data:image/png;base64," + MIME.encode_base64(Image.PNG.encode(img), 1);
+		send_updates_all((["foo_image": state->foo_image]));
+		sleep(10);
+	}
+}
+
 int main() {
 	Protocols.WebSocket.Port(http_handler, ws_handler, 8085);
+	call_out(rollout, 1);
 	return -1;
 }
