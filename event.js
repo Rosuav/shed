@@ -7,9 +7,10 @@ export function render(data) {
 	Object.assign(state, data);
 	replace_content("body", [
 		STYLE(`
-body {display: flex; gap: 10px; width: 100%;}
+* {box-sizing: border-box;}
+body {display: flex; gap: 10px;}
 main {flex: 1 1 0;}
-aside {}
+aside {flex: 0 1 auto;}
 `),
 		MAIN([
 			H1("Hello, world"),
