@@ -8,7 +8,7 @@ void send_updates_all() {
 }
 
 void wsmsg_event__init(mapping conn, mapping msg) {
-	if (conn->sock && conn->sock->state == 1) sock->send_text(Standards.JSON.encode(state | (["cmd": "update"]), 4));
+	if (conn->sock && conn->sock->state == 1) conn->sock->send_text(Standards.JSON.encode(state | (["cmd": "update"]), 4));
 }
 
 void http_handler(Protocols.HTTP.Server.Request req) {
