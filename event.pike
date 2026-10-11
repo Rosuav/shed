@@ -9,7 +9,9 @@ void http_handler(Protocols.HTTP.Server.Request req) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Event status</title>
 <script>let ws_type = "event", ws_group = "", ws_code = location.origin + "/event.js?mtime=%d";
-let ws_sync = null; import('https://mustardmine.com/static/ws_sync.js').then(m => ws_sync = m);</script>
+let ws_sync = null; import('https://mustardmine.com/static/ws_sync.js').then(m => ws_sync = m);
+let ws_host = location.hostname + ":" + location.port, ws_protocol_override = "ws://";
+</script>
 </head>
 <body>
 </body>
