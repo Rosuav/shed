@@ -17,16 +17,18 @@ let ws_host = location.hostname + ":" + location.port, ws_protocol_override = "w
 </html>
 #};
 
-//Lifted (and cut down) from Stillebot
 class run_process {
 	inherit Concurrent.Promise;
 	Stdio.File stdout = Stdio.File();
+	string output = "";
 	protected void create(array(string) command, mapping|void modifiers) {
 		modifiers = (modifiers || ([])) | (["callback": donecb, "stdout": stdout->pipe(Stdio.PROP_IPC)]);
+		stdout->set_read_callback(data);
 		Process.create_process(command, modifiers);
 	}
+	void data(mixed _, string blob) {output += blob;}
 	void done(object proc) {
-		if (proc->status() == 2) success((["rc": proc->wait(), "stdout": stdout->read()]));
+		if (proc->status() == 2) success((["rc": proc->wait(), "stdout": output]));
 	}
 	void donecb(object proc) {call_out(done, 0, proc);}
 }
@@ -82,7 +84,7 @@ __async__ void rollout() {
 	werror("Rolling out!\n");
 	while (1) {
 		mapping proc = await(run_process(({"xwd", "-root"})));
-		werror("Proc rc %O\n", proc->rc);
+		werror("Proc rc %O %O\n", proc->rc, sizeof(proc->stdout));
 		object img = Image.ANY.decode(proc->stdout);
 		werror("Image %O\n", img);
 		state->foo_image = "data:image/png;base64," + MIME.encode_base64(Image.PNG.encode(img), 1);
