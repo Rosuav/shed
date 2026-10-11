@@ -1,5 +1,5 @@
 import {lindt, replace_content, DOM} from "https://rosuav.github.io/choc/factory.js";
-const {ASIDE, H1, H2, MAIN, P, STYLE} = choc; //autoimport
+const {ASIDE, H1, H2, IMG, MAIN, P, STYLE} = choc; //autoimport
 
 const state = { };
 const TRANSPARENT_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNgAAIAAAUAAen63NgAAAAASUVORK5CYII=";
