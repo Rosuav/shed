@@ -1,4 +1,15 @@
 mapping websocket_types = (["event": (["groups": ([])])]);
+mapping state = ([]); //Shared websocket state
+
+void send_updates_all() {
+	string text = Standards.JSON.encode(state | (["cmd": "update"]), 4);
+	foreach (websocket_types->event->groups[""], object sock)
+		if (sock && sock->state == 1) sock->send_text(text);
+}
+
+void wsmsg_event__init(mapping conn, mapping msg) {
+	if (conn->sock && conn->sock->state == 1) sock->send_text(Standards.JSON.encode(state | (["cmd": "update"]), 4));
+}
 
 void http_handler(Protocols.HTTP.Server.Request req) {
 	switch (req->not_query) {
@@ -35,7 +46,7 @@ void ws_msg(Protocols.WebSocket.Frame frm, mapping conn) {
 	}
 	if (!data->cmd) return; //Malformed message.
 	if (function handler = this["wsmsg_" + conn->type + "_" + conn->group + "_" + data->cmd]) handler(conn, data);
-	else write("Message to unknown type %O: %O\n", conn->type, data);
+	else write("Unknown message to %O/%O: %O\n", conn->type, conn->group, data);
 }
 
 void ws_close(int reason, mapping conn) {
