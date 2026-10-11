@@ -1,7 +1,23 @@
 mapping websocket_types = (["event": (["groups": ([])])]);
 
 void http_handler(Protocols.HTTP.Server.Request req) {
-	req->response_and_finish((["data": "Hello, world", "type": "text/plain"]));
+	switch (req->not_query) {
+		case "/":  req->response_and_finish((["data": sprintf(#{<!DOCTYPE HTML>
+<html lang=en>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event status</title>
+<script>let ws_type = "event", ws_group = "", ws_code = "/event.js?mtime=%d";
+let ws_sync = null; import('https://mustardmine.com/static/ws_sync.js').then(m => ws_sync = m);</script>
+</head>
+<body>
+</body>
+</html>
+#}, file_stat("event.js")->?mtime), "type": "text/html"])); break;
+		case "/event.js": req->response_and_finish((["file": Stdio.File("event.js"), "type": "text/javascript"])); break;
+		default: req->response_and_finish((["data": "Not found", "error": 404, "type": "text/plain"])); break;
+	}
 }
 
 void ws_msg(Protocols.WebSocket.Frame frm, mapping conn) {
