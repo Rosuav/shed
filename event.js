@@ -11,7 +11,7 @@ body {display: flex; gap: 10px;}
 main {flex: 1 1 0;}
 aside {flex: 0 1 auto;}
 ul {display: flex; list-style-type: none; padding-left: 0; gap: 8px;}
-` + tabs.map(kwd => "ul:not(:has(#" + kwd.toLowerCase() + ":checked)) ~ #" + kwd.toLowerCase() + "display {display: none;}").join("\n")));
+` + tabs.map(kwd => 'ul:not(:has([value="' + kwd.toLowerCase() + '"]:checked)) ~ #' + kwd.toLowerCase() + 'display {display: none;}').join("\n")));
 
 export function render(data) {
 	Object.assign(state, data);
