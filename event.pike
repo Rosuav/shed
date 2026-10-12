@@ -102,10 +102,8 @@ __async__ void capture(string kwd) {
 		//At some point it would be worth trying to skip the unnecessary reencoding and dependency.
 		//~ mapping proc = await(run_process(({"xwd", "-root"})));
 		mapping proc = await(run_process(({"bash", "-c", "xwd -root | convert xwd:- png:-"})));
-		werror("Proc rc %O %O\n", proc->rc, sizeof(proc->stdout));
 		mixed img = Image.ANY.decode(proc->stdout);
 		while (img->xsize() > 600) img = img->scale(0.5);
-		write("Image %O\n", img);
 		update_state(([kwd: "data:image/png;base64," + MIME.encode_base64(Image.PNG.encode(img), 1)]));
 	}) werror("Error in capture %O:\n%s\n", kwd, describe_backtrace(ex));
 }
@@ -114,12 +112,12 @@ array subaction_power(int count) {
 	string delay = "100";
 	if (state->power_speed == "fast") delay = "50";
 	if (state->power_speed == "slow") delay = "200";
-	return ({"mousemove", "2400", "325", "click", "--repeat", (string)count, "--delay", delay, "1"});
+	return ({"mousemove", "480", "325", "click", "--repeat", (string)count, "--delay", delay, "1"});
 }
 
 array make_upgrade(int pos, int(1bit) upg) { //Upgrade or activate - if upg is 0, will activate
 	return ({"mousemove",
-		(string)(2400 + 650 * (pos > 4) + 150 * upg),
+		(string)(480 + 650 * (pos > 4) + 150 * upg),
 		(string)(325 + 150 * (pos % 5) + 50 * upg),
 		"click", "1",
 	});
@@ -135,15 +133,15 @@ array subaction_upgrades() {
 }
 
 __async__ void action_goals() {
-	await(run_process("xdotool mousemove 3775 300 click 1 sleep 0.5" / " "));
+	await(run_process("xdotool mousemove 1850 300 click 1 sleep 0.5" / " "));
 	await(capture("goals_image"));
 	array cmd = ({"xdotool"});
-	for (int y = 400; y <= 1000; y += 200) cmd += ({"mousemove", "2800", (string)y, "click", "1"});
+	for (int y = 400; y <= 1000; y += 200) cmd += ({"mousemove", "900", (string)y, "click", "1"});
 	await(run_process(cmd + ({"sleep", "0.1", "key", "Escape", "sleep", "0.5"})));
 }
 
 __async__ void action_angels() {
-	await(run_process("xdotool mousemove 2175 720 click 1 sleep 0.5" / " "));
+	await(run_process("xdotool mousemove 255 720 click 1 sleep 0.5" / " "));
 	await(capture("angels_image"));
 	await(run_process("xdotool key Escape sleep 0.5" / " "));
 }
