@@ -25,7 +25,7 @@ export function render(data) {
 			H2("Two tabs go here"),
 			UL(tabs.map(kwd => LI(LABEL([INPUT({type: "radio", name: "imgsel", value: kwd.toLowerCase(), checked: kwd.toLowerCase() === curtab}), kwd])))),
 			tabs.map(kwd => DIV({id: kwd.toLowerCase() + "display"}, [
-				BUTTON({class: "action", "data-action": kwd.toLowerCase()}, kwd), BR(),
+				BUTTON({class: "action", "data-action": kwd.toLowerCase()}, "Refresh"), BR(),
 				IMG({src: state[kwd.toLowerCase() + "_image"] || TRANSPARENT_IMAGE}),
 			])),
 		]),

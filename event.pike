@@ -142,6 +142,12 @@ __async__ void action_goals() {
 	await(run_process(cmd + ({"sleep", "0.1", "key", "Escape", "sleep", "0.5"})));
 }
 
+__async__ void action_angels() {
+	await(run_process("xdotool mousemove 2175 720 click 1 sleep 0.5" / " "));
+	await(capture("angels_image"));
+	await(run_process("xdotool key Escape sleep 0.5" / " "));
+}
+
 __async__ void rollout() {
 	werror("Rolling out!\n");
 	while (state->rollout) {
