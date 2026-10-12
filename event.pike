@@ -1,5 +1,8 @@
 mapping websocket_types = (["event": (["groups": ([])])]);
-mapping state = (["active": enumerate(9, 1, 1), "rollout": 1]); //Shared websocket state
+mapping state = ([ //Shared websocket state
+	"active": enumerate(9, 1, 1),
+	"rollout": 1,
+]);
 
 constant index_html = #{<!DOCTYPE HTML>
 <html lang=en>
@@ -33,15 +36,15 @@ class run_process {
 	void donecb(object proc) {call_out(done, 0, proc);}
 }
 
-void send_updates_all(mapping|void sendme) {
-	string text = Standards.JSON.encode((sendme || state) | (["cmd": "update"]), 4);
+void update_state(mapping changes) {
+	state |= changes;
+	string text = Standards.JSON.encode(state | (["cmd": "update"]), 4);
 	foreach (websocket_types->event->groups[""] || ({ }), object sock)
 		if (sock && sock->state == 1) sock->send_text(text);
 }
 
 void wsmsg_event__rollout(mapping conn, mapping msg) {
-	state->rollout = 1;
-	send_updates_all((["rollout": 1]));
+	update_state((["rollout": 1]));
 	rollout();
 }
 
@@ -97,8 +100,7 @@ __async__ void capture(string kwd) {
 		mixed img = Image.ANY.decode(proc->stdout);
 		while (img->xsize() > 600) img = img->scale(0.5);
 		write("Image %O\n", img);
-		state[kwd] = "data:image/png;base64," + MIME.encode_base64(Image.PNG.encode(img), 1);
-		send_updates_all(([kwd: state[kwd]]));
+		update_state(([kwd: "data:image/png;base64," + MIME.encode_base64(Image.PNG.encode(img), 1)]));
 	}) werror("Error in capture %O:\n%s\n", kwd, describe_backtrace(ex));
 }
 
@@ -132,8 +134,7 @@ __async__ void rollout() {
 		if (await(run_process(({"xdotool", "getactivewindow", "getwindowname"})))->stdout != "AdCap!\n") {
 			//TODO: Pause rather than halt, or have a way to trigger resumption
 			write("Focus is gone, halting\n");
-			state->rollout = 0;
-			send_updates_all((["rollout": 0]));
+			update_state((["rollout": 0]));
 			break;
 		}
 		capture("base_image");
