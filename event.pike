@@ -83,10 +83,15 @@ void ws_handler(array(string) proto, Protocols.WebSocket.Request req) {
 __async__ void rollout() {
 	werror("Rolling out!\n");
 	while (1) {
-		mapping proc = await(run_process(({"xwd", "-root"})));
+		//For some reason the Pike XWD decoder produces something oddly interlaced.
+		//I don't have time to dig into why right now, so I'm letting imagemagick do the work for me.
+		//At some point it would be worth trying to skip the unnecessary reencoding and dependency.
+		//~ mapping proc = await(run_process(({"xwd", "-root"})));
+		mapping proc = await(run_process(({"bash", "-c", "xwd -root | convert xwd:- png:-"})));
 		werror("Proc rc %O %O\n", proc->rc, sizeof(proc->stdout));
-		object img = Image.ANY.decode(proc->stdout);
-		werror("Image %O\n", img);
+		mixed img = Image.ANY.decode(proc->stdout);
+		while (img->xsize() > 600) img = img->scale(0.5);
+		write("Image %O\n", img);
 		state->foo_image = "data:image/png;base64," + MIME.encode_base64(Image.PNG.encode(img), 1);
 		send_updates_all((["foo_image": state->foo_image]));
 		sleep(10);
