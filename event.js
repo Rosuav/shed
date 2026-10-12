@@ -33,6 +33,7 @@ export function render(data) {
 			P([
 				BUTTON({class: "instant", "data-cmd": "rollout"}, "Roll out!"),
 				BUTTON({class: "instant", "data-cmd": "enable"}, "Enable main actions"),
+				BUTTON({class: "instant", "data-cmd": "cycle"}, "[[ CYCLE ]]"), //TODO: Add a simpleconfirm or something
 			]),
 			DIV({id: "maindisplay", style: "background-image: url(" + state.base_image || TRANSPARENT_IMAGE + ")"}, [
 				DIV({id: "checkboxes"}, [1, 2, 3, 4, 5, 6, 7, 8, 9].map(idx =>
