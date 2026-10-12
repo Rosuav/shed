@@ -50,7 +50,7 @@ void wsmsg_event__enqueue(mapping conn, mapping msg) {
 }
 
 void wsmsg_event__rollout(mapping conn, mapping msg) {
-	update_state((["rollout": 1]));
+	update_state((["rollout": !state->rollout]));
 	rollout();
 }
 
