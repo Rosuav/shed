@@ -11,6 +11,7 @@ body {display: flex; gap: 10px;}
 main {flex: 1 1 0;}
 aside {flex: 0 1 auto;}
 .display {width: 850px;}
+#maindisplay {width: 850px; height: 480px; background-size: contain;}
 ul {display: flex; list-style-type: none; padding-left: 0; gap: 8px;}
 ` + tabs.map(kwd => 'ul:not(:has([value="' + kwd.toLowerCase() + '"]:checked)) ~ #' + kwd.toLowerCase() + 'display {display: none;}').join("\n")));
 
@@ -20,7 +21,9 @@ export function render(data) {
 		MAIN([
 			H1("Hello, world"),
 			P(BUTTON({id: "rollout"}, "Roll out!")),
-			IMG({class: "display", src: state.base_image || TRANSPARENT_IMAGE}),
+			DIV({id: "maindisplay", style: "background-image: url(" + state.base_image || TRANSPARENT_IMAGE + ")"}, [
+				"overlaid text example",
+			]),
 		]),
 		ASIDE([
 			H2("Two tabs go here"),
