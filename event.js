@@ -10,6 +10,7 @@ document.head.append(choc.STYLE(`
 body {display: flex; gap: 10px;}
 main {flex: 1 1 0;}
 aside {flex: 0 1 auto;}
+.display {width: 850px;}
 ul {display: flex; list-style-type: none; padding-left: 0; gap: 8px;}
 ` + tabs.map(kwd => 'ul:not(:has([value="' + kwd.toLowerCase() + '"]:checked)) ~ #' + kwd.toLowerCase() + 'display {display: none;}').join("\n")));
 
@@ -19,14 +20,14 @@ export function render(data) {
 		MAIN([
 			H1("Hello, world"),
 			P(BUTTON({id: "rollout"}, "Roll out!")),
-			IMG({src: state.base_image || TRANSPARENT_IMAGE}),
+			IMG({class: "display", src: state.base_image || TRANSPARENT_IMAGE}),
 		]),
 		ASIDE([
 			H2("Two tabs go here"),
 			UL(tabs.map(kwd => LI(LABEL([INPUT({type: "radio", name: "imgsel", value: kwd.toLowerCase(), checked: kwd.toLowerCase() === curtab}), kwd])))),
 			tabs.map(kwd => DIV({id: kwd.toLowerCase() + "display"}, [
 				BUTTON({class: "action", "data-action": kwd.toLowerCase()}, "Refresh"), BR(),
-				IMG({src: state[kwd.toLowerCase() + "_image"] || TRANSPARENT_IMAGE}),
+				IMG({class: "display", src: state[kwd.toLowerCase() + "_image"] || TRANSPARENT_IMAGE}),
 			])),
 		]),
 	]);

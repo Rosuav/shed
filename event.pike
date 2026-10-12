@@ -102,8 +102,8 @@ __async__ void capture(string kwd) {
 		//At some point it would be worth trying to skip the unnecessary reencoding and dependency.
 		//~ mapping proc = await(run_process(({"xwd", "-root"})));
 		mapping proc = await(run_process(({"bash", "-c", "xwd -root | convert xwd:- png:-"})));
-		mixed img = Image.ANY.decode(proc->stdout);
-		while (img->xsize() > 600) img = img->scale(0.5);
+		Image.Image img = Image.ANY.decode(proc->stdout)->scale(0.5);
+		//while (img->xsize() > 600) img = img->scale(0.5);
 		update_state(([kwd: "data:image/png;base64," + MIME.encode_base64(Image.PNG.encode(img), 1)]));
 	}) werror("Error in capture %O:\n%s\n", kwd, describe_backtrace(ex));
 }
