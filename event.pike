@@ -152,11 +152,11 @@ __async__ void rollout() {
 			break;
 		}
 		capture("base_image");
-		await(run_process(({"xdotool",
+		/*await(run_process(({"xdotool",
 			@subaction_power(state->power_count || 75),
 			@subaction_upgrades(),
 			@subaction_power(1),
-		})));
+		})));*/
 		if (sizeof(state->queue)) {
 			[string cmd, array rest] = Array.shift(state->queue);
 			update_state((["queue": rest]));
