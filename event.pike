@@ -138,7 +138,7 @@ __async__ void action_goals() {
 	await(run_process("xdotool mousemove 3775 300 click 1 sleep 0.5" / " "));
 	await(capture("goals_image"));
 	array cmd = ({"xdotool"});
-	for (int y = 400; y <= 1000; y += 200) cmd += ({"mousemove", "2800", (string)y, "click", 1});
+	for (int y = 400; y <= 1000; y += 200) cmd += ({"mousemove", "2800", (string)y, "click", "1"});
 	await(run_process(cmd + ({"sleep", "0.1", "key", "Escape", "sleep", "0.5"})));
 }
 

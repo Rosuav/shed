@@ -1,5 +1,5 @@
 import {lindt, replace_content, DOM} from "https://rosuav.github.io/choc/factory.js";
-const {ASIDE, BUTTON, DIV, H1, H2, IMG, INPUT, LABEL, LI, MAIN, P, STYLE, UL} = choc; //autoimport
+const {ASIDE, BR, BUTTON, DIV, H1, H2, IMG, INPUT, LABEL, LI, MAIN, P, UL} = choc; //autoimport
 
 const state = { };
 const TRANSPARENT_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNgAAIAAAUAAen63NgAAAAASUVORK5CYII=";
@@ -25,7 +25,7 @@ export function render(data) {
 			H2("Two tabs go here"),
 			UL(tabs.map(kwd => LI(LABEL([INPUT({type: "radio", name: "imgsel", value: kwd.toLowerCase(), checked: kwd.toLowerCase() === curtab}), kwd])))),
 			tabs.map(kwd => DIV({id: kwd.toLowerCase() + "display"}, [
-				BUTTON({class: "action", "data-action": kwd.toLowerCase()}, kwd),
+				BUTTON({class: "action", "data-action": kwd.toLowerCase()}, kwd), BR(),
 				IMG({src: state[kwd.toLowerCase() + "_image"] || TRANSPARENT_IMAGE}),
 			])),
 		]),
