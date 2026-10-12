@@ -49,9 +49,13 @@ void wsmsg_event__enqueue(mapping conn, mapping msg) {
 	if (this["action_" + msg->action]) update_state((["queue": state->queue + ({msg->action})]));
 }
 
-void wsmsg_event__rollout(mapping conn, mapping msg) {
-	update_state((["rollout": !state->rollout]));
-	rollout();
+void wsmsg_event__rollout(mapping conn, mapping msg) {update_state((["rollout": !state->rollout])); rollout();}
+void wsmsg_event__enable(mapping conn, mapping msg) {update_state((["enabled": !state->enabled]));}
+void wsmsg_event__active(mapping conn, mapping msg) {
+	if (!intp(msg->idx) || msg->idx < 1 || msg->idx > 9) return;
+	if (msg->state) state->active += ({msg->idx});
+	else state->active -= ({msg->idx});
+	update_state((["enabled": !state->enabled]));
 }
 
 void wsmsg_event__init(mapping conn, mapping msg) {
@@ -156,11 +160,11 @@ __async__ void rollout() {
 			break;
 		}
 		capture("base_image");
-		/*await(run_process(({"xdotool",
+		if (state->enabled) await(run_process(({"xdotool",
 			@subaction_power(state->power_count || 75),
 			@subaction_upgrades(),
 			@subaction_power(1),
-		})));*/
+		})));
 		if (sizeof(state->queue)) {
 			[string cmd, array rest] = Array.shift(state->queue);
 			update_state((["queue": rest]));

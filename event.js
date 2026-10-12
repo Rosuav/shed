@@ -11,7 +11,17 @@ body {display: flex; gap: 10px;}
 main {flex: 1 1 0;}
 aside {flex: 0 1 auto;}
 .display {width: 850px;}
-#maindisplay {width: 850px; height: 480px; background-size: contain;}
+#maindisplay {width: 850px; height: 480px; background-size: contain; position: relative;}
+#checkboxes input {width: 20px; height: 20px; position: absolute;}
+#isactive-1 {left: 211px; top: 209px;}
+#isactive-2 {left: 211px; top: 275px;}
+#isactive-3 {left: 211px; top: 341px;}
+#isactive-4 {left: 211px; top: 407px;}
+#isactive-5 {left: 497px; top: 143px;}
+#isactive-6 {left: 497px; top: 209px;}
+#isactive-7 {left: 497px; top: 275px;}
+#isactive-8 {left: 497px; top: 341px;}
+#isactive-9 {left: 497px; top: 407px;}
 ul {display: flex; list-style-type: none; padding-left: 0; gap: 8px;}
 ` + tabs.map(kwd => 'ul:not(:has([value="' + kwd.toLowerCase() + '"]:checked)) ~ #' + kwd.toLowerCase() + 'display {display: none;}').join("\n")));
 
@@ -20,9 +30,13 @@ export function render(data) {
 	replace_content("body", [
 		MAIN([
 			H1("Hello, world"),
-			P(BUTTON({id: "rollout"}, "Roll out!")),
+			P([
+				BUTTON({class: "instant", "data-cmd": "rollout"}, "Roll out!"),
+				BUTTON({class: "instant", "data-cmd": "enable"}, "Enable main actions"),
+			]),
 			DIV({id: "maindisplay", style: "background-image: url(" + state.base_image || TRANSPARENT_IMAGE + ")"}, [
-				"overlaid text example",
+				DIV({id: "checkboxes"}, [1, 2, 3, 4, 5, 6, 7, 8, 9].map(idx =>
+					INPUT({type: "checkbox", id: "isactive-" + idx, checked: state.active.includes(idx)}))),
 			]),
 		]),
 		ASIDE([
@@ -38,4 +52,5 @@ export function render(data) {
 
 on("click", ".action", e => ws_sync.send({cmd: "enqueue", action: e.match.dataset.action}));
 on("click", "[name=imgsel]", e => curtab = e.match.value);
-on("click", "#rollout", e => ws_sync.send({cmd: "rollout"}));
+on("click", ".instant", e => ws_sync.send({cmd: e.match.dataset.cmd}));
+on("click", "#checkboxes input", e => ws_sync.send({cmd: "active", idx: +e.match.id.replace("isactive-", ""), state: e.match.checked}));
