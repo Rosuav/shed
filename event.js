@@ -32,6 +32,6 @@ export function render(data) {
 	]);
 }
 
-on("click", ".action", e => ws_sync.send({cmd: "action", action: e.match.dataset.action}));
+on("click", ".action", e => ws_sync.send({cmd: "enqueue", action: e.match.dataset.action}));
 on("click", "[name=imgsel]", e => curtab = e.match.value);
 on("click", "#rollout", e => ws_sync.send({cmd: "rollout"}));
