@@ -2,6 +2,7 @@ mapping websocket_types = (["event": (["groups": ([])])]);
 mapping state = ([ //Shared websocket state
 	"active": enumerate(9, 1, 1),
 	"rollout": 1,
+	"queue": ({ }),
 ]);
 
 constant index_html = #{<!DOCTYPE HTML>
@@ -41,6 +42,11 @@ void update_state(mapping changes) {
 	string text = Standards.JSON.encode(state | (["cmd": "update"]), 4);
 	foreach (websocket_types->event->groups[""] || ({ }), object sock)
 		if (sock && sock->state == 1) sock->send_text(text);
+}
+
+void wsmsg_event__enqueue(mapping conn, mapping msg) {
+	//TODO: Args to the command?
+	if (this["action_" + msg->action]) update_state((["queue": state->queue + ({msg->action})]));
 }
 
 void wsmsg_event__rollout(mapping conn, mapping msg) {
@@ -104,7 +110,7 @@ __async__ void capture(string kwd) {
 	}) werror("Error in capture %O:\n%s\n", kwd, describe_backtrace(ex));
 }
 
-array action_power(int count) {
+array subaction_power(int count) {
 	string delay = "100";
 	if (state->power_speed == "fast") delay = "50";
 	if (state->power_speed == "slow") delay = "200";
@@ -119,13 +125,21 @@ array make_upgrade(int pos, int(1bit) upg) { //Upgrade or activate - if upg is 0
 	});
 }
 
-array action_upgrades() {
+array subaction_upgrades() {
 	array ac = state->active;
 	if (state->shuffle_upgrades) {
 		ac += ({ });
 		Array.shuffle(ac);
 	}
 	return make_upgrade(ac[*], 1) * ({ });
+}
+
+__async__ void action_goals() {
+	await(run_process("xdotool mousemove 3775 300 click 1 sleep 0.5" / " "));
+	await(capture("goal_image"));
+	array cmd = ({"xdotool"});
+	for (int y = 400; y <= 1000; y += 200) cmd += ({"mousemove", "2800", (string)y, "click", 1});
+	await(run_process(cmd + ({"sleep", "0.1", "key", "Escape", "sleep", "0.5"})));
 }
 
 __async__ void rollout() {
@@ -139,10 +153,16 @@ __async__ void rollout() {
 		}
 		capture("base_image");
 		await(run_process(({"xdotool",
-			@action_power(state->power_count || 75),
-			@action_upgrades(),
-			@action_power(1),
+			@subaction_power(state->power_count || 75),
+			@subaction_upgrades(),
+			@subaction_power(1),
 		})));
+		if (sizeof(state->queue)) {
+			[string cmd, array rest] = Array.shift(state->queue);
+			update_state((["queue": rest]));
+			await(this["action_" + cmd]());
+			continue;
+		}
 		sleep(3);
 	}
 }
