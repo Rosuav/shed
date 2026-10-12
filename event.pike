@@ -93,8 +93,8 @@ __async__ void rollout() {
 	}
 }
 
-int main() {
-	Protocols.WebSocket.Port(http_handler, ws_handler, 8085);
+int main(int argc, array(string) argv) {
+	Protocols.WebSocket.Port(http_handler, ws_handler, (argc > 1 && (int)argv[1]) || 8085);
 	call_out(rollout, 1);
 	return -1;
 }
