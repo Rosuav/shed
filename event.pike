@@ -80,22 +80,26 @@ void ws_handler(array(string) proto, Protocols.WebSocket.Request req) {
 	sock->onclose = ws_close;
 }
 
+__async__ void capture(string kwd) {
+	if (mixed ex = catch {
+		//For some reason the Pike XWD decoder produces something oddly interlaced.
+		//I don't have time to dig into why right now, so I'm letting imagemagick do the work for me.
+		//At some point it would be worth trying to skip the unnecessary reencoding and dependency.
+		//~ mapping proc = await(run_process(({"xwd", "-root"})));
+		mapping proc = await(run_process(({"bash", "-c", "xwd -root | convert xwd:- png:-"})));
+		werror("Proc rc %O %O\n", proc->rc, sizeof(proc->stdout));
+		mixed img = Image.ANY.decode(proc->stdout);
+		while (img->xsize() > 600) img = img->scale(0.5);
+		write("Image %O\n", img);
+		state[kwd] = "data:image/png;base64," + MIME.encode_base64(Image.PNG.encode(img), 1);
+		send_updates_all(([kwd: state[kwd]]));
+	}) werror("Error in capture %O:\n%s\n", kwd, describe_backtrace(ex));
+}
+
 __async__ void rollout() {
 	werror("Rolling out!\n");
 	while (1) {
-		if (mixed ex = catch {
-			//For some reason the Pike XWD decoder produces something oddly interlaced.
-			//I don't have time to dig into why right now, so I'm letting imagemagick do the work for me.
-			//At some point it would be worth trying to skip the unnecessary reencoding and dependency.
-			//~ mapping proc = await(run_process(({"xwd", "-root"})));
-			mapping proc = await(run_process(({"bash", "-c", "xwd -root | convert xwd:- png:-"})));
-			werror("Proc rc %O %O\n", proc->rc, sizeof(proc->stdout));
-			mixed img = Image.ANY.decode(proc->stdout);
-			while (img->xsize() > 600) img = img->scale(0.5);
-			write("Image %O\n", img);
-			state->foo_image = "data:image/png;base64," + MIME.encode_base64(Image.PNG.encode(img), 1);
-			send_updates_all((["foo_image": state->foo_image]));
-		}) werror("Error in rollout:\n%s\n", describe_backtrace(ex));
+		await(capture("base_image"));
 		sleep(10);
 	}
 }

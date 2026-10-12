@@ -19,7 +19,7 @@ aside {flex: 0 1 auto;}
 		]),
 		ASIDE([
 			H2("Two tabs go here"),
-			IMG({src: state.foo_image || TRANSPARENT_IMAGE}),
+			IMG({src: state.base_image || TRANSPARENT_IMAGE}),
 		]),
 	]);
 }
