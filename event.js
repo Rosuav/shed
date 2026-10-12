@@ -13,15 +13,15 @@ aside {flex: 0 1 auto;}
 .display {width: 850px;}
 #maindisplay {width: 850px; height: 480px; background-size: contain; position: relative;}
 #checkboxes input {width: 20px; height: 20px; position: absolute;}
-#isactive-1 {left: 211px; top: 209px;}
-#isactive-2 {left: 211px; top: 275px;}
-#isactive-3 {left: 211px; top: 341px;}
-#isactive-4 {left: 211px; top: 407px;}
-#isactive-5 {left: 497px; top: 143px;}
-#isactive-6 {left: 497px; top: 209px;}
-#isactive-7 {left: 497px; top: 275px;}
-#isactive-8 {left: 497px; top: 341px;}
-#isactive-9 {left: 497px; top: 407px;}
+#isactive-1 {left: 175px; top: 199px;}
+#isactive-2 {left: 175px; top: 265px;}
+#isactive-3 {left: 175px; top: 331px;}
+#isactive-4 {left: 175px; top: 397px;}
+#isactive-5 {left: 461px; top: 133px;}
+#isactive-6 {left: 461px; top: 199px;}
+#isactive-7 {left: 461px; top: 265px;}
+#isactive-8 {left: 461px; top: 331px;}
+#isactive-9 {left: 461px; top: 397px;}
 ul {display: flex; list-style-type: none; padding-left: 0; gap: 8px;}
 ` + tabs.map(kwd => 'ul:not(:has([value="' + kwd.toLowerCase() + '"]:checked)) ~ #' + kwd.toLowerCase() + 'display {display: none;}').join("\n")));
 
