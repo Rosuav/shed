@@ -5,17 +5,17 @@ const state = { };
 const TRANSPARENT_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR42mNgAAIAAAUAAen63NgAAAAASUVORK5CYII=";
 const tabs = ["Goals", "Angels"];
 let curtab = "goals";
-
-export function render(data) {
-	Object.assign(state, data);
-	replace_content("body", [
-		STYLE(`
+document.head.append(choc.STYLE(`
 * {box-sizing: border-box;}
 body {display: flex; gap: 10px;}
 main {flex: 1 1 0;}
 aside {flex: 0 1 auto;}
 ul {display: flex; list-style-type: none; padding-left: 0; gap: 8px;}
-` + tabs.map(kwd => "ul:not(:has(#" + kwd.toLowerCase() + ":checked)) ~ #" + kwd.toLowerCase() + "display {display: none;}").join("\n")),
+` + tabs.map(kwd => "ul:not(:has(#" + kwd.toLowerCase() + ":checked)) ~ #" + kwd.toLowerCase() + "display {display: none;}").join("\n")));
+
+export function render(data) {
+	Object.assign(state, data);
+	replace_content("body", [
 		MAIN([
 			H1("Hello, world"),
 			P(BUTTON({id: "rollout"}, "Roll out!")),
