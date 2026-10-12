@@ -1,6 +1,7 @@
 mapping websocket_types = (["event": (["groups": ([])])]);
 mapping state = ([ //Shared websocket state
 	"active": enumerate(9, 1, 1),
+	"power_speed": "fast", //TODO: UI to change this
 	"rollout": 1,
 	"queue": ({ }),
 ]);
