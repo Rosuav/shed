@@ -30,3 +30,5 @@ ul {display: flex; list-style-type: none; padding-left: 0; gap: 8px;}
 		]),
 	]);
 }
+
+on("click", ".action", e => ws_sync.send({cmd: "action", action: e.match.dataset.action}));
