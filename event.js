@@ -13,10 +13,10 @@ aside {flex: 0 1 auto;}
 .display {width: 850px;}
 #maindisplay {width: 850px; height: 480px; background-size: contain; position: relative;}
 #checkboxes input {width: 20px; height: 20px; position: absolute;}
-#isactive-1 {left: 160px; top: 196px;}
-#isactive-2 {left: 160px; top: 262px;}
-#isactive-3 {left: 160px; top: 328px;}
-#isactive-4 {left: 160px; top: 394px;}
+#isactive-1 {left: 150px; top: 196px;}
+#isactive-2 {left: 150px; top: 262px;}
+#isactive-3 {left: 150px; top: 328px;}
+#isactive-4 {left: 150px; top: 394px;}
 #isactive-5 {left: 455px; top: 130px;}
 #isactive-6 {left: 455px; top: 196px;}
 #isactive-7 {left: 455px; top: 262px;}
