@@ -18,7 +18,7 @@ ul {display: flex; list-style-type: none; padding-left: 0; gap: 8px;}
 ` + tabs.map(kwd => "ul:not(:has(#" + kwd.toLowerCase() + ":checked)) ~ #" + kwd.toLowerCase() + "display {display: none;}").join("\n")),
 		MAIN([
 			H1("Hello, world"),
-			P(BUTTON({class: "action", "data-action": "rollout"}, "Roll out!")),
+			P(BUTTON({id: "rollout"}, "Roll out!")),
 			IMG({src: state.base_image || TRANSPARENT_IMAGE}),
 		]),
 		ASIDE([
@@ -34,3 +34,4 @@ ul {display: flex; list-style-type: none; padding-left: 0; gap: 8px;}
 
 on("click", ".action", e => ws_sync.send({cmd: "action", action: e.match.dataset.action}));
 on("click", "[name=imgsel]", e => curtab = e.match.value);
+on("click", "#rollout", e => ws_sync.send({cmd: "rollout"}));
