@@ -1,5 +1,5 @@
 mapping websocket_types = (["event": (["groups": ([])])]);
-mapping state = (["active": enumerate(9, 1, 1)]); //Shared websocket state
+mapping state = (["active": enumerate(9, 1, 1), "rollout": 1]); //Shared websocket state
 
 constant index_html = #{<!DOCTYPE HTML>
 <html lang=en>
@@ -37,6 +37,12 @@ void send_updates_all(mapping|void sendme) {
 	string text = Standards.JSON.encode((sendme || state) | (["cmd": "update"]), 4);
 	foreach (websocket_types->event->groups[""] || ({ }), object sock)
 		if (sock && sock->state == 1) sock->send_text(text);
+}
+
+void wsmsg_event__rollout(mapping conn, mapping msg) {
+	state->rollout = 1;
+	send_updates_all((["rollout": 1]));
+	rollout();
 }
 
 void wsmsg_event__init(mapping conn, mapping msg) {
@@ -122,10 +128,12 @@ array action_upgrades() {
 
 __async__ void rollout() {
 	werror("Rolling out!\n");
-	while (1) {
+	while (state->rollout) {
 		if (await(run_process(({"xdotool", "getactivewindow", "getwindowname"})))->stdout != "AdCap!\n") {
 			//TODO: Pause rather than halt, or have a way to trigger resumption
 			write("Focus is gone, halting\n");
+			state->rollout = 0;
+			send_updates_all((["rollout": 0]));
 			break;
 		}
 		capture("base_image");
