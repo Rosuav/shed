@@ -1,5 +1,5 @@
 mapping websocket_types = (["event": (["groups": ([])])]);
-mapping state = ([]); //Shared websocket state
+mapping state = (["active": enumerate(9, 1, 1)]); //Shared websocket state
 
 constant index_html = #{<!DOCTYPE HTML>
 <html lang=en>
@@ -96,11 +96,45 @@ __async__ void capture(string kwd) {
 	}) werror("Error in capture %O:\n%s\n", kwd, describe_backtrace(ex));
 }
 
+array action_power(int count) {
+	string delay = "100";
+	if (state->power_speed == "fast") delay = "50";
+	if (state->power_speed == "slow") delay = "200";
+	return ({"mousemove", "2400", "325", "click", "--repeat", (string)count, "--delay", delay, "1"});
+}
+
+array make_upgrade(int pos, int(1bit) upg) { //Upgrade or activate - if upg is 0, will activate
+	return ({"mousemove",
+		(string)(2400 + 650 * (pos > 4) + 150 * upg),
+		(string)(325 + 150 * (pos % 5) + 50 * upg),
+		"click", "1",
+	});
+}
+
+array action_upgrades() {
+	array ac = state->active;
+	if (state->shuffle_upgrades) {
+		ac += ({ });
+		Array.shuffle(ac);
+	}
+	return make_upgrade(ac[*], 1) * ({ });
+}
+
 __async__ void rollout() {
 	werror("Rolling out!\n");
 	while (1) {
-		await(capture("base_image"));
-		sleep(10);
+		if (await(run_process(({"xdotool", "getactivewindow", "getwindowname"})))->stdout != "AdCap!\n") {
+			//TODO: Pause rather than halt, or have a way to trigger resumption
+			write("Focus is gone, halting\n");
+			break;
+		}
+		capture("base_image");
+		await(run_process(({"xdotool",
+			@action_power(state->power_count || 75),
+			@action_upgrades(),
+			@action_power(1),
+		})));
+		sleep(3);
 	}
 }
 
