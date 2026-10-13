@@ -165,7 +165,7 @@ __async__ void action_cycle() {
 
 __async__ void rollout() {
 	werror("Rolling out!\n");
-	while (state->rollout) {
+	while (state->rollout) if (mixed ex = catch {
 		if (await(run_process(({"xdotool", "getactivewindow", "getwindowname"})))->stdout != "AdCap!\n") {
 			//TODO: Pause rather than halt, or have a way to trigger resumption
 			write("Focus is gone, halting\n");
@@ -185,6 +185,9 @@ __async__ void rollout() {
 			continue;
 		}
 		sleep(3);
+	}) {
+		werror("Exception during rollout! See log.\n%s\n", describe_error(ex));
+		Stdio.append_file("event-rollout.log", sprintf("%sException during rollout:\n%s\n\n", ctime(time()), describe_backtrace(ex)));
 	}
 }
 
