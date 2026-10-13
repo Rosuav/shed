@@ -154,7 +154,7 @@ __async__ void action_angels() {
 __async__ void action_cycle() {
 	await(run_process(
 		//The cycling itself
-		"mousemove 255 720 click 1 sleep 0.5 mousemove 1640 710 click 1 sleep 0.5 mousemove 710 800 click 1 sleep 0.5 key Escape Escape sleep 0.25" / " "
+		"xdotool mousemove 255 720 click 1 sleep 0.5 mousemove 1640 710 click 1 sleep 0.5 mousemove 710 800 click 1 sleep 0.5 key Escape Escape sleep 0.25" / " "
 		//Start some money moving
 		+ subaction_power(1) + make_upgrade(1, 0) + subaction_power(20)
 		//Upgrade everything once, and activate
