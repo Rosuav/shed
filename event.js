@@ -31,8 +31,8 @@ export function render(data) {
 		MAIN([
 			H1("Hello, world"),
 			P([
-				BUTTON({class: "instant", "data-cmd": "rollout"}, "Roll out!"),
-				BUTTON({class: "instant", "data-cmd": "enable"}, "Enable main actions"),
+				BUTTON({class: "instant", "data-cmd": "rollout"}, state.rollout ? "Rolling out!" : "Roll out!"),
+				BUTTON({class: "instant", "data-cmd": "enable"}, (state.enable ? "Dis" : "En") + "able main actions"),
 				BUTTON({class: "instant", "data-cmd": "cycle"}, "[[ CYCLE ]]"), //TODO: Add a simpleconfirm or something
 			]),
 			DIV({id: "maindisplay", style: "background-image: url(" + state.base_image || TRANSPARENT_IMAGE + ")"}, [
