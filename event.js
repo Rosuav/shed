@@ -10,6 +10,7 @@ document.head.append(choc.STYLE(`
 body {display: flex; gap: 10px;}
 main {flex: 1 1 0;}
 aside {flex: 0 1 auto;}
+.buttonbox {display: flex; gap: 8px;}
 .display {width: 850px;}
 #maindisplay {width: 850px; height: 480px; background-size: contain; position: relative;}
 #checkboxes input {width: 20px; height: 20px; position: absolute;}
@@ -30,7 +31,7 @@ export function render(data) {
 	replace_content("body", [
 		MAIN([
 			H1("Hello, world"),
-			P([
+			P({class: "buttonbox"}, [
 				BUTTON({class: "instant", "data-cmd": "rollout"}, state.rollout ? "Rolling out!" : "Roll out!"),
 				BUTTON({class: "instant", "data-cmd": "enable"}, (state.enable ? "Dis" : "En") + "able main actions"),
 				BUTTON({class: "instant", "data-cmd": "cycle"}, "[[ CYCLE ]]"), //TODO: Add a simpleconfirm or something
