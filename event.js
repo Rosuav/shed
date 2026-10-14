@@ -39,6 +39,7 @@ export function render(data) {
 				BUTTON({class: "action", "data-action": "batchsize"}, "Batch size"),
 				BUTTON({class: "action", "data-action": "cash_upgrades"}, "Cash upg"),
 				BUTTON({class: "action", "data-action": "angel_upgrades"}, "Angel upg"),
+				BUTTON({class: "action", "data-action": "pull"}, "Pull"),
 			]),
 			DIV({id: "maindisplay", style: "background-image: url(" + state.base_image || TRANSPARENT_IMAGE + ")"}, [
 				DIV({id: "checkboxes"}, [1, 2, 3, 4, 5, 6, 7, 8, 9].map(idx =>
