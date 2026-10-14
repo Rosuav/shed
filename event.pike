@@ -161,9 +161,9 @@ __async__ void action_angels() {
 }
 
 array(string) subaction_do_upgrades(int(1bit) angels, int qty) {
-	return "mousemove 2175 520 click 1 sleep 0.5" / " "
-		+ ("mousemove 2875 250 click 1" / " ") * angels
-		+ ({"mousemove", "2750", "680", "click", "--repeat", (string)qty, "--delay", "50", "1", "sleep", "0.5", "key", "Escape"});
+	return "mousemove 255 520 click 1 sleep 0.5" / " "
+		+ ("mousemove 955 250 click 1" / " ") * angels
+		+ ({"mousemove", "830", "680", "click", "--repeat", (string)qty, "--delay", "50", "1", "sleep", "0.5", "key", "Escape"});
 }
 
 __async__ void action_cycle() {
