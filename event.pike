@@ -60,6 +60,7 @@ void wsmsg_event__active(mapping conn, mapping msg) {
 	update_state((["enabled": !state->enabled]));
 }
 
+//TODO: Have a way to reload the server. Either rework so we can hot reload or make it dump state and bounce.
 void wsmsg_event__pull(mapping conn, mapping msg) {
 	run_process(({"git", "pull"}));
 }
