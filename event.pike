@@ -57,7 +57,6 @@ void wsmsg_event__active(mapping conn, mapping msg) {
 	if (!intp(msg->idx) || msg->idx < 1 || msg->idx > 9) return;
 	if (msg->state) state->active += ({msg->idx});
 	else state->active -= ({msg->idx});
-	update_state((["enabled": !state->enabled]));
 }
 
 //TODO: Have a way to reload the server. Either rework so we can hot reload or make it dump state and bounce.
