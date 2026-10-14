@@ -52,11 +52,16 @@ void wsmsg_event__enqueue(mapping conn, mapping msg) {
 
 void wsmsg_event__rollout(mapping conn, mapping msg) {update_state((["rollout": !state->rollout])); rollout();}
 void wsmsg_event__enable(mapping conn, mapping msg) {update_state((["enabled": !state->enabled]));}
+void wsmsg_event__activate(mapping conn, mapping msg) {update_state((["activate": !state->activate]));}
 void wsmsg_event__active(mapping conn, mapping msg) {
 	if (!intp(msg->idx) || msg->idx < 1 || msg->idx > 9) return;
 	if (msg->state) state->active += ({msg->idx});
 	else state->active -= ({msg->idx});
 	update_state((["enabled": !state->enabled]));
+}
+
+void wsmsg_event__pull(mapping conn, mapping msg) {
+	run_process(({"git", "pull"}));
 }
 
 void wsmsg_event__init(mapping conn, mapping msg) {
@@ -137,6 +142,10 @@ array subaction_upgrades() {
 	return make_upgrade(ac[*], 1) * ({ });
 }
 
+array subaction_activations() {
+	return state->activate ? make_upgrade(enumerate(9, 1, 1)[*], 0) * ({ }) : ({ });
+}
+
 __async__ void action_goals() {
 	await(run_process("xdotool mousemove 1850 300 click 1 sleep 0.5" / " "));
 	await(capture("goals_image"));
@@ -151,6 +160,12 @@ __async__ void action_angels() {
 	await(run_process("xdotool key Escape sleep 0.5" / " "));
 }
 
+array(string) subaction_do_upgrades(int(1bit) angels, int qty) {
+	return "mousemove 2175 520 click 1 sleep 0.5" / " "
+		+ ("mousemove 2875 250 click 1" / " ") * angels
+		+ ({"mousemove", "2750", "680", "click", "--repeat", (string)qty, "--delay", "50", "1", "sleep", "0.5", "key", "Escape"});
+}
+
 __async__ void action_cycle() {
 	await(run_process(
 		//The cycling itself
@@ -162,6 +177,10 @@ __async__ void action_cycle() {
 		//TODO: Power again, then managers, then power, then upgrades and (maybe) angel upgrades
 	));
 }
+
+__async__ void action_batchsize() {await(run_process("xdotool mousemove 1780 75 click 1" / " "));}
+__async__ void action_cash_upgrades() {await(run_process(({"xdotool"}) + subaction_do_upgrades(0, 50)));}
+__async__ void action_angel_upgrades() {await(run_process(({"xdotool"}) + subaction_do_upgrades(1, 20)));}
 
 __async__ void rollout() {
 	werror("Rolling out!\n");
@@ -176,6 +195,7 @@ __async__ void rollout() {
 		if (state->enabled) await(run_process(({"xdotool",
 			@subaction_power(state->power_count || 75),
 			@subaction_upgrades(),
+			@subaction_activations(),
 			@subaction_power(1),
 		})));
 		if (sizeof(state->queue)) {
