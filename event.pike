@@ -160,9 +160,9 @@ __async__ void action_angels() {
 	await(run_process("xdotool key Escape sleep 0.5" / " "));
 }
 
-array(string) subaction_do_upgrades(int(1bit) angels, int qty) {
-	return "mousemove 255 520 click 1 sleep 0.5" / " "
-		+ ("mousemove 955 250 click 1" / " ") * angels
+array(string) subaction_do_upgrades(string which, int qty) {
+	return ({"mousemove", "255", which == "managers" ? "620" : "520", "click", "1", "sleep", "0.5"})
+		+ ("mousemove 955 250 click 1" / " ") * (which == "angel")
 		+ ({"mousemove", "830", "680", "click", "--repeat", (string)qty, "--delay", "50", "1", "sleep", "0.5", "key", "Escape"});
 }
 
@@ -179,8 +179,9 @@ __async__ void action_cycle() {
 }
 
 __async__ void action_batchsize() {await(run_process("xdotool mousemove 1780 75 click 1" / " "));}
-__async__ void action_cash_upgrades() {await(run_process(({"xdotool"}) + subaction_do_upgrades(0, 50)));}
-__async__ void action_angel_upgrades() {await(run_process(({"xdotool"}) + subaction_do_upgrades(1, 20)));}
+__async__ void action_cash_upgrades() {await(run_process(({"xdotool"}) + subaction_do_upgrades("cash", 50)));}
+__async__ void action_angel_upgrades() {await(run_process(({"xdotool"}) + subaction_do_upgrades("angel", 20)));}
+__async__ void action_managers() {await(run_process(({"xdotool"}) + subaction_do_upgrades("managers", 20)));}
 
 __async__ void rollout() {
 	werror("Rolling out!\n");
@@ -204,7 +205,7 @@ __async__ void rollout() {
 			await(this["action_" + cmd]());
 			continue;
 		}
-		sleep(3);
+		sleep(2);
 	}) {
 		werror("Exception during rollout! See log.\n%s\n", describe_error(ex));
 		Stdio.append_file("event-rollout.log", sprintf("%sException during rollout:\n%s\n\n", ctime(time()), describe_backtrace(ex)));
