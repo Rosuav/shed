@@ -13,7 +13,8 @@ try:
 except FileNotFoundError:
 	import requests # ImportError? pip install requests
 	print("Downloading Steam appid list...")
-	r = requests.get("https://api.steampowered.com/ISteamApps/GetAppList/v0001/")
+	# FIXME: Currently getting 403, may need to set headers
+	r = requests.get("https://partner.steam-api.com/IStoreService/GetAppList/v1/?max_results=50000")
 	r.raise_for_status()
 	data = r.json()
 	appids = {app["name"]: app["appid"] for app in data["applist"]["apps"]["app"]}
