@@ -180,6 +180,7 @@ __async__ void action_cycle() {
 }
 
 __async__ void action_batchsize() {await(run_process("xdotool mousemove 1780 75 click 1" / " "));}
+__async__ void action_batchback() {await(run_process("xdotool mousemove 1780 75 click --repeat 4 1" / " "));}
 __async__ void action_cash_upgrades() {await(run_process(({"xdotool"}) + subaction_do_upgrades("cash", 50)));}
 __async__ void action_angel_upgrades() {await(run_process(({"xdotool"}) + subaction_do_upgrades("angel", 20)));}
 __async__ void action_managers() {await(run_process(({"xdotool"}) + subaction_do_upgrades("managers", 9)));}
