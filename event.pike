@@ -61,7 +61,8 @@ void wsmsg_event__active(mapping conn, mapping msg) {
 
 //TODO: Have a way to reload the server. Either rework so we can hot reload or make it dump state and bounce.
 void wsmsg_event__pull(mapping conn, mapping msg) {
-	run_process(({"git", "pull"}));
+	werror("Trying to pull changes...\n");
+	run_process(({"git", "pull"}))->then() {werror("Changes pulled. RC %O\n------\n%s\n------\n", __ARGS__[0]->rc, __ARGS__[0]->stdout);};
 }
 
 void wsmsg_event__init(mapping conn, mapping msg) {
