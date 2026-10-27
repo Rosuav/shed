@@ -59,7 +59,7 @@ export function render(data) {
 }
 
 //Holdin Shift uses the altaction instead of the action. But if there's no altaction, do the action.s
-on("click", ".action", e => ws_sync.send({cmd: "enqueue", action: e.shiftPressed && e.match.dataset.altaction || e.match.dataset.action}));
+on("click", ".action", e => ws_sync.send({cmd: "enqueue", action: e.shiftKey && e.match.dataset.altaction || e.match.dataset.action}));
 on("click", "[name=imgsel]", e => curtab = e.match.value);
 on("click", ".instant", e => ws_sync.send({cmd: e.match.dataset.cmd}));
 on("click", "#checkboxes input", e => ws_sync.send({cmd: "active", idx: +e.match.id.replace("isactive-", ""), state: e.match.checked}));
