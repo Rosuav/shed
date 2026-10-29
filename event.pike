@@ -164,13 +164,13 @@ __async__ void action_angels() {
 array(string) subaction_do_upgrades(string which, int qty) {
 	return ({"mousemove", "255", which == "managers" ? "620" : "520", "click", "1", "sleep", "0.5"})
 		+ ("mousemove 955 250 click 1" / " ") * (which == "angel")
-		+ ({"mousemove", "830", "680", "click", "--repeat", (string)qty, "--delay", "50", "1", "sleep", "0.5", "key", "Escape"});
+		+ ({"mousemove", "830", "680", "click", "--repeat", (string)qty, "--delay", "100", "1", "sleep", "0.5", "key", "Escape"});
 }
 
 __async__ void action_cycle() {
 	await(run_process(
 		//The cycling itself
-		"xdotool mousemove 255 720 click 1 sleep 0.5 mousemove 1640 710 click 1 sleep 0.5 mousemove 710 800 click 1 sleep 0.5 key --delay 0.25 Escape Escape Escape sleep 0.25" / " "
+		"xdotool mousemove 255 720 click 1 sleep 0.5 mousemove 1640 710 click 1 sleep 0.5 mousemove 710 800 click 1 sleep 0.5 key --delay 0.5 Escape Escape sleep 0.25" / " "
 		//Start some money moving
 		+ subaction_power(1) + make_upgrade(1, 0) + subaction_power(20)
 		//Upgrade everything once, and activate
