@@ -28,11 +28,13 @@ def main(stdscr):
 		controls = [
 			fd.controls.brightness,
 			fd.controls.contrast,
-			#fd.controls.focus_absolute, # Can only be set if autofocus is disabled
-			#fd.controls.exposure_time_absolute, # Ditto autoexposure
+			fd.controls.focus_absolute,
+			#fd.controls.exposure_time_absolute, # If needed, would have to disable autoexposure same as autofocus
 			fd.controls.zoom_absolute, fd.controls.pan_absolute, fd.controls.tilt_absolute, # if you need to move it around
 		]
 		initial_values = [ctrl.value for ctrl in controls]
+		orig_focus = fd.controls.focus_automatic_continuous.value
+		fd.controls.focus_automatic_continuous.value = False # Can only set focus when autofocus is disabled
 		try:
 			curctrl = 0
 			while True:
@@ -50,6 +52,7 @@ def main(stdscr):
 		finally:
 			# Reset all settings when we're done.
 			for ctrl, ctrl.value in zip(controls, initial_values): pass
+			fd.controls.focus_automatic_continuous.value = orig_focus
 
 try: curses.wrapper(main)
 except KeyboardInterrupt: pass # Ctrl-C is a valid termination signal, either manually or from VLC ending
