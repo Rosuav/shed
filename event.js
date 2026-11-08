@@ -34,7 +34,7 @@ export function render(data) {
 			P({class: "buttonbox"}, [
 				BUTTON({class: "instant", "data-cmd": "rollout"}, state.rollout ? "Rolling out!" : "Roll out!"),
 				BUTTON({class: "instant", "data-cmd": "enable"}, (state.enabled ? "Dis" : "En") + "able main"),
-				BUTTON({class: "instant", "data-cmd": "activate"}, state.activate ? "Activate" : "Activating"),
+				BUTTON({class: "instant", "data-cmd": "activate"}, state.activate ? "Activating" : "Activate"),
 				BUTTON({class: "action", "data-action": "cycle"}, "[[ CYCLE ]]"), //TODO: Add a simpleconfirm or something
 				BUTTON({class: "action", "data-action": "batchsize", "data-altaction": "batchback"}, "Batch size"),
 				BUTTON({class: "action", "data-action": "cash_upgrades"}, "Cash upg"),
