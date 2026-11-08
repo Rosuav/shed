@@ -184,6 +184,7 @@ __async__ void action_batchback() {await(run_process("xdotool mousemove 1780 75 
 __async__ void action_cash_upgrades() {await(run_process(({"xdotool"}) + subaction_do_upgrades("cash", 50)));}
 __async__ void action_angel_upgrades() {await(run_process(({"xdotool"}) + subaction_do_upgrades("angel", 20)));}
 __async__ void action_managers() {await(run_process(({"xdotool"}) + subaction_do_upgrades("managers", 9)));}
+__async__ void action_buy_all() {await(run_process(({"xdotool"}) + make_upgrade(enumerate(9, 1, 1)[*], 1)));}
 
 __async__ void rollout() {
 	werror("Rolling out!\n");
