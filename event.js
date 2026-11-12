@@ -38,8 +38,8 @@ export function render(data) {
 				BUTTON({class: "action", "data-action": "cycle"}, "[[ CYCLE ]]"), //TODO: Add a simpleconfirm or something
 				BUTTON({class: "action", "data-action": "batchsize", "data-altaction": "batchback"}, "Batch size"),
 				BUTTON({class: "action", "data-action": "buy_all"}, "Buy all"),
-				BUTTON({class: "action", "data-action": "cash_upgrades"}, "Cash upg"),
-				BUTTON({class: "action", "data-action": "angel_upgrades"}, "Angel upg"),
+				BUTTON({class: "action", "data-action": "cash_upgrades", "data-altaction": "cash_upgrade"}, "Cash upg"),
+				BUTTON({class: "action", "data-action": "angel_upgrades", "data-altaction": "angel_upgrade"}, "Angel upg"),
 				BUTTON({class: "action", "data-action": "managers"}, "Managers"),
 				BUTTON({class: "instant", "data-cmd": "pull"}, "Pull"),
 			]),

@@ -58,6 +58,8 @@ void wsmsg_event__active(mapping conn, mapping msg) {
 	if (msg->state) state->active += ({msg->idx});
 	else state->active -= ({msg->idx});
 }
+void wsmsg_event__set_angels(mapping conn, mapping msg) {update_state((["angel_upgrade_count": (int)msg->count]));}
+void wsmsg_event__set_cash(mapping conn, mapping msg) {update_state((["cash_upgrade_count": (int)msg->count]));}
 
 //TODO: Have a way to reload the server. Either rework so we can hot reload or make it dump state and bounce.
 void wsmsg_event__pull(mapping conn, mapping msg) {
@@ -181,8 +183,10 @@ __async__ void action_cycle() {
 
 __async__ void action_batchsize() {await(run_process("xdotool mousemove 1780 75 click 1" / " "));}
 __async__ void action_batchback() {await(run_process("xdotool mousemove 1780 75 click --repeat 4 1" / " "));}
-__async__ void action_cash_upgrades() {await(run_process(({"xdotool"}) + subaction_do_upgrades("cash", 50)));}
-__async__ void action_angel_upgrades() {await(run_process(({"xdotool"}) + subaction_do_upgrades("angel", 20)));}
+__async__ void action_cash_upgrade() {await(run_process(({"xdotool"}) + subaction_do_upgrades("cash", 1)));}
+__async__ void action_cash_upgrades() {await(run_process(({"xdotool"}) + subaction_do_upgrades("cash", state->cash_upgrade_count || 50)));}
+__async__ void action_angel_upgrade() {await(run_process(({"xdotool"}) + subaction_do_upgrades("angel", 1)));}
+__async__ void action_angel_upgrades() {await(run_process(({"xdotool"}) + subaction_do_upgrades("angel", state->angel_upgrade_count || 20)));}
 __async__ void action_managers() {await(run_process(({"xdotool"}) + subaction_do_upgrades("managers", 9)));}
 __async__ void action_buy_all() {await(run_process(({"xdotool"}) + make_upgrade(enumerate(9, 1, 1)[*], 1) * ({ })));}
 
