@@ -195,18 +195,19 @@ __async__ void rollout() {
 	werror("Rolling out!\n");
 	while (state->rollout) if (mixed ex = catch {
 		if (await(run_process(({"xdotool", "getactivewindow", "getwindowname"})))->stdout != "AdCap!\n") {
-			//TODO: Pause rather than halt, or have a way to trigger resumption
 			write("Focus is gone, halting\n");
 			update_state((["rollout": 0]));
 			break;
 		}
 		capture("base_image");
-		if (state->enabled) await(run_process(({"xdotool",
-			@subaction_power(state->power_count || 75),
-			@subaction_upgrades(),
-			@subaction_activations(),
-			@subaction_power(1),
-		})));
+		if (state->enabled) {
+			await(run_process(({"xdotool", @subaction_power(state->power_count || 75)})));
+			await(run_process(({"xdotool",
+				@subaction_upgrades(),
+				@subaction_activations(),
+				@subaction_power(1),
+			})));
+		}
 		if (sizeof(state->queue)) {
 			[string cmd, array rest] = Array.shift(state->queue);
 			update_state((["queue": rest]));
