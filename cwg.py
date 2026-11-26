@@ -109,7 +109,7 @@ def read_row(screen, xpos, ypos, width, show_unit=False, assume_decimal=False):
 # print(read_row(ImageGrab.grab(), 984, 620, 50, assume_decimal=True))
 
 cols = [594, 958]
-rows = [159, 276, 393, 508]
+rows = [159, 275, 392, 508]
 
 def read_numbers(screen):
 	ret = []
